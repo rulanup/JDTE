@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "justdirethings:ferricore_ingot"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "T": {
+      "item": "minecraft:redstone_torch"
+    }
+  },
+  "pattern": [
+    "RQR",
+    "QFQ",
+    "RTR"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:underclock_upgrade"
+  }
+}

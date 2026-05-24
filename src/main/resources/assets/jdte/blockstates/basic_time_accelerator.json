@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "jdte:block/basic_time_accelerator" },
+    "facing=up": { "model": "jdte:block/basic_time_accelerator" },
+    "facing=north": { "model": "jdte:block/basic_time_accelerator" },
+    "facing=south": { "model": "jdte:block/basic_time_accelerator" },
+    "facing=west": { "model": "jdte:block/basic_time_accelerator" },
+    "facing=east": { "model": "jdte:block/basic_time_accelerator" }
+  }
+}

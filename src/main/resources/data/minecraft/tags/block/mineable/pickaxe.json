@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "jdte:basic_time_accelerator",
+    "jdte:advanced_time_accelerator"
+  ]
+}

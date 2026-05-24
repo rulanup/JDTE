@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "jdte:block/time1_top",
+    "side": "jdte:block/time1_side"
+  }
+}

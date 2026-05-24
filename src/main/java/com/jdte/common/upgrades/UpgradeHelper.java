@@ -1,0 +1,210 @@
+package com.jdte.common.upgrades;
+
+import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
+import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
+import com.jdte.common.blockentities.TimeAcceleratorMachine;
+import com.jdte.common.items.UpgradeCardItem;
+import com.jdte.mixin.EnergyStorageAccessor;
+import com.jdte.mixin.FluidTankAccessor;
+import com.jdte.setup.JDTEAttachments;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+
+public class UpgradeHelper {
+    public static UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
+        if (machine instanceof com.jdte.common.blockentities.ExtendedUpgradeMachine) {
+            return machine.getData(JDTEAttachments.EXTENDED_UPGRADE_HANDLER);
+        }
+        return machine.getData(JDTEAttachments.UPGRADE_HANDLER);
+    }
+
+    public static boolean isUpgrade(ItemStack stack) {
+        return stack.getItem() instanceof UpgradeCardItem;
+    }
+
+    public static boolean isUpgrade(ItemStack stack, UpgradeType type) {
+        return stack.getItem() instanceof UpgradeCardItem upgradeCard && upgradeCard.getType() == type;
+    }
+
+    public static int countUpgrades(BaseMachineBE machine, UpgradeType type) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        int count = 0;
+        for (int i = 0; i < handler.getSlots(); i++) {
+            if (isUpgrade(handler.getStackInSlot(i), type)) {
+                count++;
+            }
+        }
+        return Math.min(count, type.getMaxPerMachine());
+    }
+
+    public static int adjustEnergyCapacity(BaseMachineBE machine, int original) {
+        return multiplyByPowersOfTwo(original, countUpgrades(machine, UpgradeType.CAPACITY));
+    }
+
+    public static int adjustFluidCapacity(BaseMachineBE machine, int original) {
+        int upgrades = countUpgrades(machine, UpgradeType.CAPACITY) + countUpgrades(machine, UpgradeType.FLUID);
+        return multiplyByPowersOfTwo(original, upgrades);
+    }
+
+    public static int adjustEnergyCost(BaseMachineBE machine, int original) {
+        if (original <= 0) {
+            return original;
+        }
+        if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
+            return Math.max(1, (int) Math.ceil(original * 0.2D));
+        }
+        if (countUpgrades(machine, UpgradeType.OVERCLOCK) > 0) {
+            long result = (long) original * 3L;
+            return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
+        }
+        return original;
+    }
+
+    public static int getEffectiveTickSpeed(BaseMachineBE machine, int original) {
+        if (!usesLockedDelay(machine)) {
+            return original;
+        }
+        if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
+            return 40;
+        }
+        if (countUpgrades(machine, UpgradeType.OVERCLOCK) > 0) {
+            return 1;
+        }
+        return original;
+    }
+
+    public static boolean shouldRunOverclock(BaseMachineBE machine) {
+        return usesLockedDelay(machine) && hasOverclock(machine) && countUpgrades(machine, UpgradeType.UNDERCLOCK) == 0;
+    }
+
+    public static boolean usesLockedDelay(BaseMachineBE machine) {
+        return !(machine instanceof TimeAcceleratorMachine);
+    }
+
+    public static boolean hasOverclock(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0;
+    }
+
+    public static boolean hasUndercLock(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0;
+    }
+
+    public static boolean hasGeneratorUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.GENERATOR) > 0;
+    }
+
+    public static double getMaxAreaRadius(BaseMachineBE machine) {
+        int rangeUpgrades = countUpgrades(machine, UpgradeType.RANGE);
+        return 5.0D * (1 << rangeUpgrades);
+    }
+
+    public static int getMaxAreaOffset(BaseMachineBE machine) {
+        int rangeUpgrades = countUpgrades(machine, UpgradeType.RANGE);
+        return 9 * (1 << rangeUpgrades);
+    }
+
+    public static boolean hasFluidStorageUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.FLUID_STORAGE) > 0;
+    }
+
+    public static JDTEFluidTank getClickerFluidTank(BaseMachineBE machine) {
+        return machine.getData(JDTEAttachments.CLICKER_FLUID_TANK);
+    }
+
+    public static int getClickerFluidCapacity(BaseMachineBE machine) {
+        if (!hasFluidStorageUpgrade(machine)) {
+            return 0;
+        }
+        int upgrades = countUpgrades(machine, UpgradeType.CAPACITY) + countUpgrades(machine, UpgradeType.FLUID);
+        return multiplyByPowersOfTwo(UpgradeItemStackHandler.BASE_CLICKER_FLUID_CAPACITY, upgrades);
+    }
+
+    public static void syncCapacities(BaseMachineBE machine) {
+        if (machine instanceof PoweredMachineBE poweredMachine) {
+            MachineEnergyStorage storage = poweredMachine.getEnergyStorage();
+            int capacity = poweredMachine.getMaxEnergy();
+            if (storage instanceof EnergyStorageAccessor accessor) {
+                accessor.jdte$setCapacity(capacity);
+                accessor.jdte$setMaxReceive(capacity);
+                accessor.jdte$setMaxExtract(capacity);
+                if (accessor.jdte$getEnergy() > capacity) {
+                    accessor.jdte$setEnergy(capacity);
+                }
+            }
+        }
+
+        if (machine instanceof FluidMachineBE fluidMachine) {
+            FluidTank tank = fluidMachine.getFluidTank();
+            int capacity = fluidMachine.getMaxMB();
+            if (tank instanceof FluidTankAccessor accessor) {
+                accessor.jdte$setCapacity(capacity);
+                if (tank.getFluidAmount() > capacity) {
+                    tank.getFluid().setAmount(capacity);
+                }
+            }
+        }
+
+        syncClickerFluidTank(machine);
+    }
+
+    public static void syncClickerFluidTank(BaseMachineBE machine) {
+        JDTEFluidTank tank = getClickerFluidTank(machine);
+        int capacity = Math.max(UpgradeItemStackHandler.BASE_CLICKER_FLUID_CAPACITY, getClickerFluidCapacity(machine));
+        if (tank instanceof FluidTankAccessor accessor) {
+            accessor.jdte$setCapacity(capacity);
+            if (tank.getFluidAmount() > capacity) {
+                tank.getFluid().setAmount(capacity);
+            }
+        }
+    }
+
+    public static void fillClickerItemFromTank(BaseMachineBE machine) {
+        if (!hasFluidStorageUpgrade(machine)) {
+            return;
+        }
+
+        JDTEFluidTank tank = getClickerFluidTank(machine);
+        if (tank.getFluid().isEmpty()) {
+            return;
+        }
+
+        ItemStackHandler itemHandler = machine.getMachineHandler();
+        ItemStack itemStack = itemHandler.getStackInSlot(0);
+        if (itemStack.isEmpty()) {
+            return;
+        }
+
+        IFluidHandlerItem itemFluidHandler = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
+        if (itemFluidHandler == null) {
+            return;
+        }
+
+        FluidStack available = tank.getFluid().copy();
+        int insertAmount = itemFluidHandler.fill(available, IFluidHandler.FluidAction.SIMULATE);
+        if (insertAmount <= 0) {
+            return;
+        }
+
+        FluidStack extracted = tank.drain(insertAmount, IFluidHandler.FluidAction.EXECUTE);
+        if (!extracted.isEmpty()) {
+            itemFluidHandler.fill(extracted, IFluidHandler.FluidAction.EXECUTE);
+            itemHandler.setStackInSlot(0, itemFluidHandler.getContainer());
+            machine.setChanged();
+        }
+    }
+
+    private static int multiplyByPowersOfTwo(int original, int powers) {
+        if (original <= 0 || powers <= 0) {
+            return original;
+        }
+        long result = (long) original << powers;
+        return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
+    }
+}

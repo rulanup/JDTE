@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CUC",
+    "UDU",
+    "CUC"
+  ],
+  "key": {
+    "C": {
+      "item": "justdirethings:clickert2"
+    },
+    "U": {
+      "item": "jdte:capacity_upgrade"
+    },
+    "D": {
+      "item": "minecraft:diamond_block"
+    }
+  },
+  "result": {
+    "item": "jdte:extended_clicker",
+    "count": 1
+  }
+}

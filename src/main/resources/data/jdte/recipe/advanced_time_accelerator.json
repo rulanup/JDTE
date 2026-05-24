@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": { "item": "jdte:basic_time_accelerator" },
+    "C": { "item": "justdirethings:celestigem" },
+    "E": { "item": "jdte:overclock_upgrade" },
+    "T": { "item": "justdirethings:time_crystal" }
+  },
+  "pattern": [
+    "TCT",
+    "EBE",
+    "TCT"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_time_accelerator"
+  }
+}

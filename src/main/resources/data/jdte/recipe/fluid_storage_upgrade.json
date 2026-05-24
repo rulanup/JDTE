@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:bucket"
+    },
+    "C": {
+      "item": "justdirethings:clickert1"
+    },
+    "F": {
+      "item": "jdte:fluid_upgrade"
+    },
+    "T": {
+      "item": "justdirethings:time_crystal"
+    }
+  },
+  "pattern": [
+    "BTB",
+    "TFT",
+    "BCB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:fluid_storage_upgrade"
+  }
+}

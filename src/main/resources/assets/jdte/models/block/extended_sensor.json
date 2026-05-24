@@ -1,0 +1,6 @@
+﻿{
+    "textures":  {
+                     "all":  "minecraft:block/netherite_block"
+                 },
+    "parent":  "minecraft:block/cube_all"
+}

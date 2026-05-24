@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "justdirethings:celestigem"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "RCR",
+    "CDC",
+    "RCR"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:capacity_upgrade"
+  }
+}

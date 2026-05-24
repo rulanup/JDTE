@@ -1,0 +1,27 @@
+{
+  "required": true,
+  "package": "com.jdte.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BaseMachineBEMixin",
+    "BaseMachineBlockMixin",
+    "BaseMachineContainerMixin",
+    "ClickerFluidMixin",
+    "AreaAffectingBEMixin",
+    "EnergyCostMixin",
+    "EnergyStorageAccessor",
+    "FluidCapacityMixin",
+    "FluidTankAccessor",
+    "GeneratorFluidUpgradeMixin",
+    "GeneratorT1UpgradeMixin",
+    "ParadoxEnergyCostMixin",
+    "PoweredMachineDefaultMaxEnergyMixin",
+    "PoweredMachineOverrideMaxEnergyMixin",
+    "TickSpeedPacketMixin"
+  ],
+  "client": [
+    "BaseMachineScreenMixin",
+    "SlotAccessor"
+  ],
+  "minVersion": "0.8"
+}
