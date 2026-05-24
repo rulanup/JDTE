@@ -1,0 +1,23 @@
+﻿{
+    "key":  {
+                "C":  {
+                          "item":  "justdirethings:fluidcollectort2"
+                      },
+                "D":  {
+                          "item":  "minecraft:diamond_block"
+                      },
+                "U":  {
+                          "item":  "jdte:capacity_upgrade"
+                      }
+            },
+    "pattern":  [
+                    "CUC",
+                    "UDU",
+                    "CUC"
+                ],
+    "result":  {
+                   "id":  "jdte:extended_fluid_collector",
+                   "count":  1
+               },
+    "type":  "minecraft:crafting_shaped"
+}
