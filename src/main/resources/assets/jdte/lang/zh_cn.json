@@ -29,5 +29,6 @@
   "tooltip.jdte.max": "每台机器最多：%s",
   "jade.jdte.upgrade_slots": "升级槽：%s",
   "jade.jdte.energy": "能量：%s / %s FE",
-  "item.jdte.guide": "JDT Extras 指南"
+  "item.jdte.guide": "JDT Extras 指南",
+  "item.jdte.guide.tooltip": "JDT Extras 指南"
 }

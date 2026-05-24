@@ -29,5 +29,6 @@
   "tooltip.jdte.max": "Max per machine: %s",
   "jade.jdte.upgrade_slots": "Upgrade Slots: %s",
   "jade.jdte.energy": "Energy: %s / %s FE",
-  "item.jdte.guide": "JDT Extras Guide"
+  "item.jdte.guide": "JDT Extras Guide",
+  "item.jdte.guide.tooltip": "JDT Extras Guide"
 }
