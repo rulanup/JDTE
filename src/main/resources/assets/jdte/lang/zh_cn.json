@@ -28,5 +28,6 @@
   "tooltip.jdte.range": "仅限范围机器。使可调范围上限翻倍。",
   "tooltip.jdte.max": "每台机器最多：%s",
   "jade.jdte.upgrade_slots": "升级槽：%s",
-  "jade.jdte.energy": "能量：%s / %s FE"
+  "jade.jdte.energy": "能量：%s / %s FE",
+  "item.jdte.guide": "JDT Extras 指南"
 }

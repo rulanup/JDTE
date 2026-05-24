@@ -28,5 +28,6 @@
   "tooltip.jdte.range": "Area machines only. Doubles the configurable area limit.",
   "tooltip.jdte.max": "Max per machine: %s",
   "jade.jdte.upgrade_slots": "Upgrade Slots: %s",
-  "jade.jdte.energy": "Energy: %s / %s FE"
+  "jade.jdte.energy": "Energy: %s / %s FE",
+  "item.jdte.guide": "JDT Extras Guide"
 }

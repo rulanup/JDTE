@@ -1,0 +1,16 @@
+{
+  "item_settings": {
+    "display_name": {
+      "type": "translatable",
+      "translate": "item.jdte.guide"
+    },
+    "tooltip_lines": [
+      {
+        "text": "JDT Extras 指南",
+        "color": "dark_gray"
+      }
+    ],
+    "model": "jdte:item/capacity_upgrade"
+  },
+  "default_language": "zh_cn"
+}
