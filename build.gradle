@@ -66,6 +66,8 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
     compileOnly files(jdtJar)
     runtimeOnly files(jdtJar)
+    compileOnly "org.appliedenergistics:guideme:21.1.16:api"
+    runtimeOnly "org.appliedenergistics:guideme:21.1.16"
 }
 
 tasks.withType(ProcessResources).configureEach {
