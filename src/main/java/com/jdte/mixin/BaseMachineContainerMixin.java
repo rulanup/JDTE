@@ -29,9 +29,6 @@ public abstract class BaseMachineContainerMixin {
     @Shadow public BaseMachineBE baseMachineBE;
     @Shadow public net.minecraft.world.inventory.ContainerData fluidData;
 
-    @Shadow public abstract net.minecraft.world.inventory.AbstractContainerMenu addSlot(Slot slot);
-    @Shadow public abstract net.minecraft.world.inventory.AbstractContainerMenu addDataSlots(net.minecraft.world.inventory.ContainerData data);
-
     @Inject(method = "<init>", at = @At("TAIL"))
     private void jdte$addUpgradeSlots(net.minecraft.world.inventory.MenuType<?> menuType, int windowId, Inventory playerInventory, BlockPos blockPos, CallbackInfo ci) {
         if (baseMachineBE == null) {
@@ -45,13 +42,35 @@ public abstract class BaseMachineContainerMixin {
 
         int slotCount = handler instanceof ExtendedUpgradeItemStackHandler ? ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT : UpgradeItemStackHandler.SLOT_COUNT;
         for (int i = 0; i < slotCount; i++) {
-            addSlot(new UpgradeSlot(handler, i, -10000, -10000));
+            jdte$addSlot(new UpgradeSlot(handler, i, -10000, -10000));
         }
 
         // 只有在没有 fluidData 时才添加
         if (baseMachineBE instanceof ClickerT1BE && fluidData == null) {
             fluidData = new ClickerFluidContainerData(baseMachineBE);
-            addDataSlots(fluidData);
+            jdte$addDataSlots(fluidData);
+        }
+    }
+
+    @Unique
+    private void jdte$addSlot(Slot slot) {
+        try {
+            var method = net.minecraft.world.inventory.AbstractContainerMenu.class.getDeclaredMethod("addSlot", Slot.class);
+            method.setAccessible(true);
+            method.invoke(this, slot);
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    @Unique
+    private void jdte$addDataSlots(net.minecraft.world.inventory.ContainerData data) {
+        try {
+            var method = net.minecraft.world.inventory.AbstractContainerMenu.class.getDeclaredMethod("addDataSlots", net.minecraft.world.inventory.ContainerData.class);
+            method.setAccessible(true);
+            method.invoke(this, data);
+        } catch (Exception e) {
+            // ignore
         }
     }
 

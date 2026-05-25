@@ -6,6 +6,7 @@ import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandl
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,9 +21,9 @@ public abstract class BaseMachineContainerFilterMixin {
     @Shadow public FilterBasicHandler filterHandler;
 
     @Shadow
-    protected abstract int addFilterSlots(FilterBasicHandler handler, int index, int x, int y, int amount, int dx);
+    protected abstract int addFilterSlots(IItemHandler handler, int index, int x, int y, int amount, int dx);
 
-    @Inject(method = "addFilterSlots", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "addFilterSlots()V", at = @At("HEAD"), cancellable = true)
     private void jdte$addExtraFilterSlots(CallbackInfo ci) {
         if (baseMachineBE == null || filterHandler == null) return;
 
@@ -35,13 +36,9 @@ public abstract class BaseMachineContainerFilterMixin {
         int originalSlots = FILTER_SLOTS;
         int totalSlots = originalSlots + extraSlots;
 
-        // 扩展 filterHandler 内部数组
         jdte$expandFilterHandler(totalSlots);
-
-        // 更新 FILTER_SLOTS 字段
         FILTER_SLOTS = totalSlots;
 
-        // 添加槽位
         int slotsAdded = 0;
         int y = 54;
 
@@ -58,16 +55,13 @@ public abstract class BaseMachineContainerFilterMixin {
         ItemStack[] oldStacks = jdte$getStacks(filterHandler);
         ItemStack[] newStacks = new ItemStack[newSize];
 
-        // 复制旧数据
         for (int i = 0; i < Math.min(oldStacks.length, newSize); i++) {
             newStacks[i] = oldStacks[i];
         }
-        // 初始化新槽位
         for (int i = oldStacks.length; i < newSize; i++) {
             newStacks[i] = ItemStack.EMPTY;
         }
 
-        // 设置新数组
         if (filterHandler instanceof FilterBasicHandlerAccessor accessor) {
             accessor.jdte$setStacks(newStacks);
         }
@@ -75,17 +69,12 @@ public abstract class BaseMachineContainerFilterMixin {
 
     @Unique
     private ItemStack[] jdte$getStacks(FilterBasicHandler handler) {
-        if (handler instanceof FilterBasicHandlerAccessor accessor) {
-            // 通过 accessor 获取 stacks 数组
-            // 由于 accessor 只有 setter，我们需要通过反射获取
-            try {
-                var field = handler.getClass().getSuperclass().getDeclaredField("stacks");
-                field.setAccessible(true);
-                return (ItemStack[]) field.get(handler);
-            } catch (Exception e) {
-                return new ItemStack[0];
-            }
+        try {
+            var field = handler.getClass().getSuperclass().getDeclaredField("stacks");
+            field.setAccessible(true);
+            return (ItemStack[]) field.get(handler);
+        } catch (Exception e) {
+            return new ItemStack[0];
         }
-        return new ItemStack[0];
     }
 }

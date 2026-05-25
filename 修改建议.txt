@@ -1,183 +1,24 @@
-代码问题与修改建议汇总
-====================
+解决方案
+步骤 1：修改 BaseMachineContainerMixin.java
+删除两个 @Shadow 方法声明，直接调用继承来的方法（因为 Mixin 的 this 就是目标容器实例，可以访问父类方法）。
 
-本文件汇总了当前 jdte 模组中所有 Mixin 类及辅助类的已知问题，并提供修改建议。
-问题按严重性分为：高（可能导致崩溃或严重功能异常）、中（影响部分功能或性能）、低（代码风格/可维护性）。
+修改前：
 
+java
+@Shadow public abstract net.minecraft.world.inventory.AbstractContainerMenu addSlot(Slot slot);
+@Shadow public abstract net.minecraft.world.inventory.AbstractContainerMenu addDataSlots(net.minecraft.world.inventory.ContainerData data);
+修改后： 直接删除这两行，然后在代码中直接调用 addSlot(...) 和 addDataSlots(...) 即可（不需要任何前缀）。Mixin 会正确解析。
 
-一、BaseMachineScreenMixin.java
---------------------------------
+步骤 2：检查 BaseMachineContainerFilterMixin
+如果它里面也有类似的 @Shadow 方法 addFilterSlots，请确保该方法确实存在于目标类 BaseMachineContainer 中（原 Mod 应该有）。如果运行时还报类似错误，说明该方法也不存在，需要同样的处理（删除 @Shadow，直接调用）。
 
-### 高优先级问题
+步骤 3：确认配置文件
+确保 mixins.jdte.json 中的 AbstractContainerScreenMixin 和 ScreenMixin 已经移除（或者注释掉），因为它们不再需要且会导致之前的错误。
 
-1. 关闭弹窗未保存状态
-   - 位置：mouseClicked 方法中处理关闭按钮的分支
-   - 描述：点击关闭按钮时，只修改了 jdte$upgradePopupOpen = false，没有调用 jdte$savePopupState()
-   - 后果：下次打开同一机器的 GUI 时，弹窗可能仍处于打开状态（状态未持久化）
-   - 修改：在关闭分支中添加 jdte$savePopupState()
+步骤 4：重新编译运行
+清理项目并重新编译，启动测试。
 
-2. getImageWidth() 回退值可能错误
-   - 位置：jdte$getImageWidth() 方法
-   - 描述：若 AbstractContainerScreenAccessor 未在 mixins 配置中注册，instanceof 永远为 false，返回硬编码 176
-   - 后果：弹窗默认位置可能偏移（实际 imageWidth 可能不是 176）
-   - 修改：
-       方案A：确保 AbstractContainerScreenAccessor 已在 mixins.jdte.json 的 client 列表中注册
-       方案B：改用 @Shadow 字段，在类中添加 @Shadow protected int imageWidth; 并直接返回
+附加说明
+BaseMachineContainerMixin 中的 moveItemStackTo 方法是我们自定义的，与父类的 moveItemStackTo 不冲突，不需要 @Shadow。
 
-### 中优先级问题
-
-3. 流体条 offset 计算重复
-   - 位置：jdte$renderClickerFluidBar 和 jdte$renderClickerFluidTooltip 中
-   - 描述：两处都有相同的 `int offset = baseMachineBE instanceof PoweredMachineBE ? 24 : 5;`
-   - 后果：代码重复，维护时可能不一致
-   - 修改：恢复 @Unique 方法 jdte$getClickerFluidBarOffset()，统一调用
-
-### 低优先级问题
-
-4. 字体获取方式可优化
-   - 位置：多处调用 jdte$getFont() 返回 Minecraft.getInstance().font
-   - 描述：BaseMachineScreen 本身有 font 字段（继承自 Screen），可直接使用 @Shadow
-   - 修改：添加 @Shadow protected Font font; 然后直接使用 this.font
-
-5. mouseDragged 注入中条件判断可简化
-   - 位置：jdte$mouseDragged 方法
-   - 描述：当前仅当拖拽弹窗时 cancel，否则不 cancel，逻辑正确无需修改
-   - 状态：无问题，可保留
-
-
-二、BaseMachineContainerMixin.java
-----------------------------------
-
-### 高优先级问题
-
-1. 缺少从玩家背包移入升级槽的功能
-   - 位置：quickMoveStack 方法
-   - 描述：当前只处理了从升级槽移动到玩家背包（index 在升级槽范围内），没有处理从玩家背包移动升级物品到升级槽
-   - 后果：玩家无法通过 Shift+点击将升级卡从背包放入升级槽，只能手动拖拽
-   - 修改：恢复双向移动逻辑，增加对玩家背包中升级卡的判断并移动至升级槽
-
-### 中优先级问题
-
-2. fluidData 替换逻辑可能不完整
-   - 位置：构造函数注入中的条件 `fluidData == null`
-   - 描述：如果父类已经设置了一个非 null 的 fluidData（如普通的 FluidContainerData），则不会替换为 ClickerFluidContainerData
-   - 后果：ClickerT1BE 可能仍使用旧的流体数据处理，升级后的流体容量不生效
-   - 修改：移除 `fluidData == null` 判断，无条件替换并重新添加（但需先移除旧数据槽，无法直接移除，可考虑仅替换字段值，不重新 addDataSlots，前提是原数据槽已被添加）
-
-3. 自定义 moveItemStackTo 方法未触发原版事件
-   - 位置：moveItemStackTo 方法
-   - 描述：没有调用 slot.onQuickCraft 等原版事件，可能影响其他 Mod 的监听
-   - 影响：较低，仅影响升级槽移动，可接受
-
-
-三、BaseMachineContainerFilterMixin.java + FilterBasicHandlerAccessor.java
----------------------------------------------------------------------------
-
-### 高优先级问题
-
-1. FilterBasicHandlerAccessor 字段名可能不正确
-   - 位置：FilterBasicHandlerAccessor 中 `@Accessor("stacks")`
-   - 描述：假设 FilterBasicHandler 内部有一个名为 "stacks" 的字段，但实际名称可能不同（如 "filterStacks"、"items" 等）
-   - 后果：运行时抛出 NoSuchFieldError 或 ClassCastException，导致扩展过滤槽功能完全失效，甚至崩溃
-   - 修改：检查原 Mod 中 FilterBasicHandler 的实际字段名，修正 Accessor 的参数；或者使用 `@Accessor` 不加参数，Mixin 会尝试匹配 getter/setter，但可能无效。最安全的方式是使用 `@Shadow` 字段并直接修改内部数组。
-
-2. 扩容后未同步其他内部状态
-   - 位置：jdte$expandFilterHandler 方法
-   - 描述：仅修改了 stacks 数组的大小，但 FilterBasicHandler 可能还有其他字段（如 size、slotCount）需要同步更新
-   - 后果：可能导致索引越界或处理器行为异常
-   - 修改：检查 FilterBasicHandler 的所有字段，必要时一并修改；或者创建新的 FilterBasicHandler 实例并替换原引用（需同时修改容器中的 filterHandler 字段）
-
-### 中优先级问题
-
-3. 过滤槽坐标硬编码
-   - 位置：addFilterSlots 调用中使用的 y 坐标 54, 72, 90
-   - 描述：如果原 Mod 的 GUI 布局发生变化，这些坐标可能与其他 UI 元素重叠
-   - 修改：从原 addFilterSlots 的原始调用参数中动态获取基准坐标（通过 @Shadow 原方法参数），或定义为配置常量
-
-
-四、BaseMachineBEPopupMixin.java
---------------------------------
-
-### 无严重问题
-
-- 正确使用 POPUP_UNINITIALIZED = -1
-- 正确保存/加载 NBT
-- NBT 键名 "jdte$popupX" 等包含 $ 符号，虽合法但建议改为 "jdte.popupX"（非必须）
-
-
-五、AbstractContainerScreenAccessor.java
-----------------------------------------
-
-### 中优先级问题
-
-1. 未确认是否在 mixins.json 中注册
-   - 描述：如果此访问器未在 mixins.jdte.json 的 client 列表中注册，BaseMachineScreenMixin 中的 instanceof 检查将失败
-   - 后果：jdte$getImageWidth() 永远返回 fallback 值 176，导致弹窗位置可能错误
-   - 修改：在 mixins.jdte.json 的 "client" 列表中添加 "AbstractContainerScreenAccessor"
-
-
-六、TickSpeedPacketMixin.java（之前审查过，未提供新代码，但问题仍存在）
------------------------------------------------------------------------
-
-### 中优先级问题
-
-1. 未检查 context.player() 是否为 null
-   - 修改：添加 `if (sender == null) return;`
-
-2. 未检查数据包流向
-   - 修改：添加 `if (context.flow() != Flow.PLAY) return;`
-
-### 低优先级问题
-
-3. 取消操作无用户反馈
-   - 修改：可通过 context.enqueueWork() 发送提示消息
-
-
-七、UpgradeItemStackHandler.java（之前审查，无新代码，状态良好）
-----------------------------------------------------------------
-
-### 低优先级问题
-
-1. 缺少槽位范围校验（可选的防御性编程）
-   - 修改：在 isItemValid、setStackInSlot、insertItem 中添加 `if (slot < 0 || slot >= getSlots()) return ...`
-
-
-八、配置文件 mixins.jdte.json
-----------------------------
-
-### 必须确保包含的条目
-
-- "SlotAccessor"（应已在 client 中）
-- "AbstractContainerScreenAccessor"（需添加）
-- "BaseMachineScreenMixin"（client）
-- "BaseMachineContainerMixin"（mixins？取决于是否仅客户端，建议 mixins 或 client？根据功能，服务端也需要容器逻辑，应放在 mixins 列表）
-- "BaseMachineContainerFilterMixin"（mixins 列表）
-- "FilterBasicHandlerAccessor"（mixins 列表）
-- "BaseMachineBEPopupMixin"（mixins 列表，因为 BE 同步需要服务端）
-- "TickSpeedPacketMixin"（mixins 列表）
-
-建议检查所有 Mixin 和 Accessor 均已正确归类。
-
-
-优先级总结
-==========
-
-立即修复（高优先级）：
-1. BaseMachineScreenMixin：关闭弹窗未保存状态
-2. BaseMachineScreenMixin：确保 getImageWidth 访问器已注册或改用 @Shadow
-3. BaseMachineContainerMixin：恢复从背包移入升级槽的功能
-4. BaseMachineContainerFilterMixin：确认并修正 FilterBasicHandler 的内部字段名，完善扩容逻辑
-5. 检查 mixins.json 中所有必要的条目
-
-建议修复（中优先级）：
-1. 流体条 offset 提取为统一方法
-2. BaseMachineContainerMixin 中 fluidData 替换逻辑优化
-3. TickSpeedPacketMixin 增加 null 和流向检查
-4. 过滤槽坐标改为动态获取
-
-可选优化（低优先级）：
-1. 使用 @Shadow 获取 font
-2. 添加玩家反馈消息
-3. 升级处理器增加边界检查
-
---- 文档结束 ---
+如果 addFilterSlots 仍然报错，请检查原 Mod 中 BaseMachineContainer 是否有 protected int addFilterSlots(...) 方法。如果没有，则需要采用类似的策略：通过反射或直接实现槽位添加逻辑，而不是依赖 @Shadow。
