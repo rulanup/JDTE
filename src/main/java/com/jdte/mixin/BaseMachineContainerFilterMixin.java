@@ -3,9 +3,9 @@ package com.jdte.mixin;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.common.containers.slots.FilterBasicSlot;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,39 +29,63 @@ public abstract class BaseMachineContainerFilterMixin {
         int filterUpgrades = UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.FILTER);
         if (filterUpgrades <= 0) return;
 
-        // 取消原方法
         ci.cancel();
 
-        // 计算额外的过滤槽数量（每个升级增加一排，每排9个）
         int extraSlots = filterUpgrades * 9;
         int originalSlots = FILTER_SLOTS;
         int totalSlots = originalSlots + extraSlots;
 
-        // 扩展 filterHandler 容量
+        // 扩展 filterHandler 内部数组
         jdte$expandFilterHandler(totalSlots);
 
         // 更新 FILTER_SLOTS 字段
         FILTER_SLOTS = totalSlots;
 
-        // 添加第一排（原有槽位）
-        int slotsInFirstRow = Math.min(originalSlots, 9);
-        addFilterSlots(filterHandler, 0, 8, 54, slotsInFirstRow, 18);
+        // 添加槽位
+        int slotsAdded = 0;
+        int y = 54;
 
-        // 添加额外的排
-        int remainingSlots = totalSlots - slotsInFirstRow;
-        if (remainingSlots > 0) {
-            addFilterSlots(filterHandler, slotsInFirstRow, 8, 72, Math.min(remainingSlots, 9), 18);
-        }
-        if (remainingSlots > 9) {
-            addFilterSlots(filterHandler, slotsInFirstRow + 9, 8, 90, Math.min(remainingSlots - 9, 9), 18);
+        while (slotsAdded < totalSlots) {
+            int slotsInRow = Math.min(9, totalSlots - slotsAdded);
+            addFilterSlots(filterHandler, slotsAdded, 8, y, slotsInRow, 18);
+            slotsAdded += slotsInRow;
+            y += 18;
         }
     }
 
     @Unique
     private void jdte$expandFilterHandler(int newSize) {
-        // 通过反射或 accessor 扩展 filterHandler 的内部数组
-        if (filterHandler instanceof FilterBasicHandlerAccessor accessor) {
-            accessor.jdte$setSize(newSize);
+        ItemStack[] oldStacks = jdte$getStacks(filterHandler);
+        ItemStack[] newStacks = new ItemStack[newSize];
+
+        // 复制旧数据
+        for (int i = 0; i < Math.min(oldStacks.length, newSize); i++) {
+            newStacks[i] = oldStacks[i];
         }
+        // 初始化新槽位
+        for (int i = oldStacks.length; i < newSize; i++) {
+            newStacks[i] = ItemStack.EMPTY;
+        }
+
+        // 设置新数组
+        if (filterHandler instanceof FilterBasicHandlerAccessor accessor) {
+            accessor.jdte$setStacks(newStacks);
+        }
+    }
+
+    @Unique
+    private ItemStack[] jdte$getStacks(FilterBasicHandler handler) {
+        if (handler instanceof FilterBasicHandlerAccessor accessor) {
+            // 通过 accessor 获取 stacks 数组
+            // 由于 accessor 只有 setter，我们需要通过反射获取
+            try {
+                var field = handler.getClass().getSuperclass().getDeclaredField("stacks");
+                field.setAccessible(true);
+                return (ItemStack[]) field.get(handler);
+            } catch (Exception e) {
+                return new ItemStack[0];
+            }
+        }
+        return new ItemStack[0];
     }
 }

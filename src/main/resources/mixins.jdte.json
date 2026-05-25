@@ -3,6 +3,7 @@
   "package": "com.jdte.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AbstractContainerScreenMixin",
     "BaseMachineBEMixin",
     "BaseMachineBEPopupMixin",
     "BaseMachineBlockMixin",
@@ -23,7 +24,6 @@
     "TickSpeedPacketMixin"
   ],
   "client": [
-    "AbstractContainerScreenAccessor",
     "BaseMachineScreenMixin",
     "SlotAccessor"
   ],

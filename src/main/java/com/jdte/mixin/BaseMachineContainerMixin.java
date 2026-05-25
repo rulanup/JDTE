@@ -70,10 +70,6 @@ public abstract class BaseMachineContainerMixin {
         int upgradeStart = MACHINE_SLOTS + FILTER_SLOTS;
         int upgradeEnd = upgradeStart + upgradeSlotCount;
 
-        if (index < upgradeStart || index >= upgradeEnd) {
-            return;
-        }
-
         BaseMachineContainer container = (BaseMachineContainer) (Object) this;
         if (index >= container.slots.size()) {
             return;
@@ -85,12 +81,31 @@ public abstract class BaseMachineContainerMixin {
         }
 
         ItemStack currentStack = slot.getItem();
+        boolean fromUpgradeSlot = index >= upgradeStart && index < upgradeEnd;
+        boolean fromPlayerSlot = index >= upgradeEnd;
+
+        // 只处理升级卡相关的移动
+        if (!fromUpgradeSlot && !(fromPlayerSlot && UpgradeHelper.isUpgrade(currentStack))) {
+            return;
+        }
+
         ItemStack originalStack = currentStack.copy();
 
-        // 从升级槽移到玩家背包
-        if (!moveItemStackTo(currentStack, upgradeEnd, container.slots.size(), true)) {
-            cir.setReturnValue(ItemStack.EMPTY);
-            return;
+        if (fromUpgradeSlot) {
+            // 从升级槽移到玩家背包
+            if (!moveItemStackTo(currentStack, upgradeEnd, container.slots.size(), true)) {
+                cir.setReturnValue(ItemStack.EMPTY);
+                return;
+            }
+        } else {
+            // 从玩家背包移到升级槽（只移动1个）
+            ItemStack singleItem = currentStack.copyWithCount(1);
+            if (moveItemStackTo(singleItem, upgradeStart, upgradeEnd, false)) {
+                currentStack.shrink(1);
+            } else {
+                cir.setReturnValue(ItemStack.EMPTY);
+                return;
+            }
         }
 
         if (currentStack.isEmpty()) {
