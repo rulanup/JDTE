@@ -1,6 +1,7 @@
 ﻿{
     "textures":  {
-                     "all":  "minecraft:block/netherite_block"
+                     "end":  "jdte:block/blockswappert3/blockswappert3_top",
+                     "side":  "jdte:block/blockswappert3/blockswappert3_side"
                  },
-    "parent":  "minecraft:block/cube_all"
+    "parent":  "minecraft:block/cube_column"
 }

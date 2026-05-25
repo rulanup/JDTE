@@ -1,6 +1,7 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "minecraft:block/netherite_block"
-  }
+﻿{
+    "textures":  {
+                     "end":  "jdte:block/clickert3/clickert3_top",
+                     "side":  "jdte:block/clickert3/clickert3_side"
+                 },
+    "parent":  "minecraft:block/cube_column"
 }
