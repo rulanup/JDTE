@@ -1,20 +1,19 @@
 package com.jdte.mixin;
 
-import com.direwolf20.justdirethings.JustDireThings;
-import com.direwolf20.justdirethings.client.screens.basescreens.BaseScreen;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
+import com.jdte.JDTE;
 import com.jdte.common.upgrades.UpgradeHelper;
-import com.jdte.common.upgrades.UpgradeItemStackHandler;
 import com.jdte.common.upgrades.UpgradeSlot;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,23 +29,40 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Arrays;
 
 @Mixin(BaseMachineScreen.class)
-public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> extends BaseScreen<T> {
+public abstract class BaseMachineScreenMixin {
     @Shadow protected BaseMachineContainer container;
     @Shadow protected BaseMachineBE baseMachineBE;
     @Shadow protected int topSectionLeft;
     @Shadow protected int topSectionTop;
 
-    @Unique private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JustDireThings.MODID, "textures/gui/fluidbar.png");
-    @Unique private static final ResourceLocation JDTE_SLOT = ResourceLocation.fromNamespaceAndPath(JustDireThings.MODID, "textures/gui/justslot.png");
+    @Unique private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluidbar.png");
+    @Unique private static final ResourceLocation JDTE_SLOT = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/justslot.png");
+    @Unique private static final int POPUP_UNINITIALIZED = -1;
+    @Unique private static final int SLOT_SIZE = 18;
+    @Unique private static final int TITLE_HEIGHT = 16;
+    @Unique private static final int CLOSE_BUTTON_SIZE = 10;
+    @Unique private static final int POPUP_PADDING = 6;
+    @Unique private static final int SLOT_COLS = 4;
+
     @Unique private boolean jdte$upgradePopupOpen = false;
     @Unique private boolean jdte$draggingUpgradePopup = false;
-    @Unique private int jdte$upgradePopupX;
-    @Unique private int jdte$upgradePopupY;
+    @Unique private int jdte$upgradePopupX = POPUP_UNINITIALIZED;
+    @Unique private int jdte$upgradePopupY = POPUP_UNINITIALIZED;
     @Unique private int jdte$upgradeDragOffsetX;
     @Unique private int jdte$upgradeDragOffsetY;
+    @Unique private boolean jdte$needsSlotUpdate = true;
 
-    protected BaseMachineScreenMixin(T menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
+    @Unique
+    private Font jdte$getFont() {
+        return Minecraft.getInstance().font;
+    }
+
+    @Unique
+    private int jdte$getImageWidth() {
+        if (this instanceof AbstractContainerScreenAccessor accessor) {
+            return accessor.jdte$getImageWidth();
+        }
+        return 176; // 默认值
     }
 
     @Inject(method = "init", at = @At("TAIL"))
@@ -58,20 +74,20 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
             jdte$upgradePopupOpen = holder.jdte$isPopupOpen();
         }
         // 如果位置无效，使用默认位置
-        if (jdte$upgradePopupX <= 0 || jdte$upgradePopupY <= 0) {
-            jdte$upgradePopupX = getGuiLeft() + imageWidth + 8;
+        if (jdte$upgradePopupX == POPUP_UNINITIALIZED || jdte$upgradePopupY == POPUP_UNINITIALIZED) {
+            BaseMachineScreen<?> screen = (BaseMachineScreen<?>) (Object) this;
+            jdte$upgradePopupX = screen.getGuiLeft() + jdte$getImageWidth() + 8;
             jdte$upgradePopupY = Math.max(8, topSectionTop);
         }
-        jdte$updateUpgradeSlots();
-    }
-
-    @Inject(method = "renderBg", at = @At("HEAD"))
-    private void jdte$updateSlotsBeforeRender(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
-        jdte$updateUpgradeSlots();
+        jdte$needsSlotUpdate = true;
     }
 
     @Inject(method = "renderBg", at = @At(value = "INVOKE", target = "Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;drawSlot(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V", ordinal = 0))
     private void jdte$drawToggleBeforeSlots(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+        if (jdte$needsSlotUpdate) {
+            jdte$updateUpgradeSlots();
+            jdte$needsSlotUpdate = false;
+        }
         jdte$drawUpgradeToggle(guiGraphics);
     }
 
@@ -90,8 +106,7 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
         if (jdte$inToggle(mouseX, mouseY)) {
             jdte$upgradePopupOpen = !jdte$upgradePopupOpen;
-            jdte$savePopupState();
-            jdte$updateUpgradeSlots();
+            jdte$needsSlotUpdate = true;
             cir.setReturnValue(true);
             return;
         }
@@ -106,8 +121,7 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
         if (jdte$upgradePopupOpen && jdte$inPopupClose(mouseX, mouseY)) {
             jdte$upgradePopupOpen = false;
-            jdte$savePopupState();
-            jdte$updateUpgradeSlots();
+            jdte$needsSlotUpdate = true;
             cir.setReturnValue(true);
             return;
         }
@@ -117,22 +131,23 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
         }
     }
 
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (jdte$draggingUpgradePopup) {
-            jdte$upgradePopupX = Math.max(0, Math.min(width - jdte$popupWidth(), (int) mouseX - jdte$upgradeDragOffsetX));
-            jdte$upgradePopupY = Math.max(0, Math.min(height - jdte$popupHeight(), (int) mouseY - jdte$upgradeDragOffsetY));
-            jdte$savePopupState();
-            jdte$updateUpgradeSlots();
-            return true;
+    @Inject(method = "mouseDragged", at = @At("HEAD"), cancellable = true)
+    private void jdte$mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY, CallbackInfoReturnable<Boolean> cir) {
+        if (jdte$draggingUpgradePopup && button == 0) {
+            BaseMachineScreen<?> screen = (BaseMachineScreen<?>) (Object) this;
+            jdte$upgradePopupX = Math.max(0, Math.min(screen.width - jdte$popupWidth(), (int) mouseX - jdte$upgradeDragOffsetX));
+            jdte$upgradePopupY = Math.max(0, Math.min(screen.height - jdte$popupHeight(), (int) mouseY - jdte$upgradeDragOffsetY));
+            jdte$needsSlotUpdate = true;
+            cir.setReturnValue(true);
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        jdte$draggingUpgradePopup = false;
-        return super.mouseReleased(mouseX, mouseY, button);
+    @Inject(method = "mouseReleased", at = @At("HEAD"))
+    private void jdte$mouseReleased(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+        if (jdte$draggingUpgradePopup) {
+            jdte$draggingUpgradePopup = false;
+            jdte$savePopupState();
+        }
     }
 
     @Inject(method = "hasClickedOutside", at = @At("HEAD"), cancellable = true)
@@ -159,11 +174,13 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
     @Unique
     private void jdte$drawUpgradeToggle(GuiGraphics guiGraphics) {
-        int x = jdte$toggleX();
-        int y = jdte$toggleY();
-        guiGraphics.fill(x, y, x + 18, y + 18, 0xFF555555);
-        guiGraphics.fill(x + 1, y + 1, x + 17, y + 17, 0xFF8B8B8B);
-        guiGraphics.fill(x + 2, y + 2, x + 16, y + 16, jdte$upgradePopupOpen ? 0xFF6D8A4E : 0xFF373737);
+        BaseMachineScreen<?> screen = (BaseMachineScreen<?>) (Object) this;
+        int x = screen.getGuiLeft() + jdte$getImageWidth() - 20;
+        int y = topSectionTop - 20;
+        Font font = jdte$getFont();
+        guiGraphics.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, 0xFF555555);
+        guiGraphics.fill(x + 1, y + 1, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, 0xFF8B8B8B);
+        guiGraphics.fill(x + 2, y + 2, x + SLOT_SIZE - 2, y + SLOT_SIZE - 2, jdte$upgradePopupOpen ? 0xFF6D8A4E : 0xFF373737);
         guiGraphics.drawString(font, Component.literal("U"), x + 6, y + 5, 0xFFFFFF, false);
     }
 
@@ -171,41 +188,45 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
     private void jdte$drawUpgradePopup(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int x = jdte$upgradePopupX;
         int y = jdte$upgradePopupY;
+        int width = jdte$popupWidth();
+        int height = jdte$popupHeight();
+        Font font = jdte$getFont();
 
         // Shadow
-        guiGraphics.fill(x - 2, y - 2, x + jdte$popupWidth() + 2, y + jdte$popupHeight() + 2, 0x80000000);
+        guiGraphics.fill(x - 2, y - 2, x + width + 2, y + height + 2, 0x80000000);
         // Title bar
-        guiGraphics.fill(x, y, x + jdte$popupWidth(), y + 16, 0xFF555555);
+        guiGraphics.fill(x, y, x + width, y + TITLE_HEIGHT, 0xFF555555);
         // Window body
-        guiGraphics.fill(x, y + 16, x + jdte$popupWidth(), y + jdte$popupHeight(), 0xFF373737);
-        guiGraphics.fill(x + 1, y + 17, x + jdte$popupWidth() - 1, y + jdte$popupHeight() - 1, 0xFF2A2A2A);
+        guiGraphics.fill(x, y + TITLE_HEIGHT, x + width, y + height, 0xFF373737);
+        guiGraphics.fill(x + 1, y + TITLE_HEIGHT + 1, x + width - 1, y + height - 1, 0xFF2A2A2A);
 
         // Title
         guiGraphics.drawString(font, Component.translatable("jdte.screen.upgrades"), x + 5, y + 4, 0xFFFFFF, false);
 
         // Close button
-        int closeX = x + jdte$popupWidth() - 12;
+        int closeX = x + width - 12;
         int closeY = y + 3;
-        guiGraphics.fill(closeX, closeY, closeX + 10, closeY + 10, 0xFF8B8B8B);
+        guiGraphics.fill(closeX, closeY, closeX + CLOSE_BUTTON_SIZE, closeY + CLOSE_BUTTON_SIZE, 0xFF8B8B8B);
         guiGraphics.drawString(font, Component.literal("x"), closeX + 2, closeY + 1, 0xFFFFFF, false);
 
         // Slots
         int slotCount = jdte$getUpgradeSlotCount();
-        int cols = Math.min(slotCount, 4);
-        int rows = (slotCount + 3) / 4;
+        int cols = Math.min(slotCount, SLOT_COLS);
+        int rows = (slotCount + SLOT_COLS - 1) / SLOT_COLS;
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 int i = row * cols + col;
                 if (i >= slotCount) break;
-                guiGraphics.blit(JDTE_SLOT, x + 9 + (col * 18), y + 22 + (row * 18), 0, 0, 18, 18);
+                guiGraphics.blit(JDTE_SLOT, x + 9 + (col * SLOT_SIZE), y + 22 + (row * SLOT_SIZE), 0, 0, SLOT_SIZE, SLOT_SIZE);
             }
         }
     }
 
     @Unique
     private int jdte$getUpgradeSlotCount() {
+        BaseMachineScreen<?> screen = (BaseMachineScreen<?>) (Object) this;
         int count = 0;
-        for (Slot menuSlot : menu.slots) {
+        for (Slot menuSlot : screen.getMenu().slots) {
             if (menuSlot instanceof UpgradeSlot) {
                 count++;
             }
@@ -215,9 +236,9 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
     @Unique
     private void jdte$updateUpgradeSlots() {
+        BaseMachineScreen<?> screen = (BaseMachineScreen<?>) (Object) this;
         int slot = 0;
-        int cols = 4;
-        for (Slot menuSlot : menu.slots) {
+        for (Slot menuSlot : screen.getMenu().slots) {
             if (!(menuSlot instanceof UpgradeSlot)) {
                 continue;
             }
@@ -225,10 +246,10 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
             int x = -10000;
             int y = -10000;
             if (jdte$upgradePopupOpen) {
-                int row = slot / cols;
-                int col = slot % cols;
-                x = jdte$upgradePopupX - getGuiLeft() + 9 + (col * 18);
-                y = jdte$upgradePopupY - getGuiTop() + 22 + (row * 18);
+                int row = slot / SLOT_COLS;
+                int col = slot % SLOT_COLS;
+                x = jdte$upgradePopupX - screen.getGuiLeft() + 9 + (col * SLOT_SIZE);
+                y = jdte$upgradePopupY - screen.getGuiTop() + 22 + (row * SLOT_SIZE);
             }
             ((SlotAccessor) menuSlot).jdte$setX(x);
             ((SlotAccessor) menuSlot).jdte$setY(y);
@@ -238,8 +259,9 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
     @Unique
     private boolean jdte$overUpgradeSlot(double mouseX, double mouseY) {
-        for (Slot menuSlot : menu.slots) {
-            if (menuSlot instanceof UpgradeSlot && MiscTools.inBounds(getGuiLeft() + menuSlot.x, getGuiTop() + menuSlot.y, 16, 16, mouseX, mouseY)) {
+        BaseMachineScreen<?> screen = (BaseMachineScreen<?>) (Object) this;
+        for (Slot menuSlot : screen.getMenu().slots) {
+            if (menuSlot instanceof UpgradeSlot && MiscTools.inBounds(screen.getGuiLeft() + menuSlot.x, screen.getGuiTop() + menuSlot.y, SLOT_SIZE - 2, SLOT_SIZE - 2, mouseX, mouseY)) {
                 return true;
             }
         }
@@ -253,48 +275,36 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
     @Unique
     private boolean jdte$inPopupTitle(double mouseX, double mouseY) {
-        return MiscTools.inBounds(jdte$upgradePopupX, jdte$upgradePopupY, jdte$popupWidth(), 16, mouseX, mouseY);
+        return MiscTools.inBounds(jdte$upgradePopupX, jdte$upgradePopupY, jdte$popupWidth(), TITLE_HEIGHT, mouseX, mouseY);
     }
 
     @Unique
     private boolean jdte$inPopupClose(double mouseX, double mouseY) {
         int closeX = jdte$upgradePopupX + jdte$popupWidth() - 12;
         int closeY = jdte$upgradePopupY + 3;
-        return MiscTools.inBounds(closeX, closeY, 10, 10, mouseX, mouseY);
+        return MiscTools.inBounds(closeX, closeY, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE, mouseX, mouseY);
     }
 
     @Unique
     private boolean jdte$inToggle(double mouseX, double mouseY) {
-        return MiscTools.inBounds(jdte$toggleX(), jdte$toggleY(), 18, 18, mouseX, mouseY);
-    }
-
-    @Unique
-    private int jdte$toggleX() {
-        return getGuiLeft() + imageWidth - 20;
-    }
-
-    @Unique
-    private int jdte$toggleY() {
-        return topSectionTop - 20;
+        BaseMachineScreen<?> screen = (BaseMachineScreen<?>) (Object) this;
+        int x = screen.getGuiLeft() + jdte$getImageWidth() - 20;
+        int y = topSectionTop - 20;
+        return MiscTools.inBounds(x, y, SLOT_SIZE, SLOT_SIZE, mouseX, mouseY);
     }
 
     @Unique
     private int jdte$popupWidth() {
         int slotCount = jdte$getUpgradeSlotCount();
-        int cols = Math.min(slotCount, 4);
-        return Math.max(88, 18 + (cols * 18) + 6);
+        int cols = Math.min(slotCount, SLOT_COLS);
+        return Math.max(88, TITLE_HEIGHT + POPUP_PADDING + (cols * SLOT_SIZE) + POPUP_PADDING);
     }
 
     @Unique
     private int jdte$popupHeight() {
         int slotCount = jdte$getUpgradeSlotCount();
-        int rows = (slotCount + 3) / 4;
-        return 22 + (rows * 18) + 6;
-    }
-
-    @Unique
-    private int jdte$getClickerFluidBarOffset() {
-        return baseMachineBE instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE ? 24 : 5;
+        int rows = (slotCount + SLOT_COLS - 1) / SLOT_COLS;
+        return 22 + (rows * SLOT_SIZE) + POPUP_PADDING;
     }
 
     @Unique
@@ -312,14 +322,21 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
             return;
         }
 
-        int offset = jdte$getClickerFluidBarOffset();
+        int offset = baseMachineBE instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE ? 24 : 5;
         int maxMb = UpgradeHelper.getClickerFluidCapacity(baseMachineBE);
         guiGraphics.blit(JDTE_FLUID_BAR, topSectionLeft + offset, topSectionTop + 5, 0, 0, 18, 72, 36, 72);
         if (maxMb > 0) {
             int remaining = (container.getFluidAmount() * 70) / maxMb;
-            ((BaseMachineScreen<?>) (Object) this).renderFluid(guiGraphics, topSectionLeft + offset + 1, topSectionTop + 76, 16, remaining);
+            // 自行实现流体条绘制
+            jdte$renderFluidBar(guiGraphics, topSectionLeft + offset + 1, topSectionTop + 76, 16, remaining);
         }
         guiGraphics.blit(JDTE_FLUID_BAR, topSectionLeft + offset, topSectionTop + 5, 18, 0, 18, 72, 36, 72);
+    }
+
+    @Unique
+    private void jdte$renderFluidBar(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+        if (height <= 0) return;
+        guiGraphics.fill(x, y - height, x + width, y, 0xFF3ABDFE); // 蓝色流体条
     }
 
     @Inject(method = "renderTooltip", at = @At("TAIL"))
@@ -328,14 +345,15 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
             return;
         }
 
-        int offset = jdte$getClickerFluidBarOffset();
+        BaseMachineScreen<?> screen = (BaseMachineScreen<?>) (Object) this;
+        int offset = baseMachineBE instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE ? 24 : 5;
         if (!MiscTools.inBounds(topSectionLeft + offset, topSectionTop + 5, 18, 72, mouseX, mouseY)) {
             return;
         }
 
         FluidStack fluidStack = container.getFluidStack();
         int maxMb = UpgradeHelper.getClickerFluidCapacity(baseMachineBE);
-        guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+        guiGraphics.renderTooltip(jdte$getFont(), Language.getInstance().getVisualOrder(Arrays.asList(
                 Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(container.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
         )), mouseX, mouseY);
     }

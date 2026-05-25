@@ -1,13 +1,11 @@
 package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
-import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.direwolf20.justdirethings.common.containers.slots.FilterBasicSlot;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
-import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,7 +24,7 @@ public abstract class BaseMachineContainerFilterMixin {
 
     @Inject(method = "addFilterSlots", at = @At("HEAD"), cancellable = true)
     private void jdte$addExtraFilterSlots(CallbackInfo ci) {
-        if (baseMachineBE == null) return;
+        if (baseMachineBE == null || filterHandler == null) return;
 
         int filterUpgrades = UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.FILTER);
         if (filterUpgrades <= 0) return;
@@ -36,17 +34,34 @@ public abstract class BaseMachineContainerFilterMixin {
 
         // 计算额外的过滤槽数量（每个升级增加一排，每排9个）
         int extraSlots = filterUpgrades * 9;
-        int totalSlots = Math.min(FILTER_SLOTS + extraSlots, filterHandler.getSlots());
+        int originalSlots = FILTER_SLOTS;
+        int totalSlots = originalSlots + extraSlots;
+
+        // 扩展 filterHandler 容量
+        jdte$expandFilterHandler(totalSlots);
+
+        // 更新 FILTER_SLOTS 字段
+        FILTER_SLOTS = totalSlots;
 
         // 添加第一排（原有槽位）
-        addFilterSlots(filterHandler, 0, 8, 54, Math.min(FILTER_SLOTS, 9), 18);
+        int slotsInFirstRow = Math.min(originalSlots, 9);
+        addFilterSlots(filterHandler, 0, 8, 54, slotsInFirstRow, 18);
 
         // 添加额外的排
-        if (totalSlots > 9) {
-            addFilterSlots(filterHandler, 9, 8, 72, Math.min(totalSlots - 9, 9), 18);
+        int remainingSlots = totalSlots - slotsInFirstRow;
+        if (remainingSlots > 0) {
+            addFilterSlots(filterHandler, slotsInFirstRow, 8, 72, Math.min(remainingSlots, 9), 18);
         }
-        if (totalSlots > 18) {
-            addFilterSlots(filterHandler, 18, 8, 90, Math.min(totalSlots - 18, 9), 18);
+        if (remainingSlots > 9) {
+            addFilterSlots(filterHandler, slotsInFirstRow + 9, 8, 90, Math.min(remainingSlots - 9, 9), 18);
+        }
+    }
+
+    @Unique
+    private void jdte$expandFilterHandler(int newSize) {
+        // 通过反射或 accessor 扩展 filterHandler 的内部数组
+        if (filterHandler instanceof FilterBasicHandlerAccessor accessor) {
+            accessor.jdte$setSize(newSize);
         }
     }
 }

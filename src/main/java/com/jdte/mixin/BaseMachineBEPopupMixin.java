@@ -12,8 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BaseMachineBE.class)
 public abstract class BaseMachineBEPopupMixin implements UpgradePositionHolder {
-    @Unique private int jdte$popupX = 0;
-    @Unique private int jdte$popupY = 0;
+    @Unique private static final int POPUP_UNINITIALIZED = -1;
+    @Unique private int jdte$popupX = POPUP_UNINITIALIZED;
+    @Unique private int jdte$popupY = POPUP_UNINITIALIZED;
     @Unique private boolean jdte$popupOpen = false;
 
     @Override

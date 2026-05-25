@@ -12,6 +12,7 @@
     "AreaAffectingBEMixin",
     "EnergyCostMixin",
     "EnergyStorageAccessor",
+    "FilterBasicHandlerAccessor",
     "FluidCapacityMixin",
     "FluidTankAccessor",
     "GeneratorFluidUpgradeMixin",
@@ -22,6 +23,7 @@
     "TickSpeedPacketMixin"
   ],
   "client": [
+    "AbstractContainerScreenAccessor",
     "BaseMachineScreenMixin",
     "SlotAccessor"
   ],
