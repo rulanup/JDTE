@@ -24,6 +24,7 @@
     "TickSpeedPacketMixin"
   ],
   "client": [
+    "ScreenMixin",
     "BaseMachineScreenMixin",
     "SlotAccessor"
   ],
