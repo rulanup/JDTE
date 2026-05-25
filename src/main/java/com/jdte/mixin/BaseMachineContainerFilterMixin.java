@@ -5,6 +5,7 @@ import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachin
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -52,14 +53,11 @@ public abstract class BaseMachineContainerFilterMixin {
 
     @Unique
     private void jdte$expandFilterHandler(int newSize) {
-        ItemStack[] oldStacks = jdte$getStacks(filterHandler);
-        ItemStack[] newStacks = new ItemStack[newSize];
+        NonNullList<ItemStack> oldStacks = jdte$getStacks(filterHandler);
+        NonNullList<ItemStack> newStacks = NonNullList.withSize(newSize, ItemStack.EMPTY);
 
-        for (int i = 0; i < Math.min(oldStacks.length, newSize); i++) {
-            newStacks[i] = oldStacks[i];
-        }
-        for (int i = oldStacks.length; i < newSize; i++) {
-            newStacks[i] = ItemStack.EMPTY;
+        for (int i = 0; i < Math.min(oldStacks.size(), newSize); i++) {
+            newStacks.set(i, oldStacks.get(i));
         }
 
         if (filterHandler instanceof FilterBasicHandlerAccessor accessor) {
@@ -68,13 +66,13 @@ public abstract class BaseMachineContainerFilterMixin {
     }
 
     @Unique
-    private ItemStack[] jdte$getStacks(FilterBasicHandler handler) {
+    private NonNullList<ItemStack> jdte$getStacks(FilterBasicHandler handler) {
         try {
             var field = handler.getClass().getSuperclass().getDeclaredField("stacks");
             field.setAccessible(true);
-            return (ItemStack[]) field.get(handler);
+            return (NonNullList<ItemStack>) field.get(handler);
         } catch (Exception e) {
-            return new ItemStack[0];
+            return NonNullList.withSize(0, ItemStack.EMPTY);
         }
     }
 }
