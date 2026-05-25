@@ -51,7 +51,14 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
     @Inject(method = "init", at = @At("TAIL"))
     private void jdte$initPopup(CallbackInfo ci) {
-        if (jdte$upgradePopupX == 0 && jdte$upgradePopupY == 0) {
+        // 从方块实体加载位置
+        if (baseMachineBE instanceof com.jdte.common.upgrades.UpgradePositionHolder holder) {
+            jdte$upgradePopupX = holder.jdte$getPopupX();
+            jdte$upgradePopupY = holder.jdte$getPopupY();
+            jdte$upgradePopupOpen = holder.jdte$isPopupOpen();
+        }
+        // 如果位置无效，使用默认位置
+        if (jdte$upgradePopupX <= 0 || jdte$upgradePopupY <= 0) {
             jdte$upgradePopupX = getGuiLeft() + imageWidth + 8;
             jdte$upgradePopupY = Math.max(8, topSectionTop);
         }
@@ -83,6 +90,7 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
         if (jdte$inToggle(mouseX, mouseY)) {
             jdte$upgradePopupOpen = !jdte$upgradePopupOpen;
+            jdte$savePopupState();
             jdte$updateUpgradeSlots();
             cir.setReturnValue(true);
             return;
@@ -98,6 +106,7 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
 
         if (jdte$upgradePopupOpen && jdte$inPopupClose(mouseX, mouseY)) {
             jdte$upgradePopupOpen = false;
+            jdte$savePopupState();
             jdte$updateUpgradeSlots();
             cir.setReturnValue(true);
             return;
@@ -113,6 +122,7 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
         if (jdte$draggingUpgradePopup) {
             jdte$upgradePopupX = Math.max(0, Math.min(width - jdte$popupWidth(), (int) mouseX - jdte$upgradeDragOffsetX));
             jdte$upgradePopupY = Math.max(0, Math.min(height - jdte$popupHeight(), (int) mouseY - jdte$upgradeDragOffsetY));
+            jdte$savePopupState();
             jdte$updateUpgradeSlots();
             return true;
         }
@@ -285,6 +295,15 @@ public abstract class BaseMachineScreenMixin<T extends BaseMachineContainer> ext
     @Unique
     private int jdte$getClickerFluidBarOffset() {
         return baseMachineBE instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE ? 24 : 5;
+    }
+
+    @Unique
+    private void jdte$savePopupState() {
+        if (baseMachineBE instanceof com.jdte.common.upgrades.UpgradePositionHolder holder) {
+            holder.jdte$setPopupX(jdte$upgradePopupX);
+            holder.jdte$setPopupY(jdte$upgradePopupY);
+            holder.jdte$setPopupOpen(jdte$upgradePopupOpen);
+        }
     }
 
     @Inject(method = "renderBg", at = @At("TAIL"))

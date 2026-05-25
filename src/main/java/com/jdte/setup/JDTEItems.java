@@ -20,6 +20,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, UpgradeCardItem> FLUID_STORAGE_UPGRADE = ITEMS.register("fluid_storage_upgrade", () -> new UpgradeCardItem(UpgradeType.FLUID_STORAGE));
     public static final DeferredHolder<Item, UpgradeCardItem> GENERATOR_UPGRADE = ITEMS.register("generator_upgrade", () -> new UpgradeCardItem(UpgradeType.GENERATOR));
     public static final DeferredHolder<Item, UpgradeCardItem> RANGE_UPGRADE = ITEMS.register("range_upgrade", () -> new UpgradeCardItem(UpgradeType.RANGE));
+    public static final DeferredHolder<Item, UpgradeCardItem> FILTER_UPGRADE = ITEMS.register("filter_upgrade", () -> new UpgradeCardItem(UpgradeType.FILTER));
 
     public static final DeferredHolder<Item, BlockItem> BASIC_TIME_ACCELERATOR = ITEMS.register("basic_time_accelerator", () -> new BlockItem(JDTEBlocks.BASIC_TIME_ACCELERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ADVANCED_TIME_ACCELERATOR = ITEMS.register("advanced_time_accelerator", () -> new BlockItem(JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(), new Item.Properties()));
@@ -33,6 +34,6 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_PLACER = ITEMS.register("extended_fluid_placer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_PLACER.get(), new Item.Properties()));
 
     public static List<DeferredHolder<Item, UpgradeCardItem>> upgrades() {
-        return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE, GENERATOR_UPGRADE, RANGE_UPGRADE);
+        return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE, GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE);
     }
 }

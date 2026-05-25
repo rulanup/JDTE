@@ -11,6 +11,7 @@ item_ids:
   - jdte:fluid_storage_upgrade
   - jdte:generator_upgrade
   - jdte:range_upgrade
+  - jdte:filter_upgrade
 ---
 
 # 升级卡
@@ -72,3 +73,13 @@ item_ids:
 使机器的可配置区域上限翻倍。最多可叠加 2 次。
 
 <RecipeFor id="jdte:range_upgrade" />
+
+## 过滤升级
+
+<ItemImage id="jdte:filter_upgrade" scale="2" />
+
+为机器添加额外的过滤槽。每个升级增加一排（9个槽位），最多可叠加 2 次。
+
+**仅限：** 有过滤槽的机器（如 Clicker T2、传感器 T2 等）
+
+<RecipeFor id="jdte:filter_upgrade" />

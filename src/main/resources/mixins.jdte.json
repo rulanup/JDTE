@@ -4,8 +4,10 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BaseMachineBEMixin",
+    "BaseMachineBEPopupMixin",
     "BaseMachineBlockMixin",
     "BaseMachineContainerMixin",
+    "BaseMachineContainerFilterMixin",
     "ClickerFluidMixin",
     "AreaAffectingBEMixin",
     "EnergyCostMixin",

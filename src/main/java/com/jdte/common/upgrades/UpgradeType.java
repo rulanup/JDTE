@@ -7,7 +7,8 @@ public enum UpgradeType {
     FLUID("fluid", 3),
     FLUID_STORAGE("fluid_storage", 1),
     GENERATOR("generator", 1),
-    RANGE("range", 2);
+    RANGE("range", 2),
+    FILTER("filter", 2);
 
     private final String serializedName;
     private final int maxPerMachine;
