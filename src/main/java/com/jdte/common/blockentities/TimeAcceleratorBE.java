@@ -141,10 +141,16 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     protected boolean hasResources(int fluidCost, int energyCost) {
+        if (UpgradeHelper.hasCreativeUpgrade(this)) {
+            return true;
+        }
         return fluidTank.drain(fluidCost, IFluidHandler.FluidAction.SIMULATE).getAmount() == fluidCost;
     }
 
     protected void consumeResources(int fluidCost, int energyCost) {
+        if (UpgradeHelper.hasCreativeUpgrade(this)) {
+            return;
+        }
         fluidTank.drain(fluidCost, IFluidHandler.FluidAction.EXECUTE);
         setChanged();
     }

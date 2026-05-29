@@ -3,11 +3,13 @@ package com.jdte.mixin;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
+import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.upgrades.UpgradeHelper;
-import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.utils.UpgradeSlotStorage;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,33 +23,49 @@ public abstract class BaseMachineContainerFilterMixin {
     @Shadow public BaseMachineBE baseMachineBE;
     @Shadow public FilterBasicHandler filterHandler;
 
-    @Shadow
-    protected abstract int addFilterSlots(IItemHandler handler, int index, int x, int y, int amount, int dx);
-
     @Inject(method = "addFilterSlots()V", at = @At("HEAD"), cancellable = true)
     private void jdte$addExtraFilterSlots(CallbackInfo ci) {
         if (baseMachineBE == null || filterHandler == null) return;
 
-        int filterUpgrades = UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.FILTER);
-        if (filterUpgrades <= 0) return;
-
         ci.cancel();
 
-        int extraSlots = filterUpgrades * 9;
-        int originalSlots = FILTER_SLOTS;
-        int totalSlots = originalSlots + extraSlots;
+        int originalSlots = UpgradeHelper.getBaseFilterSlots(filterHandler);
+        int totalSlots = UpgradeHelper.getMaxFilterSlots(originalSlots);
 
+        UpgradeSlotStorage.setBaseFilterSlots((BaseMachineContainer) (Object) this, originalSlots);
         jdte$expandFilterHandler(totalSlots);
+        UpgradeHelper.trimInactiveFilterSlots(baseMachineBE);
         FILTER_SLOTS = totalSlots;
 
+        // Add all possible filter slots up front; inactive ones are hidden and disabled.
         int slotsAdded = 0;
         int y = 54;
 
         while (slotsAdded < totalSlots) {
             int slotsInRow = Math.min(9, totalSlots - slotsAdded);
-            addFilterSlots(filterHandler, slotsAdded, 8, y, slotsInRow, 18);
+            jdte$addDynamicFilterSlots(slotsAdded, 8, y, slotsInRow, 18, originalSlots);
             slotsAdded += slotsInRow;
             y += 18;
+        }
+    }
+
+    @Unique
+    private void jdte$addDynamicFilterSlots(int index, int x, int y, int amount, int dx, int baseFilterSlots) {
+        for (int i = 0; i < amount; i++) {
+            jdte$addSlot(new DynamicFilterSlot(filterHandler, index, x, y, (BaseMachineContainer) (Object) this, baseFilterSlots));
+            x += dx;
+            index++;
+        }
+    }
+
+    @Unique
+    private void jdte$addSlot(Slot slot) {
+        try {
+            var method = net.minecraft.world.inventory.AbstractContainerMenu.class.getDeclaredMethod("addSlot", Slot.class);
+            method.setAccessible(true);
+            method.invoke(this, slot);
+        } catch (Exception e) {
+            // ignore
         }
     }
 
@@ -60,8 +78,15 @@ public abstract class BaseMachineContainerFilterMixin {
             newStacks.set(i, oldStacks.get(i));
         }
 
-        if (filterHandler instanceof FilterBasicHandlerAccessor accessor) {
-            accessor.jdte$setStacks(newStacks);
+        try {
+            java.lang.reflect.Field field = ItemStackHandler.class.getDeclaredField("stacks");
+            field.setAccessible(true);
+            field.set(filterHandler, newStacks);
+        } catch (Exception e) {
+            // Fallback: try through accessor if reflection fails
+            if (filterHandler instanceof FilterBasicHandlerAccessor accessor) {
+                accessor.jdte$setStacks(newStacks);
+            }
         }
     }
 

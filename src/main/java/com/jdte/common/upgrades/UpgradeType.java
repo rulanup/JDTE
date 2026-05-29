@@ -8,7 +8,8 @@ public enum UpgradeType {
     FLUID_STORAGE("fluid_storage", 1),
     GENERATOR("generator", 1),
     RANGE("range", 2),
-    FILTER("filter", 2);
+    FILTER("filter", 2),
+    CREATIVE("creative", 1);
 
     private final String serializedName;
     private final int maxPerMachine;
@@ -28,5 +29,9 @@ public enum UpgradeType {
 
     public boolean isSpeedUpgrade() {
         return this == OVERCLOCK || this == UNDERCLOCK;
+    }
+
+    public boolean isCreativeUpgrade() {
+        return this == CREATIVE;
     }
 }

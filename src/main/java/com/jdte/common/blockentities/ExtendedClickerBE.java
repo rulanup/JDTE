@@ -11,6 +11,7 @@ import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.UsefulFakePlayer;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
+import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -77,13 +78,16 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
 
     @Override
     public boolean canClick() {
+        if (UpgradeHelper.hasCreativeUpgrade(this)) {
+            return true;
+        }
         return hasEnoughPower(getStandardEnergyCost());
     }
 
     @Override
     public InteractionResult clickEntity(ItemStack itemStack, UsefulFakePlayer fakePlayer, LivingEntity entity) {
         InteractionResult interactionResult = super.clickEntity(itemStack, fakePlayer, entity);
-        if (interactionResult.equals(InteractionResult.SUCCESS))
+        if (interactionResult.equals(InteractionResult.SUCCESS) && !UpgradeHelper.hasCreativeUpgrade(this))
             extractEnergy(getStandardEnergyCost(), false);
         return interactionResult;
     }
@@ -91,7 +95,7 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
     @Override
     public InteractionResult clickBlock(ItemStack itemStack, UsefulFakePlayer fakePlayer, BlockPos blockPos) {
         InteractionResult interactionResult = super.clickBlock(itemStack, fakePlayer, blockPos);
-        if (interactionResult.equals(InteractionResult.SUCCESS))
+        if (interactionResult.equals(InteractionResult.SUCCESS) && !UpgradeHelper.hasCreativeUpgrade(this))
             extractEnergy(getStandardEnergyCost(), false);
         return interactionResult;
     }

@@ -14,6 +14,8 @@ public class JDTEBlockEntities {
             "basic_time_accelerator", () -> BlockEntityType.Builder.of(BasicTimeAcceleratorBE::new, JDTEBlocks.BASIC_TIME_ACCELERATOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedTimeAcceleratorBE>> ADVANCED_TIME_ACCELERATOR = BLOCK_ENTITIES.register(
             "advanced_time_accelerator", () -> BlockEntityType.Builder.of(AdvancedTimeAcceleratorBE::new, JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedTimeAcceleratorBE>> EXTENDED_TIME_ACCELERATOR = BLOCK_ENTITIES.register(
+            "extended_time_accelerator", () -> BlockEntityType.Builder.of(ExtendedTimeAcceleratorBE::new, JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedClickerBE>> EXTENDED_CLICKER = BLOCK_ENTITIES.register(
             "extended_clicker", () -> BlockEntityType.Builder.of(ExtendedClickerBE::new, JDTEBlocks.EXTENDED_CLICKER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedBlockBreakerBE>> EXTENDED_BLOCK_BREAKER = BLOCK_ENTITIES.register(
@@ -30,4 +32,50 @@ public class JDTEBlockEntities {
             "extended_fluid_collector", () -> BlockEntityType.Builder.of(ExtendedFluidCollectorBE::new, JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedFluidPlacerBE>> EXTENDED_FLUID_PLACER = BLOCK_ENTITIES.register(
             "extended_fluid_placer", () -> BlockEntityType.Builder.of(ExtendedFluidPlacerBE::new, JDTEBlocks.EXTENDED_FLUID_PLACER.get()).build(null));
+
+    // Glue Activator
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicGlueActivatorBE>> BASIC_GLUE_ACTIVATOR = BLOCK_ENTITIES.register(
+            "basic_glue_activator", () -> BlockEntityType.Builder.of(BasicGlueActivatorBE::new, JDTEBlocks.BASIC_GLUE_ACTIVATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedGlueActivatorBE>> ADVANCED_GLUE_ACTIVATOR = BLOCK_ENTITIES.register(
+            "advanced_glue_activator", () -> BlockEntityType.Builder.of(AdvancedGlueActivatorBE::new, JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedGlueActivatorBE>> EXTENDED_GLUE_ACTIVATOR = BLOCK_ENTITIES.register(
+            "extended_glue_activator", () -> BlockEntityType.Builder.of(ExtendedGlueActivatorBE::new, JDTEBlocks.EXTENDED_GLUE_ACTIVATOR.get()).build(null));
+
+    // Gel Generator
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedGelGeneratorBE>> ADVANCED_GEL_GENERATOR = BLOCK_ENTITIES.register(
+            "advanced_gel_generator", () -> BlockEntityType.Builder.of(AdvancedGelGeneratorBE::new, JDTEBlocks.ADVANCED_GEL_GENERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedGelGeneratorBE>> EXTENDED_GEL_GENERATOR = BLOCK_ENTITIES.register(
+            "extended_gel_generator", () -> BlockEntityType.Builder.of(ExtendedGelGeneratorBE::new, JDTEBlocks.EXTENDED_GEL_GENERATOR.get()).build(null));
+
+    // Item Sender
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicItemSenderBE>> BASIC_ITEM_SENDER = BLOCK_ENTITIES.register(
+            "basic_item_sender", () -> BlockEntityType.Builder.of(BasicItemSenderBE::new, JDTEBlocks.BASIC_ITEM_SENDER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedItemSenderBE>> ADVANCED_ITEM_SENDER = BLOCK_ENTITIES.register(
+            "advanced_item_sender", () -> BlockEntityType.Builder.of(AdvancedItemSenderBE::new, JDTEBlocks.ADVANCED_ITEM_SENDER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedItemSenderBE>> EXTENDED_ITEM_SENDER = BLOCK_ENTITIES.register(
+            "extended_item_sender", () -> BlockEntityType.Builder.of(ExtendedItemSenderBE::new, JDTEBlocks.EXTENDED_ITEM_SENDER.get()).build(null));
+
+    // Fluid Sender
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicFluidSenderBE>> BASIC_FLUID_SENDER = BLOCK_ENTITIES.register(
+            "basic_fluid_sender", () -> BlockEntityType.Builder.of(BasicFluidSenderBE::new, JDTEBlocks.BASIC_FLUID_SENDER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedFluidSenderBE>> ADVANCED_FLUID_SENDER = BLOCK_ENTITIES.register(
+            "advanced_fluid_sender", () -> BlockEntityType.Builder.of(AdvancedFluidSenderBE::new, JDTEBlocks.ADVANCED_FLUID_SENDER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedFluidSenderBE>> EXTENDED_FLUID_SENDER = BLOCK_ENTITIES.register(
+            "extended_fluid_sender", () -> BlockEntityType.Builder.of(ExtendedFluidSenderBE::new, JDTEBlocks.EXTENDED_FLUID_SENDER.get()).build(null));
+
+    // Item Receiver
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicItemReceiverBE>> BASIC_ITEM_RECEIVER = BLOCK_ENTITIES.register(
+            "basic_item_receiver", () -> BlockEntityType.Builder.of(BasicItemReceiverBE::new, JDTEBlocks.BASIC_ITEM_RECEIVER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedItemReceiverBE>> ADVANCED_ITEM_RECEIVER = BLOCK_ENTITIES.register(
+            "advanced_item_receiver", () -> BlockEntityType.Builder.of(AdvancedItemReceiverBE::new, JDTEBlocks.ADVANCED_ITEM_RECEIVER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedItemReceiverBE>> EXTENDED_ITEM_RECEIVER = BLOCK_ENTITIES.register(
+            "extended_item_receiver", () -> BlockEntityType.Builder.of(ExtendedItemReceiverBE::new, JDTEBlocks.EXTENDED_ITEM_RECEIVER.get()).build(null));
+
+    // Fluid Receiver
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicFluidReceiverBE>> BASIC_FLUID_RECEIVER = BLOCK_ENTITIES.register(
+            "basic_fluid_receiver", () -> BlockEntityType.Builder.of(BasicFluidReceiverBE::new, JDTEBlocks.BASIC_FLUID_RECEIVER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedFluidReceiverBE>> ADVANCED_FLUID_RECEIVER = BLOCK_ENTITIES.register(
+            "advanced_fluid_receiver", () -> BlockEntityType.Builder.of(AdvancedFluidReceiverBE::new, JDTEBlocks.ADVANCED_FLUID_RECEIVER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedFluidReceiverBE>> EXTENDED_FLUID_RECEIVER = BLOCK_ENTITIES.register(
+            "extended_fluid_receiver", () -> BlockEntityType.Builder.of(ExtendedFluidReceiverBE::new, JDTEBlocks.EXTENDED_FLUID_RECEIVER.get()).build(null));
 }

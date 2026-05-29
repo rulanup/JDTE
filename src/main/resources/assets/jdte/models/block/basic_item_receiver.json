@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "jdte:block/basic_item_receiver_top",
+    "front": "jdte:block/basic_item_receiver_front",
+    "side": "jdte:block/basic_item_receiver_side"
+  }
+}

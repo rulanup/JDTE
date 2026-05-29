@@ -17,9 +17,16 @@ public class JDTECreativeTabs {
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
             .icon(() -> new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()))
             .displayItems((parameters, output) -> {
+                // Upgrade cards
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
+                output.accept(JDTEItems.EXTENDED_UPGRADE.get());
+
+                // Time Accelerators
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());
                 output.accept(JDTEItems.ADVANCED_TIME_ACCELERATOR.get());
+                output.accept(JDTEItems.EXTENDED_TIME_ACCELERATOR.get());
+
+                // Extended Machines
                 output.accept(JDTEItems.EXTENDED_CLICKER.get());
                 output.accept(JDTEItems.EXTENDED_BLOCK_BREAKER.get());
                 output.accept(JDTEItems.EXTENDED_BLOCK_PLACER.get());
@@ -28,6 +35,35 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_SENSOR.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_COLLECTOR.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_PLACER.get());
+
+                // Glue Activators
+                output.accept(JDTEItems.BASIC_GLUE_ACTIVATOR.get());
+                output.accept(JDTEItems.ADVANCED_GLUE_ACTIVATOR.get());
+                output.accept(JDTEItems.EXTENDED_GLUE_ACTIVATOR.get());
+
+                // Gel Generators
+                output.accept(JDTEItems.ADVANCED_GEL_GENERATOR.get());
+                output.accept(JDTEItems.EXTENDED_GEL_GENERATOR.get());
+
+                // Item Senders
+                output.accept(JDTEItems.BASIC_ITEM_SENDER.get());
+                output.accept(JDTEItems.ADVANCED_ITEM_SENDER.get());
+                output.accept(JDTEItems.EXTENDED_ITEM_SENDER.get());
+
+                // Fluid Senders
+                output.accept(JDTEItems.BASIC_FLUID_SENDER.get());
+                output.accept(JDTEItems.ADVANCED_FLUID_SENDER.get());
+                output.accept(JDTEItems.EXTENDED_FLUID_SENDER.get());
+
+                // Item Receivers
+                output.accept(JDTEItems.BASIC_ITEM_RECEIVER.get());
+                output.accept(JDTEItems.ADVANCED_ITEM_RECEIVER.get());
+                output.accept(JDTEItems.EXTENDED_ITEM_RECEIVER.get());
+
+                // Fluid Receivers
+                output.accept(JDTEItems.BASIC_FLUID_RECEIVER.get());
+                output.accept(JDTEItems.ADVANCED_FLUID_RECEIVER.get());
+                output.accept(JDTEItems.EXTENDED_FLUID_RECEIVER.get());
             })
             .build());
 }

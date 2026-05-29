@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "jdte:block/advanced_fluid_sender_top",
+    "front": "jdte:block/advanced_fluid_sender_front",
+    "side": "jdte:block/advanced_fluid_sender_side"
+  }
+}

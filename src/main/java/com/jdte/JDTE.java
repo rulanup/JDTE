@@ -14,7 +14,9 @@ import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
@@ -35,6 +37,7 @@ public class JDTE {
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
+        // Clicker fluid handler (with fluid storage upgrade)
         event.registerBlock(Capabilities.FluidHandler.BLOCK,
                 (level, pos, state, be, side) -> {
                     if (be instanceof ClickerT1BE clicker && UpgradeHelper.hasFluidStorageUpgrade(clicker)) {
@@ -46,15 +49,23 @@ public class JDTE {
                 Registration.ClickerT2.get(),
                 JDTEBlocks.EXTENDED_CLICKER.get()
         );
+
+        // Time Accelerator fluid handler
         event.registerBlock(Capabilities.FluidHandler.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.TimeAcceleratorBE accelerator ? accelerator.getFluidTank() : null,
                 JDTEBlocks.BASIC_TIME_ACCELERATOR.get(),
-                JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get()
+                JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(),
+                JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get()
         );
+
+        // Time Accelerator energy storage
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.AdvancedTimeAcceleratorBE accelerator ? accelerator.getEnergyStorage() : null,
-                JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get()
+                JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(),
+                JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get()
         );
+
+        // Extended Machines energy storage
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
                 JDTEBlocks.EXTENDED_CLICKER.get(),
@@ -65,6 +76,65 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_SENSOR.get(),
                 JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),
                 JDTEBlocks.EXTENDED_FLUID_PLACER.get()
+        );
+
+        // Glue Activator energy storage (Advanced and Extended)
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get(),
+                JDTEBlocks.EXTENDED_GLUE_ACTIVATOR.get()
+        );
+
+        // Gel Generator energy storage and fluid handler
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_GEL_GENERATOR.get(),
+                JDTEBlocks.EXTENDED_GEL_GENERATOR.get()
+        );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GelGeneratorBE generator ? generator.getFluidTank() : null,
+                JDTEBlocks.ADVANCED_GEL_GENERATOR.get(),
+                JDTEBlocks.EXTENDED_GEL_GENERATOR.get()
+        );
+
+        // Item Sender energy storage (Advanced and Extended)
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_ITEM_SENDER.get(),
+                JDTEBlocks.EXTENDED_ITEM_SENDER.get()
+        );
+
+        // Fluid Sender energy storage and fluid handler
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_FLUID_SENDER.get(),
+                JDTEBlocks.EXTENDED_FLUID_SENDER.get()
+        );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.FluidSenderBE sender ? sender.getFluidTank() : null,
+                JDTEBlocks.BASIC_FLUID_SENDER.get(),
+                JDTEBlocks.ADVANCED_FLUID_SENDER.get(),
+                JDTEBlocks.EXTENDED_FLUID_SENDER.get()
+        );
+
+        // Item Receiver energy storage (Advanced and Extended)
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_ITEM_RECEIVER.get(),
+                JDTEBlocks.EXTENDED_ITEM_RECEIVER.get()
+        );
+
+        // Fluid Receiver energy storage and fluid handler
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_FLUID_RECEIVER.get(),
+                JDTEBlocks.EXTENDED_FLUID_RECEIVER.get()
+        );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.FluidReceiverBE receiver ? receiver.getFluidTank() : null,
+                JDTEBlocks.BASIC_FLUID_RECEIVER.get(),
+                JDTEBlocks.ADVANCED_FLUID_RECEIVER.get(),
+                JDTEBlocks.EXTENDED_FLUID_RECEIVER.get()
         );
     }
 

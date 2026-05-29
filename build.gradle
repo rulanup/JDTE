@@ -26,8 +26,7 @@ java {
     }
 }
 
-def jdtProjectDir = file(jdt_source_dir)
-def jdtJar = file("${jdtProjectDir}/build/libs/${jdt_mod_id}-${jdt_mod_version}.jar")
+def jdtJar = file('/home/guili/libs/justdirethings-1.5.7.jar')
 
 neoForge {
     version = project.neo_version

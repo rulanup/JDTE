@@ -12,6 +12,6 @@ public class BasicTimeAcceleratorBE extends TimeAcceleratorBE {
 
     @Override
     public int getEffectiveMultiplier() {
-        return UpgradeHelper.hasOverclock(this) ? 16 : 4;
+        return (UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this)) ? 16 : 4;
     }
 }

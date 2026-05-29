@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements PoweredMachineBE {
@@ -22,7 +23,11 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     private int multiplier = 4;
 
     public AdvancedTimeAcceleratorBE(BlockPos pos, BlockState state) {
-        super(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), pos, state);
+        this(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), pos, state);
+    }
+
+    protected AdvancedTimeAcceleratorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
     }
@@ -38,7 +43,7 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
 
     @Override
     public int getEffectiveMultiplier() {
-        return UpgradeHelper.hasOverclock(this) ? OVERCLOCK_MULTIPLIER : multiplier;
+        return (UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this)) ? OVERCLOCK_MULTIPLIER : multiplier;
     }
 
     @Override
@@ -63,11 +68,17 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
 
     @Override
     protected boolean hasResources(int fluidCost, int energyCost) {
+        if (UpgradeHelper.hasCreativeUpgrade(this)) {
+            return true;
+        }
         return super.hasResources(fluidCost, energyCost) && energyStorage.extractEnergy(energyCost, true) == energyCost;
     }
 
     @Override
     protected void consumeResources(int fluidCost, int energyCost) {
+        if (UpgradeHelper.hasCreativeUpgrade(this)) {
+            return;
+        }
         super.consumeResources(fluidCost, energyCost);
         energyStorage.extractEnergy(energyCost, false);
     }

@@ -1,9 +1,11 @@
 package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
+import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.mixin.EnergyStorageAccessor;
@@ -18,6 +20,8 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class UpgradeHelper {
+    public static final int FILTER_SLOTS_PER_UPGRADE = 9;
+
     public static UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
         if (machine instanceof com.jdte.common.blockentities.ExtendedUpgradeMachine) {
             return machine.getData(JDTEAttachments.EXTENDED_UPGRADE_HANDLER);
@@ -44,6 +48,50 @@ public class UpgradeHelper {
         return Math.min(count, type.getMaxPerMachine());
     }
 
+    public static int getMaxExtraFilterSlots() {
+        return UpgradeType.FILTER.getMaxPerMachine() * FILTER_SLOTS_PER_UPGRADE;
+    }
+
+    public static int getMaxFilterSlots(int baseSlots) {
+        return baseSlots + getMaxExtraFilterSlots();
+    }
+
+    public static int getActiveFilterSlots(BaseMachineBE machine, int baseSlots) {
+        if (machine == null) {
+            return baseSlots;
+        }
+        return baseSlots + countUpgrades(machine, UpgradeType.FILTER) * FILTER_SLOTS_PER_UPGRADE;
+    }
+
+    public static int getBaseFilterSlots(FilterBasicHandler handler) {
+        int slots = handler.getSlots();
+        if (slots <= FILTER_SLOTS_PER_UPGRADE) {
+            return slots;
+        }
+
+        int remainder = slots % FILTER_SLOTS_PER_UPGRADE;
+        return remainder == 0 ? FILTER_SLOTS_PER_UPGRADE : remainder;
+    }
+
+    public static void trimInactiveFilterSlots(BaseMachineBE machine) {
+        if (!(machine instanceof FilterableBE filterable)) {
+            return;
+        }
+
+        FilterBasicHandler handler = filterable.getFilterHandler();
+        int activeSlots = getActiveFilterSlots(machine, getBaseFilterSlots(handler));
+        boolean changed = false;
+        for (int i = activeSlots; i < handler.getSlots(); i++) {
+            if (!handler.getStackInSlot(i).isEmpty()) {
+                handler.setStackInSlot(i, ItemStack.EMPTY);
+                changed = true;
+            }
+        }
+        if (changed) {
+            machine.setChanged();
+        }
+    }
+
     public static int adjustEnergyCapacity(BaseMachineBE machine, int original) {
         return multiplyByPowersOfTwo(original, countUpgrades(machine, UpgradeType.CAPACITY));
     }
@@ -56,6 +104,9 @@ public class UpgradeHelper {
     public static int adjustEnergyCost(BaseMachineBE machine, int original) {
         if (original <= 0) {
             return original;
+        }
+        if (hasCreativeUpgrade(machine)) {
+            return 0;
         }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
             return Math.max(1, (int) Math.ceil(original * 0.2D));
@@ -71,6 +122,9 @@ public class UpgradeHelper {
         if (!usesLockedDelay(machine)) {
             return original;
         }
+        if (hasCreativeUpgrade(machine)) {
+            return 1;
+        }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
             return 40;
         }
@@ -81,7 +135,7 @@ public class UpgradeHelper {
     }
 
     public static boolean shouldRunOverclock(BaseMachineBE machine) {
-        return usesLockedDelay(machine) && hasOverclock(machine) && countUpgrades(machine, UpgradeType.UNDERCLOCK) == 0;
+        return usesLockedDelay(machine) && (hasOverclock(machine) || hasCreativeUpgrade(machine)) && countUpgrades(machine, UpgradeType.UNDERCLOCK) == 0;
     }
 
     public static boolean usesLockedDelay(BaseMachineBE machine) {
@@ -89,7 +143,7 @@ public class UpgradeHelper {
     }
 
     public static boolean hasOverclock(BaseMachineBE machine) {
-        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0;
+        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasCreativeUpgrade(machine);
     }
 
     public static boolean hasUndercLock(BaseMachineBE machine) {
@@ -98,6 +152,10 @@ public class UpgradeHelper {
 
     public static boolean hasGeneratorUpgrade(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.GENERATOR) > 0;
+    }
+
+    public static boolean hasCreativeUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.CREATIVE) > 0;
     }
 
     public static double getMaxAreaRadius(BaseMachineBE machine) {
@@ -152,6 +210,7 @@ public class UpgradeHelper {
         }
 
         syncClickerFluidTank(machine);
+        trimInactiveFilterSlots(machine);
     }
 
     public static void syncClickerFluidTank(BaseMachineBE machine) {

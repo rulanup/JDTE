@@ -3,8 +3,7 @@ package com.jdte.client;
 import com.jdte.JDTE;
 import com.jdte.client.entityrenders.TimeAcceleratorEffectRenderer;
 import com.jdte.client.renderers.TimeAcceleratorBER;
-import com.jdte.client.screens.AdvancedTimeAcceleratorScreen;
-import com.jdte.client.screens.BasicTimeAcceleratorScreen;
+import com.jdte.client.screens.*;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEEntities;
 import com.jdte.setup.JDTEMenus;
@@ -18,8 +17,12 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 public class JDTEClientSetup {
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
+        // Time Accelerators
         event.register(JDTEMenus.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorScreen::new);
         event.register(JDTEMenus.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorScreen::new);
+        event.register(JDTEMenus.EXTENDED_TIME_ACCELERATOR.get(), ExtendedTimeAcceleratorScreen::new);
+
+        // Extended Machines
         event.register(JDTEMenus.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.screens.ClickerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_BREAKER.get(), com.direwolf20.justdirethings.client.screens.BlockBreakerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.screens.BlockPlacerT2Screen::new);
@@ -28,13 +31,46 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.EXTENDED_SENSOR.get(), com.direwolf20.justdirethings.client.screens.SensorT2Screen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_COLLECTOR.get(), com.direwolf20.justdirethings.client.screens.FluidCollectorT2Screen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_PLACER.get(), com.direwolf20.justdirethings.client.screens.FluidPlacerT2Screen::new);
+
+        // Glue Activators
+        event.register(JDTEMenus.BASIC_GLUE_ACTIVATOR.get(), BasicGlueActivatorScreen::new);
+        event.register(JDTEMenus.ADVANCED_GLUE_ACTIVATOR.get(), AdvancedGlueActivatorScreen::new);
+        event.register(JDTEMenus.EXTENDED_GLUE_ACTIVATOR.get(), ExtendedGlueActivatorScreen::new);
+
+        // Gel Generators
+        event.register(JDTEMenus.ADVANCED_GEL_GENERATOR.get(), AdvancedGelGeneratorScreen::new);
+        event.register(JDTEMenus.EXTENDED_GEL_GENERATOR.get(), ExtendedGelGeneratorScreen::new);
+
+        // Item Senders
+        event.register(JDTEMenus.BASIC_ITEM_SENDER.get(), BasicItemSenderScreen::new);
+        event.register(JDTEMenus.ADVANCED_ITEM_SENDER.get(), AdvancedItemSenderScreen::new);
+        event.register(JDTEMenus.EXTENDED_ITEM_SENDER.get(), ExtendedItemSenderScreen::new);
+
+        // Fluid Senders
+        event.register(JDTEMenus.BASIC_FLUID_SENDER.get(), BasicFluidSenderScreen::new);
+        event.register(JDTEMenus.ADVANCED_FLUID_SENDER.get(), AdvancedFluidSenderScreen::new);
+        event.register(JDTEMenus.EXTENDED_FLUID_SENDER.get(), ExtendedFluidSenderScreen::new);
+
+        // Item Receivers
+        event.register(JDTEMenus.BASIC_ITEM_RECEIVER.get(), BasicItemReceiverScreen::new);
+        event.register(JDTEMenus.ADVANCED_ITEM_RECEIVER.get(), AdvancedItemReceiverScreen::new);
+        event.register(JDTEMenus.EXTENDED_ITEM_RECEIVER.get(), ExtendedItemReceiverScreen::new);
+
+        // Fluid Receivers
+        event.register(JDTEMenus.BASIC_FLUID_RECEIVER.get(), BasicFluidReceiverScreen::new);
+        event.register(JDTEMenus.ADVANCED_FLUID_RECEIVER.get(), AdvancedFluidReceiverScreen::new);
+        event.register(JDTEMenus.EXTENDED_FLUID_RECEIVER.get(), ExtendedFluidReceiverScreen::new);
     }
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        // Time Accelerators
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerEntityRenderer(JDTEEntities.TIME_ACCELERATOR_EFFECT.get(), TimeAcceleratorEffectRenderer::new);
+
+        // Extended Machines
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.ClickerT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_BREAKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockBreakerT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockPlacerT2BER::new);
@@ -43,5 +79,30 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_SENSOR.get(), com.direwolf20.justdirethings.client.blockentityrenders.SensorT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_COLLECTOR.get(), com.direwolf20.justdirethings.client.blockentityrenders.FluidCollectorT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_PLACER.get(), com.direwolf20.justdirethings.client.blockentityrenders.FluidPlacerT2BER::new);
+
+        // Glue Activators - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+
+        // Item Senders - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_ITEM_SENDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ITEM_SENDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_ITEM_SENDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+
+        // Fluid Senders - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_FLUID_SENDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_FLUID_SENDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_SENDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+
+        // Item Receivers - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_ITEM_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ITEM_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_ITEM_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+
+        // Fluid Receivers - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_FLUID_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_FLUID_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
     }
 }

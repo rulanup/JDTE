@@ -82,6 +82,7 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
     protected void onContentsChanged(int slot) {
         if (machine != null) {
             UpgradeHelper.syncCapacities(machine);
+            UpgradeHelper.trimInactiveFilterSlots(machine);
             if (machine.getLevel() != null) {
                 machine.getLevel().invalidateCapabilities(machine.getBlockPos());
             }

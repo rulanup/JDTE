@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:command_block"
+    },
+    "D": {
+      "item": "minecraft:diamond_block"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    },
+    "O": {
+      "item": "jdte:overclock_upgrade"
+    }
+  },
+  "pattern": [
+    "DOD",
+    "ONO",
+    "DCD"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:creative_upgrade"
+  }
+}

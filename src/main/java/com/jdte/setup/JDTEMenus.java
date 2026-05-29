@@ -15,6 +15,8 @@ public class JDTEMenus {
             "basic_time_accelerator", () -> IMenuTypeExtension.create(BasicTimeAcceleratorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedTimeAcceleratorContainer>> ADVANCED_TIME_ACCELERATOR = MENUS.register(
             "advanced_time_accelerator", () -> IMenuTypeExtension.create(AdvancedTimeAcceleratorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedTimeAcceleratorContainer>> EXTENDED_TIME_ACCELERATOR = MENUS.register(
+            "extended_time_accelerator", () -> IMenuTypeExtension.create(ExtendedTimeAcceleratorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedClickerContainer>> EXTENDED_CLICKER = MENUS.register(
             "extended_clicker", () -> IMenuTypeExtension.create(ExtendedClickerContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedBlockBreakerContainer>> EXTENDED_BLOCK_BREAKER = MENUS.register(
@@ -31,4 +33,50 @@ public class JDTEMenus {
             "extended_fluid_collector", () -> IMenuTypeExtension.create(ExtendedFluidCollectorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedFluidPlacerContainer>> EXTENDED_FLUID_PLACER = MENUS.register(
             "extended_fluid_placer", () -> IMenuTypeExtension.create(ExtendedFluidPlacerContainer::new));
+
+    // Glue Activator
+    public static final DeferredHolder<MenuType<?>, MenuType<BasicGlueActivatorContainer>> BASIC_GLUE_ACTIVATOR = MENUS.register(
+            "basic_glue_activator", () -> IMenuTypeExtension.create(BasicGlueActivatorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedGlueActivatorContainer>> ADVANCED_GLUE_ACTIVATOR = MENUS.register(
+            "advanced_glue_activator", () -> IMenuTypeExtension.create(AdvancedGlueActivatorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedGlueActivatorContainer>> EXTENDED_GLUE_ACTIVATOR = MENUS.register(
+            "extended_glue_activator", () -> IMenuTypeExtension.create(ExtendedGlueActivatorContainer::new));
+
+    // Gel Generator
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedGelGeneratorContainer>> ADVANCED_GEL_GENERATOR = MENUS.register(
+            "advanced_gel_generator", () -> IMenuTypeExtension.create(AdvancedGelGeneratorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedGelGeneratorContainer>> EXTENDED_GEL_GENERATOR = MENUS.register(
+            "extended_gel_generator", () -> IMenuTypeExtension.create(ExtendedGelGeneratorContainer::new));
+
+    // Item Sender
+    public static final DeferredHolder<MenuType<?>, MenuType<BasicItemSenderContainer>> BASIC_ITEM_SENDER = MENUS.register(
+            "basic_item_sender", () -> IMenuTypeExtension.create(BasicItemSenderContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedItemSenderContainer>> ADVANCED_ITEM_SENDER = MENUS.register(
+            "advanced_item_sender", () -> IMenuTypeExtension.create(AdvancedItemSenderContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedItemSenderContainer>> EXTENDED_ITEM_SENDER = MENUS.register(
+            "extended_item_sender", () -> IMenuTypeExtension.create(ExtendedItemSenderContainer::new));
+
+    // Fluid Sender
+    public static final DeferredHolder<MenuType<?>, MenuType<BasicFluidSenderContainer>> BASIC_FLUID_SENDER = MENUS.register(
+            "basic_fluid_sender", () -> IMenuTypeExtension.create(BasicFluidSenderContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedFluidSenderContainer>> ADVANCED_FLUID_SENDER = MENUS.register(
+            "advanced_fluid_sender", () -> IMenuTypeExtension.create(AdvancedFluidSenderContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedFluidSenderContainer>> EXTENDED_FLUID_SENDER = MENUS.register(
+            "extended_fluid_sender", () -> IMenuTypeExtension.create(ExtendedFluidSenderContainer::new));
+
+    // Item Receiver
+    public static final DeferredHolder<MenuType<?>, MenuType<BasicItemReceiverContainer>> BASIC_ITEM_RECEIVER = MENUS.register(
+            "basic_item_receiver", () -> IMenuTypeExtension.create(BasicItemReceiverContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedItemReceiverContainer>> ADVANCED_ITEM_RECEIVER = MENUS.register(
+            "advanced_item_receiver", () -> IMenuTypeExtension.create(AdvancedItemReceiverContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedItemReceiverContainer>> EXTENDED_ITEM_RECEIVER = MENUS.register(
+            "extended_item_receiver", () -> IMenuTypeExtension.create(ExtendedItemReceiverContainer::new));
+
+    // Fluid Receiver
+    public static final DeferredHolder<MenuType<?>, MenuType<BasicFluidReceiverContainer>> BASIC_FLUID_RECEIVER = MENUS.register(
+            "basic_fluid_receiver", () -> IMenuTypeExtension.create(BasicFluidReceiverContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedFluidReceiverContainer>> ADVANCED_FLUID_RECEIVER = MENUS.register(
+            "advanced_fluid_receiver", () -> IMenuTypeExtension.create(AdvancedFluidReceiverContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedFluidReceiverContainer>> EXTENDED_FLUID_RECEIVER = MENUS.register(
+            "extended_fluid_receiver", () -> IMenuTypeExtension.create(ExtendedFluidReceiverContainer::new));
 }

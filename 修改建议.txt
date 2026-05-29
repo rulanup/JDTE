@@ -1,24 +1,47 @@
-解决方案
-步骤 1：修改 BaseMachineContainerMixin.java
-删除两个 @Shadow 方法声明，直接调用继承来的方法（因为 Mixin 的 this 就是目标容器实例，可以访问父类方法）。
-
-修改前：
-
-java
-@Shadow public abstract net.minecraft.world.inventory.AbstractContainerMenu addSlot(Slot slot);
-@Shadow public abstract net.minecraft.world.inventory.AbstractContainerMenu addDataSlots(net.minecraft.world.inventory.ContainerData data);
-修改后： 直接删除这两行，然后在代码中直接调用 addSlot(...) 和 addDataSlots(...) 即可（不需要任何前缀）。Mixin 会正确解析。
-
-步骤 2：检查 BaseMachineContainerFilterMixin
-如果它里面也有类似的 @Shadow 方法 addFilterSlots，请确保该方法确实存在于目标类 BaseMachineContainer 中（原 Mod 应该有）。如果运行时还报类似错误，说明该方法也不存在，需要同样的处理（删除 @Shadow，直接调用）。
-
-步骤 3：确认配置文件
-确保 mixins.jdte.json 中的 AbstractContainerScreenMixin 和 ScreenMixin 已经移除（或者注释掉），因为它们不再需要且会导致之前的错误。
-
-步骤 4：重新编译运行
-清理项目并重新编译，启动测试。
-
-附加说明
-BaseMachineContainerMixin 中的 moveItemStackTo 方法是我们自定义的，与父类的 moveItemStackTo 不冲突，不需要 @Shadow。
-
-如果 addFilterSlots 仍然报错，请检查原 Mod 中 BaseMachineContainer 是否有 protected int addFilterSlots(...) 方法。如果没有，则需要采用类似的策略：通过反射或直接实现槽位添加逻辑，而不是依赖 @Shadow。
+1.添加一个粘胶激活器.
+作用:可以使玩家设定的范围内的所有黏胶全部激活
+但是需要消耗对应的激活物品
+比如原初灰凝胶，需要消耗腐肉
+消耗物品放置在机器内
+有普通，高级，扩展三种选择
+普通不需要消耗FE
+高级和扩展都需要消耗FE
+普通激活器的执行方式是:在凝胶结束激活后，延迟六秒重新激活
+高级和扩展都不延迟
+这个机器不能安装超频升级
+这个机器不能安装降频升级
+2.凝胶发生器
+作用:放入凝胶
+下面的4个槽位可放置任意可转化方块
+或者可以接收流体
+一个槽位只能放一种物品
+最多放置一个
+接收一桶流体后，封闭一个接收物品槽位,
+最多可加入四桶流体
+右上角的槽位，可以放置食物
+机器可以消耗食物来激活凝胶的功能，将槽位内的物品或者流体直接转化为转化后的物品或流体,并输出到输出槽
+只有高级和扩展两种
+都需要消耗FE
+加入超频升级后，两倍速运行,消耗三倍的FE
+加入降频升级后，0.5倍速运行,消耗1/5的FE
+3.物品放置器
+作用:可在机器内输入物品
+机器内输入的物品将会直接发送给在过滤槽内的机器
+有三个版本
+普通版本一次只发送4个物品，不消耗FE
+扩展和高级版本，一次发送32个物品,消耗FE
+普通版本加入超频升级，可一次发送32个物品
+扩展和高级版本加入超频升级，一次可发送64个物品
+加入超频升级后，高级和扩展机器的耗电量将变为三倍
+加入降频升级后,普通版本一次只能发送一个物品，高级和扩展版本一次只能发送两个物品
+普通版本锁定延迟十tick
+高级和扩展版本可以调节延迟
+4.流体放置器
+作用:和物品放置器基本一致,但是输入内容变成流体，而不是物品
+5.物品接收器
+作用:和物品放置器基本一致
+但是方式要反过来
+会直接抽取过滤槽内机器的物品
+并输出到内置的物品槽
+6.流体接收器
+作用:和物品接收器基本一致,但是输出内容变成流体.而不是物品

@@ -1,6 +1,7 @@
 package com.jdte.setup;
 
 import com.jdte.JDTE;
+import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.world.item.BlockItem;
@@ -21,9 +22,12 @@ public class JDTEItems {
     public static final DeferredHolder<Item, UpgradeCardItem> GENERATOR_UPGRADE = ITEMS.register("generator_upgrade", () -> new UpgradeCardItem(UpgradeType.GENERATOR));
     public static final DeferredHolder<Item, UpgradeCardItem> RANGE_UPGRADE = ITEMS.register("range_upgrade", () -> new UpgradeCardItem(UpgradeType.RANGE));
     public static final DeferredHolder<Item, UpgradeCardItem> FILTER_UPGRADE = ITEMS.register("filter_upgrade", () -> new UpgradeCardItem(UpgradeType.FILTER));
+    public static final DeferredHolder<Item, UpgradeCardItem> CREATIVE_UPGRADE = ITEMS.register("creative_upgrade", () -> new UpgradeCardItem(UpgradeType.CREATIVE));
+    public static final DeferredHolder<Item, ExtendedUpgradeItem> EXTENDED_UPGRADE = ITEMS.register("extended_upgrade", ExtendedUpgradeItem::new);
 
     public static final DeferredHolder<Item, BlockItem> BASIC_TIME_ACCELERATOR = ITEMS.register("basic_time_accelerator", () -> new BlockItem(JDTEBlocks.BASIC_TIME_ACCELERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ADVANCED_TIME_ACCELERATOR = ITEMS.register("advanced_time_accelerator", () -> new BlockItem(JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_TIME_ACCELERATOR = ITEMS.register("extended_time_accelerator", () -> new BlockItem(JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_CLICKER = ITEMS.register("extended_clicker", () -> new BlockItem(JDTEBlocks.EXTENDED_CLICKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_BREAKER = ITEMS.register("extended_block_breaker", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_BREAKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_PLACER = ITEMS.register("extended_block_placer", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_PLACER.get(), new Item.Properties()));
@@ -33,7 +37,36 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_COLLECTOR = ITEMS.register("extended_fluid_collector", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_PLACER = ITEMS.register("extended_fluid_placer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_PLACER.get(), new Item.Properties()));
 
+    // Glue Activator
+    public static final DeferredHolder<Item, BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_GLUE_ACTIVATOR = ITEMS.register("advanced_glue_activator", () -> new BlockItem(JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_GLUE_ACTIVATOR = ITEMS.register("extended_glue_activator", () -> new BlockItem(JDTEBlocks.EXTENDED_GLUE_ACTIVATOR.get(), new Item.Properties()));
+
+    // Gel Generator
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_GEL_GENERATOR = ITEMS.register("advanced_gel_generator", () -> new BlockItem(JDTEBlocks.ADVANCED_GEL_GENERATOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_GEL_GENERATOR = ITEMS.register("extended_gel_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_GEL_GENERATOR.get(), new Item.Properties()));
+
+    // Item Sender
+    public static final DeferredHolder<Item, BlockItem> BASIC_ITEM_SENDER = ITEMS.register("basic_item_sender", () -> new BlockItem(JDTEBlocks.BASIC_ITEM_SENDER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_ITEM_SENDER = ITEMS.register("advanced_item_sender", () -> new BlockItem(JDTEBlocks.ADVANCED_ITEM_SENDER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_ITEM_SENDER = ITEMS.register("extended_item_sender", () -> new BlockItem(JDTEBlocks.EXTENDED_ITEM_SENDER.get(), new Item.Properties()));
+
+    // Fluid Sender
+    public static final DeferredHolder<Item, BlockItem> BASIC_FLUID_SENDER = ITEMS.register("basic_fluid_sender", () -> new BlockItem(JDTEBlocks.BASIC_FLUID_SENDER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_FLUID_SENDER = ITEMS.register("advanced_fluid_sender", () -> new BlockItem(JDTEBlocks.ADVANCED_FLUID_SENDER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_SENDER = ITEMS.register("extended_fluid_sender", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_SENDER.get(), new Item.Properties()));
+
+    // Item Receiver
+    public static final DeferredHolder<Item, BlockItem> BASIC_ITEM_RECEIVER = ITEMS.register("basic_item_receiver", () -> new BlockItem(JDTEBlocks.BASIC_ITEM_RECEIVER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_ITEM_RECEIVER = ITEMS.register("advanced_item_receiver", () -> new BlockItem(JDTEBlocks.ADVANCED_ITEM_RECEIVER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_ITEM_RECEIVER = ITEMS.register("extended_item_receiver", () -> new BlockItem(JDTEBlocks.EXTENDED_ITEM_RECEIVER.get(), new Item.Properties()));
+
+    // Fluid Receiver
+    public static final DeferredHolder<Item, BlockItem> BASIC_FLUID_RECEIVER = ITEMS.register("basic_fluid_receiver", () -> new BlockItem(JDTEBlocks.BASIC_FLUID_RECEIVER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_FLUID_RECEIVER = ITEMS.register("advanced_fluid_receiver", () -> new BlockItem(JDTEBlocks.ADVANCED_FLUID_RECEIVER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_RECEIVER = ITEMS.register("extended_fluid_receiver", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_RECEIVER.get(), new Item.Properties()));
+
     public static List<DeferredHolder<Item, UpgradeCardItem>> upgrades() {
-        return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE, GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE);
+        return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE, GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE);
     }
 }

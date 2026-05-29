@@ -9,6 +9,7 @@ import com.jdte.common.upgrades.ExtendedUpgradeItemStackHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeItemStackHandler;
 import com.jdte.common.upgrades.UpgradeSlot;
+import com.jdte.common.utils.UpgradeSlotStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -29,6 +30,9 @@ public abstract class BaseMachineContainerMixin {
     @Shadow public BaseMachineBE baseMachineBE;
     @Shadow public net.minecraft.world.inventory.ContainerData fluidData;
 
+    @Unique
+    public int jdte$UPGRADE_SLOTS = 0;
+
     @Inject(method = "<init>", at = @At("TAIL"))
     private void jdte$addUpgradeSlots(net.minecraft.world.inventory.MenuType<?> menuType, int windowId, Inventory playerInventory, BlockPos blockPos, CallbackInfo ci) {
         if (baseMachineBE == null) {
@@ -41,8 +45,12 @@ public abstract class BaseMachineContainerMixin {
         }
 
         int slotCount = handler instanceof ExtendedUpgradeItemStackHandler ? ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT : UpgradeItemStackHandler.SLOT_COUNT;
+        jdte$UPGRADE_SLOTS = slotCount;
+        UpgradeSlotStorage.setUpgradeSlots((BaseMachineContainer) (Object) this, slotCount);
+
+        // 添加升级槽位（位置将在Screen中设置）
         for (int i = 0; i < slotCount; i++) {
-            jdte$addSlot(new UpgradeSlot(handler, i, -10000, -10000));
+            jdte$addSlot(new UpgradeSlot(handler, i, 0, 0));
         }
 
         // 只有在没有 fluidData 时才添加
