@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/JustDireThings-1.21.1/src -name *T2*.java -path */block*)",
+      "Bash(./gradlew compileJava)",
+      "Bash(./gradlew jar:*)",
+      "Bash(find /home/guili/idea-projects/JDTE -type f -name *.java -path *blockentity* -o -name *BlockEntity* -o -name *BE*)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1 -name *Screen.java -path */basescreens/* -type f)",
+      "Bash(find /home/guili/idea-projects/JDTE -name *.png -type f)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1 -name *Screen.java -path */client/screens/* -type f ! -name Base*)",
+      "Bash(find /home/guili/idea-projects/JDTE -name *Screen.java -type f)",
+      "Bash(identify:*)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1 -name textures -path */gui/sprites/* -type d)",
+      "Bash(python3:*)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1 -name background* -path */sprite* -o -name background* -path */textures/gui/sprites/* -type f)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/src -name sprite* -type d)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/src -path */gui/sprites* -type d)",
+      "Bash(convert /home/guili/idea-projects/JDTE/png/fz.png -resize 200x -depth 8 txt:-)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/src -name *.png)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/JustDireThings-1.21.1/src -name *.java -exec grep -l isStackValidFilter {})",
+      "Bash(2)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/JustDireThings-1.21.1/src/main/java -name *Glue* -o -name *Gel* -o -name *Slime*)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/JustDireThings-1.21.1/src/main/java -name *Activator*)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/JustDireThings-1.21.1/src/main/java -name *Slime* -o -name *Adhesive* -o -name *Sticky*)",
+      "Bash(find /home/guili/idea-projects/JustDireThings-1.21.1/JustDireThings-1.21.1/src/main/java -name *Goo*)"
+    ]
+  }
+}

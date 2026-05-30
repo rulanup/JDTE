@@ -15,6 +15,7 @@ import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -75,19 +76,60 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
             // 跳过自身位置
             if (targetPos.equals(getBlockPos())) continue;
 
-            IFluidHandler targetHandler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, null);
-            if (targetHandler == null) continue;
-
             FluidStack toSend = fluidTank.drain(fluidToSend, IFluidHandler.FluidAction.SIMULATE);
             if (toSend.isEmpty()) return;
 
-            int filled = targetHandler.fill(toSend, IFluidHandler.FluidAction.EXECUTE);
-            if (filled > 0) {
-                fluidTank.drain(filled, IFluidHandler.FluidAction.EXECUTE);
-                setChanged();
-                return; // 每tick只发送到一个目标
+            Direction preferredSide = getSideFacingMachine(targetPos);
+            if (preferredSide != null && sendFluidToSide(serverLevel, targetPos, preferredSide, toSend)) {
+                return;
+            }
+            for (Direction side : Direction.values()) {
+                if (side != preferredSide && sendFluidToSide(serverLevel, targetPos, side, toSend)) {
+                    return;
+                }
+            }
+            if (sendFluidToSide(serverLevel, targetPos, null, toSend)) {
+                return;
             }
         }
+    }
+
+    private boolean sendFluidToSide(ServerLevel serverLevel, BlockPos targetPos, Direction side, FluidStack toSend) {
+        IFluidHandler targetHandler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, side);
+        if (targetHandler == null) return false;
+
+        int fillable = targetHandler.fill(toSend, IFluidHandler.FluidAction.SIMULATE);
+        if (fillable <= 0) return false;
+
+        FluidStack drained = fluidTank.drain(fillable, IFluidHandler.FluidAction.EXECUTE);
+        if (drained.isEmpty()) return false;
+
+        int filled = targetHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (filled <= 0) {
+            fluidTank.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            return false;
+        }
+        if (filled < drained.getAmount()) {
+            FluidStack remainder = drained.copy();
+            remainder.setAmount(drained.getAmount() - filled);
+            fluidTank.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
+        }
+        setChanged();
+        return true;
+    }
+
+    private Direction getSideFacingMachine(BlockPos targetPos) {
+        int dx = getBlockPos().getX() - targetPos.getX();
+        int dy = getBlockPos().getY() - targetPos.getY();
+        int dz = getBlockPos().getZ() - targetPos.getZ();
+        int absX = Math.abs(dx);
+        int absY = Math.abs(dy);
+        int absZ = Math.abs(dz);
+
+        if (absX == 0 && absY == 0 && absZ == 0) return null;
+        if (absY >= absX && absY >= absZ) return dy > 0 ? Direction.UP : Direction.DOWN;
+        if (absX >= absZ) return dx > 0 ? Direction.EAST : Direction.WEST;
+        return dz > 0 ? Direction.SOUTH : Direction.NORTH;
     }
 
     protected abstract int getBaseFluidToSend();

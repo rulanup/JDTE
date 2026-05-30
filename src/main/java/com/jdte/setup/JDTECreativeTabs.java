@@ -20,6 +20,7 @@ public class JDTECreativeTabs {
                 // Upgrade cards
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
+                output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
 
                 // Time Accelerators
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());
@@ -44,6 +45,9 @@ public class JDTECreativeTabs {
                 // Gel Generators
                 output.accept(JDTEItems.ADVANCED_GEL_GENERATOR.get());
                 output.accept(JDTEItems.EXTENDED_GEL_GENERATOR.get());
+
+                // Fluid Stabilizer
+                output.accept(JDTEItems.FLUID_STABILIZER.get());
 
                 // Item Senders
                 output.accept(JDTEItems.BASIC_ITEM_SENDER.get());

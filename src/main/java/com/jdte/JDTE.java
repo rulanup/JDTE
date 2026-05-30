@@ -92,9 +92,15 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_GEL_GENERATOR.get()
         );
         event.registerBlock(Capabilities.FluidHandler.BLOCK,
-                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GelGeneratorBE generator ? generator.getFluidTank() : null,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GelGeneratorBE generator ? generator.getFluidHandler() : null,
                 JDTEBlocks.ADVANCED_GEL_GENERATOR.get(),
                 JDTEBlocks.EXTENDED_GEL_GENERATOR.get()
+        );
+
+        // Fluid Stabilizer energy storage
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.FLUID_STABILIZER.get()
         );
 
         // Item Sender energy storage (Advanced and Extended)

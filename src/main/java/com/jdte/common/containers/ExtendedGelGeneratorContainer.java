@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 
-public class ExtendedGelGeneratorContainer extends BaseMachineContainer {
+public class ExtendedGelGeneratorContainer extends GelGeneratorContainer {
     public ExtendedGelGeneratorContainer(int windowId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(windowId, playerInventory, extraData.readBlockPos());
     }

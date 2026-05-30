@@ -47,6 +47,10 @@ public class JDTEBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedGelGeneratorBE>> EXTENDED_GEL_GENERATOR = BLOCK_ENTITIES.register(
             "extended_gel_generator", () -> BlockEntityType.Builder.of(ExtendedGelGeneratorBE::new, JDTEBlocks.EXTENDED_GEL_GENERATOR.get()).build(null));
 
+    // Fluid Stabilizer
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidStabilizerBE>> FLUID_STABILIZER = BLOCK_ENTITIES.register(
+            "fluid_stabilizer", () -> BlockEntityType.Builder.of(FluidStabilizerBE::new, JDTEBlocks.FLUID_STABILIZER.get()).build(null));
+
     // Item Sender
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicItemSenderBE>> BASIC_ITEM_SENDER = BLOCK_ENTITIES.register(
             "basic_item_sender", () -> BlockEntityType.Builder.of(BasicItemSenderBE::new, JDTEBlocks.BASIC_ITEM_SENDER.get()).build(null));

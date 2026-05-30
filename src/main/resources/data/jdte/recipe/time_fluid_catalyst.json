@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "justdirethings:polymorphic_catalyst"
+    },
+    {
+      "item": "justdirethings:time_crystal"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:time_fluid_catalyst"
+  }
+}

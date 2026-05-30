@@ -10,6 +10,7 @@
   "item.jdte.filter_upgrade": "过滤升级",
   "item.jdte.creative_upgrade": "创造升级",
   "item.jdte.extended_upgrade": "扩展升级",
+  "item.jdte.time_fluid_catalyst": "时间流体催化剂",
   "block.jdte.basic_time_accelerator": "初级时间加速器",
   "block.jdte.advanced_time_accelerator": "高级时间加速器",
   "block.jdte.extended_time_accelerator": "扩展高级时间加速器",
@@ -41,6 +42,8 @@
   "jdte.panel.upgrade": "升级",
   "jdte.upgrade.slot.empty": "升级槽",
   "jdte.panel.filter": "过滤",
+  "jdte.screen.auto_balance.on": "均分：开",
+  "jdte.screen.auto_balance.off": "均分：关",
   "block.jdte.basic_glue_activator": "初级粘胶激活器",
   "block.jdte.advanced_glue_activator": "高级粘胶激活器",
   "block.jdte.extended_glue_activator": "扩展粘胶激活器",
@@ -57,5 +60,6 @@
   "block.jdte.extended_item_receiver": "扩展物品接收器",
   "block.jdte.basic_fluid_receiver": "初级流体接收器",
   "block.jdte.advanced_fluid_receiver": "高级流体接收器",
-  "block.jdte.extended_fluid_receiver": "扩展流体接收器"
+  "block.jdte.extended_fluid_receiver": "扩展流体接收器",
+  "block.jdte.fluid_stabilizer": "流体稳定器"
 }

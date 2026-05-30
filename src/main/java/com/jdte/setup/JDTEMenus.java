@@ -48,6 +48,10 @@ public class JDTEMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedGelGeneratorContainer>> EXTENDED_GEL_GENERATOR = MENUS.register(
             "extended_gel_generator", () -> IMenuTypeExtension.create(ExtendedGelGeneratorContainer::new));
 
+    // Fluid Stabilizer
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidStabilizerContainer>> FLUID_STABILIZER = MENUS.register(
+            "fluid_stabilizer", () -> IMenuTypeExtension.create(FluidStabilizerContainer::new));
+
     // Item Sender
     public static final DeferredHolder<MenuType<?>, MenuType<BasicItemSenderContainer>> BASIC_ITEM_SENDER = MENUS.register(
             "basic_item_sender", () -> IMenuTypeExtension.create(BasicItemSenderContainer::new));

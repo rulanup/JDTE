@@ -9,18 +9,18 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 
-public class AdvancedGelGeneratorContainer extends GelGeneratorContainer {
-    public AdvancedGelGeneratorContainer(int windowId, Inventory playerInventory, FriendlyByteBuf extraData) {
+public class FluidStabilizerContainer extends BaseMachineContainer {
+    public FluidStabilizerContainer(int windowId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(windowId, playerInventory, extraData.readBlockPos());
     }
 
-    public AdvancedGelGeneratorContainer(int windowId, Inventory playerInventory, BlockPos blockPos) {
-        super(JDTEMenus.ADVANCED_GEL_GENERATOR.get(), windowId, playerInventory, blockPos);
+    public FluidStabilizerContainer(int windowId, Inventory playerInventory, BlockPos blockPos) {
+        super(JDTEMenus.FLUID_STABILIZER.get(), windowId, playerInventory, blockPos);
         addPlayerSlots(player.getInventory());
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(player.level(), pos), player, JDTEBlocks.ADVANCED_GEL_GENERATOR.get());
+        return stillValid(ContainerLevelAccess.create(player.level(), pos), player, JDTEBlocks.FLUID_STABILIZER.get());
     }
 }

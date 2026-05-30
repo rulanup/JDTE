@@ -41,6 +41,9 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.ADVANCED_GEL_GENERATOR.get(), AdvancedGelGeneratorScreen::new);
         event.register(JDTEMenus.EXTENDED_GEL_GENERATOR.get(), ExtendedGelGeneratorScreen::new);
 
+        // Fluid Stabilizer
+        event.register(JDTEMenus.FLUID_STABILIZER.get(), FluidStabilizerScreen::new);
+
         // Item Senders
         event.register(JDTEMenus.BASIC_ITEM_SENDER.get(), BasicItemSenderScreen::new);
         event.register(JDTEMenus.ADVANCED_ITEM_SENDER.get(), AdvancedItemSenderScreen::new);
@@ -84,6 +87,9 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+
+        // Fluid Stabilizer - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.FLUID_STABILIZER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
 
         // Item Senders - 使用AreaAffectingBER渲染区域
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_ITEM_SENDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);

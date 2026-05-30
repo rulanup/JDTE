@@ -6,6 +6,8 @@ navigation:
 item_ids:
   - jdte:basic_time_accelerator
   - jdte:advanced_time_accelerator
+  - jdte:extended_time_accelerator
+  - jdte:time_fluid_catalyst
 ---
 
 # 时间加速器
@@ -33,3 +35,11 @@ item_ids:
 - 安装超频升级后：256x
 
 <RecipeFor id="jdte:advanced_time_accelerator" />
+
+## 时间流体催化剂
+
+<ItemImage id="jdte:time_fluid_catalyst" scale="2" />
+
+可直接触发源水到 JDT 时间流体的 FluidDrop 转换，也可放入流体稳定器的催化剂槽中使用。
+
+<RecipeFor id="jdte:time_fluid_catalyst" />

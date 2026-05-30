@@ -1,27 +1,44 @@
 # JDT Extras
 
-An addon for Just Dire Things that adds an upgrade system and time accelerators.
+JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, more upgrade slots, time accelerators, and extra automation machines for JDT.
+
+Current version: `0.2.0`
+
+[中文 README](README.md)
 
 ## Features
 
-### Upgrade Cards (7 types)
+### Upgrade Cards (9 Types)
+
+Upgrade cards can be installed into supported JDT/JDTE machines. Standard machines have 4 upgrade slots, while extended machines have 8 upgrade slots.
 
 | Upgrade | Effect | Max per Machine |
 |---|---|---|
-| Capacity | Doubles FE and fluid capacity | 3 |
-| Overclock | Forces 1 tick operation, runs twice per tick, 3x energy cost | 1 |
-| Underclock | Forces 40 tick operation, 80% energy cost reduction | 1 |
-| Fluid | Doubles fluid capacity | 3 |
-| Fluid Storage | Adds internal fluid tank for Clicker | 1 |
-| Generator | Consumes 2x fuel for 3x FE output | 1 |
-| Range | Doubles configurable area limit | 2 |
+| Capacity | Doubles machine FE capacity and fluid capacity | 3 |
+| Overclock | Forces 1 tick operation and runs twice per tick, tripling energy cost | 1 |
+| Underclock | Forces 40 tick operation and reduces energy cost by 80% | 1 |
+| Fluid | Doubles fluid capacity only | 3 |
+| Fluid Storage | Clicker only; adds an internal fluid tank and automatically fills fluid containers in the clicker slot | 1 |
+| Generator | Generator only; consumes twice the fuel input for triple generation | 1 |
+| Range | Area machines only; doubles the configurable area limit | 2 |
+| Filter | Adds extra filter slots to filterable machines; each card adds 9 slots | 2 |
+| Creative | Machines operate without FE cost; time accelerators operate without Time Fluid cost; includes the overclock effect | 1 |
+
+Overclock and underclock upgrades cannot be installed together.
 
 ### Time Accelerators
 
-- **Basic Time Accelerator** — Fluid only, default 4x acceleration, 16x with overclock
-- **Advanced Time Accelerator** — Fluid + FE, adjustable 1-128x, 256x with overclock
+- **Basic Time Accelerator**: Uses JDT Time Fluid only. Runs at 4x by default, or 16x with overclock or creative upgrade.
+- **Advanced Time Accelerator**: Uses JDT Time Fluid and FE. Adjustable from 1-128x, or 256x with overclock or creative upgrade.
+- **Extended Time Accelerator**: Extended version of the advanced time accelerator with 8 upgrade slots.
 
-### Extended Advanced Machines (8 upgrade slots)
+The **Time Fluid Catalyst** can directly trigger a source-water to JDT Time Fluid FluidDrop conversion.
+
+Time accelerators support area configuration, redstone control, and filters. They accelerate blocks and block entities that JDT's Time Wand can accelerate.
+
+### Extended Advanced Machines
+
+Use the **Extended Upgrade** on supported JDT T2 machines to convert them into JDTE extended versions with 8 upgrade slots.
 
 - Extended Clicker T2
 - Extended Block Breaker T2
@@ -31,18 +48,56 @@ An addon for Just Dire Things that adds an upgrade system and time accelerators.
 - Extended Sensor T2
 - Extended Fluid Collector T2
 - Extended Fluid Placer T2
+- Extended Time Accelerator
+
+### Extra Automation Machines
+
+- Glue Activator: basic, advanced, extended
+- Gel Generator: advanced, extended
+- Fluid Stabilizer: uses a catalyst slot to match JDT FluidDrop recipes and directly convert source fluids in its configured area; each conversion costs FE and 1 catalyst, with FE cost scaling by configured range
+- Item Sender: basic, advanced, extended
+- Fluid Sender: basic, advanced, extended
+- Item Receiver: basic, advanced, extended
+- Fluid Receiver: basic, advanced, extended
 
 ## Installation
 
-1. Install [NeoForge](https://neoforged.net/) 1.21.1
-2. Install [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things)
-3. Place `jdte-x.x.x.jar` into your `mods` folder
+1. Install Minecraft `1.21.1`.
+2. Install NeoForge `21.1.230+`.
+3. Install Just Dire Things `1.5.7+`.
+4. Place `jdte-x.x.x.jar` into the client and server `mods` folders.
 
 ## Requirements
 
-- Minecraft 1.21.1
-- NeoForge 21.1.230+
-- Just Dire Things 1.5.7+
+- Minecraft `1.21.1`
+- NeoForge `21.1.230+`
+- Just Dire Things `1.5.7+`
+- Java `21`
+
+## Development
+
+This project is built with Gradle. The development environment expects the JDT jar at:
+
+```text
+/home/guili/libs/justdirethings-1.5.7.jar
+```
+
+Common commands:
+
+```bash
+./gradlew compileJava
+./gradlew jar
+./gradlew runClient
+./gradlew runServer
+```
+
+## Project Structure
+
+- `src/main/java/com/jdte/common`: block entities, blocks, containers, items, upgrade system, and networking.
+- `src/main/java/com/jdte/client`: client screens, rendering, and client setup.
+- `src/main/java/com/jdte/mixin`: runtime injections into JDT and client screens.
+- `src/main/resources/assets/jdte`: language files, models, textures, and GuideME docs.
+- `src/main/resources/data/jdte`: recipes, loot tables, and other data files.
 
 ## License
 

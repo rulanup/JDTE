@@ -15,6 +15,7 @@ import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -75,19 +76,62 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
             // 跳过自身位置
             if (sourcePos.equals(getBlockPos())) continue;
 
-            IFluidHandler sourceHandler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, sourcePos, null);
-            if (sourceHandler == null) continue;
-
-            FluidStack extracted = sourceHandler.drain(fluidToReceive, IFluidHandler.FluidAction.SIMULATE);
-            if (extracted.isEmpty()) continue;
-
-            int filled = fluidTank.fill(extracted, IFluidHandler.FluidAction.EXECUTE);
-            if (filled > 0) {
-                sourceHandler.drain(filled, IFluidHandler.FluidAction.EXECUTE);
-                setChanged();
-                return; // 每tick只从一个源接收
+            Direction preferredSide = getSideFacingMachine(sourcePos);
+            if (preferredSide != null && receiveFluidFromSide(serverLevel, sourcePos, preferredSide, fluidToReceive)) {
+                return;
+            }
+            for (Direction side : Direction.values()) {
+                if (side != preferredSide && receiveFluidFromSide(serverLevel, sourcePos, side, fluidToReceive)) {
+                    return;
+                }
+            }
+            if (receiveFluidFromSide(serverLevel, sourcePos, null, fluidToReceive)) {
+                return;
             }
         }
+    }
+
+    private boolean receiveFluidFromSide(ServerLevel serverLevel, BlockPos sourcePos, Direction side, int fluidToReceive) {
+        IFluidHandler sourceHandler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, sourcePos, side);
+        if (sourceHandler == null) return false;
+
+        FluidStack extracted = sourceHandler.drain(fluidToReceive, IFluidHandler.FluidAction.SIMULATE);
+        if (extracted.isEmpty()) return false;
+
+        int fillable = fluidTank.fill(extracted, IFluidHandler.FluidAction.SIMULATE);
+        if (fillable <= 0) return false;
+
+        FluidStack toDrain = extracted.copy();
+        toDrain.setAmount(fillable);
+        FluidStack drained = sourceHandler.drain(toDrain, IFluidHandler.FluidAction.EXECUTE);
+        if (drained.isEmpty()) return false;
+
+        int filled = fluidTank.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (filled <= 0) {
+            sourceHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            return false;
+        }
+        if (filled < drained.getAmount()) {
+            FluidStack remainder = drained.copy();
+            remainder.setAmount(drained.getAmount() - filled);
+            sourceHandler.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
+        }
+        setChanged();
+        return true;
+    }
+
+    private Direction getSideFacingMachine(BlockPos sourcePos) {
+        int dx = getBlockPos().getX() - sourcePos.getX();
+        int dy = getBlockPos().getY() - sourcePos.getY();
+        int dz = getBlockPos().getZ() - sourcePos.getZ();
+        int absX = Math.abs(dx);
+        int absY = Math.abs(dy);
+        int absZ = Math.abs(dz);
+
+        if (absX == 0 && absY == 0 && absZ == 0) return null;
+        if (absY >= absX && absY >= absZ) return dy > 0 ? Direction.UP : Direction.DOWN;
+        if (absX >= absZ) return dx > 0 ? Direction.EAST : Direction.WEST;
+        return dz > 0 ? Direction.SOUTH : Direction.NORTH;
     }
 
     protected abstract int getBaseFluidToReceive();

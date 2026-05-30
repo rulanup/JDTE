@@ -10,6 +10,7 @@
   "item.jdte.filter_upgrade": "Filter Upgrade",
   "item.jdte.creative_upgrade": "Creative Upgrade",
   "item.jdte.extended_upgrade": "Extended Upgrade",
+  "item.jdte.time_fluid_catalyst": "Time Fluid Catalyst",
   "block.jdte.basic_time_accelerator": "Basic Time Accelerator",
   "block.jdte.advanced_time_accelerator": "Advanced Time Accelerator",
   "block.jdte.extended_time_accelerator": "Extended Time Accelerator",
@@ -41,6 +42,8 @@
   "jdte.panel.upgrade": "Upgrades",
   "jdte.upgrade.slot.empty": "Upgrade Slot",
   "jdte.panel.filter": "Filter",
+  "jdte.screen.auto_balance.on": "Split: On",
+  "jdte.screen.auto_balance.off": "Split: Off",
   "block.jdte.basic_glue_activator": "Basic Glue Activator",
   "block.jdte.advanced_glue_activator": "Advanced Glue Activator",
   "block.jdte.extended_glue_activator": "Extended Glue Activator",
@@ -57,5 +60,6 @@
   "block.jdte.extended_item_receiver": "Extended Item Receiver",
   "block.jdte.basic_fluid_receiver": "Basic Fluid Receiver",
   "block.jdte.advanced_fluid_receiver": "Advanced Fluid Receiver",
-  "block.jdte.extended_fluid_receiver": "Extended Fluid Receiver"
+  "block.jdte.extended_fluid_receiver": "Extended Fluid Receiver",
+  "block.jdte.fluid_stabilizer": "Fluid Stabilizer"
 }

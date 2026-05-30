@@ -30,6 +30,9 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, AdvancedGelGeneratorBlock> ADVANCED_GEL_GENERATOR = BLOCKS.register("advanced_gel_generator", AdvancedGelGeneratorBlock::new);
     public static final DeferredHolder<Block, ExtendedGelGeneratorBlock> EXTENDED_GEL_GENERATOR = BLOCKS.register("extended_gel_generator", ExtendedGelGeneratorBlock::new);
 
+    // Fluid Stabilizer
+    public static final DeferredHolder<Block, FluidStabilizerBlock> FLUID_STABILIZER = BLOCKS.register("fluid_stabilizer", FluidStabilizerBlock::new);
+
     // Item Sender
     public static final DeferredHolder<Block, BasicItemSenderBlock> BASIC_ITEM_SENDER = BLOCKS.register("basic_item_sender", BasicItemSenderBlock::new);
     public static final DeferredHolder<Block, AdvancedItemSenderBlock> ADVANCED_ITEM_SENDER = BLOCKS.register("advanced_item_sender", AdvancedItemSenderBlock::new);

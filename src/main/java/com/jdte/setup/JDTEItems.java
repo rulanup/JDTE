@@ -24,6 +24,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, UpgradeCardItem> FILTER_UPGRADE = ITEMS.register("filter_upgrade", () -> new UpgradeCardItem(UpgradeType.FILTER));
     public static final DeferredHolder<Item, UpgradeCardItem> CREATIVE_UPGRADE = ITEMS.register("creative_upgrade", () -> new UpgradeCardItem(UpgradeType.CREATIVE));
     public static final DeferredHolder<Item, ExtendedUpgradeItem> EXTENDED_UPGRADE = ITEMS.register("extended_upgrade", ExtendedUpgradeItem::new);
+    public static final DeferredHolder<Item, Item> TIME_FLUID_CATALYST = ITEMS.register("time_fluid_catalyst", () -> new Item(new Item.Properties()));
 
     public static final DeferredHolder<Item, BlockItem> BASIC_TIME_ACCELERATOR = ITEMS.register("basic_time_accelerator", () -> new BlockItem(JDTEBlocks.BASIC_TIME_ACCELERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ADVANCED_TIME_ACCELERATOR = ITEMS.register("advanced_time_accelerator", () -> new BlockItem(JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(), new Item.Properties()));
@@ -45,6 +46,9 @@ public class JDTEItems {
     // Gel Generator
     public static final DeferredHolder<Item, BlockItem> ADVANCED_GEL_GENERATOR = ITEMS.register("advanced_gel_generator", () -> new BlockItem(JDTEBlocks.ADVANCED_GEL_GENERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_GEL_GENERATOR = ITEMS.register("extended_gel_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_GEL_GENERATOR.get(), new Item.Properties()));
+
+    // Fluid Stabilizer
+    public static final DeferredHolder<Item, BlockItem> FLUID_STABILIZER = ITEMS.register("fluid_stabilizer", () -> new BlockItem(JDTEBlocks.FLUID_STABILIZER.get(), new Item.Properties()));
 
     // Item Sender
     public static final DeferredHolder<Item, BlockItem> BASIC_ITEM_SENDER = ITEMS.register("basic_item_sender", () -> new BlockItem(JDTEBlocks.BASIC_ITEM_SENDER.get(), new Item.Properties()));
