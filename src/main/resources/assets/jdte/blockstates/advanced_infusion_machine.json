@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "jdte:block/advanced_infusion_machine" },
+    "facing=up": { "model": "jdte:block/advanced_infusion_machine" },
+    "facing=north": { "model": "jdte:block/advanced_infusion_machine" },
+    "facing=south": { "model": "jdte:block/advanced_infusion_machine" },
+    "facing=west": { "model": "jdte:block/advanced_infusion_machine" },
+    "facing=east": { "model": "jdte:block/advanced_infusion_machine" }
+  }
+}

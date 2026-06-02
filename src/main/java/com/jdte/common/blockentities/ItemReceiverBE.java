@@ -26,7 +26,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-public abstract class ItemReceiverBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE {
+public abstract class ItemReceiverBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, BaseFilterMachine {
     public static final int STORAGE_SLOTS = 9;
 
     public FilterData filterData = new FilterData();

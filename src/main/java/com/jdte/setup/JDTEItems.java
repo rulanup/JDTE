@@ -1,7 +1,11 @@
 package com.jdte.setup;
 
 import com.jdte.JDTE;
+import com.jdte.common.items.BossEssenceItem;
 import com.jdte.common.items.ExtendedUpgradeItem;
+import com.jdte.common.items.LifeAppleItem;
+import com.jdte.common.items.LootingUpgradeItem;
+import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.world.item.BlockItem;
@@ -48,7 +52,9 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_GEL_GENERATOR = ITEMS.register("extended_gel_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_GEL_GENERATOR.get(), new Item.Properties()));
 
     // Fluid Stabilizer
-    public static final DeferredHolder<Item, BlockItem> FLUID_STABILIZER = ITEMS.register("fluid_stabilizer", () -> new BlockItem(JDTEBlocks.FLUID_STABILIZER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> BASIC_FLUID_STABILIZER = ITEMS.register("basic_fluid_stabilizer", () -> new BlockItem(JDTEBlocks.BASIC_FLUID_STABILIZER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_FLUID_STABILIZER = ITEMS.register("advanced_fluid_stabilizer", () -> new BlockItem(JDTEBlocks.ADVANCED_FLUID_STABILIZER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_STABILIZER = ITEMS.register("extended_fluid_stabilizer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_STABILIZER.get(), new Item.Properties()));
 
     // Item Sender
     public static final DeferredHolder<Item, BlockItem> BASIC_ITEM_SENDER = ITEMS.register("basic_item_sender", () -> new BlockItem(JDTEBlocks.BASIC_ITEM_SENDER.get(), new Item.Properties()));
@@ -69,6 +75,28 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> BASIC_FLUID_RECEIVER = ITEMS.register("basic_fluid_receiver", () -> new BlockItem(JDTEBlocks.BASIC_FLUID_RECEIVER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ADVANCED_FLUID_RECEIVER = ITEMS.register("advanced_fluid_receiver", () -> new BlockItem(JDTEBlocks.ADVANCED_FLUID_RECEIVER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_RECEIVER = ITEMS.register("extended_fluid_receiver", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_RECEIVER.get(), new Item.Properties()));
+
+    // Life Extractor
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_LIFE_EXTRACTOR = ITEMS.register("advanced_life_extractor", () -> new BlockItem(JDTEBlocks.ADVANCED_LIFE_EXTRACTOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_LIFE_EXTRACTOR = ITEMS.register("extended_life_extractor", () -> new BlockItem(JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, LifeAppleItem> LIFE_APPLE = ITEMS.register("life_apple", LifeAppleItem::new);
+
+    // Infusion Machine
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_INFUSION_MACHINE = ITEMS.register("advanced_infusion_machine", () -> new BlockItem(JDTEBlocks.ADVANCED_INFUSION_MACHINE.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_INFUSION_MACHINE = ITEMS.register("extended_infusion_machine", () -> new BlockItem(JDTEBlocks.EXTENDED_INFUSION_MACHINE.get(), new Item.Properties()));
+
+    // Bio Crusher
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_BIO_CRUSHER = ITEMS.register("advanced_bio_crusher", () -> new BlockItem(JDTEBlocks.ADVANCED_BIO_CRUSHER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_BIO_CRUSHER = ITEMS.register("extended_bio_crusher", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_CRUSHER.get(), new Item.Properties()));
+
+    // Boss Essences
+    public static final DeferredHolder<Item, BossEssenceItem> WITHER_ESSENCE = ITEMS.register("wither_essence", BossEssenceItem::new);
+    public static final DeferredHolder<Item, BossEssenceItem> ENDER_DRAGON_ESSENCE = ITEMS.register("ender_dragon_essence", BossEssenceItem::new);
+    public static final DeferredHolder<Item, BossEssenceItem> ELDER_GUARDIAN_ESSENCE = ITEMS.register("elder_guardian_essence", BossEssenceItem::new);
+
+    // Bio Crusher Upgrades
+    public static final DeferredHolder<Item, LootingUpgradeItem> LOOTING_UPGRADE = ITEMS.register("looting_upgrade", LootingUpgradeItem::new);
+    public static final DeferredHolder<Item, SharpnessUpgradeItem> SHARPNESS_UPGRADE = ITEMS.register("sharpness_upgrade", SharpnessUpgradeItem::new);
 
     public static List<DeferredHolder<Item, UpgradeCardItem>> upgrades() {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE, GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE);

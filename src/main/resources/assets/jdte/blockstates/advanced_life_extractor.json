@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "jdte:block/advanced_life_extractor" },
+    "facing=up": { "model": "jdte:block/advanced_life_extractor" },
+    "facing=north": { "model": "jdte:block/advanced_life_extractor" },
+    "facing=south": { "model": "jdte:block/advanced_life_extractor" },
+    "facing=west": { "model": "jdte:block/advanced_life_extractor" },
+    "facing=east": { "model": "jdte:block/advanced_life_extractor" }
+  }
+}

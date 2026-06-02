@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "jdte:block/life_extractor_top",
+    "side": "jdte:block/extended_life_extractor_side"
+  }
+}

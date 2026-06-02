@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "jdte:block/basic_fluid_stabilizer" },
+    "facing=up": { "model": "jdte:block/basic_fluid_stabilizer" },
+    "facing=north": { "model": "jdte:block/basic_fluid_stabilizer" },
+    "facing=south": { "model": "jdte:block/basic_fluid_stabilizer" },
+    "facing=west": { "model": "jdte:block/basic_fluid_stabilizer" },
+    "facing=east": { "model": "jdte:block/basic_fluid_stabilizer" }
+  }
+}

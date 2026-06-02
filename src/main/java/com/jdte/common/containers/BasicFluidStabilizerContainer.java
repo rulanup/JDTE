@@ -9,18 +9,18 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 
-public class FluidStabilizerContainer extends BaseMachineContainer {
-    public FluidStabilizerContainer(int windowId, Inventory playerInventory, FriendlyByteBuf extraData) {
+public class BasicFluidStabilizerContainer extends BaseMachineContainer {
+    public BasicFluidStabilizerContainer(int windowId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(windowId, playerInventory, extraData.readBlockPos());
     }
 
-    public FluidStabilizerContainer(int windowId, Inventory playerInventory, BlockPos blockPos) {
-        super(JDTEMenus.FLUID_STABILIZER.get(), windowId, playerInventory, blockPos);
+    public BasicFluidStabilizerContainer(int windowId, Inventory playerInventory, BlockPos blockPos) {
+        super(JDTEMenus.BASIC_FLUID_STABILIZER.get(), windowId, playerInventory, blockPos);
         addPlayerSlots(player.getInventory());
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(player.level(), pos), player, JDTEBlocks.FLUID_STABILIZER.get());
+        return stillValid(ContainerLevelAccess.create(player.level(), pos), player, JDTEBlocks.BASIC_FLUID_STABILIZER.get());
     }
 }

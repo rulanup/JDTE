@@ -2,19 +2,18 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": { "item": "jdte:advanced_time_accelerator" },
     "C": { "item": "justdirethings:polymorphic_catalyst" },
     "F": { "item": "jdte:fluid_upgrade" },
-    "R": { "item": "jdte:range_upgrade" },
-    "T": { "item": "jdte:time_fluid_catalyst" }
+    "T": { "item": "jdte:time_fluid_catalyst" },
+    "R": { "item": "minecraft:redstone" }
   },
   "pattern": [
     "RFR",
-    "CAT",
+    "CTC",
     "RFR"
   ],
   "result": {
     "count": 1,
-    "id": "jdte:fluid_stabilizer"
+    "id": "jdte:basic_fluid_stabilizer"
   }
 }

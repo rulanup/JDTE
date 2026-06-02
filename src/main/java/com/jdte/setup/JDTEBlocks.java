@@ -31,7 +31,9 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, ExtendedGelGeneratorBlock> EXTENDED_GEL_GENERATOR = BLOCKS.register("extended_gel_generator", ExtendedGelGeneratorBlock::new);
 
     // Fluid Stabilizer
-    public static final DeferredHolder<Block, FluidStabilizerBlock> FLUID_STABILIZER = BLOCKS.register("fluid_stabilizer", FluidStabilizerBlock::new);
+    public static final DeferredHolder<Block, BasicFluidStabilizerBlock> BASIC_FLUID_STABILIZER = BLOCKS.register("basic_fluid_stabilizer", BasicFluidStabilizerBlock::new);
+    public static final DeferredHolder<Block, AdvancedFluidStabilizerBlock> ADVANCED_FLUID_STABILIZER = BLOCKS.register("advanced_fluid_stabilizer", AdvancedFluidStabilizerBlock::new);
+    public static final DeferredHolder<Block, ExtendedFluidStabilizerBlock> EXTENDED_FLUID_STABILIZER = BLOCKS.register("extended_fluid_stabilizer", ExtendedFluidStabilizerBlock::new);
 
     // Item Sender
     public static final DeferredHolder<Block, BasicItemSenderBlock> BASIC_ITEM_SENDER = BLOCKS.register("basic_item_sender", BasicItemSenderBlock::new);
@@ -52,4 +54,16 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, BasicFluidReceiverBlock> BASIC_FLUID_RECEIVER = BLOCKS.register("basic_fluid_receiver", BasicFluidReceiverBlock::new);
     public static final DeferredHolder<Block, AdvancedFluidReceiverBlock> ADVANCED_FLUID_RECEIVER = BLOCKS.register("advanced_fluid_receiver", AdvancedFluidReceiverBlock::new);
     public static final DeferredHolder<Block, ExtendedFluidReceiverBlock> EXTENDED_FLUID_RECEIVER = BLOCKS.register("extended_fluid_receiver", ExtendedFluidReceiverBlock::new);
+
+    // Life Extractor
+    public static final DeferredHolder<Block, AdvancedLifeExtractorBlock> ADVANCED_LIFE_EXTRACTOR = BLOCKS.register("advanced_life_extractor", AdvancedLifeExtractorBlock::new);
+    public static final DeferredHolder<Block, ExtendedLifeExtractorBlock> EXTENDED_LIFE_EXTRACTOR = BLOCKS.register("extended_life_extractor", ExtendedLifeExtractorBlock::new);
+
+    // Infusion Machine
+    public static final DeferredHolder<Block, AdvancedInfusionMachineBlock> ADVANCED_INFUSION_MACHINE = BLOCKS.register("advanced_infusion_machine", AdvancedInfusionMachineBlock::new);
+    public static final DeferredHolder<Block, ExtendedInfusionMachineBlock> EXTENDED_INFUSION_MACHINE = BLOCKS.register("extended_infusion_machine", ExtendedInfusionMachineBlock::new);
+
+    // Bio Crusher
+    public static final DeferredHolder<Block, AdvancedBioCrusherBlock> ADVANCED_BIO_CRUSHER = BLOCKS.register("advanced_bio_crusher", AdvancedBioCrusherBlock::new);
+    public static final DeferredHolder<Block, ExtendedBioCrusherBlock> EXTENDED_BIO_CRUSHER = BLOCKS.register("extended_bio_crusher", ExtendedBioCrusherBlock::new);
 }

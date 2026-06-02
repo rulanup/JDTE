@@ -9,6 +9,8 @@
     "BaseMachineBlockMixin",
     "BaseMachineContainerMixin",
     "BaseMachineContainerFilterMixin",
+    "BaseSpawnerAccessor",
+    "BaseSpawnerInvoker",
     "ClickerFluidMixin",
     "AreaAffectingBEMixin",
     "EnergyCostMixin",
@@ -21,6 +23,8 @@
     "ParadoxEnergyCostMixin",
     "PoweredMachineDefaultMaxEnergyMixin",
     "PoweredMachineOverrideMaxEnergyMixin",
+    "SpawnerMixin",
+    "SpawnerMixin$ApothSpawnerMixin",
     "TickSpeedPacketMixin"
   ],
   "client": [

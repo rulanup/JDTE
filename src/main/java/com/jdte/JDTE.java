@@ -5,8 +5,10 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTECreativeTabs;
 import com.jdte.setup.JDTEEntities;
+import com.jdte.setup.JDTEFluids;
 import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEMenus;
+import com.jdte.setup.JDTERecipes;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
@@ -32,6 +34,12 @@ public class JDTE {
         JDTEAttachments.ATTACHMENT_TYPES.register(modEventBus);
         JDTECreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         JDTEEntities.ENTITIES.register(modEventBus);
+        JDTEFluids.FLUID_TYPES.register(modEventBus);
+        JDTEFluids.FLUIDS.register(modEventBus);
+        JDTEFluids.FLUID_BLOCKS.register(modEventBus);
+        JDTEFluids.BUCKET_ITEMS.register(modEventBus);
+        JDTERecipes.RECIPE_TYPES.register(modEventBus);
+        JDTERecipes.RECIPE_SERIALIZERS.register(modEventBus);
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
     }
@@ -100,7 +108,8 @@ public class JDTE {
         // Fluid Stabilizer energy storage
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
-                JDTEBlocks.FLUID_STABILIZER.get()
+                JDTEBlocks.ADVANCED_FLUID_STABILIZER.get(),
+                JDTEBlocks.EXTENDED_FLUID_STABILIZER.get()
         );
 
         // Item Sender energy storage (Advanced and Extended)
@@ -141,6 +150,30 @@ public class JDTE {
                 JDTEBlocks.BASIC_FLUID_RECEIVER.get(),
                 JDTEBlocks.ADVANCED_FLUID_RECEIVER.get(),
                 JDTEBlocks.EXTENDED_FLUID_RECEIVER.get()
+        );
+
+        // Life Extractor energy storage and fluid handler
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_LIFE_EXTRACTOR.get(),
+                JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get()
+        );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LifeExtractorBE extractor ? extractor.getFluidTank() : null,
+                JDTEBlocks.ADVANCED_LIFE_EXTRACTOR.get(),
+                JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get()
+        );
+
+        // Infusion Machine energy storage and fluid handler
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_INFUSION_MACHINE.get(),
+                JDTEBlocks.EXTENDED_INFUSION_MACHINE.get()
+        );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.InfusionMachineBE infusion ? infusion.getFluidTank() : null,
+                JDTEBlocks.ADVANCED_INFUSION_MACHINE.get(),
+                JDTEBlocks.EXTENDED_INFUSION_MACHINE.get()
         );
     }
 

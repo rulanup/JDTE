@@ -3,10 +3,7 @@ package com.jdte.common.blockentities;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
-import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
-import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
-import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.direwolf20.justdirethings.datagen.recipes.FluidDropRecipe;
 import com.direwolf20.justdirethings.setup.Registration;
@@ -14,46 +11,35 @@ import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.UpgradeHelper;
-import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class FluidStabilizerBE extends BaseMachineBE implements PoweredMachineBE, FilterableBE, RedstoneControlledBE, AreaAffectingBE {
+public abstract class FluidStabilizerBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, BaseFilterMachine {
     public static final int CATALYST_SLOT = 0;
-    public static final int BASE_ENERGY_CAPACITY = 100000;
-    public static final int BASE_ENERGY_COST = 500;
 
-    public final MachineEnergyStorage energyStorage;
-    public final PoweredMachineContainerData poweredMachineData;
     public FilterData filterData = new FilterData();
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     public AreaAffectingData areaAffectingData;
     protected final ItemStackHandler itemHandler;
 
-    public FluidStabilizerBE(BlockPos pos, BlockState state) {
-        super(JDTEBlockEntities.FLUID_STABILIZER.get(), pos, state);
+    protected FluidStabilizerBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
         MACHINE_SLOTS = 1;
-        tickSpeed = 20;
         areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
-        energyStorage = new MachineEnergyStorage(getMaxEnergy());
-        poweredMachineData = new PoweredMachineContainerData(this);
         itemHandler = new ItemStackHandler(1) {
             @Override
             protected void onContentsChanged(int slot) {
@@ -87,7 +73,7 @@ public class FluidStabilizerBE extends BaseMachineBE implements PoweredMachineBE
         if (catalystStack.isEmpty()) return;
 
         int energyCost = getStandardEnergyCost();
-        if (!UpgradeHelper.hasCreativeUpgrade(this) && !hasEnoughPower(energyCost)) {
+        if (energyCost > 0 && !UpgradeHelper.hasCreativeUpgrade(this) && !hasEnoughPower(energyCost)) {
             return;
         }
 
@@ -122,7 +108,9 @@ public class FluidStabilizerBE extends BaseMachineBE implements PoweredMachineBE
 
         handleOutputPlacement(serverLevel, targetPos, outputState);
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-            extractEnergy(energyCost, false);
+            if (energyCost > 0) {
+                extractEnergy(energyCost, false);
+            }
             catalystStack.shrink(1);
             itemHandler.setStackInSlot(CATALYST_SLOT, catalystStack);
         }
@@ -131,15 +119,7 @@ public class FluidStabilizerBE extends BaseMachineBE implements PoweredMachineBE
     }
 
     private void handleOutputPlacement(ServerLevel serverLevel, BlockPos targetPos, BlockState outputState) {
-        if (outputState.getBlock() instanceof LiquidBlock liquidBlock) {
-            FluidStack fluidStack = new FluidStack(liquidBlock.fluid, 1000);
-            FluidType fluidType = fluidStack.getFluidType();
-            if (fluidType.isVaporizedOnPlacement(serverLevel, targetPos, fluidStack)) {
-                serverLevel.setBlockAndUpdate(targetPos, Blocks.AIR.defaultBlockState());
-                fluidType.onVaporize(null, serverLevel, targetPos, fluidStack);
-                return;
-            }
-        }
+        // Fluid stabilizer forces fluid placement regardless of dimension restrictions
         serverLevel.playSound(null, targetPos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
@@ -170,35 +150,17 @@ public class FluidStabilizerBE extends BaseMachineBE implements PoweredMachineBE
         return false;
     }
 
-    private int getAreaEnergyScale() {
+    public abstract int getStandardEnergyCost();
+
+    public abstract boolean hasEnoughPower(int energyCost);
+
+    public abstract int extractEnergy(int energy, boolean simulate);
+
+    protected int getAreaEnergyScale() {
         return Math.max(1, 1
                 + (int) Math.ceil(areaAffectingData.xRadius)
                 + (int) Math.ceil(areaAffectingData.yRadius)
                 + (int) Math.ceil(areaAffectingData.zRadius));
-    }
-
-    @Override
-    public int getMaxEnergy() {
-        return UpgradeHelper.adjustEnergyCapacity(this, BASE_ENERGY_CAPACITY);
-    }
-
-    @Override
-    public ContainerData getContainerData() {
-        return poweredMachineData;
-    }
-
-    @Override
-    public MachineEnergyStorage getEnergyStorage() {
-        return energyStorage;
-    }
-
-    @Override
-    public int getStandardEnergyCost() {
-        if (UpgradeHelper.hasCreativeUpgrade(this)) {
-            return 0;
-        }
-        long scaledCost = (long) BASE_ENERGY_COST * getAreaEnergyScale();
-        return UpgradeHelper.adjustEnergyCost(this, scaledCost > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) scaledCost);
     }
 
     @Override
@@ -230,7 +192,6 @@ public class FluidStabilizerBE extends BaseMachineBE implements PoweredMachineBE
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.put("inventory", itemHandler.serializeNBT(provider));
-        tag.putInt("energy", energyStorage.getEnergyStored());
     }
 
     @Override
@@ -238,9 +199,6 @@ public class FluidStabilizerBE extends BaseMachineBE implements PoweredMachineBE
         super.loadAdditional(tag, provider);
         if (tag.contains("inventory")) {
             itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
-        if (tag.contains("energy")) {
-            energyStorage.setEnergy(tag.getInt("energy"));
         }
     }
 }

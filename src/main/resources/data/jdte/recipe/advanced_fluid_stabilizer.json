@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": { "item": "jdte:advanced_time_accelerator" },
+    "C": { "item": "justdirethings:polymorphic_catalyst" },
+    "F": { "item": "jdte:fluid_upgrade" },
+    "R": { "item": "jdte:range_upgrade" },
+    "T": { "item": "jdte:time_fluid_catalyst" }
+  },
+  "pattern": [
+    "RFR",
+    "CAT",
+    "RFR"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_fluid_stabilizer"
+  }
+}

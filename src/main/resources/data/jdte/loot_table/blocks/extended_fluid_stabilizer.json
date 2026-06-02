@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "jdte:fluid_stabilizer"
+          "name": "jdte:extended_fluid_stabilizer"
         }
       ],
       "conditions": [

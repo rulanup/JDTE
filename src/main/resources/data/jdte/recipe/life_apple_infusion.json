@@ -1,0 +1,16 @@
+{
+  "type": "jdte:infusion",
+  "id": "jdte:life_apple_infusion",
+  "input": {
+    "item": "minecraft:apple"
+  },
+  "fluid": {
+    "fluid": "jdte:life_fluid_source",
+    "amount": 1000
+  },
+  "output": {
+    "item": "jdte:life_apple",
+    "count": 1
+  },
+  "energy": 500
+}

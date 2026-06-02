@@ -73,13 +73,18 @@ public class UpgradeHelper {
         return remainder == 0 ? FILTER_SLOTS_PER_UPGRADE : remainder;
     }
 
+    public static boolean hasBaseFilterSlots(BaseMachineBE machine) {
+        return machine instanceof com.jdte.common.blockentities.BaseFilterMachine;
+    }
+
     public static void trimInactiveFilterSlots(BaseMachineBE machine) {
         if (!(machine instanceof FilterableBE filterable)) {
             return;
         }
 
         FilterBasicHandler handler = filterable.getFilterHandler();
-        int activeSlots = getActiveFilterSlots(machine, getBaseFilterSlots(handler));
+        int baseSlots = hasBaseFilterSlots(machine) ? getBaseFilterSlots(handler) : 0;
+        int activeSlots = getActiveFilterSlots(machine, baseSlots);
         boolean changed = false;
         for (int i = activeSlots; i < handler.getSlots(); i++) {
             if (!handler.getStackInSlot(i).isEmpty()) {

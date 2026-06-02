@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, more upgrade slots, time accelerators, and extra automation machines for JDT.
 
-Current version: `0.2.0`
+Current version: `0.3.0`
 
 [中文 README](README.md)
 
@@ -54,11 +54,32 @@ Use the **Extended Upgrade** on supported JDT T2 machines to convert them into J
 
 - Glue Activator: basic, advanced, extended
 - Gel Generator: advanced, extended
-- Fluid Stabilizer: uses a catalyst slot to match JDT FluidDrop recipes and directly convert source fluids in its configured area; each conversion costs FE and 1 catalyst, with FE cost scaling by configured range
+- Fluid Stabilizer: basic, advanced, extended; uses a catalyst slot to match JDT FluidDrop recipes and directly convert source fluids in its configured area
 - Item Sender: basic, advanced, extended
 - Fluid Sender: basic, advanced, extended
 - Item Receiver: basic, advanced, extended
 - Fluid Receiver: basic, advanced, extended
+- Bio Crusher: advanced, extended; kills mobs to generate drops and experience fluid, supports looting and sharpness upgrades, can be placed above mob spawners to prevent spawning
+
+### Bio Crusher
+
+The Bio Crusher is a new machine that kills mobs in its range and generates drops and experience fluid.
+
+- **Advanced Bio Crusher**: 4 standard upgrade slots + 2 dedicated upgrade slots
+- **Extended Bio Crusher**: 8 standard upgrade slots + 2 dedicated upgrade slots
+
+Dedicated upgrade slots support:
+- **Looting Upgrade**: Up to level 6, each level adds 50% extra drop chance
+- **Sharpness Upgrade**: Up to 6, each adds 5 damage
+
+Special feature: Place above a mob spawner to prevent spawning and generate drops + experience fluid directly.
+
+### Boss Essences
+
+The Bio Crusher can crush bosses to generate unique essences:
+- Wither Essence
+- Ender Dragon Essence
+- Elder Guardian Essence
 
 ## Installation
 

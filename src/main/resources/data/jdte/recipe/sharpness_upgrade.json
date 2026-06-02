@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "key": {
+    "A": "minecraft:diamond",
+    "B": "minecraft:iron_ingot",
+    "C": "minecraft:flint"
+  },
+  "result": {
+    "item": "jdte:sharpness_upgrade",
+    "count": 1
+  }
+}

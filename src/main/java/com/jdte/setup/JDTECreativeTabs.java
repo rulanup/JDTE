@@ -1,6 +1,7 @@
 package com.jdte.setup;
 
 import com.jdte.JDTE;
+import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -47,7 +48,9 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_GEL_GENERATOR.get());
 
                 // Fluid Stabilizer
-                output.accept(JDTEItems.FLUID_STABILIZER.get());
+                output.accept(JDTEItems.BASIC_FLUID_STABILIZER.get());
+                output.accept(JDTEItems.ADVANCED_FLUID_STABILIZER.get());
+                output.accept(JDTEItems.EXTENDED_FLUID_STABILIZER.get());
 
                 // Item Senders
                 output.accept(JDTEItems.BASIC_ITEM_SENDER.get());
@@ -68,6 +71,16 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.BASIC_FLUID_RECEIVER.get());
                 output.accept(JDTEItems.ADVANCED_FLUID_RECEIVER.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_RECEIVER.get());
+
+                // Life Extractor
+                output.accept(JDTEItems.ADVANCED_LIFE_EXTRACTOR.get());
+                output.accept(JDTEItems.EXTENDED_LIFE_EXTRACTOR.get());
+                output.accept(JDTEItems.LIFE_APPLE.get());
+                output.accept(JDTEFluids.LIFE_FLUID_BUCKET.get());
+
+                // Infusion Machine
+                output.accept(JDTEItems.ADVANCED_INFUSION_MACHINE.get());
+                output.accept(JDTEItems.EXTENDED_INFUSION_MACHINE.get());
             })
             .build());
 }

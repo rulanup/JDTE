@@ -1,8 +1,8 @@
 package com.jdte.common.blocks;
 
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
-import com.jdte.common.blockentities.FluidStabilizerBE;
-import com.jdte.common.containers.FluidStabilizerContainer;
+import com.jdte.common.blockentities.ExtendedLifeExtractorBE;
+import com.jdte.common.containers.ExtendedLifeExtractorContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleMenuProvider;
@@ -13,11 +13,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class FluidStabilizerBlock extends BaseMachineBlock {
-    public FluidStabilizerBlock() {
+public class ExtendedLifeExtractorBlock extends BaseMachineBlock {
+    public ExtendedLifeExtractorBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
-                .strength(2.5f)
+                .strength(3.0f)
                 .isRedstoneConductor(BaseMachineBlock::never)
         );
     }
@@ -25,19 +25,19 @@ public class FluidStabilizerBlock extends BaseMachineBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new FluidStabilizerBE(pos, state);
+        return new ExtendedLifeExtractorBE(pos, state);
     }
 
     @Override
     public void openMenu(Player player, BlockPos blockPos) {
         player.openMenu(new SimpleMenuProvider(
-                (windowId, playerInventory, playerEntity) -> new FluidStabilizerContainer(windowId, playerInventory, blockPos), Component.translatable("block.jdte.fluid_stabilizer")), (buf -> {
+                (windowId, playerInventory, playerEntity) -> new ExtendedLifeExtractorContainer(windowId, playerInventory, blockPos), Component.translatable("block.jdte.extended_life_extractor")), (buf -> {
             buf.writeBlockPos(blockPos);
         }));
     }
 
     @Override
     public boolean isValidBE(BlockEntity blockEntity) {
-        return blockEntity instanceof FluidStabilizerBE;
+        return blockEntity instanceof ExtendedLifeExtractorBE;
     }
 }

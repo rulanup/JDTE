@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-public abstract class GlueActivatorBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE {
+public abstract class GlueActivatorBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, BaseFilterMachine {
     public static final int REVIVE_SLOT = 0;
     public static final int BASE_DELAY_TICKS = 120; // 6 seconds
 

@@ -28,7 +28,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
-public abstract class FluidReceiverBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, FluidMachineBE, AreaAffectingBE {
+public abstract class FluidReceiverBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, FluidMachineBE, AreaAffectingBE, BaseFilterMachine {
     public static final int BASE_FLUID_CAPACITY = 8000; // 8 buckets
 
     public FilterData filterData = new FilterData();

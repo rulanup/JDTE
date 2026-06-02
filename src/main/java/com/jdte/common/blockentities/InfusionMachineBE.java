@@ -1,0 +1,232 @@
+package com.jdte.common.blockentities;
+
+import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerData;
+import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
+import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
+import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
+import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.jdte.common.recipes.InfusionRecipe;
+import com.jdte.common.upgrades.JDTEFluidTank;
+import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.setup.JDTERecipes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+
+public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMachineBE, RedstoneControlledBE {
+    public static final int INPUT_SLOT = 0;
+    public static final int OUTPUT_SLOT = 1;
+    public static final int TOTAL_SLOTS = 2;
+    public static final int BASE_FLUID_CAPACITY = 8000;
+    public static final int PROCESS_TIME = 20;
+
+    public final JDTEFluidTank fluidTank;
+    public final FluidContainerData fluidContainerData;
+    public final ContainerData infusionData;
+    public RedstoneControlData redstoneControlData = new RedstoneControlData();
+    protected final ItemStackHandler itemHandler;
+    protected int progress = 0;
+
+    protected InfusionMachineBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+        MACHINE_SLOTS = TOTAL_SLOTS;
+        fluidTank = new JDTEFluidTank(getMaxMB(), f -> true);
+        fluidContainerData = new FluidContainerData(this);
+        infusionData = new ContainerData() {
+            @Override
+            public int get(int index) {
+                return switch (index) {
+                    case 0 -> progress;
+                    case 1 -> PROCESS_TIME;
+                    default -> 0;
+                };
+            }
+
+            @Override
+            public void set(int index, int value) {
+                if (index == 0) progress = value;
+            }
+
+            @Override
+            public int getCount() {
+                return 2;
+            }
+        };
+        itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                setChanged();
+            }
+
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                if (slot == OUTPUT_SLOT) return false;
+                return true;
+            }
+        };
+    }
+
+    @Override
+    public ItemStackHandler getMachineHandler() {
+        return itemHandler;
+    }
+
+    @Override
+    public void tickServer() {
+        super.tickServer();
+        UpgradeHelper.syncCapacities(this);
+        if (isActiveRedstone() && canRun()) {
+            processInfusion();
+        }
+    }
+
+    public abstract int getEffectiveEnergyCost();
+
+    public abstract boolean hasEnoughPower(int energyCost);
+
+    public abstract int extractEnergy(int energy, boolean simulate);
+
+    protected void processInfusion() {
+        if (!(level instanceof ServerLevel)) return;
+
+        ItemStack inputStack = itemHandler.getStackInSlot(INPUT_SLOT);
+        FluidStack tankFluid = fluidTank.getFluid();
+
+        if (inputStack.isEmpty() || tankFluid.isEmpty()) {
+            resetProgress();
+            return;
+        }
+
+        InfusionRecipe recipe = findRecipe(inputStack, tankFluid);
+        if (recipe == null) {
+            resetProgress();
+            return;
+        }
+
+        ItemStack result = recipe.getOutput();
+        if (!canOutput(result)) {
+            resetProgress();
+            return;
+        }
+
+        int energyCost = getEffectiveEnergyCost();
+        if (energyCost > 0 && !UpgradeHelper.hasCreativeUpgrade(this) && !hasEnoughPower(energyCost)) {
+            resetProgress();
+            return;
+        }
+
+        progress++;
+        if (progress < PROCESS_TIME) {
+            setChanged();
+            return;
+        }
+
+        if (!UpgradeHelper.hasCreativeUpgrade(this)) {
+            inputStack.shrink(1);
+            itemHandler.setStackInSlot(INPUT_SLOT, inputStack);
+            fluidTank.drain(recipe.getFluidInput().getAmount(), IFluidHandler.FluidAction.EXECUTE);
+            if (energyCost > 0) {
+                extractEnergy(energyCost, false);
+            }
+        }
+
+        ItemStack outputStack = itemHandler.getStackInSlot(OUTPUT_SLOT);
+        if (outputStack.isEmpty()) {
+            itemHandler.setStackInSlot(OUTPUT_SLOT, result.copy());
+        } else {
+            outputStack.grow(result.getCount());
+            itemHandler.setStackInSlot(OUTPUT_SLOT, outputStack);
+        }
+
+        progress = 0;
+        setChanged();
+    }
+
+    protected InfusionRecipe findRecipe(ItemStack input, FluidStack fluid) {
+        if (level == null) return null;
+        for (RecipeHolder<InfusionRecipe> holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.INFUSION_RECIPE_TYPE.get())) {
+            if (holder.value().matches(input, fluid)) {
+                return holder.value();
+            }
+        }
+        return null;
+    }
+
+    protected boolean canOutput(ItemStack result) {
+        ItemStack output = itemHandler.getStackInSlot(OUTPUT_SLOT);
+        if (output.isEmpty()) return true;
+        if (!ItemStack.isSameItemSameComponents(output, result)) return false;
+        return output.getCount() + result.getCount() <= output.getMaxStackSize();
+    }
+
+    protected void resetProgress() {
+        if (progress != 0) {
+            progress = 0;
+            setChanged();
+        }
+    }
+
+    public ContainerData getInfusionData() {
+        return infusionData;
+    }
+
+    @Override
+    public int getMaxMB() {
+        return UpgradeHelper.adjustFluidCapacity(this, BASE_FLUID_CAPACITY);
+    }
+
+    @Override
+    public JDTEFluidTank getFluidTank() {
+        return fluidTank;
+    }
+
+    @Override
+    public FluidContainerData getFluidContainerData() {
+        return fluidContainerData;
+    }
+
+    @Override
+    public RedstoneControlData getRedstoneControlData() {
+        return redstoneControlData;
+    }
+
+    @Override
+    public BlockEntity getBlockEntity() {
+        return this;
+    }
+
+    @Override
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("inventory", itemHandler.serializeNBT(provider));
+        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+        tag.putInt("progress", progress);
+    }
+
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        if (tag.contains("inventory")) {
+            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
+        }
+        if (tag.contains("fluidTank")) {
+            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
+        }
+        if (tag.contains("progress")) {
+            progress = tag.getInt("progress");
+        }
+    }
+}

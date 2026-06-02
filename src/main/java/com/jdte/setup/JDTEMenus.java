@@ -49,8 +49,12 @@ public class JDTEMenus {
             "extended_gel_generator", () -> IMenuTypeExtension.create(ExtendedGelGeneratorContainer::new));
 
     // Fluid Stabilizer
-    public static final DeferredHolder<MenuType<?>, MenuType<FluidStabilizerContainer>> FLUID_STABILIZER = MENUS.register(
-            "fluid_stabilizer", () -> IMenuTypeExtension.create(FluidStabilizerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<BasicFluidStabilizerContainer>> BASIC_FLUID_STABILIZER = MENUS.register(
+            "basic_fluid_stabilizer", () -> IMenuTypeExtension.create(BasicFluidStabilizerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedFluidStabilizerContainer>> ADVANCED_FLUID_STABILIZER = MENUS.register(
+            "advanced_fluid_stabilizer", () -> IMenuTypeExtension.create(AdvancedFluidStabilizerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedFluidStabilizerContainer>> EXTENDED_FLUID_STABILIZER = MENUS.register(
+            "extended_fluid_stabilizer", () -> IMenuTypeExtension.create(ExtendedFluidStabilizerContainer::new));
 
     // Item Sender
     public static final DeferredHolder<MenuType<?>, MenuType<BasicItemSenderContainer>> BASIC_ITEM_SENDER = MENUS.register(
@@ -83,4 +87,22 @@ public class JDTEMenus {
             "advanced_fluid_receiver", () -> IMenuTypeExtension.create(AdvancedFluidReceiverContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedFluidReceiverContainer>> EXTENDED_FLUID_RECEIVER = MENUS.register(
             "extended_fluid_receiver", () -> IMenuTypeExtension.create(ExtendedFluidReceiverContainer::new));
+
+    // Life Extractor
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedLifeExtractorContainer>> ADVANCED_LIFE_EXTRACTOR = MENUS.register(
+            "advanced_life_extractor", () -> IMenuTypeExtension.create(AdvancedLifeExtractorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedLifeExtractorContainer>> EXTENDED_LIFE_EXTRACTOR = MENUS.register(
+            "extended_life_extractor", () -> IMenuTypeExtension.create(ExtendedLifeExtractorContainer::new));
+
+    // Infusion Machine
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedInfusionMachineContainer>> ADVANCED_INFUSION_MACHINE = MENUS.register(
+            "advanced_infusion_machine", () -> IMenuTypeExtension.create(AdvancedInfusionMachineContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedInfusionMachineContainer>> EXTENDED_INFUSION_MACHINE = MENUS.register(
+            "extended_infusion_machine", () -> IMenuTypeExtension.create(ExtendedInfusionMachineContainer::new));
+
+    // Bio Crusher
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedBioCrusherContainer>> ADVANCED_BIO_CRUSHER = MENUS.register(
+            "advanced_bio_crusher", () -> IMenuTypeExtension.create(AdvancedBioCrusherContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedBioCrusherContainer>> EXTENDED_BIO_CRUSHER = MENUS.register(
+            "extended_bio_crusher", () -> IMenuTypeExtension.create(ExtendedBioCrusherContainer::new));
 }

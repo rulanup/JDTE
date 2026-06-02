@@ -42,7 +42,9 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.EXTENDED_GEL_GENERATOR.get(), ExtendedGelGeneratorScreen::new);
 
         // Fluid Stabilizer
-        event.register(JDTEMenus.FLUID_STABILIZER.get(), FluidStabilizerScreen::new);
+        event.register(JDTEMenus.BASIC_FLUID_STABILIZER.get(), BasicFluidStabilizerScreen::new);
+        event.register(JDTEMenus.ADVANCED_FLUID_STABILIZER.get(), AdvancedFluidStabilizerScreen::new);
+        event.register(JDTEMenus.EXTENDED_FLUID_STABILIZER.get(), ExtendedFluidStabilizerScreen::new);
 
         // Item Senders
         event.register(JDTEMenus.BASIC_ITEM_SENDER.get(), BasicItemSenderScreen::new);
@@ -63,6 +65,18 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.BASIC_FLUID_RECEIVER.get(), BasicFluidReceiverScreen::new);
         event.register(JDTEMenus.ADVANCED_FLUID_RECEIVER.get(), AdvancedFluidReceiverScreen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_RECEIVER.get(), ExtendedFluidReceiverScreen::new);
+
+        // Life Extractor
+        event.register(JDTEMenus.ADVANCED_LIFE_EXTRACTOR.get(), AdvancedLifeExtractorScreen::new);
+        event.register(JDTEMenus.EXTENDED_LIFE_EXTRACTOR.get(), ExtendedLifeExtractorScreen::new);
+
+        // Infusion Machine
+        event.register(JDTEMenus.ADVANCED_INFUSION_MACHINE.get(), AdvancedInfusionMachineScreen::new);
+        event.register(JDTEMenus.EXTENDED_INFUSION_MACHINE.get(), ExtendedInfusionMachineScreen::new);
+
+        // Bio Crusher
+        event.register(JDTEMenus.ADVANCED_BIO_CRUSHER.get(), AdvancedBioCrusherScreen::new);
+        event.register(JDTEMenus.EXTENDED_BIO_CRUSHER.get(), ExtendedBioCrusherScreen::new);
     }
 
     @SubscribeEvent
@@ -89,7 +103,9 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
 
         // Fluid Stabilizer - 使用AreaAffectingBER渲染区域
-        event.registerBlockEntityRenderer(JDTEBlockEntities.FLUID_STABILIZER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_FLUID_STABILIZER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_FLUID_STABILIZER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_STABILIZER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
 
         // Item Senders - 使用AreaAffectingBER渲染区域
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_ITEM_SENDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
@@ -110,5 +126,13 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_FLUID_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_FLUID_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+
+        // Life Extractor - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_LIFE_EXTRACTOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_LIFE_EXTRACTOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+
+        // Bio Crusher - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_BIO_CRUSHER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BIO_CRUSHER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
     }
 }
