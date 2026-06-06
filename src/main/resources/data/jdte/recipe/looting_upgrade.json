@@ -1,17 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "ABA",
     "BCB",
     "ABA"
   ],
   "key": {
-    "A": "minecraft:diamond",
-    "B": "minecraft:gold_ingot",
-    "C": "minecraft:lapis_lazuli"
+    "A": { "item": "minecraft:diamond" },
+    "B": { "item": "minecraft:gold_ingot" },
+    "C": { "item": "minecraft:lapis_lazuli" }
   },
   "result": {
-    "item": "jdte:looting_upgrade",
-    "count": 1
+    "count": 1,
+    "id": "jdte:looting_upgrade"
   }
 }

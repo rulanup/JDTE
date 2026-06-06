@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": { "item": "minecraft:bucket" },
+    "R": { "item": "minecraft:redstone" },
+    "I": { "item": "minecraft:iron_ingot" }
+  },
+  "pattern": [
+    " R ",
+    "BIB",
+    " R "
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:basic_fluid_receiver"
+  }
+}

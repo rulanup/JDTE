@@ -11,6 +11,7 @@ import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.mixin.EnergyStorageAccessor;
 import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEAttachments;
+import com.jdte.setup.JDTEConfig;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -20,7 +21,9 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class UpgradeHelper {
-    public static final int FILTER_SLOTS_PER_UPGRADE = 9;
+    public static int getFilterSlotsPerUpgrade() {
+        return JDTEConfig.COMMON.filterSlotsPerUpgrade.get();
+    }
 
     public static UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
         if (machine instanceof com.jdte.common.blockentities.ExtendedUpgradeMachine) {
@@ -49,7 +52,7 @@ public class UpgradeHelper {
     }
 
     public static int getMaxExtraFilterSlots() {
-        return UpgradeType.FILTER.getMaxPerMachine() * FILTER_SLOTS_PER_UPGRADE;
+        return UpgradeType.FILTER.getMaxPerMachine() * getFilterSlotsPerUpgrade();
     }
 
     public static int getMaxFilterSlots(int baseSlots) {
@@ -60,17 +63,18 @@ public class UpgradeHelper {
         if (machine == null) {
             return baseSlots;
         }
-        return baseSlots + countUpgrades(machine, UpgradeType.FILTER) * FILTER_SLOTS_PER_UPGRADE;
+        return baseSlots + countUpgrades(machine, UpgradeType.FILTER) * getFilterSlotsPerUpgrade();
     }
 
     public static int getBaseFilterSlots(FilterBasicHandler handler) {
         int slots = handler.getSlots();
-        if (slots <= FILTER_SLOTS_PER_UPGRADE) {
+        int filterSlotsPerUpgrade = getFilterSlotsPerUpgrade();
+        if (slots <= filterSlotsPerUpgrade) {
             return slots;
         }
 
-        int remainder = slots % FILTER_SLOTS_PER_UPGRADE;
-        return remainder == 0 ? FILTER_SLOTS_PER_UPGRADE : remainder;
+        int remainder = slots % filterSlotsPerUpgrade;
+        return remainder == 0 ? filterSlotsPerUpgrade : remainder;
     }
 
     public static boolean hasBaseFilterSlots(BaseMachineBE machine) {
@@ -114,10 +118,10 @@ public class UpgradeHelper {
             return 0;
         }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
-            return Math.max(1, (int) Math.ceil(original * 0.2D));
+            return Math.max(1, (int) Math.ceil(original * JDTEConfig.COMMON.underclockEnergyMultiplier.get()));
         }
         if (countUpgrades(machine, UpgradeType.OVERCLOCK) > 0) {
-            long result = (long) original * 3L;
+            long result = (long) original * JDTEConfig.COMMON.overclockEnergyMultiplier.get();
             return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
         }
         return original;
@@ -131,10 +135,10 @@ public class UpgradeHelper {
             return 1;
         }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
-            return 40;
+            return JDTEConfig.COMMON.underclockTickSpeed.get();
         }
         if (countUpgrades(machine, UpgradeType.OVERCLOCK) > 0) {
-            return 1;
+            return JDTEConfig.COMMON.overclockTickSpeed.get();
         }
         return original;
     }
@@ -165,12 +169,12 @@ public class UpgradeHelper {
 
     public static double getMaxAreaRadius(BaseMachineBE machine) {
         int rangeUpgrades = countUpgrades(machine, UpgradeType.RANGE);
-        return 5.0D * (1 << rangeUpgrades);
+        return JDTEConfig.COMMON.baseAreaRadius.get() * (1 << rangeUpgrades);
     }
 
     public static int getMaxAreaOffset(BaseMachineBE machine) {
         int rangeUpgrades = countUpgrades(machine, UpgradeType.RANGE);
-        return 9 * (1 << rangeUpgrades);
+        return JDTEConfig.COMMON.baseAreaOffset.get() * (1 << rangeUpgrades);
     }
 
     public static boolean hasFluidStorageUpgrade(BaseMachineBE machine) {

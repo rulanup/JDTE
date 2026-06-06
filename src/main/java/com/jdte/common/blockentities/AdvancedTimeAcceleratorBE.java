@@ -6,6 +6,7 @@ import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.setup.Config;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -14,13 +15,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements PoweredMachineBE {
-    public static final int BASE_ENERGY_CAPACITY = 200000;
-    public static final int MAX_MULTIPLIER = 128;
-    public static final int OVERCLOCK_MULTIPLIER = 256;
-
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
-    private int multiplier = 4;
+    private int multiplier;
 
     public AdvancedTimeAcceleratorBE(BlockPos pos, BlockState state) {
         this(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), pos, state);
@@ -28,6 +25,7 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
 
     protected AdvancedTimeAcceleratorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        multiplier = JDTEConfig.COMMON.advancedTimeAcceleratorDefaultMultiplier.get();
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
     }
@@ -37,18 +35,20 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     }
 
     public void setMultiplier(int multiplier) {
-        this.multiplier = Math.max(1, Math.min(multiplier, MAX_MULTIPLIER));
+        this.multiplier = Math.max(1, Math.min(multiplier, JDTEConfig.COMMON.advancedTimeAcceleratorMaxMultiplier.get()));
         markDirtyClient();
     }
 
     @Override
     public int getEffectiveMultiplier() {
-        return (UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this)) ? OVERCLOCK_MULTIPLIER : multiplier;
+        return (UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this))
+                ? JDTEConfig.COMMON.advancedTimeAcceleratorOverclockMultiplier.get()
+                : multiplier;
     }
 
     @Override
     public int getMaxEnergy() {
-        return UpgradeHelper.adjustEnergyCapacity(this, BASE_ENERGY_CAPACITY);
+        return UpgradeHelper.adjustEnergyCapacity(this, JDTEConfig.COMMON.advancedTimeAcceleratorEnergyCapacity.get());
     }
 
     @Override
@@ -90,7 +90,7 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
 
     @Override
     public boolean isDefaultSettings() {
-        return super.isDefaultSettings() && energyStorage.getEnergyStored() == 0 && multiplier == 4;
+        return super.isDefaultSettings() && energyStorage.getEnergyStored() == 0 && multiplier == JDTEConfig.COMMON.advancedTimeAcceleratorDefaultMultiplier.get();
     }
 
     @Override

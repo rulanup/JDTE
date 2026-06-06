@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": { "item": "minecraft:slime_ball" },
+    "G": { "item": "minecraft:gold_ingot" },
+    "R": { "item": "minecraft:redstone" },
+    "F": { "item": "jdte:fluid_upgrade" }
+  },
+  "pattern": [
+    "GRG",
+    "SFS",
+    "GRG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_gel_generator"
+  }
+}

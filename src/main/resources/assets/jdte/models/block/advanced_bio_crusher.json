@@ -1,6 +1,9 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/orientable",
   "textures": {
-    "all": "jdte:block/advanced_bio_crusher"
+    "top": "jdte:block/advanced_bio_crusher_top",
+	"front": "jdte:block/advanced_bio_crusher_side",
+    "side": "jdte:block/advanced_bio_crusher_side",
+	"bottom": "jdte:block/universal_bottom"
   }
 }

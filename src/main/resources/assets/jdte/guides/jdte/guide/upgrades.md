@@ -12,6 +12,9 @@ item_ids:
   - jdte:generator_upgrade
   - jdte:range_upgrade
   - jdte:filter_upgrade
+  - jdte:creative_upgrade
+  - jdte:looting_upgrade
+  - jdte:sharpness_upgrade
 ---
 
 # 升级卡
@@ -83,3 +86,27 @@ item_ids:
 **仅限：** 有过滤槽的机器（如 Clicker T2、传感器 T2 等）
 
 <RecipeFor id="jdte:filter_upgrade" />
+
+## 创造升级
+
+<ItemImage id="jdte:creative_upgrade" scale="2" />
+
+免除 FE 消耗；时间加速器免除时间流体消耗；包含超频效果。
+
+<RecipeFor id="jdte:creative_upgrade" />
+
+## 抢夺升级
+
+<ItemImage id="jdte:looting_upgrade" scale="2" />
+
+生物粉碎机专用，增加额外掉落概率。最大等级 6，每级 50% 概率获得 +1 掉落。
+
+<RecipeFor id="jdte:looting_upgrade" />
+
+## 锋利升级
+
+<ItemImage id="jdte:sharpness_upgrade" scale="2" />
+
+生物粉碎机专用，增加攻击伤害。每个升级增加 5 点伤害，最多 6 个，最大 35 点伤害。
+
+<RecipeFor id="jdte:sharpness_upgrade" />

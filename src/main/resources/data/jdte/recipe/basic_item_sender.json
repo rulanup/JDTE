@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": { "item": "minecraft:chest" },
+    "R": { "item": "minecraft:redstone" },
+    "I": { "item": "minecraft:iron_ingot" }
+  },
+  "pattern": [
+    " R ",
+    "CIC",
+    " R "
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:basic_item_sender"
+  }
+}

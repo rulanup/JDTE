@@ -1,7 +1,9 @@
 {
-  "parent": "minecraft:block/cube_column",
+  "parent": "minecraft:block/orientable",
   "textures": {
-    "end": "jdte:block/life_extractor_top",
-    "side": "jdte:block/life_extractor_side"
+    "top": "jdte:block/life_extractor_top",
+	"front": "jdte:block/life_extractor_side",
+    "side": "jdte:block/life_extractor_side",
+	"bottom": "jdte:block/life_bottom"
   }
 }

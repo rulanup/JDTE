@@ -2,7 +2,8 @@
   "parent": "minecraft:block/orientable",
   "textures": {
     "top": "jdte:block/basic_glue_activator_top",
-    "front": "jdte:block/basic_glue_activator_front",
-    "side": "jdte:block/basic_glue_activator_side"
+    "front": "jdte:block/basic_glue_activator_side",
+    "side": "jdte:block/basic_glue_activator_side",
+	"bottom": "jdte:block/universal_bottom"
   }
 }

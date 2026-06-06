@@ -5,6 +5,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -12,8 +13,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachineBE {
-    public static final int BASE_ENERGY_CAPACITY = 200000;
-
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
 
@@ -26,7 +25,7 @@ public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachine
 
     @Override
     public int getMaxEnergy() {
-        return UpgradeHelper.adjustEnergyCapacity(this, BASE_ENERGY_CAPACITY);
+        return UpgradeHelper.adjustEnergyCapacity(this, JDTEConfig.COMMON.extendedBioCrusherEnergyCapacity.get());
     }
 
     @Override
@@ -47,7 +46,7 @@ public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachine
     @Override
     public int getEffectiveEnergyCost() {
         if (UpgradeHelper.hasCreativeUpgrade(this)) return 0;
-        int baseCost = BASE_ENERGY_COST;
+        int baseCost = JDTEConfig.COMMON.bioCrusherEnergyCost.get();
         long scaledCost = (long) baseCost * getAreaEnergyScale();
         return UpgradeHelper.adjustEnergyCost(this, scaledCost > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) scaledCost);
     }
@@ -72,8 +71,8 @@ public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachine
 
     @Override
     protected int getMaxEntitiesPerTick() {
-        if (UpgradeHelper.hasCreativeUpgrade(this)) return 4;
-        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return 4;
+        if (UpgradeHelper.hasCreativeUpgrade(this)) return JDTEConfig.COMMON.extendedBioCrusherMaxEntities.get();
+        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return JDTEConfig.COMMON.extendedBioCrusherMaxEntities.get();
         return 2;
     }
 

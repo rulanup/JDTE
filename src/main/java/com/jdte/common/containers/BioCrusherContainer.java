@@ -21,14 +21,17 @@ public abstract class BioCrusherContainer extends BaseMachineContainer {
             bioCrusherData = crusher.getBioCrusherData();
             addDataSlots(bioCrusherData);
         }
+        addPlayerSlots(playerInventory);
     }
 
     @Override
     public void addMachineSlots() {
         if (baseMachineBE instanceof BioCrusherBE crusher) {
-            // Output slots (27 slots for drops)
-            for (int i = 0; i < 27; i++) {
-                addSlot(new SlotItemHandler(crusher.getMachineHandler(), i, 8 + (i % 9) * 18, 18 + (i / 9) * 18));
+            // Output slots (16 slots = 4x4 grid for drops)
+            for (int i = 0; i < 16; i++) {
+                int row = i / 4;
+                int col = i % 4;
+                addSlot(new SlotItemHandler(crusher.getMachineHandler(), i, 8 + col * 18, 18 + row * 18));
             }
 
             // Looting upgrade slots (2 slots)

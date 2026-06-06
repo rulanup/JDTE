@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": { "item": "minecraft:slime_ball" },
+    "R": { "item": "minecraft:redstone" },
+    "I": { "item": "minecraft:iron_ingot" }
+  },
+  "pattern": [
+    "SRS",
+    "ILI",
+    "SRS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:basic_glue_activator"
+  }
+}

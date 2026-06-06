@@ -36,6 +36,18 @@ item_ids:
 
 <RecipeFor id="jdte:advanced_time_accelerator" />
 
+## 扩展高级时间加速器
+
+<BlockImage id="jdte:extended_time_accelerator" scale="2" />
+
+高级时间加速器的扩展版本，拥有 8 个升级槽。可通过扩展升级右键高级时间加速器获得。
+
+- 可调节倍率：1x - 128x
+- 安装超频升级后：256x
+- 支持 8 个升级槽，可安装更多升级卡
+
+<RecipeFor id="jdte:extended_time_accelerator" />
+
 ## 时间流体催化剂
 
 <ItemImage id="jdte:time_fluid_catalyst" scale="2" />

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "jdte:extended_item_sender"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

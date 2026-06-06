@@ -1,102 +1,95 @@
 ---
 navigation:
-  title: Bio Crusher
+  title: 生物粉碎机
   icon: "jdte:advanced_bio_crusher"
   position: 5
+item_ids:
+  - jdte:advanced_bio_crusher
+  - jdte:extended_bio_crusher
+  - jdte:looting_upgrade
+  - jdte:sharpness_upgrade
 ---
 
-# Bio Crusher
+# 生物粉碎机
 
-The Bio Crusher is a machine that kills mobs in its range and generates drops and experience fluid.
+生物粉碎机可以杀死范围内的生物，生成掉落物和经验流体。
 
-## Variants
+## 变体
 
-| Machine | Standard Upgrade Slots | Dedicated Upgrade Slots |
-|---------|------------------------|-------------------------|
-| Advanced Bio Crusher | 4 | 2 |
-| Extended Bio Crusher | 8 | 2 |
+| 机器 | 标准升级槽 | 专用升级槽 |
+|------|-----------|-----------|
+| 高级生物粉碎机 | 4 | 2 |
+| 扩展生物粉碎机 | 8 | 2 |
 
-## Features
+## 功能
 
-### Drop Generation
+### 掉落物生成
 
-- Kills mobs in configured range
-- Generates vanilla drops based on entity loot tables
-- Supports looting upgrades for extra drops
+- 杀死配置范围内的生物
+- 根据生物战利品表生成原版掉落物
+- 支持抢夺升级增加额外掉落
 
-### Experience Fluid
+### 经验流体
 
-- Produces life fluid based on mob health
-- Fluid stored in internal tank
+- 根据生物生命值产生经验流体
+- 流体存储在内部储罐中
 
-### Dedicated Upgrades
+### 专用升级槽
 
-The Bio Crusher has 2 dedicated upgrade slots that support:
+生物粉碎机有 2 个专用升级槽，支持：
 
-#### Looting Upgrade
+#### 抢夺升级
 
-- Max level: 6
-- Each level adds 50% chance for extra drop
-- Level 1: 50% chance for +1 drop
-- Level 2: 100% chance for +1 drop
-- Level 3: 100% + 50% for +1 more
-- And so on...
+- 最大等级：6
+- 每级增加 50% 概率获得额外掉落
+- 等级 1：50% 概率 +1 掉落
+- 等级 2：100% 概率 +1 掉落
+- 等级 3：100% + 50% 概率再 +1
+- 以此类推...
 
-#### Sharpness Upgrade
+#### 锋利升级
 
-- Max count: 6
-- Base damage: 5 points
-- Each upgrade adds 5 damage
-- Max damage: 35 points
+- 最大数量：6
+- 基础伤害：5 点
+- 每个升级增加 5 点伤害
+- 最大伤害：35 点
 
-### Spawner Integration
+### 刷怪笼集成
 
-Place the Bio Crusher above a mob spawner to:
+将生物粉碎机放置在刷怪笼上方可以：
 
-- Prevent the spawner from spawning mobs
-- Generate drops directly from the spawner's entity type
-- Generate experience fluid
+- 阻止刷怪笼生成生物
+- 直接从刷怪笼的实体类型生成掉落物
+- 生成经验流体
 
-This is useful for automating mob farms without creating lag from many entities.
+这有助于自动化刷怪场，同时避免大量实体造成的卡顿。
 
-## Modes
+## 模式
 
-The Bio Crusher supports 3 modes:
+生物粉碎机支持 3 种模式：
 
-- **Hostile**: Only targets hostile mobs (default)
-- **Friendly**: Only targets friendly mobs
-- **All**: Targets all mobs
+- **敌对**：只攻击敌对生物（默认）
+- **友好**：只攻击友好生物
+- **全部**：攻击所有生物
 
-## Energy
+## 能量
 
-- Base energy cost: 300 FE per operation
-- Advanced Bio Crusher: 100,000 FE capacity
-- Extended Bio Crusher: 200,000 FE capacity
+- 基础能量消耗：每次操作 300 FE
+- 高级生物粉碎机：100,000 FE 容量
+- 扩展生物粉碎机：200,000 FE 容量
 
-## Crafting
+## 合成
 
-### Advanced Bio Crusher
+### 高级生物粉碎机
 
-```
-ABA
-CDC
-ABA
-```
+<BlockImage id="jdte:advanced_bio_crusher" scale="2" />
 
-- A: Diamond
-- B: Gold Ingot
-- C: Iron Ingot
-- D: Nether Star
+<RecipeFor id="jdte:advanced_bio_crusher" />
 
-### Extended Bio Crusher
+### 扩展生物粉碎机
 
-```
-ABA
-CDC
-ABA
-```
+<BlockImage id="jdte:extended_bio_crusher" scale="2" />
 
-- A: Diamond
-- B: Netherite Ingot
-- C: Ender Pearl
-- D: Advanced Bio Crusher
+高级生物粉碎机的扩展版本，拥有 8 个升级槽。可通过扩展升级右键高级生物粉碎机获得。
+
+<RecipeFor id="jdte:extended_bio_crusher" />

@@ -2,7 +2,8 @@
   "parent": "minecraft:block/orientable",
   "textures": {
     "top": "jdte:block/extended_gel_generator_top",
-    "front": "jdte:block/extended_gel_generator_front",
-    "side": "jdte:block/extended_gel_generator_side"
+    "front": "jdte:block/extended_gel_generator_side",
+    "side": "jdte:block/extended_gel_generator_side",
+	"bottom": "jdte:block/universal_bottom"
   }
 }

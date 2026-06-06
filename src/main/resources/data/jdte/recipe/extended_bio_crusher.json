@@ -1,18 +1,19 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "ABA",
     "CDC",
     "ABA"
   ],
   "key": {
-    "A": "minecraft:diamond",
-    "B": "minecraft:netherite_ingot",
-    "C": "minecraft:ender_pearl",
-    "D": "jdte:advanced_bio_crusher"
+    "A": { "item": "minecraft:diamond" },
+    "B": { "item": "minecraft:netherite_ingot" },
+    "C": { "item": "minecraft:ender_pearl" },
+    "D": { "item": "jdte:advanced_bio_crusher" }
   },
   "result": {
-    "item": "jdte:extended_bio_crusher",
-    "count": 1
+    "count": 1,
+    "id": "jdte:extended_bio_crusher"
   }
 }

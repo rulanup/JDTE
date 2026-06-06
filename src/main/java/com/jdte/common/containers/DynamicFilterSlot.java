@@ -23,7 +23,7 @@ public class DynamicFilterSlot extends FilterBasicSlot {
 
     @Override
     public boolean isActive() {
-        return getSlotIndex() < baseFilterSlots + jdte$getFilterUpgradeCount() * UpgradeHelper.FILTER_SLOTS_PER_UPGRADE;
+        return getSlotIndex() < baseFilterSlots + jdte$getFilterUpgradeCount() * UpgradeHelper.getFilterSlotsPerUpgrade();
     }
 
     private int jdte$getFilterUpgradeCount() {

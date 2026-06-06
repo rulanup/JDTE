@@ -1,7 +1,9 @@
 {
-  "parent": "minecraft:block/cube_column",
+  "parent": "minecraft:block/orientable",
   "textures": {
-    "end": "jdte:block/infusion_machine_top",
-    "side": "jdte:block/extended_infusion_machine_side"
+    "top": "jdte:block/infusion_machine_top",
+	"front": "jdte:block/extended_infusion_machine_side",
+    "side": "jdte:block/extended_infusion_machine_side",
+	"bottom": "jdte:block/universal_bottom"
   }
 }

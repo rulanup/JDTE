@@ -20,7 +20,7 @@ public class ExtendedTimeAcceleratorScreen extends BaseMachineScreen<ExtendedTim
     @Override
     public void init() {
         super.init();
-        addRenderableWidget(new NumberButton(getGuiLeft() + 65, topSectionTop + 44, 34, 12, multiplier, 1, AdvancedTimeAcceleratorBE.MAX_MULTIPLIER, Component.translatable("jdte.screen.multiplier"), b -> {
+        addRenderableWidget(new NumberButton(getGuiLeft() + 65, topSectionTop + 44, 34, 12, multiplier, 1, com.jdte.setup.JDTEConfig.COMMON.advancedTimeAcceleratorMaxMultiplier.get(), Component.translatable("jdte.screen.multiplier"), b -> {
             multiplier = ((NumberButton) b).getValue();
             PacketDistributor.sendToServer(new TimeAcceleratorPayload(multiplier));
         }));

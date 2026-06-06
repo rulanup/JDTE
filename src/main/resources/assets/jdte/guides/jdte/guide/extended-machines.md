@@ -33,4 +33,38 @@ item_ids:
   <ItemIcon id="jdte:extended_time_accelerator" />
 </ItemGrid>
 
+## 扩展点击器
+
 <RecipeFor id="jdte:extended_clicker" />
+
+## 扩展方块破坏器
+
+<RecipeFor id="jdte:extended_block_breaker" />
+
+## 扩展方块放置器
+
+<RecipeFor id="jdte:extended_block_placer" />
+
+## 扩展方块交换器
+
+<RecipeFor id="jdte:extended_block_swapper" />
+
+## 扩展投掷器
+
+<RecipeFor id="jdte:extended_dropper" />
+
+## 扩展传感器
+
+<RecipeFor id="jdte:extended_sensor" />
+
+## 扩展流体收集器
+
+<RecipeFor id="jdte:extended_fluid_collector" />
+
+## 扩展流体放置器
+
+<RecipeFor id="jdte:extended_fluid_placer" />
+
+## 扩展时间加速器
+
+<RecipeFor id="jdte:extended_time_accelerator" />

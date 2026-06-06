@@ -11,7 +11,8 @@ import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
-import com.jdte.setup.JDTEFluids;
+import com.direwolf20.justdirethings.setup.Registration;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -41,12 +42,6 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     public static final int MODE_HOSTILE = 0;
     public static final int MODE_FRIENDLY = 1;
     public static final int MODE_ALL = 2;
-    public static final int BASE_FLUID_CAPACITY = 16000;
-    public static final int BASE_ENERGY_COST = 300;
-    public static final float BASE_RADIUS = 2.5f;
-    public static final int FLUID_PER_HP = 100;
-    public static final int BASE_DAMAGE = 5;
-    public static final int PROCESS_TIME = 20;
 
     // Cache for entity max health to avoid creating entities every time
     private static final java.util.Map<net.minecraft.world.entity.EntityType<?>, Float> HEALTH_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
@@ -67,14 +62,14 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         super(type, pos, state);
         MACHINE_SLOTS = 0;
         areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
-        areaAffectingData.xRadius = BASE_RADIUS;
-        areaAffectingData.yRadius = BASE_RADIUS;
-        areaAffectingData.zRadius = BASE_RADIUS;
-        fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.is(JDTEFluids.LIFE_FLUID_SOURCE.get()));
+        areaAffectingData.xRadius = JDTEConfig.COMMON.bioCrusherBaseRadius.get();
+        areaAffectingData.yRadius = JDTEConfig.COMMON.bioCrusherBaseRadius.get();
+        areaAffectingData.zRadius = JDTEConfig.COMMON.bioCrusherBaseRadius.get();
+        fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.is(Registration.XP_FLUID_SOURCE.get()));
         fluidContainerData = new FluidContainerData(this);
 
-        // Output handler for drops
-        itemHandler = new ItemStackHandler(27) {
+        // Output handler for drops (16 slots = 4x4 grid)
+        itemHandler = new ItemStackHandler(16) {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
@@ -82,7 +77,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         };
 
         // Dedicated upgrade handlers
-        lootingHandler = new ItemStackHandler(LootingUpgradeItem.MAX_LEVEL) {
+        lootingHandler = new ItemStackHandler(JDTEConfig.COMMON.maxLootingUpgrades.get()) {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
@@ -94,7 +89,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             }
         };
 
-        sharpnessHandler = new ItemStackHandler(SharpnessUpgradeItem.MAX_COUNT) {
+        sharpnessHandler = new ItemStackHandler(JDTEConfig.COMMON.maxSharpnessUpgrades.get()) {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
@@ -112,7 +107,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
                 return switch (index) {
                     case 0 -> mode;
                     case 1 -> progress;
-                    case 2 -> PROCESS_TIME;
+                    case 2 -> JDTEConfig.COMMON.bioCrusherProcessTime.get();
                     default -> 0;
                 };
             }
@@ -202,9 +197,9 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             if (maxHealth <= 0) continue;
 
             // Calculate XP fluid production
-            long fluidProduced = (long) (maxHealth * FLUID_PER_HP);
-            if (fluidProduced > 0 && fluidTank.fill(new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.SIMULATE) > 0) {
-                fluidTank.fill(new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.EXECUTE);
+            long fluidProduced = (long) (maxHealth * JDTEConfig.COMMON.bioCrusherFluidPerHp.get());
+            if (fluidProduced > 0 && fluidTank.fill(new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.SIMULATE) > 0) {
+                fluidTank.fill(new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.EXECUTE);
                 totalFluidProduced += fluidProduced;
             }
 
@@ -245,14 +240,14 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     }
 
     protected int calculateDamage() {
-        int damage = BASE_DAMAGE;
+        int damage = JDTEConfig.COMMON.bioCrusherBaseDamage.get();
         int sharpnessCount = 0;
         for (int i = 0; i < sharpnessHandler.getSlots(); i++) {
             if (!sharpnessHandler.getStackInSlot(i).isEmpty()) {
                 sharpnessCount++;
             }
         }
-        damage += sharpnessCount * SharpnessUpgradeItem.DAMAGE_PER_UPGRADE;
+        damage += sharpnessCount * JDTEConfig.COMMON.sharpnessDamagePerUpgrade.get();
         return damage;
     }
 
@@ -268,23 +263,76 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     }
 
     protected void generateDrops(LivingEntity entity) {
-        // This is a simplified drop generation
-        // In a real implementation, you would use the entity's loot table
-        // For now, we'll just generate some basic drops based on the entity type
+        if (!(level instanceof ServerLevel serverLevel)) return;
 
         int lootingLevel = getLootingLevel();
 
-        // Calculate extra drops from looting
-        int extraDrops = 0;
+        // Check for boss essence drops
+        if (tryDropBossEssence(serverLevel, entity, lootingLevel)) {
+            return;
+        }
+
+        // Generate drops using the entity's loot table
+        generateSpawnerDrops(serverLevel, entity.getType());
+    }
+
+    protected boolean tryDropBossEssence(ServerLevel serverLevel, LivingEntity entity, int lootingLevel) {
+        net.minecraft.world.item.Item essenceItem = null;
+
+        if (entity instanceof net.minecraft.world.entity.boss.wither.WitherBoss) {
+            essenceItem = com.jdte.setup.JDTEItems.WITHER_ESSENCE.get();
+        } else if (entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon) {
+            essenceItem = com.jdte.setup.JDTEItems.ENDER_DRAGON_ESSENCE.get();
+        } else if (entity instanceof net.minecraft.world.entity.monster.ElderGuardian) {
+            essenceItem = com.jdte.setup.JDTEItems.ELDER_GUARDIAN_ESSENCE.get();
+        }
+
+        if (essenceItem == null) {
+            return false;
+        }
+
+        // Boss always drops 1 essence, looting can add extra
+        int count = 1;
         for (int i = 0; i < lootingLevel; i++) {
             if (level.random.nextFloat() < 0.5f) {
-                extraDrops++;
+                count++;
             }
         }
 
-        // Generate drops (simplified - in real implementation, use loot tables)
-        // For now, just add some placeholder items
-        // In a full implementation, you would call entity.getLootTable() and process it
+        ItemStack essenceStack = new ItemStack(essenceItem, count);
+        addItemToInventory(essenceStack);
+
+        // Also generate normal loot
+        generateSpawnerDrops(serverLevel, entity.getType());
+        return true;
+    }
+
+    protected void addItemToInventory(ItemStack stack) {
+        if (stack.isEmpty()) return;
+
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack existing = itemHandler.getStackInSlot(i);
+            if (existing.isEmpty()) {
+                itemHandler.setStackInSlot(i, stack.copy());
+                return;
+            } else if (ItemStack.isSameItemSameComponents(existing, stack) && existing.getCount() + stack.getCount() <= existing.getMaxStackSize()) {
+                existing.grow(stack.getCount());
+                itemHandler.setStackInSlot(i, existing);
+                return;
+            }
+        }
+
+        // If inventory is full, drop the item in the world
+        if (level instanceof ServerLevel serverLevel) {
+            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                    serverLevel,
+                    getBlockPos().getX() + 0.5,
+                    getBlockPos().getY() + 1.5,
+                    getBlockPos().getZ() + 0.5,
+                    stack.copy()
+            );
+            serverLevel.addFreshEntity(itemEntity);
+        }
     }
 
     public void processSpawnerCrush(ServerLevel serverLevel, BlockPos spawnerPos, com.jdte.mixin.BaseSpawnerAccessor accessor) {
@@ -325,9 +373,9 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         });
 
         // Produce life fluid (scaled by spawn count)
-        long fluidProduced = (long) (maxHealth * FLUID_PER_HP * spawnCount);
-        if (fluidProduced > 0 && fluidTank.fill(new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.SIMULATE) > 0) {
-            fluidTank.fill(new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.EXECUTE);
+        long fluidProduced = (long) (maxHealth * JDTEConfig.COMMON.bioCrusherFluidPerHp.get() * spawnCount);
+        if (fluidProduced > 0 && fluidTank.fill(new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.SIMULATE) > 0) {
+            fluidTank.fill(new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.EXECUTE);
         }
 
         // Generate drops using the entity's loot table (scaled by spawn count)
@@ -486,7 +534,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
 
     @Override
     public int getMaxMB() {
-        return UpgradeHelper.adjustFluidCapacity(this, BASE_FLUID_CAPACITY);
+        return UpgradeHelper.adjustFluidCapacity(this, JDTEConfig.COMMON.bioCrusherFluidCapacity.get());
     }
 
     @Override

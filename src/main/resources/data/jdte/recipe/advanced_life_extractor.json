@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": { "item": "jdte:extended_bio_crusher" },
+    "G": { "item": "minecraft:gold_ingot" },
+    "D": { "item": "minecraft:diamond" },
+    "R": { "item": "minecraft:redstone" }
+  },
+  "pattern": [
+    "GRG",
+    "DED",
+    "GRG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_life_extractor"
+  }
+}

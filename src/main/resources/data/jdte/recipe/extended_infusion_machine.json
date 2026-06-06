@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": { "item": "jdte:advanced_infusion_machine" },
+    "E": { "item": "jdte:extended_upgrade" }
+  },
+  "pattern": [
+    " E ",
+    " A ",
+    "   "
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:extended_infusion_machine"
+  }
+}

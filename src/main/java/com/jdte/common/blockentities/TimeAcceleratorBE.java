@@ -16,6 +16,7 @@ import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -35,8 +36,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public abstract class TimeAcceleratorBE extends BaseMachineBE implements RedstoneControlledBE, AreaAffectingBE, FluidMachineBE, FilterableBE, TimeAcceleratorMachine, BaseFilterMachine {
-    public static final int BASE_FLUID_CAPACITY = 1000;
-
     public final FluidContainerData fluidContainerData;
     public final JDTEFluidTank fluidTank;
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
@@ -71,6 +70,9 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
             return;
         }
 
+        // Cache filter check - skip if no filter configured
+        boolean hasFilterConfigured = hasFilterConfigured();
+
         boolean accelerated = false;
         AABB area = getAABB(getBlockPos());
         for (BlockPos blockPos : BlockPos.betweenClosed(
@@ -78,13 +80,26 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
                 (int) area.maxX - 1, (int) area.maxY - 1, (int) area.maxZ - 1)) {
             BlockPos immutable = blockPos.immutable();
             BlockState blockState = serverLevel.getBlockState(immutable);
+
+            // Fast air block check - skip most blocks
+            if (blockState.isAir()) {
+                continue;
+            }
+
             BlockEntity blockEntity = serverLevel.getBlockEntity(immutable);
-            if (blockEntity instanceof TimeAcceleratorMachine || !MiscTools.isValidTickAccelBlock(serverLevel, blockState, blockEntity)) {
+            if (blockEntity instanceof TimeAcceleratorMachine) {
                 continue;
             }
-            if (!isBlockValidFilter(serverLevel, immutable, blockState)) {
+
+            // Skip filter check when no filter is configured
+            if (hasFilterConfigured && !isBlockValidFilter(serverLevel, immutable, blockState)) {
                 continue;
             }
+
+            if (!MiscTools.isValidTickAccelBlock(serverLevel, blockState, blockEntity)) {
+                continue;
+            }
+
             if (accelerateTarget(serverLevel, immutable, blockState, blockEntity, multiplier)) {
                 accelerated = true;
             }
@@ -93,6 +108,21 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         if (accelerated) {
             consumeResources(fluidCost, energyCost);
         }
+    }
+
+    protected boolean hasFilterConfigured() {
+        try {
+            FilterBasicHandler filterHandler = getFilterHandler();
+            if (filterHandler == null) return false;
+            for (int i = 0; i < filterHandler.getSlots(); i++) {
+                if (!filterHandler.getStackInSlot(i).isEmpty()) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // If we can't check filter, assume no filter
+        }
+        return false;
     }
 
     protected boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState) {
@@ -168,7 +198,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
 
     @Override
     public int getMaxMB() {
-        return UpgradeHelper.adjustFluidCapacity(this, BASE_FLUID_CAPACITY);
+        return UpgradeHelper.adjustFluidCapacity(this, JDTEConfig.COMMON.timeAcceleratorBaseFluidCapacity.get());
     }
 
     @Override

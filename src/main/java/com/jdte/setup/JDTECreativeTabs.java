@@ -81,6 +81,15 @@ public class JDTECreativeTabs {
                 // Infusion Machine
                 output.accept(JDTEItems.ADVANCED_INFUSION_MACHINE.get());
                 output.accept(JDTEItems.EXTENDED_INFUSION_MACHINE.get());
+
+                // Bio Crusher
+                output.accept(JDTEItems.ADVANCED_BIO_CRUSHER.get());
+                output.accept(JDTEItems.EXTENDED_BIO_CRUSHER.get());
+
+                // Boss Essences
+                output.accept(JDTEItems.WITHER_ESSENCE.get());
+                output.accept(JDTEItems.ENDER_DRAGON_ESSENCE.get());
+                output.accept(JDTEItems.ELDER_GUARDIAN_ESSENCE.get());
             })
             .build());
 }

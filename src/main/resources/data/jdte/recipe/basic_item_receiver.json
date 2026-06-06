@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": { "item": "minecraft:hopper" },
+    "R": { "item": "minecraft:redstone" },
+    "I": { "item": "minecraft:iron_ingot" }
+  },
+  "pattern": [
+    " R ",
+    "HIH",
+    " R "
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:basic_item_receiver"
+  }
+}

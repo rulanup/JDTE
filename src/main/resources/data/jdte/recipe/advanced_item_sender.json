@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": { "item": "jdte:basic_item_sender" },
+    "G": { "item": "minecraft:gold_ingot" },
+    "D": { "item": "minecraft:diamond" },
+    "R": { "item": "minecraft:redstone" }
+  },
+  "pattern": [
+    "GRG",
+    "DBD",
+    "GRG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_item_sender"
+  }
+}

@@ -2,7 +2,8 @@
   "parent": "minecraft:block/orientable",
   "textures": {
     "top": "jdte:block/advanced_item_receiver_top",
-    "front": "jdte:block/advanced_item_receiver_front",
-    "side": "jdte:block/advanced_item_receiver_side"
+    "front": "jdte:block/advanced_item_receiver_side",
+    "side": "jdte:block/advanced_item_receiver_side",
+	"bottom": "jdte:block/universal_bottom"
   }
 }

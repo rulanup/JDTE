@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "jdte:advanced_life_extractor"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

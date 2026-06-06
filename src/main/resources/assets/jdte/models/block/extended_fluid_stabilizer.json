@@ -1,7 +1,9 @@
 {
-  "parent": "minecraft:block/cube_column",
+  "parent": "minecraft:block/orientable",
   "textures": {
-    "end": "jdte:block/time2_top",
-    "side": "jdte:block/time2_side"
+    "top": "jdte:block/basic_fluid_stabilizer_top",
+	"front": "jdte:block/extended_fluid_stabilizer_side",
+    "side": "jdte:block/extended_fluid_stabilizer_side",
+	"bottom": "jdte:block/universal_bottom"
   }
 }

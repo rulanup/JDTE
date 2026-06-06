@@ -80,7 +80,7 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
         int x = topSectionLeft + getFluidBarOffset();
         int y = topSectionTop + 5;
         BioCrusherContainer bcContainer = (BioCrusherContainer) container;
-        int capacity = Math.max(1, baseMachineBE instanceof BioCrusherBE bc ? bc.getMaxMB() : BioCrusherBE.BASE_FLUID_CAPACITY);
+        int capacity = Math.max(1, baseMachineBE instanceof BioCrusherBE bc ? bc.getMaxMB() : com.jdte.setup.JDTEConfig.COMMON.bioCrusherFluidCapacity.get());
 
         guiGraphics.blit(FLUIDBAR, x, y, 0, 0, 18, 56, 36, 72);
 
@@ -113,7 +113,7 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
 
         BioCrusherContainer bcContainer = (BioCrusherContainer) container;
         FluidStack fluidStack = bcContainer.getFluidStack();
-        int maxMb = baseMachineBE instanceof BioCrusherBE bc ? bc.getMaxMB() : BioCrusherBE.BASE_FLUID_CAPACITY;
+        int maxMb = baseMachineBE instanceof BioCrusherBE bc ? bc.getMaxMB() : com.jdte.setup.JDTEConfig.COMMON.bioCrusherFluidCapacity.get();
         guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
                 Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(bcContainer.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
         )), mouseX, mouseY);

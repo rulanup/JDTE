@@ -2,6 +2,7 @@ package com.jdte;
 
 import com.jdte.setup.JDTEAttachments;
 import com.jdte.setup.JDTEBlockEntities;
+import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTECreativeTabs;
 import com.jdte.setup.JDTEEntities;
@@ -16,7 +17,6 @@ import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -27,6 +27,7 @@ public class JDTE {
     public static final String MODID = "jdte";
 
     public JDTE(IEventBus modEventBus, ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
         JDTEBlockEntities.BLOCK_ENTITIES.register(modEventBus);
@@ -150,6 +151,23 @@ public class JDTE {
                 JDTEBlocks.BASIC_FLUID_RECEIVER.get(),
                 JDTEBlocks.ADVANCED_FLUID_RECEIVER.get(),
                 JDTEBlocks.EXTENDED_FLUID_RECEIVER.get()
+        );
+
+        // Bio Crusher energy storage, fluid handler, and item handler
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_BIO_CRUSHER.get(),
+                JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
+        );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioCrusherBE crusher ? crusher.getFluidTank() : null,
+                JDTEBlocks.ADVANCED_BIO_CRUSHER.get(),
+                JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
+        );
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioCrusherBE crusher ? crusher.getMachineHandler() : null,
+                JDTEBlocks.ADVANCED_BIO_CRUSHER.get(),
+                JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
         );
 
         // Life Extractor energy storage and fluid handler
