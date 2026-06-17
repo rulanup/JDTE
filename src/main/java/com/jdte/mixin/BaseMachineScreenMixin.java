@@ -45,6 +45,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Shadow protected ResourceLocation SOCIALBACKGROUND;
 
     @Unique private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluidbar.png");
+    @Unique private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
     @Unique private static final Map<Slot, int[]> JDTE_ORIGINAL_SLOT_POSITIONS = new WeakHashMap<>();
     @Unique private static final Map<String, int[]> JDTE_UPGRADE_POPUP_POSITIONS = new HashMap<>();
     @Unique private static final Map<String, int[]> JDTE_FILTER_POPUP_POSITIONS = new HashMap<>();
@@ -111,6 +112,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         int height = jdte$getUpgradePopupHeight();
         guiGraphics.blitSprite(SOCIALBACKGROUND, x + 20, y - 20, width - 40, 20);
         guiGraphics.blitSprite(SOCIALBACKGROUND, x, y, width, height);
+        jdte$drawUpgradeSlotBackgrounds(guiGraphics);
         guiGraphics.drawString(font, Component.translatable("jdte.panel.upgrade"), x + 20 + (width - 40 - font.width(Component.translatable("jdte.panel.upgrade"))) / 2, y - 14, 4210752, false);
     }
 
@@ -133,6 +135,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         Component title = Component.translatable("jdte.panel.filter");
         guiGraphics.blitSprite(SOCIALBACKGROUND, x + 20, y - 20, width - 40, 20);
         guiGraphics.blitSprite(SOCIALBACKGROUND, x, y, width, height);
+        jdte$drawFilterSlotBackgrounds(guiGraphics);
         guiGraphics.drawString(font, title, x + 20 + (width - 40 - font.width(title)) / 2, y - 14, 4210752, false);
     }
 
@@ -140,6 +143,32 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     private void jdte$hideInactiveFilterSlots(GuiGraphics guiGraphics, Slot slot, CallbackInfo ci) {
         if (slot instanceof DynamicFilterSlot filterSlot && !filterSlot.isActive()) {
             ci.cancel();
+        }
+    }
+
+    @Unique
+    private void jdte$drawUpgradeSlotBackgrounds(GuiGraphics guiGraphics) {
+        int slots = jdte$getUpgradeSlots();
+        int cols = Math.min(JDTE_UPGRADE_COLUMNS, Math.max(1, slots));
+        int x = jdte$getUpgradePopupX() + 8;
+        int y = jdte$getUpgradePopupY() + 8;
+        for (int i = 0; i < slots; i++) {
+            int col = i % cols;
+            int row = i / cols;
+            guiGraphics.blitSprite(SLOT_SPRITE, x + col * JDTE_SLOT_SIZE, y + row * JDTE_SLOT_SIZE, 18, 18);
+        }
+    }
+
+    @Unique
+    private void jdte$drawFilterSlotBackgrounds(GuiGraphics guiGraphics) {
+        int activeSlots = jdte$getActiveFilterSlots();
+        if (activeSlots <= 0) return;
+        int x = jdte$getFilterPopupX() + 8;
+        int y = jdte$getFilterPopupY() + 8;
+        for (int i = 0; i < activeSlots; i++) {
+            int col = i % JDTE_FILTER_COLUMNS;
+            int row = i / JDTE_FILTER_COLUMNS;
+            guiGraphics.blitSprite(SLOT_SPRITE, x + col * JDTE_SLOT_SIZE, y + row * JDTE_SLOT_SIZE, 18, 18);
         }
     }
 

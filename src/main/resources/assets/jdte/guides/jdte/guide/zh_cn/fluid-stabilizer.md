@@ -2,7 +2,7 @@
 navigation:
   title: 流体稳定器
   icon: "jdte:advanced_fluid_stabilizer"
-  position: 5
+  position: 13
 item_ids:
   - jdte:basic_fluid_stabilizer
   - jdte:advanced_fluid_stabilizer

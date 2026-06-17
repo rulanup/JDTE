@@ -1,10 +1,10 @@
 {
   "variants": {
-    "facing=down": { "model": "jdte:block/extended_infusion_machine" },
+    "facing=down": { "model": "jdte:block/extended_infusion_machine", "x": 180 },
     "facing=up": { "model": "jdte:block/extended_infusion_machine" },
-    "facing=north": { "model": "jdte:block/extended_infusion_machine" },
-    "facing=south": { "model": "jdte:block/extended_infusion_machine" },
-    "facing=west": { "model": "jdte:block/extended_infusion_machine" },
-    "facing=east": { "model": "jdte:block/extended_infusion_machine" }
+    "facing=north": { "model": "jdte:block/extended_infusion_machine", "x": 90 },
+    "facing=south": { "model": "jdte:block/extended_infusion_machine", "x": 90, "y": 180 },
+    "facing=west": { "model": "jdte:block/extended_infusion_machine", "x": 90, "y": 270 },
+    "facing=east": { "model": "jdte:block/extended_infusion_machine", "x": 90, "y": 90 }
   }
 }

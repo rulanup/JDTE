@@ -1,10 +1,10 @@
 {
   "variants": {
-    "facing=down": { "model": "jdte:block/extended_bio_crusher" },
+    "facing=down": { "model": "jdte:block/extended_bio_crusher", "x": 180 },
     "facing=up": { "model": "jdte:block/extended_bio_crusher" },
-    "facing=north": { "model": "jdte:block/extended_bio_crusher" },
-    "facing=south": { "model": "jdte:block/extended_bio_crusher" },
-    "facing=west": { "model": "jdte:block/extended_bio_crusher" },
-    "facing=east": { "model": "jdte:block/extended_bio_crusher" }
+    "facing=north": { "model": "jdte:block/extended_bio_crusher", "x": 90 },
+    "facing=south": { "model": "jdte:block/extended_bio_crusher", "x": 90, "y": 180 },
+    "facing=west": { "model": "jdte:block/extended_bio_crusher", "x": 90, "y": 270 },
+    "facing=east": { "model": "jdte:block/extended_bio_crusher", "x": 90, "y": 90 }
   }
 }

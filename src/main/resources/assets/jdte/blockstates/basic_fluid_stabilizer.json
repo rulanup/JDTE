@@ -1,10 +1,10 @@
 {
   "variants": {
-    "facing=down": { "model": "jdte:block/basic_fluid_stabilizer" },
+    "facing=down": { "model": "jdte:block/basic_fluid_stabilizer", "x": 180 },
     "facing=up": { "model": "jdte:block/basic_fluid_stabilizer" },
-    "facing=north": { "model": "jdte:block/basic_fluid_stabilizer" },
-    "facing=south": { "model": "jdte:block/basic_fluid_stabilizer" },
-    "facing=west": { "model": "jdte:block/basic_fluid_stabilizer" },
-    "facing=east": { "model": "jdte:block/basic_fluid_stabilizer" }
+    "facing=north": { "model": "jdte:block/basic_fluid_stabilizer", "x": 90 },
+    "facing=south": { "model": "jdte:block/basic_fluid_stabilizer", "x": 90, "y": 180 },
+    "facing=west": { "model": "jdte:block/basic_fluid_stabilizer", "x": 90, "y": 270 },
+    "facing=east": { "model": "jdte:block/basic_fluid_stabilizer", "x": 90, "y": 90 }
   }
 }

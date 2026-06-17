@@ -1,10 +1,10 @@
 {
   "variants": {
-    "facing=down": { "model": "jdte:block/extended_time_accelerator" },
+    "facing=down": { "model": "jdte:block/extended_time_accelerator", "x": 180 },
     "facing=up": { "model": "jdte:block/extended_time_accelerator" },
-    "facing=north": { "model": "jdte:block/extended_time_accelerator" },
-    "facing=south": { "model": "jdte:block/extended_time_accelerator" },
-    "facing=west": { "model": "jdte:block/extended_time_accelerator" },
-    "facing=east": { "model": "jdte:block/extended_time_accelerator" }
+    "facing=north": { "model": "jdte:block/extended_time_accelerator", "x": 90 },
+    "facing=south": { "model": "jdte:block/extended_time_accelerator", "x": 90, "y": 180 },
+    "facing=west": { "model": "jdte:block/extended_time_accelerator", "x": 90, "y": 270 },
+    "facing=east": { "model": "jdte:block/extended_time_accelerator", "x": 90, "y": 90 }
   }
 }

@@ -87,7 +87,7 @@ public class UpgradeHelper {
         }
 
         FilterBasicHandler handler = filterable.getFilterHandler();
-        int baseSlots = hasBaseFilterSlots(machine) ? getBaseFilterSlots(handler) : 0;
+        int baseSlots = getBaseFilterSlots(handler);
         int activeSlots = getActiveFilterSlots(machine, baseSlots);
         boolean changed = false;
         for (int i = activeSlots; i < handler.getSlots(); i++) {

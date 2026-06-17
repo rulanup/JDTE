@@ -29,7 +29,7 @@ public abstract class BaseMachineContainerFilterMixin {
 
         ci.cancel();
 
-        int originalSlots = UpgradeHelper.hasBaseFilterSlots(baseMachineBE) ? UpgradeHelper.getBaseFilterSlots(filterHandler) : 0;
+        int originalSlots = UpgradeHelper.getBaseFilterSlots(filterHandler);
         int totalSlots = UpgradeHelper.getMaxFilterSlots(originalSlots);
 
         UpgradeSlotStorage.setBaseFilterSlots((BaseMachineContainer) (Object) this, originalSlots);
