@@ -2,13 +2,13 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，围绕 JDT 机器增加升级卡、更多升级槽、时间加速器和若干自动化机器。
 
-当前版本：`0.3.0`
+当前版本：`0.5.0`
 
 [English README](README_EN.md)
 
 ## 功能
 
-### 升级卡（9 种）
+### 升级卡（11 种）
 
 升级卡可以安装到支持的 JDT/JDTE 机器中。普通机器有 4 个升级槽，扩展机器有 8 个升级槽。
 
@@ -23,6 +23,8 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 | 范围升级 | 仅限范围机器，使可调范围上限翻倍 | 2 |
 | 过滤升级 | 为可过滤机器添加额外过滤槽，每张增加 9 个槽位 | 2 |
 | 创造升级 | 机器无需消耗 FE；时间加速器无需消耗时间流体；自带超频效果 | 1 |
+| 抢夺升级 | 生物粉碎机专用，增加额外掉落概率，最高 6 级 | 6 |
+| 锋利升级 | 生物粉碎机专用，增加攻击伤害，最高 35 点 | 6 |
 
 超频升级和降频升级不可同时安装。
 
