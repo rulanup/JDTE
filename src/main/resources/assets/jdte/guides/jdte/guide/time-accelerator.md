@@ -7,7 +7,6 @@ item_ids:
   - jdte:basic_time_accelerator
   - jdte:advanced_time_accelerator
   - jdte:extended_time_accelerator
-  - jdte:time_fluid_catalyst
 ---
 
 # 时间加速器

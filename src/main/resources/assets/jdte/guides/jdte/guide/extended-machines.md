@@ -12,7 +12,6 @@ item_ids:
   - jdte:extended_sensor
   - jdte:extended_fluid_collector
   - jdte:extended_fluid_placer
-  - jdte:extended_time_accelerator
 ---
 
 # 扩展高级机器

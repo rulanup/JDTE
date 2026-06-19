@@ -2,10 +2,12 @@ package com.jdte.common.network;
 
 import com.jdte.JDTE;
 import com.jdte.common.network.data.BioCrusherPayload;
+import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.network.data.GelGeneratorPayload;
 import com.jdte.common.network.data.LifeExtractorPayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.common.network.handler.BioCrusherPacket;
+import com.jdte.common.network.handler.FilterPagePacket;
 import com.jdte.common.network.handler.GelGeneratorPacket;
 import com.jdte.common.network.handler.LifeExtractorPacket;
 import com.jdte.common.network.handler.TimeAcceleratorPacket;
@@ -19,5 +21,6 @@ public class JDTEPacketHandler {
         registrar.playToServer(GelGeneratorPayload.TYPE, GelGeneratorPayload.STREAM_CODEC, GelGeneratorPacket.get()::handle);
         registrar.playToServer(LifeExtractorPayload.TYPE, LifeExtractorPayload.STREAM_CODEC, LifeExtractorPacket.get()::handle);
         registrar.playToServer(BioCrusherPayload.TYPE, BioCrusherPayload.STREAM_CODEC, BioCrusherPacket.get()::handle);
+        registrar.playToServer(FilterPagePayload.TYPE, FilterPagePayload.STREAM_CODEC, FilterPagePacket.get()::handle);
     }
 }

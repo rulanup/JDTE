@@ -6,8 +6,6 @@ navigation:
 item_ids:
   - jdte:advanced_bio_crusher
   - jdte:extended_bio_crusher
-  - jdte:looting_upgrade
-  - jdte:sharpness_upgrade
 ---
 
 # Bio Crusher

@@ -37,6 +37,17 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
     }
 
     @Override
+    public void setTopSection() {
+        extraWidth = 60;
+        extraHeight = 0;
+    }
+
+    @Override
+    public int getFluidBarOffset() {
+        return 204;
+    }
+
+    @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
         renderSplitFluidTank(guiGraphics);

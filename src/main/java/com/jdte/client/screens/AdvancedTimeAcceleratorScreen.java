@@ -31,4 +31,9 @@ public class AdvancedTimeAcceleratorScreen extends BaseMachineScreen<AdvancedTim
         extraWidth = 60;
         extraHeight = 0;
     }
+
+    @Override
+    public int getFluidBarOffset() {
+        return 204;
+    }
 }

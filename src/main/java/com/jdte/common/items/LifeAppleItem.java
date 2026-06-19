@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level;
 public class LifeAppleItem extends Item {
     public LifeAppleItem() {
         super(new Properties()
-                .stacksTo(16)
+                .stacksTo(64)
                 .food(new FoodProperties.Builder()
                         .nutrition(0)
                         .saturationModifier(0)

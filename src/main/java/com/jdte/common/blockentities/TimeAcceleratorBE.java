@@ -70,9 +70,6 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
             return;
         }
 
-        // Cache filter check - skip if no filter configured
-        boolean hasFilterConfigured = hasFilterConfigured();
-
         boolean accelerated = false;
         AABB area = getAABB(getBlockPos());
         for (BlockPos blockPos : BlockPos.betweenClosed(
@@ -91,8 +88,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
                 continue;
             }
 
-            // Skip filter check when no filter is configured
-            if (hasFilterConfigured && !isBlockValidFilter(serverLevel, immutable, blockState)) {
+            if (!isBlockValidFilter(serverLevel, immutable, blockState)) {
                 continue;
             }
 
@@ -108,21 +104,6 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         if (accelerated) {
             consumeResources(fluidCost, energyCost);
         }
-    }
-
-    protected boolean hasFilterConfigured() {
-        try {
-            FilterBasicHandler filterHandler = getFilterHandler();
-            if (filterHandler == null) return false;
-            for (int i = 0; i < filterHandler.getSlots(); i++) {
-                if (!filterHandler.getStackInSlot(i).isEmpty()) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            // If we can't check filter, assume no filter
-        }
-        return false;
     }
 
     protected boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState) {
