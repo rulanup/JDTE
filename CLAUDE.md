@@ -5,11 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 JDT Extras (`jdte`) is a NeoForge addon for **Just Dire Things** (JDT) that adds:
-- 9 upgrade cards (capacity, overclock, underclock, fluid, fluid_storage, generator, range, filter, creative)
+- 11 upgrade cards (capacity, overclock, underclock, fluid, fluid_storage, generator, range, filter, creative, looting, sharpness)
 - 3 time accelerators (basic/advanced/extended)
 - 8 extended JDT T2 machines with 8 upgrade slots each (up from JDT's default)
 - An extended time accelerator with 8 upgrade slots
 - Extra automation machine families: glue activator, gel generator, fluid stabilizer, item/fluid sender, item/fluid receiver
+- Bio crusher (advanced/extended) with looting and sharpness upgrades, boss essences
+- Life extractor and infusion machine
 - An extended upgrade item to convert supported T2 machines or the advanced time accelerator into extended versions
 
 Target: Minecraft 1.21.1, NeoForge 21.1.230+, JDT 1.5.7+, Java 21
@@ -68,7 +70,7 @@ All registrations happen in `JDTE.java` constructor via `DeferredRegister` patte
 
 ### Capabilities
 
-Energy and fluid capabilities are registered in `JDTE.registerCapabilities()`. This includes Clicker fluid storage, time accelerators, extended JDT machines, glue activators, gel generators, the fluid stabilizer, and item/fluid sender/receiver machines.
+Energy, fluid, and item capabilities are registered in `JDTE.registerCapabilities()`. This includes Clicker fluid storage, time accelerators, extended JDT machines, glue activators, gel generators, the fluid stabilizer, item/fluid sender/receiver machines, bio crusher, life extractor, and infusion machine. Item handler (`Capabilities.ItemHandler.BLOCK`) is registered for all machines with item slots so external pipes (e.g. Mekanism) can insert/extract items.
 
 ### Client/Server Split
 
@@ -95,4 +97,4 @@ Energy and fluid capabilities are registered in `JDTE.registerCapabilities()`. T
 - Don't inherit Mixin classes from anything except Object.
 - Extended BE constructors must pass their own `BlockEntityType` from `JDTEBlockEntities`, not the parent's.
 - When adding convertible extended machines, update `ExtendedUpgradeItem.UPGRADE_MAP`.
-- Keep `README.md`, `README_EN.md`, `开发文档.md`, and GuideME pages in sync with gameplay changes.
+- Keep `README.md`, `README_EN.md`, `AGENTS.md`, `开发文档.md`, and GuideME pages in sync with gameplay changes.

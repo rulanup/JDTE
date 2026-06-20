@@ -2,13 +2,13 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, more upgrade slots, time accelerators, and extra automation machines for JDT.
 
-Current version: `0.5.1`
+Current version: `0.5.2`
 
 [中文 README](README.md)
 
 ## Features
 
-### Upgrade Cards (9 Types)
+### Upgrade Cards (11 Types)
 
 Upgrade cards can be installed into supported JDT/JDTE machines. Standard machines have 4 upgrade slots, while extended machines have 8 upgrade slots.
 
@@ -23,6 +23,8 @@ Upgrade cards can be installed into supported JDT/JDTE machines. Standard machin
 | Range | Area machines only; doubles the configurable area limit | 2 |
 | Filter | Adds extra filter slots to filterable machines; each card adds 9 slots | 2 |
 | Creative | Machines operate without FE cost; time accelerators operate without Time Fluid cost; includes the overclock effect | 1 |
+| Looting | Bio Crusher only; up to 6 levels, each adds 50% extra drop chance | 6 |
+| Sharpness | Bio Crusher only; up to 6, each adds 5 damage | 6 |
 
 Overclock and underclock upgrades cannot be installed together.
 
@@ -60,6 +62,8 @@ Use the **Extended Upgrade** on supported JDT T2 machines to convert them into J
 - Item Receiver: basic, advanced, extended
 - Fluid Receiver: basic, advanced, extended
 - Bio Crusher: advanced, extended; kills mobs to generate drops and experience fluid, supports looting and sharpness upgrades, can be placed above mob spawners to prevent spawning
+- Life Extractor: advanced, extended; extracts life fluid from mobs in range
+- Infusion Machine: advanced, extended; processes items using gel
 
 ### Bio Crusher
 

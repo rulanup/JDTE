@@ -12,8 +12,10 @@ import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class ExtendedDropperBE extends DropperT1BE implements PoweredMachineBE, AreaAffectingBE, FilterableBE, ExtendedUpgradeMachine {
     public FilterData filterData = new FilterData();
@@ -22,6 +24,7 @@ public class ExtendedDropperBE extends DropperT1BE implements PoweredMachineBE, 
 
     public ExtendedDropperBE(BlockPos pPos, BlockState pBlockState) {
         super(JDTEBlockEntities.EXTENDED_DROPPER.get(), pPos, pBlockState);
+        MACHINE_SLOTS = 9;
         poweredMachineData = new PoweredMachineContainerData(this);
     }
 
@@ -31,4 +34,20 @@ public class ExtendedDropperBE extends DropperT1BE implements PoweredMachineBE, 
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
     @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
     @Override public FilterData getFilterData() { return filterData; }
+
+    @Override
+    public ItemStackHandler getMachineHandler() {
+        ItemStackHandler handler = getData(Registration.MACHINE_HANDLER);
+        if (handler.getSlots() < MACHINE_SLOTS) {
+            ItemStackHandler resized = new ItemStackHandler(MACHINE_SLOTS);
+            for (int i = 0; i < handler.getSlots(); i++) {
+                ItemStack stack = handler.getStackInSlot(i);
+                if (!stack.isEmpty()) resized.setStackInSlot(i, stack);
+            }
+            setData(Registration.MACHINE_HANDLER, resized);
+            setChanged();
+            return resized;
+        }
+        return handler;
+    }
 }

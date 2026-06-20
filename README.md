@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，围绕 JDT 机器增加升级卡、更多升级槽、时间加速器和若干自动化机器。
 
-当前版本：`0.5.1`
+当前版本：`0.5.2`
 
 [English README](README_EN.md)
 
@@ -62,6 +62,8 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 - 物品接收器：初级、高级、扩展
 - 流体接收器：初级、高级、扩展
 - 生物粉碎机：高级、扩展；杀死生物产生掉落物和经验流体，支持抢夺和锋利升级，可放置在刷怪笼上方阻止刷怪
+- 生命提取器：高级、扩展；从范围内生物提取生命流体
+- 灌注机：高级、扩展；使用凝胶和物品进行灌注加工
 
 ### 生物粉碎机
 

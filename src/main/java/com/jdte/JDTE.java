@@ -193,6 +193,65 @@ public class JDTE {
                 JDTEBlocks.ADVANCED_INFUSION_MACHINE.get(),
                 JDTEBlocks.EXTENDED_INFUSION_MACHINE.get()
         );
+
+        // Item handler for Extended JDT machines (machine slots for tools/items)
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                JDTEBlocks.EXTENDED_CLICKER.get(),
+                JDTEBlocks.EXTENDED_BLOCK_BREAKER.get(),
+                JDTEBlocks.EXTENDED_BLOCK_PLACER.get(),
+                JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get(),
+                JDTEBlocks.EXTENDED_DROPPER.get(),
+                JDTEBlocks.EXTENDED_SENSOR.get(),
+                JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),
+                JDTEBlocks.EXTENDED_FLUID_PLACER.get()
+        );
+
+        // Item handler for Glue Activator (all tiers)
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(),
+                JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get(),
+                JDTEBlocks.EXTENDED_GLUE_ACTIVATOR.get()
+        );
+
+        // Item handler for Gel Generator (input/output slots)
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                JDTEBlocks.ADVANCED_GEL_GENERATOR.get(),
+                JDTEBlocks.EXTENDED_GEL_GENERATOR.get()
+        );
+
+        // Item handler for Fluid Stabilizer (catalyst slot)
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                JDTEBlocks.BASIC_FLUID_STABILIZER.get(),
+                JDTEBlocks.ADVANCED_FLUID_STABILIZER.get(),
+                JDTEBlocks.EXTENDED_FLUID_STABILIZER.get()
+        );
+
+        // Item handler for Item Sender (storage slots)
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                JDTEBlocks.BASIC_ITEM_SENDER.get(),
+                JDTEBlocks.ADVANCED_ITEM_SENDER.get(),
+                JDTEBlocks.EXTENDED_ITEM_SENDER.get()
+        );
+
+        // Item handler for Item Receiver (storage slots)
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                JDTEBlocks.BASIC_ITEM_RECEIVER.get(),
+                JDTEBlocks.ADVANCED_ITEM_RECEIVER.get(),
+                JDTEBlocks.EXTENDED_ITEM_RECEIVER.get()
+        );
+
+        // Item handler for Infusion Machine (input slots)
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                JDTEBlocks.ADVANCED_INFUSION_MACHINE.get(),
+                JDTEBlocks.EXTENDED_INFUSION_MACHINE.get()
+        );
     }
 
     public static ResourceLocation id(String path) {
