@@ -48,7 +48,8 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     private static final int OLD_OUTPUT_SLOT = 5;
     public static final int BASE_FLUID_CAPACITY = 4000; // 4 buckets
     public static final int BASE_ENERGY_CAPACITY = 100000;
-    private static final int FLUID_CONVERSION_AMOUNT = 1000;
+    public static final int FLUID_CONVERSION_AMOUNT = 1000;
+    public static final int STANDARD_ENERGY_COST = 1000;
     private static final int FUEL_USES_PER_ITEM = 2;
 
     public final MachineEnergyStorage energyStorage;
@@ -384,7 +385,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         return ItemStack.EMPTY;
     }
 
-    private ItemStack getOutputItem(BlockState outputState) {
+    public static ItemStack getOutputItemForState(BlockState outputState) {
         if (outputState.is(Registration.RawFerricoreOre.get())) return new ItemStack(Registration.RawFerricore.get());
         if (outputState.is(Registration.RawBlazegoldOre.get())) return new ItemStack(Registration.RawBlazegold.get());
         if (outputState.is(Registration.RawCelestigemOre.get())) return new ItemStack(Registration.Celestigem.get());
@@ -396,6 +397,10 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
         ItemStack output = new ItemStack(outputState.getBlock().asItem());
         return output.is(Items.AIR) ? ItemStack.EMPTY : output;
+    }
+
+    private ItemStack getOutputItem(BlockState outputState) {
+        return getOutputItemForState(outputState);
     }
 
     private boolean canConvertFluid(int gelTier) {
@@ -586,7 +591,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
     @Override
     public int getStandardEnergyCost() {
-        int baseCost = 1000;
+        int baseCost = STANDARD_ENERGY_COST;
         if (UpgradeHelper.hasCreativeUpgrade(this)) return 0;
         if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return baseCost * 3;
         if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.UNDERCLOCK) > 0) return Math.max(1, baseCost / 5);

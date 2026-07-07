@@ -3,6 +3,7 @@ package com.jdte.client.screens;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.JDTE;
+import com.jdte.client.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.containers.LifeExtractorContainer;
 import com.jdte.common.network.data.LifeExtractorPayload;
@@ -14,8 +15,17 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class LifeExtractorScreen<T extends LifeExtractorContainer> extends BaseMachineScreen<T> {
-    private static final ResourceLocation MODE_BUTTON = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/mode_button.png");
+    private static final ResourceLocation SCANNER_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/mobscanner.png");
+    private static final ResourceLocation GLOWING_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/glowing.png");
+    private static final ResourceLocation NIGHTVISION_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/nightvision.png");
+
+    private static final Component TOOLTIP_HOSTILE = Component.translatable("jdte.screen.life_extractor.mode.hostile");
+    private static final Component TOOLTIP_FRIENDLY = Component.translatable("jdte.screen.life_extractor.mode.friendly");
+    private static final Component TOOLTIP_ALL = Component.translatable("jdte.screen.life_extractor.mode.all");
+
     private int localMode;
+    private int modeBtnX;
+    private int modeBtnY;
 
     protected LifeExtractorScreen(T container, Inventory inv, Component name) {
         super(container, inv, name);
@@ -43,26 +53,21 @@ public abstract class LifeExtractorScreen<T extends LifeExtractorContainer> exte
     @Override
     public void init() {
         super.init();
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        modeBtnX = leftPos + config.getLifeExtractorModeButtonX();
+        modeBtnY = topSectionTop + config.getLifeExtractorModeButtonY();
         localMode = ((LifeExtractorContainer) container).getMode();
     }
 
     private boolean hasFilterUpgrade() {
-        if (container.baseMachineBE instanceof com.jdte.common.blockentities.LifeExtractorBE extractor) {
+        if (container.baseMachineBE instanceof LifeExtractorBE extractor) {
             return com.jdte.common.upgrades.UpgradeHelper.countUpgrades(extractor, com.jdte.common.upgrades.UpgradeType.FILTER) > 0;
         }
         return false;
     }
 
-    private int getModeButtonX() {
-        return topSectionLeft - 22;
-    }
-
-    private int getModeButtonY() {
-        return topSectionTop + 40;
-    }
-
     private boolean isModeButtonClicked(double mouseX, double mouseY) {
-        return MiscTools.inBounds(getModeButtonX(), getModeButtonY(), 16, 16, mouseX, mouseY);
+        return MiscTools.inBounds(modeBtnX, modeBtnY, 16, 16, mouseX, mouseY);
     }
 
     @Override
@@ -78,9 +83,25 @@ public abstract class LifeExtractorScreen<T extends LifeExtractorContainer> exte
     }
 
     private void renderModeButton(GuiGraphics guiGraphics) {
-        int x = getModeButtonX();
-        int y = getModeButtonY();
+        ResourceLocation icon = switch (localMode) {
+            case LifeExtractorBE.MODE_HOSTILE -> SCANNER_ICON;
+            case LifeExtractorBE.MODE_FRIENDLY -> GLOWING_ICON;
+            default -> NIGHTVISION_ICON;
+        };
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blit(MODE_BUTTON, x, y, localMode * 16, 0, 16, 16, 48, 16);
+        guiGraphics.blit(icon, modeBtnX, modeBtnY, 0, 0, 16, 16, 16, 16);
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        super.renderTooltip(guiGraphics, mouseX, mouseY);
+        if (!hasFilterUpgrade() && isModeButtonClicked(mouseX, mouseY)) {
+            Component tooltip = switch (localMode) {
+                case LifeExtractorBE.MODE_HOSTILE -> TOOLTIP_HOSTILE;
+                case LifeExtractorBE.MODE_FRIENDLY -> TOOLTIP_FRIENDLY;
+                default -> TOOLTIP_ALL;
+            };
+            guiGraphics.renderTooltip(font, tooltip, mouseX, mouseY);
+        }
     }
 }

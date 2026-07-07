@@ -365,6 +365,14 @@ GuideME 入口：
 
 - 修复扩展投掷器（Extended Dropper）右键打开 GUI 崩溃：`ExtendedDropperBE` 继承 `DropperT1BE` 的 `MACHINE_SLOTS=1`，但 `DropperT2Container` 硬编码添加 9 个机器槽位，导致 `Slot 1 not in valid range - [0,1)` 越界崩溃。修复为构造函数设置 `MACHINE_SLOTS=9`，并重写 `getMachineHandler()` 自动扩展旧存档中 1 槽 handler 到 9 槽。
 - 为所有 JDTE 机器注册 `Capabilities.ItemHandler.BLOCK` 能力，使外部管道（如 Mekanism Logistical Transporter）可以插入/提取物品。新增注册的机器：8 种扩展 JDT 机器、粘胶激活器（全等级）、凝胶发生器、流体稳定器（全等级）、物品放置器（全等级）、物品接收器（全等级）、灌注机。
+- 修复扩展传感器（Extended Sensor）GUI 打开崩溃：MenuType 注册传入了 JDT 的 `SensorT2_Container`，且 `SensorT2Screen` 的 `instanceof SensorT2BE` 检查失败导致 NPE；同时修正了 API 版本不匹配问题（JDT jar 1.5.7 为旧版 API）。
+- 扩展传感器过滤槽改为 9 个（与 JDT 高级传感器一致）。
+- 凝胶发生器（高级/扩展）机器槽位添加 tooltip，鼠标悬停时显示槽位类型名称（凝胶/食物/输入/输出）。
+- 自动均分按钮 tooltip 文本"不自动均分"改为"取消均分"。
+- 过滤翻页按钮缩放至与范围按钮相同大小（`PoseStack.scale 0.75`），并添加 tooltip。
+- 修复翻页后过滤槽图标不更新问题：`DynamicFilterSlot` 重写 `SlotItemHandler` 中所有使用 `this.index` 字段的方法，改为调用 `getSlotIndex()`。
+- 过滤翻页按钮位置微调：下一页左移 4px，两按钮下移 2px。
+- 过滤页码指示文字颜色改为白色。
 
 ### v0.5.1
 

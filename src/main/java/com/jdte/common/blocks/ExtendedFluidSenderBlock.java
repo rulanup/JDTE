@@ -5,11 +5,16 @@ import com.jdte.common.blockentities.ExtendedFluidSenderBE;
 import com.jdte.common.containers.ExtendedFluidSenderContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
@@ -20,6 +25,11 @@ public class ExtendedFluidSenderBlock extends BaseMachineBlock {
                 .strength(3.0f)
                 .isRedstoneConductor(BaseMachineBlock::never)
         );
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return FluidContainerTransfer.useItemOn(itemStack, blockState, level, blockPos, player, hand, hit);
     }
 
     @Nullable

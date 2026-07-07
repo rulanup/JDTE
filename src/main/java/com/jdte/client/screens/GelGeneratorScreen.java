@@ -1,8 +1,18 @@
 package com.jdte.client.screens;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
+import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
+import com.direwolf20.justdirethings.client.screens.widgets.GrayscaleButton;
+import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
+import com.direwolf20.justdirethings.common.network.data.TickSpeedPayload;
 import com.direwolf20.justdirethings.util.MagicHelpers;
+import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
+import com.jdte.JDTE;
+import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.blockentities.GelGeneratorBE;
+import com.jdte.common.containers.GelGeneratorContainer;
+import com.jdte.common.network.data.GelGeneratorPayload;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -10,27 +20,35 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.jdte.common.containers.GelGeneratorContainer;
-import com.jdte.common.network.data.GelGeneratorPayload;
+import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extends BaseMachineScreen<T> {
-    private static final int SPLIT_FLUID_INNER_HEIGHT = 34;
-    private Button autoBalanceButton;
+    private static final int FLUID_INNER_HEIGHT = 70;
+    private static final int HIDDEN_BASE_FLUID_BAR_OFFSET = -10000;
+    private static final ResourceLocation JUMP_BOOST = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/jumpboost.png");
     private boolean autoBalanceLocal;
+    private AutoBalanceWidget autoBalanceWidget;
 
     protected GelGeneratorScreen(T container, Inventory inv, Component name) {
         super(container, inv, name);
@@ -44,82 +62,167 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
 
     @Override
     public int getFluidBarOffset() {
-        return 204;
+        return HIDDEN_BASE_FLUID_BAR_OFFSET;
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
-        renderSplitFluidTank(guiGraphics);
+        renderGelFluidTanks(guiGraphics);
         renderProgressArrow(guiGraphics);
     }
 
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderTooltip(guiGraphics, mouseX, mouseY);
-        renderOutputFluidTooltip(guiGraphics, mouseX, mouseY);
+        renderGelFluidTooltips(guiGraphics, mouseX, mouseY);
+        renderMachineSlotTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    private void renderMachineSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if (hoveredSlot instanceof SlotItemHandler slotItemHandler
+                && slotItemHandler.getItemHandler() == container.machineHandler
+                && !hoveredSlot.hasItem()) {
+            int idx = hoveredSlot.getSlotIndex();
+            Component slotLabel = null;
+            if (idx == GelGeneratorBE.GEL_SLOT) {
+                slotLabel = Component.translatable("jdte.screen.gel_slot");
+            } else if (idx == GelGeneratorBE.FOOD_SLOT) {
+                slotLabel = Component.translatable("jdte.screen.food_slot");
+            } else if (idx >= GelGeneratorBE.INPUT_START_SLOT && idx < GelGeneratorBE.INPUT_START_SLOT + GelGeneratorBE.INPUT_SLOTS) {
+                slotLabel = Component.translatable("jdte.screen.input_slot");
+            } else if (idx >= GelGeneratorBE.OUTPUT_START_SLOT && idx < GelGeneratorBE.OUTPUT_START_SLOT + GelGeneratorBE.OUTPUT_SLOTS) {
+                slotLabel = Component.translatable("jdte.screen.output_slot");
+            }
+            if (slotLabel != null) {
+                guiGraphics.renderTooltip(font, slotLabel, mouseX, mouseY);
+            }
+        }
     }
 
     @Override
     public void init() {
         super.init();
-        renderables.forEach(renderable -> {
-            if (renderable instanceof net.minecraft.client.gui.components.AbstractWidget widget
-                    && widget.getY() >= topSectionTop + 40
-                    && widget.getY() <= topSectionTop + 62) {
-                widget.setY(widget.getY() + 12);
-            }
-        });
         autoBalanceLocal = ((GelGeneratorContainer) container).isAutoBalanceInputs();
-        autoBalanceButton = addRenderableWidget(Button.builder(getAutoBalanceText(autoBalanceLocal), button -> toggleAutoBalance())
-                .bounds(topSectionLeft - 64, topSectionTop + 82, 60, 18)
-                .build());
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        autoBalanceWidget = new AutoBalanceWidget(
+                getGuiLeft() + config.getGelGenAutoBalanceX(),
+                getGuiTop() + config.getGelGenAutoBalanceY());
+        autoBalanceWidget.setTooltip(Tooltip.create(Component.translatable(autoBalanceLocal ? "jdte.screen.auto_balance.on" : "jdte.screen.auto_balance.off")));
+        addRenderableWidget(autoBalanceWidget);
+    }
+
+    @Override
+    public void addFilterButtons() {
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        addRenderableWidget(ToggleButtonFactory.ALLOWLISTBUTTON(
+                getGuiLeft() + config.getGelGenAllowlistButtonX(),
+                getGuiTop() + config.getGelGenAllowlistButtonY(),
+                filterData.allowlist, b -> {
+                    filterData.allowlist = !filterData.allowlist;
+                    saveSettings();
+                }));
+        addRenderableWidget(ToggleButtonFactory.COMPARENBTBUTTON(
+                getGuiLeft() + config.getGelGenCompareNBTButtonX(),
+                getGuiTop() + config.getGelGenCompareNBTButtonY(),
+                filterData.compareNBT, b -> {
+                    filterData.compareNBT = !filterData.compareNBT;
+                    ((GrayscaleButton) b).toggleActive();
+                    saveSettings();
+                }));
+        if (filterData.blockItemFilter != -1) {
+            addRenderableWidget(ToggleButtonFactory.FILTERBLOCKITEMBUTTON(
+                    getGuiLeft() + config.getGelGenCompareNBTButtonX(),
+                    getGuiTop() + config.getGelGenCompareNBTButtonY() + 18,
+                    filterData.blockItemFilter, b -> {
+                        filterData.blockItemFilter = ((ToggleButton) b).getTexturePosition();
+                        saveSettings();
+                    }));
+        }
+    }
+
+    @Override
+    public void addRedstoneButtons() {
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        addRenderableWidget(ToggleButtonFactory.REDSTONEBUTTON(
+                getGuiLeft() + config.getGelGenRedstoneButtonX(),
+                getGuiTop() + config.getGelGenRedstoneButtonY(),
+                redstoneMode.ordinal(), b -> {
+                    redstoneMode = MiscHelpers.RedstoneMode.values()[((ToggleButton) b).getTexturePosition()];
+                    saveSettings();
+                }));
+    }
+
+    @Override
+    public void addTickSpeedButton() {
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        addRenderableWidget(ToggleButtonFactory.TICKSPEEDBUTTON(
+                getGuiLeft() + config.getGelGenSpeedButtonX(),
+                getGuiTop() + config.getGelGenSpeedButtonY(),
+                tickSpeed, b -> {
+                    tickSpeed = ((com.direwolf20.justdirethings.client.screens.widgets.NumberButton) b).getValue();
+                    PacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
+                }));
     }
 
     private void toggleAutoBalance() {
         autoBalanceLocal = !autoBalanceLocal;
+        autoBalanceWidget.setTooltip(Tooltip.create(Component.translatable(autoBalanceLocal ? "jdte.screen.auto_balance.on" : "jdte.screen.auto_balance.off")));
         PacketDistributor.sendToServer(new GelGeneratorPayload(autoBalanceLocal));
-        if (autoBalanceButton != null) {
-            autoBalanceButton.setMessage(getAutoBalanceText(autoBalanceLocal));
-        }
     }
 
-    private Component getAutoBalanceText(boolean enabled) {
-        return Component.translatable(enabled ? "jdte.screen.auto_balance.on" : "jdte.screen.auto_balance.off");
-    }
-
-    private void renderSplitFluidTank(GuiGraphics guiGraphics) {
-        int x = topSectionLeft + getFluidBarOffset();
-        int y = topSectionTop + 5;
+    private void renderGelFluidTanks(GuiGraphics guiGraphics) {
+        var config = GuiUpgradeLayoutConfig.getInstance();
         GelGeneratorContainer gelContainer = (GelGeneratorContainer) container;
         int capacity = Math.max(1, gelContainer.getOutputFluidCapacity());
 
+        renderFluidTank(guiGraphics,
+                getGuiLeft() + config.getGelGenInputFluidX(),
+                getGuiTop() + config.getGelGenInputFluidY(),
+                gelContainer.getFluidStack(),
+                gelContainer.getFluidAmount(),
+                capacity);
+        renderFluidTank(guiGraphics,
+                getGuiLeft() + config.getGelGenOutputFluidX(),
+                getGuiTop() + config.getGelGenOutputFluidY(),
+                gelContainer.getOutputFluidStack(),
+                gelContainer.getOutputFluidAmount(),
+                capacity);
+    }
+
+    private void renderFluidTank(GuiGraphics guiGraphics, int x, int y, FluidStack fluidStack, int amount, int capacity) {
         guiGraphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
 
-        int inputHeight = Math.min(SPLIT_FLUID_INNER_HEIGHT, (gelContainer.getFluidAmount() * SPLIT_FLUID_INNER_HEIGHT) / capacity);
-        if (inputHeight > 0) {
-            renderFluidStack(guiGraphics, gelContainer.getFluidStack(), x + 1, y + 1 + SPLIT_FLUID_INNER_HEIGHT, 16, inputHeight);
+        int fluidHeight = Math.min(FLUID_INNER_HEIGHT, (amount * FLUID_INNER_HEIGHT) / capacity);
+        if (fluidHeight > 0) {
+            renderFluidStack(guiGraphics, fluidStack, x + 1, y + 71, 16, fluidHeight);
         }
 
-        int outputHeight = Math.min(SPLIT_FLUID_INNER_HEIGHT, (gelContainer.getOutputFluidAmount() * SPLIT_FLUID_INNER_HEIGHT) / capacity);
-        if (outputHeight > 0) {
-            renderFluidStack(guiGraphics, gelContainer.getOutputFluidStack(), x + 1, y + 71, 16, outputHeight);
-        }
-
-        guiGraphics.fill(x + 1, y + 36, x + 17, y + 37, 0xFF404040);
         guiGraphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
     }
 
-    private void renderOutputFluidTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int x = topSectionLeft + getFluidBarOffset();
-        int y = topSectionTop + 41;
-        if (!MiscTools.inBounds(x, y, 18, 36, mouseX, mouseY)) {
+    private void renderGelFluidTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        GelGeneratorContainer gelContainer = (GelGeneratorContainer) container;
+        int maxMb = gelContainer.getOutputFluidCapacity();
+
+        int inputX = getGuiLeft() + config.getGelGenInputFluidX();
+        int inputY = getGuiTop() + config.getGelGenInputFluidY();
+        if (MiscTools.inBounds(inputX, inputY, 18, 72, mouseX, mouseY)) {
+            FluidStack fluidStack = gelContainer.getFluidStack();
+            guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+                    Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(gelContainer.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
+            )), mouseX, mouseY);
             return;
         }
 
-        GelGeneratorContainer gelContainer = (GelGeneratorContainer) container;
+        int outputX = getGuiLeft() + config.getGelGenOutputFluidX();
+        int outputY = getGuiTop() + config.getGelGenOutputFluidY();
+        if (!MiscTools.inBounds(outputX, outputY, 18, 72, mouseX, mouseY)) {
+            return;
+        }
+
         FluidStack fluidStack = gelContainer.getOutputFluidStack();
-        int maxMb = gelContainer.getOutputFluidCapacity();
         guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
                 Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(gelContainer.getOutputFluidAmount()), MagicHelpers.withSuffix(maxMb))
         )), mouseX, mouseY);
@@ -129,7 +232,7 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
         if (fluidStack.isEmpty() || height <= 0) return;
 
         Fluid fluid = fluidStack.getFluid();
-        net.minecraft.resources.ResourceLocation fluidStill = IClientFluidTypeExtensions.of(fluid).getStillTexture();
+        ResourceLocation fluidStill = IClientFluidTypeExtensions.of(fluid).getStillTexture();
         TextureAtlasSprite fluidStillSprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidStill);
         int fluidColor = IClientFluidTypeExtensions.of(fluid).getTintColor(fluidStack);
 
@@ -182,8 +285,9 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
     }
 
     private void renderProgressArrow(GuiGraphics guiGraphics) {
-        int x = getGuiLeft() + 105;
-        int y = getGuiTop() + 30;
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        int x = getGuiLeft() + config.getGelGenProgressArrowX();
+        int y = getGuiTop() + config.getGelGenProgressArrowY();
         GelGeneratorContainer gelContainer = (GelGeneratorContainer) container;
         int progressWidth = (gelContainer.getGelProgress() * 24) / gelContainer.getGelProgressMax();
 
@@ -214,6 +318,44 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
     private void drawHeadPart(GuiGraphics guiGraphics, int x, int y, int width, int height, int color) {
         if (width > 0) {
             guiGraphics.fill(x, y, x + width, y + height, color);
+        }
+    }
+
+    /**
+     * Custom toggle button that renders JDT's Jump Boost icon rotated 90° CW.
+     * Full color when auto-balance is enabled, dimmed when disabled.
+     */
+    private class AutoBalanceWidget extends AbstractWidget {
+        public AutoBalanceWidget(int x, int y) {
+            super(x, y, 16, 16, Component.translatable("jdte.screen.auto_balance"));
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            if (!autoBalanceLocal) {
+                RenderSystem.setShaderColor(0.33f, 0.33f, 0.33f, 1.0f);
+            } else {
+                RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            }
+
+            PoseStack pose = guiGraphics.pose();
+            pose.pushPose();
+            pose.translate(getX() + 8, getY() + 8, 0);
+            pose.mulPose(Axis.ZP.rotationDegrees(90));
+            guiGraphics.blit(JUMP_BOOST, -8, -8, 0, 0, 16, 16, 16, 16);
+            pose.popPose();
+
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            toggleAutoBalance();
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput narrationOutput) {
+            this.defaultButtonNarrationText(narrationOutput);
         }
     }
 }
