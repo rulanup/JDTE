@@ -31,11 +31,12 @@ public abstract class GelGeneratorContainer extends BaseMachineContainer {
     @Override
     public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
-        addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.GEL_SLOT, 46, 13));
-        addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.FOOD_SLOT, 46, 49));
+        // 坐标对应 gui_layout.json 中的 gel_generator_slots 默认值
+        addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.GEL_SLOT, 8, -12));
+        addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.FOOD_SLOT, 8, 24));
         for (int i = 0; i < GelGeneratorBE.INPUT_SLOTS; i++) {
-            addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.INPUT_START_SLOT + i, 80, 4 + i * 18));
-            addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.OUTPUT_START_SLOT + i, 134, 4 + i * 18));
+            addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.INPUT_START_SLOT + i, 44, -21 + i * 18));
+            addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.OUTPUT_START_SLOT + i, 116, -21 + i * 18));
         }
     }
 

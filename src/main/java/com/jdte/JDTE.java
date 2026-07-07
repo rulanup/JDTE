@@ -86,6 +86,11 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),
                 JDTEBlocks.EXTENDED_FLUID_PLACER.get()
         );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE fluidMachine ? fluidMachine.getFluidTank() : null,
+                JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),
+                JDTEBlocks.EXTENDED_FLUID_PLACER.get()
+        );
 
         // Glue Activator energy storage (Advanced and Extended)
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,

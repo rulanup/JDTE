@@ -28,7 +28,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.screens.BlockPlacerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_SWAPPER.get(), com.direwolf20.justdirethings.client.screens.BlockSwapperT2Screen::new);
         event.register(JDTEMenus.EXTENDED_DROPPER.get(), com.direwolf20.justdirethings.client.screens.DropperT2Screen::new);
-        event.register(JDTEMenus.EXTENDED_SENSOR.get(), com.direwolf20.justdirethings.client.screens.SensorT2Screen::new);
+        event.register(JDTEMenus.EXTENDED_SENSOR.get(), ExtendedSensorScreen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_COLLECTOR.get(), com.direwolf20.justdirethings.client.screens.FluidCollectorT2Screen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_PLACER.get(), com.direwolf20.justdirethings.client.screens.FluidPlacerT2Screen::new);
 

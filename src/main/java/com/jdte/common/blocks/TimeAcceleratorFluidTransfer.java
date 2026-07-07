@@ -14,6 +14,6 @@ final class TimeAcceleratorFluidTransfer {
     }
 
     static ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return FluidContainerTransfer.useItemOn(itemStack, blockState, level, blockPos, player, hand, hit);
     }
 }
