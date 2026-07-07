@@ -6,6 +6,9 @@ build/
 .idea/
 *.iml
 
+# VS Code
+.vscode/
+
 # Minecraft runtime
 runs/
 
