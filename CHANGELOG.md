@@ -32,6 +32,9 @@
 - **Fixed**: Removing FILTER upgrade while on a non-default filter page no longer causes filter slots to disappear — page auto-resets to 0 when current page exceeds max page.
 - **New**: JEI recipe category for Advanced/Extended Gel Generator — dynamically reads JDT `GooSpreadRecipe`/`GooSpreadRecipeTag` entries and current goo-revive food tags. Recipes are split by gel tier while valid foods rotate in the food slot. The gel slot is marked as a non-consumed catalyst and now shows a "Not Consumed" tooltip. Item recipes draw the original four input/output slots with ingredients only in the first slot, move the progress arrow/output column left by 18px, add an animated energy-cost bar next to the output column, and use a compact page size. Fluid recipes use the same input/output/progress/energy column positions and also show the animated energy-cost bar.
 - **Fixed**: Added JDT Fluid Placer-style right-click fluid container transfer for JDTE fluid machines. Buckets and compatible single-item fluid containers can now fill/drain Time Accelerators, Gel Generators, Fluid Senders/Receivers, Bio Crushers, Life Extractors, Infusion Machines, and Extended Fluid Collector/Placer blocks. Extended Fluid Collector/Placer also now expose `Capabilities.FluidHandler.BLOCK`.
+- **New**: Added the first auto input/output side configuration panel for machines with item or fluid I/O. The toggleable panel uses JDT direction/phase/decoy/hammer icons, 12px buttons with dimmed inactive states, and the standard machine panel background. Side toggles now default to all disabled and are saved on the server via a serializable attachment.
+- **Tweak**: Auto input/output side configuration now uses a fixed panel with its bottom-right corner docked to the upper machine configuration panel's bottom-left corner. Direction button spacing is tightened to 12px, the front-side button is centered, disabled side buttons use a dark grayscale tint matching JDT grayscale buttons, JEI gets the panel/button extra areas to avoid bookmark overlap, and the button only appears for machines with actual item or fluid I/O.
+- **Fixed**: Auto input/output config networking no longer registers the same `jdte:auto_io_config` payload for both directions. Server sync now uses `jdte:auto_io_config_sync`, fixing the startup crash during `RegisterPayloadHandlersEvent`.
 
 #### v0.5.2
 - **Fixed**: Extended Dropper GUI crash — `MACHINE_SLOTS` set to 9 in constructor, `getMachineHandler()` auto-expands old 1-slot handler to 9-slot.
@@ -118,6 +121,9 @@
 - **修复**：移除过滤升级后非默认页的过滤槽不再消失 — 当前页超出最大页时自动重置到第 0 页。
 - **新增**：高级/扩展凝胶发生器的 JEI 配方界面 — 动态读取 JDT `GooSpreadRecipe`/`GooSpreadRecipeTag` 和当前凝胶复活食物标签。配方按凝胶等级拆分，同一凝胶等级的可用食物在食物槽内轮换。凝胶槽标记为不消耗的催化剂，并显示“不消耗”tooltip；物品配方绘制原来的四个输入/输出槽，但只在第一个槽显示物品，并将进度箭头和输出列左移 18px，在输出列右侧增加动态能耗条，页面尺寸改为更紧凑；流体配方使用与物品页相同的输入/输出/进度/能量列位置，并同样显示动态能耗条。
 - **修复**：为 JDTE 流体机器加入类似 JDT 流体放置器的右键流体容器转移逻辑。水桶和兼容的单物品流体容器现在可对时间加速器、凝胶发生器、流体放置/接收器、生物粉碎机、生命提取器、灌注机、扩展流体收集器/放置器进行填充或抽取。扩展流体收集器/放置器同步补充 `Capabilities.FluidHandler.BLOCK` 能力。
+- **新增**：为含有物品或流体输入/输出的机器添加首版自动输入输出方向配置面板，可切换显示/隐藏。面板使用 JDT 的方向、穿墙、诱饵、重锤图标，按钮为 12px，关闭状态会变暗，并使用机器界面背景。方向默认全部关闭，并通过可序列化 attachment 在服务端保存。
+- **调整**：自动输入输出方向配置改为固定面板，面板右下角挂靠在上方机器配置面板左下角；方向按钮间距收紧为 12px，前面按钮放到正中间，关闭的方向按钮改用与 JDT 灰度按钮一致的深色灰度显示；通过 JEI extra area 自动规避书签重叠；按钮只在真正有物品或流体 I/O 的机器上显示。
+- **修复**：自动输入输出配置网络不再把同一个 `jdte:auto_io_config` payload 同时注册到双向通道。服务端同步改用 `jdte:auto_io_config_sync`，修复 `RegisterPayloadHandlersEvent` 阶段的启动崩溃。
 
 #### v0.5.2
 - **修复**：扩展投掷器 GUI 崩溃 — 构造函数设置 `MACHINE_SLOTS=9`，`getMachineHandler()` 自动扩展旧存档的 1 槽 handler 到 9 槽。

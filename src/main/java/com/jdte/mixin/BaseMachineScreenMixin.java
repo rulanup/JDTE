@@ -11,8 +11,12 @@ import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachin
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.JDTE;
+import com.jdte.client.AutoIoConfigClientCache;
+import com.jdte.client.AutoIoConfigScreenBridge;
 import com.jdte.client.UpgradePopupDragHandler;
 import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.autoioconfig.AutoIoConfigData;
+import com.jdte.common.autoioconfig.AutoIoConfigHelper;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
 import com.jdte.common.network.data.FilterPagePayload;
@@ -24,6 +28,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -45,17 +50,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 @Mixin(BaseMachineScreen.class)
-public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixin implements UpgradePopupDragHandler {
+public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixin implements UpgradePopupDragHandler, AutoIoConfigScreenBridge {
     @Shadow protected BaseMachineContainer container;
     @Shadow protected BaseMachineBE baseMachineBE;
     @Shadow protected int topSectionLeft;
     @Shadow protected int topSectionTop;
+    @Shadow protected int topSectionHeight;
     @Shadow protected int extraWidth;
     @Shadow protected int extraHeight;
     @Shadow protected ResourceLocation SOCIALBACKGROUND;
@@ -63,15 +69,35 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluidbar.png");
     @Unique private static final ResourceLocation JDTE_FILTER_PREV = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/filter_prev.png");
     @Unique private static final ResourceLocation JDTE_FILTER_NEXT = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/filter_next.png");
+    @Unique private static final ResourceLocation JDTE_IO_CONFIG = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/hammer3.png");
+    @Unique private static final ResourceLocation JDTE_IO_UP = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-north.png");
+    @Unique private static final ResourceLocation JDTE_IO_DOWN = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-south.png");
+    @Unique private static final ResourceLocation JDTE_IO_LEFT = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-west.png");
+    @Unique private static final ResourceLocation JDTE_IO_RIGHT = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-east.png");
+    @Unique private static final ResourceLocation JDTE_IO_FRONT = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/phase.png");
+    @Unique private static final ResourceLocation JDTE_IO_BACK = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/decoy.png");
     @Unique private int jdte$filterPressed = 0;
     @Unique private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
     @Unique private static final Map<Slot, int[]> JDTE_ORIGINAL_SLOT_POSITIONS = new WeakHashMap<>();
     @Unique private static final int JDTE_SLOT_SIZE = 18;
     @Unique private static final int JDTE_FILTER_COLUMNS = 9;
+    @Unique private static final int JDTE_IO_BUTTON_SIZE = 12;
+    @Unique private static final int JDTE_IO_BUTTON_SPACING = 12;
+    @Unique private static final int JDTE_IO_PANEL_PADDING = 6;
+    @Unique private static final int JDTE_IO_PANEL_SIZE = JDTE_IO_PANEL_PADDING * 2 + JDTE_IO_BUTTON_SPACING * 3;
+    @Unique private static final int JDTE_IO_SIDE_UP = 0;
+    @Unique private static final int JDTE_IO_SIDE_DOWN = 1;
+    @Unique private static final int JDTE_IO_SIDE_LEFT = 2;
+    @Unique private static final int JDTE_IO_SIDE_RIGHT = 3;
+    @Unique private static final int JDTE_IO_SIDE_FRONT = 4;
+    @Unique private static final int JDTE_IO_SIDE_BACK = 5;
     @Unique private int jdte$baseImageHeight = -1;
     @Unique private int jdte$filterPrevX;
     @Unique private int jdte$filterNextX;
     @Unique private int jdte$filterButtonsY;
+    @Unique private boolean jdte$ioConfigOpen;
+    @Unique private int jdte$ioConfigButtonX;
+    @Unique private int jdte$ioConfigButtonY;
 
     @Unique
     private int jdte$getUpgradeSlots() {
@@ -194,6 +220,29 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     private void jdte$mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (button != 0) return;
 
+        if (jdte$hasIoConfigTarget()) {
+            jdte$updateIoConfigButtonPosition();
+            if (jdte$inIoConfigButton(mouseX, mouseY)) {
+                jdte$ioConfigOpen = !jdte$ioConfigOpen;
+                jdte$playClickSound();
+                cir.setReturnValue(true);
+                return;
+            }
+            if (jdte$ioConfigOpen) {
+                int side = jdte$getIoConfigSideAt(mouseX, mouseY);
+                if (side >= 0) {
+                    jdte$toggleIoConfigSide(side);
+                    jdte$playClickSound();
+                    cir.setReturnValue(true);
+                    return;
+                }
+                if (jdte$inIoConfigPanel(mouseX, mouseY)) {
+                    cir.setReturnValue(true);
+                    return;
+                }
+            }
+        }
+
         if (jdte$hasFilterUpgrades()) {
             jdte$updateFilterButtonPositions();
             int slotsPerPage = UpgradeHelper.getFilterSlotsPerUpgrade();
@@ -227,6 +276,21 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         jdte$filterPressed = 0;
     }
 
+    @Override
+    public List<Rect2i> jdte$getAutoIoConfigExtraAreas() {
+        if (!jdte$hasIoConfigTarget()) {
+            return Collections.emptyList();
+        }
+
+        jdte$updateIoConfigButtonPosition();
+        List<Rect2i> areas = new ArrayList<>();
+        areas.add(new Rect2i(jdte$ioConfigButtonX, jdte$ioConfigButtonY, JDTE_IO_BUTTON_SIZE, JDTE_IO_BUTTON_SIZE));
+        if (jdte$ioConfigOpen) {
+            areas.add(new Rect2i(jdte$getIoConfigPanelX(), jdte$getIoConfigPanelY(), JDTE_IO_PANEL_SIZE, JDTE_IO_PANEL_SIZE));
+        }
+        return areas;
+    }
+
     @Inject(method = "hasClickedOutside", at = @At("HEAD"), cancellable = true)
     private void jdte$hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton, CallbackInfoReturnable<Boolean> cir) {
     }
@@ -244,6 +308,11 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Inject(method = "init", at = @At("TAIL"))
     private void jdte$initFilterPage(CallbackInfo ci) {
         jdte$updateFilterButtonPositions();
+        if (jdte$hasIoConfigTarget()) {
+            AutoIoConfigClientCache.requestSync(baseMachineBE);
+        } else {
+            jdte$ioConfigOpen = false;
+        }
     }
 
     @Unique
@@ -371,6 +440,152 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         guiGraphics.drawString(font, Component.literal((currentPage + 1) + "/" + (maxPage + 1)), nextX + 12 + 2, y + 2, 0xFF404040, false);
+    }
+
+    @Inject(method = "renderBg", at = @At("TAIL"))
+    private void jdte$renderIoConfig(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+        if (!jdte$hasIoConfigTarget()) return;
+        jdte$updateIoConfigButtonPosition();
+        if (jdte$ioConfigOpen) {
+            jdte$renderIoConfigPanel(guiGraphics);
+        }
+        jdte$drawSmallIconButton(guiGraphics, jdte$ioConfigButtonX, jdte$ioConfigButtonY, JDTE_IO_CONFIG, true);
+    }
+
+    @Unique
+    private boolean jdte$hasIoConfigTarget() {
+        return container != null && AutoIoConfigHelper.hasConfigurableIo(baseMachineBE);
+    }
+
+    @Unique
+    private void jdte$updateIoConfigButtonPosition() {
+        jdte$ioConfigButtonX = getGuiLeft() + 8 - 14 - 16;
+        jdte$ioConfigButtonY = getGuiTop() + 56;
+    }
+
+    @Unique
+    private boolean jdte$inIoConfigButton(double mouseX, double mouseY) {
+        return MiscTools.inBounds(jdte$ioConfigButtonX, jdte$ioConfigButtonY, JDTE_IO_BUTTON_SIZE, JDTE_IO_BUTTON_SIZE, mouseX, mouseY);
+    }
+
+    @Unique
+    private int jdte$getIoConfigPanelX() {
+        return topSectionLeft - JDTE_IO_PANEL_SIZE;
+    }
+
+    @Unique
+    private int jdte$getIoConfigPanelY() {
+        return topSectionTop + topSectionHeight - JDTE_IO_PANEL_SIZE;
+    }
+
+    @Unique
+    private boolean jdte$inIoConfigPanel(double mouseX, double mouseY) {
+        return MiscTools.inBounds(jdte$getIoConfigPanelX(), jdte$getIoConfigPanelY(), JDTE_IO_PANEL_SIZE, JDTE_IO_PANEL_SIZE, mouseX, mouseY);
+    }
+
+    @Unique
+    private void jdte$renderIoConfigPanel(GuiGraphics guiGraphics) {
+        int panelX = jdte$getIoConfigPanelX();
+        int panelY = jdte$getIoConfigPanelY();
+        guiGraphics.blitSprite(SOCIALBACKGROUND, panelX, panelY, JDTE_IO_PANEL_SIZE, JDTE_IO_PANEL_SIZE);
+
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_UP);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_BACK);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_LEFT);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_FRONT);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_RIGHT);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_DOWN);
+    }
+
+    @Unique
+    private void jdte$drawIoConfigSide(GuiGraphics guiGraphics, int side) {
+        jdte$drawSmallIconButton(guiGraphics, jdte$getIoSideX(side), jdte$getIoSideY(side), jdte$getIoSideIcon(side), jdte$isIoSideActive(side));
+    }
+
+    @Unique
+    private int jdte$getIoConfigSideAt(double mouseX, double mouseY) {
+        for (int side = 0; side < AutoIoConfigData.SIDE_COUNT; side++) {
+            if (MiscTools.inBounds(jdte$getIoSideX(side), jdte$getIoSideY(side), JDTE_IO_BUTTON_SIZE, JDTE_IO_BUTTON_SIZE, mouseX, mouseY)) {
+                return side;
+            }
+        }
+        return -1;
+    }
+
+    @Unique
+    private int jdte$getIoSideX(int side) {
+        int col = switch (side) {
+            case JDTE_IO_SIDE_LEFT -> 0;
+            case JDTE_IO_SIDE_UP, JDTE_IO_SIDE_DOWN, JDTE_IO_SIDE_FRONT -> 1;
+            default -> 2;
+        };
+        return jdte$getIoGridX(col);
+    }
+
+    @Unique
+    private int jdte$getIoSideY(int side) {
+        int row = switch (side) {
+            case JDTE_IO_SIDE_UP, JDTE_IO_SIDE_BACK -> 0;
+            case JDTE_IO_SIDE_LEFT, JDTE_IO_SIDE_RIGHT, JDTE_IO_SIDE_FRONT -> 1;
+            default -> 2;
+        };
+        return jdte$getIoGridY(row);
+    }
+
+    @Unique
+    private int jdte$getIoGridX(int col) {
+        return jdte$getIoConfigPanelX() + JDTE_IO_PANEL_PADDING + col * JDTE_IO_BUTTON_SPACING;
+    }
+
+    @Unique
+    private int jdte$getIoGridY(int row) {
+        return jdte$getIoConfigPanelY() + JDTE_IO_PANEL_PADDING + row * JDTE_IO_BUTTON_SPACING;
+    }
+
+    @Unique
+    private ResourceLocation jdte$getIoSideIcon(int side) {
+        return switch (side) {
+            case JDTE_IO_SIDE_UP -> JDTE_IO_UP;
+            case JDTE_IO_SIDE_DOWN -> JDTE_IO_DOWN;
+            case JDTE_IO_SIDE_LEFT -> JDTE_IO_LEFT;
+            case JDTE_IO_SIDE_RIGHT -> JDTE_IO_RIGHT;
+            case JDTE_IO_SIDE_FRONT -> JDTE_IO_FRONT;
+            default -> JDTE_IO_BACK;
+        };
+    }
+
+    @Unique
+    private boolean jdte$isIoSideActive(int side) {
+        return (jdte$getIoSideMask() & (1 << side)) != 0;
+    }
+
+    @Unique
+    private int jdte$getIoSideMask() {
+        return AutoIoConfigClientCache.getSideMask(baseMachineBE);
+    }
+
+    @Unique
+    private void jdte$toggleIoConfigSide(int side) {
+        int newMask = AutoIoConfigHelper.toggleSide(jdte$getIoSideMask(), side);
+        AutoIoConfigClientCache.updateAndSend(baseMachineBE, newMask);
+    }
+
+    @Unique
+    private void jdte$drawSmallIconButton(GuiGraphics guiGraphics, int x, int y, ResourceLocation icon, boolean active) {
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
+        poseStack.scale(0.75f, 0.75f, 1.0f);
+        RenderSystem.setShaderColor(active ? 1.0f : 0.33f, active ? 1.0f : 0.33f, active ? 1.0f : 0.33f, 1.0f);
+        guiGraphics.blit(icon, 0, 0, 0, 0, 16, 16, 16, 16);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        poseStack.popPose();
+    }
+
+    @Unique
+    private void jdte$playClickSound() {
+        net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
+                net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     @Inject(method = "renderTooltip", at = @At("TAIL"))
@@ -567,5 +782,37 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         } else if (jdte$inFilterNextButton(mouseX, mouseY)) {
             guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.filter_next"), mouseX, mouseY);
         }
+    }
+
+    @Inject(method = "renderTooltip", at = @At("TAIL"))
+    private void jdte$renderIoConfigTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+        if (!jdte$hasIoConfigTarget()) return;
+        jdte$updateIoConfigButtonPosition();
+
+        if (jdte$inIoConfigButton(mouseX, mouseY)) {
+            guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.io_config"), mouseX, mouseY);
+            return;
+        }
+        if (!jdte$ioConfigOpen) return;
+
+        int side = jdte$getIoConfigSideAt(mouseX, mouseY);
+        if (side >= 0) {
+            guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+                    Component.translatable(jdte$getIoSideTranslationKey(side)),
+                    Component.translatable(jdte$isIoSideActive(side) ? "jdte.screen.io_config.enabled" : "jdte.screen.io_config.disabled")
+            )), mouseX, mouseY);
+        }
+    }
+
+    @Unique
+    private String jdte$getIoSideTranslationKey(int side) {
+        return switch (side) {
+            case JDTE_IO_SIDE_UP -> "jdte.screen.io_config.up";
+            case JDTE_IO_SIDE_DOWN -> "jdte.screen.io_config.down";
+            case JDTE_IO_SIDE_LEFT -> "jdte.screen.io_config.left";
+            case JDTE_IO_SIDE_RIGHT -> "jdte.screen.io_config.right";
+            case JDTE_IO_SIDE_FRONT -> "jdte.screen.io_config.front";
+            default -> "jdte.screen.io_config.back";
+        };
     }
 }

@@ -1,13 +1,16 @@
 package com.jdte.common.jei;
 
 import com.jdte.JDTE;
+import com.jdte.client.jei.AutoIoConfigJeiGuiHandler;
 import com.jdte.common.jei.gelgenerator.GelGeneratorJeiRecipe;
 import com.jdte.common.jei.gelgenerator.GelGeneratorRecipeCategory;
+import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -37,5 +40,10 @@ public class JDTEJeiPlugin implements IModPlugin {
         for (ItemStack machine : GelGeneratorJeiRecipe.getMachines()) {
             registration.addRecipeCatalyst(machine, GelGeneratorRecipeCategory.RECIPE_TYPE);
         }
+    }
+
+    @Override
+    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGenericGuiContainerHandler(BaseMachineScreen.class, new AutoIoConfigJeiGuiHandler());
     }
 }

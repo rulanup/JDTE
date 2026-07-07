@@ -1,11 +1,14 @@
 package com.jdte.common.network;
 
 import com.jdte.JDTE;
+import com.jdte.common.network.data.AutoIoConfigPayload;
+import com.jdte.common.network.data.AutoIoConfigSyncPayload;
 import com.jdte.common.network.data.BioCrusherPayload;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.network.data.GelGeneratorPayload;
 import com.jdte.common.network.data.LifeExtractorPayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
+import com.jdte.common.network.handler.AutoIoConfigPacket;
 import com.jdte.common.network.handler.BioCrusherPacket;
 import com.jdte.common.network.handler.FilterPagePacket;
 import com.jdte.common.network.handler.GelGeneratorPacket;
@@ -22,5 +25,7 @@ public class JDTEPacketHandler {
         registrar.playToServer(LifeExtractorPayload.TYPE, LifeExtractorPayload.STREAM_CODEC, LifeExtractorPacket.get()::handle);
         registrar.playToServer(BioCrusherPayload.TYPE, BioCrusherPayload.STREAM_CODEC, BioCrusherPacket.get()::handle);
         registrar.playToServer(FilterPagePayload.TYPE, FilterPagePayload.STREAM_CODEC, FilterPagePacket.get()::handle);
+        registrar.playToServer(AutoIoConfigPayload.TYPE, AutoIoConfigPayload.STREAM_CODEC, AutoIoConfigPacket.get()::handleServer);
+        registrar.playToClient(AutoIoConfigSyncPayload.TYPE, AutoIoConfigSyncPayload.STREAM_CODEC, AutoIoConfigPacket.get()::handleClient);
     }
 }
