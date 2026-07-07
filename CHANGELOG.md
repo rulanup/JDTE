@@ -35,6 +35,7 @@
 - **New**: Added the first auto input/output side configuration panel for machines with item or fluid I/O. The toggleable panel uses JDT direction/phase/decoy/hammer icons, 12px buttons with dimmed inactive states, and the standard machine panel background. Side toggles now default to all disabled and are saved on the server via a serializable attachment.
 - **Tweak**: Auto input/output side configuration now uses a fixed panel with its bottom-right corner docked to the upper machine configuration panel's bottom-left corner. Direction button spacing is tightened to 12px, the front-side button is centered, disabled side buttons use a dark grayscale tint matching JDT grayscale buttons, JEI gets the panel/button extra areas to avoid bookmark overlap, and the button only appears for machines with actual item or fluid I/O.
 - **Fixed**: Auto input/output config networking no longer registers the same `jdte:auto_io_config` payload for both directions. Server sync now uses `jdte:auto_io_config_sync`, fixing the startup crash during `RegisterPayloadHandlersEvent`.
+- **Development runtime**: Added Logistics Networks (`curse.maven:logistics-network-1448257:8381956`) to the local runtime dependency set for performance comparison and future auto I/O design reference.
 
 #### v0.5.2
 - **Fixed**: Extended Dropper GUI crash — `MACHINE_SLOTS` set to 9 in constructor, `getMachineHandler()` auto-expands old 1-slot handler to 9-slot.
@@ -124,6 +125,7 @@
 - **新增**：为含有物品或流体输入/输出的机器添加首版自动输入输出方向配置面板，可切换显示/隐藏。面板使用 JDT 的方向、穿墙、诱饵、重锤图标，按钮为 12px，关闭状态会变暗，并使用机器界面背景。方向默认全部关闭，并通过可序列化 attachment 在服务端保存。
 - **调整**：自动输入输出方向配置改为固定面板，面板右下角挂靠在上方机器配置面板左下角；方向按钮间距收紧为 12px，前面按钮放到正中间，关闭的方向按钮改用与 JDT 灰度按钮一致的深色灰度显示；通过 JEI extra area 自动规避书签重叠；按钮只在真正有物品或流体 I/O 的机器上显示。
 - **修复**：自动输入输出配置网络不再把同一个 `jdte:auto_io_config` payload 同时注册到双向通道。服务端同步改用 `jdte:auto_io_config_sync`，修复 `RegisterPayloadHandlersEvent` 阶段的启动崩溃。
+- **开发运行时**：将 Logistics Networks（`curse.maven:logistics-network-1448257:8381956`）加入本地运行时依赖，用于性能对比和后续自动输入输出设计参考。
 
 #### v0.5.2
 - **修复**：扩展投掷器 GUI 崩溃 — 构造函数设置 `MACHINE_SLOTS=9`，`getMachineHandler()` 自动扩展旧存档的 1 槽 handler 到 9 槽。
