@@ -72,6 +72,7 @@ dependencies {
     localRuntime "curse.maven:sophisticated-storage-619320:${sophisticated_storage_file}"
     localRuntime "curse.maven:sophisticated-core-618298:${sophisticated_core_file}"
     localRuntime "curse.maven:cloth-config-348521:${cloth_config_file}"
+    localRuntime "curse.maven:logistics-network-1448257:${logistics_network_file}"
 
     // AE2 ecosystem (from WCWT)
     localRuntime "org.appliedenergistics:appliedenergistics2:${ae2_version}"
