@@ -2,7 +2,6 @@ package com.jdte.common.autoioconfig;
 
 import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.BlockPlacerT1BE;
-import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT1BE;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.DropperT1BE;
 import com.direwolf20.justdirethings.common.blockentities.FluidCollectorT1BE;
@@ -42,7 +41,6 @@ public final class AutoIoConfigHelper {
         return machine instanceof ClickerT1BE
                 || machine instanceof BlockBreakerT1BE
                 || machine instanceof BlockPlacerT1BE
-                || machine instanceof BlockSwapperT1BE
                 || machine instanceof DropperT1BE
                 || machine instanceof FluidCollectorT1BE
                 || machine instanceof FluidPlacerT1BE;

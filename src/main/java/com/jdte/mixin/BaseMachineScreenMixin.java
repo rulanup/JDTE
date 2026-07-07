@@ -70,12 +70,12 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique private static final ResourceLocation JDTE_FILTER_PREV = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/filter_prev.png");
     @Unique private static final ResourceLocation JDTE_FILTER_NEXT = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/filter_next.png");
     @Unique private static final ResourceLocation JDTE_IO_CONFIG = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/hammer3.png");
-    @Unique private static final ResourceLocation JDTE_IO_UP = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-north.png");
-    @Unique private static final ResourceLocation JDTE_IO_DOWN = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-south.png");
-    @Unique private static final ResourceLocation JDTE_IO_LEFT = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-west.png");
-    @Unique private static final ResourceLocation JDTE_IO_RIGHT = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-east.png");
-    @Unique private static final ResourceLocation JDTE_IO_FRONT = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/phase.png");
-    @Unique private static final ResourceLocation JDTE_IO_BACK = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/decoy.png");
+    @Unique private static final ResourceLocation JDTE_IO_NORTH = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-north.png");
+    @Unique private static final ResourceLocation JDTE_IO_SOUTH = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-south.png");
+    @Unique private static final ResourceLocation JDTE_IO_WEST = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-west.png");
+    @Unique private static final ResourceLocation JDTE_IO_EAST = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-east.png");
+    @Unique private static final ResourceLocation JDTE_IO_UP = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-up.png");
+    @Unique private static final ResourceLocation JDTE_IO_DOWN = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-down.png");
     @Unique private int jdte$filterPressed = 0;
     @Unique private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
     @Unique private static final Map<Slot, int[]> JDTE_ORIGINAL_SLOT_POSITIONS = new WeakHashMap<>();
@@ -85,12 +85,12 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique private static final int JDTE_IO_BUTTON_SPACING = 12;
     @Unique private static final int JDTE_IO_PANEL_PADDING = 6;
     @Unique private static final int JDTE_IO_PANEL_SIZE = JDTE_IO_PANEL_PADDING * 2 + JDTE_IO_BUTTON_SPACING * 3;
-    @Unique private static final int JDTE_IO_SIDE_UP = 0;
-    @Unique private static final int JDTE_IO_SIDE_DOWN = 1;
-    @Unique private static final int JDTE_IO_SIDE_LEFT = 2;
-    @Unique private static final int JDTE_IO_SIDE_RIGHT = 3;
-    @Unique private static final int JDTE_IO_SIDE_FRONT = 4;
-    @Unique private static final int JDTE_IO_SIDE_BACK = 5;
+    @Unique private static final int JDTE_IO_SIDE_NORTH = 0;
+    @Unique private static final int JDTE_IO_SIDE_SOUTH = 1;
+    @Unique private static final int JDTE_IO_SIDE_WEST = 2;
+    @Unique private static final int JDTE_IO_SIDE_EAST = 3;
+    @Unique private static final int JDTE_IO_SIDE_UP = 4;
+    @Unique private static final int JDTE_IO_SIDE_DOWN = 5;
     @Unique private int jdte$baseImageHeight = -1;
     @Unique private int jdte$filterPrevX;
     @Unique private int jdte$filterNextX;
@@ -489,11 +489,11 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         int panelY = jdte$getIoConfigPanelY();
         guiGraphics.blitSprite(SOCIALBACKGROUND, panelX, panelY, JDTE_IO_PANEL_SIZE, JDTE_IO_PANEL_SIZE);
 
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_NORTH);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_WEST);
         jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_UP);
-        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_BACK);
-        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_LEFT);
-        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_FRONT);
-        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_RIGHT);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_EAST);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_SOUTH);
         jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_DOWN);
     }
 
@@ -515,8 +515,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique
     private int jdte$getIoSideX(int side) {
         int col = switch (side) {
-            case JDTE_IO_SIDE_LEFT -> 0;
-            case JDTE_IO_SIDE_UP, JDTE_IO_SIDE_DOWN, JDTE_IO_SIDE_FRONT -> 1;
+            case JDTE_IO_SIDE_WEST -> 0;
+            case JDTE_IO_SIDE_NORTH, JDTE_IO_SIDE_SOUTH, JDTE_IO_SIDE_UP -> 1;
             default -> 2;
         };
         return jdte$getIoGridX(col);
@@ -525,8 +525,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique
     private int jdte$getIoSideY(int side) {
         int row = switch (side) {
-            case JDTE_IO_SIDE_UP, JDTE_IO_SIDE_BACK -> 0;
-            case JDTE_IO_SIDE_LEFT, JDTE_IO_SIDE_RIGHT, JDTE_IO_SIDE_FRONT -> 1;
+            case JDTE_IO_SIDE_NORTH -> 0;
+            case JDTE_IO_SIDE_WEST, JDTE_IO_SIDE_EAST, JDTE_IO_SIDE_UP -> 1;
             default -> 2;
         };
         return jdte$getIoGridY(row);
@@ -545,12 +545,12 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique
     private ResourceLocation jdte$getIoSideIcon(int side) {
         return switch (side) {
+            case JDTE_IO_SIDE_NORTH -> JDTE_IO_NORTH;
+            case JDTE_IO_SIDE_SOUTH -> JDTE_IO_SOUTH;
+            case JDTE_IO_SIDE_WEST -> JDTE_IO_WEST;
+            case JDTE_IO_SIDE_EAST -> JDTE_IO_EAST;
             case JDTE_IO_SIDE_UP -> JDTE_IO_UP;
-            case JDTE_IO_SIDE_DOWN -> JDTE_IO_DOWN;
-            case JDTE_IO_SIDE_LEFT -> JDTE_IO_LEFT;
-            case JDTE_IO_SIDE_RIGHT -> JDTE_IO_RIGHT;
-            case JDTE_IO_SIDE_FRONT -> JDTE_IO_FRONT;
-            default -> JDTE_IO_BACK;
+            default -> JDTE_IO_DOWN;
         };
     }
 
@@ -807,12 +807,12 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique
     private String jdte$getIoSideTranslationKey(int side) {
         return switch (side) {
+            case JDTE_IO_SIDE_NORTH -> "jdte.screen.io_config.north";
+            case JDTE_IO_SIDE_SOUTH -> "jdte.screen.io_config.south";
+            case JDTE_IO_SIDE_WEST -> "jdte.screen.io_config.west";
+            case JDTE_IO_SIDE_EAST -> "jdte.screen.io_config.east";
             case JDTE_IO_SIDE_UP -> "jdte.screen.io_config.up";
-            case JDTE_IO_SIDE_DOWN -> "jdte.screen.io_config.down";
-            case JDTE_IO_SIDE_LEFT -> "jdte.screen.io_config.left";
-            case JDTE_IO_SIDE_RIGHT -> "jdte.screen.io_config.right";
-            case JDTE_IO_SIDE_FRONT -> "jdte.screen.io_config.front";
-            default -> "jdte.screen.io_config.back";
+            default -> "jdte.screen.io_config.down";
         };
     }
 }
