@@ -1,6 +1,7 @@
 package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.jdte.common.autoioconfig.AutoIoTransferHelper;
 import com.jdte.common.upgrades.UpgradeHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,7 +17,9 @@ public abstract class BaseMachineBEMixin {
 
     @Inject(method = "tickServer", at = @At("HEAD"))
     private void jdte$syncUpgradeCapacities(CallbackInfo ci) {
-        UpgradeHelper.syncCapacities((BaseMachineBE) (Object) this);
+        BaseMachineBE machine = (BaseMachineBE) (Object) this;
+        UpgradeHelper.syncCapacities(machine);
+        AutoIoTransferHelper.tick(machine);
     }
 
     @Inject(method = "handleTicks", at = @At("HEAD"), cancellable = true)
