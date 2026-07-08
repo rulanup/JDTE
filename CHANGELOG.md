@@ -38,6 +38,15 @@
 - **New**: Auto input/output side toggles now perform server-side adjacent item/fluid transfers. JDTE machines use explicit input/output slot and tank semantics; supported JDT extended machines use conservative known input routes plus fluid collector/placer tank directions. Successful transfers can run every tick with up to 256 items and 16000 mB per tick; failed transfers back off up to 40 ticks to avoid repeated empty-neighbor scans.
 - **Changed**: Auto input/output side buttons now map to absolute world directions (North/South/West/East/Up/Down) instead of machine-relative front/back/left/right directions.
 - **Development runtime**: Added Logistics Networks (`curse.maven:logistics-network-1448257:8381956`) to the local runtime dependency set for performance comparison and future auto I/O design reference.
+- **New**: Added the Eclipse Alloy Wrench for JDTE and JDT machines. It extends JDT's Ferricore Wrench interaction path so machine GUIs do not intercept the click, and right-clicking a supported machine picks it up as a block item with saved machine data, preserving internal materials, energy, fluids, upgrades, and configuration for transport. The temporary item model reuses JDT's Ferricore Wrench model.
+- **Balance**: Time Accelerator Time Fluid consumption now matches JDT Time Wand cost by default, spread over the same 30-second duration instead of charging the full multiplier cost every tick. Added `timeAcceleratorFluidCostMultiplier` server config and `/jdte timeaccelerator fluidCostMultiplier <value>` command to tune the cost multiplier live.
+- **Changed**: Eclipse Alloy Wrench now matches JDT Ferricore Wrench behavior for normal right-click machine rotation. Sneak right-click keeps the JDTE machine pickup behavior. Added optional FTB Ultimine right-click integration so the wrench can rotate or pick up multiple supported machines in one operation.
+- **New**: Eclipse Alloy Wrench can now adjust area-machine X/Y/Z radius together with the mouse wheel while targeting a machine. When FTB Ultimine has an active block selection, the scroll action applies to all matching selected machines.
+- **Changed**: Wrench scroll area adjustment now requires holding the **Wrench Area Modifier** key (default Left Alt, configurable in key bindings). Removed item tooltip — full documentation is in the GuideME guide (press G to open).
+- **New**: Wrench scroll area adjustment now shows a green overlay message with the current/max range and plays a rotation sound when scrolling on a machine.
+- **Fixed**: Reworked the Eclipse Alloy Wrench GuideME page to use plain Markdown only, avoiding unsupported keybind/image/recipe components. FTB Ultimine range scrolling now only uses the Ultimine selection while the Ultimine key is actively held; cached selections no longer affect normal range scrolling.
+- **Fixed**: Wrench scroll area adjustment once again requires holding the Eclipse Alloy Wrench on both client and server; holding the area modifier key alone is no longer enough.
+- **Development runtime**: Added FTB Ultimine (`dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}`) and AppleSkin (`curse.maven:appleskin-248787:7854442`) to the local runtime dependency set.
 
 #### v0.5.2
 - **Fixed**: Extended Dropper GUI crash — `MACHINE_SLOTS` set to 9 in constructor, `getMachineHandler()` auto-expands old 1-slot handler to 9-slot.
@@ -130,6 +139,15 @@
 - **新增**：自动输入输出方向开关现在会在服务端执行邻接物品/流体传输。JDTE 机器按明确的输入/输出槽位和储罐语义处理；支持的 JDT 扩展机器使用保守的已知输入路径，并区分流体收集器/放置器储罐方向。成功传输可每 tick 执行，单 tick 最高 256 个物品和 16000 mB；失败时最多退避到 40 tick，避免持续扫描空邻居。
 - **变更**：自动输入输出方向按钮现在映射到绝对世界方向（北/南/西/东/上/下），不再使用依赖机器朝向的前/后/左/右方向。
 - **开发运行时**：将 Logistics Networks（`curse.maven:logistics-network-1448257:8381956`）加入本地运行时依赖，用于性能对比和后续自动输入输出设计参考。
+- **新增**：加入蚀空合金扳手，供 JDTE 和 JDT 机器搬运使用。该扳手继承 JDT 核源铁扳手的交互路径，避免右键时被机器 GUI 拦截；右键支持的机器会直接拆下为带保存数据的方块物品，保留内部材料、电量、流体、升级和配置；临时模型复用 JDT 的核源铁扳手模型。
+- **平衡性**：时间加速器的时间流体消耗默认改为与 JDT 时间手杖一致，按同样的 30 秒持续时间折算，不再每 tick 收取完整倍率消耗。新增 `timeAcceleratorFluidCostMultiplier` 服务端配置和 `/jdte timeaccelerator fluidCostMultiplier <value>` 命令，可在线调整消耗倍率。
+- **变更**：蚀空合金扳手普通右键现在与 JDT 核源铁扳手一致，用于调节机器方向；蹲下右键保留 JDTE 的机器拆卸搬运功能。新增可选 FTB Ultimine 右键集成，可批量调节方向或批量拆卸支持的机器。
+- **新增**：手持蚀空合金扳手对准范围机器滚动鼠标滚轮时，可同时调节 X/Y/Z 作用范围。FTB Ultimine 存在有效方块选区时，会对选区内匹配的机器批量应用滚轮调节。
+- **变更**：滚轮范围调节改为需要按住**扳手范围修饰**键（默认左 Alt，可在快捷键设置中更改）才会触发。移除了蚀空合金扳手的物品 tooltip，使用说明已移至 GuideME 游戏内指南（按 G 键打开）。
+- **新增**：滚轮调节范围时在快捷栏上方绿色文字显示当前范围/最大范围，并播放旋转音效。
+- **修复**：重写蚀空合金扳手 GuideME 页面为纯 Markdown，避免不支持的 keybind/image/recipe 组件导致指南格式错误。FTB Ultimine 范围滚轮现在只在主动按住连锁键时使用连锁选区，缓存选区不再影响普通范围调节。
+- **修复**：扳手滚轮范围调节在客户端和服务端重新要求手持蚀空合金扳手，仅按住范围修饰键不再能触发调节。
+- **开发运行时**：加入 FTB Ultimine（`dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}`）和 AppleSkin（`curse.maven:appleskin-248787:7854442`）本地运行时依赖。
 
 #### v0.5.2
 - **修复**：扩展投掷器 GUI 崩溃 — 构造函数设置 `MACHINE_SLOTS=9`，`getMachineHandler()` 自动扩展旧存档的 1 槽 handler 到 9 槽。

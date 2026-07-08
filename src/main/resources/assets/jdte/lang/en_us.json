@@ -10,6 +10,7 @@
   "item.jdte.filter_upgrade": "Filter Upgrade",
   "item.jdte.creative_upgrade": "Creative Upgrade",
   "item.jdte.extended_upgrade": "Extended Upgrade",
+  "item.jdte.eclipsealloy_wrench": "Eclipse Alloy Wrench",
   "item.jdte.time_fluid_catalyst": "Time Fluid Catalyst",
   "block.jdte.basic_time_accelerator": "Basic Time Accelerator",
   "block.jdte.advanced_time_accelerator": "Advanced Time Accelerator",
@@ -131,6 +132,8 @@
   "config.jdte.jdte.timeAccelerator": "Time Accelerator Settings",
   "config.jdte.jdte.timeAccelerator.timeAcceleratorBaseFluidCapacity": "Base Fluid Capacity",
   "config.jdte.jdte.timeAccelerator.timeAcceleratorBaseFluidCapacity.desc": "Base fluid capacity for time accelerators (mB)",
+  "config.jdte.jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier": "Fluid Cost Multiplier",
+  "config.jdte.jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier.desc": "Time accelerator fluid cost multiplier. 1.0 matches the JDT Time Wand cost spread over 30 seconds.",
   "config.jdte.jdte.timeAccelerator.basicTimeAcceleratorDefaultMultiplier": "Basic Default Multiplier",
   "config.jdte.jdte.timeAccelerator.basicTimeAcceleratorDefaultMultiplier.desc": "Basic time accelerator default multiplier",
   "config.jdte.jdte.timeAccelerator.basicTimeAcceleratorOverclockMultiplier": "Basic Overclock Multiplier",
@@ -227,5 +230,8 @@
   "jdte.screen.life_extractor.mode.all": "Target: All",
   "jdte.screen.bio_crusher.mode.hostile": "Target: Hostile",
   "jdte.screen.bio_crusher.mode.friendly": "Target: Friendly",
-  "jdte.screen.bio_crusher.mode.all": "Target: All"
+  "jdte.screen.bio_crusher.mode.all": "Target: All",
+  "key.categories.jdte": "JDT Extras",
+  "key.jdte.wrench_area_modifier": "Wrench Area Modifier",
+  "message.jdte.wrench_area": "Range: %s / %s"
 }

@@ -10,6 +10,8 @@ import com.jdte.setup.JDTEFluids;
 import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEMenus;
 import com.jdte.setup.JDTERecipes;
+import com.jdte.common.commands.JDTECommands;
+import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
@@ -19,6 +21,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
@@ -43,6 +47,10 @@ public class JDTE {
         JDTERecipes.RECIPE_SERIALIZERS.register(modEventBus);
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
+        NeoForge.EVENT_BUS.addListener(JDTECommands::register);
+        if (ModList.get().isLoaded("ftbultimine")) {
+            JDTEUltimineIntegration.register();
+        }
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {

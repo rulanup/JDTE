@@ -31,6 +31,7 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue advancedTimeAcceleratorOverclockMultiplier;
         public final ModConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
         public final ModConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
+        public final ModConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
 
         // Bio Crusher
         public final ModConfigSpec.IntValue bioCrusherFluidCapacity;
@@ -120,6 +121,10 @@ public class JDTEConfig {
                     .comment("Base fluid capacity for time accelerators (mB)")
                     .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorBaseFluidCapacity")
                     .defineInRange("timeAcceleratorBaseFluidCapacity", 1000, 100, 100000);
+            timeAcceleratorFluidCostMultiplier = builder
+                    .comment("Time accelerator fluid cost multiplier. 1.0 matches the JDT Time Wand cost spread over 30 seconds.")
+                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier")
+                    .defineInRange("timeAcceleratorFluidCostMultiplier", 1.0D, 0.0D, 1000.0D);
             basicTimeAcceleratorDefaultMultiplier = builder
                     .comment("Basic time accelerator default multiplier")
                     .translation("config.jdte.jdte.timeAccelerator.basicTimeAcceleratorDefaultMultiplier")

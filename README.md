@@ -38,6 +38,8 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 
 时间加速器支持范围配置、红石控制和过滤槽，会加速范围内可被 JDT 时间魔杖加速的方块或方块实体。
 
+默认时间流体消耗按 JDT 时间手杖单次 30 秒效果等效折算。服务器可通过配置项 `jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier` 调整消耗倍率，也可以使用命令 `/jdte timeaccelerator fluidCostMultiplier <value>` 在线修改并保存。
+
 ### 扩展高级机器
 
 使用 **扩展升级** 右键指定 JDT T2 机器，可以转换为 JDTE 扩展版本并获得 8 个升级槽。
