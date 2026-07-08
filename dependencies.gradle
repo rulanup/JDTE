@@ -31,6 +31,8 @@ dependencies {
 
     // Miscellaneous
     compileOnly "curse.maven:polymorph-388800:${polymorph_file}"
+    compileOnly "dev.architectury:architectury-neoforge:${architectury_version}"
+    compileOnly "dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}"
 
     // ========================================
     // Local runtime development mods
@@ -45,6 +47,7 @@ dependencies {
     localRuntime "dev.architectury:architectury-neoforge:${architectury_version}"
     localRuntime "dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}"
     localRuntime "dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}"
+    localRuntime "curse.maven:appleskin-248787:7854442"
     localRuntime "thedarkcolour:kotlinforforge-neoforge:${kotlinforforge_version}"
 
     // Recipe viewers

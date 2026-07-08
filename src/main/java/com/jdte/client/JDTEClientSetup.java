@@ -12,6 +12,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 
 @EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class JDTEClientSetup {
@@ -77,6 +78,11 @@ public class JDTEClientSetup {
         // Bio Crusher
         event.register(JDTEMenus.ADVANCED_BIO_CRUSHER.get(), AdvancedBioCrusherScreen::new);
         event.register(JDTEMenus.EXTENDED_BIO_CRUSHER.get(), ExtendedBioCrusherScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(JDTEKeyMappings.WRENCH_AREA_MODIFIER);
     }
 
     @SubscribeEvent

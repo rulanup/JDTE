@@ -38,6 +38,8 @@ The **Time Fluid Catalyst** can directly trigger a source-water to JDT Time Flui
 
 Time accelerators support area configuration, redstone control, and filters. They accelerate blocks and block entities that JDT's Time Wand can accelerate.
 
+By default, Time Fluid consumption is equivalent to JDT's Time Wand cost spread over its 30-second effect. Servers can adjust the multiplier with `jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier` or change it in-game with `/jdte timeaccelerator fluidCostMultiplier <value>`.
+
 ### Extended Advanced Machines
 
 Use the **Extended Upgrade** on supported JDT T2 machines to convert them into JDTE extended versions with 8 upgrade slots.

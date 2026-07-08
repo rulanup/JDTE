@@ -41,6 +41,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     public AreaAffectingData areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
     public FilterData filterData = new FilterData();
+    private double pendingFluidCost;
 
     protected TimeAcceleratorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -64,7 +65,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         }
 
         int multiplier = getEffectiveMultiplier();
-        int fluidCost = getFluidCost(multiplier);
+        int fluidCost = getFluidDrainAmount(multiplier);
         int energyCost = getEnergyCost(multiplier);
         if (!hasResources(fluidCost, energyCost)) {
             return;
@@ -155,6 +156,9 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return true;
         }
+        if (fluidCost <= 0 && getFluidCostPerTick(getEffectiveMultiplier()) > 0.0D) {
+            return !fluidTank.getFluid().isEmpty();
+        }
         return fluidTank.drain(fluidCost, IFluidHandler.FluidAction.SIMULATE).getAmount() == fluidCost;
     }
 
@@ -162,13 +166,22 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return;
         }
-        fluidTank.drain(fluidCost, IFluidHandler.FluidAction.EXECUTE);
+        pendingFluidCost += getFluidCostPerTick(getEffectiveMultiplier());
+        int drainAmount = (int) Math.floor(pendingFluidCost);
+        if (drainAmount > 0) {
+            fluidTank.drain(drainAmount, IFluidHandler.FluidAction.EXECUTE);
+            pendingFluidCost -= drainAmount;
+        }
         setChanged();
     }
 
-    protected int getFluidCost(int multiplier) {
-        int cost = Math.max(1, (int) Math.ceil(multiplier * Config.TIMEWAND_FLUID_COST.get()));
-        return UpgradeHelper.hasOverclock(this) ? cost * 2 : cost;
+    protected int getFluidDrainAmount(int multiplier) {
+        return (int) Math.floor(pendingFluidCost + getFluidCostPerTick(multiplier));
+    }
+
+    protected double getFluidCostPerTick(int multiplier) {
+        double costPerTimeWandUse = multiplier * Config.TIMEWAND_FLUID_COST.get() * JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier.get();
+        return Math.max(0.0D, costPerTimeWandUse / 600.0D);
     }
 
     protected int getEnergyCost(int multiplier) {
@@ -226,6 +239,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.put("fluidTank", fluidTank.serializeNBT(provider));
+        tag.putDouble("pendingFluidCost", pendingFluidCost);
     }
 
     @Override
@@ -233,6 +247,9 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         super.loadAdditional(tag, provider);
         if (tag.contains("fluidTank")) {
             fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
+        }
+        if (tag.contains("pendingFluidCost")) {
+            pendingFluidCost = tag.getDouble("pendingFluidCost");
         }
     }
 }

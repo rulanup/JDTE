@@ -10,6 +10,7 @@
   "item.jdte.filter_upgrade": "过滤升级",
   "item.jdte.creative_upgrade": "创造升级",
   "item.jdte.extended_upgrade": "扩展升级",
+  "item.jdte.eclipsealloy_wrench": "蚀空合金扳手",
   "item.jdte.time_fluid_catalyst": "时间流体催化剂",
   "block.jdte.basic_time_accelerator": "初级时间加速器",
   "block.jdte.advanced_time_accelerator": "高级时间加速器",
@@ -131,6 +132,8 @@
   "config.jdte.jdte.timeAccelerator": "时间加速器设置",
   "config.jdte.jdte.timeAccelerator.timeAcceleratorBaseFluidCapacity": "基础流体容量",
   "config.jdte.jdte.timeAccelerator.timeAcceleratorBaseFluidCapacity.desc": "时间加速器的基础流体容量（mB）",
+  "config.jdte.jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier": "流体消耗倍率",
+  "config.jdte.jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier.desc": "时间加速器流体消耗倍率。1.0 表示按 JDT 时间手杖 30 秒消耗折算。",
   "config.jdte.jdte.timeAccelerator.basicTimeAcceleratorDefaultMultiplier": "初级默认倍率",
   "config.jdte.jdte.timeAccelerator.basicTimeAcceleratorDefaultMultiplier.desc": "初级时间加速器默认倍率",
   "config.jdte.jdte.timeAccelerator.basicTimeAcceleratorOverclockMultiplier": "初级超频倍率",
@@ -227,5 +230,8 @@
   "jdte.screen.life_extractor.mode.all": "目标：全部",
   "jdte.screen.bio_crusher.mode.hostile": "目标：敌对",
   "jdte.screen.bio_crusher.mode.friendly": "目标：友好",
-  "jdte.screen.bio_crusher.mode.all": "目标：全部"
+  "jdte.screen.bio_crusher.mode.all": "目标：全部",
+  "key.categories.jdte": "JDT Extras",
+  "key.jdte.wrench_area_modifier": "扳手范围修饰",
+  "message.jdte.wrench_area": "范围：%s / %s"
 }
