@@ -82,6 +82,7 @@ public class JDTECreativeTabs {
                 // Infusion Machine
                 output.accept(JDTEItems.ADVANCED_INFUSION_MACHINE.get());
                 output.accept(JDTEItems.EXTENDED_INFUSION_MACHINE.get());
+                output.accept(JDTEItems.ADVANCED_POTION_BREWER.get());
 
                 // Bio Crusher
                 output.accept(JDTEItems.ADVANCED_BIO_CRUSHER.get());

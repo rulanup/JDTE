@@ -63,6 +63,9 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, AdvancedInfusionMachineBlock> ADVANCED_INFUSION_MACHINE = BLOCKS.register("advanced_infusion_machine", AdvancedInfusionMachineBlock::new);
     public static final DeferredHolder<Block, ExtendedInfusionMachineBlock> EXTENDED_INFUSION_MACHINE = BLOCKS.register("extended_infusion_machine", ExtendedInfusionMachineBlock::new);
 
+    // Potion Brewer
+    public static final DeferredHolder<Block, AdvancedPotionBrewerBlock> ADVANCED_POTION_BREWER = BLOCKS.register("advanced_potion_brewer", AdvancedPotionBrewerBlock::new);
+
     // Bio Crusher
     public static final DeferredHolder<Block, AdvancedBioCrusherBlock> ADVANCED_BIO_CRUSHER = BLOCKS.register("advanced_bio_crusher", AdvancedBioCrusherBlock::new);
     public static final DeferredHolder<Block, ExtendedBioCrusherBlock> EXTENDED_BIO_CRUSHER = BLOCKS.register("extended_bio_crusher", ExtendedBioCrusherBlock::new);
