@@ -87,6 +87,9 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> ADVANCED_INFUSION_MACHINE = ITEMS.register("advanced_infusion_machine", () -> new BlockItem(JDTEBlocks.ADVANCED_INFUSION_MACHINE.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_INFUSION_MACHINE = ITEMS.register("extended_infusion_machine", () -> new BlockItem(JDTEBlocks.EXTENDED_INFUSION_MACHINE.get(), new Item.Properties()));
 
+    // Potion Brewer
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_POTION_BREWER = ITEMS.register("advanced_potion_brewer", () -> new BlockItem(JDTEBlocks.ADVANCED_POTION_BREWER.get(), new Item.Properties()));
+
     // Bio Crusher
     public static final DeferredHolder<Item, BlockItem> ADVANCED_BIO_CRUSHER = ITEMS.register("advanced_bio_crusher", () -> new BlockItem(JDTEBlocks.ADVANCED_BIO_CRUSHER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BIO_CRUSHER = ITEMS.register("extended_bio_crusher", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_CRUSHER.get(), new Item.Properties()));
