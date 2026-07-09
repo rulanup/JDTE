@@ -27,6 +27,11 @@ public class AdvancedPotionBrewerBlock extends BaseMachineBlock {
         );
     }
 
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return FluidContainerTransfer.useItemOn(itemStack, blockState, level, blockPos, player, hand, hit);
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

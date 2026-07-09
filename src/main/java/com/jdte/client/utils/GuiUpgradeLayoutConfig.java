@@ -140,6 +140,52 @@ public class GuiUpgradeLayoutConfig {
     // Bio crusher mode button positions (bio_crusher_buttons)
     private final int bioCrusherModeButtonX;
     private final int bioCrusherModeButtonY;
+    private final int bioCrusherSharpnessSlotX;
+    private final int bioCrusherSharpnessSlotY;
+    private final int bioCrusherLootingSlotX;
+    private final int bioCrusherLootingSlotY;
+
+    // Advanced potion brewer background, slot, and widget positions
+    private final int potionBrewerBgSrcX;
+    private final int potionBrewerBgSrcY;
+    private final int potionBrewerBgX;
+    private final int potionBrewerBgY;
+    private final int potionBrewerBgWidth;
+    private final int potionBrewerBgHeight;
+    private final int potionBrewerFuelSlotX;
+    private final int potionBrewerFuelSlotY;
+    private final int potionBrewerIngredientSlotX;
+    private final int potionBrewerIngredientSlotY;
+    private final int potionBrewerBottleSlot0X;
+    private final int potionBrewerBottleSlot0Y;
+    private final int potionBrewerBottleSlot1X;
+    private final int potionBrewerBottleSlot1Y;
+    private final int potionBrewerBottleSlot2X;
+    private final int potionBrewerBottleSlot2Y;
+    private final int potionBrewerExtraIngredientStartX;
+    private final int potionBrewerExtraIngredientStartY;
+    private final int potionBrewerExtraIngredientSpacing;
+    private final int potionBrewerExtraIngredientCount;
+    private final int potionBrewerOutputStartX;
+    private final int potionBrewerOutputStartY;
+    private final int potionBrewerOutputSpacing;
+    private final int potionBrewerOutputCount;
+    private final int potionBrewerSpeedButtonX;
+    private final int potionBrewerSpeedButtonY;
+    private final int potionBrewerRedstoneButtonX;
+    private final int potionBrewerRedstoneButtonY;
+    private final int potionBrewerRecipeLockButtonX;
+    private final int potionBrewerRecipeLockButtonY;
+    private final int potionBrewerFuelBarX;
+    private final int potionBrewerFuelBarBottomY;
+    private final int potionBrewerBubblesX;
+    private final int potionBrewerBubblesBottomY;
+    private final int potionBrewerArrowX;
+    private final int potionBrewerArrowBottomY;
+    private final int potionBrewerWaterFluidX;
+    private final int potionBrewerWaterFluidY;
+    private final int potionBrewerTimeFluidX;
+    private final int potionBrewerTimeFluidY;
 
     private GuiUpgradeLayoutConfig(JsonObject json) {
         JsonObject panel = json.getAsJsonObject("upgrade_panel_4");
@@ -394,10 +440,123 @@ public class GuiUpgradeLayoutConfig {
         JsonObject bioCrusherButtons = json.getAsJsonObject("bio_crusher_buttons");
         if (bioCrusherButtons != null) {
             this.bioCrusherModeButtonX = getInt(bioCrusherButtons, "mode_button_x", 80);
-            this.bioCrusherModeButtonY = getInt(bioCrusherButtons, "mode_button_y", 62);
+            this.bioCrusherModeButtonY = getInt(bioCrusherButtons, "mode_button_y", 36);
+            this.bioCrusherSharpnessSlotX = getInt(bioCrusherButtons, "sharpness_slot_x", this.bioCrusherModeButtonX - 20);
+            this.bioCrusherSharpnessSlotY = getInt(bioCrusherButtons, "sharpness_slot_y", this.bioCrusherModeButtonY);
+            this.bioCrusherLootingSlotX = getInt(bioCrusherButtons, "looting_slot_x", this.bioCrusherModeButtonX + 18);
+            this.bioCrusherLootingSlotY = getInt(bioCrusherButtons, "looting_slot_y", this.bioCrusherModeButtonY);
         } else {
             this.bioCrusherModeButtonX = 80;
-            this.bioCrusherModeButtonY = 62;
+            this.bioCrusherModeButtonY = 36;
+            this.bioCrusherSharpnessSlotX = 60;
+            this.bioCrusherSharpnessSlotY = 36;
+            this.bioCrusherLootingSlotX = 98;
+            this.bioCrusherLootingSlotY = 36;
+        }
+
+        JsonObject potionBrewerBackground = json.getAsJsonObject("advanced_potion_brewer_background");
+        if (potionBrewerBackground != null) {
+            this.potionBrewerBgSrcX = getInt(potionBrewerBackground, "src_x", 15);
+            this.potionBrewerBgSrcY = getInt(potionBrewerBackground, "src_y", 15);
+            this.potionBrewerBgX = getInt(potionBrewerBackground, "x", 15);
+            this.potionBrewerBgY = getInt(potionBrewerBackground, "y", 5);
+            this.potionBrewerBgWidth = getInt(potionBrewerBackground, "width", 107);
+            this.potionBrewerBgHeight = getInt(potionBrewerBackground, "height", 63);
+        } else {
+            this.potionBrewerBgSrcX = 15;
+            this.potionBrewerBgSrcY = 15;
+            this.potionBrewerBgX = 15;
+            this.potionBrewerBgY = 5;
+            this.potionBrewerBgWidth = 107;
+            this.potionBrewerBgHeight = 63;
+        }
+
+        JsonObject potionBrewerSlots = json.getAsJsonObject("advanced_potion_brewer_slots");
+        if (potionBrewerSlots != null) {
+            this.potionBrewerFuelSlotX = getInt(potionBrewerSlots, "fuel_slot_x", 17);
+            this.potionBrewerFuelSlotY = getInt(potionBrewerSlots, "fuel_slot_y", 7);
+            this.potionBrewerIngredientSlotX = getInt(potionBrewerSlots, "ingredient_slot_x", 79);
+            this.potionBrewerIngredientSlotY = getInt(potionBrewerSlots, "ingredient_slot_y", 7);
+            this.potionBrewerBottleSlot0X = getInt(potionBrewerSlots, "bottle_slot_0_x", 56);
+            this.potionBrewerBottleSlot0Y = getInt(potionBrewerSlots, "bottle_slot_0_y", 41);
+            this.potionBrewerBottleSlot1X = getInt(potionBrewerSlots, "bottle_slot_1_x", 79);
+            this.potionBrewerBottleSlot1Y = getInt(potionBrewerSlots, "bottle_slot_1_y", 48);
+            this.potionBrewerBottleSlot2X = getInt(potionBrewerSlots, "bottle_slot_2_x", 102);
+            this.potionBrewerBottleSlot2Y = getInt(potionBrewerSlots, "bottle_slot_2_y", 41);
+            this.potionBrewerExtraIngredientStartX = getInt(potionBrewerSlots, "extra_ingredient_start_x", 43);
+            this.potionBrewerExtraIngredientStartY = getInt(potionBrewerSlots, "extra_ingredient_start_y", -21);
+            this.potionBrewerExtraIngredientSpacing = getInt(potionBrewerSlots, "extra_ingredient_spacing", 18);
+            this.potionBrewerExtraIngredientCount = getInt(potionBrewerSlots, "extra_ingredient_count", 5);
+            this.potionBrewerOutputStartX = getInt(potionBrewerSlots, "output_start_x", 128);
+            this.potionBrewerOutputStartY = getInt(potionBrewerSlots, "output_start_y", 13);
+            this.potionBrewerOutputSpacing = getInt(potionBrewerSlots, "output_spacing", 18);
+            this.potionBrewerOutputCount = getInt(potionBrewerSlots, "output_count", 3);
+        } else {
+            this.potionBrewerFuelSlotX = 17;
+            this.potionBrewerFuelSlotY = 7;
+            this.potionBrewerIngredientSlotX = 79;
+            this.potionBrewerIngredientSlotY = 7;
+            this.potionBrewerBottleSlot0X = 56;
+            this.potionBrewerBottleSlot0Y = 41;
+            this.potionBrewerBottleSlot1X = 79;
+            this.potionBrewerBottleSlot1Y = 48;
+            this.potionBrewerBottleSlot2X = 102;
+            this.potionBrewerBottleSlot2Y = 41;
+            this.potionBrewerExtraIngredientStartX = 43;
+            this.potionBrewerExtraIngredientStartY = -21;
+            this.potionBrewerExtraIngredientSpacing = 18;
+            this.potionBrewerExtraIngredientCount = 5;
+            this.potionBrewerOutputStartX = 128;
+            this.potionBrewerOutputStartY = 13;
+            this.potionBrewerOutputSpacing = 18;
+            this.potionBrewerOutputCount = 3;
+        }
+
+        JsonObject potionBrewerWidgets = json.getAsJsonObject("advanced_potion_brewer_widgets");
+        if (potionBrewerWidgets != null) {
+            this.potionBrewerFuelBarX = getInt(potionBrewerWidgets, "fuel_bar_x", 60);
+            this.potionBrewerFuelBarBottomY = getInt(potionBrewerWidgets, "fuel_bar_bottom_y", 38);
+            this.potionBrewerBubblesX = getInt(potionBrewerWidgets, "bubbles_x", 63);
+            this.potionBrewerBubblesBottomY = getInt(potionBrewerWidgets, "bubbles_bottom_y", 33);
+            this.potionBrewerArrowX = getInt(potionBrewerWidgets, "arrow_x", 97);
+            this.potionBrewerArrowBottomY = getInt(potionBrewerWidgets, "arrow_bottom_y", 34);
+        } else {
+            this.potionBrewerFuelBarX = 60;
+            this.potionBrewerFuelBarBottomY = 38;
+            this.potionBrewerBubblesX = 63;
+            this.potionBrewerBubblesBottomY = 33;
+            this.potionBrewerArrowX = 97;
+            this.potionBrewerArrowBottomY = 34;
+        }
+
+        JsonObject potionBrewerFluids = json.getAsJsonObject("advanced_potion_brewer_fluids");
+        if (potionBrewerFluids != null) {
+            this.potionBrewerWaterFluidX = getInt(potionBrewerFluids, "water_fluid_x", -6);
+            this.potionBrewerWaterFluidY = getInt(potionBrewerFluids, "water_fluid_y", -21);
+            this.potionBrewerTimeFluidX = getInt(potionBrewerFluids, "time_fluid_x", 174);
+            this.potionBrewerTimeFluidY = getInt(potionBrewerFluids, "time_fluid_y", -21);
+        } else {
+            this.potionBrewerWaterFluidX = -6;
+            this.potionBrewerWaterFluidY = -21;
+            this.potionBrewerTimeFluidX = 174;
+            this.potionBrewerTimeFluidY = -21;
+        }
+
+        JsonObject potionBrewerButtons = json.getAsJsonObject("advanced_potion_brewer_buttons");
+        if (potionBrewerButtons != null) {
+            this.potionBrewerSpeedButtonX = getInt(potionBrewerButtons, "speed_button_x", 148);
+            this.potionBrewerSpeedButtonY = getInt(potionBrewerButtons, "speed_button_y", 49);
+            this.potionBrewerRedstoneButtonX = getInt(potionBrewerButtons, "redstone_button_x", 150);
+            this.potionBrewerRedstoneButtonY = getInt(potionBrewerButtons, "redstone_button_y", 31);
+            this.potionBrewerRecipeLockButtonX = getInt(potionBrewerButtons, "recipe_lock_button_x", this.potionBrewerRedstoneButtonX);
+            this.potionBrewerRecipeLockButtonY = getInt(potionBrewerButtons, "recipe_lock_button_y", this.potionBrewerRedstoneButtonY - 18);
+        } else {
+            this.potionBrewerSpeedButtonX = 148;
+            this.potionBrewerSpeedButtonY = 49;
+            this.potionBrewerRedstoneButtonX = 150;
+            this.potionBrewerRedstoneButtonY = 31;
+            this.potionBrewerRecipeLockButtonX = 150;
+            this.potionBrewerRecipeLockButtonY = 13;
         }
     }
 
@@ -499,7 +658,51 @@ public class GuiUpgradeLayoutConfig {
         this.lifeExtractorModeButtonX = 80;
         this.lifeExtractorModeButtonY = 62;
         this.bioCrusherModeButtonX = 80;
-        this.bioCrusherModeButtonY = 62;
+        this.bioCrusherModeButtonY = 36;
+        this.bioCrusherSharpnessSlotX = 60;
+        this.bioCrusherSharpnessSlotY = 36;
+        this.bioCrusherLootingSlotX = 98;
+        this.bioCrusherLootingSlotY = 36;
+        this.potionBrewerBgSrcX = 15;
+        this.potionBrewerBgSrcY = 15;
+        this.potionBrewerBgX = 15;
+        this.potionBrewerBgY = 5;
+        this.potionBrewerBgWidth = 107;
+        this.potionBrewerBgHeight = 63;
+        this.potionBrewerFuelSlotX = 17;
+        this.potionBrewerFuelSlotY = 7;
+        this.potionBrewerIngredientSlotX = 79;
+        this.potionBrewerIngredientSlotY = 7;
+        this.potionBrewerBottleSlot0X = 56;
+        this.potionBrewerBottleSlot0Y = 41;
+        this.potionBrewerBottleSlot1X = 79;
+        this.potionBrewerBottleSlot1Y = 48;
+        this.potionBrewerBottleSlot2X = 102;
+        this.potionBrewerBottleSlot2Y = 41;
+        this.potionBrewerExtraIngredientStartX = 43;
+        this.potionBrewerExtraIngredientStartY = -21;
+        this.potionBrewerExtraIngredientSpacing = 18;
+        this.potionBrewerExtraIngredientCount = 5;
+        this.potionBrewerOutputStartX = 128;
+        this.potionBrewerOutputStartY = 13;
+        this.potionBrewerOutputSpacing = 18;
+        this.potionBrewerOutputCount = 3;
+        this.potionBrewerSpeedButtonX = 148;
+        this.potionBrewerSpeedButtonY = 49;
+        this.potionBrewerRedstoneButtonX = 150;
+        this.potionBrewerRedstoneButtonY = 31;
+        this.potionBrewerRecipeLockButtonX = 150;
+        this.potionBrewerRecipeLockButtonY = 13;
+        this.potionBrewerFuelBarX = 60;
+        this.potionBrewerFuelBarBottomY = 38;
+        this.potionBrewerBubblesX = 63;
+        this.potionBrewerBubblesBottomY = 33;
+        this.potionBrewerArrowX = 97;
+        this.potionBrewerArrowBottomY = 34;
+        this.potionBrewerWaterFluidX = -6;
+        this.potionBrewerWaterFluidY = -21;
+        this.potionBrewerTimeFluidX = 174;
+        this.potionBrewerTimeFluidY = -21;
     }
 
     /**
@@ -959,5 +1162,183 @@ public class GuiUpgradeLayoutConfig {
 
     public int getBioCrusherModeButtonY() {
         return bioCrusherModeButtonY;
+    }
+
+    public int getBioCrusherSharpnessSlotX() {
+        return bioCrusherSharpnessSlotX;
+    }
+
+    public int getBioCrusherSharpnessSlotY() {
+        return bioCrusherSharpnessSlotY;
+    }
+
+    public int getBioCrusherLootingSlotX() {
+        return bioCrusherLootingSlotX;
+    }
+
+    public int getBioCrusherLootingSlotY() {
+        return bioCrusherLootingSlotY;
+    }
+
+    // --- Advanced potion brewer layout getters ---
+
+    public int getPotionBrewerBgSrcX() {
+        return potionBrewerBgSrcX;
+    }
+
+    public int getPotionBrewerBgSrcY() {
+        return potionBrewerBgSrcY;
+    }
+
+    public int getPotionBrewerBgX() {
+        return potionBrewerBgX;
+    }
+
+    public int getPotionBrewerBgY() {
+        return potionBrewerBgY;
+    }
+
+    public int getPotionBrewerBgWidth() {
+        return potionBrewerBgWidth;
+    }
+
+    public int getPotionBrewerBgHeight() {
+        return potionBrewerBgHeight;
+    }
+
+    public int getPotionBrewerFuelSlotX() {
+        return potionBrewerFuelSlotX;
+    }
+
+    public int getPotionBrewerFuelSlotY() {
+        return potionBrewerFuelSlotY;
+    }
+
+    public int getPotionBrewerIngredientSlotX() {
+        return potionBrewerIngredientSlotX;
+    }
+
+    public int getPotionBrewerIngredientSlotY() {
+        return potionBrewerIngredientSlotY;
+    }
+
+    public int getPotionBrewerBottleSlot0X() {
+        return potionBrewerBottleSlot0X;
+    }
+
+    public int getPotionBrewerBottleSlot0Y() {
+        return potionBrewerBottleSlot0Y;
+    }
+
+    public int getPotionBrewerBottleSlot1X() {
+        return potionBrewerBottleSlot1X;
+    }
+
+    public int getPotionBrewerBottleSlot1Y() {
+        return potionBrewerBottleSlot1Y;
+    }
+
+    public int getPotionBrewerBottleSlot2X() {
+        return potionBrewerBottleSlot2X;
+    }
+
+    public int getPotionBrewerBottleSlot2Y() {
+        return potionBrewerBottleSlot2Y;
+    }
+
+    public int getPotionBrewerExtraIngredientStartX() {
+        return potionBrewerExtraIngredientStartX;
+    }
+
+    public int getPotionBrewerExtraIngredientStartY() {
+        return potionBrewerExtraIngredientStartY;
+    }
+
+    public int getPotionBrewerExtraIngredientSpacing() {
+        return potionBrewerExtraIngredientSpacing;
+    }
+
+    public int getPotionBrewerExtraIngredientCount() {
+        return potionBrewerExtraIngredientCount;
+    }
+
+    public int getPotionBrewerOutputStartX() {
+        return potionBrewerOutputStartX;
+    }
+
+    public int getPotionBrewerOutputStartY() {
+        return potionBrewerOutputStartY;
+    }
+
+    public int getPotionBrewerOutputSpacing() {
+        return potionBrewerOutputSpacing;
+    }
+
+    public int getPotionBrewerOutputCount() {
+        return potionBrewerOutputCount;
+    }
+
+    public int getPotionBrewerSpeedButtonX() {
+        return potionBrewerSpeedButtonX;
+    }
+
+    public int getPotionBrewerSpeedButtonY() {
+        return potionBrewerSpeedButtonY;
+    }
+
+    public int getPotionBrewerRedstoneButtonX() {
+        return potionBrewerRedstoneButtonX;
+    }
+
+    public int getPotionBrewerRedstoneButtonY() {
+        return potionBrewerRedstoneButtonY;
+    }
+
+    public int getPotionBrewerRecipeLockButtonX() {
+        return potionBrewerRecipeLockButtonX;
+    }
+
+    public int getPotionBrewerRecipeLockButtonY() {
+        return potionBrewerRecipeLockButtonY;
+    }
+
+    public int getPotionBrewerFuelBarX() {
+        return potionBrewerFuelBarX;
+    }
+
+    public int getPotionBrewerFuelBarBottomY() {
+        return potionBrewerFuelBarBottomY;
+    }
+
+    public int getPotionBrewerBubblesX() {
+        return potionBrewerBubblesX;
+    }
+
+    public int getPotionBrewerBubblesBottomY() {
+        return potionBrewerBubblesBottomY;
+    }
+
+    public int getPotionBrewerArrowX() {
+        return potionBrewerArrowX;
+    }
+
+    public int getPotionBrewerArrowBottomY() {
+        return potionBrewerArrowBottomY;
+    }
+
+    public int getPotionBrewerWaterFluidX() {
+        return potionBrewerWaterFluidX;
+    }
+
+    public int getPotionBrewerWaterFluidY() {
+        return potionBrewerWaterFluidY;
+    }
+
+    public int getPotionBrewerTimeFluidX() {
+        return potionBrewerTimeFluidX;
+    }
+
+    public int getPotionBrewerTimeFluidY() {
+        return potionBrewerTimeFluidY;
     }
 }

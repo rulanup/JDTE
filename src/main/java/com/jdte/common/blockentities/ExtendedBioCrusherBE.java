@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachineBE {
+public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachineBE, ExtendedUpgradeMachine {
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
 
@@ -21,6 +21,11 @@ public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachine
         tickSpeed = 20;
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
+    }
+
+    @Override
+    protected boolean createsOutputInventory() {
+        return true;
     }
 
     @Override

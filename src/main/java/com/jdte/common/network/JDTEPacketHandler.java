@@ -7,6 +7,8 @@ import com.jdte.common.network.data.BioCrusherPayload;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.network.data.GelGeneratorPayload;
 import com.jdte.common.network.data.LifeExtractorPayload;
+import com.jdte.common.network.data.PotionBrewerRecipeLockPayload;
+import com.jdte.common.network.data.PotionBrewerRecipeLockSyncPayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.common.network.data.WrenchAreaAdjustPayload;
 import com.jdte.common.network.data.WrenchAreaAdjustResultPayload;
@@ -15,6 +17,7 @@ import com.jdte.common.network.handler.BioCrusherPacket;
 import com.jdte.common.network.handler.FilterPagePacket;
 import com.jdte.common.network.handler.GelGeneratorPacket;
 import com.jdte.common.network.handler.LifeExtractorPacket;
+import com.jdte.common.network.handler.PotionBrewerRecipeLockPacket;
 import com.jdte.common.network.handler.TimeAcceleratorPacket;
 import com.jdte.common.network.handler.WrenchAreaAdjustPacket;
 import com.jdte.common.network.handler.WrenchAreaAdjustResultPacket;
@@ -31,6 +34,8 @@ public class JDTEPacketHandler {
         registrar.playToServer(FilterPagePayload.TYPE, FilterPagePayload.STREAM_CODEC, FilterPagePacket.get()::handle);
         registrar.playToServer(AutoIoConfigPayload.TYPE, AutoIoConfigPayload.STREAM_CODEC, AutoIoConfigPacket.get()::handleServer);
         registrar.playToClient(AutoIoConfigSyncPayload.TYPE, AutoIoConfigSyncPayload.STREAM_CODEC, AutoIoConfigPacket.get()::handleClient);
+        registrar.playToServer(PotionBrewerRecipeLockPayload.TYPE, PotionBrewerRecipeLockPayload.STREAM_CODEC, PotionBrewerRecipeLockPacket.get()::handleServer);
+        registrar.playToClient(PotionBrewerRecipeLockSyncPayload.TYPE, PotionBrewerRecipeLockSyncPayload.STREAM_CODEC, PotionBrewerRecipeLockPacket.get()::handleClient);
         registrar.playToServer(WrenchAreaAdjustPayload.TYPE, WrenchAreaAdjustPayload.STREAM_CODEC, WrenchAreaAdjustPacket.get()::handle);
         registrar.playToClient(WrenchAreaAdjustResultPayload.TYPE, WrenchAreaAdjustResultPayload.STREAM_CODEC, WrenchAreaAdjustResultPacket.get()::handle);
     }

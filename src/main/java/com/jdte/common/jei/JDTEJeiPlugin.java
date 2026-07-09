@@ -4,6 +4,10 @@ import com.jdte.JDTE;
 import com.jdte.client.jei.AutoIoConfigJeiGuiHandler;
 import com.jdte.common.jei.gelgenerator.GelGeneratorJeiRecipe;
 import com.jdte.common.jei.gelgenerator.GelGeneratorRecipeCategory;
+import com.jdte.common.jei.infusion.InfusionJeiRecipe;
+import com.jdte.common.jei.infusion.InfusionRecipeCategory;
+import com.jdte.common.jei.potionbrewer.PotionBrewerJeiRecipe;
+import com.jdte.common.jei.potionbrewer.PotionBrewerRecipeCategory;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -27,18 +31,30 @@ public class JDTEJeiPlugin implements IModPlugin {
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
         IGuiHelper guiHelper = registration.getJeiHelpers().getGuiHelper();
-        registration.addRecipeCategories(new GelGeneratorRecipeCategory(guiHelper));
+        registration.addRecipeCategories(
+                new GelGeneratorRecipeCategory(guiHelper),
+                new InfusionRecipeCategory(guiHelper),
+                new PotionBrewerRecipeCategory(guiHelper)
+        );
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(GelGeneratorRecipeCategory.RECIPE_TYPE, GelGeneratorJeiRecipe.getRecipes());
+        registration.addRecipes(InfusionRecipeCategory.RECIPE_TYPE, InfusionJeiRecipe.getRecipes());
+        registration.addRecipes(PotionBrewerRecipeCategory.RECIPE_TYPE, PotionBrewerJeiRecipe.getRecipes());
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         for (ItemStack machine : GelGeneratorJeiRecipe.getMachines()) {
             registration.addRecipeCatalyst(machine, GelGeneratorRecipeCategory.RECIPE_TYPE);
+        }
+        for (ItemStack machine : InfusionJeiRecipe.getMachines()) {
+            registration.addRecipeCatalyst(machine, InfusionRecipeCategory.RECIPE_TYPE);
+        }
+        for (ItemStack machine : PotionBrewerJeiRecipe.getMachines()) {
+            registration.addRecipeCatalyst(machine, PotionBrewerRecipeCategory.RECIPE_TYPE);
         }
     }
 

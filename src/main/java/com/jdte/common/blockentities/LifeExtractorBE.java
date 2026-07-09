@@ -19,7 +19,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -192,11 +195,16 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         }
 
         return switch (mode) {
-            case MODE_HOSTILE -> entity instanceof net.minecraft.world.entity.Mob mob && mob.isAggressive();
-            case MODE_FRIENDLY -> !(entity instanceof net.minecraft.world.entity.Mob mob && mob.isAggressive());
+            case MODE_HOSTILE -> isHostileTarget(entity);
+            case MODE_FRIENDLY -> !isHostileTarget(entity);
             case MODE_ALL -> true;
             default -> false;
         };
+    }
+
+    private boolean isHostileTarget(Entity entity) {
+        EntityType<?> type = entity.getType();
+        return entity instanceof Enemy || type.getCategory() == MobCategory.MONSTER;
     }
 
     protected int getAreaEnergyScale() {

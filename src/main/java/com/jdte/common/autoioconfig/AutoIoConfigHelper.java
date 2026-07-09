@@ -8,6 +8,7 @@ import com.direwolf20.justdirethings.common.blockentities.FluidCollectorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.FluidPlacerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
+import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.blockentities.FluidStabilizerBE;
@@ -35,7 +36,8 @@ public final class AutoIoConfigHelper {
                 || machine instanceof ItemSenderBE
                 || machine instanceof ItemReceiverBE
                 || machine instanceof BioCrusherBE
-                || machine instanceof InfusionMachineBE) {
+                || machine instanceof InfusionMachineBE
+                || machine instanceof AdvancedPotionBrewerBE) {
             return true;
         }
         return machine instanceof ClickerT1BE

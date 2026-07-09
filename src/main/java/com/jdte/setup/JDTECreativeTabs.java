@@ -20,6 +20,8 @@ public class JDTECreativeTabs {
             .displayItems((parameters, output) -> {
                 // Upgrade cards
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
+                output.accept(JDTEItems.LOOTING_UPGRADE.get());
+                output.accept(JDTEItems.SHARPNESS_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
                 output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
                 output.accept(JDTEItems.TIME_FLUID_CATALYST.get());

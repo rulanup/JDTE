@@ -9,6 +9,7 @@ import com.direwolf20.justdirethings.common.blockentities.FluidCollectorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.FluidPlacerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
+import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.FluidReceiverBE;
 import com.jdte.common.blockentities.FluidSenderBE;
@@ -168,6 +169,20 @@ public final class AutoIoTransferHelper {
             itemInputs = boundedSlots(handler, InfusionMachineBE.INPUT_SLOT);
             itemOutputs = boundedSlots(handler, InfusionMachineBE.OUTPUT_SLOT);
             fluidInput = infusion.getFluidTank();
+        } else if (machine instanceof AdvancedPotionBrewerBE brewer) {
+            itemInputs = boundedSlots(handler,
+                    AdvancedPotionBrewerBE.BOTTLE_SLOT_0,
+                    AdvancedPotionBrewerBE.BOTTLE_SLOT_1,
+                    AdvancedPotionBrewerBE.BOTTLE_SLOT_2,
+                    AdvancedPotionBrewerBE.FUEL_SLOT,
+                    AdvancedPotionBrewerBE.INGREDIENT_SLOT,
+                    AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START,
+                    AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + 1,
+                    AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + 2,
+                    AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + 3,
+                    AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + 4);
+            itemOutputs = boundedSlots(handler, range(AdvancedPotionBrewerBE.OUTPUT_SLOT_START, AdvancedPotionBrewerBE.OUTPUT_SLOT_COUNT));
+            fluidInput = brewer.getFluidHandler();
         } else if (machine instanceof GlueActivatorBE) {
             itemInputs = boundedSlots(handler, GlueActivatorBE.REVIVE_SLOT);
         } else if (machine instanceof FluidStabilizerBE) {
@@ -181,7 +196,7 @@ public final class AutoIoTransferHelper {
         } else if (machine instanceof FluidReceiverBE receiver) {
             fluidOutput = receiver.getFluidTank();
         } else if (machine instanceof BioCrusherBE crusher) {
-            itemOutputs = allSlots(handler);
+            itemOutputs = crusher.hasOutputInventory() ? allSlots(handler) : NO_SLOTS;
             fluidOutput = crusher.getFluidTank();
         } else if (machine instanceof LifeExtractorBE extractor) {
             fluidOutput = extractor.getFluidTank();
