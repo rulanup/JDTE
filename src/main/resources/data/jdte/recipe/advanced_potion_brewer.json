@@ -1,22 +1,22 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "B B",
-    "IBI",
-    "DED"
+    "ETE",
+    "CBC",
+    "ETE"
   ],
   "key": {
-    "B": {
-      "item": "minecraft:glass_bottle"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
-    },
-    "D": {
-      "item": "minecraft:diamond"
-    },
     "E": {
-      "item": "minecraft:ender_pearl"
+      "item": "justdirethings:eclipsealloy_ingot"
+    },
+    "T": {
+      "item": "justdirethings:time_crystal"
+    },
+    "C": {
+      "item": "justdirethings:fluid_canister"
+    },
+    "B": {
+      "item": "minecraft:bucket"
     }
   },
   "result": {

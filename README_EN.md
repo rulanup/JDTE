@@ -66,6 +66,21 @@ Use the **Extended Upgrade** on supported JDT T2 machines to convert them into J
 - Bio Crusher: advanced, extended; kills mobs to generate drops and experience fluid, supports looting and sharpness upgrades, can be placed above mob spawners to prevent spawning
 - Life Extractor: advanced, extended; extracts life fluid from mobs in range
 - Infusion Machine: advanced, extended; processes items using gel
+- Advanced Potion Brewer: processes potions with vanilla brewing rules, ordered 6-step ingredient slots, automatic water filling, Time Fluid acceleration, and output buffering
+
+### Advanced Potion Brewer
+
+The Advanced Potion Brewer is an automated version of the vanilla brewing stand. Recipe checks use the current `PotionBrewing` registry directly, so brewing inputs, ingredients, and potion conversions added by other mods can be detected automatically.
+
+- 3 bottle input slots and 3 output slots; bottle and output slots are capped to one item each
+- 1 primary ingredient slot plus 5 ordered ingredient slots; the machine attempts steps 1-6 in order and skips empty or non-matching slots
+- The left water tank can fill glass bottles into water bottles, consuming 250 mB water per bottle
+- The right Time Fluid tank powers acceleration; without enough Time Fluid, the machine falls back to vanilla 400 ticks per step
+- The speed button is the tick duration for each ingredient step: `1` is the fastest setting, `400` is vanilla speed, and values above `400` are treated as vanilla speed
+- Time Fluid cost is derived from JDT Time Wand efficiency: 2x, 4x, 8x, up to 256x all cost `JDT Time Wand fluid cost * 2 / 3` per full 400-tick brewing step
+- The machine only charges for ticks saved by the current speed: `cost = full 400-tick cost * saved ticks / 400`; at `1 tick`, it charges the full saved-step cost, equivalent to `256 * JDT Time Wand fluid cost / 384`
+- The input-lock button snapshots current ingredient slots, shows ghost items in empty locked slots, and restricts each locked slot to its captured item
+- Supports redstone control, energy cost, right-click fluid container transfer, and auto input/output side configuration
 
 ### Bio Crusher
 
@@ -90,14 +105,14 @@ The Bio Crusher can crush bosses to generate unique essences:
 ## Installation
 
 1. Install Minecraft `1.21.1`.
-2. Install NeoForge `21.1.230+`.
+2. Install NeoForge `21.1.233+`.
 3. Install Just Dire Things `1.5.7+`.
 4. Place `jdte-x.x.x.jar` into the client and server `mods` folders.
 
 ## Requirements
 
 - Minecraft `1.21.1`
-- NeoForge `21.1.230+`
+- NeoForge `21.1.233+`
 - Just Dire Things `1.5.7+`
 - Java `21`
 

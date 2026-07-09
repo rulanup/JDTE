@@ -178,8 +178,7 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
         );
         event.registerBlock(Capabilities.ItemHandler.BLOCK,
-                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioCrusherBE crusher ? crusher.getMachineHandler() : null,
-                JDTEBlocks.ADVANCED_BIO_CRUSHER.get(),
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.ExtendedBioCrusherBE crusher ? crusher.getMachineHandler() : null,
                 JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
         );
 
@@ -195,13 +194,17 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get()
         );
 
-        // Potion Brewer energy storage and item handler
+        // Potion Brewer energy storage, fluid handler, and item handler
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
                 JDTEBlocks.ADVANCED_POTION_BREWER.get()
         );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE brewer ? brewer.getFluidHandler() : null,
+                JDTEBlocks.ADVANCED_POTION_BREWER.get()
+        );
         event.registerBlock(Capabilities.ItemHandler.BLOCK,
-                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE brewer ? brewer.getAutomationItemHandler() : null,
                 JDTEBlocks.ADVANCED_POTION_BREWER.get()
         );
 

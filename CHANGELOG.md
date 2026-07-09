@@ -47,6 +47,39 @@
 - **Fixed**: Reworked the Eclipse Alloy Wrench GuideME page to use plain Markdown only, avoiding unsupported keybind/image/recipe components. FTB Ultimine range scrolling now only uses the Ultimine selection while the Ultimine key is actively held; cached selections no longer affect normal range scrolling.
 - **Fixed**: Wrench scroll area adjustment once again requires holding the Eclipse Alloy Wrench on both client and server; holding the area modifier key alone is no longer enough.
 - **Development runtime**: Added FTB Ultimine (`dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}`) and AppleSkin (`curse.maven:appleskin-248787:7854442`) to the local runtime dependency set.
+- **New**: Infusion Machines can now automatically fill fluid containers using the standard NeoForge item fluid capability. Empty buckets and compatible modded containers can be infused with matching tank fluids without dedicated recipe JSON, and vanilla glass bottles can be infused with water to produce water bottles.
+- **New**: Added a JEI recipe category for Advanced/Extended Infusion Machines. It shows `jdte:infusion` data recipes plus automatically discovered fluid-container filling recipes from current item/fluid capabilities, including vanilla water bottles.
+- **New**: Infusion Machines can now infuse glass bottles with honey-like fluids to make honey bottles. Honey fluids are detected through common tags and honey-related fluid IDs/translation keys for broader mod compatibility.
+- **New**: Clicking the progress arrow in Gel Generator and Infusion Machine GUIs now opens the matching JEI recipe category.
+- **Performance**: Fixed severe machine GUI frame drops from embedded upgrade panels by replacing per-frame nine-sliced background sprite rendering with a fixed-size `upgrade_slot_panel.png` texture. Upgrade slot icons are still rendered normally.
+- **Development runtime**: Added Industrial Foregoing (`curse.maven:industrial-foregoing-266515:8370717`) to local runtime dependencies.
+- **Fixed**: Advanced Potion Brewer GUI now crops the vanilla brewing stand texture to the machine slot area with 2px padding, aligns bottle slots to the background slot art, and exposes the background crop, machine slots, and animated widget positions through `assets/jdte/gui_layout.json`.
+- **Changed**: Advanced Potion Brewer layout now shifts the brewing background and original slots up by 10px, adds five soft-coded horizontal ingredient slots above the original ingredient slot, and adds three soft-coded vertical output slots on the right. Brewing now consumes bottle inputs and writes finished potions to the output slots; auto input/output routes recognize the new input/output slots.
+- **Tweak**: Advanced Potion Brewer extra ingredient row now aligns to the top of the energy bar. The speed button is soft-coded to the right of the bottom output slot, the redstone button to the right of the middle output slot, output slots show a dim glass-bottle ghost, and slot validation now follows vanilla brewing-stand rules through the current `PotionBrewing` registry.
+- **Fixed**: Advanced Potion Brewer brewing progress now advances every server tick like the vanilla brewing stand instead of being gated by JDT machine tick speed, so water bottle + nether wart recipes start visibly animating and complete in the expected 400 ticks.
+- **Fixed**: Advanced Potion Brewer now renders the vanilla 1.21 brewing stand fuel, brew-progress, and bubble sprites instead of sampling obsolete texture-sheet coordinates, restoring the blaze-powder fuel bar and brewing animation.
+- **New**: Advanced Potion Brewer now has a slot-lock button above redstone control using JDT's Water Breathing upgrade icon. Slot locking snapshots the current non-empty ingredient slots, restricts those slots to their captured items, and shows dim ghost items in empty locked ingredient slots. Bottle slots, output slots, empty ingredient slots, and blaze-powder fuel are not locked.
+- **Fixed**: Advanced Potion Brewer slot-lock button no longer flashes back after clicking. The client only changes the button state after server confirmation, and the tooltip now says "Input Lock: On"/"Input Lock: Off".
+- **Changed**: Advanced Potion Brewer ingredient slots now work as an ordered brewing chain: the original ingredient slot is step 1, and the five horizontal slots are steps 2-6 from left to right. Matching non-empty slots are brewed in order, empty or non-matching slots are skipped, intermediate potions stay in the bottle slots, and final results are moved to output slots only after the chain is exhausted.
+- **New**: Advanced Potion Brewer now has two soft-coded fluid bars. The left water tank sits next to the energy bar and automatically fills glass bottles in bottle slots into water bottles; the right time-fluid tank uses the same position as the Infusion Machine fluid bar. Both tanks save, sync, expose fluid capability, work with auto input/output, and support right-click fluid container transfer.
+- **Fixed**: Advanced Potion Brewer bottle/output slots now explicitly cap GUI stack size at 1, and Shift-click routing sends bottles, blaze powder, and brewing ingredients only to their matching slot groups.
+- **Balance**: Advanced Potion Brewer speed is now the target tick duration per ingredient step. Time Fluid cost is based on JDT Time Wand efficiency across all powers-of-two rates: each full 400-tick brewing step costs `JDT Time Wand fluid cost * 2 / 3`, and the machine charges that amount proportionally to ticks saved by the current speed. Speed `1` charges the full saved-step cost; speed `400+` uses vanilla speed with no Time Fluid cost.
+- **Fixed**: Advanced Potion Brewer Shift-click and Mouse Tweaks insertion no longer crash by calling JDT's private stack-transfer helper; the brewer now uses its own slot-limit-aware transfer path.
+- **Fixed**: Advanced Potion Brewer automation now exposes a restricted item capability: external logistics can insert only into bottle/ingredient/fuel inputs and can extract only from the three product output slots. Auto input also prioritizes blaze powder into the fuel slot before ingredient slots.
+- **Tweak**: Advanced Potion Brewer empty machine slots now show slot tooltips for bottle inputs, ordered ingredient steps, blaze powder, and product outputs. Locked empty ingredient slots also show the locked item name.
+- **Docs**: Reworked the Advanced Potion Brewer GuideME page with a clearer hierarchy, a model preview at the top, and separate sections for layout, brewing flow, automation, input locking, Time Fluid cost, upgrades, and crafting.
+- **New**: Added an Advanced Potion Brewer JEI recipe category. It discovers vanilla and NeoForge brewing recipes through the current `PotionBrewing` API, includes the machine's glass bottle + water filling recipe, renders the full machine slot layout with three bottle inputs, three outputs, water bar, energy bar, vanilla brewing background, fuel bar, bubbles, and progress arrow, registers the brewer as a catalyst, and makes the brewer progress arrow open the category.
+- **Changed**: Advanced Potion Brewer JEI recipes now prefer complete brewing chains. Reachable potion outputs display the full original cost from three glass bottles and 750 mB water through up to six ordered ingredient steps, matching the machine's batch and material-slot behavior; one-step brewing recipes are kept only as fallback for custom recipes that cannot be traced back to glass bottles through `PotionBrewing`.
+- **Fixed**: Advanced Potion Brewer JEI now groups equivalent brewing materials for the same input/output transition into rotating alternatives, so recipes like Mundane Potion show all valid vanilla and modded ingredient candidates instead of only the first discovered path.
+- **Fixed**: Advanced Potion Brewer external item automation now hides the internal blaze-powder fuel stack from adjacent item handlers while still accepting fuel insertion. This prevents AE2 blocking-mode pattern providers from treating stocked fuel as leftover processing input and refusing to dispatch potion recipes.
+- **Changed**: Advanced Potion Brewer crafting now uses 2 Time Crystals, 4 Eclipse Alloy Ingots, 2 JDT Fluid Canisters, and 1 Bucket.
+- **Fixed**: Looting and Sharpness Bio Crusher upgrades are now shown in the JDTE creative tab; the items, recipes, tooltips, and Bio Crusher behavior already existed but were not added to the tab display list.
+- **Fixed**: Extended Bio Crusher now implements the 8-slot extended upgrade panel instead of showing only four normal upgrade slots.
+- **Changed**: Bio Crusher now exposes one visible Sharpness slot and one visible Looting slot next to the target mode button. The dedicated slots support stacked upgrades, show gray ghost icons, have empty-slot tooltips, and use JDT's Negate Fall Damage / Potion Arrow upgrade artwork.
+- **Changed**: Bio Crusher target mode button and dedicated Sharpness/Looting slots are now moved above the output row while keeping their X positions. Only the Extended Bio Crusher has the 18-slot paged output inventory; the Advanced Bio Crusher drops generated items into the world as before, while the Extended Bio Crusher stores generated drops in its output slots when space is available.
+- **Fixed**: Bio Crusher and Life Extractor hostile/friendly modes now classify targets by hostile entity type instead of the current `Mob.isAggressive()` AI state, so idle hostile mobs are no longer treated as friendly.
+- **Development runtime**: Added Apotheosis, Apothic Attributes/Enchanting/Spawners, Bookshelf, Enchantment Descriptions, Prickle, Placebo, and Hostile Neural Networks to the local runtime dependency set.
+- **Build**: Updated NeoForge from `21.1.230` to `21.1.233` and raised the required NeoForge version range to `[21.1.233,)`.
 
 #### v0.5.2
 - **Fixed**: Extended Dropper GUI crash — `MACHINE_SLOTS` set to 9 in constructor, `getMachineHandler()` auto-expands old 1-slot handler to 9-slot.
@@ -148,6 +181,39 @@
 - **修复**：重写蚀空合金扳手 GuideME 页面为纯 Markdown，避免不支持的 keybind/image/recipe 组件导致指南格式错误。FTB Ultimine 范围滚轮现在只在主动按住连锁键时使用连锁选区，缓存选区不再影响普通范围调节。
 - **修复**：扳手滚轮范围调节在客户端和服务端重新要求手持蚀空合金扳手，仅按住范围修饰键不再能触发调节。
 - **开发运行时**：加入 FTB Ultimine（`dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}`）和 AppleSkin（`curse.maven:appleskin-248787:7854442`）本地运行时依赖。
+- **新增**：灌注机现在可以通过 NeoForge 标准物品流体能力自动处理流体容器填充。空桶和兼容的其它模组容器可直接使用机器流体槽中的对应流体灌注，不需要单独编写配方 JSON；原版玻璃瓶可用水灌注为水瓶。
+- **新增**：为高级/扩展灌注机添加 JEI 配方分类。现在会显示 `jdte:infusion` 数据配方，并自动识别当前物品/流体能力支持的流体容器填充配方，包括原版水瓶。
+- **新增**：灌注机现在可用玻璃瓶和蜂蜜类流体制作蜂蜜瓶。蜂蜜流体通过常见标签以及包含 honey 的流体 ID/翻译键识别，兼容更多模组的蜂蜜流体。
+- **新增**：点击凝胶发生器和灌注机 GUI 的进度箭头，现在会打开对应 JEI 配方分类。
+- **性能优化**：修复打开机器 GUI 后嵌入式升级面板导致严重掉帧的问题。升级面板背景不再每帧使用九宫格 sprite 平铺绘制，改为固定尺寸 `upgrade_slot_panel.png` 贴图；升级槽图标仍正常渲染。
+- **开发运行时**：加入 Industrial Foregoing（`curse.maven:industrial-foregoing-266515:8370717`）本地运行时依赖。
+- **修复**：炼药机 GUI 现在只裁切原版酿造台贴图中覆盖机器槽位并额外保留 2px 边距的区域，瓶子槽位已对齐背景槽位图案，背景裁切、机器槽位和动态组件坐标都已通过 `assets/jdte/gui_layout.json` 软编码。
+- **变更**：炼药机背景和原有槽位整体上移 10px，在原材料输入槽上方新增 5 个软编码横向材料输入槽，并在右侧新增 3 个软编码纵向产物输出槽。炼药流程现在消耗瓶子输入并将成品写入输出槽，自动输入输出也会识别新的输入/输出槽位。
+- **调整**：炼药机额外材料输入行现在与能量槽顶部对齐。速度按钮软编码到最下方输出槽右侧，红石按钮软编码到中间输出槽右侧；输出槽会显示灰色玻璃瓶底图，槽位限制改为通过当前 `PotionBrewing` 注册表遵循原版酿造台规则。
+- **修复**：炼药机酿造进度现在像原版酿造台一样每个服务端 tick 推进，不再被 JDT 机器 tickSpeed 间隔卡住；水瓶 + 下界疣会立即出现动画，并按预期 400 tick 完成。
+- **修复**：炼药机动态效果改为使用原版 1.21 酿造台的燃料、进度箭头和气泡 sprite，不再裁切旧版贴图坐标；烈焰粉燃料条和酿造动画会正常显示。
+- **新增**：炼药机红石控制按钮上方新增锁定槽位按钮，使用 JDT 水下呼吸升级图标。锁定槽位会快照当前非空材料槽，限制这些材料槽只能放入对应物品，并在空锁定材料槽显示灰色 ghost 物品图标；瓶子槽、产物槽、空材料槽和烈焰粉燃料槽不锁定。
+- **修复**：炼药机锁定槽位按钮点击后不再闪一下又回到关闭。客户端只在服务端确认后更新按钮状态，tooltip 已改为“锁定输入：开/锁定输入：关”。
+- **变更**：炼药机材料槽现在作为有序酿造链使用：原材料槽是第 1 个消耗槽，顶部 5 个横向材料槽从左到右是第 2-6 个消耗槽。机器会按顺序检测非空且可用的材料槽，空槽或不匹配槽会跳过，中间产物保留在瓶子槽继续下一步，所有可用材料槽检测完成后才移动到产物槽。
+- **新增**：炼药机新增两个软编码流体槽。左侧水槽位于能量条右侧，可将瓶子槽中的玻璃瓶自动消耗水转成水瓶；右侧时间流体槽使用与灌注机相同的右流体槽位置。两个流体槽都会保存、同步、暴露流体能力，支持自动输入输出和右键流体容器转移。
+- **修复**：炼药机瓶子槽和产物槽现在在 GUI 槽位层面明确限制最大堆叠为 1，Shift-click 会把瓶子、烈焰粉、酿造材料分别送入对应槽位组，不再把一组玻璃瓶塞进单个瓶子槽。
+- **平衡性**：炼药机速度现在表示每个材料步骤的目标 tick 数。时间流体按 JDT 时间手杖各档倍率的共同效率折算：每个完整 400 tick 酿造步骤费用为 `JDT时间手杖流体消耗 * 2 / 3`，机器再按当前速度节省的 tick 比例扣费。速度 `1` 收完整节省费用，速度 `400+` 为原版速度且不消耗时间流体。
+- **修复**：炼药机 Shift-click 和 Mouse Tweaks 拖放物品不再因调用 JDT 私有物品转移方法而闪退；现在使用炼药机自己的槽位上限感知转移路径。
+- **修复**：炼药机自动化物品能力现在会限制槽位语义：外部物流只能向瓶子/材料/燃料输入槽插入物品，只能从 3 个产物槽抽取物品。自动输入时也会优先把烈焰粉放入燃料槽，再尝试材料槽。
+- **调整**：炼药机空机器槽现在会显示槽位 tooltip，覆盖瓶子输入、有序材料步骤、烈焰粉和产物槽。被锁定的空材料槽还会显示锁定的物品名称。
+- **文档**：重写高级炼药机 GuideME 页面，改为更清晰的层级结构，并在页面顶部加入机器模型预览；内容拆分为界面结构、酿造流程、自动化、锁定输入、时间流体费用、升级和合成。
+- **新增**：添加高级炼药机 JEI 配方分类。配方通过当前 `PotionBrewing` API 自动识别原版和 NeoForge 酿造配方，并包含机器的玻璃瓶 + 水自动装水配方；页面按机器界面显示三瓶输入、三格输出、水槽、能量条、原版酿造台背景、燃料条、气泡和进度箭头，不显示时间流体槽，注册炼药机为配方催化剂，点击机器进度箭头可打开该分类。
+- **变更**：高级炼药机 JEI 配方现在优先显示完整酿造链路。可从玻璃瓶推导到的药水产物会显示从 3 个玻璃瓶、750 mB 水开始，到最多 6 个顺序材料步骤的完整消耗，匹配机器的一批 3 瓶和材料槽顺序；只有无法通过 `PotionBrewing` 反推到玻璃瓶的自定义配方才保留一步配方兜底。
+- **修复**：高级炼药机 JEI 现在会把同一输入/输出阶段的等价酿造材料合并为轮换候选，因此平凡的药水这类配方会显示全部原版和模组新增的可用材料，而不是只显示第一条推导路径。
+- **修复**：高级炼药机对外物品自动化现在会隐藏内部烈焰粉燃料堆叠，但仍允许外部插入燃料。这样 AE2 阻塞模式的样板供应器不会把常驻燃料误判为未清空的处理输入，从而拒绝发配炼药配方。
+- **变更**：高级炼药机合成配方改为 2 个时间水晶、4 个蚀空合金锭、2 个 JDT 流体罐和 1 个桶。
+- **修复**：抢夺升级和锋利升级现在会显示在 JDTE 创造标签页中；物品、配方、tooltip 和生物粉碎机效果原本已实现，但之前没有加入标签页显示列表。
+- **修复**：扩展生物粉碎机现在正确使用 8 槽扩展升级面板，不再只显示 4 个普通升级槽。
+- **变更**：生物粉碎机在目标模式按钮左右两侧分别显示锋利升级槽和抢夺升级槽。专用槽支持升级堆叠，空槽显示灰色 ghost 图标和 tooltip，并使用 JDT 的“抵消摔落”/“药箭”升级图标。
+- **变更**：生物粉碎机目标模式按钮和锋利/抢夺专用槽移动到输出槽上方，X 坐标保持不变。只有扩展生物粉碎机拥有 18 格分页输出库存；高级生物粉碎机生成的物品仍直接掉落到世界中，扩展生物粉碎机在有空间时会把生成掉落物写入输出槽。
+- **修复**：生物粉碎机和生命提取器的敌对/友好模式现在按敌对实体类型判断，不再使用当前 AI 攻击状态 `Mob.isAggressive()`，空闲敌对生物不会再被当成友好。
+- **开发运行时**：加入 Apotheosis、Apothic Attributes/Enchanting/Spawners、Bookshelf、Enchantment Descriptions、Prickle、Placebo 和 Hostile Neural Networks 本地运行时依赖。
+- **构建**：NeoForge 从 `21.1.230` 更新到 `21.1.233`，最低版本范围同步提高到 `[21.1.233,)`。
 
 #### v0.5.2
 - **修复**：扩展投掷器 GUI 崩溃 — 构造函数设置 `MACHINE_SLOTS=9`，`getMachineHandler()` 自动扩展旧存档的 1 槽 handler 到 9 槽。

@@ -18,8 +18,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -42,6 +44,9 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     public static final int MODE_HOSTILE = 0;
     public static final int MODE_FRIENDLY = 1;
     public static final int MODE_ALL = 2;
+    public static final int OUTPUT_SLOT_COUNT = 18;
+    public static final int OUTPUT_SLOTS_PER_PAGE = 9;
+    public static final int DEDICATED_UPGRADE_SLOT_COUNT = 2;
 
     // Cache for entity max health to avoid creating entities every time
     private static final java.util.Map<net.minecraft.world.entity.EntityType<?>, Float> HEALTH_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
@@ -51,7 +56,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     public final ContainerData bioCrusherData;
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     public AreaAffectingData areaAffectingData;
-    protected final ItemStackHandler itemHandler;
+    protected ItemStackHandler itemHandler;
     protected final ItemStackHandler lootingHandler;
     protected final ItemStackHandler sharpnessHandler;
     protected int mode = MODE_HOSTILE;
@@ -60,7 +65,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
 
     protected BioCrusherBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        MACHINE_SLOTS = 0;
+        MACHINE_SLOTS = (createsOutputInventory() ? OUTPUT_SLOTS_PER_PAGE : 0) + DEDICATED_UPGRADE_SLOT_COUNT;
         areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
         areaAffectingData.xRadius = JDTEConfig.COMMON.bioCrusherBaseRadius.get();
         areaAffectingData.yRadius = JDTEConfig.COMMON.bioCrusherBaseRadius.get();
@@ -68,13 +73,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.is(Registration.XP_FLUID_SOURCE.get()));
         fluidContainerData = new FluidContainerData(this);
 
-        // Output handler for drops (16 slots = 4x4 grid)
-        itemHandler = new ItemStackHandler(16) {
-            @Override
-            protected void onContentsChanged(int slot) {
-                setChanged();
-            }
-        };
+        itemHandler = createOutputHandler(createsOutputInventory() ? OUTPUT_SLOT_COUNT : 0);
 
         // Dedicated upgrade handlers
         lootingHandler = new ItemStackHandler(JDTEConfig.COMMON.maxLootingUpgrades.get()) {
@@ -128,6 +127,14 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     @Override
     public ItemStackHandler getMachineHandler() {
         return itemHandler;
+    }
+
+    protected boolean createsOutputInventory() {
+        return false;
+    }
+
+    public boolean hasOutputInventory() {
+        return createsOutputInventory();
     }
 
     public ItemStackHandler getLootingHandler() {
@@ -232,34 +239,35 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         if (entity.isSpectator()) return false;
 
         return switch (mode) {
-            case MODE_HOSTILE -> entity instanceof Mob mob && mob.isAggressive();
-            case MODE_FRIENDLY -> !(entity instanceof Mob mob && mob.isAggressive());
+            case MODE_HOSTILE -> isHostileTarget(entity);
+            case MODE_FRIENDLY -> !isHostileTarget(entity);
             case MODE_ALL -> true;
             default -> false;
         };
     }
 
+    private boolean isHostileTarget(Entity entity) {
+        EntityType<?> type = entity.getType();
+        return entity instanceof Enemy || type.getCategory() == MobCategory.MONSTER;
+    }
+
     protected int calculateDamage() {
         int damage = JDTEConfig.COMMON.bioCrusherBaseDamage.get();
-        int sharpnessCount = 0;
-        for (int i = 0; i < sharpnessHandler.getSlots(); i++) {
-            if (!sharpnessHandler.getStackInSlot(i).isEmpty()) {
-                sharpnessCount++;
-            }
-        }
+        int sharpnessCount = countDedicatedUpgrades(sharpnessHandler, JDTEConfig.COMMON.maxSharpnessUpgrades.get());
         damage += sharpnessCount * JDTEConfig.COMMON.sharpnessDamagePerUpgrade.get();
         return damage;
     }
 
     protected int getLootingLevel() {
-        int level = 0;
-        for (int i = 0; i < lootingHandler.getSlots(); i++) {
-            ItemStack stack = lootingHandler.getStackInSlot(i);
-            if (!stack.isEmpty()) {
-                level++;
-            }
+        return countDedicatedUpgrades(lootingHandler, JDTEConfig.COMMON.maxLootingUpgrades.get());
+    }
+
+    private int countDedicatedUpgrades(ItemStackHandler handler, int max) {
+        int count = 0;
+        for (int i = 0; i < handler.getSlots(); i++) {
+            count += handler.getStackInSlot(i).getCount();
         }
-        return level;
+        return Math.min(count, max);
     }
 
     protected void generateDrops(LivingEntity entity) {
@@ -310,15 +318,17 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     protected void addItemToInventory(ItemStack stack) {
         if (stack.isEmpty()) return;
 
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            ItemStack existing = itemHandler.getStackInSlot(i);
-            if (existing.isEmpty()) {
-                itemHandler.setStackInSlot(i, stack.copy());
-                return;
-            } else if (ItemStack.isSameItemSameComponents(existing, stack) && existing.getCount() + stack.getCount() <= existing.getMaxStackSize()) {
-                existing.grow(stack.getCount());
-                itemHandler.setStackInSlot(i, existing);
-                return;
+        if (hasOutputInventory()) {
+            for (int i = 0; i < itemHandler.getSlots(); i++) {
+                ItemStack existing = itemHandler.getStackInSlot(i);
+                if (existing.isEmpty()) {
+                    itemHandler.setStackInSlot(i, stack.copy());
+                    return;
+                } else if (ItemStack.isSameItemSameComponents(existing, stack) && existing.getCount() + stack.getCount() <= existing.getMaxStackSize()) {
+                    existing.grow(stack.getCount());
+                    itemHandler.setStackInSlot(i, existing);
+                    return;
+                }
             }
         }
 
@@ -421,34 +431,8 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             // Generate drops
             java.util.List<net.minecraft.world.item.ItemStack> drops = lootTable.getRandomItems(lootParamsBuilder.create(net.minecraft.world.level.storage.loot.LootTable.DEFAULT_PARAM_SET));
 
-            // Add drops to the machine's inventory
             for (net.minecraft.world.item.ItemStack drop : drops) {
-                // Try to add to output handler
-                boolean added = false;
-                for (int i = 0; i < itemHandler.getSlots(); i++) {
-                    net.minecraft.world.item.ItemStack existing = itemHandler.getStackInSlot(i);
-                    if (existing.isEmpty()) {
-                        itemHandler.setStackInSlot(i, drop.copy());
-                        added = true;
-                        break;
-                    } else if (ItemStack.isSameItemSameComponents(existing, drop) && existing.getCount() + drop.getCount() <= existing.getMaxStackSize()) {
-                        existing.grow(drop.getCount());
-                        itemHandler.setStackInSlot(i, existing);
-                        added = true;
-                        break;
-                    }
-                }
-                // If inventory is full, drop the item in the world
-                if (!added) {
-                    net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                            serverLevel,
-                            getBlockPos().getX() + 0.5,
-                            getBlockPos().getY() + 1.5,
-                            getBlockPos().getZ() + 0.5,
-                            drop.copy()
-                    );
-                    serverLevel.addFreshEntity(itemEntity);
-                }
+                addItemToInventory(drop);
             }
         } catch (Exception e) {
             // If loot generation fails, generate some basic drops based on entity type
@@ -481,34 +465,8 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BONE, 1));
         }
 
-        // Add drops to the machine's inventory
         for (net.minecraft.world.item.ItemStack drop : drops) {
-            // Try to add to output handler
-            boolean added = false;
-            for (int i = 0; i < itemHandler.getSlots(); i++) {
-                net.minecraft.world.item.ItemStack existing = itemHandler.getStackInSlot(i);
-                if (existing.isEmpty()) {
-                    itemHandler.setStackInSlot(i, drop.copy());
-                    added = true;
-                    break;
-                } else if (ItemStack.isSameItemSameComponents(existing, drop) && existing.getCount() + drop.getCount() <= existing.getMaxStackSize()) {
-                    existing.grow(drop.getCount());
-                    itemHandler.setStackInSlot(i, existing);
-                    added = true;
-                    break;
-                }
-            }
-            // If inventory is full, drop the item in the world
-            if (!added) {
-                net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                        serverLevel,
-                        getBlockPos().getX() + 0.5,
-                        getBlockPos().getY() + 1.5,
-                        getBlockPos().getZ() + 0.5,
-                        drop.copy()
-                );
-                serverLevel.addFreshEntity(itemEntity);
-            }
+            addItemToInventory(drop);
         }
     }
 
@@ -565,7 +523,9 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
+        if (hasOutputInventory()) {
+            tag.put("inventory", itemHandler.serializeNBT(provider));
+        }
         tag.put("fluidTank", fluidTank.serializeNBT(provider));
         tag.put("lootingHandler", lootingHandler.serializeNBT(provider));
         tag.put("sharpnessHandler", sharpnessHandler.serializeNBT(provider));
@@ -578,17 +538,20 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
+        if (hasOutputInventory() && tag.contains("inventory")) {
             itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
+            ensureOutputHandlerSize();
         }
         if (tag.contains("fluidTank")) {
             fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
         }
         if (tag.contains("lootingHandler")) {
             lootingHandler.deserializeNBT(provider, tag.getCompound("lootingHandler"));
+            compactDedicatedUpgradeHandler(lootingHandler, JDTEConfig.COMMON.maxLootingUpgrades.get());
         }
         if (tag.contains("sharpnessHandler")) {
             sharpnessHandler.deserializeNBT(provider, tag.getCompound("sharpnessHandler"));
+            compactDedicatedUpgradeHandler(sharpnessHandler, JDTEConfig.COMMON.maxSharpnessUpgrades.get());
         }
         if (tag.contains("mode")) {
             mode = tag.getInt("mode");
@@ -600,5 +563,52 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             progress = tag.getInt("progress");
         }
         loadAreaSettings(tag);
+    }
+
+    private void compactDedicatedUpgradeHandler(ItemStackHandler handler, int maxCount) {
+        ItemStack template = ItemStack.EMPTY;
+        int total = 0;
+        for (int i = 0; i < handler.getSlots(); i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            if (template.isEmpty()) {
+                template = stack.copyWithCount(1);
+            }
+            total += stack.getCount();
+            handler.setStackInSlot(i, ItemStack.EMPTY);
+        }
+        if (!template.isEmpty() && total > 0) {
+            int count = Math.min(total, Math.min(maxCount, template.getMaxStackSize()));
+            handler.setStackInSlot(0, template.copyWithCount(count));
+        }
+    }
+
+    private ItemStackHandler createOutputHandler(int slots) {
+        return new ItemStackHandler(slots) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                setChanged();
+            }
+        };
+    }
+
+    private void ensureOutputHandlerSize() {
+        if (!hasOutputInventory()) {
+            return;
+        }
+        if (itemHandler.getSlots() >= OUTPUT_SLOT_COUNT) {
+            return;
+        }
+        ItemStackHandler resized = createOutputHandler(OUTPUT_SLOT_COUNT);
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+                resized.setStackInSlot(i, stack.copy());
+            }
+        }
+        itemHandler = resized;
+        setChanged();
     }
 }

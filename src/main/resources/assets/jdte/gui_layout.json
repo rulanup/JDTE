@@ -141,8 +141,67 @@
     "mode_button_y": 62
   },
   "bio_crusher_buttons": {
-    "comment": "高级/扩展生物粉碎机模式切换按钮位置。与生命提取器相同位置。",
+    "comment": "高级/扩展生物粉碎机模式切换按钮和专用升级槽位置。锋利槽在目标按钮左侧，抢夺槽在右侧。坐标相对于 getGuiLeft()/getGuiTop()。",
     "mode_button_x": 80,
-    "mode_button_y": 62
+    "mode_button_y": 36,
+    "sharpness_slot_x": 60,
+    "sharpness_slot_y": 36,
+    "looting_slot_x": 98,
+    "looting_slot_y": 36
+  },
+  "advanced_potion_brewer_background": {
+    "comment": "炼药机裁切原版酿造台贴图的范围。src 为原版贴图裁切起点，x/y 为绘制到机器 GUI 的位置。",
+    "src_x": 15,
+    "src_y": 15,
+    "x": 15,
+    "y": 5,
+    "width": 107,
+    "height": 63
+  },
+  "advanced_potion_brewer_slots": {
+    "comment": "炼药机机器槽位坐标。相对于 getGuiLeft()/getGuiTop()。",
+    "fuel_slot_x": 17,
+    "fuel_slot_y": 7,
+    "ingredient_slot_x": 79,
+    "ingredient_slot_y": 7,
+    "bottle_slot_0_x": 56,
+    "bottle_slot_0_y": 41,
+    "bottle_slot_1_x": 79,
+    "bottle_slot_1_y": 48,
+    "bottle_slot_2_x": 102,
+    "bottle_slot_2_y": 41,
+    "extra_ingredient_start_x": 43,
+    "extra_ingredient_start_y": -21,
+    "extra_ingredient_spacing": 18,
+    "extra_ingredient_count": 5,
+    "output_start_x": 128,
+    "output_start_y": 13,
+    "output_spacing": 18,
+    "output_count": 3
+  },
+  "advanced_potion_brewer_widgets": {
+    "comment": "炼药机燃料条、气泡和进度箭头位置。使用原版 1.21 酿造台 sprite；bottom_y 表示对应动态条的底端坐标。",
+    "fuel_bar_x": 60,
+    "fuel_bar_bottom_y": 38,
+    "bubbles_x": 63,
+    "bubbles_bottom_y": 33,
+    "arrow_x": 97,
+    "arrow_bottom_y": 34
+  },
+  "advanced_potion_brewer_fluids": {
+    "comment": "炼药机两个流体槽位置。坐标相对 getGuiLeft()/getGuiTop()；左侧 water 为玻璃瓶自动装水输入，右侧 time 与灌注机/JDT 默认右流体槽位置一致。",
+    "water_fluid_x": -6,
+    "water_fluid_y": -21,
+    "time_fluid_x": 174,
+    "time_fluid_y": -21
+  },
+  "advanced_potion_brewer_buttons": {
+    "comment": "炼药机速度和红石控制按钮位置。速度按钮在最下方输出槽右侧 2px，红石按钮在中间输出槽右侧 4px。",
+    "speed_button_x": 148,
+    "speed_button_y": 53,
+    "redstone_button_x": 152,
+    "redstone_button_y": 31,
+    "recipe_lock_button_x": 152,
+    "recipe_lock_button_y": 13
   }
 }

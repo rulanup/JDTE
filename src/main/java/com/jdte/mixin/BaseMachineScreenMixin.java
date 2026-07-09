@@ -17,6 +17,9 @@ import com.jdte.client.UpgradePopupDragHandler;
 import com.jdte.client.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.autoioconfig.AutoIoConfigData;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
+import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
+import com.jdte.common.containers.AdvancedPotionBrewerContainer;
+import com.jdte.common.containers.BioCrusherContainer;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
 import com.jdte.common.network.data.FilterPagePayload;
@@ -76,8 +79,11 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique private static final ResourceLocation JDTE_IO_EAST = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-east.png");
     @Unique private static final ResourceLocation JDTE_IO_UP = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-up.png");
     @Unique private static final ResourceLocation JDTE_IO_DOWN = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-down.png");
+    @Unique private static final ResourceLocation JDTE_UPGRADE_SLOT_PANEL = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/upgrade_slot_panel.png");
     @Unique private int jdte$filterPressed = 0;
     @Unique private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
+    @Unique private static final int JDTE_UPGRADE_SLOT_PANEL_WIDTH = 32;
+    @Unique private static final int JDTE_UPGRADE_SLOT_PANEL_HEIGHT = 86;
     @Unique private static final Map<Slot, int[]> JDTE_ORIGINAL_SLOT_POSITIONS = new WeakHashMap<>();
     @Unique private static final int JDTE_SLOT_SIZE = 18;
     @Unique private static final int JDTE_FILTER_COLUMNS = 9;
@@ -158,12 +164,13 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
     @Unique
     private void jdte$drawSlotPanel(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config, int originX, int originY, int slotCount) {
-        int panelW = config.getColumns() * config.getSlotSize() + 2 * config.getPanelPadding();
-        int panelH = config.getRows() * config.getSlotSize() + 2 * config.getPanelPadding();
-        int panelX = getGuiLeft() + originX - config.getPanelPadding();
-        int panelY = getGuiTop() + originY - config.getPanelPadding();
+        int panelX = getGuiLeft() + originX - (JDTE_UPGRADE_SLOT_PANEL_WIDTH - config.getSlotSize()) / 2;
+        int panelY = getGuiTop() + originY - (JDTE_UPGRADE_SLOT_PANEL_HEIGHT - config.getRows() * config.getSlotSize()) / 2;
 
-        guiGraphics.blitSprite(SOCIALBACKGROUND, panelX, panelY, panelW, panelH);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        guiGraphics.blit(JDTE_UPGRADE_SLOT_PANEL, panelX, panelY, 0, 0,
+                JDTE_UPGRADE_SLOT_PANEL_WIDTH, JDTE_UPGRADE_SLOT_PANEL_HEIGHT,
+                JDTE_UPGRADE_SLOT_PANEL_WIDTH, JDTE_UPGRADE_SLOT_PANEL_HEIGHT);
 
         for (int i = 0; i < slotCount; i++) {
             int sx = getGuiLeft() + originX;
@@ -206,6 +213,10 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                     slotAccessor.jdte$setY(config.getFirstSlotY() + row * config.getSlotSpacing() + 1);
                 }
                 upgradeSlotIndex++;
+            } else if (container instanceof AdvancedPotionBrewerContainer && jdte$layoutPotionBrewerSlot(slot, slotAccessor, config)) {
+                continue;
+            } else if (container instanceof BioCrusherContainer && jdte$layoutBioCrusherSlot(slot, slotAccessor, config)) {
+                continue;
             } else if (jdte$isPlayerInventorySlot(slot)) {
                 slotAccessor.jdte$setX(original[0]);
                 slotAccessor.jdte$setY(original[1]);
@@ -214,6 +225,69 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 slotAccessor.jdte$setY(original[1]);
             }
         }
+    }
+
+    @Unique
+    private boolean jdte$layoutPotionBrewerSlot(Slot slot, SlotAccessor slotAccessor, GuiUpgradeLayoutConfig config) {
+        if (container.slots.get(AdvancedPotionBrewerBE.BOTTLE_SLOT_0) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerBottleSlot0X());
+            slotAccessor.jdte$setY(config.getPotionBrewerBottleSlot0Y());
+            return true;
+        }
+        if (container.slots.get(AdvancedPotionBrewerBE.BOTTLE_SLOT_1) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerBottleSlot1X());
+            slotAccessor.jdte$setY(config.getPotionBrewerBottleSlot1Y());
+            return true;
+        }
+        if (container.slots.get(AdvancedPotionBrewerBE.BOTTLE_SLOT_2) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerBottleSlot2X());
+            slotAccessor.jdte$setY(config.getPotionBrewerBottleSlot2Y());
+            return true;
+        }
+        if (container.slots.get(AdvancedPotionBrewerBE.INGREDIENT_SLOT) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerIngredientSlotX());
+            slotAccessor.jdte$setY(config.getPotionBrewerIngredientSlotY());
+            return true;
+        }
+        if (container.slots.get(AdvancedPotionBrewerBE.FUEL_SLOT) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerFuelSlotX());
+            slotAccessor.jdte$setY(config.getPotionBrewerFuelSlotY());
+            return true;
+        }
+        int extraIngredientCount = Math.min(AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_COUNT, config.getPotionBrewerExtraIngredientCount());
+        for (int i = 0; i < extraIngredientCount; i++) {
+            if (container.slots.get(AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + i) == slot) {
+                slotAccessor.jdte$setX(config.getPotionBrewerExtraIngredientStartX() + i * config.getPotionBrewerExtraIngredientSpacing());
+                slotAccessor.jdte$setY(config.getPotionBrewerExtraIngredientStartY());
+                return true;
+            }
+        }
+        int outputCount = Math.min(AdvancedPotionBrewerBE.OUTPUT_SLOT_COUNT, config.getPotionBrewerOutputCount());
+        for (int i = 0; i < outputCount; i++) {
+            if (container.slots.get(AdvancedPotionBrewerBE.OUTPUT_SLOT_START + i) == slot) {
+                slotAccessor.jdte$setX(config.getPotionBrewerOutputStartX());
+                slotAccessor.jdte$setY(config.getPotionBrewerOutputStartY() + i * config.getPotionBrewerOutputSpacing());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Unique
+    private boolean jdte$layoutBioCrusherSlot(Slot slot, SlotAccessor slotAccessor, GuiUpgradeLayoutConfig config) {
+        if (!(slot instanceof BioCrusherContainer.BioCrusherUpgradeSlot upgradeSlot)) {
+            return false;
+        }
+
+        if (upgradeSlot.getKind() == BioCrusherContainer.UpgradeKind.SHARPNESS) {
+            slotAccessor.jdte$setX(config.getBioCrusherSharpnessSlotX());
+            slotAccessor.jdte$setY(config.getBioCrusherSharpnessSlotY());
+            return true;
+        }
+
+        slotAccessor.jdte$setX(config.getBioCrusherLootingSlotX());
+        slotAccessor.jdte$setY(config.getBioCrusherLootingSlotY());
+        return true;
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
@@ -363,6 +437,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
     @Unique
     private void jdte$clampFilterPage() {
+        if (container instanceof BioCrusherContainer) return;
         if (!(container instanceof FilterPageHolder holder)) return;
         if (!jdte$hasFilterUpgrades()) {
             if (holder.jdte$getFilterPage() != 0) {
