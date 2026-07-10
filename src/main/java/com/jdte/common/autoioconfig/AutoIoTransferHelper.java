@@ -196,7 +196,7 @@ public final class AutoIoTransferHelper {
         } else if (machine instanceof FluidReceiverBE receiver) {
             fluidOutput = receiver.getFluidTank();
         } else if (machine instanceof BioCrusherBE crusher) {
-            itemOutputs = crusher.hasOutputInventory() ? allSlots(handler) : NO_SLOTS;
+            itemOutputs = crusher.hasOutputInventory() ? boundedSlots(handler, range(0, crusher.getActiveOutputSlotCount())) : NO_SLOTS;
             fluidOutput = crusher.getFluidTank();
         } else if (machine instanceof LifeExtractorBE extractor) {
             fluidOutput = extractor.getFluidTank();

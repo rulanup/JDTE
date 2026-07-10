@@ -3,6 +3,16 @@
 ### English
 
 #### v0.5.3 (Current)
+- **Fixed**: Extended Clicker settings now initialize through the JDT Clicker T2 screen that is actually opened by its inherited menu type, so saved non-Block targets no longer appear to reset after reopening the machine.
+- **Fixed**: Added opt-in Bio Crusher compatibility for Draconic Evolution Chaos Guardian fights. The new server settings `allowDestroyChaosGuardianCrystals` and `allowInstantKillChaosGuardian` independently enable automatic outer-crystal destruction and a lethal FakePlayer-attributed guardian attack; both default to `false`. When enabled, DE's normal fight manager still settles the boss bar, Dragon Heart, central Chaos Crystal unlock, and delayed experience instead of raw entity removal.
+- **Fixed**: Advanced Potion Brewer no longer crashes the integrated server when Placebo/Apotheosis synchronizes brewing mixes during login. A concurrent recipe update now pauses brewing for that tick and retries against the completed modded recipe list on the next tick.
+- **Changed**: Extended Bio Crusher output inventory now scales with Capacity Upgrades. It starts with 18 output slots, opens 9 more per Capacity Upgrade by default, and uses a server-side multiplier of 2 for 18 slots per upgrade, reaching 72 slots with the default 3-upgrade limit. The GUI still shows 9 slots per page, auto-output only extracts active slots, and occupied high slots remain accessible if capacity is later reduced.
+- **Fixed**: Advanced Bio Crusher drops are now emitted at the killed entity's position through Minecraft's standard item-drop path. The Advanced tier no longer loses captured drops despite having no output inventory; the Extended tier still stores drops in its output slots and only spills items above the machine when full.
+- **Changed**: Bio Crusher experience fluid is now calculated from the entity's actual final experience reward after NeoForge and mod adjustments, including Apothic Spawners Echoing, instead of maximum health. The retained global config is now `experienceFluidPerPoint`, defaults to `1.0`, and multiplies the final XP amount in mB. Normal, forced, and virtual spawner kills all use the same conversion path without spawning experience orbs.
+- **Fixed**: Bio Crusher spawner interception now honors Apothic Spawners' public dynamic stats, including modified spawn count, initial health, silent, no-AI, youthful, burning, and echoing. Echoing now contributes its additional loot through Apothic Spawners' own drop event, and the Apothic-specific delay method preserves modified min/max delays. Direct Sharpness kills now use `isDeadOrDying()` so they do not run the forced-loot path a second time.
+- **Fixed**: Virtual Bio Crusher processing above vanilla and Apothic Spawners now loads the complete `SpawnData` entity NBT, runs the normal spawner finalization and equipment table, then captures the complete virtual death. Spawner-produced weapons, tools, armor, custom death drops, and player-kill loot conditions are now preserved without adding the entity to the world.
+- **Fixed**: Sharpness upgrades no longer cause normally killed Bio Crusher targets to drop items into the world. Final drops are now captured at `LivingDropsEvent` after other mods finish modifying them, then routed into the Extended Bio Crusher output inventory. Looting upgrades now work for both live targets and virtual spawner processing with a real Looting weapon, a complete player-kill loot context, and the documented configurable 50% extra drop roll per level.
+- **Changed**: Bio Crusher now performs a real cached-FakePlayer attack with an actual Looting weapon and captures the resulting mod-adjusted drops. If the target survives, force-kill remains enabled by default and can be disabled globally in `config/jdte/jdte.toml` with `jdte.bioCrusher.respectDamageRestrictions`; entity-type tags can fully blacklist targets or only blacklist forced killing. XP fluid and energy are now awarded only after a successful kill, and unknown modded entities no longer receive fabricated fallback drops.
 - **Build system overhaul**: Refactored `build.gradle` — extracted `dependencies.gradle`, added `localRuntime`/`clientLocalRuntime` configurations, `clientRuntime` source set, `ExpandPropertiesAction`, sources jar, and jar manifest. All runtime dev dependencies from WCWT mod added.
 - **JDT dependency**: Changed from local jar file to CurseMaven coordinate `curse.maven:just-dire-things-1002348:7463040`.
 - **GUI Redesign Plan**: Created `GUI_REDESIGN.md` documenting all 37 machines with full component/upgrade analysis, overlap detection, and proposed embedded (popup-free) GUI layouts with calculated dimensions.
@@ -78,6 +88,7 @@
 - **Changed**: Bio Crusher now exposes one visible Sharpness slot and one visible Looting slot next to the target mode button. The dedicated slots support stacked upgrades, show gray ghost icons, have empty-slot tooltips, and use JDT's Negate Fall Damage / Potion Arrow upgrade artwork.
 - **Changed**: Bio Crusher target mode button and dedicated Sharpness/Looting slots are now moved above the output row while keeping their X positions. Only the Extended Bio Crusher has the 18-slot paged output inventory; the Advanced Bio Crusher drops generated items into the world as before, while the Extended Bio Crusher stores generated drops in its output slots when space is available.
 - **Fixed**: Bio Crusher and Life Extractor hostile/friendly modes now classify targets by hostile entity type instead of the current `Mob.isAggressive()` AI state, so idle hostile mobs are no longer treated as friendly.
+- **Fixed**: Bio Crusher spawner integration now intercepts the spawn cycle before vanilla creates entities. The crusher consumes the cycle only when it can generate drops/fluid successfully, then calls the matching vanilla or Apothic Spawners delay path to keep SpawnPotentials and modded spawn-count changes compatible; otherwise the original spawner logic continues.
 - **Development runtime**: Added Apotheosis, Apothic Attributes/Enchanting/Spawners, Bookshelf, Enchantment Descriptions, Prickle, Placebo, and Hostile Neural Networks to the local runtime dependency set.
 - **Build**: Updated NeoForge from `21.1.230` to `21.1.233` and raised the required NeoForge version range to `[21.1.233,)`.
 
@@ -137,6 +148,16 @@
 ### 中文
 
 #### v0.5.3（当前）
+- **修复**：扩展高级点击器现在通过继承菜单实际打开的 JDT 高级点击器界面初始化设置，重新打开机器时不再把已保存的非“方块”目标显示为默认值。
+- **修复**：为生物粉碎机新增可选的龙之研究混沌守卫兼容。服务端配置 `allowDestroyChaosGuardianCrystals` 与 `allowInstantKillChaosGuardian` 分别控制自动破坏外层水晶和带假玩家归因的守卫秒杀，两项默认均为 `false`。启用后仍由 DE 战斗管理器正常结算 Boss 血条、龙心、中央混沌水晶解锁及延迟经验，不直接删除实体。
+- **修复**：Placebo/神化在进入世界时同步酿造配方期间，高级炼药机不再因并发修改酿造列表而使集成服务器崩溃；遇到同步窗口时机器会暂停当前 tick，并在下一 tick 使用同步完成后的模组配方继续处理。
+- **变更**：扩展生物粉碎机输出库存现在随容量升级扩展。基础 18 格，每张容量升级额外开放 9 格，默认 3 张容量升级时最多 45 格。GUI 仍每页显示 9 格，自动输出只抽取当前有效槽位，容量降低后高位槽中已有物品仍保持可取出。
+- **修复**：高级生物粉碎机现在通过原版物品掉落路径把战利品生成在被击杀实体原位置，不再因为自身没有输出库存而丢失已捕获的掉落物；扩展生物粉碎机仍优先写入输出槽，仅在槽位已满时从机器上方溢出物品。
+- **变更**：生物粉碎机经验流体改为按实体经过 NeoForge 和其它模组修正后的实际最终经验计算，包含神化刷怪笼“回响”的经验加成，不再按最大生命值估算。保留全局配置并改为 `experienceFluidPerPoint`，默认 `1.0`，表示每点最终经验转换的 mB 数；普通击杀、强制击杀和刷怪笼虚拟击杀统一使用该换算且不会生成经验球。
+- **修复**：生物粉碎机拦截刷怪笼时现会读取神化刷怪笼的公开动态统计，兼容修改后的生成数量、初始生命、静音、无 AI、幼年、燃烧和回响。回响会通过神化自己的掉落事件生成额外战利品，神化专用延迟方法也会保留修改后的最小/最大生成延迟。锋利直接击杀改用 `isDeadOrDying()` 判断，不再重复执行一次强制掉落流程。
+- **修复**：生物粉碎机在原版及神话刷怪笼上方虚拟处理时，现会加载完整 `SpawnData` 实体 NBT，执行正常刷怪笼生成初始化和装备表，再捕获完整虚拟死亡结果。刷怪笼生成的武器、工具、盔甲、自定义死亡掉落和玩家击杀条件均会保留，且实体不会实际加入世界。
+- **修复**：锋利升级使生物被正常伤害直接击杀时，掉落物不再生成到世界中；现在会在其它模组完成修改后的 `LivingDropsEvent` 阶段捕获最终掉落，并送入扩展生物粉碎机输出槽。抢夺升级现在对范围内实体和刷怪笼虚拟处理均生效，使用真实抢夺武器、完整玩家击杀上下文，并按配置执行文档所述的每级 50% 额外掉落判定。
+- **变更**：生物粉碎机现在会使用缓存的假玩家和实际附有抢夺的武器进行攻击，并捕获经过其它模组调整后的掉落物。目标仍存活时默认继续强制击杀；可在全局 `config/jdte/jdte.toml` 中将 `jdte.bioCrusher.respectDamageRestrictions` 设为 `true` 来尊重假玩家/伤害限制。新增实体类型标签用于完全排除目标或仅禁止强制击杀；经验流体与能量只在成功击杀后结算，未知模组实体不再生成伪造的兜底掉落。
 - **构建系统重构**：重写 `build.gradle`，提取 `dependencies.gradle` 分离依赖管理；新增 `localRuntime`/`clientLocalRuntime` 配置和 `clientRuntime` 源集；新增 `ExpandPropertiesAction` 处理资源替换；生成 sources jar 和 jar manifest。添加 WCWT 模组的所有开发运行时依赖。
 - **JDT 依赖**：从本地 jar 文件改为 CurseMaven 坐标 `curse.maven:just-dire-things-1002348:7463040`。
 - **GUI 重新设计方案**：创建 `GUI_REDESIGN.md`，详细分析全部 37 台机器的组件和升级配置，检测重叠问题，提出嵌入式的无弹窗 GUI 布局，含精确尺寸计算。
@@ -212,6 +233,7 @@
 - **变更**：生物粉碎机在目标模式按钮左右两侧分别显示锋利升级槽和抢夺升级槽。专用槽支持升级堆叠，空槽显示灰色 ghost 图标和 tooltip，并使用 JDT 的“抵消摔落”/“药箭”升级图标。
 - **变更**：生物粉碎机目标模式按钮和锋利/抢夺专用槽移动到输出槽上方，X 坐标保持不变。只有扩展生物粉碎机拥有 18 格分页输出库存；高级生物粉碎机生成的物品仍直接掉落到世界中，扩展生物粉碎机在有空间时会把生成掉落物写入输出槽。
 - **修复**：生物粉碎机和生命提取器的敌对/友好模式现在按敌对实体类型判断，不再使用当前 AI 攻击状态 `Mob.isAggressive()`，空闲敌对生物不会再被当成友好。
+- **修复**：生物粉碎机刷怪笼集成现在会在生成实体之前接管刷怪周期。机器只有在能成功生成掉落物/经验流体时才消耗本轮刷怪，并调用原版或神化刷怪笼对应的延迟逻辑以兼容 SpawnPotentials 和其它模组修改的 spawnCount；处理失败时会继续走原刷怪逻辑。
 - **开发运行时**：加入 Apotheosis、Apothic Attributes/Enchanting/Spawners、Bookshelf、Enchantment Descriptions、Prickle、Placebo 和 Hostile Neural Networks 本地运行时依赖。
 - **构建**：NeoForge 从 `21.1.230` 更新到 `21.1.233`，最低版本范围同步提高到 `[21.1.233,)`。
 

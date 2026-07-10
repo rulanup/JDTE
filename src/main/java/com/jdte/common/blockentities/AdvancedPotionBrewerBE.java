@@ -35,6 +35,8 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
+import java.util.ConcurrentModificationException;
+
 public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE {
     public static final int BOTTLE_SLOT_0 = 0;
     public static final int BOTTLE_SLOT_1 = 1;
@@ -361,7 +363,12 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         UpgradeHelper.syncCapacities(this);
         syncFluidCapacities();
         if (isActiveRedstone()) {
-            brew();
+            try {
+                brew();
+            } catch (ConcurrentModificationException ignored) {
+                // Some mods synchronize brewing recipes from the client thread during login.
+                // Preserve the current operation and retry after their registry update completes.
+            }
         } else {
             resetBrewProgress();
         }

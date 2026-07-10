@@ -10,10 +10,21 @@ import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandl
 import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
+import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayer;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExtendedBlockPlacerBE extends BlockPlacerT1BE implements PoweredMachineBE, AreaAffectingBE, FilterableBE, ExtendedUpgradeMachine {
     public FilterData filterData = new FilterData();
@@ -31,4 +42,41 @@ public class ExtendedBlockPlacerBE extends BlockPlacerT1BE implements PoweredMac
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
     @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
     @Override public FilterData getFilterData() { return filterData; }
+
+    @Override
+    public boolean canPlace() {
+        if (UpgradeHelper.hasCreativeUpgrade(this)) {
+            return true;
+        }
+        return hasEnoughPower(getStandardEnergyCost());
+    }
+
+    @Override
+    public InteractionResult placeBlock(ItemStack itemStack, FakePlayer fakePlayer, BlockPos blockPos) {
+        InteractionResult interactionResult = super.placeBlock(itemStack, fakePlayer, blockPos);
+        if (interactionResult.equals(InteractionResult.CONSUME) && !UpgradeHelper.hasCreativeUpgrade(this)) {
+            extractEnergy(getStandardEnergyCost(), false);
+        }
+        return interactionResult;
+    }
+
+    @Override
+    public List<BlockPos> findSpotsToPlace(FakePlayer fakePlayer) {
+        AABB area = getAABB(getBlockPos());
+        return BlockPos.betweenClosedStream((int) area.minX, (int) area.minY, (int) area.minZ, (int) area.maxX - 1, (int) area.maxY - 1, (int) area.maxZ - 1)
+                .filter(blockPos -> isBlockPosValid(fakePlayer, blockPos))
+                .map(BlockPos::immutable)
+                .sorted(Comparator.comparingDouble(blockPos -> blockPos.distSqr(getBlockPos())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isBlockPosValid(FakePlayer fakePlayer, BlockPos blockPos) {
+        if (!super.isBlockPosValid(fakePlayer, blockPos)) {
+            return false;
+        }
+        BlockState filterState = level.getBlockState(blockPos.relative(getDirectionValue()));
+        ItemStack filterStack = filterState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), level, blockPos, fakePlayer);
+        return isStackValidFilter(filterStack);
+    }
 }
