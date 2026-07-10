@@ -168,7 +168,9 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
         if (!hasOutputSlots()) {
             return 0;
         }
-        return Math.max(0, (BioCrusherBE.OUTPUT_SLOT_COUNT - 1) / BioCrusherBE.OUTPUT_SLOTS_PER_PAGE);
+        return baseMachineBE instanceof BioCrusherBE crusher
+                ? Math.max(0, (crusher.getActiveOutputSlotCount() - 1) / BioCrusherBE.OUTPUT_SLOTS_PER_PAGE)
+                : 0;
     }
 
     public void setOutputPage(int outputPage) {
@@ -223,7 +225,7 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
 
         @Override
         public ItemStack getItem() {
-            return getItemHandler().getStackInSlot(getSlotIndex());
+            return isActiveSlot() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY;
         }
 
         @Override
@@ -233,6 +235,9 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
 
         @Override
         public void set(ItemStack stack) {
+            if (!isActiveSlot()) {
+                return;
+            }
             ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
             setChanged();
         }
@@ -244,39 +249,37 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
 
         @Override
         public int getMaxStackSize() {
-            return getItemHandler().getSlotLimit(getSlotIndex());
+            return isActiveSlot() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
         }
 
         @Override
         public int getMaxStackSize(ItemStack stack) {
-            return Math.min(stack.getMaxStackSize(), getItemHandler().getSlotLimit(getSlotIndex()));
+            return isActiveSlot() ? Math.min(stack.getMaxStackSize(), getItemHandler().getSlotLimit(getSlotIndex())) : 0;
         }
 
         @Override
         public ItemStack remove(int amount) {
-            return getItemHandler().extractItem(getSlotIndex(), amount, false);
+            return isActiveSlot() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY;
         }
 
         @Override
         public boolean mayPickup(Player player) {
-            return !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty();
+            return isActiveSlot() && !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty();
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
             return false;
         }
+
+        private boolean isActiveSlot() {
+            return container.baseMachineBE instanceof BioCrusherBE crusher
+                    && getSlotIndex() < crusher.getActiveOutputSlotCount()
+                    && getSlotIndex() < getItemHandler().getSlots();
+        }
     }
 
     public int getMode() {
         return bioCrusherData == null ? 0 : bioCrusherData.get(0);
-    }
-
-    public int getProgress() {
-        return bioCrusherData == null ? 0 : bioCrusherData.get(1);
-    }
-
-    public int getProcessTime() {
-        return bioCrusherData == null ? 20 : bioCrusherData.get(2);
     }
 }

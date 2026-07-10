@@ -9,22 +9,37 @@ import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
+import com.jdte.common.integrations.ApothicSpawnerIntegration;
+import com.jdte.common.integrations.DraconicEvolutionIntegration;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.utils.BioCrusherDropCapture;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.setup.JDTEConfig;
+import com.jdte.setup.JDTETags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Containers;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,23 +48,30 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneControlledBE, AreaAffectingBE, FluidMachineBE {
     public static final int MODE_HOSTILE = 0;
     public static final int MODE_FRIENDLY = 1;
     public static final int MODE_ALL = 2;
-    public static final int OUTPUT_SLOT_COUNT = 18;
+    public static final int BASE_OUTPUT_SLOT_COUNT = 18;
+    public static final int BASE_OUTPUT_SLOTS_PER_CAPACITY_UPGRADE = 9;
+    public static final int MAX_OUTPUT_SLOT_COUNT = BASE_OUTPUT_SLOT_COUNT + UpgradeType.CAPACITY.getMaxPerMachine() * BASE_OUTPUT_SLOTS_PER_CAPACITY_UPGRADE * 10;
+    public static final int OUTPUT_SLOT_COUNT = BASE_OUTPUT_SLOT_COUNT;
     public static final int OUTPUT_SLOTS_PER_PAGE = 9;
     public static final int DEDICATED_UPGRADE_SLOT_COUNT = 2;
-
-    // Cache for entity max health to avoid creating entities every time
-    private static final java.util.Map<net.minecraft.world.entity.EntityType<?>, Float> HEALTH_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
 
     public final JDTEFluidTank fluidTank;
     public final FluidContainerData fluidContainerData;
@@ -61,7 +83,6 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     protected final ItemStackHandler sharpnessHandler;
     protected int mode = MODE_HOSTILE;
     protected int tickCounter = 0;
-    protected int progress = 0;
 
     protected BioCrusherBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -73,7 +94,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.is(Registration.XP_FLUID_SOURCE.get()));
         fluidContainerData = new FluidContainerData(this);
 
-        itemHandler = createOutputHandler(createsOutputInventory() ? OUTPUT_SLOT_COUNT : 0);
+        itemHandler = createOutputHandler(createsOutputInventory() ? getMaxOutputSlotCount() : 0);
 
         // Dedicated upgrade handlers
         lootingHandler = new ItemStackHandler(JDTEConfig.COMMON.maxLootingUpgrades.get()) {
@@ -105,8 +126,6 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             public int get(int index) {
                 return switch (index) {
                     case 0 -> mode;
-                    case 1 -> progress;
-                    case 2 -> JDTEConfig.COMMON.bioCrusherProcessTime.get();
                     default -> 0;
                 };
             }
@@ -114,12 +133,11 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             @Override
             public void set(int index, int value) {
                 if (index == 0) mode = value;
-                if (index == 1) progress = value;
             }
 
             @Override
             public int getCount() {
-                return 3;
+                return 1;
             }
         };
     }
@@ -137,6 +155,74 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         return createsOutputInventory();
     }
 
+    public int getActiveOutputSlotCount() {
+        if (!hasOutputInventory()) {
+            return 0;
+        }
+        int configuredSlots = BASE_OUTPUT_SLOT_COUNT
+                + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * getOutputSlotsPerCapacityUpgrade();
+        return Math.clamp(Math.max(configuredSlots, getOccupiedOutputSlotCount()), BASE_OUTPUT_SLOT_COUNT, getMaxOutputSlotCount());
+    }
+
+    private int getOccupiedOutputSlotCount() {
+        int occupiedSlots = 0;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            if (!itemHandler.getStackInSlot(i).isEmpty()) {
+                occupiedSlots = i + 1;
+            }
+        }
+        if (occupiedSlots <= BASE_OUTPUT_SLOT_COUNT) {
+            return BASE_OUTPUT_SLOT_COUNT;
+        }
+        return Math.min(getMaxOutputSlotCount(),
+                ((occupiedSlots + OUTPUT_SLOTS_PER_PAGE - 1) / OUTPUT_SLOTS_PER_PAGE) * OUTPUT_SLOTS_PER_PAGE);
+    }
+
+    private static int getOutputSlotsPerCapacityUpgrade() {
+        return BASE_OUTPUT_SLOTS_PER_CAPACITY_UPGRADE * JDTEConfig.COMMON.bioCrusherOutputSlotsPerCapacityUpgradeMultiplier.get();
+    }
+
+    private static int getMaxOutputSlotCount() {
+        return BASE_OUTPUT_SLOT_COUNT + UpgradeType.CAPACITY.getMaxPerMachine() * getOutputSlotsPerCapacityUpgrade();
+    }
+
+    public IItemHandler getOutputItemHandler() {
+        return new IItemHandler() {
+            @Override
+            public int getSlots() {
+                return getActiveOutputSlotCount();
+            }
+
+            @Override
+            public ItemStack getStackInSlot(int slot) {
+                return isActiveOutputSlot(slot) ? itemHandler.getStackInSlot(slot) : ItemStack.EMPTY;
+            }
+
+            @Override
+            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+                return stack;
+            }
+
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                return isActiveOutputSlot(slot) ? itemHandler.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return isActiveOutputSlot(slot) ? itemHandler.getSlotLimit(slot) : 0;
+            }
+
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return false;
+            }
+
+            private boolean isActiveOutputSlot(int slot) {
+                return slot >= 0 && slot < getActiveOutputSlotCount() && slot < itemHandler.getSlots();
+            }
+        };
+    }
     public ItemStackHandler getLootingHandler() {
         return lootingHandler;
     }
@@ -194,37 +280,25 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         AABB area = getAABB(getBlockPos());
         int processed = 0;
         int maxEntities = getMaxEntitiesPerTick();
-        long totalFluidProduced = 0;
 
         for (Entity entity : serverLevel.getEntitiesOfClass(Entity.class, area, e -> isValidTarget(e))) {
             if (processed >= maxEntities) break;
+            if (isDraconicGuardianCrystal(entity)) {
+                if (destroyDraconicGuardianCrystal(serverLevel, entity)) {
+                    processed++;
+                }
+                continue;
+            }
             if (!(entity instanceof LivingEntity livingEntity)) continue;
 
-            float maxHealth = livingEntity.getMaxHealth();
-            if (maxHealth <= 0) continue;
+            int experience = killEntity(serverLevel, livingEntity);
+            if (experience < 0) continue;
 
-            // Calculate XP fluid production
-            long fluidProduced = (long) (maxHealth * JDTEConfig.COMMON.bioCrusherFluidPerHp.get());
-            if (fluidProduced > 0 && fluidTank.fill(new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.SIMULATE) > 0) {
-                fluidTank.fill(new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.EXECUTE);
-                totalFluidProduced += fluidProduced;
-            }
-
-            // Calculate damage with sharpness upgrades
-            int damage = calculateDamage();
-
-            // Kill the entity
-            entity.hurt(serverLevel.damageSources().generic(), damage);
-            if (entity.isAlive()) {
-                entity.discard();
-            }
-
-            // Generate drops with looting
-            generateDrops(livingEntity);
+            fillExperienceFluid(experience);
             processed++;
         }
 
-        if (totalFluidProduced > 0 && !UpgradeHelper.hasCreativeUpgrade(this)) {
+        if (processed > 0 && !UpgradeHelper.hasCreativeUpgrade(this)) {
             extractEnergy(energyCost, false);
         }
 
@@ -235,8 +309,12 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
 
     protected boolean isValidTarget(Entity entity) {
         if (entity instanceof Player) return false;
-        if (!(entity instanceof LivingEntity)) return false;
         if (entity.isSpectator()) return false;
+        if (entity.getType().is(JDTETags.BIO_CRUSHER_BLACKLIST)) return false;
+
+        boolean guardianCrystal = isDraconicGuardianCrystal(entity);
+        if (!(entity instanceof LivingEntity) && !guardianCrystal) return false;
+        if (entity instanceof LivingEntity livingEntity && livingEntity.isDeadOrDying()) return false;
 
         return switch (mode) {
             case MODE_HOSTILE -> isHostileTarget(entity);
@@ -246,9 +324,138 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         };
     }
 
+    protected int killEntity(ServerLevel serverLevel, LivingEntity entity) {
+        FakePlayer fakePlayer = getFakePlayer(serverLevel);
+        ItemStack previousMainHand = fakePlayer.getMainHandItem().copy();
+        ItemStack weapon = createLootingWeapon(serverLevel);
+        DamageSource playerDamage = serverLevel.damageSources().playerAttack(fakePlayer);
+        fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, weapon);
+        try {
+            boolean draconicGuardian = isDraconicGuardian(entity);
+            if (draconicGuardian
+                    && JDTEConfig.COMMON.bioCrusherAllowDestroyChaosGuardianCrystals.get()
+                    && DraconicEvolutionIntegration.destroyOneGuardianCrystal(entity, playerDamage)) {
+                return 0;
+            }
+
+            BioCrusherDropCapture.CaptureResult<Boolean> result = BioCrusherDropCapture.capture(entity, () -> {
+                if (draconicGuardian && JDTEConfig.COMMON.bioCrusherAllowInstantKillChaosGuardian.get()) {
+                    DraconicEvolutionIntegration.attackGuardian(entity, playerDamage);
+                } else {
+                    entity.hurt(playerDamage, calculateDamage());
+                }
+                if (!entity.isDeadOrDying()) {
+                    if (draconicGuardian
+                            || JDTEConfig.COMMON.bioCrusherRespectDamageRestrictions.get()
+                            || entity.getType().is(JDTETags.BIO_CRUSHER_FORCE_KILL_BLACKLIST)) {
+                        return false;
+                    }
+
+                    createForcedDrops(serverLevel, entity, playerDamage);
+                    entity.setHealth(0.0F);
+                    entity.remove(Entity.RemovalReason.KILLED);
+                }
+                BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, entity, fakePlayer);
+                return entity.isDeadOrDying() || entity.isRemoved();
+            });
+
+            if (!result.value()) return -1;
+            applyLootingBonus(serverLevel, result.drops())
+                    .forEach(stack -> addItemToInventory(stack, entity.position()));
+            tryDropBossEssence(serverLevel, entity, getLootingLevel());
+            return result.experience();
+        } finally {
+            fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, previousMainHand);
+        }
+    }
+
+    private boolean destroyDraconicGuardianCrystal(ServerLevel serverLevel, Entity entity) {
+        FakePlayer fakePlayer = getFakePlayer(serverLevel);
+        ItemStack previousMainHand = fakePlayer.getMainHandItem().copy();
+        fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, createLootingWeapon(serverLevel));
+        try {
+            DamageSource playerDamage = serverLevel.damageSources().playerAttack(fakePlayer);
+            return DraconicEvolutionIntegration.destroyGuardianCrystal(entity, playerDamage);
+        } finally {
+            fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, previousMainHand);
+        }
+    }
+
+    private boolean isDraconicGuardianCrystal(Entity entity) {
+        return ModList.get().isLoaded("draconicevolution")
+                && JDTEConfig.COMMON.bioCrusherAllowDestroyChaosGuardianCrystals.get()
+                && DraconicEvolutionIntegration.isGuardianCrystal(entity);
+    }
+
+    private boolean isDraconicGuardian(LivingEntity entity) {
+        return ModList.get().isLoaded("draconicevolution")
+                && DraconicEvolutionIntegration.isGuardian(entity);
+    }
+
+    private void fillExperienceFluid(long experience) {
+        double multiplier = JDTEConfig.COMMON.bioCrusherExperienceFluidMultiplier.get();
+        long fluidProduced = Math.round(Math.max(0L, experience) * multiplier);
+        if (fluidProduced <= 0) return;
+
+        fluidTank.fill(
+                new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)),
+                IFluidHandler.FluidAction.EXECUTE);
+    }
+
+    private ItemStack createLootingWeapon(ServerLevel serverLevel) {
+        ItemStack weapon = new ItemStack(Items.DIAMOND_SWORD);
+        int lootingLevel = getLootingLevel();
+        if (lootingLevel <= 0) return weapon;
+
+        ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+        enchantments.set(serverLevel.registryAccess().holderOrThrow(Enchantments.LOOTING), lootingLevel);
+        EnchantmentHelper.setEnchantments(weapon, enchantments.toImmutable());
+        return weapon;
+    }
+
+    private List<ItemStack> applyLootingBonus(ServerLevel serverLevel, Collection<ItemStack> baseDrops) {
+        List<ItemStack> originalDrops = baseDrops.stream().map(ItemStack::copy).toList();
+        List<ItemStack> result = new ArrayList<>(originalDrops);
+        double extraDropChance = JDTEConfig.COMMON.lootingExtraDropChance.get();
+
+        for (int level = 0; level < getLootingLevel(); level++) {
+            if (serverLevel.random.nextDouble() < extraDropChance) {
+                originalDrops.forEach(stack -> result.add(stack.copy()));
+            }
+        }
+        return result;
+    }
+
+    private void createForcedDrops(ServerLevel serverLevel, LivingEntity entity, DamageSource source) {
+        Collection<ItemEntity> drops = new ArrayList<>();
+        try {
+            net.minecraft.world.level.storage.loot.LootTable lootTable = serverLevel.getServer()
+                    .reloadableRegistries().getLootTable(entity.getLootTable());
+            net.minecraft.world.level.storage.loot.LootParams params = new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, entity)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, entity.position())
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DAMAGE_SOURCE, source)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ATTACKING_ENTITY, source.getEntity())
+                    .withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DIRECT_ATTACKING_ENTITY, source.getDirectEntity())
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.LAST_DAMAGE_PLAYER, (Player) source.getEntity())
+                    .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY);
+
+            for (ItemStack stack : lootTable.getRandomItems(params)) {
+                drops.add(new ItemEntity(serverLevel, entity.getX(), entity.getY(), entity.getZ(), stack));
+            }
+            if (CommonHooks.onLivingDrops(entity, source, drops, true)) {
+                drops.clear();
+            }
+        } catch (RuntimeException ignored) {
+            drops.clear();
+        }
+    }
+
     private boolean isHostileTarget(Entity entity) {
         EntityType<?> type = entity.getType();
-        return entity instanceof Enemy || type.getCategory() == MobCategory.MONSTER;
+        return isDraconicGuardianCrystal(entity)
+                || entity instanceof Enemy
+                || type.getCategory() == MobCategory.MONSTER;
     }
 
     protected int calculateDamage() {
@@ -268,20 +475,6 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             count += handler.getStackInSlot(i).getCount();
         }
         return Math.min(count, max);
-    }
-
-    protected void generateDrops(LivingEntity entity) {
-        if (!(level instanceof ServerLevel serverLevel)) return;
-
-        int lootingLevel = getLootingLevel();
-
-        // Check for boss essence drops
-        if (tryDropBossEssence(serverLevel, entity, lootingLevel)) {
-            return;
-        }
-
-        // Generate drops using the entity's loot table
-        generateSpawnerDrops(serverLevel, entity.getType());
     }
 
     protected boolean tryDropBossEssence(ServerLevel serverLevel, LivingEntity entity, int lootingLevel) {
@@ -308,18 +501,17 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         }
 
         ItemStack essenceStack = new ItemStack(essenceItem, count);
-        addItemToInventory(essenceStack);
+        addItemToInventory(essenceStack, entity.position());
 
-        // Also generate normal loot
-        generateSpawnerDrops(serverLevel, entity.getType());
         return true;
     }
 
-    protected void addItemToInventory(ItemStack stack) {
+    protected void addItemToInventory(ItemStack stack, Vec3 sourcePosition) {
         if (stack.isEmpty()) return;
 
         if (hasOutputInventory()) {
-            for (int i = 0; i < itemHandler.getSlots(); i++) {
+            int activeSlots = getActiveOutputSlotCount();
+            for (int i = 0; i < activeSlots; i++) {
                 ItemStack existing = itemHandler.getStackInSlot(i);
                 if (existing.isEmpty()) {
                     itemHandler.setStackInSlot(i, stack.copy());
@@ -332,66 +524,57 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             }
         }
 
-        // If inventory is full, drop the item in the world
         if (level instanceof ServerLevel serverLevel) {
-            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                    serverLevel,
-                    getBlockPos().getX() + 0.5,
-                    getBlockPos().getY() + 1.5,
-                    getBlockPos().getZ() + 0.5,
-                    stack.copy()
-            );
-            serverLevel.addFreshEntity(itemEntity);
+            if (hasOutputInventory()) {
+                Containers.dropItemStack(
+                        serverLevel,
+                        getBlockPos().getX() + 0.5D,
+                        getBlockPos().getY() + 1.5D,
+                        getBlockPos().getZ() + 0.5D,
+                        stack.copy());
+            } else {
+                Containers.dropItemStack(
+                        serverLevel,
+                        sourcePosition.x,
+                        sourcePosition.y,
+                        sourcePosition.z,
+                        stack.copy());
+            }
         }
     }
 
-    public void processSpawnerCrush(ServerLevel serverLevel, BlockPos spawnerPos, com.jdte.mixin.BaseSpawnerAccessor accessor) {
+    public boolean processSpawnerCrush(ServerLevel serverLevel, BlockPos spawnerPos, BaseSpawner spawner, SpawnData nextSpawnData, int spawnCount) {
         // Check energy
         int energyCost = getEffectiveEnergyCost();
         if (energyCost > 0 && !UpgradeHelper.hasCreativeUpgrade(this) && !hasEnoughPower(energyCost)) {
-            return;
+            return false;
         }
 
         // Get entity type from nextSpawnData instead of displayEntity
         // This is more reliable for modded spawners that use SpawnPotentials
-        SpawnData nextSpawnData = accessor.jdte$getNextSpawnData();
         if (nextSpawnData == null) {
-            return;
+            return false;
         }
 
-        net.minecraft.nbt.CompoundTag entityTag = nextSpawnData.getEntityToSpawn();
-        java.util.Optional<net.minecraft.world.entity.EntityType<?>> entityTypeOpt = net.minecraft.world.entity.EntityType.by(entityTag);
-        if (entityTypeOpt.isEmpty()) {
-            return;
+        BlockEntity spawnerBlockEntity = serverLevel.getBlockEntity(spawnerPos);
+        if (ModList.get().isLoaded("apothic_spawners")) {
+            spawnCount = ApothicSpawnerIntegration.getSpawnCount(spawnerBlockEntity, spawnCount);
         }
+        if (spawnCount <= 0) return false;
 
-        net.minecraft.world.entity.EntityType<?> entityType = entityTypeOpt.get();
-
-        // Get spawn count from the spawner
-        int spawnCount = accessor.jdte$getSpawnCount();
-
-        // Get max health from cache or calculate it
-        float maxHealth = HEALTH_CACHE.computeIfAbsent(entityType, type -> {
-            try {
-                if (type.create(serverLevel) instanceof LivingEntity livingEntity) {
-                    return livingEntity.getMaxHealth();
-                }
-            } catch (Exception e) {
-                // If we can't create the entity, use default health
-            }
-            return 20.0f;
-        });
-
-        // Produce life fluid (scaled by spawn count)
-        long fluidProduced = (long) (maxHealth * JDTEConfig.COMMON.bioCrusherFluidPerHp.get() * spawnCount);
-        if (fluidProduced > 0 && fluidTank.fill(new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.SIMULATE) > 0) {
-            fluidTank.fill(new FluidStack(Registration.XP_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.EXECUTE);
-        }
-
-        // Generate drops using the entity's loot table (scaled by spawn count)
+        long totalExperience = 0;
+        int processed = 0;
         for (int i = 0; i < spawnCount; i++) {
-            generateSpawnerDrops(serverLevel, entityType);
+            int experience = generateSpawnerDrops(serverLevel, spawnerPos, spawner, nextSpawnData);
+            if (experience < 0) continue;
+
+            totalExperience += experience;
+            processed++;
         }
+
+        if (processed == 0) return false;
+
+        fillExperienceFluid(totalExperience);
 
         // Extract energy
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
@@ -399,74 +582,64 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         }
 
         setChanged();
+        return true;
     }
 
-    protected void generateSpawnerDrops(ServerLevel serverLevel, net.minecraft.world.entity.EntityType<?> entityType) {
-        // Create a temporary entity to get its loot table
-        net.minecraft.world.entity.Entity tempEntity = entityType.create(serverLevel);
-        if (!(tempEntity instanceof LivingEntity livingEntity)) {
-            return;
+    protected int generateSpawnerDrops(ServerLevel serverLevel, BlockPos spawnerPos, BaseSpawner spawner, SpawnData spawnData) {
+        Entity virtualEntity = EntityType.loadEntityRecursive(spawnData.getEntityToSpawn().copy(), serverLevel, entity -> {
+            entity.moveTo(spawnerPos.getX() + 0.5D, spawnerPos.getY() + 0.5D, spawnerPos.getZ() + 0.5D, entity.getYRot(), entity.getXRot());
+            return entity;
+        });
+        if (!(virtualEntity instanceof LivingEntity livingEntity)) return -1;
+
+        BlockEntity spawnerBlockEntity = serverLevel.getBlockEntity(spawnerPos);
+        if (ModList.get().isLoaded("apothic_spawners")) {
+            ApothicSpawnerIntegration.applySpawnModifiers(spawnerBlockEntity, virtualEntity);
         }
 
-        // Set up the entity for loot generation
-        livingEntity.setPos(getBlockPos().getX() + 0.5, getBlockPos().getY() + 1, getBlockPos().getZ() + 0.5);
+        if (livingEntity instanceof Mob mob) {
+            boolean vanillaFinalizeSpawn = spawnData.getEntityToSpawn().size() == 1
+                    && spawnData.getEntityToSpawn().contains("id", net.minecraft.nbt.Tag.TAG_STRING);
+            EventHooks.finalizeMobSpawnSpawner(
+                    mob,
+                    serverLevel,
+                    serverLevel.getCurrentDifficultyAt(spawnerPos),
+                    MobSpawnType.SPAWNER,
+                    null,
+                    spawner,
+                    vanillaFinalizeSpawn);
+            spawnData.getEquipment().ifPresent(mob::equip);
+        }
 
-        // Calculate looting level
-        int lootingLevel = getLootingLevel();
+        FakePlayer fakePlayer = getFakePlayer(serverLevel);
+        ItemStack previousMainHand = fakePlayer.getMainHandItem().copy();
+        fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, createLootingWeapon(serverLevel));
 
-        // Use the entity's loot table to generate drops
         try {
-            // Get the entity's loot table resource key
-            net.minecraft.resources.ResourceKey<net.minecraft.world.level.storage.loot.LootTable> lootTableKey = livingEntity.getLootTable();
+            DamageSource playerDamage = serverLevel.damageSources().playerAttack(fakePlayer);
+            BioCrusherDropCapture.CaptureResult<Boolean> result = BioCrusherDropCapture.capture(livingEntity, () -> {
+                livingEntity.hurt(playerDamage, Float.MAX_VALUE);
+                if (!livingEntity.isDeadOrDying()) {
+                    if (JDTEConfig.COMMON.bioCrusherRespectDamageRestrictions.get()
+                            || livingEntity.getType().is(JDTETags.BIO_CRUSHER_FORCE_KILL_BLACKLIST)) {
+                        return false;
+                    }
+                    livingEntity.setHealth(0.0F);
+                    livingEntity.die(playerDamage);
+                }
+                BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, livingEntity, fakePlayer);
+                return livingEntity.isDeadOrDying() || livingEntity.isRemoved();
+            });
+            if (!result.value()) return -1;
 
-            // Get the loot table from the server
-            net.minecraft.world.level.storage.loot.LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(lootTableKey);
-
-            // Create loot context
-            net.minecraft.world.level.storage.loot.LootParams.Builder lootParamsBuilder = new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
-                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, net.minecraft.world.phys.Vec3.atCenterOf(getBlockPos()))
-                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, livingEntity)
-                    .withLuck(lootingLevel);
-
-            // Generate drops
-            java.util.List<net.minecraft.world.item.ItemStack> drops = lootTable.getRandomItems(lootParamsBuilder.create(net.minecraft.world.level.storage.loot.LootTable.DEFAULT_PARAM_SET));
-
-            for (net.minecraft.world.item.ItemStack drop : drops) {
-                addItemToInventory(drop);
-            }
-        } catch (Exception e) {
-            // If loot generation fails, generate some basic drops based on entity type
-            generateBasicDrops(serverLevel, livingEntity, lootingLevel);
-        }
-    }
-
-    protected void generateBasicDrops(ServerLevel serverLevel, LivingEntity entity, int lootingLevel) {
-        // Generate some basic drops based on entity type
-        java.util.List<net.minecraft.world.item.ItemStack> drops = new java.util.ArrayList<>();
-
-        // Add some basic drops based on entity type
-        if (entity instanceof net.minecraft.world.entity.monster.Zombie) {
-            drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.ROTTEN_FLESH, 1 + lootingLevel));
-            if (serverLevel.random.nextFloat() < 0.02f + (lootingLevel * 0.01f)) {
-                drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_INGOT, 1));
-            }
-        } else if (entity instanceof net.minecraft.world.entity.monster.Skeleton) {
-            drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BONE, 1 + lootingLevel));
-            drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.ARROW, 1 + lootingLevel));
-        } else if (entity instanceof net.minecraft.world.entity.monster.Spider) {
-            drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STRING, 1 + lootingLevel));
-            if (serverLevel.random.nextFloat() < 0.1f + (lootingLevel * 0.05f)) {
-                drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.SPIDER_EYE, 1));
-            }
-        } else if (entity instanceof net.minecraft.world.entity.monster.Creeper) {
-            drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.GUNPOWDER, 1 + lootingLevel));
-        } else {
-            // Default drops for unknown entities
-            drops.add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BONE, 1));
-        }
-
-        for (net.minecraft.world.item.ItemStack drop : drops) {
-            addItemToInventory(drop);
+            applyLootingBonus(serverLevel, result.drops())
+                    .forEach(stack -> addItemToInventory(stack, livingEntity.position()));
+            tryDropBossEssence(serverLevel, livingEntity, getLootingLevel());
+            return result.experience();
+        } catch (RuntimeException ignored) {
+            return -1;
+        } finally {
+            fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, previousMainHand);
         }
     }
 
@@ -531,7 +704,6 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         tag.put("sharpnessHandler", sharpnessHandler.serializeNBT(provider));
         tag.putInt("mode", mode);
         tag.putInt("tickCounter", tickCounter);
-        tag.putInt("progress", progress);
         saveAreaSettings(tag);
     }
 
@@ -558,9 +730,6 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         }
         if (tag.contains("tickCounter")) {
             tickCounter = tag.getInt("tickCounter");
-        }
-        if (tag.contains("progress")) {
-            progress = tag.getInt("progress");
         }
         loadAreaSettings(tag);
     }
@@ -598,10 +767,10 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         if (!hasOutputInventory()) {
             return;
         }
-        if (itemHandler.getSlots() >= OUTPUT_SLOT_COUNT) {
+        if (itemHandler.getSlots() >= getMaxOutputSlotCount()) {
             return;
         }
-        ItemStackHandler resized = createOutputHandler(OUTPUT_SLOT_COUNT);
+        ItemStackHandler resized = createOutputHandler(getMaxOutputSlotCount());
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
             if (!stack.isEmpty()) {

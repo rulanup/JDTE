@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，围绕 JDT 机器增加升级卡、更多升级槽、时间加速器和若干自动化机器。
 
-当前版本：`0.5.2`
+当前版本：`0.5.3`
 
 [English README](README_EN.md)
 
@@ -84,16 +84,20 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 
 ### 生物粉碎机
 
-生物粉碎机是一种新机器，可以杀死范围内的生物并产生掉落物和经验流体。
+生物粉碎机使用假玩家和真实抢夺武器攻击范围内的生物，捕获经过其它模组修正后的最终战利品与实际经验。经验流体按 `最终经验 × experienceFluidPerPoint` 计算，倍率默认 `1.0`，即默认 `1 XP = 1 mB`。
 
-- **高级生物粉碎机**：4 个标准升级槽 + 2 个专用升级槽
-- **扩展生物粉碎机**：8 个标准升级槽 + 2 个专用升级槽
+- **高级生物粉碎机**：4 个标准升级槽 + 2 个专用升级槽；战利品在被击杀生物的原位置掉落
+- **扩展生物粉碎机**：8 个标准升级槽 + 2 个专用升级槽；础础 18 个分页输出槽，每张容量升级额外开放 18 个，默认最多 72 个，满槽时从机器上方溢出
 
 专用升级槽支持：
-- **抢夺升级**：最高 6 级，每级增加 50% 额外掉落概率
+- **抢夺升级**：最高 6 级，每级默认有 50% 概率复制一次完整的最终战利品集合
 - **锋利升级**：最高 6 个，每个增加 5 点伤害
 
-特殊功能：放置在刷怪笼上方可阻止刷怪，并直接产生掉落物和经验流体。
+击杀成功后才会结算战利品、经验流体和能量。锋利伤害不足时默认强制处死目标；服务器可将 `jdte.bioCrusher.respectDamageRestrictions` 设为 `true` 以尊重伤害/假玩家限制，也可通过 `#jdte:bio_crusher_blacklist` 和 `#jdte:bio_crusher_force_kill_blacklist` 实体标签扩展黑名单。
+
+龙之研究混沌守卫兼容由服务端配置 `jdte.bioCrusher.allowDestroyChaosGuardianCrystals` 和 `jdte.bioCrusher.allowInstantKillChaosGuardian` 独立控制，两项默认均关闭。
+
+放置在刷怪笼正上方时，机器会在实体生成前处理完整 `SpawnData`，保留装备、模组掉落、SpawnPotentials、刷怪数量和延迟。兼容原版与神化刷怪笼，并支持神化的初始生命、静音、无 AI、幼年、燃烧、回响等修改；处理失败时不会阻止刷怪笼正常工作。
 
 ### BOSS 精华
 

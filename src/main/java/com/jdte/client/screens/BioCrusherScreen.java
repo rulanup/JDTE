@@ -56,7 +56,6 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
-        renderProgressBar(guiGraphics);
         if (!hasFilterUpgrade()) {
             renderModeButton(guiGraphics);
         }
@@ -112,17 +111,6 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
         };
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         guiGraphics.blit(icon, modeBtnX, modeBtnY, 0, 0, 16, 16, 16, 16);
-    }
-
-    private void renderProgressBar(GuiGraphics guiGraphics) {
-        BioCrusherContainer bcContainer = (BioCrusherContainer) container;
-        int progress = bcContainer.getProgress();
-        int processTime = bcContainer.getProcessTime();
-
-        if (processTime > 0 && progress > 0) {
-            int progressBarWidth = (int) (24.0f * progress / processTime);
-            guiGraphics.fill(topSectionLeft + 79, topSectionTop + 35, topSectionLeft + 79 + progressBarWidth, topSectionTop + 35 + 16, 0xFF00FF00);
-        }
     }
 
     private void renderOutputPageButtons(GuiGraphics guiGraphics) {

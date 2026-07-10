@@ -1,8 +1,10 @@
 package com.jdte.mixin;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.SpawnData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
@@ -10,4 +12,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface BaseSpawnerInvoker {
     @Invoker("delay")
     void jdte$delay(Level level, BlockPos pos);
+
+    @Invoker("getOrCreateNextSpawnData")
+    SpawnData jdte$getOrCreateNextSpawnData(Level level, RandomSource random, BlockPos pos);
 }

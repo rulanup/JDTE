@@ -14,10 +14,12 @@ import com.jdte.common.commands.JDTECommands;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.utils.BioCrusherDropCapture;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
 import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -48,6 +50,8 @@ public class JDTE {
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
         NeoForge.EVENT_BUS.addListener(JDTECommands::register);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
         }
@@ -178,7 +182,7 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
         );
         event.registerBlock(Capabilities.ItemHandler.BLOCK,
-                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.ExtendedBioCrusherBE crusher ? crusher.getMachineHandler() : null,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.ExtendedBioCrusherBE crusher ? crusher.getOutputItemHandler() : null,
                 JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
         );
 

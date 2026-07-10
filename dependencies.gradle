@@ -28,6 +28,9 @@ dependencies {
     compileOnly "mekanism:Mekanism:${mekanism_version}"
     compileOnly "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    compileOnly "curse.maven:apothic-spawners-986583:7492121"
+    compileOnly "curse.maven:brandons-core-231382:${brandons_core_file}"
+    compileOnly "curse.maven:draconic-evolution-223565:${draconic_evolution_file}"
 
     // Miscellaneous
     compileOnly "curse.maven:polymorph-388800:${polymorph_file}"

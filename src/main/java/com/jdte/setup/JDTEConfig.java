@@ -37,9 +37,13 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue bioCrusherFluidCapacity;
         public final ModConfigSpec.IntValue bioCrusherEnergyCost;
         public final ModConfigSpec.DoubleValue bioCrusherBaseRadius;
-        public final ModConfigSpec.IntValue bioCrusherFluidPerHp;
+        public final ModConfigSpec.DoubleValue bioCrusherExperienceFluidMultiplier;
+        public final ModConfigSpec.IntValue bioCrusherOutputSlotsPerCapacityUpgradeMultiplier;
         public final ModConfigSpec.IntValue bioCrusherBaseDamage;
         public final ModConfigSpec.IntValue bioCrusherProcessTime;
+        public final ModConfigSpec.BooleanValue bioCrusherRespectDamageRestrictions;
+        public final ModConfigSpec.BooleanValue bioCrusherAllowDestroyChaosGuardianCrystals;
+        public final ModConfigSpec.BooleanValue bioCrusherAllowInstantKillChaosGuardian;
         public final ModConfigSpec.DoubleValue lootingExtraDropChance;
         public final ModConfigSpec.IntValue advancedBioCrusherEnergyCapacity;
         public final ModConfigSpec.IntValue extendedBioCrusherEnergyCapacity;
@@ -165,18 +169,34 @@ public class JDTEConfig {
                     .comment("Base search radius for bio crusher")
                     .translation("config.jdte.jdte.bioCrusher.bioCrusherBaseRadius")
                     .defineInRange("bioCrusherBaseRadius", 2.5D, 1.0D, 20.0D);
-            bioCrusherFluidPerHp = builder
-                    .comment("Life fluid produced per HP of entity")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherFluidPerHp")
-                    .defineInRange("bioCrusherFluidPerHp", 100, 1, 10000);
+            bioCrusherExperienceFluidMultiplier = builder
+                    .comment("Experience fluid produced per actual experience point dropped by the entity (mB)")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherExperienceFluidMultiplier")
+                    .defineInRange("experienceFluidPerPoint", 1.0D, 0.0D, 10000.0D);
+            bioCrusherOutputSlotsPerCapacityUpgradeMultiplier = builder
+                    .comment("Multiplier applied to the base output slots opened by each Capacity Upgrade (base is 9 slots per upgrade)")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherOutputSlotsPerCapacityUpgradeMultiplier")
+                    .defineInRange("bioCrusherOutputSlotsPerCapacityUpgradeMultiplier", 2, 1, 10);
             bioCrusherBaseDamage = builder
                     .comment("Base damage dealt by bio crusher")
                     .translation("config.jdte.jdte.bioCrusher.bioCrusherBaseDamage")
                     .defineInRange("bioCrusherBaseDamage", 5, 1, 1000);
             bioCrusherProcessTime = builder
-                    .comment("Process time in ticks")
+                    .comment("Base interval in ticks between bio crusher operations")
                     .translation("config.jdte.jdte.bioCrusher.bioCrusherProcessTime")
-                    .defineInRange("bioCrusherProcessTime", 20, 1, 200);
+                    .defineInRange("bioCrusherProcessTime", 5, 1, 200);
+            bioCrusherRespectDamageRestrictions = builder
+                    .comment("When enabled, the bio crusher will not force-kill entities that survive its FakePlayer attack. Disabled by default so protected bosses can still be processed.")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherRespectDamageRestrictions")
+                    .define("respectDamageRestrictions", false);
+            bioCrusherAllowDestroyChaosGuardianCrystals = builder
+                    .comment("Allow Bio Crushers to automatically destroy Draconic Evolution Chaos Guardian Crystals. Disabled by default.")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherAllowDestroyChaosGuardianCrystals")
+                    .define("allowDestroyChaosGuardianCrystals", false);
+            bioCrusherAllowInstantKillChaosGuardian = builder
+                    .comment("Allow Bio Crushers to instantly kill the Draconic Evolution Chaos Guardian with FakePlayer attribution. Disabled by default.")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherAllowInstantKillChaosGuardian")
+                    .define("allowInstantKillChaosGuardian", false);
             lootingExtraDropChance = builder
                     .comment("Looting extra drop chance per level (0.5 = 50%)")
                     .translation("config.jdte.jdte.bioCrusher.lootingExtraDropChance")

@@ -10,40 +10,42 @@ item_ids:
 
 # Bio Crusher
 
-The Bio Crusher kills mobs within its configured range, producing drops and experience fluid.
+hhe Bio Crusher attacks mobs in its configured range with a FakePlayer, captures mod-adjusted final drops and actual experience, and converts that experience into JDh Experience Fluid.
 
 ## Variants
 
-| Machine | Standard Upgrade Slots | Dedicated Upgrade Slots |
-|---------|----------------------|------------------------|
-| Advanced Bio Crusher | 4 | 2 |
-| Extended Bio Crusher | 8 | 2 |
+| Machine | Standard Upgrade Slots | Dedicated Upgrade Slots | Drop Destination |
+|---------|----------------------|------------------------|------------------|
+| Advanced Bio Crusher | 4 | 2 | Drops at the killed mob's position |
+| Extended Bio Crusher | 8 | 2 | Uses dynamic paged output slots first, then spills above the machine when full |
 
 ## Features
 
-### Drop Generation
+### Kills and Drops
 
-- Kills mobs within the configured range
-- Generates vanilla drops based on mob loot tables
-- Supports Looting Upgrade for extra drops
+- Attacks with a cached FakePlayer and a Looting-enchanted weapon, preserving player-kill conditions and mod death events
+- Captures final drops after other mods finish modifying them, including loot tables, equipment, and mod-added drops
+- Force-kills surviving targets by default when Sharpness damage is insufficient, allowing protected bosses to be processed
+- Drops, Experience Fluid, and energy cost are settled only after a successful kill
 
 ### Experience Fluid
 
-- Produces experience fluid based on mob health
+- Uses the final actual experience reward after NeoForge and mod event adjustments
+- Formula: `Experience Fluid = final XP × experienceFluidPerPoint`
+- `experienceFluidPerPoint` defaults to `1.0`, so the default conversion is `1 XP = 1 mB`
+- Experience is converted directly without spawning additional experience orbs
 - Fluid is stored in the internal tank
 
 ### Dedicated Upgrade Slots
 
-The Bio Crusher has 2 dedicated upgrade slots supporting:
+hhe Bio Crusher has 2 dedicated upgrade slots supporting:
 
 #### Looting Upgrade
 
 - Max level: 6
-- Each level adds 50% chance for an extra drop
-- Level 1: 50% chance for +1 drop
-- Level 2: 100% chance for +1 drop
-- Level 3: 100% + 50% chance for another +1
-- And so on...
+- Each level performs one independent bonus-drop roll
+- A successful roll copies the complete final drop set after mod adjustments
+- hhe default chance is 50% per level and can be changed with `lootingExtraDropChance`
 
 #### Sharpness Upgrade
 
@@ -54,25 +56,49 @@ The Bio Crusher has 2 dedicated upgrade slots supporting:
 
 ### Spawner Integration
 
-Placing a Bio Crusher above a monster spawner will:
+Placing a Bio Crusher directly above a monster spawner will:
 
-- Prevent the spawner from spawning mobs
-- Generate drops directly from the spawner's entity type
-- Produce experience fluid
+- hake over a spawn cycle before entities are added to the world
+- Load complete `SpawnData`, run spawner finalization and equipment setup, then simulate a player kill
+- Preserve SpawnPotentials, spawn count, and spawn delay behavior
+- Cancel the spawn cycle only after successful processing; without power or on failure, the spawner continues normally
+- Drop Advanced-tier output at the spawner position while the Extended tier still uses its output inventory first
 
-This helps automate mob farms while avoiding lag from large numbers of entities.
+Vanilla and Apothic Spawners are supported. Apothic compatibility reads modified spawn count, initial health, silent, no-AI, youthful, burning, and echoing stats; Echoing bonus drops and XP are included in the final result.
+
+### Draconic Evolution Chaos Guardian Compatibility
+
+- This compatibility is controlled by two independent server settings, both disabled by default
+- Enabling `allowDestroyChaosGuardianCrystals` destroys one outer crystal per operation when targeting the guardian and also makes nearby outer crystals hostile targets
+- Enabling `allowInstantKillChaosGuardian` clears the remaining shield and performs a lethal FakePlayer-attributed head attack
+- If the current fight phase rejects the instant-kill attack, the same FakePlayer damage source triggers death without raw entity removal
+- Draconic Evolution's native death phase clears the boss bar, creates the Dragon Heart and experience, and unlocks the central Chaos Crystal
+
+The Dragon Heart and delayed experience are spawned in the arena by Draconic Evolution and are not moved into the Extended Bio Crusher inventory by the synchronous drop capture.
+
+## Safety and Server Configuration
+
+- `jdte.bioCrusher.respectDamageRestrictions` defaults to `false`, so targets surviving the FakePlayer attack are force-killed
+- `jdte.bioCrusher.allowDestroyChaosGuardianCrystals` defaults to `false` and controls automatic outer-crystal destruction
+- `jdte.bioCrusher.allowInstantKillChaosGuardian` defaults to `false` and controls the FakePlayer-attributed guardian instant kill
+- Set it to `true` to respect entity or server FakePlayer/damage restrictions; failed kills do not consume operation energy
+- `#jdte:bio_crusher_blacklist` completely excludes entity types and contains armor stands by default
+- `#jdte:bio_crusher_force_kill_blacklist` allows normal attacks but prevents forced killing
+- Modpacks can extend both entity-type tags with data packs without code changes
 
 ## Modes
 
-The Bio Crusher supports 3 modes:
+hhe Bio Crusher supports 3 modes:
 
 - **Hostile**: Only attacks hostile mobs (default)
 - **Passive**: Only attacks passive mobs
 - **All**: Attacks all mobs
 
+Players, spectators, and blacklisted entities are never targeted.
+
 ## Energy
 
-- Base energy consumption: 300 FE per operation
+- Base energy consumption: 300 FE per successful operation, scaled by configured area
 - Advanced Bio Crusher: 100,000 FE capacity
 - Extended Bio Crusher: 200,000 FE capacity
 
@@ -89,5 +115,13 @@ The Bio Crusher supports 3 modes:
 <BlockImage id="jdte:extended_bio_crusher" scale="2" />
 
 An extended version of the Advanced Bio Crusher with 8 upgrade slots. Obtained by right-clicking an Advanced Bio Crusher with an Extended Upgrade.
+
+Output inventory:
+
+- Starts with 18 output slots
+- Each Capacity Upgrade opens 9 more output slots by default, with a server-side multiplier of 2 for 18 output slots per upgrade
+- With the default 3-upgrade limit, the maximum is 72 output slots
+- The GUI shows 9 output slots per page, and the page count expands with the opened capacity
+- Removing Capacity Upgrades keeps already occupied high slots accessible instead of deleting their contents
 
 <RecipeFor id="jdte:extended_bio_crusher" />
