@@ -123,6 +123,11 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
     }
 
     @Override
+    public ResourceLocation getRegistryName(PotionBrewerJeiRecipe recipe) {
+        return recipe.id();
+    }
+
+    @Override
     public void draw(PotionBrewerJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
 

@@ -108,6 +108,11 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
     }
 
     @Override
+    public ResourceLocation getRegistryName(GelGeneratorJeiRecipe recipe) {
+        return recipe.id();
+    }
+
+    @Override
     public void draw(GelGeneratorJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         drawPanel(guiGraphics);
         drawSlotBorders(guiGraphics, recipe);

@@ -22,7 +22,7 @@ public class AdvancedBioCrusherBlock extends BaseMachineBlock {
     public AdvancedBioCrusherBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
-                .strength(2.5f)
+                .strength(2.5f, 3_600_000.0f)
                 .isRedstoneConductor(BaseMachineBlock::never)
         );
     }

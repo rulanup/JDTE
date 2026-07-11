@@ -11,7 +11,9 @@ item_ids:
 
 # Life Extractor
 
-The Life Extractor kills mobs within its configured range and produces Life Fluid based on their max health. Unlike the Bio Crusher, the Life Extractor does not produce drops — it converts the mob's life force directly into fluid.
+Advanced and Extended Life Extractors cannot be destroyed by explosions, but can still be mined normally by players.
+
+The Life Extractor kills mobs within its configured range and produces Life Fluid based on their current remaining health. Unlike the Bio Crusher, the Life Extractor does not produce drops — it converts the mob's life force directly into fluid.
 
 ## Variants
 
@@ -25,7 +27,21 @@ The Life Extractor kills mobs within its configured range and produces Life Flui
 ### Life Fluid Generation
 
 - Kills mobs within the configured range
-- Produces Life Fluid based on the mob's max health: 100 mB per HP
+- Produces Life Fluid from current remaining health: 0.1 mB per HP by default
+- The server config `jdte.lifeExtractor.fluidPerHealth` controls the amount per HP
+- Targets are removed directly without normal death drops, experience, or loot events
+- Fractional output from entity health and upgrade multipliers accumulates in the machine until it reaches 1 mB
+
+### Low-Lag Batch Processing
+
+| Machine / Mode | Scan Interval | Maximum Batch | Theoretical Throughput |
+|----------------|---------------|---------------|------------------------|
+| Advanced Normal | 20 ticks | 4 | 4 entities/s |
+| Extended Normal | 20 ticks | 8 | 8 entities/s |
+| Advanced Overclock/Creative | 5 ticks | 8 | 32 entities/s |
+| Extended Overclock/Creative | 5 ticks | 16 | 64 entities/s |
+
+Each range query processes several targets at once. Overclock scanning is limited to four queries per second instead of scanning a large area every tick. Underclock uses the normal batch size with a 40-tick interval.
 - Fluid is stored in the internal tank and can be extracted with a bucket
 
 ### Modes
@@ -49,9 +65,9 @@ When a Filter Upgrade is installed, the mode setting is ignored and the filter s
 
 | Upgrade | Effect |
 |---------|--------|
-| Overclock | Processes 2 mobs per tick, but with 10% fluid loss |
+| Overclock | Processes a mob batch every 5 ticks, with 10% fluid loss |
 | Underclock | Fluid yield increased to 1.5x |
-| Creative | Processes 2 mobs per tick, no fluid loss, no energy cost |
+| Creative | Uses the overclock batch rate, with no fluid loss or energy cost |
 | Range | Increases configurable range maximum |
 | Filter | Enables filter slots to select target entities by type |
 | Capacity | Increases FE and fluid capacity |

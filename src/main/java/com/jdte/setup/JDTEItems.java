@@ -11,6 +11,8 @@ import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.EntityType;
+import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -98,6 +100,12 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BossEssenceItem> WITHER_ESSENCE = ITEMS.register("wither_essence", BossEssenceItem::new);
     public static final DeferredHolder<Item, BossEssenceItem> ENDER_DRAGON_ESSENCE = ITEMS.register("ender_dragon_essence", BossEssenceItem::new);
     public static final DeferredHolder<Item, BossEssenceItem> ELDER_GUARDIAN_ESSENCE = ITEMS.register("elder_guardian_essence", BossEssenceItem::new);
+    public static final DeferredHolder<Item, DeferredSpawnEggItem> WITHER_SPAWN_EGG = ITEMS.register(
+            "wither_spawn_egg",
+            () -> new DeferredSpawnEggItem(() -> EntityType.WITHER, 0x2B2B2B, 0x737373, new Item.Properties()));
+    public static final DeferredHolder<Item, DeferredSpawnEggItem> ENDER_DRAGON_SPAWN_EGG = ITEMS.register(
+            "ender_dragon_spawn_egg",
+            () -> new DeferredSpawnEggItem(() -> EntityType.ENDER_DRAGON, 0x161616, 0xE079FA, new Item.Properties()));
 
     // Bio Crusher Upgrades
     public static final DeferredHolder<Item, LootingUpgradeItem> LOOTING_UPGRADE = ITEMS.register("looting_upgrade", LootingUpgradeItem::new);

@@ -15,6 +15,9 @@ import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.utils.BioCrusherDropCapture;
+import com.jdte.common.utils.MobLootSpawnEggHelper;
+import com.jdte.common.player.LifeAppleProgression;
+import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
 import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.resources.ResourceLocation;
@@ -27,6 +30,8 @@ import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @Mod(JDTE.MODID)
 public class JDTE {
@@ -52,8 +57,22 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(JDTECommands::register);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
+        NeoForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
+        NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
+        NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
+        }
+    }
+
+    private void syncSpawnEggRecipes(OnDatapackSyncEvent event) {
+        MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
+        SpawnEggRecipeSyncPayload payload = new SpawnEggRecipeSyncPayload(
+                MobLootSpawnEggHelper.getRecipeIds(event.getPlayerList().getServer().getResourceManager()));
+        if (event.getPlayer() != null) {
+            PacketDistributor.sendToPlayer(event.getPlayer(), payload);
+        } else {
+            PacketDistributor.sendToAllPlayers(payload);
         }
     }
 

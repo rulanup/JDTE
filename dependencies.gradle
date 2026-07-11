@@ -70,6 +70,7 @@ dependencies {
     localRuntime "curse.maven:mekanism-268560:${mekanism_file}"
     localRuntime "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
     localRuntime "curse.maven:industrial-foregoing-266515:8370717"
+    localRuntime "curse.maven:ex-deorum-901420:8384464"
 
     // Integration / utility mods
     localRuntime "curse.maven:polymorph-388800:${polymorph_file}"

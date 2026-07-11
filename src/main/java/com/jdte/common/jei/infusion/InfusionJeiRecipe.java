@@ -4,10 +4,13 @@ import com.jdte.common.blockentities.AdvancedInfusionMachineBE;
 import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.recipes.InfusionRecipe;
 import com.jdte.common.utils.InfusionFluidHelper;
+import com.jdte.common.utils.MobLootSpawnEggHelper;
+import com.jdte.client.SpawnEggRecipeClientCache;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -17,6 +20,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import com.jdte.setup.JDTEFluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -33,7 +37,11 @@ public record InfusionJeiRecipe(
         ItemStack outputStack,
         int energyCost
 ) {
-    public static List<InfusionJeiRecipe> getRecipes() {
+    public ResourceLocation id() {
+        return ResourceLocation.fromNamespaceAndPath("jdte", "jei/infusion/" + Integer.toUnsignedString(recipeKey(inputStack, fluidStack, outputStack).hashCode(), 16));
+    }
+
+    public static List<InfusionJeiRecipe> getStaticRecipes() {
         List<InfusionJeiRecipe> recipes = new ArrayList<>();
         Set<String> seen = new HashSet<>();
 
@@ -47,6 +55,16 @@ public record InfusionJeiRecipe(
 
         addFluidContainerFillRecipes(recipes, seen);
         addVanillaBottleRecipes(recipes, seen);
+        return recipes;
+    }
+
+    public static List<InfusionJeiRecipe> getOrderedRecipes() {
+        List<InfusionJeiRecipe> recipes = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        addSpawnEggRecipes(recipes, seen, SpawnEggRecipeClientCache.get());
+        for (InfusionJeiRecipe recipe : getStaticRecipes()) {
+            addRecipe(recipes, seen, recipe.inputStack(), recipe.fluidStack(), recipe.outputStack(), recipe.energyCost());
+        }
         return recipes;
     }
 
@@ -144,9 +162,29 @@ public record InfusionJeiRecipe(
         }
     }
 
+    public static List<InfusionJeiRecipe> getSpawnEggRecipes() {
+        List<InfusionJeiRecipe> recipes = new ArrayList<>();
+        addSpawnEggRecipes(recipes, new HashSet<>(), SpawnEggRecipeClientCache.get());
+        return recipes;
+    }
+
+    private static void addSpawnEggRecipes(List<InfusionJeiRecipe> recipes, Set<String> seen,
+                                           java.util.Map<ResourceLocation, ResourceLocation> recipeIds) {
+        recipeIds.forEach((dropId, eggId) -> {
+            Item drop = BuiltInRegistries.ITEM.get(dropId);
+            Item egg = BuiltInRegistries.ITEM.get(eggId);
+            ItemStack input = new ItemStack(drop, drop.getDefaultMaxStackSize());
+            addRecipe(recipes, seen,
+                    input,
+                    new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), MobLootSpawnEggHelper.LIFE_FLUID_COST),
+                    new ItemStack(egg),
+                    MobLootSpawnEggHelper.ENERGY_COST);
+        });
+    }
+
     private static void addRecipe(List<InfusionJeiRecipe> recipes, Set<String> seen,
                                   ItemStack input, FluidStack fluid, ItemStack output, int energyCost) {
-        ItemStack normalizedInput = single(input);
+        ItemStack normalizedInput = copyNonAir(input);
         ItemStack normalizedOutput = copyNonAir(output);
         if (normalizedInput.isEmpty() || fluid.isEmpty() || normalizedOutput.isEmpty()) {
             return;
