@@ -13,6 +13,20 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import com.direwolf20.justdirethings.util.MiscTools;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
+import com.direwolf20.justdirethings.setup.Registration;
+import com.jdte.setup.JDTEFluids;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContainer> {
     private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
@@ -22,13 +36,17 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
         super(container, inventory, title);
         this.lootContainer = container;
     }
-    @Override public void setTopSection() { extraWidth = 96; extraHeight = 56; }
+    @Override public void setTopSection() { extraWidth = 184; extraHeight = 0; }
     @Override protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(graphics, partialTick, mouseX, mouseY);
         renderMachineSlotBackgrounds(graphics);
         renderProgressArrow(graphics);
-        renderFluidBar(graphics, getGuiLeft() + 184, getGuiTop() + 9, lootContainer.getLifeFluidAmount(), 0xFFB8143A);
-        renderFluidBar(graphics, getGuiLeft() + 204, getGuiTop() + 9, lootContainer.getTimeFluidAmount(), 0xFF8A3DB8);
+        renderFluidTank(graphics, getGuiLeft() + 230, getGuiTop() + 5,
+                new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), Math.max(1, lootContainer.getLifeFluidAmount())),
+                lootContainer.getLifeFluidAmount());
+        renderFluidTank(graphics, getGuiLeft() + 250, getGuiTop() + 5,
+                new FluidStack(Registration.TIME_FLUID_SOURCE.get(), Math.max(1, lootContainer.getTimeFluidAmount())),
+                lootContainer.getTimeFluidAmount());
         if (lootContainer.getMaxOutputPage() > 0) {
             graphics.blit(PREV, getGuiLeft() + 64, getGuiTop() + 76, 0, 0, 16, 16, 16, 16);
             graphics.blit(NEXT, getGuiLeft() + 152, getGuiTop() + 76, 0, 0, 16, 16, 16, 16);
@@ -71,11 +89,41 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
         if (width > 0) graphics.fill(x, y, x + width, y + height, color);
     }
 
-    private void renderFluidBar(GuiGraphics graphics, int x, int y, int amount, int color) {
-        graphics.fill(x, y, x + 18, y + 72, 0xFF222222);
-        int height = Math.clamp((amount * 70) / com.jdte.common.blockentities.LootFabricatorBE.BASE_FLUID_CAPACITY, 0, 70);
-        graphics.fill(x + 1, y + 71 - height, x + 17, y + 71, color);
-        graphics.renderOutline(x, y, 18, 72, 0xFF8B8B8B);
+    private void renderFluidTank(GuiGraphics graphics, int x, int y, FluidStack stack, int amount) {
+        graphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
+        int height = Math.min(70, (amount * 70) / com.jdte.common.blockentities.LootFabricatorBE.BASE_FLUID_CAPACITY);
+        if (height > 0) renderFluidStack(graphics, stack, x + 1, y + 71, 16, height);
+        graphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
+    }
+
+    private void renderFluidStack(GuiGraphics graphics, FluidStack stack, int startX, int startY, int width, int height) {
+        var extension = IClientFluidTypeExtensions.of(stack.getFluid());
+        TextureAtlasSprite sprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(extension.getStillTexture());
+        int tint = extension.getTintColor(stack);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+        RenderSystem.setShaderColor((tint >> 16 & 255) / 255.0F, (tint >> 8 & 255) / 255.0F, (tint & 255) / 255.0F, 1.0F);
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        int textureWidth = sprite.contents().width();
+        int textureHeight = sprite.contents().height();
+        for (int yOffset = 0; yOffset < height; yOffset += textureHeight) {
+            int drawHeight = Math.min(textureHeight, height - yOffset);
+            int drawY = startY - yOffset - drawHeight;
+            float vMax = sprite.getV0() + (sprite.getV1() - sprite.getV0()) * drawHeight / textureHeight;
+            for (int xOffset = 0; xOffset < width; xOffset += textureWidth) {
+                int drawWidth = Math.min(textureWidth, width - xOffset);
+                float uMax = sprite.getU0() + (sprite.getU1() - sprite.getU0()) * drawWidth / textureWidth;
+                buffer.addVertex(pose.last().pose(), startX + xOffset, drawY + drawHeight, 0).setUv(sprite.getU0(), vMax);
+                buffer.addVertex(pose.last().pose(), startX + xOffset + drawWidth, drawY + drawHeight, 0).setUv(uMax, vMax);
+                buffer.addVertex(pose.last().pose(), startX + xOffset + drawWidth, drawY, 0).setUv(uMax, sprite.getV0());
+                buffer.addVertex(pose.last().pose(), startX + xOffset, drawY, 0).setUv(sprite.getU0(), sprite.getV0());
+            }
+        }
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        pose.popPose();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
     @Override public void addTickSpeedButton() {
@@ -100,9 +148,9 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
 
     @Override protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         super.renderTooltip(graphics, mouseX, mouseY);
-        if (MiscTools.inBounds(getGuiLeft() + 184, getGuiTop() + 9, 18, 72, mouseX, mouseY)) {
+        if (MiscTools.inBounds(getGuiLeft() + 230, getGuiTop() + 5, 18, 72, mouseX, mouseY)) {
             graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.life_fluid", lootContainer.getLifeFluidAmount(), com.jdte.common.blockentities.LootFabricatorBE.BASE_FLUID_CAPACITY), mouseX, mouseY);
-        } else if (MiscTools.inBounds(getGuiLeft() + 204, getGuiTop() + 9, 18, 72, mouseX, mouseY)) {
+        } else if (MiscTools.inBounds(getGuiLeft() + 250, getGuiTop() + 5, 18, 72, mouseX, mouseY)) {
             graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.time_fluid", lootContainer.getTimeFluidAmount(), com.jdte.common.blockentities.LootFabricatorBE.BASE_FLUID_CAPACITY), mouseX, mouseY);
         }
     }
