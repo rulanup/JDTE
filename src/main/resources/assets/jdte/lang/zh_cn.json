@@ -121,6 +121,7 @@
   "block.jdte.loot_fabricator": "战利品制造机",
   "jdte.screen.loot_fabricator.life_fluid": "生命流体：%s / %s mB",
   "jdte.screen.loot_fabricator.time_fluid": "时间流体：%s / %s mB",
+  "jdte.screen.loot_fabricator.upgrade_slot": "升级槽：容量升级、抢夺升级（抢夺最多 3 个）",
   "item.jdte.wither_essence": "凋灵精华",
   "item.jdte.wither_spawn_egg": "凋灵刷怪蛋",
   "item.jdte.ender_dragon_spawn_egg": "末影龙刷怪蛋",

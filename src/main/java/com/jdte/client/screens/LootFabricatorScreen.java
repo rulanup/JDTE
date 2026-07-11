@@ -27,6 +27,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
+import com.jdte.setup.JDTEItems;
+import net.minecraft.world.item.ItemStack;
 
 public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContainer> {
     private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
@@ -39,7 +41,9 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
     @Override public void setTopSection() { extraWidth = 184; extraHeight = 0; }
     @Override protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(graphics, partialTick, mouseX, mouseY);
+        renderUpgradePanels(graphics);
         renderMachineSlotBackgrounds(graphics);
+        renderUpgradeGhosts(graphics);
         renderProgressArrow(graphics);
         renderFluidTank(graphics, getGuiLeft() + 230, getGuiTop() + 5,
                 new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), Math.max(1, lootContainer.getLifeFluidAmount())),
@@ -51,6 +55,28 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
             graphics.blit(PREV, getGuiLeft() + 64, getGuiTop() + 76, 0, 0, 16, 16, 16, 16);
             graphics.blit(NEXT, getGuiLeft() + 152, getGuiTop() + 76, 0, 0, 16, 16, 16, 16);
             graphics.drawString(font, (lootContainer.getOutputPage() + 1) + "/" + (lootContainer.getMaxOutputPage() + 1), getGuiLeft() + 116, getGuiTop() + 80, 0x404040, false);
+        }
+    }
+
+    private void renderUpgradePanels(GuiGraphics graphics) {
+        renderUpgradePanel(graphics, getGuiLeft() - 66, getGuiTop() + 5);
+        renderUpgradePanel(graphics, getGuiLeft() + 166, getGuiTop() + 5);
+    }
+
+    private void renderUpgradePanel(GuiGraphics graphics, int x, int y) {
+        graphics.fill(x, y, x + 62, y + 62, 0xFF2B2B2B);
+        graphics.fill(x + 2, y + 2, x + 60, y + 60, 0xFF8A8A8A);
+        graphics.renderOutline(x, y, 62, 62, 0xFFB8B8B8);
+    }
+
+    private void renderUpgradeGhosts(GuiGraphics graphics) {
+        for (Slot slot : lootContainer.slots) {
+            if (!(slot instanceof LootFabricatorContainer.LootFabricatorUpgradeSlot) || slot.hasItem()) continue;
+            ItemStack ghost = new ItemStack((slot.getSlotIndex() & 1) == 0
+                    ? JDTEItems.CAPACITY_UPGRADE.get() : JDTEItems.LOOTING_UPGRADE.get());
+            RenderSystem.setShaderColor(0.42F, 0.42F, 0.42F, 0.48F);
+            graphics.renderFakeItem(ghost, getGuiLeft() + slot.x, getGuiTop() + slot.y);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
         }
     }
 
@@ -148,6 +174,10 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
 
     @Override protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         super.renderTooltip(graphics, mouseX, mouseY);
+        if (hoveredSlot instanceof LootFabricatorContainer.LootFabricatorUpgradeSlot && !hoveredSlot.hasItem()) {
+            graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.upgrade_slot"), mouseX, mouseY);
+            return;
+        }
         if (MiscTools.inBounds(getGuiLeft() + 230, getGuiTop() + 5, 18, 72, mouseX, mouseY)) {
             graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.life_fluid", lootContainer.getLifeFluidAmount(), com.jdte.common.blockentities.LootFabricatorBE.BASE_FLUID_CAPACITY), mouseX, mouseY);
         } else if (MiscTools.inBounds(getGuiLeft() + 250, getGuiTop() + 5, 18, 72, mouseX, mouseY)) {

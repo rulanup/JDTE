@@ -3,6 +3,7 @@
 ### English
 
 #### v0.5.3 (Current)
+- **Fixed**: Loot Fabricator's 18 upgrade slots now use the dedicated upgrade-slot type, distinct side-panel backgrounds, alternating upgrade-card ghosts, and an accepted-upgrade tooltip instead of looking like two unexplained 3x3 item inventories.
 - **Fixed**: Rebuilt the Loot Fabricator GUI around JDT's native coordinate system. Player inventory slots now use the standard JDT layout, the 18 upgrade slots are split into two 3x3 side panels, and both fluid tanks use JDT's native fluid-bar frame with real fluid textures and tinting.
 - **New**: Added the Loot Fabricator with four reusable spawn-egg inputs, vanilla/mod loot-table output, Life/Time Fluid and FE costs, speed-scaled Time Fluid use, 16-64 paged output slots, 18 dedicated upgrade slots, up to three Looting Upgrades, redstone control, and automatic I/O.
 - **New**: Added the Elder Guardian Spawn Egg infusion recipe using one Elder Guardian Essence, 64 B of Life Fluid, and 100,000 FE; corrected the bilingual Boss Essence GuideME pages.

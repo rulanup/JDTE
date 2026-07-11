@@ -16,6 +16,7 @@ import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.upgrades.UpgradeType;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import com.jdte.common.upgrades.UpgradeSlot;
 
 public class LootFabricatorContainer extends BaseMachineContainer implements FilterPageHolder {
     private int outputPage;
@@ -36,7 +37,7 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
                 int local = right ? i - 9 : i;
                 int x = (right ? 170 : -62) + (local % 3) * 18;
                 int y = 9 + (local / 3) * 18;
-                addSlot(new SingleSlot(machine.getUpgradeHandler(), i, x, y));
+                addSlot(new LootFabricatorUpgradeSlot(machine.getUpgradeHandler(), i, x, y));
             }
         }
     }
@@ -92,5 +93,10 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
         @Override public ItemStack remove(int amount) { return getItemHandler().extractItem(getSlotIndex(), amount, false); }
         @Override public int getMaxStackSize() { return getItemHandler().getSlotLimit(getSlotIndex()); }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
+    }
+    public static class LootFabricatorUpgradeSlot extends UpgradeSlot {
+        public LootFabricatorUpgradeSlot(net.neoforged.neoforge.items.IItemHandler handler, int index, int x, int y) {
+            super(handler, index, x, y);
+        }
     }
 }
