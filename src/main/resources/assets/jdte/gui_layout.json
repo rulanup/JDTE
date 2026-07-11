@@ -1,0 +1,246 @@
+{
+  "version": 2,
+  "comment": "JDT Extras GUI 布局配置。所有坐标值相对于 getGuiLeft()/getGuiTop()。",
+  "upgrade_panel_4": {
+    "comment": "4 槽机器（非扩展）的右侧升级面板。也用于 8 槽机器的前 4 个槽位。",
+    "first_slot_x": 181,
+    "first_slot_y": 84,
+    "slot_spacing": 18,
+    "slot_size": 18,
+    "columns": 1,
+    "rows": 4,
+    "panel_padding": 7
+  },
+  "upgrade_panel_8_left": {
+    "comment": "8 槽扩展机器左侧的 4 个升级槽面板。第一个槽位在物品栏左上角槽位左侧 30px 处。",
+    "first_slot_x": -24,
+    "first_slot_y": 84,
+    "slot_spacing": 18,
+    "slot_size": 18,
+    "columns": 1,
+    "rows": 4,
+    "panel_padding": 6
+  },
+  "gel_generator_slots": {
+    "comment": "凝胶发生器系列机器的机器槽位坐标（1 GEL + 1 FOOD + 4 输入 + 4 输出）。相对于 getGuiLeft()/getGuiTop()。",
+    "gel_slot_x": 8,
+    "gel_slot_y": -12,
+    "food_slot_x": 8,
+    "food_slot_y": 24,
+    "input_start_x": 44,
+    "input_start_y": -21,
+    "input_spacing": 18,
+    "input_count": 4,
+    "input_fluid_x": 62,
+    "input_fluid_y": -22,
+    "output_start_x": 116,
+    "output_start_y": -21,
+    "output_spacing": 18,
+    "output_count": 4,
+    "output_fluid_x": 134,
+    "output_fluid_y": -22
+  },
+  "gel_generator_buttons": {
+    "comment": "凝胶发生器的进度箭头和按钮位置。所有坐标相对于 getGuiLeft()/getGuiTop()。",
+    "progress_arrow_x": 86,
+    "progress_arrow_y": 8,
+    "speed_button_x": 86,
+    "speed_button_y": 38,
+    "allowlist_button_x": 170,
+    "allowlist_button_y": -3,
+    "compare_nbt_button_x": 170,
+    "compare_nbt_button_y": 15,
+    "redstone_button_x": 170,
+    "redstone_button_y": 33,
+    "auto_balance_x": 170,
+    "auto_balance_y": -21
+  },
+  "item_sender_buttons": {
+    "comment": "高级/扩展物品放置器的按钮位置。所有坐标相对于 getGuiLeft()/getGuiTop()。",
+    "allowlist_button_x": 8,
+    "allowlist_button_y": 42,
+    "compare_nbt_button_x": 26,
+    "compare_nbt_button_y": 42,
+    "redstone_button_x": 134,
+    "redstone_button_y": 42,
+    "render_area_button_x": 152,
+    "render_area_button_y": 42,
+    "speed_button_x": 78,
+    "speed_button_y": 44
+  },
+  "item_sender_slots": {
+    "comment": "高级/扩展物品放置器的 9 个物品槽位置。所有坐标相对于 getGuiLeft()/getGuiTop()。",
+    "machine_start_x": 8,
+    "machine_start_y": 36,
+    "machine_spacing": 18,
+    "machine_count": 9
+  },
+  "basic_item_sender_buttons": {
+    "comment": "初级物品放置器的按钮位置。所有坐标相对于 getGuiLeft()/getGuiTop()。GUI宽度为 176px（无额外宽度）。",
+    "allowlist_button_x": 8,
+    "allowlist_button_y": 42,
+    "compare_nbt_button_x": 26,
+    "compare_nbt_button_y": 42,
+    "redstone_button_x": 134,
+    "redstone_button_y": 42,
+    "render_area_button_x": 152,
+    "render_area_button_y": 42,
+    "speed_button_x": 78,
+    "speed_button_y": 44
+  },
+  "basic_item_sender_slots": {
+    "comment": "初级物品放置器的 9 个物品槽位置。所有坐标相对于 getGuiLeft()/getGuiTop()。",
+    "machine_start_x": 8,
+    "machine_start_y": 36,
+    "machine_spacing": 18,
+    "machine_count": 9
+  },
+  "item_receiver_buttons": {
+    "comment": "高级/扩展物品接收器的按钮位置。所有坐标相对于 getGuiLeft()/getGuiTop()。",
+    "allowlist_button_x": 8,
+    "allowlist_button_y": 42,
+    "compare_nbt_button_x": 26,
+    "compare_nbt_button_y": 42,
+    "redstone_button_x": 134,
+    "redstone_button_y": 42,
+    "render_area_button_x": 152,
+    "render_area_button_y": 42,
+    "speed_button_x": 78,
+    "speed_button_y": 44
+  },
+  "item_receiver_slots": {
+    "comment": "高级/扩展物品接收器的 9 个物品槽位置。所有坐标相对于 getGuiLeft()/getGuiTop()。",
+    "machine_start_x": 8,
+    "machine_start_y": 36,
+    "machine_spacing": 18,
+    "machine_count": 9
+  },
+  "basic_item_receiver_buttons": {
+    "comment": "初级物品接收器的按钮位置。所有坐标相对于 getGuiLeft()/getGuiTop()。GUI宽度为 176px（无额外宽度）。",
+    "allowlist_button_x": 8,
+    "allowlist_button_y": 42,
+    "compare_nbt_button_x": 26,
+    "compare_nbt_button_y": 42,
+    "redstone_button_x": 134,
+    "redstone_button_y": 42,
+    "render_area_button_x": 152,
+    "render_area_button_y": 42,
+    "speed_button_x": 78,
+    "speed_button_y": 44
+  },
+  "basic_item_receiver_slots": {
+    "comment": "初级物品接收器的 9 个物品槽位置。所有坐标相对于 getGuiLeft()/getGuiTop()。",
+    "machine_start_x": 8,
+    "machine_start_y": 36,
+    "machine_spacing": 18,
+    "machine_count": 9
+  },
+  "life_extractor_buttons": {
+    "comment": "高级/扩展生命提取器模式切换按钮位置。X与第五个过滤槽对齐（X相对于leftPos，Y相对于topSectionTop），Y与红石控制按钮Y对齐。",
+    "mode_button_x": 80,
+    "mode_button_y": 62
+  },
+  "bio_crusher_buttons": {
+    "comment": "高级/扩展生物粉碎机模式切换按钮和专用升级槽位置。锋利槽在目标按钮左侧，抢夺槽在右侧。坐标相对于 getGuiLeft()/getGuiTop()。",
+    "mode_button_x": 80,
+    "mode_button_y": 36,
+    "sharpness_slot_x": 60,
+    "sharpness_slot_y": 36,
+    "looting_slot_x": 98,
+    "looting_slot_y": 36
+  },
+  "advanced_potion_brewer_background": {
+    "comment": "炼药机裁切原版酿造台贴图的范围。src 为原版贴图裁切起点，x/y 为绘制到机器 GUI 的位置。",
+    "src_x": 15,
+    "src_y": 15,
+    "x": 15,
+    "y": 5,
+    "width": 107,
+    "height": 63
+  },
+  "advanced_potion_brewer_slots": {
+    "comment": "炼药机机器槽位坐标。相对于 getGuiLeft()/getGuiTop()。",
+    "fuel_slot_x": 17,
+    "fuel_slot_y": 7,
+    "ingredient_slot_x": 79,
+    "ingredient_slot_y": 7,
+    "bottle_slot_0_x": 56,
+    "bottle_slot_0_y": 41,
+    "bottle_slot_1_x": 79,
+    "bottle_slot_1_y": 48,
+    "bottle_slot_2_x": 102,
+    "bottle_slot_2_y": 41,
+    "extra_ingredient_start_x": 43,
+    "extra_ingredient_start_y": -21,
+    "extra_ingredient_spacing": 18,
+    "extra_ingredient_count": 5,
+    "output_start_x": 128,
+    "output_start_y": 13,
+    "output_spacing": 18,
+    "output_count": 3
+  },
+  "advanced_potion_brewer_widgets": {
+    "comment": "炼药机燃料条、气泡和进度箭头位置。使用原版 1.21 酿造台 sprite；bottom_y 表示对应动态条的底端坐标。",
+    "fuel_bar_x": 60,
+    "fuel_bar_bottom_y": 38,
+    "bubbles_x": 63,
+    "bubbles_bottom_y": 33,
+    "arrow_x": 97,
+    "arrow_bottom_y": 34
+  },
+  "advanced_potion_brewer_fluids": {
+    "comment": "炼药机两个流体槽位置。坐标相对 getGuiLeft()/getGuiTop()；左侧 water 为玻璃瓶自动装水输入，右侧 time 与灌注机/JDT 默认右流体槽位置一致。",
+    "water_fluid_x": -6,
+    "water_fluid_y": -21,
+    "time_fluid_x": 174,
+    "time_fluid_y": -21
+  },
+  "advanced_potion_brewer_buttons": {
+    "comment": "炼药机速度和红石控制按钮位置。速度按钮在最下方输出槽右侧 2px，红石按钮在中间输出槽右侧 4px。",
+    "speed_button_x": 148,
+    "speed_button_y": 53,
+    "redstone_button_x": 152,
+    "redstone_button_y": 31,
+    "recipe_lock_button_x": 152,
+    "recipe_lock_button_y": 13
+  },
+  "loot_fabricator_layout": {
+    "comment": "战利品制造机相对 JDT 基础机器界面增加的尺寸。",
+    "extra_width": 60,
+    "extra_height": 0
+  },
+  "loot_fabricator_slots": {
+    "comment": "战利品制造机输入和当前页输出槽坐标，均相对于 getGuiLeft()/getGuiTop()。",
+    "input_start_x": 8,
+    "input_start_y": -21,
+    "input_spacing": 18,
+    "output_start_x": 68,
+    "output_start_y": -21,
+    "output_spacing": 18,
+    "output_columns": 4,
+    "output_rows": 4
+  },
+  "loot_fabricator_fluids": {
+    "comment": "战利品制造机生命流体槽和时间流体槽坐标。",
+    "life_fluid_x": 162,
+    "life_fluid_y": -21,
+    "time_fluid_x": 182,
+    "time_fluid_y": -21
+  },
+  "loot_fabricator_widgets": {
+    "comment": "战利品制造机进度、速度、红石和输出翻页组件坐标。",
+    "progress_arrow_x": 36,
+    "progress_arrow_y": 7,
+    "speed_button_x": 36,
+    "speed_button_y": 24,
+    "redstone_button_x": 142,
+    "redstone_button_y": 17,
+    "output_prev_x": 54,
+    "output_prev_y": 36,
+    "output_next_x": 142,
+    "output_next_y": 36,
+    "output_page_button_size": 12,
+    "output_page_text_x": 104,
+    "output_page_text_y": 54
+  }
+}

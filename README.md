@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，围绕 JDT 机器增加升级卡、更多升级槽、时间加速器和若干自动化机器。
 
-当前版本：`0.5.2`
+当前版本：`0.5.3`
 
 [English README](README_EN.md)
 
@@ -38,6 +38,8 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 
 时间加速器支持范围配置、红石控制和过滤槽，会加速范围内可被 JDT 时间魔杖加速的方块或方块实体。
 
+默认时间流体消耗按 JDT 时间手杖单次 30 秒效果等效折算。服务器可通过配置项 `jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier` 调整消耗倍率，也可以使用命令 `/jdte timeaccelerator fluidCostMultiplier <value>` 在线修改并保存。
+
 ### 扩展高级机器
 
 使用 **扩展升级** 右键指定 JDT T2 机器，可以转换为 JDTE 扩展版本并获得 8 个升级槽。
@@ -64,19 +66,38 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 - 生物粉碎机：高级、扩展；杀死生物产生掉落物和经验流体，支持抢夺和锋利升级，可放置在刷怪笼上方阻止刷怪
 - 生命提取器：高级、扩展；从范围内生物提取生命流体
 - 灌注机：高级、扩展；使用凝胶和物品进行灌注加工
+- 高级炼药机：按原版酿造规则处理药水，支持 6 步顺序材料槽、自动补水、时间流体加速和输出槽缓存
+
+### 高级炼药机
+
+高级炼药机是原版酿造台的自动化版本，配方判断直接使用当前 `PotionBrewing` 注册表，因此其它模组新增的酿造输入、材料和药水转换也可以被识别。
+
+- 3 个瓶子输入槽和 3 个产物输出槽，瓶子和产物槽都限制为单个物品
+- 1 个主材料槽加 5 个顺序材料槽，机器会从第 1 步到第 6 步依次尝试酿造，空槽或不匹配槽会跳过
+- 左侧水槽可自动把玻璃瓶填充为水瓶，每瓶消耗 250 mB 水
+- 右侧时间流体槽用于加速；时间流体不足时回落到原版 400 tick/步
+- 速度按钮表示每个材料步骤需要多少 tick，`1` 为最快，`400` 为原版速度，超过 `400` 按原版处理
+- 时间流体费用按 JDT 时间手杖效率折算：2x、4x、8x 到 256x 时间手杖的每个完整 400-tick 酿造步骤费用都等于 `JDT时间手杖流体消耗 * 2 / 3`
+- 机器会按当前速度只收“节省掉的 tick”费用：`费用 = 完整400tick费用 * 节省tick / 400`；速度为 `1 tick` 时按完整 400 tick 节省收费，等同 `256 * JDT时间手杖流体消耗 / 384`
+- 锁定输入按钮可快照当前材料槽，空材料槽显示幽灵图标，并限制对应槽位只能放入锁定物品
+- 支持红石控制、能量消耗、右键流体容器交互和自动输入输出方向配置
 
 ### 生物粉碎机
 
-生物粉碎机是一种新机器，可以杀死范围内的生物并产生掉落物和经验流体。
+生物粉碎机使用假玩家和真实抢夺武器攻击范围内的生物，捕获经过其它模组修正后的最终战利品与实际经验。经验流体按 `最终经验 × experienceFluidPerPoint` 计算，倍率默认 `1.0`，即默认 `1 XP = 1 mB`。
 
-- **高级生物粉碎机**：4 个标准升级槽 + 2 个专用升级槽
-- **扩展生物粉碎机**：8 个标准升级槽 + 2 个专用升级槽
+- **高级生物粉碎机**：4 个标准升级槽 + 2 个专用升级槽；战利品在被击杀生物的原位置掉落
+- **扩展生物粉碎机**：8 个标准升级槽 + 2 个专用升级槽；础础 18 个分页输出槽，每张容量升级额外开放 18 个，默认最多 72 个，满槽时从机器上方溢出
 
 专用升级槽支持：
-- **抢夺升级**：最高 6 级，每级增加 50% 额外掉落概率
+- **抢夺升级**：最高 6 级，每级默认有 50% 概率复制一次完整的最终战利品集合
 - **锋利升级**：最高 6 个，每个增加 5 点伤害
 
-特殊功能：放置在刷怪笼上方可阻止刷怪，并直接产生掉落物和经验流体。
+击杀成功后才会结算战利品、经验流体和能量。锋利伤害不足时默认强制处死目标；服务器可将 `jdte.bioCrusher.respectDamageRestrictions` 设为 `true` 以尊重伤害/假玩家限制，也可通过 `#jdte:bio_crusher_blacklist` 和 `#jdte:bio_crusher_force_kill_blacklist` 实体标签扩展黑名单。
+
+龙之研究混沌守卫兼容由服务端配置 `jdte.bioCrusher.allowDestroyChaosGuardianCrystals` 和 `jdte.bioCrusher.allowInstantKillChaosGuardian` 独立控制，两项默认均关闭。
+
+放置在刷怪笼正上方时，机器会在实体生成前处理完整 `SpawnData`，保留装备、模组掉落、SpawnPotentials、刷怪数量和延迟。兼容原版与神化刷怪笼，并支持神化的初始生命、静音、无 AI、幼年、燃烧、回响等修改；处理失败时不会阻止刷怪笼正常工作。
 
 ### BOSS 精华
 
@@ -88,26 +109,20 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 ## 安装
 
 1. 安装 Minecraft `1.21.1`。
-2. 安装 NeoForge `21.1.230+`。
+2. 安装 NeoForge `21.1.233+`。
 3. 安装 Just Dire Things `1.5.7+`。
 4. 将 `jdte-x.x.x.jar` 放入客户端和服务器的 `mods` 文件夹。
 
 ## 依赖
 
 - Minecraft `1.21.1`
-- NeoForge `21.1.230+`
+- NeoForge `21.1.233+`
 - Just Dire Things `1.5.7+`
 - Java `21`
 
 ## 开发构建
 
-本项目通过 Gradle 构建。开发环境需要本地存在 JDT jar：
-
-```text
-/home/guili/libs/justdirethings-1.5.7.jar
-```
-
-常用命令：
+本项目通过 Gradle 构建。常用命令：
 
 ```bash
 ./gradlew compileJava

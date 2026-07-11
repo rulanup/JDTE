@@ -1,0 +1,121 @@
+dependencies {
+    // ========================================
+    // Core dependencies
+    // ========================================
+
+    // GuideME - game guide framework
+    compileOnly "org.appliedenergistics:guideme:${guideme_version}:api"
+    localRuntime "org.appliedenergistics:guideme:${guideme_version}"
+
+    // Just Dire Things - via CurseMaven
+    compileOnly "curse.maven:just-dire-things-1002348:7463040"
+    localRuntime "curse.maven:just-dire-things-1002348:7463040"
+
+    // ========================================
+    // Cross-mod APIs (compileOnly)
+    // ========================================
+
+    // Recipe viewers
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
+
+    // HUD / overlay mods
+    compileOnly "maven.modrinth:jade:${jade_version}"
+
+    // Major mods
+    compileOnly "com.simibubi.create:create-${minecraft_version}:${create_version}"
+    compileOnly "mekanism:Mekanism:${mekanism_version}"
+    compileOnly "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    compileOnly "curse.maven:apothic-spawners-986583:7492121"
+    compileOnly "curse.maven:brandons-core-231382:${brandons_core_file}"
+    compileOnly "curse.maven:draconic-evolution-223565:${draconic_evolution_file}"
+
+    // Miscellaneous
+    compileOnly "curse.maven:polymorph-388800:${polymorph_file}"
+    compileOnly "dev.architectury:architectury-neoforge:${architectury_version}"
+    compileOnly "dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}"
+
+    // ========================================
+    // Local runtime development mods
+    // ========================================
+
+    // Core / library mods
+    localRuntime "curse.maven:spark-361579:${spark_file}"
+    localRuntime "maven.modrinth:modernfix:${modernfix_version}"
+    localRuntime "curse.maven:curios-309927:${curios_curse_file}"
+    localRuntime "curse.maven:glodium-957920:${glodium_file}"
+    localRuntime "curse.maven:geckolib-388172:${geckolib_file}"
+    localRuntime "dev.architectury:architectury-neoforge:${architectury_version}"
+    localRuntime "dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}"
+    localRuntime "dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}"
+    localRuntime "curse.maven:appleskin-248787:7854442"
+    localRuntime "curse.maven:patchouli-306770:7730942"
+    localRuntime "curse.maven:titanium-287342:7951516"
+    localRuntime "thedarkcolour:kotlinforforge-neoforge:${kotlinforforge_version}"
+
+    // Recipe viewers
+    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    // localRuntime "dev.emi:emi-neoforge:${emi_version}"
+
+    // HUD / overlay
+    localRuntime "maven.modrinth:jade:${jade_version}"
+
+    // Major mods - full runtime
+    localRuntime("com.simibubi.create:create-${minecraft_version}:${create_version}") {
+        exclude group: "maven.modrinth", module: "journeymap"
+        exclude group: "info.journeymap", module: "journeymap-api-neoforge"
+    }
+    localRuntime "curse.maven:mekanism-268560:${mekanism_file}"
+    localRuntime "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
+    localRuntime "curse.maven:industrial-foregoing-266515:8370717"
+    localRuntime "curse.maven:ex-deorum-901420:8384464"
+
+    // Integration / utility mods
+    localRuntime "curse.maven:polymorph-388800:${polymorph_file}"
+    localRuntime "curse.maven:brandons-core-231382:${brandons_core_file}"
+    localRuntime "curse.maven:codechicken-lib-1-8-242818:${codechicken_lib_file}"
+    localRuntime "curse.maven:draconic-evolution-223565:${draconic_evolution_file}"
+    localRuntime "curse.maven:productivebees-377897:${productivebees_file}"
+    localRuntime "curse.maven:allthecompressed-514045:${allthecompressed_file}"
+    localRuntime "curse.maven:sophisticated-storage-619320:${sophisticated_storage_file}"
+    localRuntime "curse.maven:sophisticated-core-618298:${sophisticated_core_file}"
+    localRuntime "curse.maven:cloth-config-348521:${cloth_config_file}"
+    localRuntime "curse.maven:logistics-network-1448257:${logistics_network_file}"
+    localRuntime "curse.maven:bookshelf-228525:7606240"
+    localRuntime "curse.maven:placebo-283644:6926281"
+    localRuntime "curse.maven:prickle-1023259:6961457"
+    localRuntime "curse.maven:apothic-attributes-898963:7445079"
+    localRuntime "curse.maven:apothic-enchanting-1063926:8107222"
+    localRuntime "curse.maven:apothic-spawners-986583:7492121"
+    localRuntime "curse.maven:apotheosis-313970:8182695"
+    localRuntime "curse.maven:enchantment-descriptions-250419:8240827"
+    localRuntime "curse.maven:hostile-neural-networks-552574:8321864"
+
+    // AE2 ecosystem (from WCWT)
+    localRuntime "org.appliedenergistics:appliedenergistics2:${ae2_version}"
+    localRuntime "de.mari_023:ae2wtlib:${ae2wtlib_version}"
+    localRuntime "curse.maven:advancedae-1084104:${advancedae_file}"
+    localRuntime "curse.maven:ex-pattern-provider-892005:${extendedae_file}"
+    localRuntime "curse.maven:extendedae-plus-1337639:${extendedae_plus_file}"
+    localRuntime "curse.maven:applied-flux-965012:${applied_flux_file}"
+    localRuntime "curse.maven:applied-create-1474758:${applied_create_file}"
+    localRuntime "curse.maven:mega-cells-622112:${mega_cells_file}"
+    localRuntime "curse.maven:applied-mekanistics-574300:${applied_mekanistics_file}"
+    localRuntime "curse.maven:merequester-688367:${merequester_file}"
+    localRuntime "curse.maven:applied-energistics-2-wireless-terminals-459929:${ae2wt_terminals_file}"
+
+    // ========================================
+    // Client-only runtime mods
+    // ========================================
+
+    clientLocalRuntime "curse.maven:ae2-jei-integration-1074338:${ae2jei_integration_file}"
+    clientLocalRuntime "curse.maven:modern-ui-352491:${modern_ui_file}"
+    clientLocalRuntime "curse.maven:mouse-tweaks-60089:${mouse_tweaks_file}"
+    clientLocalRuntime "curse.maven:configured-457570:${configured_file}"
+    clientLocalRuntime "curse.maven:searchables-858542:${searchables_file}"
+    clientLocalRuntime "curse.maven:controlling-250398:${controlling_file}"
+    clientLocalRuntime "curse.maven:imblocker-483760:${imblocker_file}"
+    clientLocalRuntime "curse.maven:just-enough-characters-250702:${jech_file}"
+}

@@ -65,8 +65,9 @@ public class AdvancedBioCrusherBE extends BioCrusherBE implements PoweredMachine
     protected int getExtractInterval() {
         if (UpgradeHelper.hasCreativeUpgrade(this)) return 1;
         if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return 1;
-        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.UNDERCLOCK) > 0) return 40;
-        return 20;
+        int baseInterval = JDTEConfig.COMMON.bioCrusherProcessTime.get();
+        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.UNDERCLOCK) > 0) return baseInterval * 2;
+        return baseInterval;
     }
 
     @Override

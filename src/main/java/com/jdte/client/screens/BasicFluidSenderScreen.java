@@ -9,4 +9,15 @@ public class BasicFluidSenderScreen extends BaseMachineScreen<BasicFluidSenderCo
     public BasicFluidSenderScreen(BasicFluidSenderContainer container, Inventory inv, Component name) {
         super(container, inv, name);
     }
+
+    @Override
+    public void setTopSection() {
+        extraWidth = 60;
+        extraHeight = 0;
+    }
+
+    @Override
+    public int getFluidBarOffset() {
+        return 204;
+    }
 }

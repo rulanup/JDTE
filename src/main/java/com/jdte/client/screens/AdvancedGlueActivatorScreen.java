@@ -9,4 +9,10 @@ public class AdvancedGlueActivatorScreen extends BaseMachineScreen<AdvancedGlueA
     public AdvancedGlueActivatorScreen(AdvancedGlueActivatorContainer container, Inventory inv, Component name) {
         super(container, inv, name);
     }
+
+    @Override
+    public void setTopSection() {
+        extraWidth = 60;
+        extraHeight = 0;
+    }
 }

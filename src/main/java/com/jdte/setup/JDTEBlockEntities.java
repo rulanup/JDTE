@@ -99,9 +99,15 @@ public class JDTEBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedInfusionMachineBE>> EXTENDED_INFUSION_MACHINE = BLOCK_ENTITIES.register(
             "extended_infusion_machine", () -> BlockEntityType.Builder.of(ExtendedInfusionMachineBE::new, JDTEBlocks.EXTENDED_INFUSION_MACHINE.get()).build(null));
 
+    // Potion Brewer
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedPotionBrewerBE>> ADVANCED_POTION_BREWER = BLOCK_ENTITIES.register(
+            "advanced_potion_brewer", () -> BlockEntityType.Builder.of(AdvancedPotionBrewerBE::new, JDTEBlocks.ADVANCED_POTION_BREWER.get()).build(null));
+
     // Bio Crusher
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedBioCrusherBE>> ADVANCED_BIO_CRUSHER = BLOCK_ENTITIES.register(
             "advanced_bio_crusher", () -> BlockEntityType.Builder.of(AdvancedBioCrusherBE::new, JDTEBlocks.ADVANCED_BIO_CRUSHER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedBioCrusherBE>> EXTENDED_BIO_CRUSHER = BLOCK_ENTITIES.register(
             "extended_bio_crusher", () -> BlockEntityType.Builder.of(ExtendedBioCrusherBE::new, JDTEBlocks.EXTENDED_BIO_CRUSHER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LootFabricatorBE>> LOOT_FABRICATOR = BLOCK_ENTITIES.register(
+            "loot_fabricator", () -> BlockEntityType.Builder.of(LootFabricatorBE::new, JDTEBlocks.LOOT_FABRICATOR.get()).build(null));
 }

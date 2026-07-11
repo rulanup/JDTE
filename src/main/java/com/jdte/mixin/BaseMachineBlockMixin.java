@@ -51,6 +51,20 @@ public abstract class BaseMachineBlockMixin {
         }
 
         UpgradeItemStackHandler handler = UpgradeHelper.getUpgradeHandler(machine);
+        if (machine instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
+            net.neoforged.neoforge.items.ItemStackHandler customHandler = fabricator.getUpgradeHandler();
+            for (int i = 0; i < customHandler.getSlots(); i++) {
+                ItemStack stack = customHandler.getStackInSlot(i);
+                if (!stack.isEmpty()) {
+                    Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack.copy());
+                    customHandler.setStackInSlot(i, ItemStack.EMPTY);
+                }
+            }
+            return;
+        }
+        if (handler == null) {
+            return;
+        }
         for (int i = 0; i < handler.getSlots(); i++) {
             ItemStack stack = handler.getStackInSlot(i);
             if (!stack.isEmpty()) {

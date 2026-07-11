@@ -31,19 +31,32 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue advancedTimeAcceleratorOverclockMultiplier;
         public final ModConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
         public final ModConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
+        public final ModConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
 
         // Bio Crusher
         public final ModConfigSpec.IntValue bioCrusherFluidCapacity;
         public final ModConfigSpec.IntValue bioCrusherEnergyCost;
         public final ModConfigSpec.DoubleValue bioCrusherBaseRadius;
-        public final ModConfigSpec.IntValue bioCrusherFluidPerHp;
+        public final ModConfigSpec.DoubleValue bioCrusherExperienceFluidMultiplier;
+        public final ModConfigSpec.IntValue bioCrusherOutputSlotsPerCapacityUpgradeMultiplier;
         public final ModConfigSpec.IntValue bioCrusherBaseDamage;
         public final ModConfigSpec.IntValue bioCrusherProcessTime;
+        public final ModConfigSpec.BooleanValue bioCrusherRespectDamageRestrictions;
+        public final ModConfigSpec.BooleanValue bioCrusherAllowDestroyChaosGuardianCrystals;
+        public final ModConfigSpec.BooleanValue bioCrusherAllowInstantKillChaosGuardian;
         public final ModConfigSpec.DoubleValue lootingExtraDropChance;
         public final ModConfigSpec.IntValue advancedBioCrusherEnergyCapacity;
         public final ModConfigSpec.IntValue extendedBioCrusherEnergyCapacity;
         public final ModConfigSpec.IntValue advancedBioCrusherMaxEntities;
         public final ModConfigSpec.IntValue extendedBioCrusherMaxEntities;
+
+        // Life Extractor
+        public final ModConfigSpec.DoubleValue lifeExtractorFluidPerHealth;
+
+        // Loot Fabricator
+        public final ModConfigSpec.IntValue lootFabricatorLifeFluidCost;
+        public final ModConfigSpec.IntValue lootFabricatorBaseTimeFluidCost;
+        public final ModConfigSpec.IntValue lootFabricatorLootingFluidCostIncreasePercent;
 
         // Item/Fluid Sender/Receiver
         public final ModConfigSpec.IntValue senderStorageSlots;
@@ -120,6 +133,10 @@ public class JDTEConfig {
                     .comment("Base fluid capacity for time accelerators (mB)")
                     .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorBaseFluidCapacity")
                     .defineInRange("timeAcceleratorBaseFluidCapacity", 1000, 100, 100000);
+            timeAcceleratorFluidCostMultiplier = builder
+                    .comment("Time accelerator fluid cost multiplier. 1.0 matches the JDT Time Wand cost spread over 30 seconds.")
+                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier")
+                    .defineInRange("timeAcceleratorFluidCostMultiplier", 1.0D, 0.0D, 1000.0D);
             basicTimeAcceleratorDefaultMultiplier = builder
                     .comment("Basic time accelerator default multiplier")
                     .translation("config.jdte.jdte.timeAccelerator.basicTimeAcceleratorDefaultMultiplier")
@@ -160,18 +177,34 @@ public class JDTEConfig {
                     .comment("Base search radius for bio crusher")
                     .translation("config.jdte.jdte.bioCrusher.bioCrusherBaseRadius")
                     .defineInRange("bioCrusherBaseRadius", 2.5D, 1.0D, 20.0D);
-            bioCrusherFluidPerHp = builder
-                    .comment("Life fluid produced per HP of entity")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherFluidPerHp")
-                    .defineInRange("bioCrusherFluidPerHp", 100, 1, 10000);
+            bioCrusherExperienceFluidMultiplier = builder
+                    .comment("Experience fluid produced per actual experience point dropped by the entity (mB)")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherExperienceFluidMultiplier")
+                    .defineInRange("experienceFluidPerPoint", 1.0D, 0.0D, 10000.0D);
+            bioCrusherOutputSlotsPerCapacityUpgradeMultiplier = builder
+                    .comment("Multiplier applied to the base output slots opened by each Capacity Upgrade (base is 9 slots per upgrade)")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherOutputSlotsPerCapacityUpgradeMultiplier")
+                    .defineInRange("bioCrusherOutputSlotsPerCapacityUpgradeMultiplier", 2, 1, 10);
             bioCrusherBaseDamage = builder
                     .comment("Base damage dealt by bio crusher")
                     .translation("config.jdte.jdte.bioCrusher.bioCrusherBaseDamage")
                     .defineInRange("bioCrusherBaseDamage", 5, 1, 1000);
             bioCrusherProcessTime = builder
-                    .comment("Process time in ticks")
+                    .comment("Base interval in ticks between bio crusher operations")
                     .translation("config.jdte.jdte.bioCrusher.bioCrusherProcessTime")
-                    .defineInRange("bioCrusherProcessTime", 20, 1, 200);
+                    .defineInRange("bioCrusherProcessTime", 5, 1, 200);
+            bioCrusherRespectDamageRestrictions = builder
+                    .comment("When enabled, the bio crusher will not force-kill entities that survive its FakePlayer attack. Disabled by default so protected bosses can still be processed.")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherRespectDamageRestrictions")
+                    .define("respectDamageRestrictions", false);
+            bioCrusherAllowDestroyChaosGuardianCrystals = builder
+                    .comment("Allow Bio Crushers to automatically destroy Draconic Evolution Chaos Guardian Crystals. Disabled by default.")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherAllowDestroyChaosGuardianCrystals")
+                    .define("allowDestroyChaosGuardianCrystals", false);
+            bioCrusherAllowInstantKillChaosGuardian = builder
+                    .comment("Allow Bio Crushers to instantly kill the Draconic Evolution Chaos Guardian with FakePlayer attribution. Disabled by default.")
+                    .translation("config.jdte.jdte.bioCrusher.bioCrusherAllowInstantKillChaosGuardian")
+                    .define("allowInstantKillChaosGuardian", false);
             lootingExtraDropChance = builder
                     .comment("Looting extra drop chance per level (0.5 = 50%)")
                     .translation("config.jdte.jdte.bioCrusher.lootingExtraDropChance")
@@ -192,6 +225,30 @@ public class JDTEConfig {
                     .comment("Max entities processed per tick (extended)")
                     .translation("config.jdte.jdte.bioCrusher.extendedBioCrusherMaxEntities")
                     .defineInRange("extendedBioCrusherMaxEntities", 4, 1, 100);
+            builder.pop();
+
+            // Life Extractor
+            builder.comment("Life Extractor Settings").translation("config.jdte.jdte.lifeExtractor").push("lifeExtractor");
+            lifeExtractorFluidPerHealth = builder
+                    .comment("Life Fluid produced per point of the entity's current health (mB)")
+                    .translation("config.jdte.jdte.lifeExtractor.fluidPerHealth")
+                    .defineInRange("fluidPerHealth", 0.1D, 0.001D, 100000.0D);
+            builder.pop();
+
+            // Loot Fabricator
+            builder.comment("Loot Fabricator Settings").translation("config.jdte.jdte.lootFabricator").push("lootFabricator");
+            lootFabricatorLifeFluidCost = builder
+                    .comment("Life Fluid consumed per successful loot fabrication operation (mB)")
+                    .translation("config.jdte.jdte.lootFabricator.lifeFluidCost")
+                    .defineInRange("lifeFluidCost", 100, 1, 1_000_000);
+            lootFabricatorBaseTimeFluidCost = builder
+                    .comment("Base Time Fluid consumed per successful loot fabrication operation (mB). Faster machine speeds multiply this integer cost.")
+                    .translation("config.jdte.jdte.lootFabricator.baseTimeFluidCost")
+                    .defineInRange("baseTimeFluidCost", 1, 1, 1_000_000);
+            lootFabricatorLootingFluidCostIncreasePercent = builder
+                    .comment("Additional Life Fluid and Time Fluid cost per Looting Upgrade installed in a Loot Fabricator, in percent.")
+                    .translation("config.jdte.jdte.lootFabricator.lootingFluidCostIncreasePercent")
+                    .defineInRange("lootingFluidCostIncreasePercent", 50, 0, 10_000);
             builder.pop();
 
             // Sender/Receiver

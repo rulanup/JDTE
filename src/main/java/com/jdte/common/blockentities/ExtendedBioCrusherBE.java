@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachineBE {
+public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachineBE, ExtendedUpgradeMachine {
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
 
@@ -21,6 +21,11 @@ public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachine
         tickSpeed = 20;
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
+    }
+
+    @Override
+    protected boolean createsOutputInventory() {
+        return true;
     }
 
     @Override
@@ -65,8 +70,9 @@ public class ExtendedBioCrusherBE extends BioCrusherBE implements PoweredMachine
     protected int getExtractInterval() {
         if (UpgradeHelper.hasCreativeUpgrade(this)) return 1;
         if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return 1;
-        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.UNDERCLOCK) > 0) return 40;
-        return 20;
+        int baseInterval = JDTEConfig.COMMON.bioCrusherProcessTime.get();
+        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.UNDERCLOCK) > 0) return baseInterval * 2;
+        return baseInterval;
     }
 
     @Override

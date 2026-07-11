@@ -20,7 +20,10 @@ public class JDTECreativeTabs {
             .displayItems((parameters, output) -> {
                 // Upgrade cards
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
+                output.accept(JDTEItems.LOOTING_UPGRADE.get());
+                output.accept(JDTEItems.SHARPNESS_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
+                output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
                 output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
 
                 // Time Accelerators
@@ -81,13 +84,17 @@ public class JDTECreativeTabs {
                 // Infusion Machine
                 output.accept(JDTEItems.ADVANCED_INFUSION_MACHINE.get());
                 output.accept(JDTEItems.EXTENDED_INFUSION_MACHINE.get());
+                output.accept(JDTEItems.ADVANCED_POTION_BREWER.get());
 
                 // Bio Crusher
                 output.accept(JDTEItems.ADVANCED_BIO_CRUSHER.get());
                 output.accept(JDTEItems.EXTENDED_BIO_CRUSHER.get());
+                output.accept(JDTEItems.LOOT_FABRICATOR.get());
 
                 // Boss Essences
                 output.accept(JDTEItems.WITHER_ESSENCE.get());
+                output.accept(JDTEItems.WITHER_SPAWN_EGG.get());
+                output.accept(JDTEItems.ENDER_DRAGON_SPAWN_EGG.get());
                 output.accept(JDTEItems.ENDER_DRAGON_ESSENCE.get());
                 output.accept(JDTEItems.ELDER_GUARDIAN_ESSENCE.get());
             })

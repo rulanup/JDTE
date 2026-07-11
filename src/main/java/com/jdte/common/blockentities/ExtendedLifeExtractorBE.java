@@ -13,6 +13,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class ExtendedLifeExtractorBE extends LifeExtractorBE implements PoweredMachineBE, ExtendedUpgradeMachine {
     public static final int BASE_ENERGY_CAPACITY = 200000;
+    public static final int NORMAL_BATCH_SIZE = 8;
+    public static final int OVERCLOCK_BATCH_SIZE = 16;
+    public static final int OVERCLOCK_SCAN_INTERVAL = 5;
 
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
@@ -64,17 +67,17 @@ public class ExtendedLifeExtractorBE extends LifeExtractorBE implements PoweredM
 
     @Override
     protected int getExtractInterval() {
-        if (UpgradeHelper.hasCreativeUpgrade(this)) return 1;
-        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return 1;
+        if (UpgradeHelper.hasCreativeUpgrade(this)) return OVERCLOCK_SCAN_INTERVAL;
+        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return OVERCLOCK_SCAN_INTERVAL;
         if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.UNDERCLOCK) > 0) return 40;
         return 20;
     }
 
     @Override
     protected int getMaxEntitiesPerTick() {
-        if (UpgradeHelper.hasCreativeUpgrade(this)) return 2;
-        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return 2;
-        return 1;
+        if (UpgradeHelper.hasCreativeUpgrade(this)) return OVERCLOCK_BATCH_SIZE;
+        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return OVERCLOCK_BATCH_SIZE;
+        return NORMAL_BATCH_SIZE;
     }
 
     @Override

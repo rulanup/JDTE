@@ -1,0 +1,17 @@
+{
+  "type": "jdte:infusion",
+  "id": "jdte:ender_dragon_spawn_egg_infusion",
+  "input": {
+    "id": "jdte:ender_dragon_essence",
+    "count": 1
+  },
+  "fluid": {
+    "id": "jdte:life_fluid_source",
+    "amount": 64000
+  },
+  "output": {
+    "id": "jdte:ender_dragon_spawn_egg",
+    "count": 1
+  },
+  "energy": 100000
+}

@@ -9,4 +9,15 @@ public class BasicFluidReceiverScreen extends BaseMachineScreen<BasicFluidReceiv
     public BasicFluidReceiverScreen(BasicFluidReceiverContainer container, Inventory inv, Component name) {
         super(container, inv, name);
     }
+
+    @Override
+    public void setTopSection() {
+        extraWidth = 60;
+        extraHeight = 0;
+    }
+
+    @Override
+    public int getFluidBarOffset() {
+        return 204;
+    }
 }

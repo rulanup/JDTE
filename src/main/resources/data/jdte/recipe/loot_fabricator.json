@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["CLC", "PNS", "CTC"],
+  "key": {
+    "C": { "item": "jdte:capacity_upgrade" },
+    "L": { "item": "jdte:looting_upgrade" },
+    "P": { "item": "jdte:extended_block_placer" },
+    "N": { "item": "minecraft:nether_star" },
+    "S": { "item": "jdte:extended_life_extractor" },
+    "T": { "item": "jdte:advanced_time_accelerator" }
+  },
+  "result": { "id": "jdte:loot_fabricator", "count": 1 }
+}

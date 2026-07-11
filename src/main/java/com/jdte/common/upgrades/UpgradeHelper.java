@@ -26,6 +26,9 @@ public class UpgradeHelper {
     }
 
     public static UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
+        if (machine instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
+            return fabricator.getUpgradeHandler();
+        }
         if (machine instanceof com.jdte.common.blockentities.ExtendedUpgradeMachine) {
             return machine.getData(JDTEAttachments.EXTENDED_UPGRADE_HANDLER);
         }
@@ -42,6 +45,9 @@ public class UpgradeHelper {
 
     public static int countUpgrades(BaseMachineBE machine, UpgradeType type) {
         UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) {
+            return 0;
+        }
         int count = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
             if (isUpgrade(handler.getStackInSlot(i), type)) {

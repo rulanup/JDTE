@@ -12,6 +12,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 
 @EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class JDTEClientSetup {
@@ -28,7 +29,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.screens.BlockPlacerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_SWAPPER.get(), com.direwolf20.justdirethings.client.screens.BlockSwapperT2Screen::new);
         event.register(JDTEMenus.EXTENDED_DROPPER.get(), com.direwolf20.justdirethings.client.screens.DropperT2Screen::new);
-        event.register(JDTEMenus.EXTENDED_SENSOR.get(), com.direwolf20.justdirethings.client.screens.SensorT2Screen::new);
+        event.register(JDTEMenus.EXTENDED_SENSOR.get(), ExtendedSensorScreen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_COLLECTOR.get(), com.direwolf20.justdirethings.client.screens.FluidCollectorT2Screen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_PLACER.get(), com.direwolf20.justdirethings.client.screens.FluidPlacerT2Screen::new);
 
@@ -77,6 +78,15 @@ public class JDTEClientSetup {
         // Bio Crusher
         event.register(JDTEMenus.ADVANCED_BIO_CRUSHER.get(), AdvancedBioCrusherScreen::new);
         event.register(JDTEMenus.EXTENDED_BIO_CRUSHER.get(), ExtendedBioCrusherScreen::new);
+        event.register(JDTEMenus.LOOT_FABRICATOR.get(), LootFabricatorScreen::new);
+
+        // Potion Brewer
+        event.register(JDTEMenus.ADVANCED_POTION_BREWER.get(), AdvancedPotionBrewerScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(JDTEKeyMappings.WRENCH_AREA_MODIFIER);
     }
 
     @SubscribeEvent

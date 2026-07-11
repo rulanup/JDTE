@@ -17,19 +17,19 @@ BOSS essences are unique items obtained by killing BOSS mobs with a Bio Crusher.
 
 ### Wither Essence
 
-Obtained by killing the Wither with a Bio Crusher.
+Has a 5% base chance to drop when a Wither is killed by a Bio Crusher. Looting Upgrades can increase the amount after a successful roll, but do not increase the 5% trigger chance.
 
 <ItemImage id="jdte:wither_essence" scale="2" />
 
 ### Ender Dragon Essence
 
-Obtained by killing the Ender Dragon with a Bio Crusher.
+Has a 10% base chance to drop when an Ender Dragon is killed by a Bio Crusher. Looting Upgrades can increase the amount after a successful roll, but do not increase the 10% trigger chance.
 
 <ItemImage id="jdte:ender_dragon_essence" scale="2" />
 
 ### Elder Guardian Essence
 
-Obtained by killing the Elder Guardian with a Bio Crusher.
+Obtained when a Bio Crusher kills an Elder Guardian. Looting Upgrades may increase the essence amount.
 
 <ItemImage id="jdte:elder_guardian_essence" scale="2" />
 
@@ -47,6 +47,6 @@ Note: The Bio Crusher must be powerful enough to kill BOSS mobs. It is recommend
 
 BOSS essences can be used to craft advanced items and machines, serving as important late-game materials.
 
-- Wither Essence: Used to craft advanced Wither-related items
-- Ender Dragon Essence: Used to craft End-related advanced items
-- Elder Guardian Essence: Used to craft Elder Guardian-related items
+- Wither Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create a Wither Spawn Egg
+- Ender Dragon Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create an Ender Dragon Spawn Egg
+- Elder Guardian Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create an Elder Guardian Spawn Egg

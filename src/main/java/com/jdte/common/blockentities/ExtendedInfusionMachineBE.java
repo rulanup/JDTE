@@ -47,8 +47,13 @@ public class ExtendedInfusionMachineBE extends InfusionMachineBE implements Powe
 
     @Override
     public int getEffectiveEnergyCost() {
+        return getEffectiveEnergyCost(BASE_ENERGY_COST);
+    }
+
+    @Override
+    public int getEffectiveEnergyCost(int baseEnergyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) return 0;
-        return UpgradeHelper.adjustEnergyCost(this, BASE_ENERGY_COST);
+        return UpgradeHelper.adjustEnergyCost(this, baseEnergyCost);
     }
 
     @Override

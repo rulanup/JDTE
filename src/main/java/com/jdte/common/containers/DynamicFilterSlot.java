@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 
 public class DynamicFilterSlot extends FilterBasicSlot {
@@ -66,20 +67,52 @@ public class DynamicFilterSlot extends FilterBasicSlot {
         return jdte$getHandlerIndex() < jdte$getActiveFilterSlots();
     }
 
-    @Override
-    public boolean mayPlace(@NotNull ItemStack stack) {
-        return isActive() && super.mayPlace(stack);
-    }
+    // SlotItemHandler uses its own `index` field instead of calling getSlotIndex(),
+    // so we must override all methods that access the handler by index.
 
     @Override
-    public boolean mayPickup(Player player) {
-        return false;
+    public @NotNull ItemStack getItem() {
+        return getItemHandler().getStackInSlot(getSlotIndex());
     }
 
     @Override
     public void set(@NotNull ItemStack stack) {
         if (isActive() || stack.isEmpty()) {
-            super.set(stack);
+            ((IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
+            setChanged();
         }
+    }
+
+    @Override
+    public void initialize(@NotNull ItemStack stack) {
+        if (!(getItemHandler() instanceof IItemHandlerModifiable modifiable)) return;
+        modifiable.setStackInSlot(getSlotIndex(), stack);
+        setChanged();
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        return getItemHandler().getSlotLimit(getSlotIndex());
+    }
+
+    @Override
+    public int getMaxStackSize(ItemStack stack) {
+        return Math.min(stack.getMaxStackSize(), getItemHandler().getSlotLimit(getSlotIndex()));
+    }
+
+    @Override
+    public @NotNull ItemStack remove(int amount) {
+        return getItemHandler().extractItem(getSlotIndex(), amount, false);
+    }
+
+    @Override
+    public boolean mayPlace(@NotNull ItemStack stack) {
+        if (stack.isEmpty() || !isActive()) return false;
+        return getItemHandler().isItemValid(getSlotIndex(), stack);
+    }
+
+    @Override
+    public boolean mayPickup(Player player) {
+        return false;
     }
 }

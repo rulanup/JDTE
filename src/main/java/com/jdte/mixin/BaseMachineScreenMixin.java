@@ -1,14 +1,28 @@
 package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
+import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
+import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
+import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.JDTE;
+import com.jdte.client.AutoIoConfigClientCache;
+import com.jdte.client.AutoIoConfigScreenBridge;
 import com.jdte.client.UpgradePopupDragHandler;
+import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.autoioconfig.AutoIoConfigData;
+import com.jdte.common.autoioconfig.AutoIoConfigHelper;
+import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
+import com.jdte.common.containers.AdvancedPotionBrewerContainer;
+import com.jdte.common.containers.BioCrusherContainer;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
+import com.jdte.common.containers.LootFabricatorContainer;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeSlot;
@@ -16,9 +30,12 @@ import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.common.utils.UpgradeSlotStorage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -35,17 +52,20 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 @Mixin(BaseMachineScreen.class)
-public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixin implements UpgradePopupDragHandler {
+public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixin implements UpgradePopupDragHandler, AutoIoConfigScreenBridge {
     @Shadow protected BaseMachineContainer container;
     @Shadow protected BaseMachineBE baseMachineBE;
     @Shadow protected int topSectionLeft;
     @Shadow protected int topSectionTop;
+    @Shadow protected int topSectionHeight;
     @Shadow protected int extraWidth;
     @Shadow protected int extraHeight;
     @Shadow protected ResourceLocation SOCIALBACKGROUND;
@@ -53,24 +73,38 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluidbar.png");
     @Unique private static final ResourceLocation JDTE_FILTER_PREV = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/filter_prev.png");
     @Unique private static final ResourceLocation JDTE_FILTER_NEXT = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/filter_next.png");
+    @Unique private static final ResourceLocation JDTE_IO_CONFIG = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/hammer3.png");
+    @Unique private static final ResourceLocation JDTE_IO_NORTH = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-north.png");
+    @Unique private static final ResourceLocation JDTE_IO_SOUTH = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-south.png");
+    @Unique private static final ResourceLocation JDTE_IO_WEST = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-west.png");
+    @Unique private static final ResourceLocation JDTE_IO_EAST = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-east.png");
+    @Unique private static final ResourceLocation JDTE_IO_UP = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-up.png");
+    @Unique private static final ResourceLocation JDTE_IO_DOWN = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-down.png");
+    @Unique private static final ResourceLocation JDTE_UPGRADE_SLOT_PANEL = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/upgrade_slot_panel.png");
     @Unique private int jdte$filterPressed = 0;
     @Unique private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
+    @Unique private static final int JDTE_UPGRADE_SLOT_PANEL_WIDTH = 32;
+    @Unique private static final int JDTE_UPGRADE_SLOT_PANEL_HEIGHT = 86;
     @Unique private static final Map<Slot, int[]> JDTE_ORIGINAL_SLOT_POSITIONS = new WeakHashMap<>();
-    @Unique private static final Map<String, int[]> JDTE_UPGRADE_POPUP_POSITIONS = new HashMap<>();
-    @Unique private static final int JDTE_POPUP_UNINITIALIZED = -1;
     @Unique private static final int JDTE_SLOT_SIZE = 18;
-    @Unique private static final int JDTE_UPGRADE_COLUMNS = 4;
     @Unique private static final int JDTE_FILTER_COLUMNS = 9;
+    @Unique private static final int JDTE_IO_BUTTON_SIZE = 12;
+    @Unique private static final int JDTE_IO_BUTTON_SPACING = 12;
+    @Unique private static final int JDTE_IO_PANEL_PADDING = 6;
+    @Unique private static final int JDTE_IO_PANEL_SIZE = JDTE_IO_PANEL_PADDING * 2 + JDTE_IO_BUTTON_SPACING * 3;
+    @Unique private static final int JDTE_IO_SIDE_NORTH = 0;
+    @Unique private static final int JDTE_IO_SIDE_SOUTH = 1;
+    @Unique private static final int JDTE_IO_SIDE_WEST = 2;
+    @Unique private static final int JDTE_IO_SIDE_EAST = 3;
+    @Unique private static final int JDTE_IO_SIDE_UP = 4;
+    @Unique private static final int JDTE_IO_SIDE_DOWN = 5;
     @Unique private int jdte$baseImageHeight = -1;
-    @Unique private boolean jdte$upgradePopupOpen = false;
-    @Unique private boolean jdte$draggingUpgradePopup = false;
-    @Unique private int jdte$upgradePopupX = JDTE_POPUP_UNINITIALIZED;
-    @Unique private int jdte$upgradePopupY = JDTE_POPUP_UNINITIALIZED;
-    @Unique private int jdte$upgradeDragOffsetX;
-    @Unique private int jdte$upgradeDragOffsetY;
     @Unique private int jdte$filterPrevX;
     @Unique private int jdte$filterNextX;
     @Unique private int jdte$filterButtonsY;
+    @Unique private boolean jdte$ioConfigOpen;
+    @Unique private int jdte$ioConfigButtonX;
+    @Unique private int jdte$ioConfigButtonY;
 
     @Unique
     private int jdte$getUpgradeSlots() {
@@ -102,30 +136,50 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Inject(method = "renderBg", at = @At("HEAD"))
     private void jdte$prepareDynamicLayout(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
         if (container == null || baseMachineBE == null) return;
+        jdte$clampFilterPage();
         jdte$layoutSlots();
     }
 
     @Inject(method = "renderBg", at = @At(value = "INVOKE", target = "Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;drawSlot(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V", ordinal = 0))
     private void jdte$renderUpgradePopup(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
-        if (jdte$getUpgradeSlots() <= 0) return;
-        jdte$ensureUpgradePopupPosition();
-
-        int toggleX = jdte$getUpgradeToggleX();
-        int toggleY = jdte$getUpgradeToggleY();
-        guiGraphics.blitSprite(SOCIALBACKGROUND, toggleX, toggleY, 56, 20);
-        guiGraphics.drawString(font, Component.translatable("jdte.panel.upgrade"), toggleX + 11, toggleY + 6, jdte$upgradePopupOpen ? 0x2D4A1F : 4210752, false);
-
-        if (!jdte$upgradePopupOpen) return;
-
-        int x = jdte$getUpgradePopupX();
-        int y = jdte$getUpgradePopupY();
-        int width = jdte$getUpgradePopupWidth();
-        int height = jdte$getUpgradePopupHeight();
-        guiGraphics.blitSprite(SOCIALBACKGROUND, x + 20, y - 20, width - 40, 20);
-        guiGraphics.blitSprite(SOCIALBACKGROUND, x, y, width, height);
-        jdte$drawUpgradeSlotBackgrounds(guiGraphics);
-        guiGraphics.drawString(font, Component.translatable("jdte.panel.upgrade"), x + 20 + (width - 40 - font.width(Component.translatable("jdte.panel.upgrade"))) / 2, y - 14, 4210752, false);
+        int slots = jdte$getUpgradeSlots();
+        if (slots <= 0) return;
+        jdte$renderFixedUpgradePanels(guiGraphics);
     }
+
+    @Unique
+    private void jdte$renderFixedUpgradePanels(GuiGraphics guiGraphics) {
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        int totalSlots = jdte$getUpgradeSlots();
+        int half = 4;
+        boolean hasLeftPanel = totalSlots > 4;
+
+        // Right panel (slots 0-3)
+        jdte$drawSlotPanel(guiGraphics, config, config.getFirstSlotX(), config.getFirstSlotY(), Math.min(half, totalSlots));
+
+        // Left panel (slots 4-7, only for 8-slot machines)
+        if (hasLeftPanel) {
+            jdte$drawSlotPanel(guiGraphics, config, config.getLeftFirstSlotX(), config.getLeftFirstSlotY(), totalSlots - half);
+        }
+    }
+
+    @Unique
+    private void jdte$drawSlotPanel(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config, int originX, int originY, int slotCount) {
+        int panelX = getGuiLeft() + originX - (JDTE_UPGRADE_SLOT_PANEL_WIDTH - config.getSlotSize()) / 2;
+        int panelY = getGuiTop() + originY - (JDTE_UPGRADE_SLOT_PANEL_HEIGHT - config.getRows() * config.getSlotSize()) / 2;
+
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        guiGraphics.blit(JDTE_UPGRADE_SLOT_PANEL, panelX, panelY, 0, 0,
+                JDTE_UPGRADE_SLOT_PANEL_WIDTH, JDTE_UPGRADE_SLOT_PANEL_HEIGHT,
+                JDTE_UPGRADE_SLOT_PANEL_WIDTH, JDTE_UPGRADE_SLOT_PANEL_HEIGHT);
+
+        for (int i = 0; i < slotCount; i++) {
+            int sx = getGuiLeft() + originX;
+            int sy = getGuiTop() + originY + i * config.getSlotSpacing();
+            guiGraphics.blitSprite(SLOT_SPRITE, sx, sy, config.getSlotSize(), config.getSlotSize());
+        }
+    }
+
 
     @Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
     private void jdte$hideInactiveFilterSlots(GuiGraphics guiGraphics, Slot slot, CallbackInfo ci) {
@@ -135,26 +189,11 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     }
 
     @Unique
-    private void jdte$drawUpgradeSlotBackgrounds(GuiGraphics guiGraphics) {
-        int slots = jdte$getUpgradeSlots();
-        int cols = Math.min(JDTE_UPGRADE_COLUMNS, Math.max(1, slots));
-        int x = jdte$getUpgradePopupX() + 8;
-        int y = jdte$getUpgradePopupY() + 8;
-        for (int i = 0; i < slots; i++) {
-            int col = i % cols;
-            int row = i / cols;
-            guiGraphics.blitSprite(SLOT_SPRITE, x + col * JDTE_SLOT_SIZE, y + row * JDTE_SLOT_SIZE, 18, 18);
-        }
-    }
-
-    @Unique
     private void jdte$layoutSlots() {
         int upgradeSlotIndex = 0;
         int upgradeSlots = jdte$getUpgradeSlots();
-        int upgradeCols = Math.min(JDTE_UPGRADE_COLUMNS, upgradeSlots);
-        jdte$ensureUpgradePopupPosition();
-        int upgradeStartX = jdte$getUpgradePopupX() + 8;
-        int upgradeStartY = jdte$getUpgradePopupY() + 8;
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        boolean isEightSlot = upgradeSlots > 4;
 
         for (Slot slot : container.slots) {
             int[] original = jdte$getOriginalSlotPosition(slot);
@@ -164,16 +203,22 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 slotAccessor.jdte$setX(-10000);
                 slotAccessor.jdte$setY(-10000);
             } else if (slot instanceof UpgradeSlot) {
-                if (jdte$upgradePopupOpen) {
-                    int col = upgradeSlotIndex % upgradeCols;
-                    int row = upgradeSlotIndex / upgradeCols;
-                    slotAccessor.jdte$setX(upgradeStartX + col * JDTE_SLOT_SIZE - getGuiLeft());
-                    slotAccessor.jdte$setY(upgradeStartY + row * JDTE_SLOT_SIZE - getGuiTop());
+                if (isEightSlot && upgradeSlotIndex >= 4) {
+                    // Left panel (slots 4-7)
+                    int row = upgradeSlotIndex - 4;
+                    slotAccessor.jdte$setX(config.getLeftFirstSlotX() + 1);
+                    slotAccessor.jdte$setY(config.getLeftFirstSlotY() + row * config.getSlotSpacing() + 1);
                 } else {
-                    slotAccessor.jdte$setX(-10000);
-                    slotAccessor.jdte$setY(-10000);
+                    // Right panel (slots 0-3)
+                    int row = upgradeSlotIndex % 4;
+                    slotAccessor.jdte$setX(config.getFirstSlotX() + 1);
+                    slotAccessor.jdte$setY(config.getFirstSlotY() + row * config.getSlotSpacing() + 1);
                 }
                 upgradeSlotIndex++;
+            } else if (container instanceof AdvancedPotionBrewerContainer && jdte$layoutPotionBrewerSlot(slot, slotAccessor, config)) {
+                continue;
+            } else if (container instanceof BioCrusherContainer && jdte$layoutBioCrusherSlot(slot, slotAccessor, config)) {
+                continue;
             } else if (jdte$isPlayerInventorySlot(slot)) {
                 slotAccessor.jdte$setX(original[0]);
                 slotAccessor.jdte$setY(original[1]);
@@ -185,64 +230,94 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     }
 
     @Unique
-    private int jdte$getUpgradeToggleX() {
-        return Math.min(width - 60, getGuiLeft() + imageWidth + 8);
-    }
-
-    @Unique
-    private int jdte$getUpgradeToggleY() {
-        return Math.max(28, topSectionTop + 16);
-    }
-
-    @Unique
-    private int jdte$getUpgradePopupX() {
-        return jdte$upgradePopupX;
-    }
-
-    @Unique
-    private int jdte$getUpgradePopupY() {
-        return jdte$upgradePopupY;
-    }
-
-    @Unique
-    private int jdte$getUpgradePopupWidth() {
-        int cols = Math.min(JDTE_UPGRADE_COLUMNS, Math.max(1, jdte$getUpgradeSlots()));
-        return cols * JDTE_SLOT_SIZE + 16;
-    }
-
-    @Unique
-    private int jdte$getUpgradePopupHeight() {
-        return jdte$getUpgradeRows() * JDTE_SLOT_SIZE + 16;
-    }
-
-    @Unique
-    private void jdte$ensureUpgradePopupPosition() {
-        int popupWidth = jdte$getUpgradePopupWidth();
-        int popupHeight = jdte$getUpgradePopupHeight() + 20;
-        if (jdte$upgradePopupX == JDTE_POPUP_UNINITIALIZED || jdte$upgradePopupY == JDTE_POPUP_UNINITIALIZED) {
-            int[] saved = JDTE_UPGRADE_POPUP_POSITIONS.get(jdte$getPopupMemoryKey());
-            if (saved != null) {
-                jdte$upgradePopupX = saved[0];
-                jdte$upgradePopupY = saved[1];
-            } else {
-                jdte$upgradePopupX = Math.min(width - popupWidth - 4, getGuiLeft() + imageWidth + 8);
-                jdte$upgradePopupY = Math.max(28, topSectionTop + 72);
+    private boolean jdte$layoutPotionBrewerSlot(Slot slot, SlotAccessor slotAccessor, GuiUpgradeLayoutConfig config) {
+        if (container.slots.get(AdvancedPotionBrewerBE.BOTTLE_SLOT_0) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerBottleSlot0X());
+            slotAccessor.jdte$setY(config.getPotionBrewerBottleSlot0Y());
+            return true;
+        }
+        if (container.slots.get(AdvancedPotionBrewerBE.BOTTLE_SLOT_1) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerBottleSlot1X());
+            slotAccessor.jdte$setY(config.getPotionBrewerBottleSlot1Y());
+            return true;
+        }
+        if (container.slots.get(AdvancedPotionBrewerBE.BOTTLE_SLOT_2) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerBottleSlot2X());
+            slotAccessor.jdte$setY(config.getPotionBrewerBottleSlot2Y());
+            return true;
+        }
+        if (container.slots.get(AdvancedPotionBrewerBE.INGREDIENT_SLOT) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerIngredientSlotX());
+            slotAccessor.jdte$setY(config.getPotionBrewerIngredientSlotY());
+            return true;
+        }
+        if (container.slots.get(AdvancedPotionBrewerBE.FUEL_SLOT) == slot) {
+            slotAccessor.jdte$setX(config.getPotionBrewerFuelSlotX());
+            slotAccessor.jdte$setY(config.getPotionBrewerFuelSlotY());
+            return true;
+        }
+        int extraIngredientCount = Math.min(AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_COUNT, config.getPotionBrewerExtraIngredientCount());
+        for (int i = 0; i < extraIngredientCount; i++) {
+            if (container.slots.get(AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + i) == slot) {
+                slotAccessor.jdte$setX(config.getPotionBrewerExtraIngredientStartX() + i * config.getPotionBrewerExtraIngredientSpacing());
+                slotAccessor.jdte$setY(config.getPotionBrewerExtraIngredientStartY());
+                return true;
             }
         }
-        jdte$upgradePopupX = Math.max(0, Math.min(width - popupWidth - 4, jdte$upgradePopupX));
-        jdte$upgradePopupY = Math.max(24, Math.min(height - popupHeight - 4, jdte$upgradePopupY));
+        int outputCount = Math.min(AdvancedPotionBrewerBE.OUTPUT_SLOT_COUNT, config.getPotionBrewerOutputCount());
+        for (int i = 0; i < outputCount; i++) {
+            if (container.slots.get(AdvancedPotionBrewerBE.OUTPUT_SLOT_START + i) == slot) {
+                slotAccessor.jdte$setX(config.getPotionBrewerOutputStartX());
+                slotAccessor.jdte$setY(config.getPotionBrewerOutputStartY() + i * config.getPotionBrewerOutputSpacing());
+                return true;
+            }
+        }
+        return false;
     }
 
     @Unique
-    private int jdte$getUpgradeRows() {
-        int upgradeSlots = jdte$getUpgradeSlots();
-        if (upgradeSlots <= 0) return 0;
-        return (upgradeSlots + JDTE_UPGRADE_COLUMNS - 1) / JDTE_UPGRADE_COLUMNS;
+    private boolean jdte$layoutBioCrusherSlot(Slot slot, SlotAccessor slotAccessor, GuiUpgradeLayoutConfig config) {
+        if (!(slot instanceof BioCrusherContainer.BioCrusherUpgradeSlot upgradeSlot)) {
+            return false;
+        }
+
+        if (upgradeSlot.getKind() == BioCrusherContainer.UpgradeKind.SHARPNESS) {
+            slotAccessor.jdte$setX(config.getBioCrusherSharpnessSlotX());
+            slotAccessor.jdte$setY(config.getBioCrusherSharpnessSlotY());
+            return true;
+        }
+
+        slotAccessor.jdte$setX(config.getBioCrusherLootingSlotX());
+        slotAccessor.jdte$setY(config.getBioCrusherLootingSlotY());
+        return true;
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void jdte$mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (button != 0) return;
+
+        if (jdte$hasIoConfigTarget()) {
+            jdte$updateIoConfigButtonPosition();
+            if (jdte$inIoConfigButton(mouseX, mouseY)) {
+                jdte$ioConfigOpen = !jdte$ioConfigOpen;
+                jdte$playClickSound();
+                cir.setReturnValue(true);
+                return;
+            }
+            if (jdte$ioConfigOpen) {
+                int side = jdte$getIoConfigSideAt(mouseX, mouseY);
+                if (side >= 0) {
+                    jdte$toggleIoConfigSide(side);
+                    jdte$playClickSound();
+                    cir.setReturnValue(true);
+                    return;
+                }
+                if (jdte$inIoConfigPanel(mouseX, mouseY)) {
+                    cir.setReturnValue(true);
+                    return;
+                }
+            }
+        }
 
         if (jdte$hasFilterUpgrades()) {
             jdte$updateFilterButtonPositions();
@@ -265,93 +340,35 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 return;
             }
         }
-
-        if (jdte$getUpgradeSlots() <= 0) return;
-
-        if (jdte$inUpgradeToggle(mouseX, mouseY)) {
-            jdte$upgradePopupOpen = !jdte$upgradePopupOpen;
-            cir.setReturnValue(true);
-            return;
-        }
-
-        if (jdte$upgradePopupOpen && jdte$inUpgradePopupTitle(mouseX, mouseY)) {
-            jdte$draggingUpgradePopup = true;
-            jdte$upgradeDragOffsetX = (int) mouseX - jdte$upgradePopupX;
-            jdte$upgradeDragOffsetY = (int) mouseY - jdte$upgradePopupY;
-            cir.setReturnValue(true);
-            return;
-        }
-
-        if (jdte$upgradePopupOpen && jdte$inUpgradePopup(mouseX, mouseY) && !jdte$overUpgradeSlot(mouseX, mouseY)) {
-            cir.setReturnValue(true);
-        }
     }
 
     @Override
     public boolean jdte$dragUpgradePopup(double mouseX, double mouseY, int button) {
-        if (jdte$draggingUpgradePopup && button == 0) {
-            jdte$upgradePopupX = (int) mouseX - jdte$upgradeDragOffsetX;
-            jdte$upgradePopupY = (int) mouseY - jdte$upgradeDragOffsetY;
-            jdte$ensureUpgradePopupPosition();
-            return true;
-        }
         return false;
     }
 
     @Override
     public void jdte$releaseUpgradePopup(int button) {
-        if (button == 0) {
-            jdte$draggingUpgradePopup = false;
-            jdte$filterPressed = 0;
-            jdte$savePopupPositions();
+        jdte$filterPressed = 0;
+    }
+
+    @Override
+    public List<Rect2i> jdte$getAutoIoConfigExtraAreas() {
+        if (!jdte$hasIoConfigTarget()) {
+            return Collections.emptyList();
         }
+
+        jdte$updateIoConfigButtonPosition();
+        List<Rect2i> areas = new ArrayList<>();
+        areas.add(new Rect2i(jdte$ioConfigButtonX, jdte$ioConfigButtonY, JDTE_IO_BUTTON_SIZE, JDTE_IO_BUTTON_SIZE));
+        if (jdte$ioConfigOpen) {
+            areas.add(new Rect2i(jdte$getIoConfigPanelX(), jdte$getIoConfigPanelY(), JDTE_IO_PANEL_SIZE, JDTE_IO_PANEL_SIZE));
+        }
+        return areas;
     }
 
     @Inject(method = "hasClickedOutside", at = @At("HEAD"), cancellable = true)
     private void jdte$hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton, CallbackInfoReturnable<Boolean> cir) {
-        if (jdte$inUpgradeToggle(mouseX, mouseY)
-                || (jdte$upgradePopupOpen && jdte$inUpgradePopup(mouseX, mouseY))) {
-            cir.setReturnValue(false);
-        }
-    }
-
-    @Unique
-    private boolean jdte$inUpgradeToggle(double mouseX, double mouseY) {
-        return MiscTools.inBounds(jdte$getUpgradeToggleX(), jdte$getUpgradeToggleY(), 56, 20, mouseX, mouseY);
-    }
-
-    @Unique
-    private boolean jdte$inUpgradePopup(double mouseX, double mouseY) {
-        return MiscTools.inBounds(jdte$getUpgradePopupX(), jdte$getUpgradePopupY() - 20, jdte$getUpgradePopupWidth(), jdte$getUpgradePopupHeight() + 20, mouseX, mouseY);
-    }
-
-    @Unique
-    private boolean jdte$inUpgradePopupTitle(double mouseX, double mouseY) {
-        return MiscTools.inBounds(jdte$getUpgradePopupX(), jdte$getUpgradePopupY() - 20, jdte$getUpgradePopupWidth(), 20, mouseX, mouseY);
-    }
-
-    @Unique
-    private boolean jdte$overUpgradeSlot(double mouseX, double mouseY) {
-        for (Slot slot : container.slots) {
-            if (slot instanceof UpgradeSlot && MiscTools.inBounds(getGuiLeft() + slot.x, getGuiTop() + slot.y, JDTE_SLOT_SIZE, JDTE_SLOT_SIZE, mouseX, mouseY)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Unique
-    private String jdte$getPopupMemoryKey() {
-        if (baseMachineBE == null) return "unknown";
-        String level = baseMachineBE.getLevel() == null ? "unknown" : baseMachineBE.getLevel().dimension().location().toString();
-        return level + ":" + baseMachineBE.getBlockPos().asLong();
-    }
-
-    @Unique
-    private void jdte$savePopupPositions() {
-        if (jdte$upgradePopupX != JDTE_POPUP_UNINITIALIZED && jdte$upgradePopupY != JDTE_POPUP_UNINITIALIZED) {
-            JDTE_UPGRADE_POPUP_POSITIONS.put(jdte$getPopupMemoryKey(), new int[]{jdte$upgradePopupX, jdte$upgradePopupY});
-        }
     }
 
     @Unique
@@ -367,6 +384,11 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Inject(method = "init", at = @At("TAIL"))
     private void jdte$initFilterPage(CallbackInfo ci) {
         jdte$updateFilterButtonPositions();
+        if (jdte$hasIoConfigTarget()) {
+            AutoIoConfigClientCache.requestSync(baseMachineBE);
+        } else {
+            jdte$ioConfigOpen = false;
+        }
     }
 
     @Unique
@@ -374,9 +396,9 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         if (container == null || baseMachineBE == null) return;
         if (!jdte$hasFilterUpgrades()) return;
         int slotsPerPage = UpgradeHelper.getFilterSlotsPerUpgrade();
-        jdte$filterPrevX = getGuiLeft() + 8 - 22;
-        jdte$filterNextX = getGuiLeft() + 8 + slotsPerPage * JDTE_SLOT_SIZE + 4;
-        jdte$filterButtonsY = getGuiTop() + 54;
+        jdte$filterPrevX = getGuiLeft() + 8 - 14;
+        jdte$filterNextX = getGuiLeft() + 8 + slotsPerPage * JDTE_SLOT_SIZE;
+        jdte$filterButtonsY = getGuiTop() + 56;
     }
 
     @Unique
@@ -409,19 +431,39 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         if (container instanceof FilterPageHolder holder) {
             holder.jdte$setFilterPage(newPage);
         }
+        jdte$layoutSlots();
         PacketDistributor.sendToServer(new FilterPagePayload(newPage));
         net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                 net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     @Unique
+    private void jdte$clampFilterPage() {
+        if (container instanceof BioCrusherContainer || container instanceof LootFabricatorContainer) return;
+        if (!(container instanceof FilterPageHolder holder)) return;
+        if (!jdte$hasFilterUpgrades()) {
+            if (holder.jdte$getFilterPage() != 0) {
+                holder.jdte$setFilterPage(0);
+                PacketDistributor.sendToServer(new FilterPagePayload(0));
+            }
+            return;
+        }
+        int slotsPerPage = UpgradeHelper.getFilterSlotsPerUpgrade();
+        int maxPage = jdte$getMaxFilterPage(slotsPerPage);
+        if (holder.jdte$getFilterPage() > maxPage) {
+            holder.jdte$setFilterPage(0);
+            PacketDistributor.sendToServer(new FilterPagePayload(0));
+        }
+    }
+
+    @Unique
     private boolean jdte$inFilterPrevButton(double mouseX, double mouseY) {
-        return MiscTools.inBounds(jdte$filterPrevX, jdte$filterButtonsY, 20, 18, mouseX, mouseY);
+        return MiscTools.inBounds(jdte$filterPrevX, jdte$filterButtonsY, 12, 12, mouseX, mouseY);
     }
 
     @Unique
     private boolean jdte$inFilterNextButton(double mouseX, double mouseY) {
-        return MiscTools.inBounds(jdte$filterNextX, jdte$filterButtonsY, 20, 18, mouseX, mouseY);
+        return MiscTools.inBounds(jdte$filterNextX, jdte$filterButtonsY, 12, 12, mouseX, mouseY);
     }
 
     @Inject(method = "renderBg", at = @At("TAIL"))
@@ -441,31 +483,186 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         boolean nextActive = currentPage < maxPage;
 
         RenderSystem.setShaderColor(1f, 1f, 1f, prevActive ? 1f : 0.3f);
+        com.mojang.blaze3d.vertex.PoseStack poseStack = guiGraphics.pose();
         if (jdte$filterPressed == -1) {
-            com.mojang.blaze3d.vertex.PoseStack poseStack = guiGraphics.pose();
             poseStack.pushPose();
-            poseStack.translate(prevX + 2 + 16, y + 1 + 16, 0);
+            poseStack.translate(prevX + 6, y + 6, 0);
+            poseStack.scale(0.75f, 0.75f, 1.0f);
             poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(180));
-            guiGraphics.blit(JDTE_FILTER_NEXT, 0, 0, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(JDTE_FILTER_NEXT, -8, -8, 0, 0, 16, 16, 16, 16);
             poseStack.popPose();
         } else {
-            guiGraphics.blit(JDTE_FILTER_PREV, prevX + 2, y + 1, 0, 0, 16, 16, 16, 16);
-        }
-
-        RenderSystem.setShaderColor(1f, 1f, 1f, nextActive ? 1f : 0.3f);
-        com.mojang.blaze3d.vertex.PoseStack poseStack = guiGraphics.pose();
-        if (jdte$filterPressed == 1) {
-            guiGraphics.blit(JDTE_FILTER_NEXT, nextX + 2, y + 1, 0, 0, 16, 16, 16, 16);
-        } else {
             poseStack.pushPose();
-            poseStack.translate(nextX + 2 + 16, y + 1 + 16, 0);
-            poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(180));
+            poseStack.translate(prevX, y, 0);
+            poseStack.scale(0.75f, 0.75f, 1.0f);
             guiGraphics.blit(JDTE_FILTER_PREV, 0, 0, 0, 0, 16, 16, 16, 16);
             poseStack.popPose();
         }
 
+        RenderSystem.setShaderColor(1f, 1f, 1f, nextActive ? 1f : 0.3f);
+        if (jdte$filterPressed == 1) {
+            poseStack.pushPose();
+            poseStack.translate(nextX, y, 0);
+            poseStack.scale(0.75f, 0.75f, 1.0f);
+            guiGraphics.blit(JDTE_FILTER_NEXT, 0, 0, 0, 0, 16, 16, 16, 16);
+            poseStack.popPose();
+        } else {
+            poseStack.pushPose();
+            poseStack.translate(nextX + 6, y + 6, 0);
+            poseStack.scale(0.75f, 0.75f, 1.0f);
+            poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(180));
+            guiGraphics.blit(JDTE_FILTER_PREV, -8, -8, 0, 0, 16, 16, 16, 16);
+            poseStack.popPose();
+        }
+
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.drawString(font, Component.literal((currentPage + 1) + "/" + (maxPage + 1)), nextX, y + 20, 4210752, false);
+        guiGraphics.drawString(font, Component.literal((currentPage + 1) + "/" + (maxPage + 1)), nextX + 12 + 2, y + 2, 0xFF404040, false);
+    }
+
+    @Inject(method = "renderBg", at = @At("TAIL"))
+    private void jdte$renderIoConfig(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+        if (!jdte$hasIoConfigTarget()) return;
+        jdte$updateIoConfigButtonPosition();
+        if (jdte$ioConfigOpen) {
+            jdte$renderIoConfigPanel(guiGraphics);
+        }
+        jdte$drawSmallIconButton(guiGraphics, jdte$ioConfigButtonX, jdte$ioConfigButtonY, JDTE_IO_CONFIG, true);
+    }
+
+    @Unique
+    private boolean jdte$hasIoConfigTarget() {
+        return container != null && AutoIoConfigHelper.hasConfigurableIo(baseMachineBE);
+    }
+
+    @Unique
+    private void jdte$updateIoConfigButtonPosition() {
+        jdte$ioConfigButtonX = getGuiLeft() + 8 - 14 - 16;
+        jdte$ioConfigButtonY = getGuiTop() + 56;
+    }
+
+    @Unique
+    private boolean jdte$inIoConfigButton(double mouseX, double mouseY) {
+        return MiscTools.inBounds(jdte$ioConfigButtonX, jdte$ioConfigButtonY, JDTE_IO_BUTTON_SIZE, JDTE_IO_BUTTON_SIZE, mouseX, mouseY);
+    }
+
+    @Unique
+    private int jdte$getIoConfigPanelX() {
+        return topSectionLeft - JDTE_IO_PANEL_SIZE;
+    }
+
+    @Unique
+    private int jdte$getIoConfigPanelY() {
+        return topSectionTop + topSectionHeight - JDTE_IO_PANEL_SIZE;
+    }
+
+    @Unique
+    private boolean jdte$inIoConfigPanel(double mouseX, double mouseY) {
+        return MiscTools.inBounds(jdte$getIoConfigPanelX(), jdte$getIoConfigPanelY(), JDTE_IO_PANEL_SIZE, JDTE_IO_PANEL_SIZE, mouseX, mouseY);
+    }
+
+    @Unique
+    private void jdte$renderIoConfigPanel(GuiGraphics guiGraphics) {
+        int panelX = jdte$getIoConfigPanelX();
+        int panelY = jdte$getIoConfigPanelY();
+        guiGraphics.blitSprite(SOCIALBACKGROUND, panelX, panelY, JDTE_IO_PANEL_SIZE, JDTE_IO_PANEL_SIZE);
+
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_NORTH);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_WEST);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_UP);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_EAST);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_SOUTH);
+        jdte$drawIoConfigSide(guiGraphics, JDTE_IO_SIDE_DOWN);
+    }
+
+    @Unique
+    private void jdte$drawIoConfigSide(GuiGraphics guiGraphics, int side) {
+        jdte$drawSmallIconButton(guiGraphics, jdte$getIoSideX(side), jdte$getIoSideY(side), jdte$getIoSideIcon(side), jdte$isIoSideActive(side));
+    }
+
+    @Unique
+    private int jdte$getIoConfigSideAt(double mouseX, double mouseY) {
+        for (int side = 0; side < AutoIoConfigData.SIDE_COUNT; side++) {
+            if (MiscTools.inBounds(jdte$getIoSideX(side), jdte$getIoSideY(side), JDTE_IO_BUTTON_SIZE, JDTE_IO_BUTTON_SIZE, mouseX, mouseY)) {
+                return side;
+            }
+        }
+        return -1;
+    }
+
+    @Unique
+    private int jdte$getIoSideX(int side) {
+        int col = switch (side) {
+            case JDTE_IO_SIDE_WEST -> 0;
+            case JDTE_IO_SIDE_NORTH, JDTE_IO_SIDE_SOUTH, JDTE_IO_SIDE_UP -> 1;
+            default -> 2;
+        };
+        return jdte$getIoGridX(col);
+    }
+
+    @Unique
+    private int jdte$getIoSideY(int side) {
+        int row = switch (side) {
+            case JDTE_IO_SIDE_NORTH -> 0;
+            case JDTE_IO_SIDE_WEST, JDTE_IO_SIDE_EAST, JDTE_IO_SIDE_UP -> 1;
+            default -> 2;
+        };
+        return jdte$getIoGridY(row);
+    }
+
+    @Unique
+    private int jdte$getIoGridX(int col) {
+        return jdte$getIoConfigPanelX() + JDTE_IO_PANEL_PADDING + col * JDTE_IO_BUTTON_SPACING;
+    }
+
+    @Unique
+    private int jdte$getIoGridY(int row) {
+        return jdte$getIoConfigPanelY() + JDTE_IO_PANEL_PADDING + row * JDTE_IO_BUTTON_SPACING;
+    }
+
+    @Unique
+    private ResourceLocation jdte$getIoSideIcon(int side) {
+        return switch (side) {
+            case JDTE_IO_SIDE_NORTH -> JDTE_IO_NORTH;
+            case JDTE_IO_SIDE_SOUTH -> JDTE_IO_SOUTH;
+            case JDTE_IO_SIDE_WEST -> JDTE_IO_WEST;
+            case JDTE_IO_SIDE_EAST -> JDTE_IO_EAST;
+            case JDTE_IO_SIDE_UP -> JDTE_IO_UP;
+            default -> JDTE_IO_DOWN;
+        };
+    }
+
+    @Unique
+    private boolean jdte$isIoSideActive(int side) {
+        return (jdte$getIoSideMask() & (1 << side)) != 0;
+    }
+
+    @Unique
+    private int jdte$getIoSideMask() {
+        return AutoIoConfigClientCache.getSideMask(baseMachineBE);
+    }
+
+    @Unique
+    private void jdte$toggleIoConfigSide(int side) {
+        int newMask = AutoIoConfigHelper.toggleSide(jdte$getIoSideMask(), side);
+        AutoIoConfigClientCache.updateAndSend(baseMachineBE, newMask);
+    }
+
+    @Unique
+    private void jdte$drawSmallIconButton(GuiGraphics guiGraphics, int x, int y, ResourceLocation icon, boolean active) {
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
+        poseStack.scale(0.75f, 0.75f, 1.0f);
+        RenderSystem.setShaderColor(active ? 1.0f : 0.33f, active ? 1.0f : 0.33f, active ? 1.0f : 0.33f, 1.0f);
+        guiGraphics.blit(icon, 0, 0, 0, 0, 16, 16, 16, 16);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        poseStack.popPose();
+    }
+
+    @Unique
+    private void jdte$playClickSound() {
+        net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
+                net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     @Inject(method = "renderTooltip", at = @At("TAIL"))
@@ -481,14 +678,67 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                     if (slot.hasItem()) {
                         guiGraphics.renderTooltip(font, slot.getItem(), mouseX, mouseY);
                     } else {
-                        guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
-                                Component.translatable("jdte.upgrade.slot.empty")
-                        )), mouseX, mouseY);
+                        List<FormattedText> lines = new ArrayList<>();
+                        lines.add(Component.translatable("jdte.upgrade.slot.empty"));
+                        lines.add(Component.empty());
+
+                        for (UpgradeType type : UpgradeType.values()) {
+                            if (!jdte$isUpgradeCompatible(type)) continue;
+
+                            int current = UpgradeHelper.countUpgrades(baseMachineBE, type);
+                            int max = type.getMaxPerMachine();
+                            boolean canAdd = current < max && !jdte$hasOppositeSpeedUpgrade(type);
+
+                            Component name = Component.translatable("item.jdte." + type.getSerializedName() + "_upgrade");
+                            lines.add(Component.literal("  ")
+                                    .append(name)
+                                    .append(Component.literal(": " + current + "/" + max))
+                                    .copy()
+                                    .withStyle(canAdd ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+                        }
+
+                        if (baseMachineBE instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
+                            int current = fabricator.getLootingLevel();
+                            lines.add(Component.literal("  ")
+                                    .append(Component.translatable("item.jdte.looting_upgrade"))
+                                    .append(Component.literal(": " + current + "/3"))
+                                    .copy()
+                                    .withStyle(current < 3 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+                        }
+
+                        guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(lines), mouseX, mouseY);
                     }
                     return;
                 }
             }
         }
+    }
+
+    @Unique
+    private boolean jdte$isUpgradeCompatible(UpgradeType type) {
+        switch (type) {
+            case FLUID_STORAGE:
+                return baseMachineBE instanceof ClickerT1BE;
+            case GENERATOR:
+                return baseMachineBE instanceof GeneratorT1BE || baseMachineBE instanceof GeneratorFluidT1BE;
+            case RANGE:
+                return baseMachineBE instanceof AreaAffectingBE;
+            case FILTER:
+                return baseMachineBE instanceof FilterableBE;
+            default:
+                return true;
+        }
+    }
+
+    @Unique
+    private boolean jdte$hasOppositeSpeedUpgrade(UpgradeType type) {
+        if (type == UpgradeType.OVERCLOCK) {
+            return UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.UNDERCLOCK) > 0;
+        }
+        if (type == UpgradeType.UNDERCLOCK) {
+            return UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.OVERCLOCK) > 0;
+        }
+        return false;
     }
 
     @ModifyConstant(method = "addAreaButtons", constant = @Constant(doubleValue = 5.0D), require = 0)
@@ -605,5 +855,50 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
                 Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(container.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
         )), mouseX, mouseY);
+    }
+
+    @Inject(method = "renderTooltip", at = @At("TAIL"))
+    private void jdte$renderFilterButtonTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+        if (container == null || baseMachineBE == null) return;
+        if (!jdte$hasFilterUpgrades()) return;
+        jdte$updateFilterButtonPositions();
+
+        if (jdte$inFilterPrevButton(mouseX, mouseY)) {
+            guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.filter_prev"), mouseX, mouseY);
+        } else if (jdte$inFilterNextButton(mouseX, mouseY)) {
+            guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.filter_next"), mouseX, mouseY);
+        }
+    }
+
+    @Inject(method = "renderTooltip", at = @At("TAIL"))
+    private void jdte$renderIoConfigTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+        if (!jdte$hasIoConfigTarget()) return;
+        jdte$updateIoConfigButtonPosition();
+
+        if (jdte$inIoConfigButton(mouseX, mouseY)) {
+            guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.io_config"), mouseX, mouseY);
+            return;
+        }
+        if (!jdte$ioConfigOpen) return;
+
+        int side = jdte$getIoConfigSideAt(mouseX, mouseY);
+        if (side >= 0) {
+            guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+                    Component.translatable(jdte$getIoSideTranslationKey(side)),
+                    Component.translatable(jdte$isIoSideActive(side) ? "jdte.screen.io_config.enabled" : "jdte.screen.io_config.disabled")
+            )), mouseX, mouseY);
+        }
+    }
+
+    @Unique
+    private String jdte$getIoSideTranslationKey(int side) {
+        return switch (side) {
+            case JDTE_IO_SIDE_NORTH -> "jdte.screen.io_config.north";
+            case JDTE_IO_SIDE_SOUTH -> "jdte.screen.io_config.south";
+            case JDTE_IO_SIDE_WEST -> "jdte.screen.io_config.west";
+            case JDTE_IO_SIDE_EAST -> "jdte.screen.io_config.east";
+            case JDTE_IO_SIDE_UP -> "jdte.screen.io_config.up";
+            default -> "jdte.screen.io_config.down";
+        };
     }
 }

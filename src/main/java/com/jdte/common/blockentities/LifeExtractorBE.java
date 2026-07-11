@@ -13,13 +13,17 @@ import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -38,7 +42,6 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     public static final int BASE_FLUID_CAPACITY = 16000;
     public static final int BASE_ENERGY_COST = 300;
     public static final float BASE_RADIUS = 5.0f;
-    public static final int FLUID_PER_HP = 100;
 
     public final JDTEFluidTank fluidTank;
     public final FluidContainerData fluidContainerData;
@@ -48,6 +51,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     public AreaAffectingData areaAffectingData;
     protected int mode = MODE_HOSTILE;
     protected int tickCounter = 0;
+    protected double pendingLifeFluid = 0.0D;
     private final ItemStackHandler emptyHandler = new ItemStackHandler(0);
 
     protected LifeExtractorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -137,6 +141,11 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
             return;
         }
 
+        flushPendingLifeFluid();
+        if (pendingLifeFluid >= 1.0D) {
+            return;
+        }
+
         AABB area = getAABB(getBlockPos());
         boolean hasFilterUpgrade = UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.FILTER) > 0;
 
@@ -146,39 +155,55 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
 
         int processed = 0;
         int maxEntities = getMaxEntitiesPerTick();
-        long totalFluidProduced = 0;
-
         for (Entity entity : serverLevel.getEntitiesOfClass(Entity.class, area, e -> isValidTarget(e, hasFilterUpgrade))) {
             if (processed >= maxEntities) break;
             if (!(entity instanceof LivingEntity livingEntity)) continue;
 
-            float maxHealth = livingEntity.getMaxHealth();
-            if (maxHealth <= 0) continue;
+            float currentHealth = livingEntity.getHealth();
+            if (currentHealth <= 0) continue;
 
-            long fluidProduced = (long) (maxHealth * FLUID_PER_HP * getFluidBonusMultiplier());
+            double fluidProduced = currentHealth
+                    * JDTEConfig.COMMON.lifeExtractorFluidPerHealth.get()
+                    * getFluidBonusMultiplier();
             double loss = getFluidLossMultiplier();
             if (loss > 0) {
-                fluidProduced = (long) (fluidProduced * (1.0 - loss));
+                fluidProduced *= 1.0D - loss;
             }
 
-            if (fluidProduced > 0 && fluidTank.fill(new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.SIMULATE) > 0) {
-                fluidTank.fill(new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), (int) Math.min(fluidProduced, Integer.MAX_VALUE)), IFluidHandler.FluidAction.EXECUTE);
-                totalFluidProduced += fluidProduced;
+            if (fluidProduced > 0) {
+                pendingLifeFluid += fluidProduced;
+                flushPendingLifeFluid();
             }
 
-            entity.hurt(serverLevel.damageSources().fellOutOfWorld(), Float.MAX_VALUE);
-            if (entity.isAlive()) {
-                entity.discard();
-            }
+            entity.discard();
             processed++;
+
+            if (pendingLifeFluid >= 1.0D) {
+                break;
+            }
         }
 
-        if (totalFluidProduced > 0 && !UpgradeHelper.hasCreativeUpgrade(this)) {
+        if (processed > 0 && !UpgradeHelper.hasCreativeUpgrade(this)) {
             extractEnergy(energyCost, false);
         }
 
         if (processed > 0) {
             setChanged();
+        }
+    }
+
+    private void flushPendingLifeFluid() {
+        long wholeAmount = (long) Math.floor(pendingLifeFluid + 1.0E-9D);
+        if (wholeAmount <= 0) {
+            return;
+        }
+
+        int requested = (int) Math.min(wholeAmount, Integer.MAX_VALUE);
+        int accepted = fluidTank.fill(
+                new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), requested),
+                IFluidHandler.FluidAction.EXECUTE);
+        if (accepted > 0) {
+            pendingLifeFluid = Math.max(0.0D, pendingLifeFluid - accepted);
         }
     }
 
@@ -192,11 +217,16 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         }
 
         return switch (mode) {
-            case MODE_HOSTILE -> entity instanceof net.minecraft.world.entity.Mob mob && mob.isAggressive();
-            case MODE_FRIENDLY -> !(entity instanceof net.minecraft.world.entity.Mob mob && mob.isAggressive());
+            case MODE_HOSTILE -> isHostileTarget(entity);
+            case MODE_FRIENDLY -> !isHostileTarget(entity);
             case MODE_ALL -> true;
             default -> false;
         };
+    }
+
+    private boolean isHostileTarget(Entity entity) {
+        EntityType<?> type = entity.getType();
+        return entity instanceof Enemy || type.getCategory() == MobCategory.MONSTER;
     }
 
     protected int getAreaEnergyScale() {
@@ -265,6 +295,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         tag.put("fluidTank", fluidTank.serializeNBT(provider));
         tag.putInt("mode", mode);
         tag.putInt("tickCounter", tickCounter);
+        tag.putDouble("pendingLifeFluid", pendingLifeFluid);
         saveAreaSettings(tag);
     }
 
@@ -279,6 +310,9 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         }
         if (tag.contains("tickCounter")) {
             tickCounter = tag.getInt("tickCounter");
+        }
+        if (tag.contains("pendingLifeFluid")) {
+            pendingLifeFluid = Math.max(0.0D, tag.getDouble("pendingLifeFluid"));
         }
         loadAreaSettings(tag);
     }

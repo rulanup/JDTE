@@ -11,6 +11,7 @@
     "BaseMachineContainerFilterMixin",
     "BaseSpawnerAccessor",
     "BaseSpawnerInvoker",
+    "ApothSpawnerInvoker",
     "ClickerFluidMixin",
     "AreaAffectingBEMixin",
     "EnergyCostMixin",
@@ -29,6 +30,8 @@
   ],
   "client": [
     "ScreenMixin",
+    "BaseMachineScreenAccessor",
+    "ClickerT2ScreenMixin",
     "BaseMachineScreenMixin",
     "SlotAccessor"
   ],

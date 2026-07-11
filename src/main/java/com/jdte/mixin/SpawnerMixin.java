@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,42 +18,37 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class SpawnerMixin {
 
     /**
-     * Hook the delay() call inside serverTick().
-     * This is called once per spawn cycle, after all entities have been spawned.
-     * By injecting here, we:
-     * - Let vanilla handle spawnCount iterations
-     * - Only execute once per cycle
-     * - Properly handle all vanilla state (spawnDelay, spawnPotentials, etc.)
+     * Intercept the spawn cycle before vanilla creates entities.
+     * A crusher directly above the spawner consumes the cycle, generates drops and XP fluid,
+     * then lets vanilla pick the next spawn delay/data without spawning entities.
      */
     @Inject(
         method = "serverTick",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/BaseSpawner;delay(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"
+            target = "Lnet/minecraft/world/level/BaseSpawner;getOrCreateNextSpawnData(Lnet/minecraft/world/level/Level;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/SpawnData;"
         ),
         cancellable = true
     )
-    private void jdte$onDelay(ServerLevel level, BlockPos pos, CallbackInfo ci) {
-        // Check if there's a Bio Crusher above the spawner
+    private void jdte$beforeSpawn(ServerLevel level, BlockPos pos, CallbackInfo ci) {
+        jdte$tryCrushSpawner(level, pos, (BaseSpawner) (Object) this, ci);
+    }
+
+    private static void jdte$tryCrushSpawner(ServerLevel level, BlockPos pos, BaseSpawner spawner, CallbackInfo ci) {
         BlockPos crusherPos = pos.above();
         BlockState crusherState = level.getBlockState(crusherPos);
 
-        // Check if the block above is a Bio Crusher
         if (crusherState.getBlock() instanceof com.jdte.common.blocks.AdvancedBioCrusherBlock ||
             crusherState.getBlock() instanceof com.jdte.common.blocks.ExtendedBioCrusherBlock) {
 
             BlockEntity be = level.getBlockEntity(crusherPos);
             if (be instanceof BioCrusherBE crusher) {
-                BaseSpawner spawner = (BaseSpawner) (Object) this;
                 BaseSpawnerAccessor accessor = (BaseSpawnerAccessor) spawner;
-
-                // Process the spawner's mobs through the crusher
-                // spawnCount is handled inside processSpawnerCrush
-                crusher.processSpawnerCrush(level, pos, accessor);
-
-                // Cancel the delay call - we already handle the delay in processSpawnerCrush
-                // Actually, we should let vanilla handle the delay
-                // ci.cancel();
+                SpawnData spawnData = ((BaseSpawnerInvoker) spawner).jdte$getOrCreateNextSpawnData(level, level.getRandom(), pos);
+                if (crusher.processSpawnerCrush(level, pos, spawner, spawnData, accessor.jdte$getSpawnCount())) {
+                    ((BaseSpawnerInvoker) spawner).jdte$delay(level, pos);
+                    ci.cancel();
+                }
             }
         }
     }
@@ -60,33 +56,35 @@ public class SpawnerMixin {
     // Handle Apothic Spawners
     // Use @Pseudo to avoid errors when Apothic Spawners is not installed
     @Pseudo
-    @Mixin(targets = "dev.shadowsoffire.apothic_spawners.block.ApothSpawnerTile$SpawnerLogicExt")
-    public static class ApothSpawnerMixin {
+    @Mixin(targets = "dev.shadowsoffire.apothic_spawners.block.ApothSpawnerTile$SpawnerLogicExt", remap = false)
+    public abstract static class ApothSpawnerMixin {
 
         @Inject(
             method = "serverTick",
             at = @At(
                 value = "INVOKE",
-                target = "Lnet/minecraft/world/level/BaseSpawner;delay(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"
+                target = "Ldev/shadowsoffire/apothic_spawners/block/ApothSpawnerTile$SpawnerLogicExt;getOrCreateNextSpawnData(Lnet/minecraft/world/level/Level;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/SpawnData;",
+                remap = false
             ),
-            cancellable = true
+            cancellable = true,
+            require = 0,
+            remap = false
         )
-        private void jdte$onDelay(ServerLevel level, BlockPos pos, CallbackInfo ci) {
-            // Check if there's a Bio Crusher above the spawner
+        private void jdte$beforeSpawn(ServerLevel level, BlockPos pos, CallbackInfo ci) {
             BlockPos crusherPos = pos.above();
             BlockState crusherState = level.getBlockState(crusherPos);
 
-            // Check if the block above is a Bio Crusher
             if (crusherState.getBlock() instanceof com.jdte.common.blocks.AdvancedBioCrusherBlock ||
                 crusherState.getBlock() instanceof com.jdte.common.blocks.ExtendedBioCrusherBlock) {
 
                 BlockEntity be = level.getBlockEntity(crusherPos);
                 if (be instanceof BioCrusherBE crusher) {
-                    // SpawnerLogicExt extends BaseSpawner
-                    BaseSpawnerAccessor accessor = (BaseSpawnerAccessor) (Object) this;
-
-                    // Process the spawner's mobs through the crusher
-                    crusher.processSpawnerCrush(level, pos, accessor);
+                    SpawnData spawnData = ((BaseSpawnerInvoker) (Object) this).jdte$getOrCreateNextSpawnData(level, level.getRandom(), pos);
+                    int spawnCount = ((BaseSpawnerAccessor) (Object) this).jdte$getSpawnCount();
+                    if (crusher.processSpawnerCrush(level, pos, (BaseSpawner) (Object) this, spawnData, spawnCount)) {
+                        ((ApothSpawnerInvoker) (Object) this).jdte$apothDelay(level, pos);
+                        ci.cancel();
+                    }
                 }
             }
         }

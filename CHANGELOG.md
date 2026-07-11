@@ -1,0 +1,182 @@
+# Changelog
+
+### English
+
+#### v0.5.3 (Current)
+
+- **GUI**: Machine GUIs now use fixed embedded upgrade panels instead of draggable popups. Four-slot machines use a right-side 1x4 panel, while eight-slot machines use left/right 1x4 panels. Empty upgrade slots now show valid upgrade types, current counts, limits, machine incompatibilities, and overclock/underclock conflicts. Most machine layouts were adjusted.
+- **New**: Added an absolute-direction auto input/output side panel for machines with real item or fluid I/O.
+- **New**: Added the Loot Fabricator. It uses reusable spawn eggs as entity templates, consumes Life Fluid, Time Fluid, and FE, and produces matching mob loot. It supports redstone control, automatic I/O, four spawn-egg inputs, paged outputs, eight standard upgrade slots, Capacity Upgrades, and up to three Looting Upgrades.
+- Loot Fabricator can process all inserted spawn eggs in parallel during one progress cycle. Costs scale with participating eggs, and completion consumes Life Fluid, Time Fluid, and FE only for successful outputs.
+- Looting Upgrades now apply a configurable extra-copy roll after loot-table rolls and increase Life/Time Fluid costs by a configurable percentage, defaulting to +50% per installed Looting Upgrade.
+- Boss and compatibility handling: Wither and Elder Guardian eggs cost 10x fluid, Ender Dragon eggs cost 100x, Wither recipes include the Nether Star, and Draconic Evolution Ender Dragon fabrication includes Dragon Heart plus configured Draconium Dust.
+- **New**: Advanced Bio Crusher now emits captured loot through the vanilla item-drop path at the killed entity's position. Extended Bio Crusher stores generated loot in its paged output inventory when space is available and can expand effective output capacity with Capacity Upgrades.
+- Bio Crusher experience fluid is now based on the entity's final adjusted XP reward, including Apothic Spawners Echoing effects, and does not spawn XP orbs.
+- Bio Crusher spawner integration now takes over the spawn cycle before entity creation, preserves vanilla/Apothic spawn data and delay logic, captures complete virtual deaths, and lets the original spawner continue when the machine cannot process the cycle.
+- Bio Crusher and Life Extractor hostile/friendly modes now classify targets by hostile entity type instead of the current AI aggression state.
+- **New**: Added optional Bio Crusher compatibility for Draconic Evolution Chaos Guardian fights, with server config toggles for crystal destruction and FakePlayer-attributed lethal attacks.
+- **New**: Infusion Machines can automatically craft matching spawn eggs from a full stack of a uniquely identifying mob drop, 64 B of Life Fluid, and 100,000 FE.
+- Added dedicated JDTE Wither, Ender Dragon, and Elder Guardian Spawn Egg infusion recipes using the matching Boss Essence and 64 B of Life Fluid. Generic scanning excludes Wither to avoid creating a duplicate Nether Star recipe.
+- Spawn egg infusion recipes now register through one JEI path, no longer duplicate, and are shown before other Infusion Machine recipes. Gel Generator, Infusion Machine, and Potion Brewer recipes expose stable IDs so JEI recipe bookmarking works.
+- Infusion Machines can fill compatible fluid containers through NeoForge item-fluid capabilities, including buckets, modded containers, water bottles from glass bottles, and honey bottles from honey-like fluids.
+- Life Apples now permanently and cumulatively increase maximum health, armor, and armor toughness without a cap. Tooltip, JEI information, and GuideME documentation were updated; the tooltip text is red and the GuideME growth explanation is table-based.
+- **New**: Added the Advanced Potion Brewer with three bottle inputs, six ordered ingredient steps, blaze-powder fuel, three product outputs, water tank, Time Fluid tank, energy bar, redstone control, speed control, and slot tooltips.
+- Brewing advances every server tick like a vanilla brewing stand, supports ordered multi-step chains, server-confirmed ingredient-slot locking, one-stack bottle/product GUI slots, and restricted automation semantics for bottle/material/fuel inputs and product outputs.
+- Advanced Potion Brewer Time Fluid cost is based on ticks saved versus the vanilla 400-tick brewing step, and vanilla-speed operation consumes no Time Fluid.
+- Advanced Potion Brewer JEI pages prefer complete brewing chains starting from glass bottles and water, merge equivalent ingredients for the same stage, support water-filling recipes, register the catalyst, and open from the progress arrow.
+- **New**: Added the Eclipse Alloy Wrench. Normal right-click rotates machines like JDT's Ferricore Wrench, while sneak right-click picks up supported machines with saved machine data. Optional FTB Ultimine support can rotate or pick up selected machines in bulk.
+- Eclipse Alloy Wrench scroll-wheel range adjustment now requires holding the wrench and the Wrench Area Modifier key, can adjust area-machine X/Y/Z radius together, shows a green current/max range overlay, and is documented in GuideME.
+- **Fixed**: Added right-click fluid container interaction to JDTE fluid machines.
+- **Fixed**: Fixed filter pagination logic, including dynamic slot indices, automatic reset when available pages shrink, page label styling, and page-button size/position.
+- **Fixed**: Bio Crusher kills now use a cached FakePlayer, real weapon/looting context, and final NeoForge drop events, preserving mod-adjusted drops while preventing normal Sharpness kills from spilling duplicate items into the world. Unknown modded entities no longer receive fabricated fallback drops.
+- **Fixed**: Life Extractor now directly removes targets and produces only Life Fluid, with no normal drops or experience. Output is based on target current health through configurable conversion, and larger batches improve throughput without extra range scans.
+- Advanced/Extended Life Extractors and Bio Crushers keep normal mining hardness but are Wither-proof against explosions.
+- Wither Essence has a 5% base drop chance, and Ender Dragon Essence has a 10% base drop chance. Looting affects quantity only after a successful essence roll. JEI information pages explain Boss Essences and their current infusion uses.
+- **Fixed**: Fixed Extended Dropper and Extended Clicker settings display initialization.
+- **Fixed**: Fixed Extended Sensor crash when opening its GUI.
+- **Fixed**: Added Gel Generator and Infusion Machine JEI categories and progress-arrow navigation. Gel Generator reads JDT goo spread recipes, marks gel as a non-consumed catalyst, and displays compact item/fluid recipe pages with an energy bar.
+- **New**: Looting and Sharpness upgrades now appear in the JDTE creative tab. Bio Crusher dedicated Sharpness/Looting upgrade slots and target-mode controls were redesigned.
+- **Balance**: Time Accelerator Time Fluid consumption now matches JDT Time Wand efficiency by default and is tunable through `timeAcceleratorFluidCostMultiplier` and `/jdte timeaccelerator fluidCostMultiplier <value>`.
+
+#### v0.5.2
+- **Fixed**: Extended Dropper GUI crash — `MACHINE_SLOTS` set to 9 in constructor, `getMachineHandler()` auto-expands old 1-slot handler to 9-slot.
+- **Fixed**: Registered `Capabilities.ItemHandler.BLOCK` for all JDTE machines, enabling external pipe interaction (Mekanism, etc.).
+
+#### v0.5.1
+- **GuideME**: Fixed bilingual page display — default language pages moved to root, English pages moved to `_en_us` directory.
+- **GuideME**: Added documentation for Life Extractor and Infusion Machine (EN/CN).
+- **Fixed**: Missing blockstate/model warnings for `life_fluid_block`.
+- **Fixed**: `basic_glue_activator` recipe pattern — undefined `L` symbol.
+- **Fixed**: GuideME `item_ids` conflicts for 5 entries.
+- **Fluid bar**: Unified all machine fluid bars to right side (offset=204).
+- **Filter system**: Reverted filter slot position to JDT default (8,54); added pagination (prev/next buttons + page number) for FILTER upgrade.
+- **Filter state**: Sync via `FilterPagePayload` network packet.
+- **Fixed**: Time accelerator filter logic — empty filter slots no longer match all blocks in whitelist mode.
+- **Mode button**: Replaced vanilla Button with custom texture-rendered button for hostile/passive/all modes.
+
+#### v0.5.0
+- **Fixed**: Global filter slot bug — one machine's config no longer causes all machines to lose filter slots.
+- **Fixed**: Missing rotation transforms in blockstate JSON for 12 machines — wrench rotation now works visually.
+- **GUI**: Added vanilla `container/slot` slot border rendering to upgrade and filter popups.
+- **GuideME**: Added English translation (14 pages), Chinese pages moved to `zh_cn/` directory.
+- **Fixed**: `fluid-stabilizer.md` navigation position conflict.
+
+#### v0.4.0
+- **New**: Bio Crusher (Advanced & Extended) — kills mobs for drops and XP fluid, supports Looting and Sharpness upgrades.
+- **New**: Bio Crusher can be placed above mob spawners to intercept spawn logic.
+- **New**: Boss essence items — Wither Essence, Ender Dragon Essence, Elder Guardian Essence.
+- **New**: Looting upgrade and Sharpness upgrade cards.
+- **New**: SpawnerMixin — intercepts spawner logic for Bio Crusher.
+- **New**: Config system — game-accessible via Mods > Config menu.
+- **New**: Life Extractor (Advanced & Extended) — extracts life fluid from entities in range.
+- **New**: Infusion Machine (Advanced & Extended) — infusion processing using gel and items.
+
+#### v0.3.0
+- *(Details not recorded)*
+
+#### v0.2.0
+- **New**: 9 upgrade card types — extended to include Filter and Creative upgrades.
+- **New**: 3 time accelerator tiers — Basic, Advanced, Extended Advanced.
+- **New**: Extended Advanced Time Accelerator with 8 upgrade slots.
+- **New**: 6 new automation machine families — Glue Activator, Gel Generator, Fluid Stabilizer, Item/Fluid Sender, Item/Fluid Receiver.
+- **New**: Upgrade and filter popup windows — independently displayed, draggable, position-persistent.
+- **New**: Dynamic filter slots — expandable based on FILTER upgrade count.
+- **Docs**: README and AGENTS.md synced to current code.
+
+#### v0.1.0
+- **Initial release**: Core upgrade system.
+- **New**: Basic/Advanced Time Accelerator.
+- **New**: 8 Extended JDT T2 machines.
+- **New**: GuideME in-game documentation pages.
+
+---
+
+### 中文
+
+#### v0.5.3（当前）
+
+- **GUI**：机器 GUI 改为固定嵌入式升级面板，不再使用可拖动弹窗。4 槽机器使用右侧 1x4 面板，8 槽机器使用左右两个 1x4 面板；空升级槽现在显示可用升级类型、当前数量、上限、机器不兼容状态，以及超频/降频互斥提示。调整大部分机器布局。
+- **新增**：为具备真实物品或流体 I/O 的机器加入绝对方向自动输入输出面板。
+- **新增**：新增战利品制造机。它使用可复用刷怪蛋作为生物模板，消耗生命流体、时间流体和 FE，生产对应生物战利品。支持红石控制、自动输入输出、4 个刷怪蛋输入、分页输出、8 个标准升级槽、容量升级和最多 3 张抢夺升级。
+- 可在同一轮进度中并行处理所有已放入的刷怪蛋。消耗按参与刷怪蛋计算，完成后只按成功产出的项目扣除对应生命流体、时间流体和 FE。
+- 抢夺升级现在会在战利品表随机后应用可配置额外复制掉落，并按可配置百分比提高生命/时间流体消耗，默认每张抢夺升级 +50%。
+- Boss 与兼容处理：凋灵和远古守卫者刷怪蛋流体消耗为 10 倍，末影龙为 100 倍；凋灵配方包含下界之星；龙之研究末影龙制造结果包含龙心和按配置计算的龙尘。
+- **新增**：高级生物粉碎机通过原版物品掉落路径在被击杀实体位置生成捕获的战利品；扩展生物粉碎机会在有空间时写入分页输出库存，并可通过容量升级扩展有效输出容量。
+- 生物粉碎机经验流体改为按实体最终修正后的经验奖励计算，包含神化刷怪笼“回响”等效果，且不会生成经验球。
+- 生物粉碎机刷怪笼集成会在实体创建前接管刷怪周期，保留原版/神化刷怪数据和延迟逻辑，捕获完整虚拟死亡；机器无法处理时仍由原刷怪笼逻辑继续执行。
+- 生物粉碎机和生命提取器敌对/友好模式现在按敌对实体类型判断，不再依赖当前 AI 攻击状态。
+- **新增**：新增生物粉碎机可选龙之研究混沌守卫兼容，通过服务端配置分别控制破坏水晶和假玩家归因致命攻击。
+- **新增**：灌注机可使用能唯一标识生物的一整组掉落物、64 B 生命流体和 100,000 FE 自动合成对应刷怪蛋。
+- 新增 JDTE 凋灵、末影龙、远古守卫者刷怪蛋灌注配方，使用对应 Boss 精华和 64 B 生命流体。通用扫描排除凋灵，避免重复生成下界之星配方。
+- 刷怪蛋灌注配方只通过单一路径注册到 JEI，不再重复，并优先显示在灌注机配方列表中。凝胶发生器、灌注机和炼药机配方提供稳定 ID，JEI 书签按钮可正常使用。
+- 灌注机现在可通过 NeoForge 物品流体能力填充兼容流体容器，包括桶、其它模组容器、玻璃瓶装水，以及蜂蜜类流体制作蜂蜜瓶。
+- 生命苹果现在可无上限永久累计提升最大生命值、护甲和护甲韧性；tooltip、JEI 信息页和 GuideME 已更新，tooltip 为红色，GuideME 使用表格说明成长计算。
+- **新增**：新增高级炼药机，包含 3 个瓶子输入、6 个有序材料步骤、烈焰粉燃料、3 个产物输出、水槽、时间流体槽、能量条、红石控制、速度控制和槽位 tooltip。
+- 酿造流程像原版炼药台一样每个服务端 tick 推进，支持有序多步链路、服务端确认的材料槽锁定、瓶子/产物槽 GUI 单堆叠限制，以及面向瓶子/材料/燃料输入和产物输出的受限自动化语义。
+- 高级炼药机时间流体费用按相对原版 400 tick 酿造步骤节省的 tick 计算，原版速度不消耗时间流体。
+- 高级炼药机 JEI 配方页尽量显示从玻璃瓶和水开始的完整酿造链路，合并同一阶段的等价材料，支持装水配方、催化剂注册和点击进度箭头跳转。
+- **新增**：新增蚀空合金扳手。普通右键像 JDT 核源铁扳手一样旋转机器，蹲下右键可搬运支持的机器并保留机器数据；可选 FTB Ultimine 支持批量旋转或搬运选区机器。
+- 蚀空合金扳手滚轮调节范围现在要求手持扳手并按住“扳手范围修饰”键，可同时调节范围机器 X/Y/Z 半径，显示绿色当前/最大范围提示，并已写入 GuideME。
+- **修复**：为 JDTE 流体机器加入右键流体容器交互。
+- **修复**：修复过滤翻页逻辑，包括动态槽位索引、可用页数减少时自动回到有效页、页码样式和翻页按钮尺寸/位置。
+- **修复**：生物粉碎机击杀现在使用缓存假玩家、真实武器/抢夺上下文和最终 NeoForge 掉落事件，保留其它模组调整后的掉落，同时避免锋利直接击杀把重复掉落物生成到世界中。未知模组实体不再生成伪造兜底掉落。
+- **修复**：生命提取器现在直接移除目标，只产生生命流体，不产生普通掉落物或经验；产量依据目标当前生命并走可配置换算，通过扩大单次批处理提高速度，不额外增加范围扫描次数。
+- 高级/扩展生命提取器和生物粉碎机保留正常挖掘硬度，但设为凋灵级不可爆破。
+- 凋灵精华基础掉落概率为 5%，末影龙精华基础掉落概率为 10%；抢夺只在成功触发精华后影响数量。JEI 信息页说明了 Boss 精华和当前灌注用途。
+- **修复**：修复扩展高级投掷器、扩展高级点击器设置显示初始化。
+- **修复**：修复扩展传感器打开时游戏崩溃。
+- **修复**：新增凝胶发生器和灌注机 JEI 分类及进度箭头跳转。凝胶发生器读取 JDT 凝胶扩散配方，凝胶槽标记为不消耗，并显示紧凑物品/流体配方页和能耗条。
+- **新增**：抢夺升级和锋利升级现在会显示在 JDTE 创造标签页；生物粉碎机专用锋利/抢夺升级槽和目标模式控件重新布局。
+- **平衡**：时间加速器时间流体消耗默认按 JDT 时间手杖效率折算，并可通过 `timeAcceleratorFluidCostMultiplier` 和 `/jdte timeaccelerator fluidCostMultiplier <value>` 调整。
+
+
+#### v0.5.2
+- **修复**：扩展投掷器 GUI 崩溃 — 构造函数设置 `MACHINE_SLOTS=9`，`getMachineHandler()` 自动扩展旧存档的 1 槽 handler 到 9 槽。
+- **修复**：为所有 JDTE 机器注册 `Capabilities.ItemHandler.BLOCK`，使外部管道（如 Mekanism）可以交互。
+
+#### v0.5.1
+- **GuideME**：修复中英文双语页面显示 — 默认语言页面移至根目录，英文页面移至 `_en_us` 目录。
+- **GuideME**：新增生命提取器和灌注机的中英文文档。
+- **修复**：`life_fluid_block` 缺少 blockstate 和 model 导致的警告。
+- **修复**：`basic_glue_activator` 配方中未定义的 `L` 符号。
+- **修复**：GuideME 中 5 个 `item_ids` 冲突警告。
+- **流体条**：统一所有机器的流体条到右侧（偏移量 204）。
+- **过滤系统**：过滤槽位置恢复为 JDT 默认（8,54）；安装过滤升级后增加翻页功能（上一页/下一页按钮和页码显示）。
+- **过滤状态**：通过 `FilterPagePayload` 网络包同步到服务端。
+- **修复**：时间加速器过滤逻辑 — 空过滤槽时白名单模式不再加速所有方块。
+- **模式按钮**：用自绘贴图按钮替换原版 Button，支持敌对/友好/全部三种模式。
+
+#### v0.5.0
+- **修复**：全局过滤槽 bug — 一台机器的配置不再导致所有机器的过滤槽消失。
+- **修复**：12 台机器的 blockstate JSON 缺少旋转变换 — 扳手旋转现在视觉生效。
+- **GUI**：升级弹窗和过滤弹窗增加原版 `container/slot` 槽位边框渲染。
+- **GuideME**：新增英文翻译（14 页），中文页面移至 `zh_cn/` 目录。
+- **修复**：`fluid-stabilizer.md` 导航位置冲突。
+
+#### v0.4.0
+- **新增**：生物粉碎机（高级和扩展） — 杀死生物产生掉落物和经验流体，支持抢夺和锋利升级。
+- **新增**：生物粉碎机可放置在刷怪笼上方拦截刷怪逻辑。
+- **新增**：BOSS 精华物品 — 凋灵精华、末影龙精华、远古守卫者精华。
+- **新增**：抢夺升级和锋利升级卡。
+- **新增**：SpawnerMixin — 拦截刷怪笼逻辑。
+- **新增**：可配置系统 — 支持游戏内 Mods > Config 编辑。
+- **新增**：生命提取器（高级和扩展） — 从范围内生物提取生命流体。
+- **新增**：灌注机（高级和扩展） — 使用凝胶和物品进行灌注加工。
+
+#### v0.3.0
+- *（未记录详细内容）*
+
+#### v0.2.0
+- **新增**：9 种升级卡 — 扩展到包含过滤升级和创造升级。
+- **新增**：3 种时间加速器等级 — 初级、高级、扩展高级。
+- **新增**：扩展高级时间加速器支持 8 个升级槽。
+- **新增**：6 种自动化机器族 — 粘胶激活器、凝胶发生器、流体稳定器、物品/流体放置器、物品/流体接收器。
+- **新增**：升级和过滤悬浮弹窗 — 可独立显示、拖动、位置持久化。
+- **新增**：动态过滤槽 — 根据过滤升级数量动态增加。
+- **文档**：同步更新 README 和 AGENTS.md。
+
+#### v0.1.0
+- **初始发布**：核心升级系统。
+- **新增**：初级/高级时间加速器。
+- **新增**：8 种扩展 JDT T2 机器。
+- **新增**：GuideME 游戏内文档页面。

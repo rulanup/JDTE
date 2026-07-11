@@ -10,17 +10,29 @@ import com.jdte.setup.JDTEFluids;
 import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEMenus;
 import com.jdte.setup.JDTERecipes;
+import com.jdte.common.commands.JDTECommands;
+import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.utils.BioCrusherDropCapture;
+import com.jdte.common.utils.MobLootSpawnEggHelper;
+import com.jdte.common.player.LifeAppleProgression;
+import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
+import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
 import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @Mod(JDTE.MODID)
 public class JDTE {
@@ -43,6 +55,30 @@ public class JDTE {
         JDTERecipes.RECIPE_SERIALIZERS.register(modEventBus);
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
+        NeoForge.EVENT_BUS.addListener(JDTECommands::register);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
+        NeoForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
+        NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
+        NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
+        if (ModList.get().isLoaded("ftbultimine")) {
+            JDTEUltimineIntegration.register();
+        }
+    }
+
+    private void syncSpawnEggRecipes(OnDatapackSyncEvent event) {
+        MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
+        SpawnEggRecipeSyncPayload payload = new SpawnEggRecipeSyncPayload(
+                MobLootSpawnEggHelper.getRecipeIds(event.getPlayerList().getServer().getResourceManager()));
+        LootFabricatorLootSyncPayload lootPayload = new LootFabricatorLootSyncPayload(
+                MobLootSpawnEggHelper.getLootDropsBySpawnEgg(event.getPlayerList().getServer().getResourceManager()));
+        if (event.getPlayer() != null) {
+            PacketDistributor.sendToPlayer(event.getPlayer(), payload);
+            PacketDistributor.sendToPlayer(event.getPlayer(), lootPayload);
+        } else {
+            PacketDistributor.sendToAllPlayers(payload);
+            PacketDistributor.sendToAllPlayers(lootPayload);
+        }
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -83,6 +119,11 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get(),
                 JDTEBlocks.EXTENDED_DROPPER.get(),
                 JDTEBlocks.EXTENDED_SENSOR.get(),
+                JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),
+                JDTEBlocks.EXTENDED_FLUID_PLACER.get()
+        );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE fluidMachine ? fluidMachine.getFluidTank() : null,
                 JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),
                 JDTEBlocks.EXTENDED_FLUID_PLACER.get()
         );
@@ -165,10 +206,19 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
         );
         event.registerBlock(Capabilities.ItemHandler.BLOCK,
-                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioCrusherBE crusher ? crusher.getMachineHandler() : null,
-                JDTEBlocks.ADVANCED_BIO_CRUSHER.get(),
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.ExtendedBioCrusherBE crusher ? crusher.getOutputItemHandler() : null,
                 JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
         );
+
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator ? fabricator.getEnergyStorage() : null,
+                JDTEBlocks.LOOT_FABRICATOR.get());
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator ? fabricator.getFluidHandler() : null,
+                JDTEBlocks.LOOT_FABRICATOR.get());
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator ? fabricator.getAutomationItemHandler() : null,
+                JDTEBlocks.LOOT_FABRICATOR.get());
 
         // Life Extractor energy storage and fluid handler
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
@@ -180,6 +230,20 @@ public class JDTE {
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LifeExtractorBE extractor ? extractor.getFluidTank() : null,
                 JDTEBlocks.ADVANCED_LIFE_EXTRACTOR.get(),
                 JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get()
+        );
+
+        // Potion Brewer energy storage, fluid handler, and item handler
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,
+                JDTEBlocks.ADVANCED_POTION_BREWER.get()
+        );
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE brewer ? brewer.getFluidHandler() : null,
+                JDTEBlocks.ADVANCED_POTION_BREWER.get()
+        );
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE brewer ? brewer.getAutomationItemHandler() : null,
+                JDTEBlocks.ADVANCED_POTION_BREWER.get()
         );
 
         // Infusion Machine energy storage and fluid handler

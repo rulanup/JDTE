@@ -100,9 +100,15 @@ public class JDTEMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedInfusionMachineContainer>> EXTENDED_INFUSION_MACHINE = MENUS.register(
             "extended_infusion_machine", () -> IMenuTypeExtension.create(ExtendedInfusionMachineContainer::new));
 
+    // Potion Brewer
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedPotionBrewerContainer>> ADVANCED_POTION_BREWER = MENUS.register(
+            "advanced_potion_brewer", () -> IMenuTypeExtension.create(AdvancedPotionBrewerContainer::new));
+
     // Bio Crusher
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedBioCrusherContainer>> ADVANCED_BIO_CRUSHER = MENUS.register(
             "advanced_bio_crusher", () -> IMenuTypeExtension.create(AdvancedBioCrusherContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedBioCrusherContainer>> EXTENDED_BIO_CRUSHER = MENUS.register(
             "extended_bio_crusher", () -> IMenuTypeExtension.create(ExtendedBioCrusherContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<LootFabricatorContainer>> LOOT_FABRICATOR = MENUS.register(
+            "loot_fabricator", () -> IMenuTypeExtension.create(LootFabricatorContainer::new));
 }
