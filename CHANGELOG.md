@@ -3,6 +3,20 @@
 ### English
 
 #### v0.5.3 (Current)
+- **Fixed**: Bio Crusher forced kills now execute the target's real FakePlayer-attributed death flow instead of reading only its standard loot table and removing it. Boss-specific custom drops such as the Wither's Nether Star are captured normally alongside JDTE essence drops.
+- **JEI**: Added information pages for Wither, Ender Dragon, and Elder Guardian Essences, including acquisition chances and current infusion uses.
+- **Performance**: Life Extractors now increase throughput through larger batches instead of more range queries. Advanced/Extended process 4/8 targets every 20 ticks normally and 8/16 every 5 ticks with Overclock or Creative, reducing accelerated scans from 20 to 4 per second.
+- **Changed**: Advanced/Extended Life Extractors and Bio Crushers now retain normal mining hardness but use Wither-proof explosion resistance. Wither Essence now has a 5% base drop chance; Looting affects quantity only after a successful roll.
+- **Changed**: Life Extractors now remove targets directly without invoking Minecraft's death flow, so they produce only Life Fluid and no normal drops or experience. Current-health conversion defaults to 0.1 mB per health point and remains configurable as a decimal.
+- **New**: Added a JDTE Ender Dragon Spawn Egg infusion recipe using one Ender Dragon Essence, 64 B of Life Fluid, and 100,000 FE. Ender Dragon Essence now has a 10% base drop chance; Looting affects quantity only after a successful roll.
+- **Changed**: Life Apple tooltip text is now red, its JEI information page keeps only the short introductory sentence, and GuideME presents progression in tables.
+- **New**: Life Apples now permanently and cumulatively increase maximum health, armor, and armor toughness with no consumption cap. Progress is stored on the player and reapplied after death/login; tooltip, JEI information, and GuideME document the repeating milestone formula.
+- **New**: Added a real JDTE Wither Spawn Egg. Infusing one Wither Essence with 64 B of Life Fluid costs 100,000 FE and produces the egg; the generic mob-loot recipe scanner excludes the Wither to avoid a second Nether Star recipe.
+- **Changed**: Life Extractor output now uses the target's current health instead of maximum health. The integer server config `jdte.lifeExtractor.fluidPerHealth` defaults to 1 mB per current-health point; fractional results caused by entity health or speed upgrades are accumulated and persisted without loss.
+- **New**: Infusion Machines can automatically create mod-compatible spawn eggs from one full stack of a uniquely identifying mob drop, 64 B of Life Fluid, and 100,000 FE. Recipes are discovered from registered spawn eggs and current entity loot-table JSON, skip ambiguous shared drops, and are exposed through JEI.
+- **Fixed**: Server-discovered spawn egg infusion recipes are now synchronized after login and data-pack reloads, so they appear in JEI even though JEI initializes before a client world exists. Gel Generator, Infusion Machine, and Potion Brewer recipes now expose stable recipe IDs, enabling JEI's recipe-bookmark button.
+- **Fixed**: Spawn egg infusion recipes are now registered through one JEI path instead of both initial and runtime registration, removing duplicate entries. The visible Infusion Machine recipe list is rebuilt with spawn egg recipes first.
+- **Fixed**: Extended Dropper now inherits JDT's complete T2 implementation, restoring configured offset targeting, filtered slot selection, correct 25 FE operation cost, and saved drop-count/pickup-delay values when reopening its GUI.
 - **Fixed**: Extended Clicker settings now initialize through the JDT Clicker T2 screen that is actually opened by its inherited menu type, so saved non-Block targets no longer appear to reset after reopening the machine.
 - **Fixed**: Added opt-in Bio Crusher compatibility for Draconic Evolution Chaos Guardian fights. The new server settings `allowDestroyChaosGuardianCrystals` and `allowInstantKillChaosGuardian` independently enable automatic outer-crystal destruction and a lethal FakePlayer-attributed guardian attack; both default to `false`. When enabled, DE's normal fight manager still settles the boss bar, Dragon Heart, central Chaos Crystal unlock, and delayed experience instead of raw entity removal.
 - **Fixed**: Advanced Potion Brewer no longer crashes the integrated server when Placebo/Apotheosis synchronizes brewing mixes during login. A concurrent recipe update now pauses brewing for that tick and retries against the completed modded recipe list on the next tick.
@@ -148,6 +162,20 @@
 ### 中文
 
 #### v0.5.3（当前）
+- **修复**：生物粉碎机强制击杀现在执行带假玩家归因的真实死亡流程，不再只读取普通战利品表后直接移除实体。凋灵下界之星等 BOSS 自定义死亡掉落会与 JDTE 精华一起正常捕获和输出。
+- **JEI**：为凋灵、末影龙和远古守卫者精华增加信息页，说明获取概率与当前灌注用途。
+- **性能**：生命提取器改为通过扩大单次批处理提速，不再依赖增加范围扫描次数。高级/扩展普通模式每 20 tick 处理 4/8 个目标，超频或创造每 5 tick 处理 8/16 个，超频扫描从每秒 20 次降为 4 次。
+- **调整**：高级/扩展生命提取器和生物粉碎机保留正常挖掘硬度，但改为凋灵级不可爆破。凋灵精华基础掉落概率改为 5%；抢夺只在成功触发后影响数量。
+- **调整**：生命提取器改为直接移除目标，不再触发 Minecraft 正常死亡流程，因此只产生生命流体，不产生普通掉落物或经验。当前生命值转换倍率默认改为每点 0.1 mB，并保留小数配置。
+- **新增**：加入末影龙刷怪蛋灌注配方，消耗 1 个末影龙精华、64 B 生命流体和 100,000 FE。末影龙精华基础掉落概率改为 10%；抢夺只在成功触发后影响数量。
+- **调整**：生命苹果 tooltip 改为红色，JEI 信息页只保留简短介绍，GuideME 改用表格展示成长计算。
+- **新增**：生命苹果现在可无上限永久累计提升最大生命值、护甲和护甲韧性。成长次数保存在玩家数据中，并在死亡或登录后重新应用；tooltip、JEI 信息页和 GuideME 已写明重复里程碑公式。
+- **新增**：加入可实际生成原版凋灵的 JDTE 凋灵刷怪蛋。灌注 1 个凋灵精华与 64 B 生命流体并消耗 100,000 FE 可制作；通用生物掉落物扫描会排除凋灵，避免额外生成下界之星配方。
+- **调整**：生命提取器改为依据目标当前剩余生命值产出生命流体。整数服务端配置 `jdte.lifeExtractor.fluidPerHealth` 默认每点当前生命值产出 1 mB；实体小数生命值和速度升级产生的小数结果会累计并持久化，不再丢失。
+- **新增**：灌注机可使用某种能唯一标识生物的完整一组掉落物、64 B 生命流体和 100,000 FE 自动合成对应刷怪蛋。配方从已注册刷怪蛋和当前实体战利品表 JSON 自动发现，跳过共享掉落物造成的歧义，并显示在 JEI 中。
+- **修复**：服务端发现的刷怪蛋灌注配方会在玩家登录和数据包重载后同步到客户端，解决 JEI 早于客户端世界初始化而看不到配方的问题。凝胶发生器、灌注机和炼药机配方增加稳定配方 ID，恢复 JEI 的整张配方书签按钮。
+- **修复**：刷怪蛋灌注配方改为只通过一条 JEI 注册路径加入，消除完全相同的重复条目；灌注机可见配方列表会按刷怪蛋配方优先的顺序重建。
+- **修复**：扩展高级投掷器改为继承 JDT 完整 T2 实现，恢复配置偏移落点、过滤槽选择、正确的每次 25 FE 消耗，以及重新打开 GUI 时投掷数量和拾取延迟设置的显示。
 - **修复**：扩展高级点击器现在通过继承菜单实际打开的 JDT 高级点击器界面初始化设置，重新打开机器时不再把已保存的非“方块”目标显示为默认值。
 - **修复**：为生物粉碎机新增可选的龙之研究混沌守卫兼容。服务端配置 `allowDestroyChaosGuardianCrystals` 与 `allowInstantKillChaosGuardian` 分别控制自动破坏外层水晶和带假玩家归因的守卫秒杀，两项默认均为 `false`。启用后仍由 DE 战斗管理器正常结算 Boss 血条、龙心、中央混沌水晶解锁及延迟经验，不直接删除实体。
 - **修复**：Placebo/神化在进入世界时同步酿造配方期间，高级炼药机不再因并发修改酿造列表而使集成服务器崩溃；遇到同步窗口时机器会暂停当前 tick，并在下一 tick 使用同步完成后的模组配方继续处理。

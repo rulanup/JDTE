@@ -6,6 +6,7 @@ import com.jdte.setup.JDTEBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -36,6 +37,12 @@ public record PotionBrewerJeiRecipe(
         ItemStack outputStack,
         int energyCost
 ) {
+    public ResourceLocation id() {
+        String key = stackKey(inputStack) + '|' + ingredientStacks.stream()
+                .map(step -> step.stream().map(PotionBrewerJeiRecipe::stackKey).toList().toString())
+                .toList() + '|' + fluidStack + '|' + stackKey(outputStack);
+        return ResourceLocation.fromNamespaceAndPath("jdte", "jei/potion_brewer/" + Integer.toUnsignedString(key.hashCode(), 16));
+    }
     private static final int BOTTLE_COUNT = AdvancedPotionBrewerBE.OUTPUT_SLOT_COUNT;
     private static final int MAX_INGREDIENT_STEPS = 1 + AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_COUNT;
     private static final int WATER_FLUID_AMOUNT = InfusionFluidHelper.BOTTLE_FLUID_AMOUNT * BOTTLE_COUNT;

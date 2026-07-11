@@ -93,6 +93,11 @@ public class InfusionRecipeCategory implements IRecipeCategory<InfusionJeiRecipe
     }
 
     @Override
+    public ResourceLocation getRegistryName(InfusionJeiRecipe recipe) {
+        return recipe.id();
+    }
+
+    @Override
     public void draw(InfusionJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         drawPanel(guiGraphics);
         drawSlot(guiGraphics, INPUT_SLOT_X, ITEM_SLOT_Y);

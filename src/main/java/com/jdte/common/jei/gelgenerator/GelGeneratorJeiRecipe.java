@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -34,6 +35,17 @@ public record GelGeneratorJeiRecipe(
         int fluidAmount,
         int energyCost
 ) {
+    public ResourceLocation id() {
+        String key = stackKey(gelStack) + '|' + foodStacks.stream().map(GelGeneratorJeiRecipe::stackKey).toList()
+                + '|' + stackKey(inputStack) + '|' + stackKey(outputStack)
+                + '|' + BuiltInRegistries.FLUID.getKey(inputFluid) + '|' + BuiltInRegistries.FLUID.getKey(outputFluid)
+                + '|' + fluidAmount;
+        return ResourceLocation.fromNamespaceAndPath("jdte", "jei/gel_generator/" + Integer.toUnsignedString(key.hashCode(), 16));
+    }
+
+    private static String stackKey(ItemStack stack) {
+        return stack.isEmpty() ? "empty" : BuiltInRegistries.ITEM.getKey(stack.getItem()) + "@" + stack.getComponents();
+    }
     public static List<GelGeneratorJeiRecipe> getRecipes() {
         Minecraft minecraft = Minecraft.getInstance();
         RecipeManager recipeManager = minecraft.level != null

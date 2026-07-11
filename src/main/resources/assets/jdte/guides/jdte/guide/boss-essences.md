@@ -5,6 +5,8 @@ navigation:
   position: 6
 item_ids:
   - jdte:wither_essence
+  - jdte:wither_spawn_egg
+  - jdte:ender_dragon_spawn_egg
   - jdte:ender_dragon_essence
   - jdte:elder_guardian_essence
 ---
@@ -17,13 +19,13 @@ BOSS 精华是通过生物粉碎机击杀 BOSS 获得的独特物品。
 
 ### 击灵精华
 
-通过生物粉碎机击杀击灵获得。
+通过生物粉碎机击杀凋灵时有 5% 基础概率获得。抢夺升级只会在成功掉落后增加精华数量，不提高 5% 触发概率。
 
 <ItemImage id="jdte:wither_essence" scale="2" />
 
 ### 末影龙精华
 
-通过生物粉碎机击杀末影龙获得。
+通过生物粉碎机击杀末影龙时有 10% 基础概率获得。抢夺升级只会在成功掉落后增加精华数量，不提高 10% 触发概率。
 
 <ItemImage id="jdte:ender_dragon_essence" scale="2" />
 
@@ -47,6 +49,7 @@ BOSS 精华是通过生物粉碎机击杀 BOSS 获得的独特物品。
 
 BOSS 精华可用于合成高级物品和机器，是游戏后期的重要材料。
 
-- 击灵精华：用于合成高级击灵相关物品
+- 凋灵精华：在灌注机中消耗 64,000 mB 生命流体和 100,000 FE，可制作凋灵刷怪蛋
+- 末影龙精华：在灌注机中消耗 64,000 mB 生命流体和 100,000 FE，可制作末影龙刷怪蛋
 - 末影龙精华：用于合成末影相关高级物品
 - 远古守卫者精华：用于合成远古守卫者相关物品

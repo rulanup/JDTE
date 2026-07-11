@@ -92,6 +92,8 @@ public class JDTECreativeTabs {
 
                 // Boss Essences
                 output.accept(JDTEItems.WITHER_ESSENCE.get());
+                output.accept(JDTEItems.WITHER_SPAWN_EGG.get());
+                output.accept(JDTEItems.ENDER_DRAGON_SPAWN_EGG.get());
                 output.accept(JDTEItems.ENDER_DRAGON_ESSENCE.get());
                 output.accept(JDTEItems.ELDER_GUARDIAN_ESSENCE.get());
             })

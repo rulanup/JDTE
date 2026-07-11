@@ -50,6 +50,9 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue advancedBioCrusherMaxEntities;
         public final ModConfigSpec.IntValue extendedBioCrusherMaxEntities;
 
+        // Life Extractor
+        public final ModConfigSpec.DoubleValue lifeExtractorFluidPerHealth;
+
         // Item/Fluid Sender/Receiver
         public final ModConfigSpec.IntValue senderStorageSlots;
         public final ModConfigSpec.IntValue basicItemSenderRate;
@@ -217,6 +220,14 @@ public class JDTEConfig {
                     .comment("Max entities processed per tick (extended)")
                     .translation("config.jdte.jdte.bioCrusher.extendedBioCrusherMaxEntities")
                     .defineInRange("extendedBioCrusherMaxEntities", 4, 1, 100);
+            builder.pop();
+
+            // Life Extractor
+            builder.comment("Life Extractor Settings").translation("config.jdte.jdte.lifeExtractor").push("lifeExtractor");
+            lifeExtractorFluidPerHealth = builder
+                    .comment("Life Fluid produced per point of the entity's current health (mB)")
+                    .translation("config.jdte.jdte.lifeExtractor.fluidPerHealth")
+                    .defineInRange("fluidPerHealth", 0.1D, 0.001D, 100000.0D);
             builder.pop();
 
             // Sender/Receiver

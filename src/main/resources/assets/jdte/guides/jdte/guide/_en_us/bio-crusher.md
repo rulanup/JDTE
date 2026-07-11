@@ -10,6 +10,8 @@ item_ids:
 
 # Bio Crusher
 
+Advanced and Extended Bio Crushers cannot be destroyed by explosions, but can still be mined normally by players.
+
 hhe Bio Crusher attacks mobs in its configured range with a FakePlayer, captures mod-adjusted final drops and actual experience, and converts that experience into JDh Experience Fluid.
 
 ## Variants

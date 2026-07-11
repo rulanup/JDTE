@@ -31,7 +31,10 @@ public class InfusionRecipe implements CraftingRecipe {
     }
 
     public boolean matches(ItemStack stack, FluidStack fluid) {
-        return ItemStack.isSameItemSameComponents(input, stack) && fluidInput.getFluid().isSame(fluid.getFluid()) && fluid.getAmount() >= fluidInput.getAmount();
+        return ItemStack.isSameItemSameComponents(input, stack)
+                && stack.getCount() >= input.getCount()
+                && fluidInput.getFluid().isSame(fluid.getFluid())
+                && fluid.getAmount() >= fluidInput.getAmount();
     }
 
     public ItemStack getInput() {

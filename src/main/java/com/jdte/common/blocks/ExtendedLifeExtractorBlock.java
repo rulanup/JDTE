@@ -22,7 +22,7 @@ public class ExtendedLifeExtractorBlock extends BaseMachineBlock {
     public ExtendedLifeExtractorBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
-                .strength(3.0f)
+                .strength(3.0f, 3_600_000.0f)
                 .isRedstoneConductor(BaseMachineBlock::never)
         );
     }

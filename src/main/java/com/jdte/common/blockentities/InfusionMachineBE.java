@@ -12,7 +12,9 @@ import com.jdte.common.recipes.InfusionRecipe;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.utils.InfusionFluidHelper;
+import com.jdte.common.utils.MobLootSpawnEggHelper;
 import com.jdte.setup.JDTERecipes;
+import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -102,6 +104,8 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
 
     public abstract int getEffectiveEnergyCost();
 
+    public abstract int getEffectiveEnergyCost(int baseEnergyCost);
+
     public abstract boolean hasEnoughPower(int energyCost);
 
     public abstract int extractEnergy(int energy, boolean simulate);
@@ -129,7 +133,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
             return;
         }
 
-        int energyCost = getEffectiveEnergyCost();
+        int energyCost = getEffectiveEnergyCost(process.energyCost());
         if (energyCost > 0 && !UpgradeHelper.hasCreativeUpgrade(this) && !hasEnoughPower(energyCost)) {
             resetProgress();
             return;
@@ -142,7 +146,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
         }
 
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-            inputStack.shrink(1);
+            inputStack.shrink(process.inputAmount());
             itemHandler.setStackInSlot(INPUT_SLOT, inputStack);
             fluidTank.drain(process.fluidAmount(), IFluidHandler.FluidAction.EXECUTE);
             if (energyCost > 0) {
@@ -165,9 +169,35 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
     protected InfusionProcess findProcess(ItemStack input, FluidStack fluid) {
         InfusionRecipe recipe = findRecipe(input, fluid);
         if (recipe != null) {
-            return new InfusionProcess(recipe.getOutput(), recipe.getFluidInput().getAmount());
+            return new InfusionProcess(
+                    recipe.getOutput(),
+                    recipe.getInput().getCount(),
+                    recipe.getFluidInput().getAmount(),
+                    recipe.getEnergyCost());
+        }
+        InfusionProcess spawnEggProcess = findSpawnEggProcess(input, fluid);
+        if (spawnEggProcess != null) {
+            return spawnEggProcess;
         }
         return findContainerFillProcess(input, fluid);
+    }
+
+    protected InfusionProcess findSpawnEggProcess(ItemStack input, FluidStack fluid) {
+        if (!(level instanceof ServerLevel serverLevel)
+                || !fluid.is(JDTEFluids.LIFE_FLUID_SOURCE.get())
+                || fluid.getAmount() < MobLootSpawnEggHelper.LIFE_FLUID_COST) {
+            return null;
+        }
+
+        ItemStack spawnEgg = MobLootSpawnEggHelper.findUniqueSpawnEgg(serverLevel, input);
+        if (spawnEgg.isEmpty()) {
+            return null;
+        }
+        return new InfusionProcess(
+                spawnEgg,
+                input.getMaxStackSize(),
+                MobLootSpawnEggHelper.LIFE_FLUID_COST,
+                MobLootSpawnEggHelper.ENERGY_COST);
     }
 
     protected InfusionRecipe findRecipe(ItemStack input, FluidStack fluid) {
@@ -219,7 +249,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
             return null;
         }
         result.setCount(1);
-        return new InfusionProcess(result.copy(), filled);
+        return new InfusionProcess(result.copy(), 1, filled, AdvancedInfusionMachineBE.BASE_ENERGY_COST);
     }
 
     private InfusionProcess findVanillaBottleFillProcess(ItemStack input, FluidStack fluid) {
@@ -236,7 +266,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
             return null;
         }
         result.setCount(1);
-        return new InfusionProcess(result, InfusionFluidHelper.BOTTLE_FLUID_AMOUNT);
+        return new InfusionProcess(result, 1, InfusionFluidHelper.BOTTLE_FLUID_AMOUNT, AdvancedInfusionMachineBE.BASE_ENERGY_COST);
     }
 
     protected boolean canOutput(ItemStack result) {
@@ -282,7 +312,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
         return this;
     }
 
-    protected record InfusionProcess(ItemStack output, int fluidAmount) {
+    protected record InfusionProcess(ItemStack output, int inputAmount, int fluidAmount, int energyCost) {
     }
 
     @Override
