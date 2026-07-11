@@ -3,7 +3,7 @@
 ### English
 
 #### v0.5.3 (Current)
-- **Fixed**: Bio Crusher forced kills now execute the target's real FakePlayer-attributed death flow instead of reading only its standard loot table and removing it. Boss-specific custom drops such as the Wither's Nether Star are captured normally alongside JDTE essence drops.
+- **Fixed**: Bio Crusher forced kills once again roll the entity's complete loot table with a FakePlayer/player-kill context before removal. Boss Essences remain additional drops instead of replacing normal boss loot such as the Wither's Nether Star; the three Boss Essence JEI information pages now state this explicitly.
 - **JEI**: Added information pages for Wither, Ender Dragon, and Elder Guardian Essences, including acquisition chances and current infusion uses.
 - **Performance**: Life Extractors now increase throughput through larger batches instead of more range queries. Advanced/Extended process 4/8 targets every 20 ticks normally and 8/16 every 5 ticks with Overclock or Creative, reducing accelerated scans from 20 to 4 per second.
 - **Changed**: Advanced/Extended Life Extractors and Bio Crushers now retain normal mining hardness but use Wither-proof explosion resistance. Wither Essence now has a 5% base drop chance; Looting affects quantity only after a successful roll.
