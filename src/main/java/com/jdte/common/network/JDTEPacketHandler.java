@@ -13,6 +13,7 @@ import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.common.network.data.WrenchAreaAdjustPayload;
 import com.jdte.common.network.data.WrenchAreaAdjustResultPayload;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
+import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import com.jdte.common.network.handler.AutoIoConfigPacket;
 import com.jdte.common.network.handler.BioCrusherPacket;
 import com.jdte.common.network.handler.FilterPagePacket;
@@ -23,6 +24,7 @@ import com.jdte.common.network.handler.TimeAcceleratorPacket;
 import com.jdte.common.network.handler.WrenchAreaAdjustPacket;
 import com.jdte.common.network.handler.WrenchAreaAdjustResultPacket;
 import com.jdte.common.network.handler.SpawnEggRecipeSyncPacket;
+import com.jdte.common.network.handler.LootFabricatorLootSyncPacket;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -41,5 +43,6 @@ public class JDTEPacketHandler {
         registrar.playToServer(WrenchAreaAdjustPayload.TYPE, WrenchAreaAdjustPayload.STREAM_CODEC, WrenchAreaAdjustPacket.get()::handle);
         registrar.playToClient(WrenchAreaAdjustResultPayload.TYPE, WrenchAreaAdjustResultPayload.STREAM_CODEC, WrenchAreaAdjustResultPacket.get()::handle);
         registrar.playToClient(SpawnEggRecipeSyncPayload.TYPE, SpawnEggRecipeSyncPayload.STREAM_CODEC, SpawnEggRecipeSyncPacket::handle);
+        registrar.playToClient(LootFabricatorLootSyncPayload.TYPE, LootFabricatorLootSyncPayload.STREAM_CODEC, LootFabricatorLootSyncPacket::handle);
     }
 }

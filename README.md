@@ -122,13 +122,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 
 ## 开发构建
 
-本项目通过 Gradle 构建。开发环境需要本地存在 JDT jar：
-
-```text
-/home/guili/libs/justdirethings-1.5.7.jar
-```
-
-常用命令：
+本项目通过 Gradle 构建。常用命令：
 
 ```bash
 ./gradlew compileJava

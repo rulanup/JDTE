@@ -187,6 +187,35 @@ public class GuiUpgradeLayoutConfig {
     private final int potionBrewerTimeFluidX;
     private final int potionBrewerTimeFluidY;
 
+    // Loot fabricator layout, slots, fluids, and widgets
+    private final int lootFabricatorExtraWidth;
+    private final int lootFabricatorExtraHeight;
+    private final int lootFabricatorInputStartX;
+    private final int lootFabricatorInputStartY;
+    private final int lootFabricatorInputSpacing;
+    private final int lootFabricatorOutputStartX;
+    private final int lootFabricatorOutputStartY;
+    private final int lootFabricatorOutputSpacing;
+    private final int lootFabricatorOutputColumns;
+    private final int lootFabricatorOutputRows;
+    private final int lootFabricatorLifeFluidX;
+    private final int lootFabricatorLifeFluidY;
+    private final int lootFabricatorTimeFluidX;
+    private final int lootFabricatorTimeFluidY;
+    private final int lootFabricatorProgressArrowX;
+    private final int lootFabricatorProgressArrowY;
+    private final int lootFabricatorSpeedButtonX;
+    private final int lootFabricatorSpeedButtonY;
+    private final int lootFabricatorRedstoneButtonX;
+    private final int lootFabricatorRedstoneButtonY;
+    private final int lootFabricatorOutputPrevX;
+    private final int lootFabricatorOutputPrevY;
+    private final int lootFabricatorOutputNextX;
+    private final int lootFabricatorOutputNextY;
+    private final int lootFabricatorOutputPageButtonSize;
+    private final int lootFabricatorOutputPageTextX;
+    private final int lootFabricatorOutputPageTextY;
+
     private GuiUpgradeLayoutConfig(JsonObject json) {
         JsonObject panel = json.getAsJsonObject("upgrade_panel_4");
         this.firstSlotX = getInt(panel, "first_slot_x", 183);
@@ -558,6 +587,41 @@ public class GuiUpgradeLayoutConfig {
             this.potionBrewerRecipeLockButtonX = 150;
             this.potionBrewerRecipeLockButtonY = 13;
         }
+
+        JsonObject lootLayout = json.getAsJsonObject("loot_fabricator_layout");
+        this.lootFabricatorExtraWidth = getInt(lootLayout, "extra_width", 60);
+        this.lootFabricatorExtraHeight = getInt(lootLayout, "extra_height", 0);
+
+        JsonObject lootSlots = json.getAsJsonObject("loot_fabricator_slots");
+        this.lootFabricatorInputStartX = getInt(lootSlots, "input_start_x", 8);
+        this.lootFabricatorInputStartY = getInt(lootSlots, "input_start_y", -21);
+        this.lootFabricatorInputSpacing = getInt(lootSlots, "input_spacing", 18);
+        this.lootFabricatorOutputStartX = getInt(lootSlots, "output_start_x", 68);
+        this.lootFabricatorOutputStartY = getInt(lootSlots, "output_start_y", -21);
+        this.lootFabricatorOutputSpacing = getInt(lootSlots, "output_spacing", 18);
+        this.lootFabricatorOutputColumns = getInt(lootSlots, "output_columns", 4);
+        this.lootFabricatorOutputRows = getInt(lootSlots, "output_rows", 4);
+
+        JsonObject lootFluids = json.getAsJsonObject("loot_fabricator_fluids");
+        this.lootFabricatorLifeFluidX = getInt(lootFluids, "life_fluid_x", 162);
+        this.lootFabricatorLifeFluidY = getInt(lootFluids, "life_fluid_y", -21);
+        this.lootFabricatorTimeFluidX = getInt(lootFluids, "time_fluid_x", 182);
+        this.lootFabricatorTimeFluidY = getInt(lootFluids, "time_fluid_y", -21);
+
+        JsonObject lootWidgets = json.getAsJsonObject("loot_fabricator_widgets");
+        this.lootFabricatorProgressArrowX = getInt(lootWidgets, "progress_arrow_x", 36);
+        this.lootFabricatorProgressArrowY = getInt(lootWidgets, "progress_arrow_y", 7);
+        this.lootFabricatorSpeedButtonX = getInt(lootWidgets, "speed_button_x", 36);
+        this.lootFabricatorSpeedButtonY = getInt(lootWidgets, "speed_button_y", 24);
+        this.lootFabricatorRedstoneButtonX = getInt(lootWidgets, "redstone_button_x", 142);
+        this.lootFabricatorRedstoneButtonY = getInt(lootWidgets, "redstone_button_y", 17);
+        this.lootFabricatorOutputPrevX = getInt(lootWidgets, "output_prev_x", 54);
+        this.lootFabricatorOutputPrevY = getInt(lootWidgets, "output_prev_y", 36);
+        this.lootFabricatorOutputNextX = getInt(lootWidgets, "output_next_x", 142);
+        this.lootFabricatorOutputNextY = getInt(lootWidgets, "output_next_y", 36);
+        this.lootFabricatorOutputPageButtonSize = getInt(lootWidgets, "output_page_button_size", 12);
+        this.lootFabricatorOutputPageTextX = getInt(lootWidgets, "output_page_text_x", 104);
+        this.lootFabricatorOutputPageTextY = getInt(lootWidgets, "output_page_text_y", 54);
     }
 
     private GuiUpgradeLayoutConfig() {
@@ -703,6 +767,33 @@ public class GuiUpgradeLayoutConfig {
         this.potionBrewerWaterFluidY = -21;
         this.potionBrewerTimeFluidX = 174;
         this.potionBrewerTimeFluidY = -21;
+        this.lootFabricatorExtraWidth = 60;
+        this.lootFabricatorExtraHeight = 0;
+        this.lootFabricatorInputStartX = 8;
+        this.lootFabricatorInputStartY = -21;
+        this.lootFabricatorInputSpacing = 18;
+        this.lootFabricatorOutputStartX = 68;
+        this.lootFabricatorOutputStartY = -21;
+        this.lootFabricatorOutputSpacing = 18;
+        this.lootFabricatorOutputColumns = 4;
+        this.lootFabricatorOutputRows = 4;
+        this.lootFabricatorLifeFluidX = 162;
+        this.lootFabricatorLifeFluidY = -21;
+        this.lootFabricatorTimeFluidX = 182;
+        this.lootFabricatorTimeFluidY = -21;
+        this.lootFabricatorProgressArrowX = 36;
+        this.lootFabricatorProgressArrowY = 7;
+        this.lootFabricatorSpeedButtonX = 36;
+        this.lootFabricatorSpeedButtonY = 24;
+        this.lootFabricatorRedstoneButtonX = 142;
+        this.lootFabricatorRedstoneButtonY = 17;
+        this.lootFabricatorOutputPrevX = 54;
+        this.lootFabricatorOutputPrevY = 36;
+        this.lootFabricatorOutputNextX = 142;
+        this.lootFabricatorOutputNextY = 36;
+        this.lootFabricatorOutputPageButtonSize = 12;
+        this.lootFabricatorOutputPageTextX = 104;
+        this.lootFabricatorOutputPageTextY = 54;
     }
 
     /**
@@ -737,7 +828,7 @@ public class GuiUpgradeLayoutConfig {
     }
 
     private static int getInt(JsonObject obj, String key, int defaultValue) {
-        return obj.has(key) ? obj.get(key).getAsInt() : defaultValue;
+        return obj != null && obj.has(key) ? obj.get(key).getAsInt() : defaultValue;
     }
 
     // --- Right panel getters ---
@@ -1341,4 +1432,32 @@ public class GuiUpgradeLayoutConfig {
     public int getPotionBrewerTimeFluidY() {
         return potionBrewerTimeFluidY;
     }
+
+    public int getLootFabricatorExtraWidth() { return lootFabricatorExtraWidth; }
+    public int getLootFabricatorExtraHeight() { return lootFabricatorExtraHeight; }
+    public int getLootFabricatorInputStartX() { return lootFabricatorInputStartX; }
+    public int getLootFabricatorInputStartY() { return lootFabricatorInputStartY; }
+    public int getLootFabricatorInputSpacing() { return lootFabricatorInputSpacing; }
+    public int getLootFabricatorOutputStartX() { return lootFabricatorOutputStartX; }
+    public int getLootFabricatorOutputStartY() { return lootFabricatorOutputStartY; }
+    public int getLootFabricatorOutputSpacing() { return lootFabricatorOutputSpacing; }
+    public int getLootFabricatorOutputColumns() { return lootFabricatorOutputColumns; }
+    public int getLootFabricatorOutputRows() { return lootFabricatorOutputRows; }
+    public int getLootFabricatorLifeFluidX() { return lootFabricatorLifeFluidX; }
+    public int getLootFabricatorLifeFluidY() { return lootFabricatorLifeFluidY; }
+    public int getLootFabricatorTimeFluidX() { return lootFabricatorTimeFluidX; }
+    public int getLootFabricatorTimeFluidY() { return lootFabricatorTimeFluidY; }
+    public int getLootFabricatorProgressArrowX() { return lootFabricatorProgressArrowX; }
+    public int getLootFabricatorProgressArrowY() { return lootFabricatorProgressArrowY; }
+    public int getLootFabricatorSpeedButtonX() { return lootFabricatorSpeedButtonX; }
+    public int getLootFabricatorSpeedButtonY() { return lootFabricatorSpeedButtonY; }
+    public int getLootFabricatorRedstoneButtonX() { return lootFabricatorRedstoneButtonX; }
+    public int getLootFabricatorRedstoneButtonY() { return lootFabricatorRedstoneButtonY; }
+    public int getLootFabricatorOutputPrevX() { return lootFabricatorOutputPrevX; }
+    public int getLootFabricatorOutputPrevY() { return lootFabricatorOutputPrevY; }
+    public int getLootFabricatorOutputNextX() { return lootFabricatorOutputNextX; }
+    public int getLootFabricatorOutputNextY() { return lootFabricatorOutputNextY; }
+    public int getLootFabricatorOutputPageButtonSize() { return lootFabricatorOutputPageButtonSize; }
+    public int getLootFabricatorOutputPageTextX() { return lootFabricatorOutputPageTextX; }
+    public int getLootFabricatorOutputPageTextY() { return lootFabricatorOutputPageTextY; }
 }

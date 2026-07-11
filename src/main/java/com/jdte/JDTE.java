@@ -18,6 +18,7 @@ import com.jdte.common.utils.BioCrusherDropCapture;
 import com.jdte.common.utils.MobLootSpawnEggHelper;
 import com.jdte.common.player.LifeAppleProgression;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
+import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
 import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.resources.ResourceLocation;
@@ -69,10 +70,14 @@ public class JDTE {
         MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
         SpawnEggRecipeSyncPayload payload = new SpawnEggRecipeSyncPayload(
                 MobLootSpawnEggHelper.getRecipeIds(event.getPlayerList().getServer().getResourceManager()));
+        LootFabricatorLootSyncPayload lootPayload = new LootFabricatorLootSyncPayload(
+                MobLootSpawnEggHelper.getLootDropsBySpawnEgg(event.getPlayerList().getServer().getResourceManager()));
         if (event.getPlayer() != null) {
             PacketDistributor.sendToPlayer(event.getPlayer(), payload);
+            PacketDistributor.sendToPlayer(event.getPlayer(), lootPayload);
         } else {
             PacketDistributor.sendToAllPlayers(payload);
+            PacketDistributor.sendToAllPlayers(lootPayload);
         }
     }
 
