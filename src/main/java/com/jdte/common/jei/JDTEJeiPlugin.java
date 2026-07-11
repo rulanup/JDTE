@@ -8,6 +8,8 @@ import com.jdte.common.jei.infusion.InfusionJeiRecipe;
 import com.jdte.common.jei.infusion.InfusionRecipeCategory;
 import com.jdte.common.jei.potionbrewer.PotionBrewerJeiRecipe;
 import com.jdte.common.jei.potionbrewer.PotionBrewerRecipeCategory;
+import com.jdte.common.jei.lootfabricator.LootFabricatorJeiRecipe;
+import com.jdte.common.jei.lootfabricator.LootFabricatorRecipeCategory;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -28,6 +30,8 @@ public class JDTEJeiPlugin implements IModPlugin {
     private static IJeiRuntime runtime;
     private static java.util.List<InfusionJeiRecipe> visibleSpawnEggRecipes = java.util.List.of();
     private static boolean infusionRecipesRegistered;
+    private static java.util.List<LootFabricatorJeiRecipe> visibleLootFabricatorRecipes = java.util.List.of();
+    private static boolean lootFabricatorRecipesRegistered;
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -40,7 +44,8 @@ public class JDTEJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(
                 new GelGeneratorRecipeCategory(guiHelper),
                 new InfusionRecipeCategory(guiHelper),
-                new PotionBrewerRecipeCategory(guiHelper)
+                new PotionBrewerRecipeCategory(guiHelper),
+                new LootFabricatorRecipeCategory(guiHelper)
         );
     }
 
@@ -48,6 +53,10 @@ public class JDTEJeiPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(GelGeneratorRecipeCategory.RECIPE_TYPE, GelGeneratorJeiRecipe.getRecipes());
         registration.addRecipes(PotionBrewerRecipeCategory.RECIPE_TYPE, PotionBrewerJeiRecipe.getRecipes());
+        java.util.List<LootFabricatorJeiRecipe> lootFabricatorRecipes = LootFabricatorJeiRecipe.getRecipes();
+        registration.addRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, lootFabricatorRecipes);
+        visibleLootFabricatorRecipes = lootFabricatorRecipes;
+        lootFabricatorRecipesRegistered = !lootFabricatorRecipes.isEmpty();
         registration.addIngredientInfo(JDTEItems.LIFE_APPLE.get(),
                 Component.translatable("jei.jdte.life_apple.info"));
         registration.addIngredientInfo(JDTEItems.WITHER_ESSENCE.get(),
@@ -69,6 +78,9 @@ public class JDTEJeiPlugin implements IModPlugin {
         for (ItemStack machine : PotionBrewerJeiRecipe.getMachines()) {
             registration.addRecipeCatalyst(machine, PotionBrewerRecipeCategory.RECIPE_TYPE);
         }
+        for (ItemStack machine : LootFabricatorJeiRecipe.getMachines()) {
+            registration.addRecipeCatalyst(machine, LootFabricatorRecipeCategory.RECIPE_TYPE);
+        }
     }
 
     @Override
@@ -80,6 +92,7 @@ public class JDTEJeiPlugin implements IModPlugin {
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         runtime = jeiRuntime;
         refreshSpawnEggRecipes();
+        refreshLootFabricatorRecipes();
     }
 
     @Override
@@ -87,6 +100,8 @@ public class JDTEJeiPlugin implements IModPlugin {
         runtime = null;
         visibleSpawnEggRecipes = java.util.List.of();
         infusionRecipesRegistered = false;
+        visibleLootFabricatorRecipes = java.util.List.of();
+        lootFabricatorRecipesRegistered = false;
     }
 
     public static void refreshSpawnEggRecipes() {
@@ -118,5 +133,23 @@ public class JDTEJeiPlugin implements IModPlugin {
             runtime.getRecipeManager().addRecipes(InfusionRecipeCategory.RECIPE_TYPE, added);
         }
         visibleSpawnEggRecipes = currentSpawnEggRecipes;
+    }
+
+    public static void refreshLootFabricatorRecipes() {
+        if (runtime == null || !com.jdte.client.LootFabricatorLootClientCache.isSynced()) return;
+        java.util.List<LootFabricatorJeiRecipe> current = LootFabricatorJeiRecipe.getRecipes();
+        if (!lootFabricatorRecipesRegistered) {
+            runtime.getRecipeManager().addRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, current);
+            visibleLootFabricatorRecipes = current;
+            lootFabricatorRecipesRegistered = true;
+            return;
+        }
+        java.util.List<LootFabricatorJeiRecipe> removed = visibleLootFabricatorRecipes.stream()
+                .filter(recipe -> !current.contains(recipe)).toList();
+        java.util.List<LootFabricatorJeiRecipe> added = current.stream()
+                .filter(recipe -> !visibleLootFabricatorRecipes.contains(recipe)).toList();
+        if (!removed.isEmpty()) runtime.getRecipeManager().hideRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, removed);
+        if (!added.isEmpty()) runtime.getRecipeManager().addRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, added);
+        visibleLootFabricatorRecipes = current;
     }
 }

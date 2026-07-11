@@ -180,6 +180,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         }
     }
 
+
     @Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
     private void jdte$hideInactiveFilterSlots(GuiGraphics guiGraphics, Slot slot, CallbackInfo ci) {
         if (slot instanceof DynamicFilterSlot filterSlot && !filterSlot.isActive()) {
@@ -201,10 +202,6 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
             if (slot instanceof DynamicFilterSlot filterSlot && !filterSlot.isActive()) {
                 slotAccessor.jdte$setX(-10000);
                 slotAccessor.jdte$setY(-10000);
-            } else if (container instanceof LootFabricatorContainer
-                    && slot instanceof LootFabricatorContainer.LootFabricatorUpgradeSlot) {
-                slotAccessor.jdte$setX(original[0]);
-                slotAccessor.jdte$setY(original[1]);
             } else if (slot instanceof UpgradeSlot) {
                 if (isEightSlot && upgradeSlotIndex >= 4) {
                     // Left panel (slots 4-7)
@@ -442,7 +439,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
     @Unique
     private void jdte$clampFilterPage() {
-        if (container instanceof BioCrusherContainer) return;
+        if (container instanceof BioCrusherContainer || container instanceof LootFabricatorContainer) return;
         if (!(container instanceof FilterPageHolder holder)) return;
         if (!jdte$hasFilterUpgrades()) {
             if (holder.jdte$getFilterPage() != 0) {
@@ -698,6 +695,15 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                                     .append(Component.literal(": " + current + "/" + max))
                                     .copy()
                                     .withStyle(canAdd ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+                        }
+
+                        if (baseMachineBE instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
+                            int current = fabricator.getLootingLevel();
+                            lines.add(Component.literal("  ")
+                                    .append(Component.translatable("item.jdte.looting_upgrade"))
+                                    .append(Component.literal(": " + current + "/3"))
+                                    .copy()
+                                    .withStyle(current < 3 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
                         }
 
                         guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(lines), mouseX, mouseY);

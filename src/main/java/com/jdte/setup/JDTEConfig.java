@@ -53,6 +53,11 @@ public class JDTEConfig {
         // Life Extractor
         public final ModConfigSpec.DoubleValue lifeExtractorFluidPerHealth;
 
+        // Loot Fabricator
+        public final ModConfigSpec.IntValue lootFabricatorLifeFluidCost;
+        public final ModConfigSpec.IntValue lootFabricatorBaseTimeFluidCost;
+        public final ModConfigSpec.IntValue lootFabricatorLootingFluidCostIncreasePercent;
+
         // Item/Fluid Sender/Receiver
         public final ModConfigSpec.IntValue senderStorageSlots;
         public final ModConfigSpec.IntValue basicItemSenderRate;
@@ -228,6 +233,22 @@ public class JDTEConfig {
                     .comment("Life Fluid produced per point of the entity's current health (mB)")
                     .translation("config.jdte.jdte.lifeExtractor.fluidPerHealth")
                     .defineInRange("fluidPerHealth", 0.1D, 0.001D, 100000.0D);
+            builder.pop();
+
+            // Loot Fabricator
+            builder.comment("Loot Fabricator Settings").translation("config.jdte.jdte.lootFabricator").push("lootFabricator");
+            lootFabricatorLifeFluidCost = builder
+                    .comment("Life Fluid consumed per successful loot fabrication operation (mB)")
+                    .translation("config.jdte.jdte.lootFabricator.lifeFluidCost")
+                    .defineInRange("lifeFluidCost", 100, 1, 1_000_000);
+            lootFabricatorBaseTimeFluidCost = builder
+                    .comment("Base Time Fluid consumed per successful loot fabrication operation (mB). Faster machine speeds multiply this integer cost.")
+                    .translation("config.jdte.jdte.lootFabricator.baseTimeFluidCost")
+                    .defineInRange("baseTimeFluidCost", 1, 1, 1_000_000);
+            lootFabricatorLootingFluidCostIncreasePercent = builder
+                    .comment("Additional Life Fluid and Time Fluid cost per Looting Upgrade installed in a Loot Fabricator, in percent.")
+                    .translation("config.jdte.jdte.lootFabricator.lootingFluidCostIncreasePercent")
+                    .defineInRange("lootingFluidCostIncreasePercent", 50, 0, 10_000);
             builder.pop();
 
             // Sender/Receiver

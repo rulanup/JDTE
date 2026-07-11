@@ -2,16 +2,21 @@ package com.jdte.client.screens;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.jdte.common.containers.LootFabricatorContainer;
+import com.jdte.client.utils.GuiUpgradeLayoutConfig;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
+import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.common.network.data.TickSpeedPayload;
+import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.jdte.common.network.data.FilterPagePayload;
 import net.neoforged.neoforge.network.PacketDistributor;
 import com.direwolf20.justdirethings.util.MiscTools;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.Slot;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.setup.JDTEFluids;
@@ -27,8 +32,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import com.jdte.setup.JDTEItems;
-import net.minecraft.world.item.ItemStack;
 
 public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContainer> {
     private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
@@ -38,52 +41,33 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
         super(container, inventory, title);
         this.lootContainer = container;
     }
-    @Override public void setTopSection() { extraWidth = 184; extraHeight = 0; }
+    @Override public void setTopSection() {
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        extraWidth = layout.getLootFabricatorExtraWidth();
+        extraHeight = layout.getLootFabricatorExtraHeight();
+    }
     @Override protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(graphics, partialTick, mouseX, mouseY);
-        renderUpgradePanels(graphics);
         renderMachineSlotBackgrounds(graphics);
-        renderUpgradeGhosts(graphics);
         renderProgressArrow(graphics);
-        renderFluidTank(graphics, getGuiLeft() + 230, getGuiTop() + 5,
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        renderFluidTank(graphics, getGuiLeft() + layout.getLootFabricatorLifeFluidX(), getGuiTop() + layout.getLootFabricatorLifeFluidY(),
                 new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), Math.max(1, lootContainer.getLifeFluidAmount())),
                 lootContainer.getLifeFluidAmount());
-        renderFluidTank(graphics, getGuiLeft() + 250, getGuiTop() + 5,
+        renderFluidTank(graphics, getGuiLeft() + layout.getLootFabricatorTimeFluidX(), getGuiTop() + layout.getLootFabricatorTimeFluidY(),
                 new FluidStack(Registration.TIME_FLUID_SOURCE.get(), Math.max(1, lootContainer.getTimeFluidAmount())),
                 lootContainer.getTimeFluidAmount());
         if (lootContainer.getMaxOutputPage() > 0) {
-            graphics.blit(PREV, getGuiLeft() + 64, getGuiTop() + 76, 0, 0, 16, 16, 16, 16);
-            graphics.blit(NEXT, getGuiLeft() + 152, getGuiTop() + 76, 0, 0, 16, 16, 16, 16);
-            graphics.drawString(font, (lootContainer.getOutputPage() + 1) + "/" + (lootContainer.getMaxOutputPage() + 1), getGuiLeft() + 116, getGuiTop() + 80, 0x404040, false);
-        }
-    }
-
-    private void renderUpgradePanels(GuiGraphics graphics) {
-        renderUpgradePanel(graphics, getGuiLeft() - 66, getGuiTop() + 5);
-        renderUpgradePanel(graphics, getGuiLeft() + 166, getGuiTop() + 5);
-    }
-
-    private void renderUpgradePanel(GuiGraphics graphics, int x, int y) {
-        graphics.fill(x, y, x + 62, y + 62, 0xFF2B2B2B);
-        graphics.fill(x + 2, y + 2, x + 60, y + 60, 0xFF8A8A8A);
-        graphics.renderOutline(x, y, 62, 62, 0xFFB8B8B8);
-    }
-
-    private void renderUpgradeGhosts(GuiGraphics graphics) {
-        for (Slot slot : lootContainer.slots) {
-            if (!(slot instanceof LootFabricatorContainer.LootFabricatorUpgradeSlot) || slot.hasItem()) continue;
-            ItemStack ghost = new ItemStack((slot.getSlotIndex() & 1) == 0
-                    ? JDTEItems.CAPACITY_UPGRADE.get() : JDTEItems.LOOTING_UPGRADE.get());
-            RenderSystem.setShaderColor(0.42F, 0.42F, 0.42F, 0.48F);
-            graphics.renderFakeItem(ghost, getGuiLeft() + slot.x, getGuiTop() + slot.y);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
+            int buttonSize = layout.getLootFabricatorOutputPageButtonSize();
+            graphics.blit(PREV, getGuiLeft() + layout.getLootFabricatorOutputPrevX(), getGuiTop() + layout.getLootFabricatorOutputPrevY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+            graphics.blit(NEXT, getGuiLeft() + layout.getLootFabricatorOutputNextX(), getGuiTop() + layout.getLootFabricatorOutputNextY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+            graphics.drawString(font, (lootContainer.getOutputPage() + 1) + "/" + (lootContainer.getMaxOutputPage() + 1), getGuiLeft() + layout.getLootFabricatorOutputPageTextX(), getGuiTop() + layout.getLootFabricatorOutputPageTextY(), 0x404040, false);
         }
     }
 
     private void renderMachineSlotBackgrounds(GuiGraphics graphics) {
-        int machineAndUpgradeSlots = 16 + com.jdte.common.blockentities.LootFabricatorBE.INPUT_SLOTS
-                + com.jdte.common.blockentities.LootFabricatorBE.UPGRADE_SLOTS;
-        for (int i = 0; i < Math.min(machineAndUpgradeSlots, lootContainer.slots.size()); i++) {
+        int machineSlots = lootContainer.getOutputSlotsPerPage() + com.jdte.common.blockentities.LootFabricatorBE.INPUT_SLOTS;
+        for (int i = 0; i < Math.min(machineSlots, lootContainer.slots.size()); i++) {
             Slot slot = lootContainer.slots.get(i);
             graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
@@ -91,12 +75,13 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
     }
 
     private void renderProgressArrow(GuiGraphics graphics) {
-        int x = getGuiLeft() + 48;
-        int y = getGuiTop() + 37;
-        int progressWidth = (lootContainer.getProgress() * 24) / Math.max(1, lootContainer.getProgressMax());
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        int x = getGuiLeft() + layout.getLootFabricatorProgressArrowX();
+        int y = getGuiTop() + layout.getLootFabricatorProgressArrowY();
+        int progressWidth = lootContainer.getProgress() <= 0 ? 0 : Math.max(1, (lootContainer.getProgress() * 22) / Math.max(1, lootContainer.getProgressMax()));
         drawArrow(graphics, x, y, 24, 0xFF2B2B2B);
         drawArrow(graphics, x + 1, y + 1, 22, 0xFF8A8A8A);
-        if (progressWidth > 0) drawArrow(graphics, x + 1, y + 1, Math.min(22, progressWidth), 0xFFDC143C);
+        if (progressWidth > 0) drawArrow(graphics, x + 1, y + 1, Math.min(22, progressWidth), 0xFF3DBB57);
     }
 
     private void drawArrow(GuiGraphics graphics, int x, int y, int width, int color) {
@@ -117,7 +102,7 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
 
     private void renderFluidTank(GuiGraphics graphics, int x, int y, FluidStack stack, int amount) {
         graphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
-        int height = Math.min(70, (amount * 70) / com.jdte.common.blockentities.LootFabricatorBE.BASE_FLUID_CAPACITY);
+        int height = Math.min(70, (amount * 70) / Math.max(1, lootContainer.getFluidCapacity()));
         if (height > 0) renderFluidStack(graphics, stack, x + 1, y + 71, 16, height);
         graphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
     }
@@ -153,20 +138,35 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
     }
 
     @Override public void addTickSpeedButton() {
-        addRenderableWidget(ToggleButtonFactory.TICKSPEEDBUTTON(getGuiLeft() + 48, getGuiTop() + 18, tickSpeed, button -> {
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        addRenderableWidget(ToggleButtonFactory.TICKSPEEDBUTTON(getGuiLeft() + layout.getLootFabricatorSpeedButtonX(), getGuiTop() + layout.getLootFabricatorSpeedButtonY(), tickSpeed, button -> {
             tickSpeed = ((NumberButton) button).getValue();
             PacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
         }));
     }
 
+    @Override public void addRedstoneButtons() {
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        addRenderableWidget(ToggleButtonFactory.REDSTONEBUTTON(getGuiLeft() + layout.getLootFabricatorRedstoneButtonX(), getGuiTop() + layout.getLootFabricatorRedstoneButtonY(),
+                redstoneMode.ordinal(), button -> {
+                    redstoneMode = MiscHelpers.RedstoneMode.values()[((ToggleButton) button).getTexturePosition()];
+                    saveSettings();
+                }));
+    }
+
     @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && lootContainer.getMaxOutputPage() > 0) {
+            var layout = GuiUpgradeLayoutConfig.getInstance();
+            int buttonSize = layout.getLootFabricatorOutputPageButtonSize();
             int page = lootContainer.getOutputPage();
-            if (MiscTools.inBounds(getGuiLeft() + 64, getGuiTop() + 76, 16, 16, mouseX, mouseY)) page--;
-            else if (MiscTools.inBounds(getGuiLeft() + 152, getGuiTop() + 76, 16, 16, mouseX, mouseY)) page++;
+            if (MiscTools.inBounds(getGuiLeft() + layout.getLootFabricatorOutputPrevX(), getGuiTop() + layout.getLootFabricatorOutputPrevY(), buttonSize, buttonSize, mouseX, mouseY)) page--;
+            else if (MiscTools.inBounds(getGuiLeft() + layout.getLootFabricatorOutputNextX(), getGuiTop() + layout.getLootFabricatorOutputNextY(), buttonSize, buttonSize, mouseX, mouseY)) page++;
             else return super.mouseClicked(mouseX, mouseY, button);
             lootContainer.setOutputPage(page);
             PacketDistributor.sendToServer(new FilterPagePayload(lootContainer.getOutputPage()));
+            if (minecraft != null) {
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            }
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -174,14 +174,11 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
 
     @Override protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         super.renderTooltip(graphics, mouseX, mouseY);
-        if (hoveredSlot instanceof LootFabricatorContainer.LootFabricatorUpgradeSlot && !hoveredSlot.hasItem()) {
-            graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.upgrade_slot"), mouseX, mouseY);
-            return;
-        }
-        if (MiscTools.inBounds(getGuiLeft() + 230, getGuiTop() + 5, 18, 72, mouseX, mouseY)) {
-            graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.life_fluid", lootContainer.getLifeFluidAmount(), com.jdte.common.blockentities.LootFabricatorBE.BASE_FLUID_CAPACITY), mouseX, mouseY);
-        } else if (MiscTools.inBounds(getGuiLeft() + 250, getGuiTop() + 5, 18, 72, mouseX, mouseY)) {
-            graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.time_fluid", lootContainer.getTimeFluidAmount(), com.jdte.common.blockentities.LootFabricatorBE.BASE_FLUID_CAPACITY), mouseX, mouseY);
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        if (MiscTools.inBounds(getGuiLeft() + layout.getLootFabricatorLifeFluidX(), getGuiTop() + layout.getLootFabricatorLifeFluidY(), 18, 72, mouseX, mouseY)) {
+            graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.life_fluid", lootContainer.getLifeFluidAmount(), lootContainer.getFluidCapacity()), mouseX, mouseY);
+        } else if (MiscTools.inBounds(getGuiLeft() + layout.getLootFabricatorTimeFluidX(), getGuiTop() + layout.getLootFabricatorTimeFluidY(), 18, 72, mouseX, mouseY)) {
+            graphics.renderTooltip(font, Component.translatable("jdte.screen.loot_fabricator.time_fluid", lootContainer.getTimeFluidAmount(), lootContainer.getFluidCapacity()), mouseX, mouseY);
         }
     }
 }

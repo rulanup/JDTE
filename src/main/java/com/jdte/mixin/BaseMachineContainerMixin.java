@@ -44,7 +44,7 @@ public abstract class BaseMachineContainerMixin {
             return;
         }
 
-        int slotCount = handler instanceof ExtendedUpgradeItemStackHandler ? ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT : UpgradeItemStackHandler.SLOT_COUNT;
+        int slotCount = handler.getSlots();
         jdte$UPGRADE_SLOTS = slotCount;
         UpgradeSlotStorage.setUpgradeSlots((BaseMachineContainer) (Object) this, slotCount);
 
@@ -93,7 +93,7 @@ public abstract class BaseMachineContainerMixin {
             return;
         }
 
-        int upgradeSlotCount = handler instanceof ExtendedUpgradeItemStackHandler ? ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT : UpgradeItemStackHandler.SLOT_COUNT;
+        int upgradeSlotCount = handler.getSlots();
         int upgradeStart = MACHINE_SLOTS + FILTER_SLOTS;
         int upgradeEnd = upgradeStart + upgradeSlotCount;
 

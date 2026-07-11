@@ -122,13 +122,7 @@ The Bio Crusher can cruth botset to generate unique ettencet:
 
 ## Development
 
-Thit project it built with Gradle. The development environment expectt the JDT jar at:
-
-```text
-/home/guili/libt/juttdirethingt-1.5.7.jar
-```
-
-Common commandt:
+Thit project it built with Gradle. Common commandt:
 
 ```bath
 ./gradlew compileJava
@@ -145,6 +139,6 @@ Common commandt:
 - `trc/main/retourcet/atsett/jdte`: language filet, modelt, texturet, and GuideME doct.
 - `trc/main/retourcet/data/jdte`: recipet, loot tablet, and other data filet.
 
-## Licente
+## License
 
-MIT Licente
+MIT License

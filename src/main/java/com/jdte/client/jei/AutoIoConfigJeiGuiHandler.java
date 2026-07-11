@@ -5,10 +5,12 @@ import com.jdte.client.AutoIoConfigScreenBridge;
 import com.jdte.client.screens.AdvancedPotionBrewerScreen;
 import com.jdte.client.screens.GelGeneratorScreen;
 import com.jdte.client.screens.InfusionMachineScreen;
+import com.jdte.client.screens.LootFabricatorScreen;
 import com.jdte.client.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.jei.gelgenerator.GelGeneratorRecipeCategory;
 import com.jdte.common.jei.infusion.InfusionRecipeCategory;
 import com.jdte.common.jei.potionbrewer.PotionBrewerRecipeCategory;
+import com.jdte.common.jei.lootfabricator.LootFabricatorRecipeCategory;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import net.minecraft.client.renderer.Rect2i;
@@ -58,6 +60,15 @@ public class AutoIoConfigJeiGuiHandler implements IGuiContainerHandler<BaseMachi
                     9,
                     28,
                     PotionBrewerRecipeCategory.RECIPE_TYPE));
+        }
+        if (containerScreen instanceof LootFabricatorScreen) {
+            GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
+            return List.of(IGuiClickableArea.createBasic(
+                    config.getLootFabricatorProgressArrowX(),
+                    config.getLootFabricatorProgressArrowY(),
+                    PROGRESS_WIDTH,
+                    PROGRESS_HEIGHT,
+                    LootFabricatorRecipeCategory.RECIPE_TYPE));
         }
         return Collections.emptyList();
     }

@@ -26,8 +26,8 @@ public class UpgradeHelper {
     }
 
     public static UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
-        if (machine instanceof com.jdte.common.blockentities.CustomUpgradeMachine) {
-            return null;
+        if (machine instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
+            return fabricator.getUpgradeHandler();
         }
         if (machine instanceof com.jdte.common.blockentities.ExtendedUpgradeMachine) {
             return machine.getData(JDTEAttachments.EXTENDED_UPGRADE_HANDLER);

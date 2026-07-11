@@ -203,5 +203,44 @@
     "redstone_button_y": 31,
     "recipe_lock_button_x": 152,
     "recipe_lock_button_y": 13
+  },
+  "loot_fabricator_layout": {
+    "comment": "战利品制造机相对 JDT 基础机器界面增加的尺寸。",
+    "extra_width": 60,
+    "extra_height": 0
+  },
+  "loot_fabricator_slots": {
+    "comment": "战利品制造机输入和当前页输出槽坐标，均相对于 getGuiLeft()/getGuiTop()。",
+    "input_start_x": 8,
+    "input_start_y": -21,
+    "input_spacing": 18,
+    "output_start_x": 68,
+    "output_start_y": -21,
+    "output_spacing": 18,
+    "output_columns": 4,
+    "output_rows": 4
+  },
+  "loot_fabricator_fluids": {
+    "comment": "战利品制造机生命流体槽和时间流体槽坐标。",
+    "life_fluid_x": 162,
+    "life_fluid_y": -21,
+    "time_fluid_x": 182,
+    "time_fluid_y": -21
+  },
+  "loot_fabricator_widgets": {
+    "comment": "战利品制造机进度、速度、红石和输出翻页组件坐标。",
+    "progress_arrow_x": 36,
+    "progress_arrow_y": 7,
+    "speed_button_x": 36,
+    "speed_button_y": 24,
+    "redstone_button_x": 142,
+    "redstone_button_y": 17,
+    "output_prev_x": 54,
+    "output_prev_y": 36,
+    "output_next_x": 142,
+    "output_next_y": 36,
+    "output_page_button_size": 12,
+    "output_page_text_x": 104,
+    "output_page_text_y": 54
   }
 }

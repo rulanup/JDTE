@@ -2,6 +2,7 @@ package com.jdte.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.LootFabricatorBE;
+import com.jdte.client.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.core.BlockPos;
@@ -16,7 +17,6 @@ import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.upgrades.UpgradeType;
 import net.neoforged.neoforge.items.SlotItemHandler;
-import com.jdte.common.upgrades.UpgradeSlot;
 
 public class LootFabricatorContainer extends BaseMachineContainer implements FilterPageHolder {
     private int outputPage;
@@ -29,16 +29,16 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
 
     @Override public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
-        for (int i = 0; i < LootFabricatorBE.INPUT_SLOTS; i++) addSlot(new SingleSlot(machineHandler, i, 20, 9 + i * 18));
-        for (int i = 0; i < 16; i++) addSlot(new OutputSlot(machineHandler, i, 80 + (i % 4) * 18, 9 + (i / 4) * 18, this));
-        if (baseMachineBE instanceof LootFabricatorBE machine) {
-            for (int i = 0; i < LootFabricatorBE.UPGRADE_SLOTS; i++) {
-                boolean right = i >= 9;
-                int local = right ? i - 9 : i;
-                int x = (right ? 170 : -62) + (local % 3) * 18;
-                int y = 9 + (local / 3) * 18;
-                addSlot(new LootFabricatorUpgradeSlot(machine.getUpgradeHandler(), i, x, y));
-            }
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        for (int i = 0; i < LootFabricatorBE.INPUT_SLOTS; i++) {
+            addSlot(new SingleSlot(machineHandler, i, layout.getLootFabricatorInputStartX(),
+                    layout.getLootFabricatorInputStartY() + i * layout.getLootFabricatorInputSpacing()));
+        }
+        int outputSlots = layout.getLootFabricatorOutputColumns() * layout.getLootFabricatorOutputRows();
+        for (int i = 0; i < outputSlots; i++) {
+            addSlot(new OutputSlot(machineHandler, i,
+                    layout.getLootFabricatorOutputStartX() + (i % layout.getLootFabricatorOutputColumns()) * layout.getLootFabricatorOutputSpacing(),
+                    layout.getLootFabricatorOutputStartY() + (i / layout.getLootFabricatorOutputColumns()) * layout.getLootFabricatorOutputSpacing(), this));
         }
     }
 
@@ -46,10 +46,20 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
     public int getProgressMax() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(1) : LootFabricatorBE.PROCESS_TIME; }
     public int getLifeFluidAmount() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(3) : 0; }
     public int getTimeFluidAmount() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(4) : 0; }
+    public int getFluidCapacity() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(5) : LootFabricatorBE.BASE_FLUID_CAPACITY; }
     public int getOutputPage() { return outputPage; }
+    public int getOutputSlotsPerPage() {
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        return layout.getLootFabricatorOutputColumns() * layout.getLootFabricatorOutputRows();
+    }
     @Override public int jdte$getFilterPage() { return outputPage; }
-    public int getMaxOutputPage() { return baseMachineBE instanceof LootFabricatorBE machine ? Math.max(0, (machine.getMachineData().get(2) - 1) / 16) : 0; }
-    public void setOutputPage(int page) { outputPage = Math.clamp(page, 0, getMaxOutputPage()); }
+    public int getMaxOutputPage() { return baseMachineBE instanceof LootFabricatorBE machine ? Math.max(0, (machine.getMachineData().get(2) - 1) / getOutputSlotsPerPage()) : 0; }
+    public void setOutputPage(int page) {
+        int clamped = Math.clamp(page, 0, getMaxOutputPage());
+        if (outputPage == clamped) return;
+        outputPage = clamped;
+        broadcastChanges();
+    }
     @Override public void jdte$setFilterPage(int page) { setOutputPage(page); }
     @Override public boolean stillValid(Player player) { return stillValid(ContainerLevelAccess.create(player.level(), pos), player, JDTEBlocks.LOOT_FABRICATOR.get()); }
 
@@ -59,20 +69,56 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
         if (!slot.hasItem()) return ItemStack.EMPTY;
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
-        int playerStart = 16 + LootFabricatorBE.UPGRADE_SLOTS + LootFabricatorBE.INPUT_SLOTS;
+        int machineSlotCount = getOutputSlotsPerPage() + LootFabricatorBE.INPUT_SLOTS;
+        int playerStart = machineSlotCount + LootFabricatorBE.UPGRADE_SLOTS;
         if (index < playerStart) {
-            if (!moveItemStackTo(stack, playerStart, slots.size(), true)) return ItemStack.EMPTY;
+            if (!moveStackTo(stack, playerStart, slots.size(), true)) return ItemStack.EMPTY;
         } else if (stack.getItem() instanceof SpawnEggItem) {
-            if (!moveItemStackTo(stack, 0, LootFabricatorBE.INPUT_SLOTS, false)) return ItemStack.EMPTY;
+            if (!moveStackTo(stack, 0, LootFabricatorBE.INPUT_SLOTS, false)) return ItemStack.EMPTY;
         } else if (stack.getItem() instanceof LootingUpgradeItem
                 || stack.getItem() instanceof UpgradeCardItem card && card.getType() == UpgradeType.CAPACITY) {
-            if (!moveItemStackTo(stack, 20, playerStart, false)) return ItemStack.EMPTY;
+            if (!moveStackTo(stack, machineSlotCount, playerStart, false)) return ItemStack.EMPTY;
         } else {
             return ItemStack.EMPTY;
         }
         if (stack.isEmpty()) slot.set(ItemStack.EMPTY); else slot.setChanged();
         slot.onTake(player, stack);
         return original;
+    }
+
+    private boolean moveStackTo(ItemStack stack, int start, int end, boolean reverse) {
+        boolean moved = false;
+        int index = reverse ? end - 1 : start;
+        while (!stack.isEmpty() && (reverse ? index >= start : index < end)) {
+            Slot target = slots.get(index);
+            if (target.mayPlace(stack) && target.hasItem()) {
+                ItemStack existing = target.getItem();
+                if (ItemStack.isSameItemSameComponents(stack, existing)) {
+                    int max = Math.min(target.getMaxStackSize(stack), stack.getMaxStackSize());
+                    int transferable = Math.min(stack.getCount(), max - existing.getCount());
+                    if (transferable > 0) {
+                        existing.grow(transferable);
+                        stack.shrink(transferable);
+                        target.setChanged();
+                        moved = true;
+                    }
+                }
+            }
+            index += reverse ? -1 : 1;
+        }
+        index = reverse ? end - 1 : start;
+        while (!stack.isEmpty() && (reverse ? index >= start : index < end)) {
+            Slot target = slots.get(index);
+            if (!target.hasItem() && target.mayPlace(stack)) {
+                int count = Math.min(stack.getCount(), target.getMaxStackSize(stack));
+                target.set(stack.copyWithCount(count));
+                stack.shrink(count);
+                target.setChanged();
+                moved = true;
+            }
+            index += reverse ? -1 : 1;
+        }
+        return moved;
     }
 
     private static class SingleSlot extends SlotItemHandler {
@@ -87,16 +133,24 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
             this.container = container;
             this.pageSlot = pageSlot;
         }
-        @Override public int getSlotIndex() { return LootFabricatorBE.INPUT_SLOTS + container.getOutputPage() * 16 + pageSlot; }
-        @Override public ItemStack getItem() { return getItemHandler().getStackInSlot(getSlotIndex()); }
-        @Override public void set(ItemStack stack) { ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack); setChanged(); }
-        @Override public ItemStack remove(int amount) { return getItemHandler().extractItem(getSlotIndex(), amount, false); }
-        @Override public int getMaxStackSize() { return getItemHandler().getSlotLimit(getSlotIndex()); }
+        @Override public int getSlotIndex() { return LootFabricatorBE.INPUT_SLOTS + container.getOutputPage() * container.getOutputSlotsPerPage() + pageSlot; }
+        @Override public ItemStack getItem() { return isActiveSlot() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY; }
+        @Override public boolean hasItem() { return !getItem().isEmpty(); }
+        @Override public void set(ItemStack stack) {
+            if (!isActiveSlot()) return;
+            ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
+            setChanged();
+        }
+        @Override public void initialize(ItemStack stack) { set(stack); }
+        @Override public ItemStack remove(int amount) { return isActiveSlot() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY; }
+        @Override public int getMaxStackSize() { return isActiveSlot() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0; }
+        @Override public int getMaxStackSize(ItemStack stack) { return isActiveSlot() ? Math.min(stack.getMaxStackSize(), getItemHandler().getSlotLimit(getSlotIndex())) : 0; }
+        @Override public boolean mayPickup(Player player) { return isActiveSlot() && !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty(); }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
-    }
-    public static class LootFabricatorUpgradeSlot extends UpgradeSlot {
-        public LootFabricatorUpgradeSlot(net.neoforged.neoforge.items.IItemHandler handler, int index, int x, int y) {
-            super(handler, index, x, y);
+        private boolean isActiveSlot() {
+            return container.baseMachineBE instanceof LootFabricatorBE machine
+                    && getSlotIndex() < LootFabricatorBE.INPUT_SLOTS + machine.getActiveOutputSlots()
+                    && getSlotIndex() < getItemHandler().getSlots();
         }
     }
 }
