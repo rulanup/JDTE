@@ -23,7 +23,7 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
     public LootFabricatorContainer(int id, Inventory inventory, BlockPos pos) {
         super(JDTEMenus.LOOT_FABRICATOR.get(), id, inventory, pos);
         if (baseMachineBE instanceof LootFabricatorBE machine) addDataSlots(machine.getMachineData());
-        addShiftedPlayerSlots(player.getInventory());
+        addPlayerSlots(player.getInventory());
     }
 
     @Override public void addMachineSlots() {
@@ -32,19 +32,12 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
         for (int i = 0; i < 16; i++) addSlot(new OutputSlot(machineHandler, i, 80 + (i % 4) * 18, 9 + (i / 4) * 18, this));
         if (baseMachineBE instanceof LootFabricatorBE machine) {
             for (int i = 0; i < LootFabricatorBE.UPGRADE_SLOTS; i++) {
-                addSlot(new SingleSlot(machine.getUpgradeHandler(), i, 8 + (i % 9) * 18, 94 + (i / 9) * 18));
+                boolean right = i >= 9;
+                int local = right ? i - 9 : i;
+                int x = (right ? 170 : -62) + (local % 3) * 18;
+                int y = 9 + (local / 3) * 18;
+                addSlot(new SingleSlot(machine.getUpgradeHandler(), i, x, y));
             }
-        }
-    }
-
-    private void addShiftedPlayerSlots(Inventory inventory) {
-        for (int row = 0; row < 3; row++) {
-            for (int column = 0; column < 9; column++) {
-                addSlot(new Slot(inventory, column + row * 9 + 9, 8 + column * 18, 140 + row * 18));
-            }
-        }
-        for (int column = 0; column < 9; column++) {
-            addSlot(new Slot(inventory, column, 8 + column * 18, 198));
         }
     }
 
