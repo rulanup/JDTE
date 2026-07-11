@@ -22,6 +22,7 @@ import com.jdte.common.containers.AdvancedPotionBrewerContainer;
 import com.jdte.common.containers.BioCrusherContainer;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
+import com.jdte.common.containers.LootFabricatorContainer;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeSlot;
@@ -200,6 +201,10 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
             if (slot instanceof DynamicFilterSlot filterSlot && !filterSlot.isActive()) {
                 slotAccessor.jdte$setX(-10000);
                 slotAccessor.jdte$setY(-10000);
+            } else if (container instanceof LootFabricatorContainer
+                    && slot instanceof LootFabricatorContainer.LootFabricatorUpgradeSlot) {
+                slotAccessor.jdte$setX(original[0]);
+                slotAccessor.jdte$setY(original[1]);
             } else if (slot instanceof UpgradeSlot) {
                 if (isEightSlot && upgradeSlotIndex >= 4) {
                     // Left panel (slots 4-7)
