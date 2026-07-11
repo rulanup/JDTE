@@ -205,6 +205,16 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_BIO_CRUSHER.get()
         );
 
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator ? fabricator.getEnergyStorage() : null,
+                JDTEBlocks.LOOT_FABRICATOR.get());
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator ? fabricator.getFluidHandler() : null,
+                JDTEBlocks.LOOT_FABRICATOR.get());
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator ? fabricator.getAutomationItemHandler() : null,
+                JDTEBlocks.LOOT_FABRICATOR.get());
+
         // Life Extractor energy storage and fluid handler
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered ? powered.getEnergyStorage() : null,

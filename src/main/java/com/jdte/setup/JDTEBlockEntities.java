@@ -108,4 +108,6 @@ public class JDTEBlockEntities {
             "advanced_bio_crusher", () -> BlockEntityType.Builder.of(AdvancedBioCrusherBE::new, JDTEBlocks.ADVANCED_BIO_CRUSHER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedBioCrusherBE>> EXTENDED_BIO_CRUSHER = BLOCK_ENTITIES.register(
             "extended_bio_crusher", () -> BlockEntityType.Builder.of(ExtendedBioCrusherBE::new, JDTEBlocks.EXTENDED_BIO_CRUSHER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LootFabricatorBE>> LOOT_FABRICATOR = BLOCK_ENTITIES.register(
+            "loot_fabricator", () -> BlockEntityType.Builder.of(LootFabricatorBE::new, JDTEBlocks.LOOT_FABRICATOR.get()).build(null));
 }

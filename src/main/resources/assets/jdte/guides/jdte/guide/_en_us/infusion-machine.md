@@ -49,6 +49,7 @@ The Infusion Machine consumes items and fluids to produce new items according to
 | Apple | Life Fluid 1000 mB | Life Apple | 500 FE |
 | Wither Essence | Life Fluid 64,000 mB | Wither Spawn Egg | 100,000 FE |
 | Ender Dragon Essence | Life Fluid 64,000 mB | Ender Dragon Spawn Egg | 100,000 FE |
+| Elder Guardian Essence | Life Fluid 64,000 mB | Elder Guardian Spawn Egg | 100,000 FE |
 
 ### Life Apple Progression
 

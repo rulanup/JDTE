@@ -95,6 +95,7 @@ public class JDTEItems {
     // Bio Crusher
     public static final DeferredHolder<Item, BlockItem> ADVANCED_BIO_CRUSHER = ITEMS.register("advanced_bio_crusher", () -> new BlockItem(JDTEBlocks.ADVANCED_BIO_CRUSHER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BIO_CRUSHER = ITEMS.register("extended_bio_crusher", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_CRUSHER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> LOOT_FABRICATOR = ITEMS.register("loot_fabricator", () -> new BlockItem(JDTEBlocks.LOOT_FABRICATOR.get(), new Item.Properties()));
 
     // Boss Essences
     public static final DeferredHolder<Item, BossEssenceItem> WITHER_ESSENCE = ITEMS.register("wither_essence", BossEssenceItem::new);

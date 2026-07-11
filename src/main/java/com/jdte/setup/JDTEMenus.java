@@ -109,4 +109,6 @@ public class JDTEMenus {
             "advanced_bio_crusher", () -> IMenuTypeExtension.create(AdvancedBioCrusherContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedBioCrusherContainer>> EXTENDED_BIO_CRUSHER = MENUS.register(
             "extended_bio_crusher", () -> IMenuTypeExtension.create(ExtendedBioCrusherContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<LootFabricatorContainer>> LOOT_FABRICATOR = MENUS.register(
+            "loot_fabricator", () -> IMenuTypeExtension.create(LootFabricatorContainer::new));
 }
