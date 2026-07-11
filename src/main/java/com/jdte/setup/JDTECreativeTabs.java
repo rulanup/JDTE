@@ -89,6 +89,7 @@ public class JDTECreativeTabs {
                 // Bio Crusher
                 output.accept(JDTEItems.ADVANCED_BIO_CRUSHER.get());
                 output.accept(JDTEItems.EXTENDED_BIO_CRUSHER.get());
+                output.accept(JDTEItems.LOOT_FABRICATOR.get());
 
                 // Boss Essences
                 output.accept(JDTEItems.WITHER_ESSENCE.get());

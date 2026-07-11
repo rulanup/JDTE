@@ -20,6 +20,7 @@ import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.blockentities.ItemReceiverBE;
 import com.jdte.common.blockentities.ItemSenderBE;
 import com.jdte.common.blockentities.LifeExtractorBE;
+import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEAttachments;
@@ -183,6 +184,10 @@ public final class AutoIoTransferHelper {
                     AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + 4);
             itemOutputs = boundedSlots(handler, range(AdvancedPotionBrewerBE.OUTPUT_SLOT_START, AdvancedPotionBrewerBE.OUTPUT_SLOT_COUNT));
             fluidInput = brewer.getFluidHandler();
+        } else if (machine instanceof LootFabricatorBE fabricator) {
+            itemInputs = boundedSlots(handler, range(0, LootFabricatorBE.INPUT_SLOTS));
+            itemOutputs = boundedSlots(handler, range(LootFabricatorBE.INPUT_SLOTS, fabricator.getActiveOutputSlots()));
+            fluidInput = fabricator.getFluidHandler();
         } else if (machine instanceof GlueActivatorBE) {
             itemInputs = boundedSlots(handler, GlueActivatorBE.REVIVE_SLOT);
         } else if (machine instanceof FluidStabilizerBE) {

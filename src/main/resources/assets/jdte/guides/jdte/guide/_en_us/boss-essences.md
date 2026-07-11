@@ -5,8 +5,6 @@ navigation:
   position: 6
 item_ids:
   - jdte:wither_essence
-  - jdte:wither_spawn_egg
-  - jdte:ender_dragon_spawn_egg
   - jdte:ender_dragon_essence
   - jdte:elder_guardian_essence
 ---
@@ -31,7 +29,7 @@ Has a 10% base chance to drop when an Ender Dragon is killed by a Bio Crusher. L
 
 ### Elder Guardian Essence
 
-Obtained by killing the Elder Guardian with a Bio Crusher.
+Obtained when a Bio Crusher kills an Elder Guardian. Looting Upgrades may increase the essence amount.
 
 <ItemImage id="jdte:elder_guardian_essence" scale="2" />
 
@@ -51,5 +49,4 @@ BOSS essences can be used to craft advanced items and machines, serving as impor
 
 - Wither Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create a Wither Spawn Egg
 - Ender Dragon Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create an Ender Dragon Spawn Egg
-- Ender Dragon Essence: Used to craft End-related advanced items
-- Elder Guardian Essence: Used to craft Elder Guardian-related items
+- Elder Guardian Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create an Elder Guardian Spawn Egg

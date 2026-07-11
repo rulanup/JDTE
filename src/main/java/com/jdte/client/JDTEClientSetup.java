@@ -78,6 +78,7 @@ public class JDTEClientSetup {
         // Bio Crusher
         event.register(JDTEMenus.ADVANCED_BIO_CRUSHER.get(), AdvancedBioCrusherScreen::new);
         event.register(JDTEMenus.EXTENDED_BIO_CRUSHER.get(), ExtendedBioCrusherScreen::new);
+        event.register(JDTEMenus.LOOT_FABRICATOR.get(), LootFabricatorScreen::new);
 
         // Potion Brewer
         event.register(JDTEMenus.ADVANCED_POTION_BREWER.get(), AdvancedPotionBrewerScreen::new);

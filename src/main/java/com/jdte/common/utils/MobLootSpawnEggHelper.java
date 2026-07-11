@@ -75,7 +75,8 @@ public final class MobLootSpawnEggHelper {
 
             ItemStack eggStack = new ItemStack(spawnEgg);
             if (spawnEgg.getType(eggStack) == EntityType.WITHER
-                    || spawnEgg.getType(eggStack) == EntityType.ENDER_DRAGON) {
+                    || spawnEgg.getType(eggStack) == EntityType.ENDER_DRAGON
+                    || spawnEgg.getType(eggStack) == EntityType.ELDER_GUARDIAN) {
                 continue;
             }
             Set<Item> possibleDrops = new HashSet<>();

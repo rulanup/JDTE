@@ -17,6 +17,7 @@ import com.jdte.common.blockentities.GlueActivatorBE;
 import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.blockentities.ItemReceiverBE;
 import com.jdte.common.blockentities.ItemSenderBE;
+import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.setup.JDTEAttachments;
 
 public final class AutoIoConfigHelper {
@@ -38,6 +39,9 @@ public final class AutoIoConfigHelper {
                 || machine instanceof BioCrusherBE
                 || machine instanceof InfusionMachineBE
                 || machine instanceof AdvancedPotionBrewerBE) {
+            return true;
+        }
+        if (machine instanceof LootFabricatorBE) {
             return true;
         }
         return machine instanceof ClickerT1BE

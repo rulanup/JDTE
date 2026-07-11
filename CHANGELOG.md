@@ -3,6 +3,8 @@
 ### English
 
 #### v0.5.3 (Current)
+- **New**: Added the Loot Fabricator with four reusable spawn-egg inputs, vanilla/mod loot-table output, Life/Time Fluid and FE costs, speed-scaled Time Fluid use, 16-64 paged output slots, 18 dedicated upgrade slots, up to three Looting Upgrades, redstone control, and automatic I/O.
+- **New**: Added the Elder Guardian Spawn Egg infusion recipe using one Elder Guardian Essence, 64 B of Life Fluid, and 100,000 FE; corrected the bilingual Boss Essence GuideME pages.
 - **Fixed**: Bio Crusher forced kills once again roll the entity's complete loot table with a FakePlayer/player-kill context before removal. Boss Essences remain additional drops instead of replacing normal boss loot such as the Wither's Nether Star; the three Boss Essence JEI information pages now state this explicitly.
 - **JEI**: Added information pages for Wither, Ender Dragon, and Elder Guardian Essences, including acquisition chances and current infusion uses.
 - **Performance**: Life Extractors now increase throughput through larger batches instead of more range queries. Advanced/Extended process 4/8 targets every 20 ticks normally and 8/16 every 5 ticks with Overclock or Creative, reducing accelerated scans from 20 to 4 per second.
