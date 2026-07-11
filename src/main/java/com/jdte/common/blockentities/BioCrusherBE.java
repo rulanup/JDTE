@@ -30,6 +30,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.Containers;
@@ -350,8 +351,9 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
                         return false;
                     }
 
+                    createForcedDrops(serverLevel, entity, playerDamage);
                     entity.setHealth(0.0F);
-                    entity.die(playerDamage);
+                    entity.remove(Entity.RemovalReason.KILLED);
                 }
                 BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, entity, fakePlayer);
                 return entity.isDeadOrDying() || entity.isRemoved();
@@ -422,6 +424,31 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             }
         }
         return result;
+    }
+
+    private void createForcedDrops(ServerLevel serverLevel, LivingEntity entity, DamageSource source) {
+        Collection<ItemEntity> drops = new ArrayList<>();
+        try {
+            net.minecraft.world.level.storage.loot.LootTable lootTable = serverLevel.getServer()
+                    .reloadableRegistries().getLootTable(entity.getLootTable());
+            net.minecraft.world.level.storage.loot.LootParams params = new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, entity)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, entity.position())
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DAMAGE_SOURCE, source)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ATTACKING_ENTITY, source.getEntity())
+                    .withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DIRECT_ATTACKING_ENTITY, source.getDirectEntity())
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.LAST_DAMAGE_PLAYER, (Player) source.getEntity())
+                    .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY);
+
+            for (ItemStack stack : lootTable.getRandomItems(params)) {
+                drops.add(new ItemEntity(serverLevel, entity.getX(), entity.getY(), entity.getZ(), stack));
+            }
+            if (CommonHooks.onLivingDrops(entity, source, drops, true)) {
+                drops.clear();
+            }
+        } catch (RuntimeException ignored) {
+            drops.clear();
+        }
     }
 
     private boolean isHostileTarget(Entity entity) {
