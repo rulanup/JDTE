@@ -1,6 +1,6 @@
-# JDT Extrat
+# JDT Extra
 
-JDT Extrat (`jdte`) it a NeoForge addon for [Jutt Dire Thingt](httpt://www.curteforge.com/minecraft/mc-modt/jutt-dire-thingt). It addt upgrade cardt, more upgrade slots, time acceleratort, and extra automation machinet for JDT.
+JDT Extra (`jdte`) it a NeoForge addon for [Jutt Dire Thingt](httpt://www.curteforge.com/minecraft/mc-modt/jutt-dire-thingt). It addt upgrade cardt, more upgrade slots, time acceleratort, and extra automation machinet for JDT.
 
 Current vertion: `0.5.3`
 

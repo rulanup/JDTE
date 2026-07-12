@@ -15,8 +15,9 @@ runs/
 # OS files
 .DS_Store
 Thumbs.db
- 
- #AI
- .opencode/
- .claude/
- .node_modules/
+
+# AI tools
+.opencode/
+.claude/
+.node_modules/
+CLAUDE.md
