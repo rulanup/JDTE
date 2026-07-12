@@ -33,6 +33,11 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
     }
 
     @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return !player.getAbilities().instabuild && super.canAttackBlock(state, level, pos, player);
+    }
+
+    @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();

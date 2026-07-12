@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.5.3` |
+| Current version | `0.5.4` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.233+` |
 | Just Dire Things | `1.5.7+` |
@@ -349,7 +349,14 @@ Recommended order:
 
 ## Version History
 
-### v0.5.3 (Current)
+### v0.5.4 (Current)
+
+- Added two-corner Eclipse Alloy Wrench area selection with JDT-style preview, live dimensions, persistent reuse across machines, server-side limit validation, result feedback, and Creative-mode block-breaking protection.
+- Added direct and FTB Ultimine bulk Upgrade Card insertion, including Bio Crusher dedicated upgrades and Loot Fabricator Looting Upgrades.
+- Added Jade display of installed standard and dedicated upgrades with aggregated counts.
+- Updated FTB Ultimine to CurseMaven file `8231400`, fixed newer API compatibility, and added the Eclipse Alloy Wrench crafting recipe.
+
+### v0.5.3
 
 - Replaced draggable upgrade popups with fixed embedded panels. Four-slot machines use a right-side 1x4 panel; eight-slot machines use left and right 1x4 panels. `GuiUpgradeLayoutConfig` and `assets/jdte/gui_layout.json` centralize layout data and upgrade tooltips.
 - Added absolute-direction auto input/output state, networking, client caching, and server transfer helpers.

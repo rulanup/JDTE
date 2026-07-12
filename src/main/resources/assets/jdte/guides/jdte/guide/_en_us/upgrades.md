@@ -19,6 +19,8 @@ item_ids:
 
 # Upgrade Cards
 
+Sneak-right-click a JDT or JDTE machine while holding Upgrade Cards to fill available upgrade slots until the type limit, slot capacity, or held stack is exhausted. Looting and Sharpness Upgrades are inserted into dedicated slots on supported machines. Machine compatibility, per-type limits, and Overclock/Underclock conflicts are still enforced. When FTB Ultimine is installed, hold its activation key while sneak-right-clicking to fill each eligible machine in the current selection in order.
+
 Upgrade cards can be installed into JDT machines to enhance their functionality.
 
 ## Capacity Upgrade

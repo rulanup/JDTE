@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "justdirethings",
+  "key": {
+    "i": {
+      "item": "justdirethings:eclipsealloy_ingot"
+    }
+  },
+  "pattern": [
+    " i ",
+    " ii",
+    "i  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:eclipsealloy_wrench"
+  }
+}

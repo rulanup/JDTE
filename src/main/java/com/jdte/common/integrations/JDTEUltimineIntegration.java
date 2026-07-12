@@ -1,6 +1,7 @@
 package com.jdte.common.integrations;
 
 import com.jdte.common.items.EclipseAlloyWrenchItem;
+import com.jdte.common.upgrades.UpgradeCardInsertionHelper;
 import dev.ftb.mods.ftbultimine.FTBUltimine;
 import dev.ftb.mods.ftbultimine.api.rightclick.RegisterRightClickHandlerEvent;
 import dev.ftb.mods.ftbultimine.api.FTBUltimineAPI;
@@ -18,11 +19,28 @@ public class JDTEUltimineIntegration {
         RegisterRightClickHandlerEvent.REGISTER.register(event -> event.registerHandler((context, hand, positions) -> {
             ServerPlayer player = context.player();
             ItemStack stack = player.getItemInHand(hand);
-            if (!(stack.getItem() instanceof EclipseAlloyWrenchItem) || !player.mayBuild()) {
+            if (!player.mayBuild()) {
                 return 0;
             }
 
             Level level = player.level();
+            if (UpgradeCardInsertionHelper.isUpgradeCard(stack) && player.isShiftKeyDown()) {
+                int handled = 0;
+                for (BlockPos pos : positions) {
+                    if (stack.isEmpty() && !player.getAbilities().instabuild) {
+                        break;
+                    }
+                    if (UpgradeCardInsertionHelper.insertAll(level, pos, player, stack) > 0) {
+                        handled++;
+                    }
+                }
+                return handled;
+            }
+
+            if (!(stack.getItem() instanceof EclipseAlloyWrenchItem)) {
+                return 0;
+            }
+
             int handled = 0;
             for (BlockPos pos : positions) {
                 if (player.isShiftKeyDown()) {
@@ -38,7 +56,8 @@ public class JDTEUltimineIntegration {
     }
 
     public static Optional<Collection<BlockPos>> getCurrentSelection(ServerPlayer player) {
-        if (FTBUltimine.instance == null || !FTBUltimine.instance.getOrCreatePlayerData(player).isPressed()) {
+        FTBUltimine instance = FTBUltimine.getInstance();
+        if (instance == null || !instance.getOrCreatePlayerData(player).isPressed()) {
             return Optional.empty();
         }
         return FTBUltimineAPI.api().currentBlockSelection(player);

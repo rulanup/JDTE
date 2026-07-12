@@ -2,7 +2,20 @@
 
 ### English
 
-#### v0.5.3 (Current)
+#### v0.5.4 (Current)
+
+- **New**: The Eclipse Alloy Wrench can select an area with two left-clicked corners, preview it using JDT's area rendering, show live X/Y/Z dimensions, and copy the exact selection into an adjustable-area machine. Shift-left-click cancels the selection; machine radius and offset limits are enforced server-side.
+- **Fixed**: Two-corner wrench selections remain locked with their preview visible after being applied, allowing the same area to be copied to multiple machines. Only Shift-left-click clears the selection. Added distinct sounds for selecting each corner, clearing, and applying a selection.
+- **Fixed**: Wrench selection now latches the attack input until the mouse button is released, preventing repeated callbacks across multiple ticks from selecting both corners with one physical click.
+- **UX**: Applying a wrench area selection now always reports success or a specific failure reason and plays distinct confirmation or failure sounds while retaining the selection.
+- **Fixed**: Successful wrench area writes now send the confirmation sound directly to the player so it remains audible in dedicated and integrated server environments.
+- **Fixed**: The Eclipse Alloy Wrench can no longer break blocks while held in Creative mode, preventing instant block removal during area selection.
+- **Jade**: Machine tooltips now list installed standard and dedicated upgrades with item icons, localized names, and aggregated counts.
+- **New**: Upgrade Cards can now be inserted directly by sneak-right-clicking a JDT or JDTE machine, filling as many valid standard or dedicated slots as the held stack allows. With FTB Ultimine active, eligible machines in the current selection are filled in order while respecting card count, compatibility, limits, and speed-upgrade conflicts.
+- **Fixed**: Updated FTB Ultimine integration for newer builds where `FTBUltimine.instance` is private. Integration failures now fall back to adjusting the machine under the crosshair instead of aborting wrench range packets.
+- **Recipe**: Added the Eclipse Alloy Wrench crafting recipe using the JDT Ferricore Wrench pattern with Eclipse Alloy Ingots.
+
+#### v0.5.3
 
 - **GUI**: Machine GUIs now use fixed embedded upgrade panels instead of draggable popups. Four-slot machines use a right-side 1x4 panel, while eight-slot machines use left/right 1x4 panels. Empty upgrade slots now show valid upgrade types, current counts, limits, machine incompatibilities, and overclock/underclock conflicts. Most machine layouts were adjusted.
 - **New**: Added an absolute-direction auto input/output side panel for machines with real item or fluid I/O.
@@ -93,7 +106,20 @@
 
 ### 中文
 
-#### v0.5.3（当前）
+#### v0.5.4（当前）
+
+- **新增**：蚀空合金扳手可通过两次左键设置角点框选区域，使用 JDT 范围效果预览并实时显示 X/Y/Z 尺寸，随后左键可调范围机器即可精确写入。Shift+左键取消框选，服务端会校验机器半径与偏移上限。
+- **修复**：两个角点选定后框选会保持锁定，成功应用后仍保留预览，可将同一范围复制到多台机器；只有 Shift+左键才能清空。新增第一点、第二点、清空和应用成功的区分音效。
+- **修复**：扳手框选现在会锁存左键输入直到鼠标按键释放，避免跨多个 tick 的重复回调让一次实际点击同时选中两个角点。
+- **交互**：扳手范围写入现在始终提示成功或具体失败原因，并播放不同的确认/失败音效，同时保留当前框选。
+- **修复**：扳手范围写入成功后会直接向操作玩家发送确认音，确保在独立服务端和集成服务端环境中都能稳定听到。
+- **修复**：创造模式手持蚀空合金扳手时不再能够破坏方块，避免框选角点时瞬间挖除目标。
+- **Jade**：机器信息栏现在会显示已安装的普通和专用升级，包括物品图标、本地化名称及合并后的数量。
+- **新增**：手持升级卡蹲下右键 JDT 或 JDTE 机器，可在手中数量允许时尽量填充所有有效普通或专用升级槽。启用 FTB Ultimine 时，会按顺序为当前选区中的合格机器尽量填充；物品数量、机器兼容、类型上限及超频/降频互斥规则仍会生效。
+- **修复**：兼容新版 FTB Ultimine 将 `FTBUltimine.instance` 改为私有字段的 API 变化；可选集成异常时回退为调整准星下机器，不再中断扳手范围数据包。
+- **配方**：新增蚀空合金扳手合成配方，沿用 JDT 核源铁扳手图案并将材料替换为蚀空合金锭。
+
+#### v0.5.3
 
 - **GUI**：机器 GUI 改为固定嵌入式升级面板，不再使用可拖动弹窗。4 槽机器使用右侧 1x4 面板，8 槽机器使用左右两个 1x4 面板；空升级槽现在显示可用升级类型、当前数量、上限、机器不兼容状态，以及超频/降频互斥提示。调整大部分机器布局。
 - **新增**：为具备真实物品或流体 I/O 的机器加入绝对方向自动输入输出面板。

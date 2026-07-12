@@ -1,11 +1,14 @@
 package com.jdte.common.items;
 
 import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.upgrades.UpgradeCardInsertionHelper;
 import net.minecraft.ChatFormatting;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 
 import java.util.List;
 
@@ -19,6 +22,11 @@ public class UpgradeCardItem extends Item {
 
     public UpgradeType getType() {
         return type;
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        return UpgradeCardInsertionHelper.useOn(context);
     }
 
     @Override

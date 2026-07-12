@@ -47,7 +47,11 @@ public class WrenchAreaAdjustPacket {
             }
             Collection<BlockPos> positions = List.of(payload.blockPos());
             if (ModList.get().isLoaded("ftbultimine")) {
-                positions = JDTEUltimineIntegration.getCurrentSelection(player).orElse(positions);
+                try {
+                    positions = JDTEUltimineIntegration.getCurrentSelection(player).orElse(positions);
+                } catch (RuntimeException | LinkageError ignored) {
+                    positions = List.of(payload.blockPos());
+                }
             }
 
             double lastRadius = 0;

@@ -37,6 +37,7 @@
   "tooltip.jdte.extended_upgrade": "Right-click a JDT T2 machine to upgrade it to an extended version (8 upgrade slots).",
   "tooltip.jdte.max": "Max per machine: %s",
   "jade.jdte.upgrade_slots": "Upgrade Slots: %s",
+  "jade.jdte.installed_upgrades": "Installed Upgrades",
   "jade.jdte.energy": "Energy: %s / %s FE",
   "item.jdte.guide": "JDT Extras Guide",
   "item.jdte.guide.tooltip": "JDT Extras Guide",
@@ -278,5 +279,14 @@
   "jdte.screen.bio_crusher.looting_slot": "Looting Upgrade Slot",
   "key.categories.jdte": "JDT Extras",
   "key.jdte.wrench_area_modifier": "Wrench Area Modifier",
-  "message.jdte.wrench_area": "Range: %s / %s"
+  "message.jdte.wrench_area": "Range: %s / %s",
+  "message.jdte.wrench_selection.first": "First corner: %s",
+  "message.jdte.wrench_selection.second": "Selection: %s x %s x %s. Left-click an area machine to apply.",
+  "message.jdte.wrench_selection.size": "Selection: %s x %s x %s",
+  "message.jdte.wrench_selection.locked": "Selection locked. Apply it to area machines or Shift-left-click to clear it.",
+  "message.jdte.wrench_selection.cancelled": "Area selection cancelled",
+  "message.jdte.wrench_selection.applied": "Applied area: %s x %s x %s. Selection retained.",
+  "message.jdte.wrench_selection.failed": "Failed to apply the selection: permission, distance, or held wrench validation failed",
+  "message.jdte.wrench_selection.not_area_machine": "The selected machine does not support an adjustable area",
+  "message.jdte.wrench_selection.too_large": "Selection exceeds this machine's limits (radius %s, offset %s)"
 }

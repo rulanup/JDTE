@@ -37,6 +37,7 @@
   "tooltip.jdte.extended_upgrade": "右键点击 JDT 高级机器，将其升级为扩展版本（8个升级槽）。",
   "tooltip.jdte.max": "每台机器最多：%s",
   "jade.jdte.upgrade_slots": "升级槽：%s",
+  "jade.jdte.installed_upgrades": "已安装升级",
   "jade.jdte.energy": "能量：%s / %s FE",
   "item.jdte.guide": "JDT Extras 指南",
   "item.jdte.guide.tooltip": "JDT Extras 指南",
@@ -278,5 +279,14 @@
   "jdte.screen.bio_crusher.looting_slot": "抢夺升级槽",
   "key.categories.jdte": "JDT Extras",
   "key.jdte.wrench_area_modifier": "扳手范围修饰",
-  "message.jdte.wrench_area": "范围：%s / %s"
+  "message.jdte.wrench_area": "范围：%s / %s",
+  "message.jdte.wrench_selection.first": "第一个角点：%s",
+  "message.jdte.wrench_selection.second": "框选范围：%s x %s x %s。左键范围机器以应用。",
+  "message.jdte.wrench_selection.size": "框选范围：%s x %s x %s",
+  "message.jdte.wrench_selection.locked": "框选已锁定，可应用到多台范围机器；Shift+左键清空。",
+  "message.jdte.wrench_selection.cancelled": "已取消范围框选",
+  "message.jdte.wrench_selection.applied": "已应用范围：%s x %s x %s，框选继续保留。",
+  "message.jdte.wrench_selection.failed": "范围写入失败：权限、距离或手持扳手校验未通过",
+  "message.jdte.wrench_selection.not_area_machine": "所选机器不支持可调范围",
+  "message.jdte.wrench_selection.too_large": "框选超出机器上限（半径 %s，偏移 %s）"
 }
