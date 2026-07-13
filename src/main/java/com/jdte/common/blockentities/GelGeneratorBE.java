@@ -7,6 +7,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
+import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseRawOre;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.direwolf20.justdirethings.datagen.JustDireItemTags;
@@ -17,6 +18,7 @@ import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.mixin.FluidTankAccessor;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
@@ -50,6 +52,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     public static final int BASE_ENERGY_CAPACITY = 100000;
     public static final int FLUID_CONVERSION_AMOUNT = 1000;
     public static final int STANDARD_ENERGY_COST = 1000;
+    private static final int FORTUNE_ENERGY_PERCENT_PER_LEVEL = 5;
     private static final int FUEL_USES_PER_ITEM = 2;
 
     public final MachineEnergyStorage energyStorage;
@@ -270,8 +273,8 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     private boolean hasConvertibleInput(int gelTier) {
         for (int i = 0; i < INPUT_SLOTS; i++) {
             int inputSlot = INPUT_START_SLOT + i;
-            ItemStack result = findConversionResult(itemHandler.getStackInSlot(inputSlot), gelTier);
-            if (!result.isEmpty() && canOutputToSlot(OUTPUT_START_SLOT + i, result)) {
+            ItemConversion conversion = findItemConversion(itemHandler.getStackInSlot(inputSlot), gelTier);
+            if (!conversion.isEmpty() && canOutputToSlot(OUTPUT_START_SLOT + i, conversion.output())) {
                 return true;
             }
         }
@@ -335,8 +338,10 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
     private boolean convertInput(int inputSlot, int gelTier) {
         ItemStack inputStack = itemHandler.getStackInSlot(inputSlot);
-        ItemStack result = findConversionResult(inputStack, gelTier);
-        if (result.isEmpty()) return false;
+        ItemConversion conversion = findItemConversion(inputStack, gelTier);
+        if (conversion.isEmpty()) return false;
+
+        ItemStack result = applyFortune(conversion);
 
         int outputSlot = OUTPUT_START_SLOT + (inputSlot - INPUT_START_SLOT);
         if (!canOutputToSlot(outputSlot, result)) return false;
@@ -363,26 +368,45 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         itemHandler.setStackInSlot(slot, outputStack);
     }
 
-    private ItemStack findConversionResult(ItemStack inputStack, int gelTier) {
+    private ItemConversion findItemConversion(ItemStack inputStack, int gelTier) {
         if (level == null || inputStack.isEmpty() || !(inputStack.getItem() instanceof BlockItem blockItem)) {
-            return ItemStack.EMPTY;
+            return ItemConversion.EMPTY;
         }
 
         BlockState inputState = blockItem.getBlock().defaultBlockState();
         for (RecipeHolder<GooSpreadRecipe> recipe : level.getRecipeManager().getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get())) {
             GooSpreadRecipe value = recipe.value();
             if (value.getTierRequirement() <= gelTier && value.getInput().equals(inputState)) {
-                return getOutputItem(value.getOutput());
+                return createItemConversion(value.getOutput());
             }
         }
         for (RecipeHolder<GooSpreadRecipeTag> recipe : level.getRecipeManager().getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE_TAG.get())) {
             GooSpreadRecipeTag value = recipe.value();
             if (value.getTierRequirement() <= gelTier && inputState.is(value.getInput().getTag())) {
-                return getOutputItem(value.getOutput());
+                return createItemConversion(value.getOutput());
             }
         }
 
-        return ItemStack.EMPTY;
+        return ItemConversion.EMPTY;
+    }
+
+    private ItemConversion createItemConversion(BlockState outputState) {
+        ItemStack output = getOutputItemForState(outputState);
+        return output.isEmpty()
+                ? ItemConversion.EMPTY
+                : new ItemConversion(output, outputState.getBlock() instanceof BaseRawOre);
+    }
+
+    private ItemStack applyFortune(ItemConversion conversion) {
+        ItemStack output = conversion.output().copy();
+        int fortuneLevel = UpgradeHelper.countUpgrades(this, UpgradeType.FORTUNE);
+        if (!conversion.fortuneAffected() || fortuneLevel <= 0 || level == null) {
+            return output;
+        }
+
+        int bonus = Math.max(0, level.getRandom().nextInt(fortuneLevel + 2) - 1);
+        output.setCount(output.getCount() * (bonus + 1));
+        return output;
     }
 
     public static ItemStack getOutputItemForState(BlockState outputState) {
@@ -397,10 +421,6 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
         ItemStack output = new ItemStack(outputState.getBlock().asItem());
         return output.is(Items.AIR) ? ItemStack.EMPTY : output;
-    }
-
-    private ItemStack getOutputItem(BlockState outputState) {
-        return getOutputItemForState(outputState);
     }
 
     private boolean canConvertFluid(int gelTier) {
@@ -454,7 +474,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
     private boolean hasConversionForAnyTier(ItemStack stack) {
         for (int tier = 1; tier <= 4; tier++) {
-            if (!findConversionResult(stack, tier).isEmpty()) {
+            if (!findItemConversion(stack, tier).isEmpty()) {
                 return true;
             }
         }
@@ -469,7 +489,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
             return true;
         }
         int gelTier = getGelTier(itemHandler.getStackInSlot(GEL_SLOT));
-        return gelTier > 0 ? !findConversionResult(stack, gelTier).isEmpty() : hasConversionForAnyTier(stack);
+        return gelTier > 0 ? !findItemConversion(stack, gelTier).isEmpty() : hasConversionForAnyTier(stack);
     }
 
     public static boolean isInputSlot(int slot) {
@@ -593,9 +613,24 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     public int getStandardEnergyCost() {
         int baseCost = STANDARD_ENERGY_COST;
         if (UpgradeHelper.hasCreativeUpgrade(this)) return 0;
-        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.OVERCLOCK) > 0) return baseCost * 3;
-        if (UpgradeHelper.countUpgrades(this, com.jdte.common.upgrades.UpgradeType.UNDERCLOCK) > 0) return Math.max(1, baseCost / 5);
-        return baseCost;
+        int adjustedCost = baseCost;
+        if (UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0) {
+            adjustedCost = baseCost * 3;
+        } else if (UpgradeHelper.countUpgrades(this, UpgradeType.UNDERCLOCK) > 0) {
+            adjustedCost = Math.max(1, baseCost / 5);
+        }
+
+        int fortuneLevel = UpgradeHelper.countUpgrades(this, UpgradeType.FORTUNE);
+        long scaledCost = (long) adjustedCost * (100L + (long) fortuneLevel * FORTUNE_ENERGY_PERCENT_PER_LEVEL);
+        return (int) Math.min(Integer.MAX_VALUE, (scaledCost + 99L) / 100L);
+    }
+
+    private record ItemConversion(ItemStack output, boolean fortuneAffected) {
+        private static final ItemConversion EMPTY = new ItemConversion(ItemStack.EMPTY, false);
+
+        private boolean isEmpty() {
+            return output.isEmpty();
+        }
     }
 
     @Override

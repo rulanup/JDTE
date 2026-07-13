@@ -9,6 +9,7 @@ import net.minecraft.world.phys.AABB;
 
 public record EntitySuppressorSyncPayload(BlockPos blockPos, int mode, int target, boolean blacklist,
                                           boolean particleActive, boolean entitySuppressionActive,
+                                          boolean renderingSuppressionActive,
                                           double minX, double minY, double minZ,
                                           double maxX, double maxY, double maxZ)
         implements CustomPacketPayload {
@@ -23,6 +24,7 @@ public record EntitySuppressorSyncPayload(BlockPos blockPos, int mode, int targe
         buf.writeBoolean(payload.blacklist);
         buf.writeBoolean(payload.particleActive);
         buf.writeBoolean(payload.entitySuppressionActive);
+        buf.writeBoolean(payload.renderingSuppressionActive);
         buf.writeDouble(payload.minX);
         buf.writeDouble(payload.minY);
         buf.writeDouble(payload.minZ);
@@ -33,7 +35,7 @@ public record EntitySuppressorSyncPayload(BlockPos blockPos, int mode, int targe
 
     private static EntitySuppressorSyncPayload decode(FriendlyByteBuf buf) {
         return new EntitySuppressorSyncPayload(buf.readBlockPos(), buf.readVarInt(), buf.readVarInt(),
-                buf.readBoolean(), buf.readBoolean(), buf.readBoolean(),
+                buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(),
                 buf.readDouble(), buf.readDouble(), buf.readDouble(),
                 buf.readDouble(), buf.readDouble(), buf.readDouble());
     }

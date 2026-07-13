@@ -12,6 +12,7 @@ import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.jdte.common.blockentities.AdvancedItemCollectorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
+import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
@@ -63,6 +64,7 @@ public class UpgradeHelper {
             case GENERATOR -> machine instanceof GeneratorT1BE || machine instanceof GeneratorFluidT1BE;
             case RANGE -> machine instanceof AreaAffectingBE;
             case FILTER -> machine instanceof FilterableBE;
+            case FORTUNE -> machine instanceof GelGeneratorBE;
             default -> true;
         };
     }

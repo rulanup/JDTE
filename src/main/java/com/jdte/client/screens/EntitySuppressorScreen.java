@@ -22,7 +22,9 @@ public class EntitySuppressorScreen extends BaseMachineScreen<EntitySuppressorCo
     private static final List<TextureLocalization> MODE_TEXTURES = List.of(
             texture("textures/item/abilityupgrades/deathprotection.png", "screen.jdte.entity_suppressor.mode.0"),
             texture("textures/item/abilityupgrades/noai.png", "screen.jdte.entity_suppressor.mode.1"),
-            texture("textures/item/abilityupgrades/waterbreathing.png", "screen.jdte.entity_suppressor.mode.2"));
+            texture("textures/item/abilityupgrades/waterbreathing.png", "screen.jdte.entity_suppressor.mode.2"),
+            texture("textures/item/abilityupgrades/phase.png", "screen.jdte.entity_suppressor.mode.3"),
+            texture("textures/item/abilityupgrades/orexray.png", "screen.jdte.entity_suppressor.mode.4"));
     private static final List<TextureLocalization> TARGET_TEXTURES = List.of(
             texture("textures/gui/buttons/mobscanner.png", "screen.jdte.entity_suppressor.target.0"),
             texture("textures/gui/buttons/passivemob.png", "screen.jdte.entity_suppressor.target.1"),
@@ -79,7 +81,10 @@ public class EntitySuppressorScreen extends BaseMachineScreen<EntitySuppressorCo
     @Override public void setTopSection() { extraWidth = 60; extraHeight = 0; }
 
     private void updateEntityButtons() {
-        boolean entityMode = mode != EntitySuppressorBE.Mode.DISABLE_PARTICLES.ordinal();
+        EntitySuppressorBE.Mode selectedMode = EntitySuppressorBE.Mode.values()[
+                Math.floorMod(mode, EntitySuppressorBE.Mode.values().length)];
+        boolean entityMode = selectedMode != EntitySuppressorBE.Mode.DISABLE_PARTICLES
+                && selectedMode != EntitySuppressorBE.Mode.DISABLE_BLOCK_ENTITY_RENDERING;
         if (targetButton != null) targetButton.active = entityMode;
         if (listButton != null) listButton.active = entityMode;
     }

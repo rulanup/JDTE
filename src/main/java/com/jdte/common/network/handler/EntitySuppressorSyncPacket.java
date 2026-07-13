@@ -11,7 +11,8 @@ public final class EntitySuppressorSyncPacket {
         context.enqueueWork(() -> {
             if (context.player().level().getBlockEntity(payload.blockPos()) instanceof EntitySuppressorBE suppressor) {
                 suppressor.applyClientSync(payload.mode(), payload.target(), payload.blacklist(),
-                        payload.particleActive(), payload.entitySuppressionActive(), payload.area());
+                        payload.particleActive(), payload.entitySuppressionActive(),
+                        payload.renderingSuppressionActive(), payload.area());
             }
         });
     }

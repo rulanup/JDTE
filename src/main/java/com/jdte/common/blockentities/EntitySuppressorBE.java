@@ -32,7 +32,17 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE, FilterableBE,
         RedstoneControlledBE, PoweredMachineBE, ExtendedUpgradeMachine {
-    public enum Mode { SUPPRESS_TICK, BLOCK_ENTITY, DISABLE_PARTICLES }
+    public enum Mode {
+        SUPPRESS_TICK,
+        BLOCK_ENTITY,
+        DISABLE_PARTICLES,
+        DISABLE_ENTITY_RENDERING,
+        DISABLE_BLOCK_ENTITY_RENDERING;
+
+        public boolean disablesRendering() {
+            return this == DISABLE_ENTITY_RENDERING || this == DISABLE_BLOCK_ENTITY_RENDERING;
+        }
+    }
     public enum Target { HOSTILE, PASSIVE, ALL_LIVING, SELECTED_TYPES, NON_LIVING, ALL_TYPES }
 
     private final AreaAffectingData areaData;
@@ -47,6 +57,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     private int filterFingerprint;
     private boolean particleActive;
     private boolean entitySuppressionActive;
+    private boolean renderingSuppressionActive;
     private AABB clientSyncedArea;
 
     public EntitySuppressorBE(BlockPos pos, BlockState state) {
@@ -76,6 +87,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
         if (level instanceof ServerLevel) {
             particleActive = this.mode == Mode.DISABLE_PARTICLES && canOperateThisTick();
             entitySuppressionActive = this.mode == Mode.SUPPRESS_TICK && canActivateWithoutConsuming();
+            renderingSuppressionActive = this.mode.disablesRendering() && canOperateThisTick();
         }
         EntitySuppressorManager.refresh(this);
         markDirtyClient();
@@ -83,12 +95,14 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     public void applyClientSync(int mode, int target, boolean blacklist,
-                                boolean particleActive, boolean entitySuppressionActive, AABB area) {
+                                boolean particleActive, boolean entitySuppressionActive,
+                                boolean renderingSuppressionActive, AABB area) {
         this.mode = Mode.values()[Math.floorMod(mode, Mode.values().length)];
         this.target = Target.values()[Math.floorMod(target, Target.values().length)];
         this.blacklist = blacklist;
         this.particleActive = particleActive;
         this.entitySuppressionActive = entitySuppressionActive;
+        this.renderingSuppressionActive = renderingSuppressionActive;
         this.clientSyncedArea = area;
         EntitySuppressorManager.refresh(this);
     }
@@ -131,14 +145,21 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
         return !isRemoved() && entitySuppressionActive;
     }
 
+    boolean canSuppressRenderingClient() {
+        return !isRemoved() && renderingSuppressionActive;
+    }
+
     @Override public void tickServer() {
         super.tickServer();
         refreshFilterIndexIfNeeded();
         boolean particles = mode == Mode.DISABLE_PARTICLES && canOperateThisTick();
         boolean entities = mode == Mode.SUPPRESS_TICK && canActivateWithoutConsuming();
-        if (particles != particleActive || entities != entitySuppressionActive) {
+        boolean rendering = mode.disablesRendering() && canOperateThisTick();
+        if (particles != particleActive || entities != entitySuppressionActive
+                || rendering != renderingSuppressionActive) {
             particleActive = particles;
             entitySuppressionActive = entities;
+            renderingSuppressionActive = rendering;
             markDirtyClient();
             syncClientState();
         }
@@ -169,7 +190,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
         AABB area = getAABB(getBlockPos());
         PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(getBlockPos()),
                 new EntitySuppressorSyncPayload(getBlockPos(), mode.ordinal(), target.ordinal(), blacklist,
-                        particleActive, entitySuppressionActive,
+                        particleActive, entitySuppressionActive, renderingSuppressionActive,
                         area.minX, area.minY, area.minZ, area.maxX, area.maxY, area.maxZ));
     }
 
@@ -197,6 +218,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
         tag.putInt("entitySuppressorEnergy", energy.getEnergyStored());
         tag.putBoolean("entitySuppressorParticleActive", particleActive);
         tag.putBoolean("entitySuppressorEntityActive", entitySuppressionActive);
+        tag.putBoolean("entitySuppressorRenderingActive", renderingSuppressionActive);
     }
 
     @Override
@@ -208,6 +230,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
         if (tag.contains("entitySuppressorEnergy")) energy.setEnergy(tag.getInt("entitySuppressorEnergy"));
         particleActive = tag.getBoolean("entitySuppressorParticleActive");
         entitySuppressionActive = tag.getBoolean("entitySuppressorEntityActive");
+        renderingSuppressionActive = tag.getBoolean("entitySuppressorRenderingActive");
         if (level != null) EntitySuppressorManager.refresh(this);
     }
 }

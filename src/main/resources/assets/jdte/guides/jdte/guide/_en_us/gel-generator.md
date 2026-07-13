@@ -6,6 +6,7 @@ navigation:
 item_ids:
   - jdte:advanced_gel_generator
   - jdte:extended_gel_generator
+  - jdte:fortune_upgrade
 ---
 
 # Gel Generator
@@ -24,6 +25,8 @@ The Gel Generator consumes input items to produce gel-related results, supportin
 - Consumes fuel items to produce gel fluid
 - Supports redstone control, Range Upgrade, and Filter Upgrade
 - Supports Overclock, Underclock, and Capacity Upgrades
+- Supports up to 8 Fortune Upgrades. Each adds one vanilla ore Fortune level to JDT raw ore recipes such as Ferricore, Blazegold, Celestigem, Eclipse Alloy, and raw coal
+- Each Fortune Upgrade increases the current operation energy cost by 5%, up to 40% with eight
 - Food items provide 2 uses
 
 ## Crafting

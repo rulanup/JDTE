@@ -4,50 +4,22 @@
 
 #### v0.5.4 (Current)
 
-- **New**: Added the Entity Suppressor using the JDT Advanced Sensor model and an eight-upgrade-slot interface. Its chunk-indexed event-driven modes can suppress entity ticks, reject entity spawning/world insertion, or disable client particles without per-tick area scans. Entity modes support hostile, passive, all living, selected-type, and non-living filters with allowlist/blacklist behavior. Players and vehicle chains are always protected; named, tamed, and boss protection is configurable. Entity handling uses public NeoForge events, while universal particle suppression uses one narrowly scoped client mixin before particle creation.
-- **GUI**: Replaced the Entity Suppressor's large text controls with JDT-style icon controls. Target and allowlist/blacklist settings use compact filter-row buttons, while the main mode button sits above the fifth filter slot and cycles through JDT Death Protection, No AI, and Water Breathing upgrade icons.
-- **Fixed**: Entity suppression now cancels matching ticks on both logical sides so dropped items stop immediately instead of replaying client motion, and frozen item entities can no longer be picked up. Particle suppression now intercepts JDT Energy Transmitter item-flow particles at their server emission path in addition to generic client particles. Disabled target/list controls render gray. Block mode can optionally remove existing matching entities every 20 ticks through a new config option that defaults to off.
-- **Fixed**: Frozen item entities now have their randomized spawn velocity cleared before server tracking and again on client join. Their render partial tick is fixed through a narrow Item Entity Renderer mixin, preventing container drops from first scattering locally and later snapping back, and stopping the residual bob/rotation animation that continues independently of entity ticks.
-- **Fixed**: Entity Suppressor mode and active-state changes now use an explicit compact server-to-client sync payload for players tracking the machine's chunk. Runtime mode changes immediately rebuild the client suppressor index instead of relying on block-update NBT, fixing suppression that worked after joining but became visually stale after changing settings.
-- **Fixed**: Moved generic Entity Suppressor particle rejection from `ClientLevel.addParticle` to the final `ParticleEngine.add(Particle)` insertion point, matching Tweakeroo's proven approach. This catches mod particles that construct and enqueue particle instances directly while retaining the dedicated server-side JDT Energy Transmitter interception.
-- **Fixed**: Suppress Entity mode no longer consumes its per-tick FE upkeep while idle. It now simulates availability continuously and charges once only on ticks that actually suppress matching entities, preventing the default 200,000 FE buffer from silently draining in 40 seconds. GUI changes are also applied optimistically to the local client before the authoritative sync arrives.
-- **Fixed**: Entity Suppressor state synchronization now includes the server-computed suppression bounds. The client rebuilds its chunk index from this authoritative area after settings, range, or rotation changes, fixing item tick/render suppression losing the machine when the client's stale area covered different chunks. Temporary diagnostic logging was removed after verification.
-- **New**: Added an All Entity Types target to the Entity Suppressor. It matches both living and non-living entities while retaining spawn-egg allowlist/blacklist filtering, and uses JDT's existing combined-target icon. The new value is appended after existing target modes to preserve saved mode ordinals.
-- **New**: Added the Range Blocker with the JDT Advanced Sensor model, eight upgrade slots, Containment and Demagnetization modes, redstone control, configurable energy and safety protections, area preview, and mode-specific allowlist/blacklist filtering. Containment keeps living entities inside after entry using public pre/post entity tick and teleport events, while protecting players and vehicle chains.
-- **Performance**: Range Blockers use cached chunk indexes and entity-driven lookups instead of per-machine area scans. Containment only corrects actual boundary crossings and preserves unaffected velocity axes. Demagnetization writes persistent flags only when an item enters or leaves the field, and each active machine consumes energy at most once per tick while matching targets are present.
-- **Compatibility**: Range Blocker Demagnetization uses the `PreventRemoteMovement` and `AllowMachineRemoteMovement` convention used by Simple Magnets and Sophisticated, blocking player magnets while retaining machine collection. Mekanism Magnetic Attraction uses one optional `require = 0` candidate-filter mixin, enabled by config, without reflection or extra item scans.
-- **Balance/GUI**: Split Range Blocker operating energy by mode. Containment remains 250 FE per active tick, while Demagnetization defaults to 0.25 FE per active tick, exactly 1/1000 of the containment cost, using fractional accumulation; both are independently configurable. The recipe now uses JDT's Item Collector instead of the Entity Suppressor. Mode icons now use JDT Ore Scanner for Containment and Earthquake for Demagnetization.
-- **Fixed/Protection**: Range Blocker Containment now captures non-player projectiles by projectile or owner position and discards them before their predicted bounding box crosses the field boundary, preventing Wither Skulls and other fast projectiles from escaping before post-tick correction. Player-fired projectiles remain exempt. Ownerless modded projectiles are supported through a default-on config, and explosions from contained projectiles can be clipped to blocks and entities inside the field through public NeoForge explosion events. No additional Mixin or area scan is used.
-- **Assets**: The Eclipse Alloy Wrench again uses the standard handheld model structure from JDT's Ferricore Wrench while retaining its dedicated JDTE texture and namespace.
-- **New**: Added the Advanced Item Collector with JDT's Item Collector model and machine interface plus eight standard upgrade slots. It intercepts dropped items before they join the world and inserts them directly into the adjacent inventory on its facing side, using a chunk-indexed loaded-collector registry instead of per-tick area scans. Partial remainders still spawn normally; no item-flow particles are emitted.
-- **Compatibility**: Advanced Item Collectors run at the final phase of the entity-join event, allowing other mods to modify or cancel item drops first while still collecting before the item is inserted into the world.
-- **Performance**: Advanced Item Collectors now aggregate identical drops created during the same server tick and perform one bulk destination insertion per item type. Cached collection bounds and per-tick filter results avoid repeated AABB allocation and filter matching for large bursts. Accepted drops are still canceled before world insertion, while unaccepted portions retain their original entity metadata; overlapping collectors keep the original immediate distribution path.
-- **Performance**: Advanced Item Collectors can now pre-drain dangerous oversized container slots through public NeoForge capabilities before player block breaking creates item entities. The feature is enabled by default with a configurable per-slot threshold of 10,000,000 items; once triggered, every oversized slot must be transferred completely or the break is cancelled and the player is notified.
-- **AE2 Compatibility**: Oversized pre-break transfers can now write directly through AE2's public `ME_STORAGE` capability, including ExtendedAE Extended and Oversize Interfaces. The route is enabled by default, uses the existing configurable 10M trigger threshold, and performs long-count simulation and insertion without normal-stack loops. Pre-break transfers are all-or-nothing: a target must simulate acceptance of the complete triggered slot before the source is changed, and any simulation/execution difference is restored.
-- **Fixed**: Advanced Item Collector upgrade slots now accept and advertise only Range and Filter Upgrades. Server-side slot validation and client tooltips share the same compatibility rule, so Fluid, Capacity, speed, Creative, and other ineffective upgrades are rejected consistently.
-- **Compatibility**: Added the Eclipse Alloy Wrench to the standard `c:tools/wrench` and legacy `c:wrenches` item tags. AE2 and other mods using conventional wrench hooks can now rotate or safely dismantle their own supported blocks with the Eclipse Alloy Wrench.
-- **Auto I/O**: Direction buttons now cycle through Disabled, Auto Input/Output (default color), Auto Input (orange), and Auto Output (blue). Input and output transfers are executed independently, and legacy enabled sides migrate to Input/Output mode.
-- **Auto I/O**: Modes unsupported by a machine's actual routes are now skipped and rejected server-side. Sender machines expose auto input only, receiver machines expose auto output only, and tooltips show the available modes.
-- **Compatibility**: Item Senders and Receivers now query sided item capabilities before the unsided fallback, allowing them to respect and interact with configured Mekanism machine input/output sides. The available-mode tooltip hint is now shown in gray.
-- **Performance**: Auto I/O now defaults to Logistics Network Netherite-tier batches (10,000 items or 1,000,000 mB per side operation). Item and Fluid Senders/Receivers default to Diamond-tier batches (64 items or 20,000 mB), switching to Netherite-tier batches with Overclock or Creative. Transfer rates and idle retry backoff are configurable; successful transfers remain low-latency while idle machines exponentially back off to reduce capability queries and area scans. Speed buttons continue to control the machine operation interval, with new machines defaulting to one tick.
-- **Naming**: Renamed the Chinese display names of the Basic, Advanced, and Extended Fluid Senders from “Fluid Placer” to “Fluid Sender”, distinguishing container transfer machines from JDT Fluid Placers that place fluid source blocks in the world.
-- **Fixed**: Fluid Senders now cache fluid-capable containers across their configured area and distribute each operation across them in round-robin order instead of permanently stopping at the first front-facing target. Target caches refresh when the area changes and periodically for block changes, unloaded chunks are skipped, and Advanced/Extended Senders now consume FE only after a successful transfer.
-- **Performance**: Fluid Senders now default to an unlimited operation batch, moving all currently available internal fluid without repeatedly looping in the same tick. This can be disabled in config to restore normal/overclock batch limits. Successful target sides are cached to reduce repeated sided capability queries while retaining range caching, round-robin distribution, and idle backoff.
-- **Overclock**: Item/Fluid Senders with Auto Input and Item/Fluid Receivers with Auto Output now gain a direct-transfer path when an Overclock or Creative Upgrade is installed. Sources and destinations transfer directly without being limited by the machine's internal inventory or tank capacity; normal Auto I/O is bypassed for that operation to prevent duplicate movement. Range endpoints, successful sides, round-robin cursors, unloaded-chunk checks, and idle backoff are cached/shared across all four machine families.
-- **Fixed**: Overclock direct item transfer now repeatedly extracts from the same source slot while it remains available, allowing bulk-storage handlers that expose at most one normal stack per capability call to approach the configured 10,000-item batch across sustained ticks.
-- **Performance**: Direct item transfer uses a shared 256-operation safety cap per machine and tick. This is enough to complete a 10,000-item batch in one tick for handlers returning 64 items per call, while preventing pathological one-item handlers from looping thousands of times. Item Sender/Receiver range discovery reuses a 40-tick cache and scans only block entities in loaded chunks instead of every block in the area.
-- **Fixed**: Removed the direct-transfer microsecond time slice because it spread a configured 10,000-item overclock batch across roughly one second. Empty internal Sender/Receiver buffers and empty source slots are still skipped without consuming operation capacity or performing unnecessary target probes.
-- **Performance**: Machine area previews and Eclipse Alloy Wrench selections are now submitted through one client render batch per frame. Lines and translucent boxes are grouped by render type, avoiding repeated GPU buffer flushes for every visible area machine.
-- **New**: The Eclipse Alloy Wrench can select an area with two left-clicked corners, preview it using JDT's area rendering, show live X/Y/Z dimensions, and copy the exact selection into an adjustable-area machine. Shift-left-click cancels the selection; machine radius and offset limits are enforced server-side.
-- **Fixed**: Two-corner wrench selections remain locked with their preview visible after being applied, allowing the same area to be copied to multiple machines. Only Shift-left-click clears the selection. Added distinct sounds for selecting each corner, clearing, and applying a selection.
-- **Fixed**: Wrench selection now latches the attack input until the mouse button is released, preventing repeated callbacks across multiple ticks from selecting both corners with one physical click.
-- **UX**: Applying a wrench area selection now always reports success or a specific failure reason and plays distinct confirmation or failure sounds while retaining the selection.
-- **Fixed**: Successful wrench area writes now send the confirmation sound directly to the player so it remains audible in dedicated and integrated server environments.
-- **Fixed**: The Eclipse Alloy Wrench can no longer break blocks while held in Creative mode, preventing instant block removal during area selection.
-- **Jade**: Machine tooltips now list installed standard and dedicated upgrades with item icons, localized names, and aggregated counts.
-- **New**: Upgrade Cards can now be inserted directly by sneak-right-clicking a JDT or JDTE machine, filling as many valid standard or dedicated slots as the held stack allows. With FTB Ultimine active, eligible machines in the current selection are filled in order while respecting card count, compatibility, limits, and speed-upgrade conflicts.
-- **Fixed**: Updated FTB Ultimine integration for newer builds where `FTBUltimine.instance` is private. Integration failures now fall back to adjusting the machine under the crosshair instead of aborting wrench range packets.
-- **Recipe**: Added the Eclipse Alloy Wrench crafting recipe using the JDT Ferricore Wrench pattern with Eclipse Alloy Ingots.
+- **Recipe**: Added a crafting recipe for the Eclipse Alloy Wrench.
+- **New/Balance**: Added the Fortune Upgrade for Gel Generators.
+- **New**: Added the Entity Suppressor with five modes: suppress entity updates, prevent entity spawning/world insertion, disable entity rendering, disable block entity rendering, and disable client particles. Entity modes support hostile mobs, passive mobs, all living entities, selected entity types, non-living entities, and all entity types.
+- **New**: Added the Range Blocker with Containment and Demagnetization modes. Containment keeps mobs inside its configured area; Demagnetization blocks player magnets while allowing machine collection.
+- **New**: Added the Advanced Item Collector with eight standard upgrade slots. It intercepts drops before they enter the world and inserts them into the adjacent inventory on its facing side. It supports oversized Sophisticated Storage drops and direct writes to ME Interfaces, ExtendedAE Extended Interfaces, and Oversize Interfaces.
+- **New**: Sneak-right-clicking a JDT or JDTE machine with an Upgrade Card now fills as many valid standard or dedicated upgrade slots as the held stack permits. With FTB Ultimine enabled, eligible machines in the current selection are filled in order.
+- **New**: The Eclipse Alloy Wrench can define an area with two left-clicked corners, preview it with JDT's area effect and live X/Y/Z dimensions, then write it to an adjustable-area machine. Shift-left-click clears the selection. Completed selections remain locked after being applied so the same area can be copied to multiple machines.
+- **Jade**: Machine tooltips now display installed standard and dedicated upgrades with item icons, localized names, and aggregated counts.
+- **Compatibility**: The Eclipse Alloy Wrench can rotate or safely quick-dismantle blocks that expose compatible wrench behavior.
+- **Compatibility**: Item Senders and Receivers query sided item capabilities before falling back to unsided capabilities, allowing interaction with configured Mekanism machine input/output faces. Available-mode tooltip hints are now gray.
+- **Auto I/O**: Direction buttons now cycle through Disabled, Auto Input/Output (default color), Auto Input (orange), and Auto Output (blue), skipping modes unsupported by the machine's actual routes.
+- **Performance**: Auto I/O now transfers up to 10,000 items or 1,000,000 mB per tick. Item and Fluid Senders/Receivers default to 64 items or 20,000 mB per tick and become faster with an Overclock or Creative Upgrade.
+- **Naming**: Renamed the Basic, Advanced, and Extended Fluid Placers to Fluid Senders.
+- **Fixed**: Advanced Item Collector upgrade slots now accept and advertise only Range and Filter Upgrades.
+- **Performance**: Reduced the rendering cost of machine area previews.
+- **Fixed**: Fixed incompatibility with newer FTB Ultimine versions that prevented Eclipse Alloy Wrench range adjustment.
 
 #### v0.5.3
 
@@ -142,50 +114,22 @@
 
 #### v0.5.4（当前）
 
-- **新增**：加入实体抑制器，复用 JDT 高级传感器模型并提供八个升级槽。机器通过按区块索引的事件驱动逻辑提供抑制实体更新、禁止实体生成/加入世界和禁用客户端粒子三种模式，不进行逐 Tick 范围扫描。实体模式支持敌对生物、被动生物、所有生物、指定实体类型和非生物实体，并可切换白名单/黑名单。玩家和载具链始终受保护，命名、驯服和 Boss 实体保护可配置。实体处理使用 NeoForge 公开事件，通用粒子禁用仅使用一个位于粒子创建入口的窄客户端 Mixin。
-- **界面**：移除实体抑制器额外绘制的大型文字按钮。目标和黑白名单改为过滤槽上方的 JDT 风格小图标按钮；主模式按钮放在第 5 个过滤槽上方，并使用 JDT 死亡保护、意识摧毁和水下呼吸升级图标循环切换。
-- **修复**：抑制实体模式现在会同时取消逻辑服务端和客户端的匹配实体 Tick，掉落物会立即停止而不再循环播放本地运动，并且被冻结的掉落物无法拾取。禁用粒子模式除通用客户端粒子外，还会在服务端发送路径拦截 JDT 能量传输器的物品流粒子。禁用状态下目标和名单按钮显示为灰色。禁止实体模式新增默认关闭的配置，可每 20 Tick 清除一次范围内已有匹配实体。
-- **修复**：被冻结掉落物的随机生成速度现在会在服务端开始追踪前清零，并在客户端实体加入时再次兜底清零；通过仅针对掉落物渲染器的窄 Mixin 固定渲染插值，避免容器掉落物先在本地分散、随后被服务端拉回，也停止独立于实体 Tick 的残余浮动和旋转动画。
-- **修复**：实体抑制器的模式与工作状态变化现在通过紧凑的服务端到客户端同步包发送给追踪机器区块的玩家。运行中重新设置会立即更新客户端方块实体并重建抑制索引，不再依赖方块更新 NBT，修复进入游戏时正常、修改设置后客户端视觉状态失效的问题。
-- **修复**：实体抑制器的通用粒子拦截从 `ClientLevel.addParticle` 下移到最终的 `ParticleEngine.add(Particle)` 入队位置，采用与 Tweakeroo 一致的成熟入口，可覆盖直接构造并加入粒子引擎的模组粒子，同时继续保留 JDT 能量传输器的服务端专用拦截。
-- **修复**：抑制实体模式空闲时不再持续消耗每 Tick 能量；现在持续模拟检查可用能量，仅在本 Tick 确实抑制匹配实体时统一扣费一次，避免默认 200,000 FE 在 40 秒内被静默耗尽。界面设置会先立即应用到本地客户端，再由服务端权威同步校正。
-- **修复**：实体抑制器状态同步现在会携带服务端计算出的权威抑制范围；设置、范围或朝向变化后，客户端会用该范围重新建立区块索引，修复客户端旧范围覆盖了不同区块时丢失机器、导致掉落物 Tick 与渲染抑制失效的问题。验证完成后已移除临时诊断日志。
-- **新增**：实体抑制器增加“所有类型”目标，可同时匹配生物与非生物实体，并继续支持刷怪蛋黑白名单过滤；按钮复用 JDT 的组合目标图标。新模式追加在现有目标之后，避免改变旧存档中的目标序号。
-- **新增**：加入范围屏蔽器，复用 JDT 高级传感器模型和八升级槽界面，提供围困与退磁两种模式，并支持红石控制、可配置能量与安全保护、范围预览及按模式解释的黑白名单过滤。围困模式通过公开的实体 Tick 前后事件和传送事件，让生物进入后无法离开，同时始终保护玩家与载具链。
-- **性能**：范围屏蔽器采用缓存的区块索引和实体驱动查询，不由每台机器扫描范围。围困模式只在真正越界时纠正位置，并保留未越界方向的速度；退磁标记只在掉落物进入或离开范围时写入，每台有匹配目标的机器每 Tick 最多扣费一次。
-- **兼容性**：退磁模式采用 Simple Magnets 与 Sophisticated 识别的 `PreventRemoteMovement` 和 `AllowMachineRemoteMovement` 约定，屏蔽玩家磁铁但允许机器收集。Mekanism 磁力吸引使用一个可配置、`require = 0` 的可选候选过滤 Mixin，不使用反射或额外掉落物扫描。
-- **平衡/界面**：范围屏蔽器按模式拆分工作耗电。围困模式维持默认 250 FE/工作 Tick；退磁模式默认降为 0.25 FE/工作 Tick，精确为围困耗电的 1/1000，并通过小数累计结算；两项均可独立配置。配方中心材料由实体抑制器改为 JDT 物品拾取器；围困与退磁按钮分别改用 JDT 矿石扫描和震地升级图标。
-- **修复/保护**：范围屏蔽器围困模式现在会按投射物或其所有者位置绑定非玩家投射物，并在预测碰撞箱越过边界前直接销毁，避免凋零之首等高速炮弹在 Tick 后纠正前逃出；玩家发射物继续放行。默认开启的配置可覆盖无所有者模组投射物，并可通过 NeoForge 公开爆炸事件将被围困投射物的爆炸影响限制在范围内方块和实体，不增加额外 Mixin 或范围扫描。
-- **资源**：蚀空合金扳手恢复使用 JDT 核源铁扳手的标准手持模型结构，同时保留 JDTE 独立命名空间和专用贴图。
-- **新增**：新增高级物品拾取器，复用 JDT 物品拾取器模型和机器界面，并提供 8 个标准升级槽。机器在掉落物加入世界前将其拦截，直接写入朝向一侧的相邻容器；使用按区块索引的已加载拾取器注册表，不进行每 tick 范围扫描。无法完全插入时剩余物品仍会正常生成，整个过程不产生物品流动粒子。
-- **兼容性**：高级物品拾取器在实体加入事件的最后阶段处理，让其他模组先修改或取消掉落物，同时仍保证在物品真正加入世界前完成收集。
-- **性能**：高级物品拾取器会聚合同一服务端 tick 内产生的相同掉落物，每种物品只对目标容器执行一次批量插入；缓存的收集范围和当 tick 过滤结果会避免大规模掉落时重复创建 AABB 与重复匹配过滤。成功接收的掉落物仍会在入世前取消，无法接收的部分保留原实体数据；范围重叠的多个拾取器继续使用原即时分流逻辑。
-- **性能**：高级物品拾取器现在会在玩家破坏方块产生掉落实体之前，通过公开 NeoForge 能力直接转移危险的超大容器堆叠。该功能默认开启，单槽触发阈值默认 10,000,000 件且可配置；触发后每个超大槽位都必须完整转移，否则取消本次破坏并提示玩家。
-- **AE2 兼容**：破坏前超大堆叠现在可通过 AE2 公开的 `ME_STORAGE` 能力直接写入网络，同时覆盖 ExtendedAE 扩展接口和超大接口。该路径默认开启，复用可配置的 10M 单槽触发阈值，以长整型数量模拟和写入，不按普通堆叠循环。破坏前传输采用全有或全无策略：目标模拟可完整接收触发槽位后才修改源槽，模拟与实际写入的差额会恢复。
-- **修复**：高级物品拾取器升级槽现在只接受并提示范围升级和过滤升级。服务端槽位校验与客户端 tooltip 共用同一兼容规则，流体、容量、速度、创造及其他无实际作用的升级都会被一致拒绝。
-- **兼容性**：将蚀空合金扳手加入标准 `c:tools/wrench` 和旧版兼容 `c:wrenches` 物品标签。AE2 及其他使用通用扳手钩子的模组现在可以用蚀空合金扳手旋转或安全快捷拆除其支持的方块。
-- **自动 I/O**：方向按钮现在按“关闭、自动输入输出（默认颜色）、自动输入（橙色）、自动输出（蓝色）”循环；输入和输出传输会独立执行，旧存档中已启用的方向迁移为输入输出模式。
-- **自动 I/O**：机器实际路由不支持的模式会被跳过并由服务端拒绝；发送器仅提供自动输入，接收器仅提供自动输出，tooltip 会显示该机器可用的模式。
-- **兼容**：物品发送器和接收器现在会优先查询带方向的物品能力，再回退到无方向能力，可按 Mekanism 机器配置的输入/输出面正常交互；tooltip 中的可用模式提示已改为灰色。
-- **性能**：自动 I/O 默认采用 Logistics Network 下界合金级批量（每个方向单次 10,000 件物品或 1,000,000 mB）；物品/流体发送器和接收器默认采用钻石级批量（64 件或 20,000 mB），安装超频或创造升级后切换为下界合金级批量。传输量与空闲重试退避均可在配置中调整；有货时保持低延迟，空转时指数退避以减少能力查询和范围扫描。速度按钮仍控制机器执行间隔，新放置机器默认 1 tick。
-- **命名**：初级、高级和扩展 `fluid_sender` 的中文名称由“流体放置器”改为“流体发送器”，用于区分向容器传输流体的机器与在世界中生成流体源方块的 JDT 流体放置器。
-- **修复**：流体发送器现在会缓存配置范围内具备流体能力的容器，并按轮询顺序将单次批量分配给多个目标，不再永久停在第一个正面容器。范围变化时立即重建目标缓存，并定期刷新以识别方块增删；扫描会跳过未加载区块，高级和扩展发送器也只在成功传输后扣除 FE。
-- **性能**：流体发送器现在默认采用无限单次批量，每次操作发送内部全部可用流体，但不会在同一 tick 内反复循环。可在配置中关闭以恢复普通/超频批量限制。发送器会缓存目标上次成功的输入侧，减少重复侧面能力查询，同时保留范围缓存、轮询分配和空闲退避。
-- **超频**：物品/流体发送器开启自动输入、物品/流体接收器开启自动输出并安装超频或创造升级后，会启用直通传输。来源与目标容器直接交换内容，不再受机器内部物品槽或储罐容量限制；该操作会接管普通自动 I/O，避免同一 tick 重复搬运。四类机器共用范围端点、成功侧面、轮询游标、未加载区块检查和空闲退避缓存。
-- **修复**：超频直通物品传输现在会在来源槽仍有物品时重复抽取同一槽位，使每次 capability 调用最多只提供一组普通堆叠的抽屉、储存控制器等大容量库存能够在持续运行时接近配置的 10,000 件批量。
-- **性能**：物品直传采用整台机器每 tick 共享的 256 轮安全上限；对于每次 capability 调用返回 64 个物品的 handler，足以在同一 tick 完成 10,000 件批量，同时避免每次只返回 1 个物品的异常 handler 循环数千次。物品发送器/接收器的范围发现复用 40 tick 缓存，并且只扫描已加载区块中的方块实体，不再遍历范围内每个方块。
-- **修复**：移除物品直传的微秒时间片，修复配置为 10,000 件的超频批量被分摊到接近一秒才能完成的问题。内部缓冲为空或来源槽为空时仍会直接跳过，不消耗操作次数，也不会进行不必要的目标探测。
-- **性能**：机器范围预览和蚀空合金扳手框选改为每帧统一批量提交，按渲染类型集中绘制线框与半透明范围，避免每台可见范围机器反复刷新 GPU 缓冲区。
-- **新增**：蚀空合金扳手可通过两次左键设置角点框选区域，使用 JDT 范围效果预览并实时显示 X/Y/Z 尺寸，随后左键可调范围机器即可精确写入。Shift+左键取消框选，服务端会校验机器半径与偏移上限。
-- **修复**：两个角点选定后框选会保持锁定，成功应用后仍保留预览，可将同一范围复制到多台机器；只有 Shift+左键才能清空。新增第一点、第二点、清空和应用成功的区分音效。
-- **修复**：扳手框选现在会锁存左键输入直到鼠标按键释放，避免跨多个 tick 的重复回调让一次实际点击同时选中两个角点。
-- **交互**：扳手范围写入现在始终提示成功或具体失败原因，并播放不同的确认/失败音效，同时保留当前框选。
-- **修复**：扳手范围写入成功后会直接向操作玩家发送确认音，确保在独立服务端和集成服务端环境中都能稳定听到。
-- **修复**：创造模式手持蚀空合金扳手时不再能够破坏方块，避免框选角点时瞬间挖除目标。
+- **配方**：新增蚀空合金扳手合成配方。
+- **新增/平衡**：新增凝胶发生器专用的时运升级。
+- **新增**：加入实体抑制器。提供抑制实体更新、禁止实体生成/加入世界、禁用实体渲染、禁用方块实体渲染和禁用客户端粒子五种模式。实体模式支持敌对生物、被动生物、所有生物、指定实体类型、非生物实体和所有类型。
+- **新增**：新增范围屏蔽器，提供围困与退磁两种模式。围困模式下生物仅可在范围内活动，退磁模式可屏蔽玩家磁铁但允许机器收集。
+- **新增**：新增高级物品拾取器，提供 8 个标准升级槽。机器在掉落物加入世界前将其拦截，直接写入朝向一侧的相邻容器。支持拾取精妙存储超大掉落物，以及ME 接口、ExtendedAE 扩展接口和超大接口直接写入ME 网络。
+- **新增**：手持升级卡蹲下右键 JDT 或 JDTE 机器，可在手中数量允许时尽量填充所有有效普通或专用升级槽。启用 FTB Ultimine 时，会按顺序为当前选区中的合格机器尽量填充。
+- **新增**：蚀空合金扳手可通过两次左键设置角点框选区域，使用 JDT 范围效果预览并实时显示 X/Y/Z 尺寸，随后左键可调范围机器即可精确写入。Shift+左键取消框选，服务端会校验机器半径与偏移上限。两个角点选定后框选会保持锁定，成功应用后仍保留预览，可将同一范围复制到多台机器；只有 Shift+左键才能清空。
 - **Jade**：机器信息栏现在会显示已安装的普通和专用升级，包括物品图标、本地化名称及合并后的数量。
-- **新增**：手持升级卡蹲下右键 JDT 或 JDTE 机器，可在手中数量允许时尽量填充所有有效普通或专用升级槽。启用 FTB Ultimine 时，会按顺序为当前选区中的合格机器尽量填充；物品数量、机器兼容、类型上限及超频/降频互斥规则仍会生效。
-- **修复**：兼容新版 FTB Ultimine 将 `FTBUltimine.instance` 改为私有字段的 API 变化；可选集成异常时回退为调整准星下机器，不再中断扳手范围数据包。
-- **配方**：新增蚀空合金扳手合成配方，沿用 JDT 核源铁扳手图案并将材料替换为蚀空合金锭。
+- **兼容性**：蚀空合金扳手可旋转或安全快捷拆除其支持的方块。
+- **兼容**：物品发送器和接收器现在会优先查询带方向的物品能力，再回退到无方向能力，可按 Mekanism 机器配置的输入/输出面正常交互；tooltip 中的可用模式提示已改为灰色。
+- **自动 I/O**：方向按钮现在按“关闭、自动输入输出（默认颜色）、自动输入（橙色）、自动输出（蓝色）”循环，机器实际路由不支持的模式会被跳过。
+- **性能**：自动 I/O 单次传输量更改为 10,000 件物品或 1,000,000 mB/tick；物品/流体发送器和接收器默认更改为64 件或 20,000 mB/tick，安装超频或创造升级后传输速度加快。
+- **命名**：初级、高级和扩展“流体放置器”改为“流体发送器”。
+- **修复**：高级物品拾取器升级槽现在只接受并提示范围升级和过滤升级。
+- **性能**：降低机器范围预览性能损耗。
+- **修复**：修复蚀空合金扳手新版 FTB Ultimine 不兼容，导致范围调整失效。
 
 #### v0.5.3
 

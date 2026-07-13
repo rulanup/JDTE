@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -100,12 +101,29 @@ public final class EntitySuppressorManager {
     public static void onLevelUnload(LevelEvent.Unload event) { LEVELS.remove(event.getLevel()); }
 
     public static boolean shouldSuppressParticle(Level level, double x, double y, double z) {
-        return matches(level, new Vec3(x, y, z), null, EntitySuppressorBE.Mode.DISABLE_PARTICLES, false);
+        return matches(level, x, y, z, null, EntitySuppressorBE.Mode.DISABLE_PARTICLES, false);
     }
 
     public static boolean shouldSuppressEntityVisual(Entity entity) {
         return !isAlwaysProtected(entity)
                 && matches(entity.level(), entity.position(), entity, EntitySuppressorBE.Mode.SUPPRESS_TICK, false);
+    }
+
+    public static boolean shouldSuppressEntityRender(Entity entity) {
+        return !isAlwaysProtected(entity)
+                && matches(entity.level(), entity.position(), entity,
+                EntitySuppressorBE.Mode.DISABLE_ENTITY_RENDERING, false);
+    }
+
+    public static boolean shouldSuppressBlockEntityRender(BlockEntity blockEntity) {
+        Level level = blockEntity.getLevel();
+        return level != null && !(blockEntity instanceof EntitySuppressorBE)
+                && matches(level,
+                blockEntity.getBlockPos().getX() + 0.5,
+                blockEntity.getBlockPos().getY() + 0.5,
+                blockEntity.getBlockPos().getZ() + 0.5,
+                null,
+                EntitySuppressorBE.Mode.DISABLE_BLOCK_ENTITY_RENDERING, false);
     }
 
     public static void removeExistingEntities(EntitySuppressorBE suppressor) {
@@ -119,16 +137,23 @@ public final class EntitySuppressorManager {
 
     private static boolean matches(Level level, Vec3 position, Entity entity,
                                    EntitySuppressorBE.Mode mode, boolean consumeEnergy) {
+        return matches(level, position.x, position.y, position.z, entity, mode, consumeEnergy);
+    }
+
+    private static boolean matches(Level level, double x, double y, double z, Entity entity,
+                                   EntitySuppressorBE.Mode mode, boolean consumeEnergy) {
         LevelIndex index = LEVELS.get(level);
         if (index == null) return false;
-        for (CachedSuppressor cached : index.at(position)) {
-            if (cached.mode != mode || !cached.area.contains(position)) continue;
+        for (CachedSuppressor cached : index.at(x, z)) {
+            if (cached.mode != mode || !cached.area.contains(x, y, z)) continue;
             EntitySuppressorBE suppressor = cached.suppressor;
             if (suppressor.isRemoved() || (consumeEnergy && !suppressor.canOperateThisTick())) continue;
             if (!consumeEnergy && mode == EntitySuppressorBE.Mode.DISABLE_PARTICLES
                     && !suppressor.canSuppressParticlesClient()) continue;
             if (!consumeEnergy && mode == EntitySuppressorBE.Mode.SUPPRESS_TICK
                     && !suppressor.canSuppressEntitiesClient()) continue;
+            if (!consumeEnergy && mode.disablesRendering()
+                    && !suppressor.canSuppressRenderingClient()) continue;
             if (entity == null || cached.matches(entity)) return true;
         }
         return false;
@@ -204,10 +229,10 @@ public final class EntitySuppressorManager {
             }
         }
 
-        Set<CachedSuppressor> at(Vec3 pos) {
+        Set<CachedSuppressor> at(double x, double z) {
             return byChunk.getOrDefault(ChunkPos.asLong(
-                    SectionPos.blockToSectionCoord(Mth.floor(pos.x)),
-                    SectionPos.blockToSectionCoord(Mth.floor(pos.z))), Collections.emptySet());
+                    SectionPos.blockToSectionCoord(Mth.floor(x)),
+                    SectionPos.blockToSectionCoord(Mth.floor(z))), Collections.emptySet());
         }
     }
 }

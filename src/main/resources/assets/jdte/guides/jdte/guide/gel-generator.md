@@ -6,6 +6,7 @@ navigation:
 item_ids:
   - jdte:advanced_gel_generator
   - jdte:extended_gel_generator
+  - jdte:fortune_upgrade
 ---
 
 # 凝胶发生器
@@ -24,6 +25,8 @@ item_ids:
 - 消耗燃料物品产生凝胶流体
 - 支持红石控制、范围升级、过滤升级
 - 支持超频、降频和容量升级
+- 支持最多 8 张时运升级。每张增加 1 级原版矿石时运效果，使核源铁、炽金、苍穹晶、蚀空合金和原始煤炭等 JDT 原矿配方提高产量
+- 每张时运升级使当前操作耗电增加 5%；8 张时总计增加 40%
 - 食物物品可提供 2 次使用
 
 ## 合成
