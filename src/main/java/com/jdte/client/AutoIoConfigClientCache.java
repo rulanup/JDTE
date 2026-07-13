@@ -11,35 +11,49 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class AutoIoConfigClientCache {
-    private static final Map<BlockPos, Integer> SIDE_MASKS = new HashMap<>();
+    private static final Map<BlockPos, AutoIoConfigHelper.IoMasks> SIDE_MASKS = new HashMap<>();
 
     private AutoIoConfigClientCache() {
     }
 
-    public static int getSideMask(BaseMachineBE machine) {
+    public static int getInputMask(BaseMachineBE machine) {
         if (machine == null) {
             return AutoIoConfigData.DEFAULT_SIDE_MASK;
         }
-        return SIDE_MASKS.getOrDefault(machine.getBlockPos(), AutoIoConfigData.DEFAULT_SIDE_MASK);
+        return getMasks(machine).inputMask();
     }
 
-    public static void setSideMask(BlockPos blockPos, int sideMask) {
-        SIDE_MASKS.put(blockPos.immutable(), AutoIoConfigHelper.clampSideMask(sideMask));
+    public static int getOutputMask(BaseMachineBE machine) {
+        if (machine == null) {
+            return AutoIoConfigData.DEFAULT_SIDE_MASK;
+        }
+        return getMasks(machine).outputMask();
+    }
+
+    public static void setMasks(BlockPos blockPos, int inputMask, int outputMask) {
+        SIDE_MASKS.put(blockPos.immutable(), new AutoIoConfigHelper.IoMasks(inputMask, outputMask));
     }
 
     public static void requestSync(BaseMachineBE machine) {
         if (machine == null) {
             return;
         }
-        PacketDistributor.sendToServer(new AutoIoConfigPayload(machine.getBlockPos(), AutoIoConfigData.DEFAULT_SIDE_MASK, true));
+        PacketDistributor.sendToServer(new AutoIoConfigPayload(machine.getBlockPos(),
+                AutoIoConfigData.DEFAULT_SIDE_MASK, AutoIoConfigData.DEFAULT_SIDE_MASK, true));
     }
 
-    public static void updateAndSend(BaseMachineBE machine, int sideMask) {
+    public static void updateAndSend(BaseMachineBE machine, int inputMask, int outputMask) {
         if (machine == null) {
             return;
         }
-        int clamped = AutoIoConfigHelper.clampSideMask(sideMask);
-        setSideMask(machine.getBlockPos(), clamped);
-        PacketDistributor.sendToServer(new AutoIoConfigPayload(machine.getBlockPos(), clamped, false));
+        AutoIoConfigHelper.IoMasks masks = new AutoIoConfigHelper.IoMasks(inputMask, outputMask);
+        setMasks(machine.getBlockPos(), masks.inputMask(), masks.outputMask());
+        PacketDistributor.sendToServer(new AutoIoConfigPayload(
+                machine.getBlockPos(), masks.inputMask(), masks.outputMask(), false));
+    }
+
+    private static AutoIoConfigHelper.IoMasks getMasks(BaseMachineBE machine) {
+        return SIDE_MASKS.getOrDefault(machine.getBlockPos(),
+                new AutoIoConfigHelper.IoMasks(AutoIoConfigData.DEFAULT_SIDE_MASK, AutoIoConfigData.DEFAULT_SIDE_MASK));
     }
 }

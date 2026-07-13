@@ -32,17 +32,19 @@ public class AutoIoConfigPacket {
                 return;
             }
             if (!payload.request()) {
-                AutoIoConfigHelper.setSideMask(machine, payload.sideMask());
+                AutoIoConfigHelper.setMasks(machine, payload.inputMask(), payload.outputMask());
             }
             if (context.player() instanceof ServerPlayer serverPlayer) {
                 PacketDistributor.sendToPlayer(serverPlayer, new AutoIoConfigSyncPayload(
                         machine.getBlockPos(),
-                        AutoIoConfigHelper.getSideMask(machine)));
+                        AutoIoConfigHelper.getInputMask(machine),
+                        AutoIoConfigHelper.getOutputMask(machine)));
             }
         });
     }
 
     public void handleClient(AutoIoConfigSyncPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> AutoIoConfigClientCache.setSideMask(payload.blockPos(), payload.sideMask()));
+        context.enqueueWork(() -> AutoIoConfigClientCache.setMasks(
+                payload.blockPos(), payload.inputMask(), payload.outputMask()));
     }
 }

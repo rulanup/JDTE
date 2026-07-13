@@ -1,3 +1,6 @@
 {
-  "parent": "justdirethings:item/ferricore_wrench"
+  "parent": "justdirethings:item/ferricore_wrench",
+  "textures": {
+    "layer0": "jdte:item/eclipsealloy_wrench"
+  }
 }

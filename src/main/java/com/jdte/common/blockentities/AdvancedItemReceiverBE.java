@@ -12,7 +12,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class AdvancedItemReceiverBE extends ItemReceiverBE implements PoweredMachineBE {
-    public static final int BASE_ITEMS_TO_RECEIVE = 32;
     public static final int BASE_ENERGY_CAPACITY = 50000;
     public static final int BASE_ENERGY_COST = 500;
 
@@ -21,14 +20,9 @@ public class AdvancedItemReceiverBE extends ItemReceiverBE implements PoweredMac
 
     public AdvancedItemReceiverBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.ADVANCED_ITEM_RECEIVER.get(), pos, state);
-        tickSpeed = 10; // Default delay
+        tickSpeed = 1;
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
-    }
-
-    @Override
-    protected int getBaseItemsToReceive() {
-        return BASE_ITEMS_TO_RECEIVE;
     }
 
     @Override
@@ -60,6 +54,16 @@ public class AdvancedItemReceiverBE extends ItemReceiverBE implements PoweredMac
             if (!hasEnoughPower(getStandardEnergyCost())) return;
         }
         super.receiveItems();
+    }
+
+    @Override
+    protected boolean canRunDirectTransfer() {
+        return UpgradeHelper.hasCreativeUpgrade(this) || hasEnoughPower(getStandardEnergyCost());
+    }
+
+    @Override
+    protected void onDirectTransferSuccess() {
+        if (!UpgradeHelper.hasCreativeUpgrade(this)) extractEnergy(getStandardEnergyCost(), false);
     }
 
     @Override

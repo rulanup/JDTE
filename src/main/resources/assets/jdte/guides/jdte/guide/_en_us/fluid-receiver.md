@@ -17,15 +17,16 @@ The Fluid Receiver receives fluids from target containers within its configured 
 
 | Machine | Upgrade Slots | Receive Amount | Requires FE |
 |---------|--------------|----------------|-------------|
-| Basic Fluid Receiver | 4 | 1,000 mB | No |
-| Advanced Fluid Receiver | 4 | 4,000 mB | Yes |
-| Extended Fluid Receiver | 8 | 4,000 mB | Yes |
+| Basic Fluid Receiver | 4 | 20,000 mB | No |
+| Advanced Fluid Receiver | 4 | 20,000 mB | Yes |
+| Extended Fluid Receiver | 8 | 20,000 mB | Yes |
 
 ## Features
 
 - Receives fluids from fluid containers within range into the internal tank
 - Supports redstone control, Range Upgrade, and Filter Upgrade
-- Advanced and Extended versions support Overclock (doubled receive amount), Underclock (halved receive amount), and Capacity Upgrades
+- With an Overclock or Creative Upgrade and Auto Output enabled, fluid moves directly from ranged sources to Auto Output containers without using internal tank capacity
+- Speed controls and Underclock adjust the operation interval; normal and overclock batches are configurable
 
 ## Crafting
 

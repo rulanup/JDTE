@@ -20,6 +20,7 @@ Major features:
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
+- Advanced Item Collector with eight upgrade slots and event-driven pre-spawn collection without item-flow particles.
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
@@ -215,6 +216,7 @@ Rules:
 | Fluid Sender | Basic, Advanced, Extended | `FluidSenderBE` | Sends internal fluid to configured targets |
 | Item Receiver | Basic, Advanced, Extended | `ItemReceiverBE` | Pulls items from configured targets |
 | Fluid Receiver | Basic, Advanced, Extended | `FluidReceiverBE` | Pulls fluid from configured targets |
+| Advanced Item Collector | Single eight-slot tier | `AdvancedItemCollectorBE` | Intercepts item entities before world insertion and sends them to its facing inventory |
 | Bio Crusher | Advanced, Extended | `BioCrusherBE` | Produces mob loot and XP fluid, including spawner integration |
 | Life Extractor | Advanced, Extended | `LifeExtractorBE` | Converts target health into Life Fluid without normal drops |
 | Infusion Machine | Advanced, Extended | `InfusionMachineBE` | Performs gel/item and dynamic spawn egg infusion |
@@ -232,6 +234,7 @@ Capability summary:
 - Fluid sender/receiver tiers expose fluid; powered tiers expose energy.
 - Life Extractors expose energy and fluid.
 - JDT Clickers expose fluid when `FLUID_STORAGE` is installed.
+- The Advanced Item Collector exposes no internal item capability; it writes directly to the adjacent inventory on its facing side.
 
 Machines with real I/O persist absolute side settings through `AutoIoConfigData`; `AutoIoTransferHelper` executes transfers on the server. Any slot-layout change must also verify auto-I/O mappings, directional capability exposure, and the client cache.
 
@@ -351,6 +354,10 @@ Recommended order:
 
 ### v0.5.4 (Current)
 
+- Added the Advanced Item Collector with JDT's model/interface, eight standard upgrade slots, chunk-indexed event-driven pre-spawn collection, partial remainder handling, and no item-flow particles. Player-broken containers with a slot at or above the configurable 10M default threshold are pre-drained through public capabilities before item entities are created; every triggered slot must transfer completely or the break is cancelled. AE2 `ME_STORAGE` targets, including ExtendedAE interfaces, receive these stacks directly through long-count storage operations.
+- Advanced Item Collectors accept only Range and Filter Upgrades; server slot validation and GUI compatibility hints use the same rule.
+- The Eclipse Alloy Wrench is registered in `c:tools/wrench` and `c:wrenches`, allowing AE2 and other compatible mods to handle rotation and dismantling through their native wrench hooks.
+- Restored the Eclipse Alloy Wrench to the standard handheld model structure while retaining its dedicated JDTE texture.
 - Added two-corner Eclipse Alloy Wrench area selection with JDT-style preview, live dimensions, persistent reuse across machines, server-side limit validation, result feedback, and Creative-mode block-breaking protection.
 - Added direct and FTB Ultimine bulk Upgrade Card insertion, including Bio Crusher dedicated upgrades and Loot Fabricator Looting Upgrades.
 - Added Jade display of installed standard and dedicated upgrades with aggregated counts.
@@ -418,6 +425,7 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Life Extractor | `jdte.lifeExtractor` | Life Fluid capacity, health conversion, and batch size |
 | Loot Fabricator | `jdte.lootFabricator` | Processing costs, Boss multipliers, Looting copies, and compatibility loot |
 | Sender/Receiver | `jdte.senderReceiver` | Storage, transfer rates, delays, and energy |
+| Advanced Item Collector | `jdte.advancedItemCollector` | Pre-break oversized-container transfer, per-slot threshold, and direct AE2 ME transfer toggle |
 | Gel Generator | `jdte.gelGenerator` | Slots, capacity, conversion, and fuel use |
 | Generator upgrade | `jdte.generatorUpgrade` | Energy multiplier and fluid consumption |
 | Upgrade items | `jdte.upgradeItems` | Limits and damage values |

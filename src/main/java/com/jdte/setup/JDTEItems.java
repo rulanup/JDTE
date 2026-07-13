@@ -45,6 +45,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_SENSOR = ITEMS.register("extended_sensor", () -> new BlockItem(JDTEBlocks.EXTENDED_SENSOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_COLLECTOR = ITEMS.register("extended_fluid_collector", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_PLACER = ITEMS.register("extended_fluid_placer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_PLACER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_ITEM_COLLECTOR = ITEMS.register("advanced_item_collector", () -> new BlockItem(JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get(), new Item.Properties()));
 
     // Glue Activator
     public static final DeferredHolder<Item, BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));

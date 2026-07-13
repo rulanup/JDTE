@@ -1,14 +1,12 @@
 package com.jdte.client;
 
-import com.direwolf20.justdirethings.client.renderers.RenderHelpers;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.jdte.client.renderers.AreaPreviewRenderBatch;
 import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.network.data.WrenchAreaSelectionPayload;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -22,9 +20,6 @@ import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.joml.Matrix4f;
-
-import java.awt.Color;
 
 public final class WrenchAreaSelectionClient {
     private static BlockPos firstCorner;
@@ -119,16 +114,7 @@ public final class WrenchAreaSelectionClient {
 
         BlockPos previewCorner = getPreviewCorner(minecraft);
         AABB area = AABB.encapsulatingFullBlocks(firstCorner, previewCorner);
-        PoseStack poseStack = event.getPoseStack();
-        poseStack.pushPose();
-        var camera = event.getCamera().getPosition();
-        poseStack.translate(-camera.x, -camera.y, -camera.z);
-        Matrix4f matrix = poseStack.last().pose();
-        MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        RenderHelpers.renderLines(poseStack, area, Color.GREEN, buffers);
-        RenderHelpers.renderBoxSolid(poseStack, matrix, buffers, area, 1, 0, 0, 0.125F);
-        buffers.endBatch();
-        poseStack.popPose();
+        AreaPreviewRenderBatch.enqueueMain(area);
     }
 
     public static void onClientTick(ClientTickEvent.Post event) {

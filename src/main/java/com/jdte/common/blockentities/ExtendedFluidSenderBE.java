@@ -12,7 +12,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ExtendedFluidSenderBE extends FluidSenderBE implements PoweredMachineBE, ExtendedUpgradeMachine {
-    public static final int BASE_FLUID_TO_SEND = 4000; // 4 buckets
     public static final int BASE_ENERGY_CAPACITY = 100000;
     public static final int BASE_ENERGY_COST = 500;
 
@@ -21,14 +20,9 @@ public class ExtendedFluidSenderBE extends FluidSenderBE implements PoweredMachi
 
     public ExtendedFluidSenderBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.EXTENDED_FLUID_SENDER.get(), pos, state);
-        tickSpeed = 10; // Default delay
+        tickSpeed = 1;
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
-    }
-
-    @Override
-    protected int getBaseFluidToSend() {
-        return BASE_FLUID_TO_SEND;
     }
 
     @Override
@@ -55,11 +49,25 @@ public class ExtendedFluidSenderBE extends FluidSenderBE implements PoweredMachi
     }
 
     @Override
-    protected void sendFluid() {
+    protected int sendFluid() {
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-            if (!hasEnoughPower(getStandardEnergyCost())) return;
+            if (!hasEnoughPower(getStandardEnergyCost())) return 0;
         }
-        super.sendFluid();
+        int transferred = super.sendFluid();
+        if (transferred > 0 && !UpgradeHelper.hasCreativeUpgrade(this)) {
+            extractEnergy(getStandardEnergyCost(), false);
+        }
+        return transferred;
+    }
+
+    @Override
+    protected boolean canRunDirectTransfer() {
+        return UpgradeHelper.hasCreativeUpgrade(this) || hasEnoughPower(getStandardEnergyCost());
+    }
+
+    @Override
+    protected void onDirectTransferSuccess() {
+        if (!UpgradeHelper.hasCreativeUpgrade(this)) extractEnergy(getStandardEnergyCost(), false);
     }
 
     @Override

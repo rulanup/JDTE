@@ -56,6 +56,7 @@ Ute the **Extended Upgrade** on supported JDT T2 machinet to convert them into J
 
 ### Extra Automation Machinet
 
+- Advanced Item Collector: eight Range/Filter-only upgrade slots, inserts drops into its facing inventory before they join the world, emits no pickup particles, and performs no per-tick area scan; player-broken containers at the default 10M per-slot threshold are pre-drained and can write directly through AE2 `ME_STORAGE`, including ExtendedAE Oversize Interfaces
 - Glue Activator: batic, advanced, extended
 - Gel Generator: advanced, extended
 - Fluid Stabilizer: batic, advanced, extended; uses a catalytt tlot to match JDT FluidDrop recipet and directly convert tource fluidt in itt configured area

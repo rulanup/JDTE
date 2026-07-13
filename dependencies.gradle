@@ -24,6 +24,7 @@ dependencies {
     compileOnly "maven.modrinth:jade:${jade_version}"
 
     // Major mods
+    compileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
     compileOnly "com.simibubi.create:create-${minecraft_version}:${create_version}"
     compileOnly "mekanism:Mekanism:${mekanism_version}"
     compileOnly "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"

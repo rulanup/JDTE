@@ -60,19 +60,27 @@ public class JDTEConfig {
 
         // Item/Fluid Sender/Receiver
         public final ModConfigSpec.IntValue senderStorageSlots;
-        public final ModConfigSpec.IntValue basicItemSenderRate;
-        public final ModConfigSpec.IntValue basicItemSenderDelay;
-        public final ModConfigSpec.IntValue advancedItemSenderRate;
         public final ModConfigSpec.IntValue advancedItemSenderEnergyCapacity;
         public final ModConfigSpec.IntValue advancedItemSenderEnergyCost;
         public final ModConfigSpec.IntValue extendedItemSenderEnergyCapacity;
-        public final ModConfigSpec.IntValue basicFluidSenderRate;
-        public final ModConfigSpec.IntValue basicFluidSenderDelay;
-        public final ModConfigSpec.IntValue advancedFluidSenderRate;
         public final ModConfigSpec.IntValue advancedFluidSenderEnergyCapacity;
         public final ModConfigSpec.IntValue advancedFluidSenderEnergyCost;
         public final ModConfigSpec.IntValue extendedFluidSenderEnergyCapacity;
         public final ModConfigSpec.IntValue fluidSenderFluidCapacity;
+        public final ModConfigSpec.BooleanValue fluidSenderUnlimitedTransfer;
+        public final ModConfigSpec.IntValue autoIoItemTransferRate;
+        public final ModConfigSpec.IntValue autoIoFluidTransferRate;
+        public final ModConfigSpec.IntValue senderReceiverItemTransferRate;
+        public final ModConfigSpec.IntValue senderReceiverOverclockItemTransferRate;
+        public final ModConfigSpec.IntValue senderReceiverFluidTransferRate;
+        public final ModConfigSpec.IntValue senderReceiverOverclockFluidTransferRate;
+        public final ModConfigSpec.IntValue transferFailureBackoffStart;
+        public final ModConfigSpec.IntValue transferFailureBackoffMax;
+
+        // Advanced Item Collector
+        public final ModConfigSpec.BooleanValue advancedItemCollectorPreDrainEnabled;
+        public final ModConfigSpec.IntValue advancedItemCollectorPreDrainThreshold;
+        public final ModConfigSpec.BooleanValue advancedItemCollectorMeDirectTransferEnabled;
 
         // Gel Generator
         public final ModConfigSpec.IntValue gelGeneratorInputSlots;
@@ -257,18 +265,6 @@ public class JDTEConfig {
                     .comment("Internal storage slots for item sender/receiver")
                     .translation("config.jdte.jdte.senderReceiver.senderStorageSlots")
                     .defineInRange("senderStorageSlots", 9, 1, 54);
-            basicItemSenderRate = builder
-                    .comment("Basic item sender items per cycle")
-                    .translation("config.jdte.jdte.senderReceiver.basicItemSenderRate")
-                    .defineInRange("basicItemSenderRate", 4, 1, 64);
-            basicItemSenderDelay = builder
-                    .comment("Basic item sender tick delay")
-                    .translation("config.jdte.jdte.senderReceiver.basicItemSenderDelay")
-                    .defineInRange("basicItemSenderDelay", 10, 1, 100);
-            advancedItemSenderRate = builder
-                    .comment("Advanced item sender items per cycle")
-                    .translation("config.jdte.jdte.senderReceiver.advancedItemSenderRate")
-                    .defineInRange("advancedItemSenderRate", 32, 1, 256);
             advancedItemSenderEnergyCapacity = builder
                     .comment("Advanced item sender energy capacity")
                     .translation("config.jdte.jdte.senderReceiver.advancedItemSenderEnergyCapacity")
@@ -281,18 +277,6 @@ public class JDTEConfig {
                     .comment("Extended item sender energy capacity")
                     .translation("config.jdte.jdte.senderReceiver.extendedItemSenderEnergyCapacity")
                     .defineInRange("extendedItemSenderEnergyCapacity", 100000, 1000, 10000000);
-            basicFluidSenderRate = builder
-                    .comment("Basic fluid sender amount per cycle (mB)")
-                    .translation("config.jdte.jdte.senderReceiver.basicFluidSenderRate")
-                    .defineInRange("basicFluidSenderRate", 1000, 1, 100000);
-            basicFluidSenderDelay = builder
-                    .comment("Basic fluid sender tick delay")
-                    .translation("config.jdte.jdte.senderReceiver.basicFluidSenderDelay")
-                    .defineInRange("basicFluidSenderDelay", 10, 1, 100);
-            advancedFluidSenderRate = builder
-                    .comment("Advanced fluid sender amount per cycle (mB)")
-                    .translation("config.jdte.jdte.senderReceiver.advancedFluidSenderRate")
-                    .defineInRange("advancedFluidSenderRate", 4000, 1, 100000);
             advancedFluidSenderEnergyCapacity = builder
                     .comment("Advanced fluid sender energy capacity")
                     .translation("config.jdte.jdte.senderReceiver.advancedFluidSenderEnergyCapacity")
@@ -309,6 +293,60 @@ public class JDTEConfig {
                     .comment("Fluid sender/receiver base fluid capacity (mB)")
                     .translation("config.jdte.jdte.senderReceiver.fluidSenderFluidCapacity")
                     .defineInRange("fluidSenderFluidCapacity", 8000, 100, 1000000);
+            fluidSenderUnlimitedTransfer = builder
+                    .comment("When enabled, Fluid Senders move all available internal fluid per operation instead of using the configured fluid batch limits")
+                    .translation("config.jdte.jdte.senderReceiver.fluidSenderUnlimitedTransfer")
+                    .define("fluidSenderUnlimitedTransfer", true);
+            autoIoItemTransferRate = builder
+                    .comment("Maximum items transferred per side and auto I/O operation. Default matches Logistics Network's Netherite tier.")
+                    .translation("config.jdte.jdte.senderReceiver.autoIoItemTransferRate")
+                    .defineInRange("autoIoItemTransferRate", 10000, 1, 1000000);
+            autoIoFluidTransferRate = builder
+                    .comment("Maximum fluid transferred per side and auto I/O operation in mB. Default matches Logistics Network's Netherite tier.")
+                    .translation("config.jdte.jdte.senderReceiver.autoIoFluidTransferRate")
+                    .defineInRange("autoIoFluidTransferRate", 1000000, 1, Integer.MAX_VALUE);
+            senderReceiverItemTransferRate = builder
+                    .comment("Maximum items moved per sender/receiver operation without Overclock. Default matches Logistics Network's Diamond tier.")
+                    .translation("config.jdte.jdte.senderReceiver.senderReceiverItemTransferRate")
+                    .defineInRange("senderReceiverItemTransferRate", 64, 1, 1000000);
+            senderReceiverOverclockItemTransferRate = builder
+                    .comment("Maximum items moved per sender/receiver operation with Overclock or Creative. Default matches Logistics Network's Netherite tier.")
+                    .translation("config.jdte.jdte.senderReceiver.senderReceiverOverclockItemTransferRate")
+                    .defineInRange("senderReceiverOverclockItemTransferRate", 10000, 1, 1000000);
+            senderReceiverFluidTransferRate = builder
+                    .comment("Maximum fluid moved per sender/receiver operation without Overclock in mB. Default matches Logistics Network's Diamond tier.")
+                    .translation("config.jdte.jdte.senderReceiver.senderReceiverFluidTransferRate")
+                    .defineInRange("senderReceiverFluidTransferRate", 20000, 1, Integer.MAX_VALUE);
+            senderReceiverOverclockFluidTransferRate = builder
+                    .comment("Maximum fluid moved per sender/receiver operation with Overclock or Creative in mB. Default matches Logistics Network's Netherite tier.")
+                    .translation("config.jdte.jdte.senderReceiver.senderReceiverOverclockFluidTransferRate")
+                    .defineInRange("senderReceiverOverclockFluidTransferRate", 1000000, 1, Integer.MAX_VALUE);
+            transferFailureBackoffStart = builder
+                    .comment("Initial idle retry delay for auto I/O and sender/receiver transfers in ticks")
+                    .translation("config.jdte.jdte.senderReceiver.transferFailureBackoffStart")
+                    .defineInRange("transferFailureBackoffStart", 10, 1, 200);
+            transferFailureBackoffMax = builder
+                    .comment("Maximum idle retry delay for auto I/O and sender/receiver transfers in ticks")
+                    .translation("config.jdte.jdte.senderReceiver.transferFailureBackoffMax")
+                    .defineInRange("transferFailureBackoffMax", 40, 1, 1200);
+            builder.pop();
+
+            // Advanced Item Collector
+            builder.comment("Advanced Item Collector Settings")
+                    .translation("config.jdte.jdte.advancedItemCollector")
+                    .push("advancedItemCollector");
+            advancedItemCollectorPreDrainEnabled = builder
+                    .comment("Directly transfer oversized container slots before player block breaking creates item entities")
+                    .translation("config.jdte.jdte.advancedItemCollector.preDrainEnabled")
+                    .define("preDrainEnabled", true);
+            advancedItemCollectorPreDrainThreshold = builder
+                    .comment("Minimum item count in one source slot that enables pre-break direct transfer")
+                    .translation("config.jdte.jdte.advancedItemCollector.preDrainThreshold")
+                    .defineInRange("preDrainThreshold", 10_000_000, 65, Integer.MAX_VALUE);
+            advancedItemCollectorMeDirectTransferEnabled = builder
+                    .comment("Directly insert triggered oversized stacks into an attached AE2 ME storage capability")
+                    .translation("config.jdte.jdte.advancedItemCollector.meDirectTransferEnabled")
+                    .define("meDirectTransferEnabled", true);
             builder.pop();
 
             // Gel Generator

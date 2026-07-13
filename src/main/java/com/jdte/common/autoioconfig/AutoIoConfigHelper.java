@@ -52,29 +52,95 @@ public final class AutoIoConfigHelper {
                 || machine instanceof FluidPlacerT1BE;
     }
 
-    public static int getSideMask(BaseMachineBE machine) {
+    public static int getInputMask(BaseMachineBE machine) {
         if (machine == null) {
             return AutoIoConfigData.DEFAULT_SIDE_MASK;
         }
-        return machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).getSideMask();
+        return supportsInput(machine)
+                ? machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).getInputMask()
+                : AutoIoConfigData.DEFAULT_SIDE_MASK;
     }
 
-    public static void setSideMask(BaseMachineBE machine, int sideMask) {
+    public static int getOutputMask(BaseMachineBE machine) {
+        if (machine == null) {
+            return AutoIoConfigData.DEFAULT_SIDE_MASK;
+        }
+        return supportsOutput(machine)
+                ? machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).getOutputMask()
+                : AutoIoConfigData.DEFAULT_SIDE_MASK;
+    }
+
+    public static void setMasks(BaseMachineBE machine, int inputMask, int outputMask) {
         if (machine == null) {
             return;
         }
-        machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).setSideMask(sideMask);
+        int supportedInputMask = supportsInput(machine) ? inputMask : AutoIoConfigData.DEFAULT_SIDE_MASK;
+        int supportedOutputMask = supportsOutput(machine) ? outputMask : AutoIoConfigData.DEFAULT_SIDE_MASK;
+        machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).setMasks(supportedInputMask, supportedOutputMask);
         machine.markDirtyClient();
     }
 
-    public static int toggleSide(int sideMask, int side) {
+    public static IoMasks cycleSide(int inputMask, int outputMask, int side,
+                                    boolean supportsInput, boolean supportsOutput) {
         if (side < 0 || side >= AutoIoConfigData.SIDE_COUNT) {
-            return clampSideMask(sideMask);
+            return new IoMasks(clampSideMask(inputMask), clampSideMask(outputMask));
         }
-        return clampSideMask(sideMask ^ (1 << side));
+        int bit = 1 << side;
+        if (supportsInput && !supportsOutput) {
+            return (inputMask & bit) == 0
+                    ? new IoMasks(inputMask | bit, outputMask & ~bit)
+                    : new IoMasks(inputMask & ~bit, outputMask & ~bit);
+        }
+        if (!supportsInput && supportsOutput) {
+            return (outputMask & bit) == 0
+                    ? new IoMasks(inputMask & ~bit, outputMask | bit)
+                    : new IoMasks(inputMask & ~bit, outputMask & ~bit);
+        }
+        if (!supportsInput && !supportsOutput) {
+            return new IoMasks(inputMask & ~bit, outputMask & ~bit);
+        }
+        return switch (getMode(inputMask, outputMask, side)) {
+            case MODE_OFF -> new IoMasks(inputMask | bit, outputMask | bit);
+            case MODE_BOTH -> new IoMasks(inputMask | bit, outputMask & ~bit);
+            case MODE_INPUT -> new IoMasks(inputMask & ~bit, outputMask | bit);
+            default -> new IoMasks(inputMask & ~bit, outputMask & ~bit);
+        };
+    }
+
+    public static int getMode(int inputMask, int outputMask, int side) {
+        if (side < 0 || side >= AutoIoConfigData.SIDE_COUNT) {
+            return MODE_OFF;
+        }
+        int bit = 1 << side;
+        boolean input = (inputMask & bit) != 0;
+        boolean output = (outputMask & bit) != 0;
+        if (input && output) return MODE_BOTH;
+        if (input) return MODE_INPUT;
+        if (output) return MODE_OUTPUT;
+        return MODE_OFF;
     }
 
     public static int clampSideMask(int sideMask) {
         return sideMask & AutoIoConfigData.ALL_SIDES_MASK;
+    }
+
+    public static boolean supportsInput(BaseMachineBE machine) {
+        return AutoIoTransferHelper.supportsInput(machine);
+    }
+
+    public static boolean supportsOutput(BaseMachineBE machine) {
+        return AutoIoTransferHelper.supportsOutput(machine);
+    }
+
+    public static final int MODE_OFF = 0;
+    public static final int MODE_BOTH = 1;
+    public static final int MODE_INPUT = 2;
+    public static final int MODE_OUTPUT = 3;
+
+    public record IoMasks(int inputMask, int outputMask) {
+        public IoMasks {
+            inputMask = clampSideMask(inputMask);
+            outputMask = clampSideMask(outputMask);
+        }
     }
 }

@@ -12,7 +12,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class AdvancedItemSenderBE extends ItemSenderBE implements PoweredMachineBE {
-    public static final int BASE_ITEMS_TO_SEND = 32;
     public static final int BASE_ENERGY_CAPACITY = 50000;
     public static final int BASE_ENERGY_COST = 500;
 
@@ -21,14 +20,9 @@ public class AdvancedItemSenderBE extends ItemSenderBE implements PoweredMachine
 
     public AdvancedItemSenderBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.ADVANCED_ITEM_SENDER.get(), pos, state);
-        tickSpeed = 10; // Default delay
+        tickSpeed = 1;
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
-    }
-
-    @Override
-    protected int getBaseItemsToSend() {
-        return BASE_ITEMS_TO_SEND;
     }
 
     @Override
@@ -60,6 +54,16 @@ public class AdvancedItemSenderBE extends ItemSenderBE implements PoweredMachine
             if (!hasEnoughPower(getStandardEnergyCost())) return;
         }
         super.sendItems();
+    }
+
+    @Override
+    protected boolean canRunDirectTransfer() {
+        return UpgradeHelper.hasCreativeUpgrade(this) || hasEnoughPower(getStandardEnergyCost());
+    }
+
+    @Override
+    protected void onDirectTransferSuccess() {
+        if (!UpgradeHelper.hasCreativeUpgrade(this)) extractEnergy(getStandardEnergyCost(), false);
     }
 
     @Override

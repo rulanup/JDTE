@@ -1,11 +1,16 @@
 package com.jdte.common.upgrades;
 
+import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
+import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
+import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
+import com.jdte.common.blockentities.AdvancedItemCollectorBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.mixin.EnergyStorageAccessor;
@@ -41,6 +46,19 @@ public class UpgradeHelper {
 
     public static boolean isUpgrade(ItemStack stack, UpgradeType type) {
         return stack.getItem() instanceof UpgradeCardItem upgradeCard && upgradeCard.getType() == type;
+    }
+
+    public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if (machine instanceof AdvancedItemCollectorBE) {
+            return type == UpgradeType.RANGE || type == UpgradeType.FILTER;
+        }
+        return switch (type) {
+            case FLUID_STORAGE -> machine instanceof ClickerT1BE;
+            case GENERATOR -> machine instanceof GeneratorT1BE || machine instanceof GeneratorFluidT1BE;
+            case RANGE -> machine instanceof AreaAffectingBE;
+            case FILTER -> machine instanceof FilterableBE;
+            default -> true;
+        };
     }
 
     public static int countUpgrades(BaseMachineBE machine, UpgradeType type) {

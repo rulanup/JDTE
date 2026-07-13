@@ -21,6 +21,8 @@ Right-click any JDTE or JDT machine to rotate it by 90 degrees.
 
 Sneak + right-click a JDTE or JDT machine to pick it up as a block item, preserving stored items, energy, fluids, upgrades, and configuration.
 
+The Eclipse Alloy Wrench is included in the conventional wrench tags. For blocks from AE2 and other mods that support standard wrench hooks, normal and sneak use are delegated to that mod for rotation or quick dismantling, including its own permission and data-preservation rules.
+
 ### Adjust Machine Area
 
 Hold the Eclipse Alloy Wrench, hold the **Wrench Area Modifier** key (default Left Alt, configurable in key bindings), and scroll the mouse wheel while looking at a JDTE or JDT machine with an adjustable area to increase or decrease the X/Y/Z range radius at the same time.

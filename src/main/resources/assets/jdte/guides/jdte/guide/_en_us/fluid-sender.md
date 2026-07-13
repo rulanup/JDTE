@@ -11,21 +11,24 @@ item_ids:
 
 # Fluid Sender
 
-The Fluid Sender sends internal fluids to targets within its configured range.
+The Fluid Sender sends internal fluids to target containers within its configured range. It does not place fluid source blocks in the world.
 
 ## Variants
 
 | Machine | Upgrade Slots | Send Amount | Requires FE |
 |---------|--------------|-------------|-------------|
-| Basic Fluid Sender | 4 | 1,000 mB | No |
-| Advanced Fluid Sender | 4 | 4,000 mB | Yes |
-| Extended Fluid Sender | 8 | 4,000 mB | Yes |
+| Basic Fluid Sender | 4 | All available fluid | No |
+| Advanced Fluid Sender | 4 | All available fluid | Yes |
+| Extended Fluid Sender | 8 | All available fluid | Yes |
 
 ## Features
 
 - Sends fluids from the internal tank to fluid containers within range
+- Distributes transfers across in-range containers in round-robin order so the nearest or front target cannot monopolize output
 - Supports redstone control, Range Upgrade, and Filter Upgrade
-- Advanced and Extended versions support Overclock (doubled send amount), Underclock (halved send amount), and Capacity Upgrades
+- Unlimited batching is enabled by default and moves all available tank contents per operation; it can be disabled to use normal/overclock batch limits
+- With an Overclock or Creative Upgrade and Auto Input enabled, fluid moves directly from Auto Input containers to ranged targets without using internal tank capacity
+- Speed controls and Underclock adjust the operation interval, while Capacity Upgrades increase internal tank capacity
 
 ## Crafting
 

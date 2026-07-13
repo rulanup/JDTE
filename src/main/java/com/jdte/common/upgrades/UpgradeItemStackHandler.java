@@ -1,11 +1,6 @@
 package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
-import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
-import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
-import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
-import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
-import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -37,16 +32,7 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         }
 
         UpgradeType type = upgradeCard.getType();
-        if (type == UpgradeType.FLUID_STORAGE && !(machine instanceof ClickerT1BE)) {
-            return false;
-        }
-        if (type == UpgradeType.GENERATOR && !(machine instanceof GeneratorT1BE || machine instanceof GeneratorFluidT1BE)) {
-            return false;
-        }
-        if (type == UpgradeType.RANGE && !(machine instanceof AreaAffectingBE)) {
-            return false;
-        }
-        if (type == UpgradeType.FILTER && !(machine instanceof FilterableBE)) {
+        if (!UpgradeHelper.isUpgradeCompatible(machine, type)) {
             return false;
         }
         if (type.isSpeedUpgrade() && hasOppositeSpeedUpgrade(type)) {

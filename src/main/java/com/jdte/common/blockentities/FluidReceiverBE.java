@@ -14,6 +14,8 @@ import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.autoioconfig.OverclockDirectTransferHelper;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -37,6 +39,9 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
     public final JDTEFluidTank fluidTank;
 
     public final FluidContainerData fluidContainerData;
+    private int transferRetryTicks;
+    private int transferFailureBackoff;
+    private boolean transferMoved;
 
     protected FluidReceiverBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -45,7 +50,13 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
         areaAffectingData.xRadius = 1;
         areaAffectingData.yRadius = 1;
         areaAffectingData.zRadius = 1;
-        fluidTank = new JDTEFluidTank(getMaxMB(), f -> true);
+        fluidTank = new JDTEFluidTank(getMaxMB(), f -> true) {
+            @Override
+            protected void onContentsChanged() {
+                resetTransferBackoff();
+                setChanged();
+            }
+        };
         fluidContainerData = new FluidContainerData(this);
     }
 
@@ -55,11 +66,32 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
+    public void setAreaSettings(double xRadius, double yRadius, double zRadius,
+                                int xOffset, int yOffset, int zOffset, boolean renderArea) {
+        AreaAffectingBE.super.setAreaSettings(
+                xRadius, yRadius, zRadius, xOffset, yOffset, zOffset, renderArea);
+        OverclockDirectTransferHelper.invalidate(this);
+        resetTransferBackoff();
+    }
+
+    @Override
     public void tickServer() {
         super.tickServer();
         UpgradeHelper.syncCapacities(this);
+        if (transferRetryTicks > 0) {
+            transferRetryTicks--;
+            return;
+        }
         if (isActiveRedstone() && canRun()) {
+            if (OverclockDirectTransferHelper.isEnabled(this)) {
+                int moved = canRunDirectTransfer() ? OverclockDirectTransferHelper.transfer(this) : 0;
+                if (moved > 0) onDirectTransferSuccess();
+                updateTransferBackoff(moved > 0);
+                return;
+            }
+            transferMoved = false;
             receiveFluid();
+            updateTransferBackoff(transferMoved);
         }
     }
 
@@ -117,6 +149,7 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
             sourceHandler.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
         }
         setChanged();
+        transferMoved = true;
         return true;
     }
 
@@ -134,14 +167,36 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
         return dz > 0 ? Direction.SOUTH : Direction.NORTH;
     }
 
-    protected abstract int getBaseFluidToReceive();
-
     protected int getFluidToReceive() {
-        int base = getBaseFluidToReceive();
-        if (UpgradeHelper.hasCreativeUpgrade(this)) return base;
-        if (UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0) return base * 2;
-        if (UpgradeHelper.countUpgrades(this, UpgradeType.UNDERCLOCK) > 0) return Math.max(1, base / 4);
-        return base;
+        if (UpgradeHelper.hasCreativeUpgrade(this)
+                || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0) {
+            return JDTEConfig.COMMON.senderReceiverOverclockFluidTransferRate.get();
+        }
+        return JDTEConfig.COMMON.senderReceiverFluidTransferRate.get();
+    }
+
+    private void updateTransferBackoff(boolean moved) {
+        if (moved) {
+            transferFailureBackoff = 0;
+            return;
+        }
+        int maximum = JDTEConfig.COMMON.transferFailureBackoffMax.get();
+        transferFailureBackoff = transferFailureBackoff <= 0
+                ? Math.min(JDTEConfig.COMMON.transferFailureBackoffStart.get(), maximum)
+                : Math.min(maximum, transferFailureBackoff * 2);
+        transferRetryTicks = transferFailureBackoff;
+    }
+
+    private void resetTransferBackoff() {
+        transferRetryTicks = 0;
+        transferFailureBackoff = 0;
+    }
+
+    protected boolean canRunDirectTransfer() {
+        return true;
+    }
+
+    protected void onDirectTransferSuccess() {
     }
 
     @Override
@@ -193,5 +248,7 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
             fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
         }
         loadAreaSettings(tag);
+        areaAffectingData.area = null;
+        OverclockDirectTransferHelper.invalidate(this);
     }
 }

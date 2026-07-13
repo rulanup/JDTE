@@ -24,6 +24,7 @@ import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEAttachments;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -39,10 +40,6 @@ import java.util.Arrays;
 
 public final class AutoIoTransferHelper {
     private static final int SUCCESS_COOLDOWN_TICKS = 0;
-    private static final int FAILURE_BACKOFF_START_TICKS = 10;
-    private static final int MAX_FAILURE_BACKOFF_TICKS = 40;
-    private static final int ITEM_TRANSFER_LIMIT = 256;
-    private static final int FLUID_TRANSFER_LIMIT = 16000;
 
     private static final int IO_SIDE_NORTH = 0;
     private static final int IO_SIDE_SOUTH = 1;
@@ -56,6 +53,22 @@ public final class AutoIoTransferHelper {
     private AutoIoTransferHelper() {
     }
 
+    public static boolean supportsInput(BaseMachineBE machine) {
+        if (machine == null) {
+            return false;
+        }
+        IoRoutes routes = getRoutes(machine);
+        return routes.hasItemInputs() || routes.fluidInput() != null;
+    }
+
+    public static boolean supportsOutput(BaseMachineBE machine) {
+        if (machine == null) {
+            return false;
+        }
+        IoRoutes routes = getRoutes(machine);
+        return routes.hasItemOutputs() || routes.fluidOutput() != null;
+    }
+
     public static void tick(BaseMachineBE machine) {
         if (machine == null || !(machine.getLevel() instanceof ServerLevel serverLevel)) {
             return;
@@ -65,8 +78,13 @@ public final class AutoIoTransferHelper {
         }
 
         AutoIoConfigData data = machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get());
-        int sideMask = data.getSideMask();
-        if (sideMask == 0) {
+        int inputMask = data.getInputMask();
+        int outputMask = data.getOutputMask();
+        if (inputMask == 0 && outputMask == 0) {
+            data.resetTransferState();
+            return;
+        }
+        if (OverclockDirectTransferHelper.isEnabled(machine)) {
             data.resetTransferState();
             return;
         }
@@ -79,11 +97,11 @@ public final class AutoIoTransferHelper {
 
         IoRoutes routes = getRoutes(machine);
         if (routes.isEmpty()) {
-            data.setTransferCooldown(MAX_FAILURE_BACKOFF_TICKS);
+            data.setTransferCooldown(getMaxFailureBackoff());
             return;
         }
 
-        boolean moved = transferEnabledSide(serverLevel, machine, sideMask, routes);
+        boolean moved = transferEnabledSides(serverLevel, machine, inputMask, outputMask, routes);
         if (moved) {
             data.setFailureBackoff(0);
             data.setTransferCooldown(SUCCESS_COOLDOWN_TICKS);
@@ -92,56 +110,65 @@ public final class AutoIoTransferHelper {
         }
 
         int nextBackoff = data.getFailureBackoff() <= 0
-                ? FAILURE_BACKOFF_START_TICKS
-                : Math.min(MAX_FAILURE_BACKOFF_TICKS, data.getFailureBackoff() * 2);
+                ? getFailureBackoffStart()
+                : Math.min(getMaxFailureBackoff(), data.getFailureBackoff() * 2);
         data.setFailureBackoff(nextBackoff);
         data.setTransferCooldown(nextBackoff);
     }
 
-    private static boolean transferEnabledSide(ServerLevel level, BaseMachineBE machine, int sideMask, IoRoutes routes) {
+    private static boolean transferEnabledSides(ServerLevel level, BaseMachineBE machine,
+                                                int inputMask, int outputMask, IoRoutes routes) {
         boolean moved = false;
         int startSide = (int) (level.getGameTime() % AutoIoConfigData.SIDE_COUNT);
         for (int i = 0; i < AutoIoConfigData.SIDE_COUNT; i++) {
             int uiSide = (startSide + i) % AutoIoConfigData.SIDE_COUNT;
-            if ((sideMask & (1 << uiSide)) == 0) {
+            int bit = 1 << uiSide;
+            boolean inputEnabled = (inputMask & bit) != 0;
+            boolean outputEnabled = (outputMask & bit) != 0;
+            if (!inputEnabled && !outputEnabled) {
                 continue;
             }
             Direction side = directionForUiSide(machine, uiSide);
-            if (transferSide(level, machine, side, routes)) {
+            if (transferSide(level, machine, side, routes, inputEnabled, outputEnabled)) {
                 moved = true;
             }
         }
         return moved;
     }
 
-    private static boolean transferSide(ServerLevel level, BaseMachineBE machine, Direction side, IoRoutes routes) {
+    private static boolean transferSide(ServerLevel level, BaseMachineBE machine, Direction side, IoRoutes routes,
+                                        boolean inputEnabled, boolean outputEnabled) {
         boolean moved = false;
         BlockPos neighborPos = machine.getBlockPos().relative(side);
         Direction neighborSide = side.getOpposite();
 
         ItemStackHandler internalItems = machine.getMachineHandler();
-        if (internalItems != null && routes.hasItemOutputs()) {
+        if (outputEnabled && internalItems != null && routes.hasItemOutputs()) {
             IItemHandler externalItems = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, neighborSide);
             if (externalItems != null) {
-                moved |= pushItems(internalItems, routes.itemOutputs(), externalItems, ITEM_TRANSFER_LIMIT);
+                moved |= pushItems(internalItems, routes.itemOutputs(), externalItems,
+                        JDTEConfig.COMMON.autoIoItemTransferRate.get());
             }
         }
-        if (routes.fluidOutput() != null) {
+        if (outputEnabled && routes.fluidOutput() != null) {
             IFluidHandler externalFluid = level.getCapability(Capabilities.FluidHandler.BLOCK, neighborPos, neighborSide);
             if (externalFluid != null) {
-                moved |= pushFluid(routes.fluidOutput(), externalFluid, FLUID_TRANSFER_LIMIT);
+                moved |= pushFluid(routes.fluidOutput(), externalFluid,
+                        JDTEConfig.COMMON.autoIoFluidTransferRate.get());
             }
         }
-        if (internalItems != null && routes.hasItemInputs()) {
+        if (inputEnabled && internalItems != null && routes.hasItemInputs()) {
             IItemHandler externalItems = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, neighborSide);
             if (externalItems != null) {
-                moved |= pullItems(externalItems, internalItems, routes.itemInputs(), ITEM_TRANSFER_LIMIT);
+                moved |= pullItems(externalItems, internalItems, routes.itemInputs(),
+                        JDTEConfig.COMMON.autoIoItemTransferRate.get());
             }
         }
-        if (routes.fluidInput() != null) {
+        if (inputEnabled && routes.fluidInput() != null) {
             IFluidHandler externalFluid = level.getCapability(Capabilities.FluidHandler.BLOCK, neighborPos, neighborSide);
             if (externalFluid != null) {
-                moved |= pullFluid(externalFluid, routes.fluidInput(), FLUID_TRANSFER_LIMIT);
+                moved |= pullFluid(externalFluid, routes.fluidInput(),
+                        JDTEConfig.COMMON.autoIoFluidTransferRate.get());
             }
         }
 
@@ -395,6 +422,14 @@ public final class AutoIoTransferHelper {
             case IO_SIDE_DOWN -> Direction.DOWN;
             default -> Direction.NORTH;
         };
+    }
+
+    private static int getFailureBackoffStart() {
+        return Math.min(JDTEConfig.COMMON.transferFailureBackoffStart.get(), getMaxFailureBackoff());
+    }
+
+    private static int getMaxFailureBackoff() {
+        return JDTEConfig.COMMON.transferFailureBackoffMax.get();
     }
 
     private static int[] allSlots(ItemStackHandler handler) {

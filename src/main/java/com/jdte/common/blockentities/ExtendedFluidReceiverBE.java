@@ -12,7 +12,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ExtendedFluidReceiverBE extends FluidReceiverBE implements PoweredMachineBE, ExtendedUpgradeMachine {
-    public static final int BASE_FLUID_TO_RECEIVE = 4000; // 4 buckets
     public static final int BASE_ENERGY_CAPACITY = 100000;
     public static final int BASE_ENERGY_COST = 500;
 
@@ -21,14 +20,9 @@ public class ExtendedFluidReceiverBE extends FluidReceiverBE implements PoweredM
 
     public ExtendedFluidReceiverBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.EXTENDED_FLUID_RECEIVER.get(), pos, state);
-        tickSpeed = 10; // Default delay
+        tickSpeed = 1;
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
-    }
-
-    @Override
-    protected int getBaseFluidToReceive() {
-        return BASE_FLUID_TO_RECEIVE;
     }
 
     @Override
@@ -60,6 +54,16 @@ public class ExtendedFluidReceiverBE extends FluidReceiverBE implements PoweredM
             if (!hasEnoughPower(getStandardEnergyCost())) return;
         }
         super.receiveFluid();
+    }
+
+    @Override
+    protected boolean canRunDirectTransfer() {
+        return UpgradeHelper.hasCreativeUpgrade(this) || hasEnoughPower(getStandardEnergyCost());
+    }
+
+    @Override
+    protected void onDirectTransferSuccess() {
+        if (!UpgradeHelper.hasCreativeUpgrade(this)) extractEnergy(getStandardEnergyCost(), false);
     }
 
     @Override

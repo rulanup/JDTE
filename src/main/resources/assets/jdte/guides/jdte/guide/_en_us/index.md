@@ -9,6 +9,6 @@ navigation:
 
 JDT Extras is an extension mod for Just Dire Things, adding an upgrade system, time accelerators, extended machines, and additional automation machines for JDT machines.
 
-Current version: `0.5.2`
+Current version: `0.5.4`
 
 <SubPages />

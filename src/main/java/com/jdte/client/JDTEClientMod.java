@@ -1,6 +1,7 @@
 package com.jdte.client;
 
 import com.jdte.JDTE;
+import com.jdte.client.renderers.AreaPreviewRenderBatch;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -15,6 +16,7 @@ public class JDTEClientMod {
         NeoForge.EVENT_BUS.addListener(WrenchScrollHandler::onMouseScroll);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onInteraction);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onRenderLevel);
+        NeoForge.EVENT_BUS.addListener(AreaPreviewRenderBatch::onRenderLevel);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onRenderGui);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onClientTick);
     }

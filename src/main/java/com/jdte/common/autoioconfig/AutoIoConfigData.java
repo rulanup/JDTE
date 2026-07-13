@@ -9,16 +9,22 @@ public class AutoIoConfigData implements INBTSerializable<CompoundTag> {
     public static final int DEFAULT_SIDE_MASK = 0;
     public static final int ALL_SIDES_MASK = (1 << SIDE_COUNT) - 1;
 
-    private int sideMask = DEFAULT_SIDE_MASK;
+    private int inputMask = DEFAULT_SIDE_MASK;
+    private int outputMask = DEFAULT_SIDE_MASK;
     private int transferCooldown;
     private int failureBackoff;
 
-    public int getSideMask() {
-        return sideMask & ALL_SIDES_MASK;
+    public int getInputMask() {
+        return inputMask & ALL_SIDES_MASK;
     }
 
-    public void setSideMask(int sideMask) {
-        this.sideMask = sideMask & ALL_SIDES_MASK;
+    public int getOutputMask() {
+        return outputMask & ALL_SIDES_MASK;
+    }
+
+    public void setMasks(int inputMask, int outputMask) {
+        this.inputMask = inputMask & ALL_SIDES_MASK;
+        this.outputMask = outputMask & ALL_SIDES_MASK;
         resetTransferState();
     }
 
@@ -46,12 +52,18 @@ public class AutoIoConfigData implements INBTSerializable<CompoundTag> {
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        tag.putInt("sideMask", getSideMask());
+        tag.putInt("inputMask", getInputMask());
+        tag.putInt("outputMask", getOutputMask());
         return tag;
     }
 
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        setSideMask(nbt.getInt("sideMask"));
+        if (nbt.contains("inputMask") || nbt.contains("outputMask")) {
+            setMasks(nbt.getInt("inputMask"), nbt.getInt("outputMask"));
+            return;
+        }
+        int legacyMask = nbt.getInt("sideMask");
+        setMasks(legacyMask, legacyMask);
     }
 }

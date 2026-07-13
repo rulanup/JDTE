@@ -17,15 +17,16 @@ The Item Sender sends items to target containers within its configured range.
 
 | Machine | Upgrade Slots | Send Amount | Requires FE |
 |---------|--------------|-------------|-------------|
-| Basic Item Sender | 4 | 4 | No |
-| Advanced Item Sender | 4 | 32 | Yes |
-| Extended Item Sender | 8 | 32 | Yes |
+| Basic Item Sender | 4 | 64 | No |
+| Advanced Item Sender | 4 | 64 | Yes |
+| Extended Item Sender | 8 | 64 | Yes |
 
 ## Features
 
 - Sends items from internal storage to containers within range
 - Supports redstone control, Range Upgrade, and Filter Upgrade
-- Advanced and Extended versions support Overclock (doubled send amount), Underclock (halved send amount), and Capacity Upgrades
+- With an Overclock or Creative Upgrade and Auto Input enabled, items move directly from Auto Input containers to ranged targets, up to 10,000 items per operation by default, without using internal slot capacity
+- Speed controls and Underclock adjust the operation interval; batches are configurable
 
 ## Crafting
 

@@ -40,6 +40,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_SENSOR.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_COLLECTOR.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_PLACER.get());
+                output.accept(JDTEItems.ADVANCED_ITEM_COLLECTOR.get());
 
                 // Glue Activators
                 output.accept(JDTEItems.BASIC_GLUE_ACTIVATOR.get());

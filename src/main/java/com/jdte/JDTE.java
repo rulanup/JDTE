@@ -11,6 +11,7 @@ import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEMenus;
 import com.jdte.setup.JDTERecipes;
 import com.jdte.common.commands.JDTECommands;
+import com.jdte.common.blockentities.AdvancedItemCollectorManager;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
@@ -61,6 +62,10 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onBlockBreak);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
+        NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
+        NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
         }

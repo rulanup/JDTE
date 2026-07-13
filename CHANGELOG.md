@@ -4,6 +4,26 @@
 
 #### v0.5.4 (Current)
 
+- **Assets**: The Eclipse Alloy Wrench again uses the standard handheld model structure from JDT's Ferricore Wrench while retaining its dedicated JDTE texture and namespace.
+- **New**: Added the Advanced Item Collector with JDT's Item Collector model and machine interface plus eight standard upgrade slots. It intercepts dropped items before they join the world and inserts them directly into the adjacent inventory on its facing side, using a chunk-indexed loaded-collector registry instead of per-tick area scans. Partial remainders still spawn normally; no item-flow particles are emitted.
+- **Compatibility**: Advanced Item Collectors run at the final phase of the entity-join event, allowing other mods to modify or cancel item drops first while still collecting before the item is inserted into the world.
+- **Performance**: Advanced Item Collectors now aggregate identical drops created during the same server tick and perform one bulk destination insertion per item type. Cached collection bounds and per-tick filter results avoid repeated AABB allocation and filter matching for large bursts. Accepted drops are still canceled before world insertion, while unaccepted portions retain their original entity metadata; overlapping collectors keep the original immediate distribution path.
+- **Performance**: Advanced Item Collectors can now pre-drain dangerous oversized container slots through public NeoForge capabilities before player block breaking creates item entities. The feature is enabled by default with a configurable per-slot threshold of 10,000,000 items; once triggered, every oversized slot must be transferred completely or the break is cancelled and the player is notified.
+- **AE2 Compatibility**: Oversized pre-break transfers can now write directly through AE2's public `ME_STORAGE` capability, including ExtendedAE Extended and Oversize Interfaces. The route is enabled by default, uses the existing configurable 10M trigger threshold, and performs long-count simulation and insertion without normal-stack loops. Pre-break transfers are all-or-nothing: a target must simulate acceptance of the complete triggered slot before the source is changed, and any simulation/execution difference is restored.
+- **Fixed**: Advanced Item Collector upgrade slots now accept and advertise only Range and Filter Upgrades. Server-side slot validation and client tooltips share the same compatibility rule, so Fluid, Capacity, speed, Creative, and other ineffective upgrades are rejected consistently.
+- **Compatibility**: Added the Eclipse Alloy Wrench to the standard `c:tools/wrench` and legacy `c:wrenches` item tags. AE2 and other mods using conventional wrench hooks can now rotate or safely dismantle their own supported blocks with the Eclipse Alloy Wrench.
+- **Auto I/O**: Direction buttons now cycle through Disabled, Auto Input/Output (default color), Auto Input (orange), and Auto Output (blue). Input and output transfers are executed independently, and legacy enabled sides migrate to Input/Output mode.
+- **Auto I/O**: Modes unsupported by a machine's actual routes are now skipped and rejected server-side. Sender machines expose auto input only, receiver machines expose auto output only, and tooltips show the available modes.
+- **Compatibility**: Item Senders and Receivers now query sided item capabilities before the unsided fallback, allowing them to respect and interact with configured Mekanism machine input/output sides. The available-mode tooltip hint is now shown in gray.
+- **Performance**: Auto I/O now defaults to Logistics Network Netherite-tier batches (10,000 items or 1,000,000 mB per side operation). Item and Fluid Senders/Receivers default to Diamond-tier batches (64 items or 20,000 mB), switching to Netherite-tier batches with Overclock or Creative. Transfer rates and idle retry backoff are configurable; successful transfers remain low-latency while idle machines exponentially back off to reduce capability queries and area scans. Speed buttons continue to control the machine operation interval, with new machines defaulting to one tick.
+- **Naming**: Renamed the Chinese display names of the Basic, Advanced, and Extended Fluid Senders from “Fluid Placer” to “Fluid Sender”, distinguishing container transfer machines from JDT Fluid Placers that place fluid source blocks in the world.
+- **Fixed**: Fluid Senders now cache fluid-capable containers across their configured area and distribute each operation across them in round-robin order instead of permanently stopping at the first front-facing target. Target caches refresh when the area changes and periodically for block changes, unloaded chunks are skipped, and Advanced/Extended Senders now consume FE only after a successful transfer.
+- **Performance**: Fluid Senders now default to an unlimited operation batch, moving all currently available internal fluid without repeatedly looping in the same tick. This can be disabled in config to restore normal/overclock batch limits. Successful target sides are cached to reduce repeated sided capability queries while retaining range caching, round-robin distribution, and idle backoff.
+- **Overclock**: Item/Fluid Senders with Auto Input and Item/Fluid Receivers with Auto Output now gain a direct-transfer path when an Overclock or Creative Upgrade is installed. Sources and destinations transfer directly without being limited by the machine's internal inventory or tank capacity; normal Auto I/O is bypassed for that operation to prevent duplicate movement. Range endpoints, successful sides, round-robin cursors, unloaded-chunk checks, and idle backoff are cached/shared across all four machine families.
+- **Fixed**: Overclock direct item transfer now repeatedly extracts from the same source slot while it remains available, allowing bulk-storage handlers that expose at most one normal stack per capability call to approach the configured 10,000-item batch across sustained ticks.
+- **Performance**: Direct item transfer uses a shared 256-operation safety cap per machine and tick. This is enough to complete a 10,000-item batch in one tick for handlers returning 64 items per call, while preventing pathological one-item handlers from looping thousands of times. Item Sender/Receiver range discovery reuses a 40-tick cache and scans only block entities in loaded chunks instead of every block in the area.
+- **Fixed**: Removed the direct-transfer microsecond time slice because it spread a configured 10,000-item overclock batch across roughly one second. Empty internal Sender/Receiver buffers and empty source slots are still skipped without consuming operation capacity or performing unnecessary target probes.
+- **Performance**: Machine area previews and Eclipse Alloy Wrench selections are now submitted through one client render batch per frame. Lines and translucent boxes are grouped by render type, avoiding repeated GPU buffer flushes for every visible area machine.
 - **New**: The Eclipse Alloy Wrench can select an area with two left-clicked corners, preview it using JDT's area rendering, show live X/Y/Z dimensions, and copy the exact selection into an adjustable-area machine. Shift-left-click cancels the selection; machine radius and offset limits are enforced server-side.
 - **Fixed**: Two-corner wrench selections remain locked with their preview visible after being applied, allowing the same area to be copied to multiple machines. Only Shift-left-click clears the selection. Added distinct sounds for selecting each corner, clearing, and applying a selection.
 - **Fixed**: Wrench selection now latches the attack input until the mouse button is released, preventing repeated callbacks across multiple ticks from selecting both corners with one physical click.
@@ -108,6 +128,26 @@
 
 #### v0.5.4（当前）
 
+- **资源**：蚀空合金扳手恢复使用 JDT 核源铁扳手的标准手持模型结构，同时保留 JDTE 独立命名空间和专用贴图。
+- **新增**：新增高级物品拾取器，复用 JDT 物品拾取器模型和机器界面，并提供 8 个标准升级槽。机器在掉落物加入世界前将其拦截，直接写入朝向一侧的相邻容器；使用按区块索引的已加载拾取器注册表，不进行每 tick 范围扫描。无法完全插入时剩余物品仍会正常生成，整个过程不产生物品流动粒子。
+- **兼容性**：高级物品拾取器在实体加入事件的最后阶段处理，让其他模组先修改或取消掉落物，同时仍保证在物品真正加入世界前完成收集。
+- **性能**：高级物品拾取器会聚合同一服务端 tick 内产生的相同掉落物，每种物品只对目标容器执行一次批量插入；缓存的收集范围和当 tick 过滤结果会避免大规模掉落时重复创建 AABB 与重复匹配过滤。成功接收的掉落物仍会在入世前取消，无法接收的部分保留原实体数据；范围重叠的多个拾取器继续使用原即时分流逻辑。
+- **性能**：高级物品拾取器现在会在玩家破坏方块产生掉落实体之前，通过公开 NeoForge 能力直接转移危险的超大容器堆叠。该功能默认开启，单槽触发阈值默认 10,000,000 件且可配置；触发后每个超大槽位都必须完整转移，否则取消本次破坏并提示玩家。
+- **AE2 兼容**：破坏前超大堆叠现在可通过 AE2 公开的 `ME_STORAGE` 能力直接写入网络，同时覆盖 ExtendedAE 扩展接口和超大接口。该路径默认开启，复用可配置的 10M 单槽触发阈值，以长整型数量模拟和写入，不按普通堆叠循环。破坏前传输采用全有或全无策略：目标模拟可完整接收触发槽位后才修改源槽，模拟与实际写入的差额会恢复。
+- **修复**：高级物品拾取器升级槽现在只接受并提示范围升级和过滤升级。服务端槽位校验与客户端 tooltip 共用同一兼容规则，流体、容量、速度、创造及其他无实际作用的升级都会被一致拒绝。
+- **兼容性**：将蚀空合金扳手加入标准 `c:tools/wrench` 和旧版兼容 `c:wrenches` 物品标签。AE2 及其他使用通用扳手钩子的模组现在可以用蚀空合金扳手旋转或安全快捷拆除其支持的方块。
+- **自动 I/O**：方向按钮现在按“关闭、自动输入输出（默认颜色）、自动输入（橙色）、自动输出（蓝色）”循环；输入和输出传输会独立执行，旧存档中已启用的方向迁移为输入输出模式。
+- **自动 I/O**：机器实际路由不支持的模式会被跳过并由服务端拒绝；发送器仅提供自动输入，接收器仅提供自动输出，tooltip 会显示该机器可用的模式。
+- **兼容**：物品发送器和接收器现在会优先查询带方向的物品能力，再回退到无方向能力，可按 Mekanism 机器配置的输入/输出面正常交互；tooltip 中的可用模式提示已改为灰色。
+- **性能**：自动 I/O 默认采用 Logistics Network 下界合金级批量（每个方向单次 10,000 件物品或 1,000,000 mB）；物品/流体发送器和接收器默认采用钻石级批量（64 件或 20,000 mB），安装超频或创造升级后切换为下界合金级批量。传输量与空闲重试退避均可在配置中调整；有货时保持低延迟，空转时指数退避以减少能力查询和范围扫描。速度按钮仍控制机器执行间隔，新放置机器默认 1 tick。
+- **命名**：初级、高级和扩展 `fluid_sender` 的中文名称由“流体放置器”改为“流体发送器”，用于区分向容器传输流体的机器与在世界中生成流体源方块的 JDT 流体放置器。
+- **修复**：流体发送器现在会缓存配置范围内具备流体能力的容器，并按轮询顺序将单次批量分配给多个目标，不再永久停在第一个正面容器。范围变化时立即重建目标缓存，并定期刷新以识别方块增删；扫描会跳过未加载区块，高级和扩展发送器也只在成功传输后扣除 FE。
+- **性能**：流体发送器现在默认采用无限单次批量，每次操作发送内部全部可用流体，但不会在同一 tick 内反复循环。可在配置中关闭以恢复普通/超频批量限制。发送器会缓存目标上次成功的输入侧，减少重复侧面能力查询，同时保留范围缓存、轮询分配和空闲退避。
+- **超频**：物品/流体发送器开启自动输入、物品/流体接收器开启自动输出并安装超频或创造升级后，会启用直通传输。来源与目标容器直接交换内容，不再受机器内部物品槽或储罐容量限制；该操作会接管普通自动 I/O，避免同一 tick 重复搬运。四类机器共用范围端点、成功侧面、轮询游标、未加载区块检查和空闲退避缓存。
+- **修复**：超频直通物品传输现在会在来源槽仍有物品时重复抽取同一槽位，使每次 capability 调用最多只提供一组普通堆叠的抽屉、储存控制器等大容量库存能够在持续运行时接近配置的 10,000 件批量。
+- **性能**：物品直传采用整台机器每 tick 共享的 256 轮安全上限；对于每次 capability 调用返回 64 个物品的 handler，足以在同一 tick 完成 10,000 件批量，同时避免每次只返回 1 个物品的异常 handler 循环数千次。物品发送器/接收器的范围发现复用 40 tick 缓存，并且只扫描已加载区块中的方块实体，不再遍历范围内每个方块。
+- **修复**：移除物品直传的微秒时间片，修复配置为 10,000 件的超频批量被分摊到接近一秒才能完成的问题。内部缓冲为空或来源槽为空时仍会直接跳过，不消耗操作次数，也不会进行不必要的目标探测。
+- **性能**：机器范围预览和蚀空合金扳手框选改为每帧统一批量提交，按渲染类型集中绘制线框与半透明范围，避免每台可见范围机器反复刷新 GPU 缓冲区。
 - **新增**：蚀空合金扳手可通过两次左键设置角点框选区域，使用 JDT 范围效果预览并实时显示 X/Y/Z 尺寸，随后左键可调范围机器即可精确写入。Shift+左键取消框选，服务端会校验机器半径与偏移上限。
 - **修复**：两个角点选定后框选会保持锁定，成功应用后仍保留预览，可将同一范围复制到多台机器；只有 Shift+左键才能清空。新增第一点、第二点、清空和应用成功的区分音效。
 - **修复**：扳手框选现在会锁存左键输入直到鼠标按键释放，避免跨多个 tick 的重复回调让一次实际点击同时选中两个角点。
@@ -196,7 +236,7 @@
 - **新增**：9 种升级卡 — 扩展到包含过滤升级和创造升级。
 - **新增**：3 种时间加速器等级 — 初级、高级、扩展高级。
 - **新增**：扩展高级时间加速器支持 8 个升级槽。
-- **新增**：6 种自动化机器族 — 粘胶激活器、凝胶发生器、流体稳定器、物品/流体放置器、物品/流体接收器。
+- **新增**：6 种自动化机器族 — 粘胶激活器、凝胶发生器、流体稳定器、物品/流体发送器、物品/流体接收器。
 - **新增**：升级和过滤悬浮弹窗 — 可独立显示、拖动、位置持久化。
 - **新增**：动态过滤槽 — 根据过滤升级数量动态增加。
 - **文档**：同步更新 README 和 AGENTS.md。

@@ -20,6 +20,7 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, ExtendedSensorBlock> EXTENDED_SENSOR = BLOCKS.register("extended_sensor", ExtendedSensorBlock::new);
     public static final DeferredHolder<Block, ExtendedFluidCollectorBlock> EXTENDED_FLUID_COLLECTOR = BLOCKS.register("extended_fluid_collector", ExtendedFluidCollectorBlock::new);
     public static final DeferredHolder<Block, ExtendedFluidPlacerBlock> EXTENDED_FLUID_PLACER = BLOCKS.register("extended_fluid_placer", ExtendedFluidPlacerBlock::new);
+    public static final DeferredHolder<Block, AdvancedItemCollectorBlock> ADVANCED_ITEM_COLLECTOR = BLOCKS.register("advanced_item_collector", AdvancedItemCollectorBlock::new);
 
     // Glue Activator
     public static final DeferredHolder<Block, BasicGlueActivatorBlock> BASIC_GLUE_ACTIVATOR = BLOCKS.register("basic_glue_activator", BasicGlueActivatorBlock::new);

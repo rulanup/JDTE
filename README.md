@@ -56,6 +56,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 
 ### 额外自动化机器
 
+- 高级物品拾取器：8 个升级槽（仅范围/过滤升级），在掉落物加入世界前直接写入朝向一侧的容器，不产生拾取粒子，也不进行每 tick 范围扫描；玩家破坏单槽达到默认 10M 阈值的容器时会预先直传，并支持通过 AE2 `ME_STORAGE` 直接写入 ME 网络及 ExtendedAE 超大接口
 - 粘胶激活器：初级、高级、扩展
 - 凝胶发生器：高级、扩展
 - 流体稳定器：初级、高级、扩展；使用催化剂槽匹配 JDT FluidDrop 配方，在配置范围内直接转换源流体

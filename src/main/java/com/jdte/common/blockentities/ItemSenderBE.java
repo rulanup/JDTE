@@ -11,6 +11,8 @@ import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.autoioconfig.OverclockDirectTransferHelper;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -21,7 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
@@ -34,6 +35,9 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     public AreaAffectingData areaAffectingData;
     protected final ItemStackHandler itemHandler;
+    private int transferRetryTicks;
+    private int transferFailureBackoff;
+    private boolean transferMoved;
 
     protected ItemSenderBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -46,6 +50,7 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
         itemHandler = new ItemStackHandler(STORAGE_SLOTS) {
             @Override
             protected void onContentsChanged(int slot) {
+                resetTransferBackoff();
                 setChanged();
             }
         };
@@ -62,10 +67,31 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     }
 
     @Override
+    public void setAreaSettings(double xRadius, double yRadius, double zRadius,
+                                int xOffset, int yOffset, int zOffset, boolean renderArea) {
+        AreaAffectingBE.super.setAreaSettings(
+                xRadius, yRadius, zRadius, xOffset, yOffset, zOffset, renderArea);
+        OverclockDirectTransferHelper.invalidate(this);
+        resetTransferBackoff();
+    }
+
+    @Override
     public void tickServer() {
         super.tickServer();
+        if (transferRetryTicks > 0) {
+            transferRetryTicks--;
+            return;
+        }
         if (isActiveRedstone() && canRun()) {
+            if (OverclockDirectTransferHelper.isEnabled(this)) {
+                int moved = canRunDirectTransfer() ? OverclockDirectTransferHelper.transfer(this) : 0;
+                if (moved > 0) onDirectTransferSuccess();
+                updateTransferBackoff(moved > 0);
+                return;
+            }
+            transferMoved = false;
             sendItems();
+            updateTransferBackoff(transferMoved);
         }
     }
 
@@ -75,51 +101,96 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
         int itemsToSend = getItemsToSend();
         int sent = 0;
 
-        // 在范围内寻找目标容器
-        AABB area = getAABB(getBlockPos());
-        for (BlockPos targetPos : BlockPos.betweenClosed(
-                (int) area.minX, (int) area.minY, (int) area.minZ,
-                (int) area.maxX - 1, (int) area.maxY - 1, (int) area.maxZ - 1)) {
+        for (BlockPos targetPos : OverclockDirectTransferHelper.getCachedItemPositions(
+                serverLevel, this, this)) {
             if (sent >= itemsToSend) break;
 
-            // 跳过自身位置
-            if (targetPos.equals(getBlockPos())) continue;
-
-            IItemHandler targetHandler = serverLevel.getCapability(Capabilities.ItemHandler.BLOCK, targetPos, null);
-            if (targetHandler == null) continue;
-
-            for (int i = 0; i < STORAGE_SLOTS && sent < itemsToSend; i++) {
-                ItemStack stack = itemHandler.getStackInSlot(i);
-                if (stack.isEmpty()) continue;
-
-                int canSend = Math.min(stack.getCount(), itemsToSend - sent);
-                ItemStack toSend = stack.copy();
-                toSend.setCount(canSend);
-
-                ItemStack remaining = ItemHandlerHelper.insertItemStacked(targetHandler, toSend, false);
-                int actuallySent = canSend - remaining.getCount();
-
-                if (actuallySent > 0) {
-                    stack.shrink(actuallySent);
-                    itemHandler.setStackInSlot(i, stack);
-                    sent += actuallySent;
+            Direction preferredSide = getSideFacingMachine(targetPos);
+            if (preferredSide != null) {
+                sent += sendItemsToSide(serverLevel, targetPos, preferredSide, itemsToSend - sent);
+            }
+            for (Direction side : Direction.values()) {
+                if (sent >= itemsToSend) break;
+                if (side != preferredSide) {
+                    sent += sendItemsToSide(serverLevel, targetPos, side, itemsToSend - sent);
                 }
+            }
+            if (sent < itemsToSend) {
+                sent += sendItemsToSide(serverLevel, targetPos, null, itemsToSend - sent);
             }
         }
 
         if (sent > 0) {
+            transferMoved = true;
             setChanged();
         }
     }
 
-    protected abstract int getBaseItemsToSend();
+    private int sendItemsToSide(ServerLevel serverLevel, BlockPos targetPos, Direction side, int limit) {
+        IItemHandler targetHandler = serverLevel.getCapability(Capabilities.ItemHandler.BLOCK, targetPos, side);
+        if (targetHandler == null) return 0;
+
+        int sent = 0;
+        for (int i = 0; i < STORAGE_SLOTS && sent < limit; i++) {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+
+            int canSend = Math.min(stack.getCount(), limit - sent);
+            ItemStack toSend = stack.copyWithCount(canSend);
+            ItemStack remaining = ItemHandlerHelper.insertItemStacked(targetHandler, toSend, false);
+            int actuallySent = canSend - remaining.getCount();
+            if (actuallySent > 0) {
+                itemHandler.extractItem(i, actuallySent, false);
+                sent += actuallySent;
+            }
+        }
+        return sent;
+    }
+
+    private Direction getSideFacingMachine(BlockPos targetPos) {
+        int dx = getBlockPos().getX() - targetPos.getX();
+        int dy = getBlockPos().getY() - targetPos.getY();
+        int dz = getBlockPos().getZ() - targetPos.getZ();
+        int absX = Math.abs(dx);
+        int absY = Math.abs(dy);
+        int absZ = Math.abs(dz);
+
+        if (absX == 0 && absY == 0 && absZ == 0) return null;
+        if (absY >= absX && absY >= absZ) return dy > 0 ? Direction.UP : Direction.DOWN;
+        if (absX >= absZ) return dx > 0 ? Direction.EAST : Direction.WEST;
+        return dz > 0 ? Direction.SOUTH : Direction.NORTH;
+    }
 
     protected int getItemsToSend() {
-        int base = getBaseItemsToSend();
-        if (UpgradeHelper.hasCreativeUpgrade(this)) return base;
-        if (UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0) return base * 2;
-        if (UpgradeHelper.countUpgrades(this, UpgradeType.UNDERCLOCK) > 0) return Math.max(1, base / 4);
-        return base;
+        if (UpgradeHelper.hasCreativeUpgrade(this)
+                || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0) {
+            return JDTEConfig.COMMON.senderReceiverOverclockItemTransferRate.get();
+        }
+        return JDTEConfig.COMMON.senderReceiverItemTransferRate.get();
+    }
+
+    private void updateTransferBackoff(boolean moved) {
+        if (moved) {
+            transferFailureBackoff = 0;
+            return;
+        }
+        int maximum = JDTEConfig.COMMON.transferFailureBackoffMax.get();
+        transferFailureBackoff = transferFailureBackoff <= 0
+                ? Math.min(JDTEConfig.COMMON.transferFailureBackoffStart.get(), maximum)
+                : Math.min(maximum, transferFailureBackoff * 2);
+        transferRetryTicks = transferFailureBackoff;
+    }
+
+    private void resetTransferBackoff() {
+        transferRetryTicks = 0;
+        transferFailureBackoff = 0;
+    }
+
+    protected boolean canRunDirectTransfer() {
+        return true;
+    }
+
+    protected void onDirectTransferSuccess() {
     }
 
     public ItemStackHandler getItemHandler() {
@@ -160,5 +231,7 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
             itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
         }
         loadAreaSettings(tag);
+        areaAffectingData.area = null;
+        OverclockDirectTransferHelper.invalidate(this);
     }
 }

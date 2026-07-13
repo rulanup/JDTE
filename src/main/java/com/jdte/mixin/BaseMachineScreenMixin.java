@@ -2,8 +2,6 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
-import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
-import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
@@ -576,7 +574,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
     @Unique
     private void jdte$drawIoConfigSide(GuiGraphics guiGraphics, int side) {
-        jdte$drawSmallIconButton(guiGraphics, jdte$getIoSideX(side), jdte$getIoSideY(side), jdte$getIoSideIcon(side), jdte$isIoSideActive(side));
+        jdte$drawIoSideButton(guiGraphics, jdte$getIoSideX(side), jdte$getIoSideY(side),
+                jdte$getIoSideIcon(side), jdte$getIoSideMode(side));
     }
 
     @Unique
@@ -632,19 +631,65 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     }
 
     @Unique
-    private boolean jdte$isIoSideActive(int side) {
-        return (jdte$getIoSideMask() & (1 << side)) != 0;
+    private int jdte$getIoSideMode(int side) {
+        return AutoIoConfigHelper.getMode(jdte$getIoInputMask(), jdte$getIoOutputMask(), side);
     }
 
     @Unique
-    private int jdte$getIoSideMask() {
-        return AutoIoConfigClientCache.getSideMask(baseMachineBE);
+    private int jdte$getIoInputMask() {
+        return AutoIoConfigClientCache.getInputMask(baseMachineBE);
+    }
+
+    @Unique
+    private int jdte$getIoOutputMask() {
+        return AutoIoConfigClientCache.getOutputMask(baseMachineBE);
     }
 
     @Unique
     private void jdte$toggleIoConfigSide(int side) {
-        int newMask = AutoIoConfigHelper.toggleSide(jdte$getIoSideMask(), side);
-        AutoIoConfigClientCache.updateAndSend(baseMachineBE, newMask);
+        AutoIoConfigHelper.IoMasks masks = AutoIoConfigHelper.cycleSide(
+                jdte$getIoInputMask(), jdte$getIoOutputMask(), side,
+                AutoIoConfigHelper.supportsInput(baseMachineBE),
+                AutoIoConfigHelper.supportsOutput(baseMachineBE));
+        AutoIoConfigClientCache.updateAndSend(baseMachineBE, masks.inputMask(), masks.outputMask());
+    }
+
+    @Unique
+    private void jdte$drawIoSideButton(GuiGraphics guiGraphics, int x, int y, ResourceLocation icon, int mode) {
+        float red;
+        float green;
+        float blue;
+        switch (mode) {
+            case AutoIoConfigHelper.MODE_BOTH -> {
+                red = 1.0F;
+                green = 1.0F;
+                blue = 1.0F;
+            }
+            case AutoIoConfigHelper.MODE_INPUT -> {
+                red = 1.0F;
+                green = 0.55F;
+                blue = 0.1F;
+            }
+            case AutoIoConfigHelper.MODE_OUTPUT -> {
+                red = 0.25F;
+                green = 0.55F;
+                blue = 1.0F;
+            }
+            default -> {
+                red = 0.33F;
+                green = 0.33F;
+                blue = 0.33F;
+            }
+        }
+
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
+        poseStack.scale(0.75F, 0.75F, 1.0F);
+        RenderSystem.setShaderColor(red, green, blue, 1.0F);
+        guiGraphics.blit(icon, 0, 0, 0, 0, 16, 16, 16, 16);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        poseStack.popPose();
     }
 
     @Unique
@@ -716,18 +761,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
     @Unique
     private boolean jdte$isUpgradeCompatible(UpgradeType type) {
-        switch (type) {
-            case FLUID_STORAGE:
-                return baseMachineBE instanceof ClickerT1BE;
-            case GENERATOR:
-                return baseMachineBE instanceof GeneratorT1BE || baseMachineBE instanceof GeneratorFluidT1BE;
-            case RANGE:
-                return baseMachineBE instanceof AreaAffectingBE;
-            case FILTER:
-                return baseMachineBE instanceof FilterableBE;
-            default:
-                return true;
-        }
+        return UpgradeHelper.isUpgradeCompatible(baseMachineBE, type);
     }
 
     @Unique
@@ -885,9 +919,30 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         if (side >= 0) {
             guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
                     Component.translatable(jdte$getIoSideTranslationKey(side)),
-                    Component.translatable(jdte$isIoSideActive(side) ? "jdte.screen.io_config.enabled" : "jdte.screen.io_config.disabled")
+                    Component.translatable(jdte$getIoModeTranslationKey(jdte$getIoSideMode(side))),
+                    Component.translatable(jdte$getIoAvailabilityTranslationKey()).withStyle(ChatFormatting.GRAY)
             )), mouseX, mouseY);
         }
+    }
+
+    @Unique
+    private String jdte$getIoModeTranslationKey(int mode) {
+        return switch (mode) {
+            case AutoIoConfigHelper.MODE_BOTH -> "jdte.screen.io_config.both";
+            case AutoIoConfigHelper.MODE_INPUT -> "jdte.screen.io_config.input";
+            case AutoIoConfigHelper.MODE_OUTPUT -> "jdte.screen.io_config.output";
+            default -> "jdte.screen.io_config.disabled";
+        };
+    }
+
+    @Unique
+    private String jdte$getIoAvailabilityTranslationKey() {
+        boolean input = AutoIoConfigHelper.supportsInput(baseMachineBE);
+        boolean output = AutoIoConfigHelper.supportsOutput(baseMachineBE);
+        if (input && output) return "jdte.screen.io_config.available.both";
+        if (input) return "jdte.screen.io_config.available.input";
+        if (output) return "jdte.screen.io_config.available.output";
+        return "jdte.screen.io_config.available.none";
     }
 
     @Unique

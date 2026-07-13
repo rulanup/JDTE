@@ -32,6 +32,8 @@ public class JDTEBlockEntities {
             "extended_fluid_collector", () -> BlockEntityType.Builder.of(ExtendedFluidCollectorBE::new, JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedFluidPlacerBE>> EXTENDED_FLUID_PLACER = BLOCK_ENTITIES.register(
             "extended_fluid_placer", () -> BlockEntityType.Builder.of(ExtendedFluidPlacerBE::new, JDTEBlocks.EXTENDED_FLUID_PLACER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedItemCollectorBE>> ADVANCED_ITEM_COLLECTOR = BLOCK_ENTITIES.register(
+            "advanced_item_collector", () -> BlockEntityType.Builder.of(AdvancedItemCollectorBE::new, JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get()).build(null));
 
     // Glue Activator
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicGlueActivatorBE>> BASIC_GLUE_ACTIVATOR = BLOCK_ENTITIES.register(

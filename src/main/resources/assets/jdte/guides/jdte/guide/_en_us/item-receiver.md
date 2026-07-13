@@ -17,15 +17,16 @@ The Item Receiver receives items from target containers within its configured ra
 
 | Machine | Upgrade Slots | Receive Amount | Requires FE |
 |---------|--------------|----------------|-------------|
-| Basic Item Receiver | 4 | 4 | No |
-| Advanced Item Receiver | 4 | 32 | Yes |
-| Extended Item Receiver | 8 | 32 | Yes |
+| Basic Item Receiver | 4 | 64 | No |
+| Advanced Item Receiver | 4 | 64 | Yes |
+| Extended Item Receiver | 8 | 64 | Yes |
 
 ## Features
 
 - Receives items from containers within range into internal storage
 - Supports redstone control, Range Upgrade, and Filter Upgrade
-- Advanced and Extended versions support Overclock (doubled receive amount), Underclock (halved receive amount), and Capacity Upgrades
+- With an Overclock or Creative Upgrade and Auto Output enabled, items move directly from ranged sources to Auto Output containers, up to 10,000 items per operation by default, without using internal slot capacity
+- Speed controls and Underclock adjust the operation interval; batches are configurable
 
 ## Crafting
 
