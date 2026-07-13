@@ -1,0 +1,46 @@
+package com.jdte.common.network.data;
+
+import com.jdte.JDTE;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.phys.AABB;
+
+public record EntitySuppressorSyncPayload(BlockPos blockPos, int mode, int target, boolean blacklist,
+                                          boolean particleActive, boolean entitySuppressionActive,
+                                          double minX, double minY, double minZ,
+                                          double maxX, double maxY, double maxZ)
+        implements CustomPacketPayload {
+    public static final Type<EntitySuppressorSyncPayload> TYPE = new Type<>(JDTE.id("entity_suppressor_sync"));
+    public static final StreamCodec<FriendlyByteBuf, EntitySuppressorSyncPayload> STREAM_CODEC = StreamCodec.of(
+            EntitySuppressorSyncPayload::encode, EntitySuppressorSyncPayload::decode);
+
+    private static void encode(FriendlyByteBuf buf, EntitySuppressorSyncPayload payload) {
+        buf.writeBlockPos(payload.blockPos);
+        buf.writeVarInt(payload.mode);
+        buf.writeVarInt(payload.target);
+        buf.writeBoolean(payload.blacklist);
+        buf.writeBoolean(payload.particleActive);
+        buf.writeBoolean(payload.entitySuppressionActive);
+        buf.writeDouble(payload.minX);
+        buf.writeDouble(payload.minY);
+        buf.writeDouble(payload.minZ);
+        buf.writeDouble(payload.maxX);
+        buf.writeDouble(payload.maxY);
+        buf.writeDouble(payload.maxZ);
+    }
+
+    private static EntitySuppressorSyncPayload decode(FriendlyByteBuf buf) {
+        return new EntitySuppressorSyncPayload(buf.readBlockPos(), buf.readVarInt(), buf.readVarInt(),
+                buf.readBoolean(), buf.readBoolean(), buf.readBoolean(),
+                buf.readDouble(), buf.readDouble(), buf.readDouble(),
+                buf.readDouble(), buf.readDouble(), buf.readDouble());
+    }
+
+    public AABB area() {
+        return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    @Override public Type<EntitySuppressorSyncPayload> type() { return TYPE; }
+}

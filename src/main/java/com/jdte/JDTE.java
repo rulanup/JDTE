@@ -12,6 +12,7 @@ import com.jdte.setup.JDTEMenus;
 import com.jdte.setup.JDTERecipes;
 import com.jdte.common.commands.JDTECommands;
 import com.jdte.common.blockentities.AdvancedItemCollectorManager;
+import com.jdte.common.blockentities.EntitySuppressorManager;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
@@ -66,6 +67,11 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
+        NeoForge.EVENT_BUS.addListener(EntitySuppressorManager::onEntityTick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onItemPickup);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onEntityJoin);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onMobSpawnPosition);
+        NeoForge.EVENT_BUS.addListener(EntitySuppressorManager::onLevelUnload);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
         }
@@ -127,6 +133,9 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),
                 JDTEBlocks.EXTENDED_FLUID_PLACER.get()
         );
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.EntitySuppressorBE suppressor ? suppressor.getEnergyStorage() : null,
+                JDTEBlocks.ENTITY_SUPPRESSOR.get());
         event.registerBlock(Capabilities.FluidHandler.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE fluidMachine ? fluidMachine.getFluidTank() : null,
                 JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),

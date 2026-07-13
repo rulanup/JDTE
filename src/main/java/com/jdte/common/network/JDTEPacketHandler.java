@@ -15,6 +15,10 @@ import com.jdte.common.network.data.WrenchAreaAdjustResultPayload;
 import com.jdte.common.network.data.WrenchAreaSelectionPayload;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
+import com.jdte.common.network.data.EntitySuppressorPayload;
+import com.jdte.common.network.data.EntitySuppressorSyncPayload;
+import com.jdte.common.network.handler.EntitySuppressorPacket;
+import com.jdte.common.network.handler.EntitySuppressorSyncPacket;
 import com.jdte.common.network.handler.AutoIoConfigPacket;
 import com.jdte.common.network.handler.BioCrusherPacket;
 import com.jdte.common.network.handler.FilterPagePacket;
@@ -47,5 +51,7 @@ public class JDTEPacketHandler {
         registrar.playToServer(WrenchAreaSelectionPayload.TYPE, WrenchAreaSelectionPayload.STREAM_CODEC, WrenchAreaSelectionPacket.get()::handleServer);
         registrar.playToClient(SpawnEggRecipeSyncPayload.TYPE, SpawnEggRecipeSyncPayload.STREAM_CODEC, SpawnEggRecipeSyncPacket::handle);
         registrar.playToClient(LootFabricatorLootSyncPayload.TYPE, LootFabricatorLootSyncPayload.STREAM_CODEC, LootFabricatorLootSyncPacket::handle);
+        registrar.playToServer(EntitySuppressorPayload.TYPE, EntitySuppressorPayload.STREAM_CODEC, EntitySuppressorPacket::handle);
+        registrar.playToClient(EntitySuppressorSyncPayload.TYPE, EntitySuppressorSyncPayload.STREAM_CODEC, EntitySuppressorSyncPacket::handle);
     }
 }

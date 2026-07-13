@@ -82,6 +82,14 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue advancedItemCollectorPreDrainThreshold;
         public final ModConfigSpec.BooleanValue advancedItemCollectorMeDirectTransferEnabled;
 
+        // Entity Suppressor
+        public final ModConfigSpec.IntValue entitySuppressorEnergyCapacity;
+        public final ModConfigSpec.IntValue entitySuppressorEnergyPerTick;
+        public final ModConfigSpec.BooleanValue entitySuppressorProtectNamed;
+        public final ModConfigSpec.BooleanValue entitySuppressorProtectTamed;
+        public final ModConfigSpec.BooleanValue entitySuppressorProtectBosses;
+        public final ModConfigSpec.BooleanValue entitySuppressorRemoveExisting;
+
         // Gel Generator
         public final ModConfigSpec.IntValue gelGeneratorInputSlots;
         public final ModConfigSpec.IntValue gelGeneratorOutputSlots;
@@ -347,6 +355,30 @@ public class JDTEConfig {
                     .comment("Directly insert triggered oversized stacks into an attached AE2 ME storage capability")
                     .translation("config.jdte.jdte.advancedItemCollector.meDirectTransferEnabled")
                     .define("meDirectTransferEnabled", true);
+            builder.pop();
+
+            builder.comment("Entity Suppressor Settings")
+                    .translation("config.jdte.jdte.entitySuppressor")
+                    .push("entitySuppressor");
+            entitySuppressorEnergyCapacity = builder
+                    .translation("config.jdte.jdte.entitySuppressor.energyCapacity")
+                    .defineInRange("energyCapacity", 200000, 1000, 100000000);
+            entitySuppressorEnergyPerTick = builder
+                    .translation("config.jdte.jdte.entitySuppressor.energyPerTick")
+                    .defineInRange("energyPerTick", 250, 0, 1000000);
+            entitySuppressorProtectNamed = builder
+                    .translation("config.jdte.jdte.entitySuppressor.protectNamed")
+                    .define("protectNamed", true);
+            entitySuppressorProtectTamed = builder
+                    .translation("config.jdte.jdte.entitySuppressor.protectTamed")
+                    .define("protectTamed", true);
+            entitySuppressorProtectBosses = builder
+                    .translation("config.jdte.jdte.entitySuppressor.protectBosses")
+                    .define("protectBosses", true);
+            entitySuppressorRemoveExisting = builder
+                    .comment("Periodically remove matching existing entities while Block Entities mode is active")
+                    .translation("config.jdte.jdte.entitySuppressor.removeExisting")
+                    .define("removeExistingEntities", false);
             builder.pop();
 
             // Gel Generator

@@ -35,6 +35,8 @@ public class JDTEMenus {
             "extended_fluid_placer", () -> IMenuTypeExtension.create(ExtendedFluidPlacerContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedItemCollectorContainer>> ADVANCED_ITEM_COLLECTOR = MENUS.register(
             "advanced_item_collector", () -> IMenuTypeExtension.create(AdvancedItemCollectorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<EntitySuppressorContainer>> ENTITY_SUPPRESSOR = MENUS.register(
+            "entity_suppressor", () -> IMenuTypeExtension.create(EntitySuppressorContainer::new));
 
     // Glue Activator
     public static final DeferredHolder<MenuType<?>, MenuType<BasicGlueActivatorContainer>> BASIC_GLUE_ACTIVATOR = MENUS.register(

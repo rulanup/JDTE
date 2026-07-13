@@ -4,6 +4,15 @@
 
 #### v0.5.4 (Current)
 
+- **New**: Added the Entity Suppressor using the JDT Advanced Sensor model and an eight-upgrade-slot interface. Its chunk-indexed event-driven modes can suppress entity ticks, reject entity spawning/world insertion, or disable client particles without per-tick area scans. Entity modes support hostile, passive, all living, selected-type, and non-living filters with allowlist/blacklist behavior. Players and vehicle chains are always protected; named, tamed, and boss protection is configurable. Entity handling uses public NeoForge events, while universal particle suppression uses one narrowly scoped client mixin before particle creation.
+- **GUI**: Replaced the Entity Suppressor's large text controls with JDT-style icon controls. Target and allowlist/blacklist settings use compact filter-row buttons, while the main mode button sits above the fifth filter slot and cycles through JDT Death Protection, No AI, and Water Breathing upgrade icons.
+- **Fixed**: Entity suppression now cancels matching ticks on both logical sides so dropped items stop immediately instead of replaying client motion, and frozen item entities can no longer be picked up. Particle suppression now intercepts JDT Energy Transmitter item-flow particles at their server emission path in addition to generic client particles. Disabled target/list controls render gray. Block mode can optionally remove existing matching entities every 20 ticks through a new config option that defaults to off.
+- **Fixed**: Frozen item entities now have their randomized spawn velocity cleared before server tracking and again on client join. Their render partial tick is fixed through a narrow Item Entity Renderer mixin, preventing container drops from first scattering locally and later snapping back, and stopping the residual bob/rotation animation that continues independently of entity ticks.
+- **Fixed**: Entity Suppressor mode and active-state changes now use an explicit compact server-to-client sync payload for players tracking the machine's chunk. Runtime mode changes immediately rebuild the client suppressor index instead of relying on block-update NBT, fixing suppression that worked after joining but became visually stale after changing settings.
+- **Fixed**: Moved generic Entity Suppressor particle rejection from `ClientLevel.addParticle` to the final `ParticleEngine.add(Particle)` insertion point, matching Tweakeroo's proven approach. This catches mod particles that construct and enqueue particle instances directly while retaining the dedicated server-side JDT Energy Transmitter interception.
+- **Fixed**: Suppress Entity mode no longer consumes its per-tick FE upkeep while idle. It now simulates availability continuously and charges once only on ticks that actually suppress matching entities, preventing the default 200,000 FE buffer from silently draining in 40 seconds. GUI changes are also applied optimistically to the local client before the authoritative sync arrives.
+- **Fixed**: Entity Suppressor state synchronization now includes the server-computed suppression bounds. The client rebuilds its chunk index from this authoritative area after settings, range, or rotation changes, fixing item tick/render suppression losing the machine when the client's stale area covered different chunks. Temporary diagnostic logging was removed after verification.
+- **New**: Added an All Entity Types target to the Entity Suppressor. It matches both living and non-living entities while retaining spawn-egg allowlist/blacklist filtering, and uses JDT's existing combined-target icon. The new value is appended after existing target modes to preserve saved mode ordinals.
 - **Assets**: The Eclipse Alloy Wrench again uses the standard handheld model structure from JDT's Ferricore Wrench while retaining its dedicated JDTE texture and namespace.
 - **New**: Added the Advanced Item Collector with JDT's Item Collector model and machine interface plus eight standard upgrade slots. It intercepts dropped items before they join the world and inserts them directly into the adjacent inventory on its facing side, using a chunk-indexed loaded-collector registry instead of per-tick area scans. Partial remainders still spawn normally; no item-flow particles are emitted.
 - **Compatibility**: Advanced Item Collectors run at the final phase of the entity-join event, allowing other mods to modify or cancel item drops first while still collecting before the item is inserted into the world.
@@ -128,6 +137,15 @@
 
 #### v0.5.4（当前）
 
+- **新增**：加入实体抑制器，复用 JDT 高级传感器模型并提供八个升级槽。机器通过按区块索引的事件驱动逻辑提供抑制实体更新、禁止实体生成/加入世界和禁用客户端粒子三种模式，不进行逐 Tick 范围扫描。实体模式支持敌对生物、被动生物、所有生物、指定实体类型和非生物实体，并可切换白名单/黑名单。玩家和载具链始终受保护，命名、驯服和 Boss 实体保护可配置。实体处理使用 NeoForge 公开事件，通用粒子禁用仅使用一个位于粒子创建入口的窄客户端 Mixin。
+- **界面**：移除实体抑制器额外绘制的大型文字按钮。目标和黑白名单改为过滤槽上方的 JDT 风格小图标按钮；主模式按钮放在第 5 个过滤槽上方，并使用 JDT 死亡保护、意识摧毁和水下呼吸升级图标循环切换。
+- **修复**：抑制实体模式现在会同时取消逻辑服务端和客户端的匹配实体 Tick，掉落物会立即停止而不再循环播放本地运动，并且被冻结的掉落物无法拾取。禁用粒子模式除通用客户端粒子外，还会在服务端发送路径拦截 JDT 能量传输器的物品流粒子。禁用状态下目标和名单按钮显示为灰色。禁止实体模式新增默认关闭的配置，可每 20 Tick 清除一次范围内已有匹配实体。
+- **修复**：被冻结掉落物的随机生成速度现在会在服务端开始追踪前清零，并在客户端实体加入时再次兜底清零；通过仅针对掉落物渲染器的窄 Mixin 固定渲染插值，避免容器掉落物先在本地分散、随后被服务端拉回，也停止独立于实体 Tick 的残余浮动和旋转动画。
+- **修复**：实体抑制器的模式与工作状态变化现在通过紧凑的服务端到客户端同步包发送给追踪机器区块的玩家。运行中重新设置会立即更新客户端方块实体并重建抑制索引，不再依赖方块更新 NBT，修复进入游戏时正常、修改设置后客户端视觉状态失效的问题。
+- **修复**：实体抑制器的通用粒子拦截从 `ClientLevel.addParticle` 下移到最终的 `ParticleEngine.add(Particle)` 入队位置，采用与 Tweakeroo 一致的成熟入口，可覆盖直接构造并加入粒子引擎的模组粒子，同时继续保留 JDT 能量传输器的服务端专用拦截。
+- **修复**：抑制实体模式空闲时不再持续消耗每 Tick 能量；现在持续模拟检查可用能量，仅在本 Tick 确实抑制匹配实体时统一扣费一次，避免默认 200,000 FE 在 40 秒内被静默耗尽。界面设置会先立即应用到本地客户端，再由服务端权威同步校正。
+- **修复**：实体抑制器状态同步现在会携带服务端计算出的权威抑制范围；设置、范围或朝向变化后，客户端会用该范围重新建立区块索引，修复客户端旧范围覆盖了不同区块时丢失机器、导致掉落物 Tick 与渲染抑制失效的问题。验证完成后已移除临时诊断日志。
+- **新增**：实体抑制器增加“所有类型”目标，可同时匹配生物与非生物实体，并继续支持刷怪蛋黑白名单过滤；按钮复用 JDT 的组合目标图标。新模式追加在现有目标之后，避免改变旧存档中的目标序号。
 - **资源**：蚀空合金扳手恢复使用 JDT 核源铁扳手的标准手持模型结构，同时保留 JDTE 独立命名空间和专用贴图。
 - **新增**：新增高级物品拾取器，复用 JDT 物品拾取器模型和机器界面，并提供 8 个标准升级槽。机器在掉落物加入世界前将其拦截，直接写入朝向一侧的相邻容器；使用按区块索引的已加载拾取器注册表，不进行每 tick 范围扫描。无法完全插入时剩余物品仍会正常生成，整个过程不产生物品流动粒子。
 - **兼容性**：高级物品拾取器在实体加入事件的最后阶段处理，让其他模组先修改或取消掉落物，同时仍保证在物品真正加入世界前完成收集。
