@@ -34,6 +34,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.EXTENDED_FLUID_PLACER.get(), com.direwolf20.justdirethings.client.screens.FluidPlacerT2Screen::new);
         event.register(JDTEMenus.ADVANCED_ITEM_COLLECTOR.get(), AdvancedItemCollectorScreen::new);
         event.register(JDTEMenus.ENTITY_SUPPRESSOR.get(), EntitySuppressorScreen::new);
+        event.register(JDTEMenus.RANGE_BLOCKER.get(), RangeBlockerScreen::new);
 
         // Glue Activators
         event.register(JDTEMenus.BASIC_GLUE_ACTIVATOR.get(), BasicGlueActivatorScreen::new);
@@ -110,6 +111,7 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_PLACER.get(), com.direwolf20.justdirethings.client.blockentityrenders.FluidPlacerT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ITEM_COLLECTOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ENTITY_SUPPRESSOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.RANGE_BLOCKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
 
         // Glue Activators - 使用AreaAffectingBER渲染区域
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);

@@ -17,8 +17,12 @@ import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import com.jdte.common.network.data.EntitySuppressorPayload;
 import com.jdte.common.network.data.EntitySuppressorSyncPayload;
+import com.jdte.common.network.data.RangeBlockerPayload;
+import com.jdte.common.network.data.RangeBlockerSyncPayload;
 import com.jdte.common.network.handler.EntitySuppressorPacket;
 import com.jdte.common.network.handler.EntitySuppressorSyncPacket;
+import com.jdte.common.network.handler.RangeBlockerPacket;
+import com.jdte.common.network.handler.RangeBlockerSyncPacket;
 import com.jdte.common.network.handler.AutoIoConfigPacket;
 import com.jdte.common.network.handler.BioCrusherPacket;
 import com.jdte.common.network.handler.FilterPagePacket;
@@ -53,5 +57,7 @@ public class JDTEPacketHandler {
         registrar.playToClient(LootFabricatorLootSyncPayload.TYPE, LootFabricatorLootSyncPayload.STREAM_CODEC, LootFabricatorLootSyncPacket::handle);
         registrar.playToServer(EntitySuppressorPayload.TYPE, EntitySuppressorPayload.STREAM_CODEC, EntitySuppressorPacket::handle);
         registrar.playToClient(EntitySuppressorSyncPayload.TYPE, EntitySuppressorSyncPayload.STREAM_CODEC, EntitySuppressorSyncPacket::handle);
+        registrar.playToServer(RangeBlockerPayload.TYPE, RangeBlockerPayload.STREAM_CODEC, RangeBlockerPacket::handle);
+        registrar.playToClient(RangeBlockerSyncPayload.TYPE, RangeBlockerSyncPayload.STREAM_CODEC, RangeBlockerSyncPacket::handle);
     }
 }

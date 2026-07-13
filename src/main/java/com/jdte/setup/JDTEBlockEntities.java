@@ -36,6 +36,8 @@ public class JDTEBlockEntities {
             "advanced_item_collector", () -> BlockEntityType.Builder.of(AdvancedItemCollectorBE::new, JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EntitySuppressorBE>> ENTITY_SUPPRESSOR = BLOCK_ENTITIES.register(
             "entity_suppressor", () -> BlockEntityType.Builder.of(EntitySuppressorBE::new, JDTEBlocks.ENTITY_SUPPRESSOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RangeBlockerBE>> RANGE_BLOCKER = BLOCK_ENTITIES.register(
+            "range_blocker", () -> BlockEntityType.Builder.of(RangeBlockerBE::new, JDTEBlocks.RANGE_BLOCKER.get()).build(null));
 
     // Glue Activator
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasicGlueActivatorBE>> BASIC_GLUE_ACTIVATOR = BLOCK_ENTITIES.register(

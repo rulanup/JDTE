@@ -22,6 +22,7 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, ExtendedFluidPlacerBlock> EXTENDED_FLUID_PLACER = BLOCKS.register("extended_fluid_placer", ExtendedFluidPlacerBlock::new);
     public static final DeferredHolder<Block, AdvancedItemCollectorBlock> ADVANCED_ITEM_COLLECTOR = BLOCKS.register("advanced_item_collector", AdvancedItemCollectorBlock::new);
     public static final DeferredHolder<Block, EntitySuppressorBlock> ENTITY_SUPPRESSOR = BLOCKS.register("entity_suppressor", EntitySuppressorBlock::new);
+    public static final DeferredHolder<Block, RangeBlockerBlock> RANGE_BLOCKER = BLOCKS.register("range_blocker", RangeBlockerBlock::new);
 
     // Glue Activator
     public static final DeferredHolder<Block, BasicGlueActivatorBlock> BASIC_GLUE_ACTIVATOR = BLOCKS.register("basic_glue_activator", BasicGlueActivatorBlock::new);

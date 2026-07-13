@@ -22,6 +22,7 @@ Major features:
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
 - Advanced Item Collector with eight upgrade slots and event-driven pre-spawn collection without item-flow particles.
 - Entity Suppressor with entity-tick suppression, entity spawn/join blocking, client particle suppression, and six entity target modes.
+- Range Blocker with event-driven living-entity containment and player-magnet suppression.
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
@@ -219,6 +220,7 @@ Rules:
 | Fluid Receiver | Basic, Advanced, Extended | `FluidReceiverBE` | Pulls fluid from configured targets |
 | Advanced Item Collector | Single eight-slot tier | `AdvancedItemCollectorBE` | Intercepts item entities before world insertion and sends them to its facing inventory |
 | Entity Suppressor | Single eight-slot tier | `EntitySuppressorBE` | Suppresses entity ticks, blocks entity creation, or disables particles in a filtered area |
+| Range Blocker | Single eight-slot tier | `RangeBlockerBE` | Contains living entities or prevents player magnets from moving item entities in a filtered area |
 | Bio Crusher | Advanced, Extended | `BioCrusherBE` | Produces mob loot and XP fluid, including spawner integration |
 | Life Extractor | Advanced, Extended | `LifeExtractorBE` | Converts target health into Life Fluid without normal drops |
 | Infusion Machine | Advanced, Extended | `InfusionMachineBE` | Performs gel/item and dynamic spawn egg infusion |
@@ -275,6 +277,7 @@ Client mixins:
 | `SlotAccessor` | Repositions menu slots dynamically |
 | `ParticleEngineMixin` | Rejects particles at the final client particle-engine insertion point for Entity Suppressor areas |
 | `ItemEntityRendererMixin` | Freezes render interpolation for suppressed item entities |
+| `MekanismMagneticAttractionMixin` | Optionally excludes demagnetized items from Mekanism's existing attraction candidates |
 
 Mixin conventions:
 
@@ -359,6 +362,7 @@ Recommended order:
 ### v0.5.4 (Current)
 
 - Added the Entity Suppressor with chunk-indexed entity tick/spawn handling, six entity target modes, allowlist/blacklist filtering, configurable safety protections, and narrowly scoped client particle suppression.
+- Added the Range Blocker with chunk-indexed Containment and Demagnetization modes, item/entity filtering, Simple Magnets and Sophisticated marker compatibility, and optional Mekanism candidate filtering.
 - Added the Advanced Item Collector with JDT's model/interface, eight standard upgrade slots, chunk-indexed event-driven pre-spawn collection, partial remainder handling, and no item-flow particles. Player-broken containers with a slot at or above the configurable 10M default threshold are pre-drained through public capabilities before item entities are created; every triggered slot must transfer completely or the break is cancelled. AE2 `ME_STORAGE` targets, including ExtendedAE interfaces, receive these stacks directly through long-count storage operations.
 - Advanced Item Collectors accept only Range and Filter Upgrades; server slot validation and GUI compatibility hints use the same rule.
 - The Eclipse Alloy Wrench is registered in `c:tools/wrench` and `c:wrenches`, allowing AE2 and other compatible mods to handle rotation and dismantling through their native wrench hooks.
@@ -431,6 +435,7 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Loot Fabricator | `jdte.lootFabricator` | Processing costs, Boss multipliers, Looting copies, and compatibility loot |
 | Sender/Receiver | `jdte.senderReceiver` | Storage, transfer rates, delays, and energy |
 | Advanced Item Collector | `jdte.advancedItemCollector` | Pre-break oversized-container transfer, per-slot threshold, and direct AE2 ME transfer toggle |
+| Range Blocker | `jdte.rangeBlocker` | Separate mode energy costs, entity safety, projectile/ownerless projectile containment, explosion clipping, and optional Mekanism compatibility |
 | Gel Generator | `jdte.gelGenerator` | Slots, capacity, conversion, and fuel use |
 | Generator upgrade | `jdte.generatorUpgrade` | Energy multiplier and fluid consumption |
 | Upgrade items | `jdte.upgradeItems` | Limits and damage values |

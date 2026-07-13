@@ -47,6 +47,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_PLACER = ITEMS.register("extended_fluid_placer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_PLACER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ADVANCED_ITEM_COLLECTOR = ITEMS.register("advanced_item_collector", () -> new BlockItem(JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ENTITY_SUPPRESSOR = ITEMS.register("entity_suppressor", () -> new BlockItem(JDTEBlocks.ENTITY_SUPPRESSOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> RANGE_BLOCKER = ITEMS.register("range_blocker", () -> new BlockItem(JDTEBlocks.RANGE_BLOCKER.get(), new Item.Properties()));
 
     // Glue Activator
     public static final DeferredHolder<Item, BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));

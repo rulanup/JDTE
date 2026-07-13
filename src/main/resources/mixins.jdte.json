@@ -22,6 +22,7 @@
     "FluidTankAccessor",
     "GeneratorFluidUpgradeMixin",
     "GeneratorT1UpgradeMixin",
+    "MekanismMagneticAttractionMixin",
     "ParadoxEnergyCostMixin",
     "PoweredMachineDefaultMaxEnergyMixin",
     "PoweredMachineOverrideMaxEnergyMixin",

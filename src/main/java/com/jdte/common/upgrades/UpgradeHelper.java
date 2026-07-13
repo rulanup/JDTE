@@ -12,6 +12,7 @@ import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.jdte.common.blockentities.AdvancedItemCollectorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
+import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.mixin.EnergyStorageAccessor;
@@ -53,7 +54,7 @@ public class UpgradeHelper {
         if (machine instanceof AdvancedItemCollectorBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER;
         }
-        if (machine instanceof EntitySuppressorBE) {
+        if (machine instanceof EntitySuppressorBE || machine instanceof RangeBlockerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
                     || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE;
         }
