@@ -3,9 +3,13 @@ navigation:
   title: Range Blocker
   icon: "jdte:range_blocker"
   position: 17
+item_ids:
+  - jdte:range_blocker
 ---
 
 # Range Blocker
+
+<BlockImage id="jdte:range_blocker" scale="2" />
 
 The Range Blocker reuses the Advanced Sensor-style interface and eight upgrade slots. It handles its configured area through chunk-indexed entity events instead of scanning the complete area every machine tick.
 
@@ -21,3 +25,7 @@ Simple Magnets and Sophisticated integrations use the `PreventRemoteMovement` an
 Projectile containment, ownerless-projectile containment, and projectile explosion clipping are independently configurable and enabled by default. When a contained projectile explodes inside the field, blocks and entities outside the field are removed from that explosion's affected lists. These checks run only during projectile ticks or actual explosions and never scan the complete area.
 
 The machine supports Range, Filter, Capacity, and Creative Upgrades. It consumes no operating energy while idle and settles energy at most once per machine tick while matching targets are present. Containment defaults to 250 FE per active tick. Demagnetization defaults to an average of 0.25 FE per active tick, accumulated as 1 FE every four active ticks; both costs are independently configurable.
+
+## Crafting
+
+<RecipeFor id="jdte:range_blocker" />

@@ -15,10 +15,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class ExtendedItemReceiverScreen extends BaseMachineScreen<ExtendedItemReceiverContainer> {
+public class ExtendedItemReceiverScreen<T extends ExtendedItemReceiverContainer> extends BaseMachineScreen<T> {
     private static final Component ITEM_SLOT_TOOLTIP = Component.translatable("jdte.slot.item_storage");
 
-    public ExtendedItemReceiverScreen(ExtendedItemReceiverContainer container, Inventory inv, Component name) {
+    public ExtendedItemReceiverScreen(T container, Inventory inv, Component name) {
         super(container, inv, name);
     }
 

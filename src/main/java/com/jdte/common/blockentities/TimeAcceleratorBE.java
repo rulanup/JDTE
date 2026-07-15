@@ -55,8 +55,12 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         super.tickServer();
         UpgradeHelper.syncCapacities(this);
         if (isActiveRedstone() && canRun()) {
-            accelerateArea();
+            handleAccelerationTick();
         }
+    }
+
+    protected void handleAccelerationTick() {
+        ExtendedTimeAccelerationManager.submit(this);
     }
 
     protected void accelerateArea() {
@@ -180,8 +184,15 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     protected double getFluidCostPerTick(int multiplier) {
-        double costPerTimeWandUse = multiplier * Config.TIMEWAND_FLUID_COST.get() * JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier.get();
+        double costPerTimeWandUse = multiplier
+                * Config.TIMEWAND_FLUID_COST.get()
+                * JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier.get()
+                * getTierFluidCostMultiplier();
         return Math.max(0.0D, costPerTimeWandUse / 600.0D);
+    }
+
+    protected double getTierFluidCostMultiplier() {
+        return 1.0D;
     }
 
     protected int getEnergyCost(int multiplier) {

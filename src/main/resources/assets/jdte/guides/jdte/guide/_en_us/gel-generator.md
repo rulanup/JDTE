@@ -6,7 +6,6 @@ navigation:
 item_ids:
   - jdte:advanced_gel_generator
   - jdte:extended_gel_generator
-  - jdte:fortune_upgrade
 ---
 
 # Gel Generator

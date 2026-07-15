@@ -9,6 +9,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class ExtendedItemReceiverContainer extends BaseMachineContainer {
@@ -17,7 +18,11 @@ public class ExtendedItemReceiverContainer extends BaseMachineContainer {
     }
 
     public ExtendedItemReceiverContainer(int windowId, Inventory playerInventory, BlockPos blockPos) {
-        super(JDTEMenus.EXTENDED_ITEM_RECEIVER.get(), windowId, playerInventory, blockPos);
+        this(JDTEMenus.EXTENDED_ITEM_RECEIVER.get(), windowId, playerInventory, blockPos);
+    }
+
+    protected ExtendedItemReceiverContainer(MenuType<?> menuType, int windowId, Inventory playerInventory, BlockPos blockPos) {
+        super(menuType, windowId, playerInventory, blockPos);
         addPlayerSlots(player.getInventory());
     }
 

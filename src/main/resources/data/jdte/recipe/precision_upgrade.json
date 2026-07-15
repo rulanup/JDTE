@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ALA",
+    "LIL",
+    "ALA"
+  ],
+  "key": {
+    "A": { "item": "minecraft:amethyst_shard" },
+    "I": { "item": "justdirethings:upgrade_oreminer" },
+    "L": { "item": "minecraft:lapis_lazuli" }
+  },
+  "result": {
+    "count": 1,
+    "id": "jdte:precision_upgrade"
+  }
+}

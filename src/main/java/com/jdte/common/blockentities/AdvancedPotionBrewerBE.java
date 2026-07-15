@@ -10,11 +10,13 @@ import com.direwolf20.justdirethings.setup.Config;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.integrations.ae2.AE2PatternProviderInputGuard;
 import com.jdte.common.utils.InfusionFluidHelper;
 import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,8 +36,11 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.fml.ModList;
 
 import java.util.ConcurrentModificationException;
+import java.util.EnumMap;
+import java.util.Map;
 
 public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE {
     public static final int BOTTLE_SLOT_0 = 0;
@@ -66,6 +71,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     protected final ItemStackHandler itemHandler;
     protected final IItemHandler automationItemHandler;
+    protected final Map<Direction, IItemHandler> sidedAutomationItemHandlers = new EnumMap<>(Direction.class);
     protected final IFluidHandler fluidHandler;
     protected int fuel = 0;
     protected int brewProgress = 0;
@@ -76,6 +82,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     protected int activeIngredientOrder = -1;
     protected int processedBottleMask = 0;
     protected boolean recipeLocked = false;
+    protected boolean fuelInputEnabled = false;
     protected final NonNullList<ItemStack> lockedRecipeTemplates = NonNullList.withSize(TOTAL_SLOTS, ItemStack.EMPTY);
     protected boolean hasValidIngredients = false;
     public final ContainerData brewerData;
@@ -97,6 +104,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
                     case 1 -> getDisplayedBrewTime();
                     case 2 -> fuel;
                     case 3 -> recipeLocked ? 1 : 0;
+                    case 4 -> fuelInputEnabled ? 1 : 0;
                     default -> 0;
                 };
             }
@@ -105,8 +113,9 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
                 if (index == 1) activeBrewTime = Math.max(MIN_ACCELERATED_BREW_TIME, value);
                 if (index == 2) fuel = value;
                 if (index == 3) recipeLocked = value != 0;
+                if (index == 4) fuelInputEnabled = value != 0;
             }
-            @Override public int getCount() { return 4; }
+            @Override public int getCount() { return 5; }
         };
         fluidHandler = new IFluidHandler() {
             @Override
@@ -212,7 +221,14 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
                 }
             }
         };
-        automationItemHandler = new IItemHandler() {
+        automationItemHandler = createAutomationItemHandler(null);
+        for (Direction direction : Direction.values()) {
+            sidedAutomationItemHandlers.put(direction, createAutomationItemHandler(direction));
+        }
+    }
+
+    private IItemHandler createAutomationItemHandler(Direction accessSide) {
+        return new IItemHandler() {
             @Override
             public int getSlots() {
                 return itemHandler.getSlots();
@@ -220,7 +236,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
             @Override
             public ItemStack getStackInSlot(int slot) {
-                if (!isValidSlotIndex(slot) || slot == FUEL_SLOT) {
+                if (!isValidSlotIndex(slot) || slot == FUEL_SLOT && !canAutomateFuelFrom(accessSide)) {
                     return ItemStack.EMPTY;
                 }
                 return itemHandler.getStackInSlot(slot);
@@ -228,7 +244,8 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
             @Override
             public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                if (!isValidSlotIndex(slot) || isOutputSlot(slot) || !isValidForMachineSlot(slot, stack)) {
+                if (!isValidSlotIndex(slot) || isOutputSlot(slot) || !isValidForMachineSlot(slot, stack)
+                        || slot == FUEL_SLOT && !canAutomateFuelFrom(accessSide)) {
                     return stack;
                 }
                 return itemHandler.insertItem(slot, stack, simulate);
@@ -249,9 +266,21 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
-                return isValidSlotIndex(slot) && !isOutputSlot(slot) && isValidForMachineSlot(slot, stack);
+                return isValidSlotIndex(slot) && !isOutputSlot(slot) && isValidForMachineSlot(slot, stack)
+                        && (slot != FUEL_SLOT || canAutomateFuelFrom(accessSide));
             }
         };
+    }
+
+    private boolean canAutomateFuelFrom(Direction accessSide) {
+        if (!fuelInputEnabled || accessSide == null) {
+            return false;
+        }
+        if (!JDTEConfig.COMMON.potionBrewerRejectPatternProviderFuelInput.get()
+                || level == null || !ModList.get().isLoaded("ae2")) {
+            return true;
+        }
+        return !AE2PatternProviderInputGuard.isPatternProviderAt(level, worldPosition.relative(accessSide));
     }
 
     private JDTEFluidTank createTank(java.util.function.Predicate<FluidStack> validator) {
@@ -355,6 +384,10 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
     public IItemHandler getAutomationItemHandler() {
         return automationItemHandler;
+    }
+
+    public IItemHandler getAutomationItemHandler(Direction side) {
+        return side == null ? automationItemHandler : sidedAutomationItemHandlers.get(side);
     }
 
     @Override
@@ -782,6 +815,15 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     public int getBrewProgress() { return brewProgress; }
     public boolean isRecipeLocked() { return recipeLocked; }
 
+    public boolean isFuelInputEnabled() {
+        return fuelInputEnabled;
+    }
+
+    public void setFuelInputEnabled(boolean enabled) {
+        fuelInputEnabled = enabled;
+        markDirtyClient();
+    }
+
     public int getMaxMB() {
         return UpgradeHelper.adjustFluidCapacity(this, BASE_FLUID_CAPACITY);
     }
@@ -950,6 +992,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         tag.putInt("brewActiveIngredientOrder", activeIngredientOrder);
         tag.putInt("brewProcessedBottleMask", processedBottleMask);
         tag.putBoolean("recipeLocked", recipeLocked);
+        tag.putBoolean("fuelInputEnabled", fuelInputEnabled);
         CompoundTag recipeLockTag = new CompoundTag();
         for (int i = 0; i < lockedRecipeTemplates.size(); i++) {
             recipeLockTag.put("slot_" + i, lockedRecipeTemplates.get(i).saveOptional(provider));
@@ -980,6 +1023,9 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         activeIngredientOrder = tag.contains("brewActiveIngredientOrder") ? tag.getInt("brewActiveIngredientOrder") : -1;
         processedBottleMask = tag.getInt("brewProcessedBottleMask");
         recipeLocked = tag.getBoolean("recipeLocked");
+        fuelInputEnabled = tag.contains("fuelInputEnabled")
+                ? tag.getBoolean("fuelInputEnabled")
+                : tag.contains("fuelInputSide") && tag.getInt("fuelInputSide") >= 0;
         clearLockedRecipeTemplates();
         if (tag.contains("recipeLockTemplates", Tag.TAG_COMPOUND)) {
             CompoundTag recipeLockTag = tag.getCompound("recipeLockTemplates");

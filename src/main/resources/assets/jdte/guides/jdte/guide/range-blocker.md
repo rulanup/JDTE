@@ -3,9 +3,13 @@ navigation:
   title: 范围屏蔽器
   icon: "jdte:range_blocker"
   position: 17
+item_ids:
+  - jdte:range_blocker
 ---
 
 # 范围屏蔽器
+
+<BlockImage id="jdte:range_blocker" scale="2" />
 
 范围屏蔽器复用高级传感器式界面和八个升级槽，通过按区块索引的事件逻辑控制设定范围，不会由机器每 Tick 扫描整个区域。
 
@@ -21,3 +25,7 @@ Simple Magnets 和 Sophisticated 系列通过 `PreventRemoteMovement` / `AllowMa
 投射物围困、无所有者投射物围困和投射物爆炸范围限制均可独立配置且默认开启。被围困投射物在范围内发生爆炸时，范围外方块和实体会从该次爆炸的影响列表中移除。该处理只在投射物 Tick 或实际爆炸时运行，不扫描整个范围。
 
 机器支持范围、过滤、容量和创造升级。空闲时不消耗工作能量；存在匹配目标时，每台机器每 Tick 最多结算一次。围困模式默认消耗 250 FE/工作 Tick；退磁模式默认平均消耗 0.25 FE/工作 Tick，以小数累计方式每 4 个工作 Tick 扣除 1 FE，两项均可独立配置。
+
+## 合成
+
+<RecipeFor id="jdte:range_blocker" />

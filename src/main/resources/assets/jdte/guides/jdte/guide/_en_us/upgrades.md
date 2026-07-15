@@ -13,6 +13,8 @@ item_ids:
   - jdte:range_upgrade
   - jdte:filter_upgrade
   - jdte:creative_upgrade
+  - jdte:fortune_upgrade
+  - jdte:precision_upgrade
   - jdte:looting_upgrade
   - jdte:sharpness_upgrade
 ---
@@ -96,6 +98,22 @@ Adds extra filter slots to the machine. Each upgrade adds one row (9 slots). Sta
 Waives FE consumption; time accelerators waive time fluid consumption; includes overclock effect.
 
 <RecipeFor id="jdte:creative_upgrade" />
+
+## Fortune Upgrade
+
+<ItemImage id="jdte:fortune_upgrade" scale="2" />
+
+Used by Gel Generators and Crystal Incubators. Gel Generators apply vanilla Fortune scaling to supported products; Crystal Incubators enchant their simulated harvesting tool with the installed Fortune level. Incubators accept up to eight and cannot combine Fortune with Precision.
+
+<RecipeFor id="jdte:fortune_upgrade" />
+
+## Precision Upgrade
+
+<ItemImage id="jdte:precision_upgrade" scale="2" />
+
+Crystal Incubator only. It applies vanilla Silk Touch to the simulated harvesting tool and lets the target block's own loot table determine the precise drop, preserving compatibility with mods that follow vanilla loot behavior. Limited to one and incompatible with Fortune.
+
+<RecipeFor id="jdte:precision_upgrade" />
 
 ## Looting Upgrade
 

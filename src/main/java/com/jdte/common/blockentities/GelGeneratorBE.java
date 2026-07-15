@@ -19,6 +19,7 @@ import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.integrations.JustDynaThingsGooIntegration;
 import com.jdte.mixin.FluidTankAccessor;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
@@ -35,6 +36,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMachineBE, FilterableBE, RedstoneControlledBE, FluidMachineBE, BaseFilterMachine {
@@ -54,6 +57,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     public static final int STANDARD_ENERGY_COST = 1000;
     private static final int FORTUNE_ENERGY_PERCENT_PER_LEVEL = 5;
     private static final int FUEL_USES_PER_ITEM = 2;
+    private static final String JUST_DYNA_THINGS_MOD_ID = "justdynathings";
 
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
@@ -65,6 +69,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     public FilterData filterData = new FilterData();
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     protected final ItemStackHandler itemHandler;
+    protected final IItemHandler automationItemHandler;
     protected final IFluidHandler fluidHandler;
     protected int conversionProgress = 0;
     protected int fuelUsesRemaining = 0;
@@ -185,6 +190,37 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
                 return false;
             }
         };
+        automationItemHandler = new IItemHandler() {
+            @Override
+            public int getSlots() {
+                return itemHandler.getSlots();
+            }
+
+            @Override
+            public ItemStack getStackInSlot(int slot) {
+                return itemHandler.getStackInSlot(slot);
+            }
+
+            @Override
+            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+                return itemHandler.insertItem(slot, stack, simulate);
+            }
+
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                return isOutputSlot(slot) ? itemHandler.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return itemHandler.getSlotLimit(slot);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return itemHandler.isItemValid(slot, stack);
+            }
+        };
     }
 
     @Override
@@ -212,7 +248,12 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         ItemStack gelStack = itemHandler.getStackInSlot(GEL_SLOT);
         ItemStack foodStack = itemHandler.getStackInSlot(FOOD_SLOT);
         int gelTier = getGelTier(gelStack);
-        if (gelTier <= 0 || !hasFuel(foodStack, gelStack)) {
+        JustDynaThingsGooIntegration.GooType dynaGooType = getDynaGooType(gelStack);
+        boolean freeOperation = UpgradeHelper.hasCreativeUpgrade(this)
+                || dynaGooType == JustDynaThingsGooIntegration.GooType.CREATIVE;
+        if (gelTier <= 0 || (!freeOperation
+                && dynaGooType == JustDynaThingsGooIntegration.GooType.NONE
+                && !hasFuel(foodStack, gelStack))) {
             resetProgress();
             return;
         }
@@ -222,11 +263,16 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
             return;
         }
 
-        if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-            int energyCost = getStandardEnergyCost();
-            if (!hasEnoughPower(energyCost)) {
+        int operationEnergyCost = freeOperation ? 0 : getStandardEnergyCost();
+        int gooEnergyCost = freeOperation ? 0 : getDynaGooEnergyCost(gelStack);
+        long requiredEnergy = (long) operationEnergyCost + gooEnergyCost;
+        if (requiredEnergy > 0) {
+            if (requiredEnergy > Integer.MAX_VALUE || !hasEnoughPower((int) requiredEnergy)) {
                 resetProgress();
                 return;
+            }
+            if (gooEnergyCost > 0) {
+                extractEnergy(gooEnergyCost, false);
             }
         }
 
@@ -239,8 +285,10 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         int itemConversions = convertInputs(gelTier);
         boolean fluidConverted = convertFluid(gelTier);
         if (itemConversions > 0 || fluidConverted) {
-            if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-                extractEnergy(getStandardEnergyCost(), false);
+            if (operationEnergyCost > 0) {
+                extractEnergy(operationEnergyCost, false);
+            }
+            if (!freeOperation && dynaGooType == JustDynaThingsGooIntegration.GooType.NONE) {
                 consumeFuel();
             }
         }
@@ -509,10 +557,27 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         if (stack.is(Registration.GooBlock_Tier3_ITEM.get())) return 3;
         if (stack.is(Registration.GooBlock_Tier2_ITEM.get())) return 2;
         if (stack.is(Registration.GooBlock_Tier1_ITEM.get())) return 1;
-        return 0;
+        return isJustDynaThingsLoaded() ? JustDynaThingsGooIntegration.getTier(stack) : 0;
+    }
+
+    private static JustDynaThingsGooIntegration.GooType getDynaGooType(ItemStack stack) {
+        return isJustDynaThingsLoaded()
+                ? JustDynaThingsGooIntegration.getType(stack)
+                : JustDynaThingsGooIntegration.GooType.NONE;
+    }
+
+    private static int getDynaGooEnergyCost(ItemStack stack) {
+        return isJustDynaThingsLoaded() ? JustDynaThingsGooIntegration.getEnergyCostPerTick(stack) : 0;
+    }
+
+    private static boolean isJustDynaThingsLoaded() {
+        return ModList.get().isLoaded(JUST_DYNA_THINGS_MOD_ID);
     }
 
     public static boolean isValidGelFood(ItemStack foodStack, ItemStack gelStack) {
+        if (getDynaGooType(gelStack) != JustDynaThingsGooIntegration.GooType.NONE) {
+            return false;
+        }
         int tier = getGelTier(gelStack);
         if (tier <= 0) {
             return isAnyGelFood(foodStack);
@@ -670,6 +735,10 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
     public ItemStackHandler getItemHandler() {
         return itemHandler;
+    }
+
+    public IItemHandler getAutomationItemHandler() {
+        return automationItemHandler;
     }
 
     @Override

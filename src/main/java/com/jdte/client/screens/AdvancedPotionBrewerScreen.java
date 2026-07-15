@@ -12,6 +12,7 @@ import com.jdte.client.PotionBrewerRecipeLockClientCache;
 import com.jdte.client.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.containers.AdvancedPotionBrewerContainer;
+import com.jdte.common.network.data.PotionBrewerFuelInputPayload;
 import com.jdte.common.network.data.PotionBrewerRecipeLockPayload;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -36,6 +37,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -52,6 +54,7 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
     private static final ResourceLocation BREW_PROGRESS_SPRITE = ResourceLocation.withDefaultNamespace("container/brewing_stand/brew_progress");
     private static final ResourceLocation BUBBLES_SPRITE = ResourceLocation.withDefaultNamespace("container/brewing_stand/bubbles");
     private static final ResourceLocation RECIPE_LOCK_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/waterbreathing.png");
+    private static final ResourceLocation FUEL_INPUT_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/item/abilityupgrades/blank.png");
     private static final Component SLOT_LOCK_ON = Component.translatable("jdte.screen.slot_lock.on");
     private static final Component SLOT_LOCK_OFF = Component.translatable("jdte.screen.slot_lock.off");
     private static final int VANILLA_BOTTLE_GHOST_SRC_X = 57;
@@ -83,6 +86,9 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         addRenderableWidget(new RecipeLockWidget(
                 getGuiLeft() + layout.getPotionBrewerRecipeLockButtonX(),
                 getGuiTop() + layout.getPotionBrewerRecipeLockButtonY()));
+        addRenderableWidget(new FuelInputWidget(
+                getGuiLeft() + layout.getPotionBrewerFuelInputButtonX(),
+                getGuiTop() + layout.getPotionBrewerFuelInputButtonY()));
         PacketDistributor.sendToServer(new PotionBrewerRecipeLockPayload(brewerContainer().getBlockPos(), false, true));
     }
 
@@ -434,6 +440,53 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         public void onClick(double mouseX, double mouseY) {
             boolean nextLocked = !isRecipeLocked();
             PacketDistributor.sendToServer(new PotionBrewerRecipeLockPayload(brewerContainer().getBlockPos(), nextLocked, false));
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput narrationOutput) {
+            this.defaultButtonNarrationText(narrationOutput);
+        }
+    }
+
+    private Component getFuelInputTooltip(boolean enabled) {
+        return Component.translatable(enabled
+                ? "jdte.screen.potion_brewer.fuel_input.on"
+                : "jdte.screen.potion_brewer.fuel_input.off");
+    }
+
+    private class FuelInputWidget extends AbstractWidget {
+        private boolean lastTooltipEnabled;
+
+        private FuelInputWidget(int x, int y) {
+            super(x, y, 16, 16, Component.empty());
+            lastTooltipEnabled = brewerContainer().isFuelInputEnabled();
+            setTooltip(Tooltip.create(getFuelInputTooltip(lastTooltipEnabled)));
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            boolean enabled = brewerContainer().isFuelInputEnabled();
+            if (enabled != lastTooltipEnabled) {
+                setTooltip(Tooltip.create(getFuelInputTooltip(enabled)));
+                lastTooltipEnabled = enabled;
+            }
+            float color = enabled ? 1.0F : 0.33F;
+            RenderSystem.setShaderColor(color, color, color, 1.0F);
+            guiGraphics.blit(FUEL_INPUT_ICON, getX(), getY(), 0, 0, 16, 16, 16, 16);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+            PoseStack pose = guiGraphics.pose();
+            pose.pushPose();
+            pose.translate(getX() + 4.0F, getY() + 4.0F, 100.0F);
+            pose.scale(0.5F, 0.5F, 1.0F);
+            guiGraphics.renderFakeItem(new ItemStack(Items.BLAZE_POWDER), 0, 0);
+            pose.popPose();
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            PacketDistributor.sendToServer(new PotionBrewerFuelInputPayload(
+                    brewerContainer().getBlockPos(), !brewerContainer().isFuelInputEnabled()));
         }
 
         @Override

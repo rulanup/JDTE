@@ -3,9 +3,13 @@ navigation:
   title: 实体抑制器
   icon: "jdte:entity_suppressor"
   position: 16
+item_ids:
+  - jdte:entity_suppressor
 ---
 
 # 实体抑制器
+
+<BlockImage id="jdte:entity_suppressor" scale="2" />
 
 实体抑制器使用高级传感器式界面和八个升级槽，在配置范围内以事件驱动方式控制实体、方块实体动态渲染或粒子。
 
@@ -24,3 +28,7 @@ navigation:
 抑制实体模式会同时冻结服务端与客户端实体更新，并阻止被冻结的掉落物被拾取。禁止实体模式可通过默认关闭的 `removeExistingEntities` 配置，每 20 Tick 分散清除一次范围内已有的匹配实体。
 
 渲染模式只减少客户端渲染开销，不会停止实体、方块实体或模组网络的服务端更新。禁用方块实体渲染会隐藏完整的动态渲染器，因此箱子、告示牌文字或完全依赖动态渲染器的机器可能显示不完整。实体抑制器自身始终保留渲染。
+
+## 合成
+
+<RecipeFor id="jdte:entity_suppressor" />

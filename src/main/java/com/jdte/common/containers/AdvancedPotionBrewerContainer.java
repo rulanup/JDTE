@@ -224,6 +224,10 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
         return brewerData != null && brewerData.get(3) != 0;
     }
 
+    public boolean isFuelInputEnabled() {
+        return brewerData != null && brewerData.get(4) != 0;
+    }
+
     public int getWaterFluidAmount() {
         return getFluidAmount(waterFluidData);
     }

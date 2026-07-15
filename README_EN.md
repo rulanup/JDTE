@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.4`
+Current version: `0.5.5`
 
 [中文 README](README.md)
 
@@ -23,7 +23,8 @@ Standard machines have four upgrade slots and extended machines have eight. Empt
 | Range | Raises area radius and offset limits | 2 |
 | Filter | Adds nine filter slots per card | 2 |
 | Creative | Removes FE cost and includes overclock behavior | 1 |
-| Fortune | Gel Generator only; adds one vanilla ore Fortune level and 5% energy cost per card | 8 |
+| Fortune | Gel Generator and Crystal Incubator only; adds one vanilla Fortune level per card | 8 |
+| Precision | Crystal Incubator only; harvests through vanilla Silk Touch loot logic and conflicts with Fortune | 1 |
 | Looting | Dedicated to Bio Crushers and the Loot Fabricator | 6 |
 | Sharpness | Bio Crusher only; adds five damage per card | 6 |
 
@@ -31,9 +32,10 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 
 ### Time And Extended Machines
 
-- Basic Time Accelerator: 4x by default or 16x with Overclock/Creative; consumes JDT Time Fluid only.
-- Advanced Time Accelerator: adjustable from 1-128x or 256x with Overclock/Creative; consumes Time Fluid and FE.
-- Extended Time Accelerator: the eight-slot Advanced variant.
+- Basic Time Accelerator: 16x by default or 32x with Overclock/Creative; consumes JDT Time Fluid only.
+- Advanced Time Accelerator: adjustable from 1-64x or 128x with Overclock/Creative; consumes Time Fluid and FE at twice the Basic tier's Time Fluid rate.
+- Extended Time Accelerator: an eight-slot tier adjustable from 1-512x or 1024x with Overclock/Creative; consumes Time Fluid at five times the Basic tier's rate.
+- All three tiers share the managed scheduler. Overlapping multipliers fully stack while chunk target discovery, paid virtual-tick queues, dynamic MSPT headroom, and AE2 `IGridTickable` support reduce large-area and multi-machine overhead.
 - The Extended Upgrade converts JDT T2 Clickers, Block Breakers, Block Placers, Block Swappers, Droppers, Sensors, Fluid Collectors, and Fluid Placers into eight-slot variants while preserving machine data.
 
 ### Automation Machines
@@ -48,10 +50,11 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Fluid Stabilizer | Performs JDT FluidDrop conversions inside a configured area |
 | Item/Fluid Senders | Send internal items or fluid to area targets |
 | Item/Fluid Receivers | Pull items or fluid from area targets |
+| Crystal Incubator | Consumes Time Fluid and FE to accelerate conventional budding blocks at an adjustable 1-512x or 1024x when overclocked, auto-outputs mature clusters, and supports Fortune or Precision harvesting |
 | Bio Crusher | Kills targets through a FakePlayer and produces loot and Experience Fluid; supports spawners and dedicated upgrades |
 | Life Extractor | Converts target health into Life Fluid without normal drops or experience |
 | Infusion Machine | Processes gel, item, and dynamic spawn-egg infusion recipes |
-| Advanced Potion Brewer | Ordered six-step brewing with recipe locking, water and Time Fluid, auto I/O, and JEI brewing chains |
+| Advanced Potion Brewer | Ordered six-step brewing with recipe locking, water and Time Fluid, auto I/O, a separate external Blaze Powder input toggle, and JEI brewing chains |
 | Loot Fabricator | Uses spawn egg templates, Life Fluid, Time Fluid, and FE to manufacture mob loot |
 
 ### Automatic I/O

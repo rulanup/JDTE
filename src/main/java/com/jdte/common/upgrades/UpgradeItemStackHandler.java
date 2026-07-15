@@ -38,6 +38,9 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         if (type.isSpeedUpgrade() && hasOppositeSpeedUpgrade(type)) {
             return false;
         }
+        if (hasConflictingHarvestUpgrade(type)) {
+            return false;
+        }
 
         return count(type, slot) < type.getMaxPerMachine();
     }
@@ -92,5 +95,15 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
     private boolean hasOppositeSpeedUpgrade(UpgradeType type) {
         UpgradeType opposite = type == UpgradeType.OVERCLOCK ? UpgradeType.UNDERCLOCK : UpgradeType.OVERCLOCK;
         return count(opposite, -1) > 0;
+    }
+
+    private boolean hasConflictingHarvestUpgrade(UpgradeType type) {
+        if (type == UpgradeType.FORTUNE) {
+            return count(UpgradeType.PRECISION, -1) > 0;
+        }
+        if (type == UpgradeType.PRECISION) {
+            return count(UpgradeType.FORTUNE, -1) > 0;
+        }
+        return false;
     }
 }

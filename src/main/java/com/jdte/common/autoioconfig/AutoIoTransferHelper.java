@@ -22,6 +22,7 @@ import com.jdte.common.blockentities.ItemSenderBE;
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
+import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEAttachments;
 import com.jdte.setup.JDTEConfig;
@@ -232,6 +233,9 @@ public final class AutoIoTransferHelper {
             fluidOutput = crusher.getFluidTank();
         } else if (machine instanceof LifeExtractorBE extractor) {
             fluidOutput = extractor.getFluidTank();
+        } else if (machine instanceof CrystalIncubatorBE incubator) {
+            itemOutputs = allSlots(handler);
+            fluidInput = incubator.getFluidTank();
         } else if (machine instanceof TimeAcceleratorBE accelerator) {
             fluidInput = accelerator.getFluidTank();
         } else if (machine instanceof DropperT1BE) {

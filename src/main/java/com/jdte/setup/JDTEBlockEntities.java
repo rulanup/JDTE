@@ -93,6 +93,9 @@ public class JDTEBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedFluidReceiverBE>> EXTENDED_FLUID_RECEIVER = BLOCK_ENTITIES.register(
             "extended_fluid_receiver", () -> BlockEntityType.Builder.of(ExtendedFluidReceiverBE::new, JDTEBlocks.EXTENDED_FLUID_RECEIVER.get()).build(null));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CrystalIncubatorBE>> CRYSTAL_INCUBATOR = BLOCK_ENTITIES.register(
+            "crystal_incubator", () -> BlockEntityType.Builder.of(CrystalIncubatorBE::new, JDTEBlocks.CRYSTAL_INCUBATOR.get()).build(null));
+
     // Life Extractor
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedLifeExtractorBE>> ADVANCED_LIFE_EXTRACTOR = BLOCK_ENTITIES.register(
             "advanced_life_extractor", () -> BlockEntityType.Builder.of(AdvancedLifeExtractorBE::new, JDTEBlocks.ADVANCED_LIFE_EXTRACTOR.get()).build(null));

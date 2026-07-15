@@ -9,6 +9,8 @@ item_ids:
 
 # Eclipse Alloy Wrench
 
+<ItemImage id="jdte:eclipsealloy_wrench" scale="2" />
+
 The Eclipse Alloy Wrench is a multi-purpose tool for working with JDTE and JDT machines.
 
 ## Usage
@@ -34,3 +36,7 @@ When FTB Ultimine is installed, the scroll adjustment only applies to the active
 Left-click a block with the Eclipse Alloy Wrench to set the first corner, then left-click another block to set the second corner; each corner plays a selection sound. The selection uses JDT's area preview effect and continuously shows its X/Y/Z dimensions below the crosshair. Once both corners are set, the selection is locked and its corners cannot be changed. Left-click adjustable-area machines to copy the exact selection into each one. Selections exceeding a machine's current radius or offset limits are rejected. Applying the selection does not clear it, allowing reuse across multiple machines; only Shift-left-click clears it and enables a new selection.
 
 While held in Creative mode, the Eclipse Alloy Wrench cannot break blocks, preventing corner targets from being removed instantly during selection.
+
+## Crafting
+
+<RecipeFor id="jdte:eclipsealloy_wrench" />

@@ -2,7 +2,23 @@
 
 ### English
 
-#### v0.5.4 (Current)
+#### v0.5.5 (Current)
+
+- **Performance/New**: Reworked all three Time Accelerators to use one managed scheduler. Overlapping accelerators fully add their multipliers, loaded block entities are discovered by chunk, paid virtual ticks remain queued while contributors stay active, execution uses configurable MSPT headroom, and AE2 `IGridTickable` devices are supported.
+- **Fixed/Compatibility**: AE2 grid ticking now takes priority over maintenance-only block entity tickers, allowing AE2 Lightning Tech processing machines and similarly structured AE2 add-on machines to be accelerated correctly.
+- **Compatibility/Fixed**: Added Just Dyna Things to the runtime test environment and fully integrated its Goo behavior. Energy-powered Goo consumes the add-on's configured FE upkeep per active tick without food, while Creative Goo consumes neither food nor machine FE. External item pipes can now extract only from Gel Generator output slots instead of removing gel, fuel, or input materials.
+- **New/Compatibility**: Advanced Potion Brewers now have a Blaze Powder Input toggle, disabled by default. Enabling it allows external containers and pipes to insert Blaze Powder from any side. A configurable safeguard, enabled by default, still rejects fuel-slot insertion from adjacent AE2 `ICraftingProvider` pattern providers while leaving manual insertion and other recipe inputs available.
+- **New/Performance/Compatibility**: Added the Crystal Incubator, an eight-upgrade-slot area machine with an adjustable 1-512x Time Fluid growth rate or 1024x with Overclock/Creative, automatic mature-cluster harvesting into nine output slots, and up to eight Fortune Upgrades. Batched range caching and bounded round-robin work avoid full-volume scans every tick; common budding/cluster tags, datapack extension tags, and a public-API Just Dyna Things adapter cover vanilla, JDT, AE2, Data Energistics, AE2 add-ons, and other conventional budding blocks.
+- **Crystal Incubator**: Changed its block appearance to the Extended Glue Activator textures, added configurable FE capacity and Time Wand-equivalent runtime energy cost, enabled automatic Time Fluid input and nine-slot item output, and made accelerated Just Dyna Things budding blocks preserve their own configured FE/Time Fluid activation costs.
+- **Fixed/Compatibility**: Crystal Incubators now automatically transfer the exact missing activation FE and Time Fluid into Just Dyna Things budding blocks before acceleration, while reserving the Incubator's own current-tick operating cost and avoiding partial two-resource transfers.
+- **Fixed/Performance**: Resource-consuming and ordinary budding blocks now use separate cached lists, round-robin cursors, and bounded per-tick budgets, preventing large groups of Dyna budding blocks from starving vanilla/JDT/AE2 random-tick budding growth in mixed areas.
+- **Balance/Performance**: Ordinary Crystal Incubator targets now use AE2 Growth Accelerator-style forced random ticks. The default 8x setting equals six AE2 Growth Accelerators, other rates scale proportionally, and bounded accumulated work prevents high-rate area operation from creating an unbounded catch-up queue.
+- **New Upgrade**: Added the Crystal Incubator-only Precision Upgrade using JDT's Ore Miner upgrade icon. It applies vanilla Silk Touch to the simulated harvesting tool so mod loot tables retain control of precise drops, and it cannot be installed together with Fortune Upgrades.
+- **GuideME**: Added missing machine item associations, block/item images, recipes, structured resource and upgrade tables, and the omitted Fortune/Precision sections to the bilingual in-game guide.
+- **Balance**: Basic now runs at 16x or 32x with Overclock/Creative; Advanced is adjustable to 64x or runs at 128x with Overclock/Creative; Extended remains adjustable to 512x or runs at 1024x. Basic, Advanced, and Extended Time Fluid costs use fixed 1x, 2x, and 5x tier rates respectively.
+- **Development**: Added AE2 Crystal Science file `8112039`, AE2 Lightning Tech, and Data Energistics to the local runtime test environment.
+
+#### v0.5.4
 
 - **Recipe**: Added a crafting recipe for the Eclipse Alloy Wrench.
 - **New/Balance**: Added the Fortune Upgrade for Gel Generators.
@@ -112,7 +128,23 @@
 
 ### 中文
 
-#### v0.5.4（当前）
+#### v0.5.5（当前）
+
+- **性能/新增**：三档时间加速器全部改用同一统一调度器。重叠加速器倍率完整累加，按区块发现已加载方块实体，在贡献加速器保持启用时保留已付费虚拟 tick，并根据可配置 MSPT 余量统一执行，同时支持 AE2 `IGridTickable` 设备。
+- **修复/兼容**：AE2 网格 tick 现在优先于仅执行维护工作的方块实体 ticker，使 AE2 Lightning Tech 加工机器及采用相同结构的 AE2 附属机器能够被正确加速。
+- **兼容/修复**：将 Just Dyna Things 加入运行测试依赖并完整适配其凝胶行为。能量驱动凝胶工作时按该模组配置逐 tick 消耗 FE，不再需要食物；创造凝胶既不消耗食物，也不消耗机器 FE。外部物品管道现在只能从凝胶发生器输出槽抽取，不再抽走凝胶、燃料或输入材料。
+- **新增/兼容**：高级炼药机新增“烈焰粉输入”开关，默认关闭；开启后外部容器和管道可从任意方向输入烈焰粉。默认启用的可配置保护仍会拒绝相邻 AE2 `ICraftingProvider` 样板供应器向燃料槽插入物品，同时保留手动放入和其他配方输入。
+- **新增/性能/兼容**：新增水晶培育机，拥有 8 个升级槽，可调 1-512x 并消耗时间流体催生范围内母岩，安装超频或创造升级后达到 1024x，自动将成熟晶簇回收到 9 个输出槽，并支持最多 8 个时运升级。机器使用分批范围缓存和有上限的轮询任务，不会每 Tick 全量扫描；通过通用母岩/晶簇标签、可由数据包扩展的 JDTE 标签和 Just Dyna Things 公开 API 兼容原版、JDT、AE2、Data Energistics、AE2 附属及其他常规母岩。
+- **水晶培育机**：方块外观改用扩展粘胶激活器贴图，新增可配置能量容量和按时间手杖等效换算的运行 FE 消耗，自动 I/O 支持时间流体输入与 9 槽产物输出；催生 Just Dyna Things 母岩时继续尊重目标自身配置的 FE/时间流体激活成本。
+- **修复/兼容**：水晶培育机现在会在催生前把 Just Dyna Things 母岩缺少的激活 FE 和时间流体精确补入目标，同时预留培育机当前 Tick 的自身运行成本，并避免只转移其中一种资源。
+- **修复/性能**：耗资源母岩与普通母岩改用独立缓存、轮询游标和有上限的每 Tick 预算，避免混合范围内大量 Dyna 母岩占满批次后饿死原版/JDT/AE2 随机刻母岩。
+- **平衡/性能**：水晶培育机现在按 AE2 晶体催生器的强制随机刻方式催生普通母岩；默认 8x 档位等效 6 个 AE2 晶体催生器，其他倍率按比例换算，并通过有上限的累计任务避免高倍率范围催生形成无限补算队列。
+- **新增升级**：新增水晶培育机专用精准升级，使用 JDT 矿石采掘升级图标。自动采收工具应用原版精准采集附魔，由目标模组战利品表决定精准掉落，且不能与时运升级同时安装。
+- **GuideME**：补充缺失的机器物品关联、方块/物品图片、配方、资源与升级表格，并在中英文总升级指南中补回时运和精准升级章节。
+- **平衡**：初级时间加速器改为 16x，安装超频或创造升级后为 32x；高级版可调至 64x，安装超频或创造升级后为 128x；扩展版保持可调至 512x，安装超频或创造升级后为 1024x。初级、高级和扩展版时间流体成本分别使用固定的 1 倍、2 倍和 5 倍档位倍率。
+- **开发环境**：将 AE2 Crystal Science 文件 `8112039`、AE2 Lightning Tech 和 Data Energistics 加入本地运行测试依赖。
+
+#### v0.5.4
 
 - **配方**：新增蚀空合金扳手合成配方。
 - **新增/平衡**：新增凝胶发生器专用的时运升级。

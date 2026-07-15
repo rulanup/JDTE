@@ -13,6 +13,8 @@ item_ids:
   - jdte:range_upgrade
   - jdte:filter_upgrade
   - jdte:creative_upgrade
+  - jdte:fortune_upgrade
+  - jdte:precision_upgrade
   - jdte:looting_upgrade
   - jdte:sharpness_upgrade
 ---
@@ -96,6 +98,22 @@ item_ids:
 免除 FE 消耗；时间加速器免除时间流体消耗；包含超频效果。
 
 <RecipeFor id="jdte:creative_upgrade" />
+
+## 时运升级
+
+<ItemImage id="jdte:fortune_upgrade" scale="2" />
+
+凝胶发生器和水晶培育机专用。凝胶发生器按每级原版时运提高支持产物的数量；水晶培育机把对应等级的时运附加到自动采收工具。水晶培育机最多安装 8 个，且不能与精准升级同时安装。
+
+<RecipeFor id="jdte:fortune_upgrade" />
+
+## 精准升级
+
+<ItemImage id="jdte:precision_upgrade" scale="2" />
+
+水晶培育机专用。自动采收时向模拟工具附加原版精准采集，由目标方块自身的战利品表决定产物，适合兼容遵循原版精准采集规则的模组晶体。最多安装 1 个，且不能与时运升级同时安装。
+
+<RecipeFor id="jdte:precision_upgrade" />
 
 ## 抢夺升级
 

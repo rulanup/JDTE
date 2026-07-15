@@ -13,6 +13,7 @@ import com.jdte.setup.JDTERecipes;
 import com.jdte.common.commands.JDTECommands;
 import com.jdte.common.blockentities.AdvancedItemCollectorManager;
 import com.jdte.common.blockentities.EntitySuppressorManager;
+import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
 import com.jdte.common.blockentities.RangeBlockerManager;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
@@ -68,6 +69,10 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
+        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPre);
+        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
+        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
+        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
         NeoForge.EVENT_BUS.addListener(EntitySuppressorManager::onEntityTick);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onItemPickup);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onEntityJoin);
@@ -119,7 +124,8 @@ public class JDTE {
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.TimeAcceleratorBE accelerator ? accelerator.getFluidTank() : null,
                 JDTEBlocks.BASIC_TIME_ACCELERATOR.get(),
                 JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(),
-                JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get()
+                JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get(),
+                JDTEBlocks.CRYSTAL_INCUBATOR.get()
         );
 
         // Time Accelerator energy storage
@@ -152,6 +158,10 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),
                 JDTEBlocks.EXTENDED_FLUID_PLACER.get()
         );
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.CrystalIncubatorBE incubator
+                        ? incubator.getEnergyStorage() : null,
+                JDTEBlocks.CRYSTAL_INCUBATOR.get());
 
         // Glue Activator energy storage (Advanced and Extended)
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
@@ -267,7 +277,7 @@ public class JDTE {
                 JDTEBlocks.ADVANCED_POTION_BREWER.get()
         );
         event.registerBlock(Capabilities.ItemHandler.BLOCK,
-                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE brewer ? brewer.getAutomationItemHandler() : null,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE brewer ? brewer.getAutomationItemHandler(side) : null,
                 JDTEBlocks.ADVANCED_POTION_BREWER.get()
         );
 
@@ -304,9 +314,9 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_GLUE_ACTIVATOR.get()
         );
 
-        // Item handler for Gel Generator (input/output slots)
+        // Item handler for Gel Generator (inputs can be inserted; only outputs can be extracted)
         event.registerBlock(Capabilities.ItemHandler.BLOCK,
-                (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GelGeneratorBE generator ? generator.getAutomationItemHandler() : null,
                 JDTEBlocks.ADVANCED_GEL_GENERATOR.get(),
                 JDTEBlocks.EXTENDED_GEL_GENERATOR.get()
         );
@@ -332,7 +342,8 @@ public class JDTE {
                 (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE baseMachineBE ? baseMachineBE.getMachineHandler() : null,
                 JDTEBlocks.BASIC_ITEM_RECEIVER.get(),
                 JDTEBlocks.ADVANCED_ITEM_RECEIVER.get(),
-                JDTEBlocks.EXTENDED_ITEM_RECEIVER.get()
+                JDTEBlocks.EXTENDED_ITEM_RECEIVER.get(),
+                JDTEBlocks.CRYSTAL_INCUBATOR.get()
         );
 
         // Item handler for Infusion Machine (input slots)

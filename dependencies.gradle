@@ -32,6 +32,7 @@ dependencies {
     compileOnly "curse.maven:apothic-spawners-986583:7492121"
     compileOnly "curse.maven:brandons-core-231382:${brandons_core_file}"
     compileOnly "curse.maven:draconic-evolution-223565:${draconic_evolution_file}"
+    compileOnly "curse.maven:just-dyna-things-1189855:7851999"
 
     // Miscellaneous
     compileOnly "curse.maven:polymorph-388800:${polymorph_file}"
@@ -72,6 +73,7 @@ dependencies {
     localRuntime "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
     localRuntime "curse.maven:industrial-foregoing-266515:8370717"
     localRuntime "curse.maven:ex-deorum-901420:8384464"
+    localRuntime "curse.maven:just-dyna-things-1189855:7851999"
 
     // Integration / utility mods
     localRuntime "curse.maven:polymorph-388800:${polymorph_file}"
@@ -106,6 +108,9 @@ dependencies {
     localRuntime "curse.maven:applied-mekanistics-574300:${applied_mekanistics_file}"
     localRuntime "curse.maven:merequester-688367:${merequester_file}"
     localRuntime "curse.maven:applied-energistics-2-wireless-terminals-459929:${ae2wt_terminals_file}"
+    localRuntime "curse.maven:ae2-crystal-science-1435174:8112039"
+    localRuntime "curse.maven:ae2-lightning-tech-1527395:8422767"
+    localRuntime "curse.maven:data-energistics-1565514:8429524"
 
     // ========================================
     // Client-only runtime mods

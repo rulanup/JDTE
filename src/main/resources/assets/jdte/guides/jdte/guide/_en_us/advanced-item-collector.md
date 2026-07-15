@@ -9,7 +9,17 @@ item_ids:
 
 # Advanced Item Collector
 
+<BlockImage id="jdte:advanced_item_collector" scale="2" />
+
 The Advanced Item Collector uses JDT's Item Collector model and machine interface and provides eight standard upgrade slots.
+
+| Property | Behavior |
+|----------|----------|
+| Collection point | Before the drop joins the world |
+| Destination | Adjacent inventory on the machine's facing side |
+| Internal buffer | None |
+| Supported upgrades | Range and Filter |
+| Oversized threshold | 10,000,000 by default; configurable |
 
 The machine does not scan its area every tick. When a dropped item is about to join the world, the server checks the loaded collectors indexed for that chunk. Matching drops of the same item created during one tick are aggregated into one inventory insertion. Fully accepted drops never enter the world, so they create no pickup particles, entity rendering, or continuous area scans; unaccepted portions retain their original entity metadata.
 
@@ -25,3 +35,7 @@ When a player breaks a container inside the configured area, any slot at or abov
 When the facing target exposes AE2's `ME_STORAGE` capability, threshold-triggered stacks are inserted directly as long-count ME storage operations without using normal interface buffer slots or 64-item loops. This supports AE2 ME Interfaces plus ExtendedAE Extended and Oversize Interfaces, and can be disabled independently with `meDirectTransferEnabled` in the same config category.
 
 The Advanced Item Collector accepts only Range and Filter Upgrades. Capacity, Fluid, speed, Creative, and other upgrades with no effect on event-driven collection cannot be inserted. The eight upgrade slots use JDTE's two-column layout. The machine has no internal item buffer and never creates item-flow particles.
+
+## Crafting
+
+<RecipeFor id="jdte:advanced_item_collector" />

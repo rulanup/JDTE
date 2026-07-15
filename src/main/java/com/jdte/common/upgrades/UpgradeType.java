@@ -10,7 +10,8 @@ public enum UpgradeType {
     RANGE("range", 2),
     FILTER("filter", 2),
     CREATIVE("creative", 1),
-    FORTUNE("fortune", 8);
+    FORTUNE("fortune", 8),
+    PRECISION("precision", 1);
 
     private final String serializedName;
     private final int maxPerMachine;

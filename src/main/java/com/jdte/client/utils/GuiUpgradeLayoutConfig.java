@@ -176,6 +176,8 @@ public class GuiUpgradeLayoutConfig {
     private final int potionBrewerRedstoneButtonY;
     private final int potionBrewerRecipeLockButtonX;
     private final int potionBrewerRecipeLockButtonY;
+    private final int potionBrewerFuelInputButtonX;
+    private final int potionBrewerFuelInputButtonY;
     private final int potionBrewerFuelBarX;
     private final int potionBrewerFuelBarBottomY;
     private final int potionBrewerBubblesX;
@@ -579,6 +581,8 @@ public class GuiUpgradeLayoutConfig {
             this.potionBrewerRedstoneButtonY = getInt(potionBrewerButtons, "redstone_button_y", 31);
             this.potionBrewerRecipeLockButtonX = getInt(potionBrewerButtons, "recipe_lock_button_x", this.potionBrewerRedstoneButtonX);
             this.potionBrewerRecipeLockButtonY = getInt(potionBrewerButtons, "recipe_lock_button_y", this.potionBrewerRedstoneButtonY - 18);
+            this.potionBrewerFuelInputButtonX = getInt(potionBrewerButtons, "fuel_input_button_x", this.potionBrewerRecipeLockButtonX);
+            this.potionBrewerFuelInputButtonY = getInt(potionBrewerButtons, "fuel_input_button_y", this.potionBrewerRecipeLockButtonY - 18);
         } else {
             this.potionBrewerSpeedButtonX = 148;
             this.potionBrewerSpeedButtonY = 49;
@@ -586,6 +590,8 @@ public class GuiUpgradeLayoutConfig {
             this.potionBrewerRedstoneButtonY = 31;
             this.potionBrewerRecipeLockButtonX = 150;
             this.potionBrewerRecipeLockButtonY = 13;
+            this.potionBrewerFuelInputButtonX = 150;
+            this.potionBrewerFuelInputButtonY = -5;
         }
 
         JsonObject lootLayout = json.getAsJsonObject("loot_fabricator_layout");
@@ -757,6 +763,8 @@ public class GuiUpgradeLayoutConfig {
         this.potionBrewerRedstoneButtonY = 31;
         this.potionBrewerRecipeLockButtonX = 150;
         this.potionBrewerRecipeLockButtonY = 13;
+        this.potionBrewerFuelInputButtonX = 150;
+        this.potionBrewerFuelInputButtonY = -5;
         this.potionBrewerFuelBarX = 60;
         this.potionBrewerFuelBarBottomY = 38;
         this.potionBrewerBubblesX = 63;
@@ -1391,6 +1399,14 @@ public class GuiUpgradeLayoutConfig {
 
     public int getPotionBrewerRecipeLockButtonY() {
         return potionBrewerRecipeLockButtonY;
+    }
+
+    public int getPotionBrewerFuelInputButtonX() {
+        return potionBrewerFuelInputButtonX;
+    }
+
+    public int getPotionBrewerFuelInputButtonY() {
+        return potionBrewerFuelInputButtonY;
     }
 
     public int getPotionBrewerFuelBarX() {

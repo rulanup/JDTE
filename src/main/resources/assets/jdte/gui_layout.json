@@ -202,7 +202,9 @@
     "redstone_button_x": 152,
     "redstone_button_y": 31,
     "recipe_lock_button_x": 152,
-    "recipe_lock_button_y": 13
+    "recipe_lock_button_y": 13,
+    "fuel_input_button_x": 152,
+    "fuel_input_button_y": -5
   },
   "loot_fabricator_layout": {
     "comment": "战利品制造机相对 JDT 基础机器界面增加的尺寸。",

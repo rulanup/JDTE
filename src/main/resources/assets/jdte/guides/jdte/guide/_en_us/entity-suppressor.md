@@ -3,9 +3,13 @@ navigation:
   title: Entity Suppressor
   icon: "jdte:entity_suppressor"
   position: 16
+item_ids:
+  - jdte:entity_suppressor
 ---
 
 # Entity Suppressor
+
+<BlockImage id="jdte:entity_suppressor" scale="2" />
 
 The Entity Suppressor uses an Advanced Sensor-style interface and eight upgrade slots to control entities, dynamic block entity rendering, or particles in its configured area through event-driven indexes.
 
@@ -24,3 +28,7 @@ Players and entities in vehicle/passenger relationships are always protected. Na
 Suppress Entities freezes matching ticks on both logical sides and prevents frozen item entities from being picked up. Prevent Entity Spawns can also remove already existing matches every 20 ticks through the `removeExistingEntities` option, which is disabled by default.
 
 Rendering modes reduce client rendering cost only; they do not stop server-side entity, block entity, or mod-network updates. Disabling block entity rendering suppresses the complete dynamic renderer, so chests, sign text, or machines whose full model is dynamic may look incomplete. Entity Suppressors themselves always remain rendered.
+
+## Crafting
+
+<RecipeFor id="jdte:entity_suppressor" />

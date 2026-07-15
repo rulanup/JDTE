@@ -1,0 +1,13 @@
+{
+  "values": [
+    "#c:clusters",
+    {
+      "id": "minecraft:amethyst_cluster",
+      "required": false
+    },
+    {
+      "id": "data_energistics:data_crystal_cluster",
+      "required": false
+    }
+  ]
+}

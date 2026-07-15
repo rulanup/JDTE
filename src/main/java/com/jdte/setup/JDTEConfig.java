@@ -30,6 +30,13 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue advancedTimeAcceleratorMaxMultiplier;
         public final ModConfigSpec.IntValue advancedTimeAcceleratorOverclockMultiplier;
         public final ModConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
+        public final ModConfigSpec.IntValue extendedTimeAcceleratorMaxMultiplier;
+        public final ModConfigSpec.IntValue extendedTimeAcceleratorOverclockMultiplier;
+        public final ModConfigSpec.DoubleValue timeAcceleratorTargetMspt;
+        public final ModConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
+        public final ModConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
+        public final ModConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
+        public final ModConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
         public final ModConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
         public final ModConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
 
@@ -102,6 +109,24 @@ public class JDTEConfig {
         public final ModConfigSpec.BooleanValue rangeBlockerContainOwnerlessProjectiles;
         public final ModConfigSpec.BooleanValue rangeBlockerContainProjectileExplosions;
 
+        // Advanced Potion Brewer
+        public final ModConfigSpec.BooleanValue potionBrewerRejectPatternProviderFuelInput;
+
+        // Crystal Incubator
+        public final ModConfigSpec.IntValue crystalIncubatorFluidCapacity;
+        public final ModConfigSpec.IntValue crystalIncubatorEnergyCapacity;
+        public final ModConfigSpec.DoubleValue crystalIncubatorEnergyCostMultiplier;
+        public final ModConfigSpec.IntValue crystalIncubatorMaxMultiplier;
+        public final ModConfigSpec.IntValue crystalIncubatorOverclockMultiplier;
+        public final ModConfigSpec.DoubleValue crystalIncubatorFluidCostMultiplier;
+        public final ModConfigSpec.DoubleValue crystalIncubatorRegularGrowthAcceleratorsAt8x;
+        public final ModConfigSpec.IntValue crystalIncubatorScanBatchSize;
+        public final ModConfigSpec.IntValue crystalIncubatorCacheRefreshInterval;
+        public final ModConfigSpec.IntValue crystalIncubatorMotherBatchSize;
+        public final ModConfigSpec.IntValue crystalIncubatorGrowthOperationsPerTick;
+        public final ModConfigSpec.IntValue crystalIncubatorHarvestOperationsPerTick;
+        public final ModConfigSpec.IntValue crystalIncubatorDynaGrowthAttempts;
+
         // Gel Generator
         public final ModConfigSpec.IntValue gelGeneratorInputSlots;
         public final ModConfigSpec.IntValue gelGeneratorOutputSlots;
@@ -168,11 +193,11 @@ public class JDTEConfig {
             basicTimeAcceleratorDefaultMultiplier = builder
                     .comment("Basic time accelerator default multiplier")
                     .translation("config.jdte.jdte.timeAccelerator.basicTimeAcceleratorDefaultMultiplier")
-                    .defineInRange("basicTimeAcceleratorDefaultMultiplier", 4, 1, 100);
+                    .defineInRange("basicTimeAcceleratorDefaultMultiplier", 16, 1, 100);
             basicTimeAcceleratorOverclockMultiplier = builder
                     .comment("Basic time accelerator overclock multiplier")
                     .translation("config.jdte.jdte.timeAccelerator.basicTimeAcceleratorOverclockMultiplier")
-                    .defineInRange("basicTimeAcceleratorOverclockMultiplier", 16, 1, 1000);
+                    .defineInRange("basicTimeAcceleratorOverclockMultiplier", 32, 1, 1000);
             advancedTimeAcceleratorEnergyCapacity = builder
                     .comment("Advanced time accelerator energy capacity")
                     .translation("config.jdte.jdte.timeAccelerator.advancedTimeAcceleratorEnergyCapacity")
@@ -180,15 +205,43 @@ public class JDTEConfig {
             advancedTimeAcceleratorMaxMultiplier = builder
                     .comment("Advanced time accelerator max adjustable multiplier")
                     .translation("config.jdte.jdte.timeAccelerator.advancedTimeAcceleratorMaxMultiplier")
-                    .defineInRange("advancedTimeAcceleratorMaxMultiplier", 128, 1, 1000);
+                    .defineInRange("advancedTimeAcceleratorMaxMultiplier", 64, 1, 1000);
             advancedTimeAcceleratorOverclockMultiplier = builder
                     .comment("Advanced time accelerator overclock multiplier")
                     .translation("config.jdte.jdte.timeAccelerator.advancedTimeAcceleratorOverclockMultiplier")
-                    .defineInRange("advancedTimeAcceleratorOverclockMultiplier", 256, 1, 10000);
+                    .defineInRange("advancedTimeAcceleratorOverclockMultiplier", 128, 1, 10000);
             advancedTimeAcceleratorDefaultMultiplier = builder
                     .comment("Advanced time accelerator default multiplier")
                     .translation("config.jdte.jdte.timeAccelerator.advancedTimeAcceleratorDefaultMultiplier")
                     .defineInRange("advancedTimeAcceleratorDefaultMultiplier", 4, 1, 100);
+            extendedTimeAcceleratorMaxMultiplier = builder
+                    .comment("Extended time accelerator maximum adjustable multiplier")
+                    .translation("config.jdte.jdte.timeAccelerator.extendedTimeAcceleratorMaxMultiplier")
+                    .defineInRange("extendedTimeAcceleratorMaxMultiplier", 512, 1, 10000);
+            extendedTimeAcceleratorOverclockMultiplier = builder
+                    .comment("Extended time accelerator multiplier with Overclock or Creative Upgrade")
+                    .translation("config.jdte.jdte.timeAccelerator.extendedTimeAcceleratorOverclockMultiplier")
+                    .defineInRange("extendedTimeAcceleratorOverclockMultiplier", 1024, 1, 100000);
+            timeAcceleratorTargetMspt = builder
+                    .comment("Target total server tick time used by managed Time Accelerator work")
+                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorTargetMspt")
+                    .defineInRange("timeAcceleratorTargetMspt", 45.0D, 1.0D, 50.0D);
+            timeAcceleratorMaxPendingTicks = builder
+                    .comment("Maximum paid virtual ticks retained per Time Accelerator target")
+                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorMaxPendingTicks")
+                    .defineInRange("timeAcceleratorMaxPendingTicks", 1000000L, 1024L, 100000000L);
+            timeAcceleratorExecutionBatchSize = builder
+                    .comment("Maximum virtual ticks processed for one target before rotating to the next target")
+                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorExecutionBatchSize")
+                    .defineInRange("timeAcceleratorExecutionBatchSize", 64, 1, 4096);
+            timeAcceleratorRandomRefreshInterval = builder
+                    .comment("Ticks between random-ticking block target cache refreshes")
+                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorRandomRefreshInterval")
+                    .defineInRange("timeAcceleratorRandomRefreshInterval", 20, 1, 1200);
+            timeAcceleratorAE2Enabled = builder
+                    .comment("Allow Time Accelerators to invoke AE2 IGridTickable services")
+                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorAE2Enabled")
+                    .define("timeAcceleratorAE2Enabled", true);
             builder.pop();
 
             // Bio Crusher
@@ -431,6 +484,62 @@ public class JDTEConfig {
                     .comment("Prevent explosions from contained projectiles from affecting blocks and entities outside the field")
                     .translation("config.jdte.jdte.rangeBlocker.containProjectileExplosions")
                     .define("containProjectileExplosions", true);
+            builder.pop();
+
+            builder.comment("Advanced Potion Brewer Settings")
+                    .translation("config.jdte.jdte.advancedPotionBrewer")
+                    .push("advancedPotionBrewer");
+            potionBrewerRejectPatternProviderFuelInput = builder
+                    .comment("Reject Blaze Powder insertion into the fuel slot from adjacent AE2 crafting providers")
+                    .translation("config.jdte.jdte.advancedPotionBrewer.rejectPatternProviderFuelInput")
+                    .define("rejectPatternProviderFuelInput", true);
+            builder.pop();
+
+            builder.comment("Crystal Incubator Settings")
+                    .translation("config.jdte.jdte.crystalIncubator")
+                    .push("crystalIncubator");
+            crystalIncubatorFluidCapacity = builder
+                    .translation("config.jdte.jdte.crystalIncubator.fluidCapacity")
+                    .defineInRange("fluidCapacity", 8000, 100, 1000000);
+            crystalIncubatorEnergyCapacity = builder
+                    .translation("config.jdte.jdte.crystalIncubator.energyCapacity")
+                    .defineInRange("energyCapacity", 10000000, 1000, Integer.MAX_VALUE);
+            crystalIncubatorEnergyCostMultiplier = builder
+                    .comment("Multiplier applied to JDT Time Wand-equivalent FE usage")
+                    .translation("config.jdte.jdte.crystalIncubator.energyCostMultiplier")
+                    .defineInRange("energyCostMultiplier", 1.0D, 0.0D, 1000.0D);
+            crystalIncubatorMaxMultiplier = builder
+                    .translation("config.jdte.jdte.crystalIncubator.maxMultiplier")
+                    .defineInRange("maxMultiplier", 512, 1, 65536);
+            crystalIncubatorOverclockMultiplier = builder
+                    .translation("config.jdte.jdte.crystalIncubator.overclockMultiplier")
+                    .defineInRange("overclockMultiplier", 1024, 1, 65536);
+            crystalIncubatorFluidCostMultiplier = builder
+                    .comment("Multiplier applied to JDT Time Wand-equivalent fluid usage")
+                    .translation("config.jdte.jdte.crystalIncubator.fluidCostMultiplier")
+                    .defineInRange("fluidCostMultiplier", 1.0D, 0.0D, 1000.0D);
+            crystalIncubatorRegularGrowthAcceleratorsAt8x = builder
+                    .comment("Equivalent AE2 Growth Accelerators used for ordinary budding blocks at 8x; each calls randomTick once every 10 ticks")
+                    .translation("config.jdte.jdte.crystalIncubator.regularGrowthAcceleratorsAt8x")
+                    .defineInRange("regularGrowthAcceleratorsAt8x", 6.0D, 0.01D, 1024.0D);
+            crystalIncubatorScanBatchSize = builder
+                    .translation("config.jdte.jdte.crystalIncubator.scanBatchSize")
+                    .defineInRange("scanBatchSize", 4096, 16, 1048576);
+            crystalIncubatorCacheRefreshInterval = builder
+                    .translation("config.jdte.jdte.crystalIncubator.cacheRefreshInterval")
+                    .defineInRange("cacheRefreshInterval", 200, 20, 72000);
+            crystalIncubatorMotherBatchSize = builder
+                    .translation("config.jdte.jdte.crystalIncubator.motherBatchSize")
+                    .defineInRange("motherBatchSize", 64, 1, 4096);
+            crystalIncubatorGrowthOperationsPerTick = builder
+                    .translation("config.jdte.jdte.crystalIncubator.growthOperationsPerTick")
+                    .defineInRange("growthOperationsPerTick", 256, 1, 65536);
+            crystalIncubatorHarvestOperationsPerTick = builder
+                    .translation("config.jdte.jdte.crystalIncubator.harvestOperationsPerTick")
+                    .defineInRange("harvestOperationsPerTick", 64, 1, 4096);
+            crystalIncubatorDynaGrowthAttempts = builder
+                    .translation("config.jdte.jdte.crystalIncubator.dynaGrowthAttempts")
+                    .defineInRange("dynaGrowthAttempts", 128, 1, 4096);
             builder.pop();
 
             // Gel Generator

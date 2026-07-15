@@ -85,6 +85,8 @@ public class JDTEMenus {
             "advanced_item_receiver", () -> IMenuTypeExtension.create(AdvancedItemReceiverContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedItemReceiverContainer>> EXTENDED_ITEM_RECEIVER = MENUS.register(
             "extended_item_receiver", () -> IMenuTypeExtension.create(ExtendedItemReceiverContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<CrystalIncubatorContainer>> CRYSTAL_INCUBATOR = MENUS.register(
+            "crystal_incubator", () -> IMenuTypeExtension.create(CrystalIncubatorContainer::new));
 
     // Fluid Receiver
     public static final DeferredHolder<MenuType<?>, MenuType<BasicFluidReceiverContainer>> BASIC_FLUID_RECEIVER = MENUS.register(

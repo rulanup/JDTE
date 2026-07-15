@@ -9,7 +9,16 @@ item_ids:
 
 # Loot Fabricator
 
+<BlockImage id="jdte:loot_fabricator" scale="2" />
+
 The Loot Fabricator uses spawn eggs as reusable entity templates. It consumes Life Fluid, Time Fluid, and energy, then rolls the entity's currently loaded vanilla or modded loot table. Spawn eggs are not consumed and each of the four input slots holds at most one egg.
+
+| Property | Base value |
+|----------|------------|
+| Template slots | Four spawn egg slots processed in parallel |
+| Output slots | 16; each Capacity Upgrade unlocks another 16 |
+| Cost per share | 100 mB Life Fluid, 5,000 FE, and at least 1 mB Time Fluid |
+| Boss multiplier | Wither/Elder Guardian 10x, Ender Dragon 100x |
 
 It starts with 16 output slots. Each Capacity Upgrade unlocks another 16-slot page, up to four pages. Its standard eight-slot upgrade area has one four-slot column on each side and accepts Capacity, Overclock, Underclock, Fluid, Creative, and up to three Looting Upgrades.
 
@@ -22,3 +31,7 @@ By default, each successful output share costs 100 mB of Life Fluid, 5,000 FE, a
 Boss spawn eggs have higher fluid costs: Wither and Elder Guardian eggs consume 10x Life Fluid and Time Fluid, while Ender Dragon eggs consume 100x Life Fluid and Time Fluid. Wither eggs fabricate the Wither's core loot, including the Nether Star.
 
 Redstone control and automatic I/O are supported. Automation inserts only spawn eggs and matching fluids and extracts only from unlocked output slots.
+
+## Crafting
+
+<RecipeFor id="jdte:loot_fabricator" />

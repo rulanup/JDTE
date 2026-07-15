@@ -35,15 +35,28 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     }
 
     public void setMultiplier(int multiplier) {
-        this.multiplier = Math.max(1, Math.min(multiplier, JDTEConfig.COMMON.advancedTimeAcceleratorMaxMultiplier.get()));
+        this.multiplier = Math.max(1, Math.min(multiplier, getMaxAdjustableMultiplier()));
         markDirtyClient();
     }
 
     @Override
     public int getEffectiveMultiplier() {
         return (UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this))
-                ? JDTEConfig.COMMON.advancedTimeAcceleratorOverclockMultiplier.get()
+                ? getOverclockMultiplier()
                 : multiplier;
+    }
+
+    protected int getMaxAdjustableMultiplier() {
+        return JDTEConfig.COMMON.advancedTimeAcceleratorMaxMultiplier.get();
+    }
+
+    protected int getOverclockMultiplier() {
+        return JDTEConfig.COMMON.advancedTimeAcceleratorOverclockMultiplier.get();
+    }
+
+    @Override
+    protected double getTierFluidCostMultiplier() {
+        return 2.0D;
     }
 
     @Override

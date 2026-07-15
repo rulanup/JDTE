@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.5.4` |
+| Current version | `0.5.5` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.233+` |
 | Just Dire Things | `1.5.7+` |
@@ -16,13 +16,14 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 
 Major features:
 
-- 12 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Looting, and Sharpness.
+- 13 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting, and Sharpness.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
 - Advanced Item Collector with eight upgrade slots and event-driven pre-spawn collection without item-flow particles.
 - Entity Suppressor with entity-tick suppression, entity spawn/join blocking, entity and block entity rendering suppression, client particle suppression, and six entity target modes.
 - Range Blocker with event-driven living-entity containment and player-magnet suppression.
+- Crystal Incubator with generic budding-block discovery, Time Fluid growth acceleration, Fortune harvesting, and batched area caching.
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
@@ -136,9 +137,10 @@ Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItem
 | `RANGE` | `range` | 2 | Raises configurable area limits |
 | `FILTER` | `filter` | 2 | Adds nine filter slots per card |
 | `CREATIVE` | `creative` | 1 | Removes FE cost, removes Time Fluid cost for accelerators, and includes overclock behavior |
-| `FORTUNE` | `fortune` | 8 | Gel Generator only; applies vanilla ore Fortune scaling to JDT raw ore outputs and adds 5% FE cost per card |
+| `FORTUNE` | `fortune` | 8 | Gel Generator and Crystal Incubator; applies vanilla Fortune scaling to supported production or harvesting |
+| `PRECISION` | `precision` | 1 | Crystal Incubator only; applies vanilla Silk Touch loot behavior and conflicts with Fortune |
 
-Fortune is a standard `UpgradeType` restricted to Gel Generators. Looting and Sharpness are dedicated upgrade items and are not members of `UpgradeType`. Bio Crushers accept up to six of each in dedicated slots. The Loot Fabricator uses `LootFabricatorUpgradeItemStackHandler` to allow up to three Looting Upgrades alongside eight standard slots.
+Fortune and Precision are standard `UpgradeType` values restricted to supported production machines; they conflict on the Crystal Incubator like vanilla Fortune and Silk Touch. Looting and Sharpness are dedicated upgrade items and are not members of `UpgradeType`. Bio Crushers accept up to six of each in dedicated slots. The Loot Fabricator uses `LootFabricatorUpgradeItemStackHandler` to allow up to three Looting Upgrades alongside eight standard slots.
 
 ### Upgrade Handlers
 
@@ -166,7 +168,7 @@ Fortune is a standard `UpgradeType` restricted to Gel Generators. Looting and Sh
 Core behavior:
 
 - The base tank holds `1000 mB` and accepts JDT Time Fluid only.
-- Each server tick checks redstone state and resources before scanning the configured area.
+- Each server tick checks redstone state and machine state before submitting work to the shared scheduler.
 - Other `TimeAcceleratorMachine` instances are skipped to prevent recursive acceleration.
 - Only blocks accepted by `MiscTools.isValidTickAccelBlock()` are accelerated.
 - Block entity tickers and random block ticks are invoked repeatedly according to the effective multiplier.
@@ -175,11 +177,13 @@ Core behavior:
 
 | Block entity | Inheritance | Default behavior |
 |--------------|-------------|------------------|
-| `BasicTimeAcceleratorBE` | `TimeAcceleratorBE` | 4x by default, 16x with Overclock/Creative, Time Fluid only |
-| `AdvancedTimeAcceleratorBE` | `TimeAcceleratorBE`, `PoweredMachineBE` | Adjustable 1-128x, 256x with Overclock/Creative, Time Fluid and FE |
-| `ExtendedTimeAcceleratorBE` | `AdvancedTimeAcceleratorBE`, `ExtendedUpgradeMachine` | Eight-slot Advanced variant |
+| `BasicTimeAcceleratorBE` | `TimeAcceleratorBE` | 16x by default, 32x with Overclock/Creative, base Time Fluid cost |
+| `AdvancedTimeAcceleratorBE` | `TimeAcceleratorBE`, `PoweredMachineBE` | Adjustable 1-64x, 128x with Overclock/Creative, Time Fluid at 2x the Basic rate plus FE |
+| `ExtendedTimeAcceleratorBE` | `AdvancedTimeAcceleratorBE`, `ExtendedUpgradeMachine` | Managed eight-slot tier, adjustable 1-512x and 1024x with Overclock/Creative, Time Fluid at 5x the Basic rate |
 
-Advanced defaults include `BASE_ENERGY_CAPACITY = 200000`, `MAX_MULTIPLIER = 128`, and `OVERCLOCK_MULTIPLIER = 256`. FE cost derives from `Config.TIMEWAND_RF_COST`; fluid cost derives from `Config.TIMEWAND_FLUID_COST` and `JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier`. The multiplier can be changed with `/jdte timeaccelerator fluidCostMultiplier <value>`.
+Advanced defaults include `BASE_ENERGY_CAPACITY = 200000`, `MAX_MULTIPLIER = 64`, and `OVERCLOCK_MULTIPLIER = 128`. FE cost derives from `Config.TIMEWAND_RF_COST`; fluid cost derives from `Config.TIMEWAND_FLUID_COST` and `JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier`, then applies fixed Basic/Advanced/Extended tier factors of 1x/2x/5x. The base fluid multiplier can be changed with `/jdte timeaccelerator fluidCostMultiplier <value>`.
+
+All three tiers use the shared `ExtendedTimeAccelerationManager`. Active accelerators submit work to a server-post-tick scheduler that discovers loaded block entities through chunk maps, sums overlapping multipliers without discarding contributions, rotates bounded target batches inside configurable MSPT headroom, and retains paid virtual ticks while their contributing accelerators remain active. Random-ticking targets use a periodically refreshed cache. Optional AE2 support resolves public in-world grid nodes and invokes their `IGridTickable` services without reflection or mixins. `TimeAcceleratorBE.accelerateArea()` remains as the fallback/reference implementation.
 
 ## Extended Machines
 
@@ -218,6 +222,7 @@ Rules:
 | Advanced Item Collector | Single eight-slot tier | `AdvancedItemCollectorBE` | Intercepts item entities before world insertion and sends them to its facing inventory |
 | Entity Suppressor | Single eight-slot tier | `EntitySuppressorBE` | Suppresses entity ticks or client rendering, blocks entity creation, or disables particles in a filtered area |
 | Range Blocker | Single eight-slot tier | `RangeBlockerBE` | Contains living entities or prevents player magnets from moving item entities in a filtered area |
+| Crystal Incubator | Single eight-slot tier | `CrystalIncubatorBE` | Accelerates tagged budding blocks with Time Fluid and FE, then Fortune- or Precision-harvests mature neighboring clusters |
 | Bio Crusher | Advanced, Extended | `BioCrusherBE` | Produces mob loot and XP fluid, including spawner integration |
 | Life Extractor | Advanced, Extended | `LifeExtractorBE` | Converts target health into Life Fluid without normal drops |
 | Infusion Machine | Advanced, Extended | `InfusionMachineBE` | Performs gel/item and dynamic spawn egg infusion |
@@ -227,6 +232,7 @@ Rules:
 Capability summary:
 
 - Time Accelerators expose fluid; Advanced and Extended variants also expose energy.
+- The Crystal Incubator exposes energy, Time Fluid input, and an extraction-only nine-slot item inventory; Auto I/O supports fluid input and item output.
 - Extended JDT machines expose item and energy capabilities where supported.
 - Glue Activators expose items; powered tiers also expose energy.
 - Gel Generators, Bio Crushers, Infusion Machines, Potion Brewers, and Loot Fabricators expose energy, fluid, and item capabilities as appropriate.
@@ -358,7 +364,16 @@ Recommended order:
 
 ## Version History
 
-### v0.5.4 (Current)
+### v0.5.5 (Current)
+
+- Reworked all Time Accelerators to use a shared managed stacking scheduler with retained virtual ticks, chunk-based target discovery, dynamic MSPT headroom, and AE2 `IGridTickable` support.
+- Balanced tier limits and Time Fluid costs: Basic runs at 16x or 32x with Overclock/Creative, Advanced is adjustable to 64x or runs at 128x with Overclock/Creative, Extended remains adjustable to 512x or runs at 1024x, and Basic/Advanced/Extended use 1x/2x/5x Time Fluid cost rates.
+- Added the Crystal Incubator with adjustable 1-512x or overclocked 1024x Time Fluid growth acceleration, nine-slot automatic mature-cluster harvesting, Fortune VIII, common/extension tags, batched caching, and public-API Just Dyna Things support.
+- Added Crystal Incubator FE usage, automatic item output, AE2 Growth Accelerator-style ordinary budding ticks with six equivalent accelerators at 8x, exact Dyna target FE/Time Fluid provisioning and target-side charging, and the mutually exclusive Precision Upgrade backed by vanilla Silk Touch loot behavior.
+- Replaced the Advanced Potion Brewer's directional fuel setting with a binary external Blaze Powder input toggle while preserving the configurable AE2 pattern-provider guard.
+- Added AE2 Crystal Science file `8112039`, AE2 Lightning Tech, and Data Energistics to the local runtime test environment.
+
+### v0.5.4
 
 - Added the Eclipse Alloy Wrench crafting recipe.
 - Added the Gel Generator Fortune Upgrade.
@@ -434,7 +449,7 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Category | Path | Purpose |
 |----------|------|---------|
 | Upgrade system | `jdte.upgrades` | Filter slots, energy multipliers, tick speed, and area limits |
-| Time Accelerator | `jdte.timeAccelerator` | Fluid capacity, tier multipliers, energy, and fluid-cost multiplier |
+| Time Accelerator | `jdte.timeAccelerator` | Fluid capacity, tier multipliers, energy/fluid costs, and shared scheduler MSPT, queue, batch, refresh, and AE2 controls |
 | Bio Crusher | `jdte.bioCrusher` | Fluid, energy, damage, range, output scaling, and integrations |
 | Life Extractor | `jdte.lifeExtractor` | Life Fluid capacity, health conversion, and batch size |
 | Loot Fabricator | `jdte.lootFabricator` | Processing costs, Boss multipliers, Looting copies, and compatibility loot |
@@ -442,6 +457,8 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Advanced Item Collector | `jdte.advancedItemCollector` | Pre-break oversized-container transfer, per-slot threshold, and direct AE2 ME transfer toggle |
 | Entity Suppressor | `jdte.entitySuppressor` | Energy use, named/tamed/Boss protection, and optional removal of existing blocked entities |
 | Range Blocker | `jdte.rangeBlocker` | Separate mode energy costs, entity safety, projectile/ownerless projectile containment, explosion clipping, and optional Mekanism compatibility |
+| Crystal Incubator | `jdte.crystalIncubator` | FE/Time Fluid capacity and cost, 512x/1024x rates, cache scanning, bounded growth/harvest batches, and Dyna growth attempts |
+| Advanced Potion Brewer | `jdte.advancedPotionBrewer` | Optional rejection of adjacent AE2 crafting providers for Blaze Powder automation |
 | Gel Generator | `jdte.gelGenerator` | Slots, capacity, conversion, and fuel use |
 | Generator upgrade | `jdte.generatorUpgrade` | Energy multiplier and fluid consumption |
 | Upgrade items | `jdte.upgradeItems` | Limits and damage values |
