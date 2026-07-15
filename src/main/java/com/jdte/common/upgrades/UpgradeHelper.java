@@ -14,6 +14,7 @@ import com.jdte.common.blockentities.AdvancedItemCollectorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
+import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
@@ -53,6 +54,11 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if (machine instanceof GreenhouseBE) {
+            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.FORTUNE;
+        }
         if (machine instanceof AdvancedItemCollectorBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER;
         }
@@ -83,6 +89,13 @@ public class UpgradeHelper {
             }
         }
         return Math.min(count, type.getMaxPerMachine());
+    }
+
+    public static int getMaxUpgrades(BaseMachineBE machine, UpgradeType type) {
+        if (machine instanceof GreenhouseBE && type == UpgradeType.FORTUNE) {
+            return 3;
+        }
+        return type.getMaxPerMachine();
     }
 
     public static int getMaxExtraFilterSlots() {
@@ -182,7 +195,7 @@ public class UpgradeHelper {
     }
 
     public static boolean usesLockedDelay(BaseMachineBE machine) {
-        return !(machine instanceof TimeAcceleratorMachine);
+        return !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE);
     }
 
     public static boolean hasOverclock(BaseMachineBE machine) {

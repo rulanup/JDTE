@@ -162,6 +162,14 @@ public class JDTE {
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.CrystalIncubatorBE incubator
                         ? incubator.getEnergyStorage() : null,
                 JDTEBlocks.CRYSTAL_INCUBATOR.get());
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GreenhouseBE greenhouse
+                        ? greenhouse.getEnergyStorage() : null,
+                JDTEBlocks.GREENHOUSE.get());
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GreenhouseBE greenhouse
+                        ? greenhouse.getFluidTank() : null,
+                JDTEBlocks.GREENHOUSE.get());
 
         // Glue Activator energy storage (Advanced and Extended)
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
@@ -345,6 +353,10 @@ public class JDTE {
                 JDTEBlocks.EXTENDED_ITEM_RECEIVER.get(),
                 JDTEBlocks.CRYSTAL_INCUBATOR.get()
         );
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GreenhouseBE greenhouse
+                        ? greenhouse.getAutomationItemHandler() : null,
+                JDTEBlocks.GREENHOUSE.get());
 
         // Item handler for Infusion Machine (input slots)
         event.registerBlock(Capabilities.ItemHandler.BLOCK,

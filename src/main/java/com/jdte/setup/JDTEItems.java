@@ -51,6 +51,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> ENTITY_SUPPRESSOR = ITEMS.register("entity_suppressor", () -> new BlockItem(JDTEBlocks.ENTITY_SUPPRESSOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> RANGE_BLOCKER = ITEMS.register("range_blocker", () -> new BlockItem(JDTEBlocks.RANGE_BLOCKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> CRYSTAL_INCUBATOR = ITEMS.register("crystal_incubator", () -> new BlockItem(JDTEBlocks.CRYSTAL_INCUBATOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> GREENHOUSE = ITEMS.register("greenhouse", () -> new BlockItem(JDTEBlocks.GREENHOUSE.get(), new Item.Properties()));
 
     // Glue Activator
     public static final DeferredHolder<Item, BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));

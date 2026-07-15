@@ -1,0 +1,12 @@
+{
+  "type": "jdte:greenhouse",
+  "seed": { "item": "minecraft:oak_sapling" },
+  "outputs": [
+    { "id": "minecraft:oak_log", "count": 4 },
+    { "id": "minecraft:oak_sapling", "count": 1 }
+  ],
+  "display_block": "minecraft:oak_sapling",
+  "use_loot_table": false,
+  "growth_work": 32768,
+  "time_fluid": 100
+}

@@ -95,6 +95,8 @@ public class JDTEBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CrystalIncubatorBE>> CRYSTAL_INCUBATOR = BLOCK_ENTITIES.register(
             "crystal_incubator", () -> BlockEntityType.Builder.of(CrystalIncubatorBE::new, JDTEBlocks.CRYSTAL_INCUBATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GreenhouseBE>> GREENHOUSE = BLOCK_ENTITIES.register(
+            "greenhouse", () -> BlockEntityType.Builder.of(GreenhouseBE::new, JDTEBlocks.GREENHOUSE.get()).build(null));
 
     // Life Extractor
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedLifeExtractorBE>> ADVANCED_LIFE_EXTRACTOR = BLOCK_ENTITIES.register(

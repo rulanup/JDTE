@@ -42,7 +42,7 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
             return false;
         }
 
-        return count(type, slot) < type.getMaxPerMachine();
+        return count(type, slot) < UpgradeHelper.getMaxUpgrades(machine, type);
     }
 
     @Override

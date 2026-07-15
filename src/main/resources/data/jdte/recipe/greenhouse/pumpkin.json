@@ -1,0 +1,9 @@
+{
+  "type": "jdte:greenhouse",
+  "seed": { "item": "minecraft:pumpkin_seeds" },
+  "outputs": [{ "id": "minecraft:pumpkin", "count": 1 }],
+  "display_block": "minecraft:pumpkin_stem",
+  "harvest_block": "minecraft:pumpkin",
+  "growth_work": 8192,
+  "time_fluid": 40
+}

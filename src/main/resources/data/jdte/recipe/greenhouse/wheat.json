@@ -1,0 +1,11 @@
+{
+  "type": "jdte:greenhouse",
+  "seed": { "item": "minecraft:wheat_seeds" },
+  "outputs": [
+    { "id": "minecraft:wheat", "count": 1 },
+    { "id": "minecraft:wheat_seeds", "count": 1 }
+  ],
+  "display_block": "minecraft:wheat",
+  "growth_work": 4096,
+  "time_fluid": 10
+}

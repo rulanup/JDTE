@@ -24,6 +24,7 @@ Major features:
 - Entity Suppressor with entity-tick suppression, entity spawn/join blocking, entity and block entity rendering suppression, client particle suppression, and six entity target modes.
 - Range Blocker with event-driven living-entity containment and player-magnet suppression.
 - Crystal Incubator with generic budding-block discovery, Time Fluid growth acceleration, Fortune harvesting, and batched area caching.
+- Glass-framed Greenhouse with four client-rendered plants, four reusable stackable plant templates, paged output, bounded batch production, generic plant support, and public-API Mystical Agriculture/Agradditions support.
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
@@ -58,6 +59,8 @@ If dependency resolution fails, verify CurseMaven access and the coordinates in 
 | Apothic Spawners | CurseForge `7492121` | Optional spawner cycle and XP compatibility |
 | Draconic Evolution | CurseForge `7584459` | Optional Chaos Guardian and dragon loot compatibility |
 | FTB Ultimine | CurseForge `8231400` | Optional bulk wrench and Upgrade Card operations |
+| Mystical Agriculture | CurseForge `8344249` | Optional Greenhouse crop registry integration |
+| Mystical Agradditions | CurseForge `7802027` | Optional high-tier Greenhouse crop integration through the shared registry |
 | Parchment | `2024.11.17` | Minecraft mappings |
 
 Important JDT packages:
@@ -137,7 +140,7 @@ Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItem
 | `RANGE` | `range` | 2 | Raises configurable area limits |
 | `FILTER` | `filter` | 2 | Adds nine filter slots per card |
 | `CREATIVE` | `creative` | 1 | Removes FE cost, removes Time Fluid cost for accelerators, and includes overclock behavior |
-| `FORTUNE` | `fortune` | 8 | Gel Generator and Crystal Incubator; applies vanilla Fortune scaling to supported production or harvesting |
+| `FORTUNE` | `fortune` | 8 | Gel Generator, Crystal Incubator, and Greenhouse; Greenhouse uses a machine-specific limit of 3 |
 | `PRECISION` | `precision` | 1 | Crystal Incubator only; applies vanilla Silk Touch loot behavior and conflicts with Fortune |
 
 Fortune and Precision are standard `UpgradeType` values restricted to supported production machines; they conflict on the Crystal Incubator like vanilla Fortune and Silk Touch. Looting and Sharpness are dedicated upgrade items and are not members of `UpgradeType`. Bio Crushers accept up to six of each in dedicated slots. The Loot Fabricator uses `LootFabricatorUpgradeItemStackHandler` to allow up to three Looting Upgrades alongside eight standard slots.
@@ -223,6 +226,7 @@ Rules:
 | Entity Suppressor | Single eight-slot tier | `EntitySuppressorBE` | Suppresses entity ticks or client rendering, blocks entity creation, or disables particles in a filtered area |
 | Range Blocker | Single eight-slot tier | `RangeBlockerBE` | Contains living entities or prevents player magnets from moving item entities in a filtered area |
 | Crystal Incubator | Single eight-slot tier | `CrystalIncubatorBE` | Accelerates tagged budding blocks with Time Fluid and FE, then Fortune- or Precision-harvests mature neighboring clusters |
+| Greenhouse | Single eight-slot tier | `GreenhouseBE` | Runs four stackable crop/flower/sapling templates at adjustable 1-32x or forced 64x with Overclock/Creative, samples or explicitly defines multi-output harvests, and generates new output directly into adjacent item handlers |
 | Bio Crusher | Advanced, Extended | `BioCrusherBE` | Produces mob loot and XP fluid, including spawner integration |
 | Life Extractor | Advanced, Extended | `LifeExtractorBE` | Converts target health into Life Fluid without normal drops |
 | Infusion Machine | Advanced, Extended | `InfusionMachineBE` | Performs gel/item and dynamic spawn egg infusion |
@@ -233,6 +237,7 @@ Capability summary:
 
 - Time Accelerators expose fluid; Advanced and Extended variants also expose energy.
 - The Crystal Incubator exposes energy, Time Fluid input, and an extraction-only nine-slot item inventory; Auto I/O supports fluid input and item output.
+- The Greenhouse exposes energy, Time Fluid input, four plant-template insertion slots, and 16-64 extraction-only paged output slots; its renderer displays four cached plant states without real world crops. Harvest settlement prefers the last successful adjacent item handler and routes newly generated stacks there first. Only remainders use internal output slots, and bounded snapshots preflight both destinations without a per-tick inventory-transfer loop.
 - Extended JDT machines expose item and energy capabilities where supported.
 - Glue Activators expose items; powered tiers also expose energy.
 - Gel Generators, Bio Crushers, Infusion Machines, Potion Brewers, and Loot Fabricators expose energy, fluid, and item capabilities as appropriate.
@@ -304,6 +309,8 @@ GuideME locations:
 - English translations: `src/main/resources/assets/jdte/guides/jdte/guide/_en_us/`
 - Current feature pages include `advanced-potion-brewer.md`, `loot-fabricator.md`, and `eclipsealloy-wrench.md` in addition to the machine, upgrade, essence, and automation pages.
 
+Greenhouse data recipes live under `data/jdte/recipe/greenhouse/`. Each recipe declares a reusable `seed` ingredient, an `outputs` list for JEI and explicit harvest results, `display_block`, `growth_work`, and the unreduced base `time_fluid` cost. Optional `harvest_block` selects the mature state used for loot simulation. Set `use_loot_table` to `true` to harvest that state through its real loot table, or to `false` to use `outputs` directly. Runtime applies the configured 100x fluid divisor and the input stack-density multiplier.
+
 ## Common Development Workflows
 
 ### Adding an Upgrade
@@ -370,6 +377,7 @@ Recommended order:
 - Balanced tier limits and Time Fluid costs: Basic runs at 16x or 32x with Overclock/Creative, Advanced is adjustable to 64x or runs at 128x with Overclock/Creative, Extended remains adjustable to 512x or runs at 1024x, and Basic/Advanced/Extended use 1x/2x/5x Time Fluid cost rates.
 - Added the Crystal Incubator with adjustable 1-512x or overclocked 1024x Time Fluid growth acceleration, nine-slot automatic mature-cluster harvesting, Fortune VIII, common/extension tags, batched caching, and public-API Just Dyna Things support.
 - Added Crystal Incubator FE usage, automatic item output, AE2 Growth Accelerator-style ordinary budding ticks with six equivalent accelerators at 8x, exact Dyna target FE/Time Fluid provisioning and target-side charging, and the mutually exclusive Precision Upgrade backed by vanilla Silk Touch loot behavior.
+- Added the Greenhouse with a transparent Eclipse Alloy frame and Shadowpulse Soil base, four client-rendered plants, four reusable stackable plant templates, 16-64 paged output slots, a former-512-work 1x baseline adjustable to 32x or overclocked 64x, fair bounded settlements, mature crop loot sampling, generic crops/flowers/saplings, Fortune III, JEI recipes, and public Crop Registry support for Mystical Agriculture and Mystical Agradditions.
 - Replaced the Advanced Potion Brewer's directional fuel setting with a binary external Blaze Powder input toggle while preserving the configurable AE2 pattern-provider guard.
 - Added AE2 Crystal Science file `8112039`, AE2 Lightning Tech, and Data Energistics to the local runtime test environment.
 
@@ -458,6 +466,7 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Entity Suppressor | `jdte.entitySuppressor` | Energy use, named/tamed/Boss protection, and optional removal of existing blocked entities |
 | Range Blocker | `jdte.rangeBlocker` | Separate mode energy costs, entity safety, projectile/ownerless projectile containment, explosion clipping, and optional Mekanism compatibility |
 | Crystal Incubator | `jdte.crystalIncubator` | FE/Time Fluid capacity and cost, 512x/1024x rates, cache scanning, bounded growth/harvest batches, and Dyna growth attempts |
+| Greenhouse | `jdte.greenhouse` | FE/Time Fluid capacity, 1-32x/64x speed, 10 FE harvest cost, 100x fluid divisor, settlement interval, generic/Mystical costs, and batch cap |
 | Advanced Potion Brewer | `jdte.advancedPotionBrewer` | Optional rejection of adjacent AE2 crafting providers for Blaze Powder automation |
 | Gel Generator | `jdte.gelGenerator` | Slots, capacity, conversion, and fuel use |
 | Generator upgrade | `jdte.generatorUpgrade` | Energy multiplier and fluid consumption |

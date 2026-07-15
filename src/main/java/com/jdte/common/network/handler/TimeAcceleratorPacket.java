@@ -3,6 +3,7 @@ package com.jdte.common.network.handler;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
+import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -22,6 +23,9 @@ public class TimeAcceleratorPacket {
             } else if (container instanceof BaseMachineContainer machineContainer
                     && machineContainer.baseMachineBE instanceof CrystalIncubatorBE incubator) {
                 incubator.setMultiplier(payload.multiplier());
+            } else if (container instanceof BaseMachineContainer machineContainer
+                    && machineContainer.baseMachineBE instanceof GreenhouseBE greenhouse) {
+                greenhouse.setMultiplier(payload.multiplier());
             }
         });
     }

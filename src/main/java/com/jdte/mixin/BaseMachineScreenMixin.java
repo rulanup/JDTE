@@ -21,6 +21,7 @@ import com.jdte.common.containers.BioCrusherContainer;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
 import com.jdte.common.containers.LootFabricatorContainer;
+import com.jdte.common.containers.GreenhouseContainer;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeSlot;
@@ -437,7 +438,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
     @Unique
     private void jdte$clampFilterPage() {
-        if (container instanceof BioCrusherContainer || container instanceof LootFabricatorContainer) return;
+        if (container instanceof BioCrusherContainer || container instanceof LootFabricatorContainer
+                || container instanceof GreenhouseContainer) return;
         if (!(container instanceof FilterPageHolder holder)) return;
         if (!jdte$hasFilterUpgrades()) {
             if (holder.jdte$getFilterPage() != 0) {
@@ -731,7 +733,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                             if (!jdte$isUpgradeCompatible(type)) continue;
 
                             int current = UpgradeHelper.countUpgrades(baseMachineBE, type);
-                            int max = type.getMaxPerMachine();
+                            int max = UpgradeHelper.getMaxUpgrades(baseMachineBE, type);
                             boolean canAdd = current < max && !jdte$hasOppositeSpeedUpgrade(type);
 
                             Component name = Component.translatable("item.jdte." + type.getSerializedName() + "_upgrade");

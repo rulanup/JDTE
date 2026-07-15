@@ -1,0 +1,9 @@
+{
+  "type": "jdte:greenhouse",
+  "seed": { "item": "minecraft:melon_seeds" },
+  "outputs": [{ "id": "minecraft:melon_slice", "count": 4 }],
+  "display_block": "minecraft:melon_stem",
+  "harvest_block": "minecraft:melon",
+  "growth_work": 8192,
+  "time_fluid": 40
+}

@@ -2,6 +2,7 @@ package com.jdte.setup;
 
 import com.jdte.JDTE;
 import com.jdte.common.recipes.InfusionRecipe;
+import com.jdte.common.recipes.GreenhouseRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -19,4 +20,10 @@ public class JDTERecipes {
 
     public static final Supplier<InfusionRecipe.Serializer> INFUSION_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
             "infusion", InfusionRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<GreenhouseRecipe>> GREENHOUSE_RECIPE_TYPE = RECIPE_TYPES.register(
+            "greenhouse", () -> RecipeType.simple(com.jdte.JDTE.id("greenhouse")));
+
+    public static final Supplier<GreenhouseRecipe.Serializer> GREENHOUSE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
+            "greenhouse", GreenhouseRecipe.Serializer::new);
 }

@@ -1,0 +1,8 @@
+{
+  "type": "jdte:greenhouse",
+  "seed": { "item": "minecraft:potato" },
+  "outputs": [{ "id": "minecraft:potato", "count": 3 }],
+  "display_block": "minecraft:potatoes",
+  "growth_work": 4096,
+  "time_fluid": 20
+}

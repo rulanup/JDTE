@@ -23,7 +23,7 @@ Standard machines have four upgrade slots and extended machines have eight. Empt
 | Range | Raises area radius and offset limits | 2 |
 | Filter | Adds nine filter slots per card | 2 |
 | Creative | Removes FE cost and includes overclock behavior | 1 |
-| Fortune | Gel Generator and Crystal Incubator only; adds one vanilla Fortune level per card | 8 |
+| Fortune | Gel Generator, Crystal Incubator, and Greenhouse; adds one vanilla Fortune level per card | 8 (3 in Greenhouse) |
 | Precision | Crystal Incubator only; harvests through vanilla Silk Touch loot logic and conflicts with Fortune | 1 |
 | Looting | Dedicated to Bio Crushers and the Loot Fabricator | 6 |
 | Sharpness | Bio Crusher only; adds five damage per card | 6 |
@@ -51,6 +51,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Item/Fluid Senders | Send internal items or fluid to area targets |
 | Item/Fluid Receivers | Pull items or fluid from area targets |
 | Crystal Incubator | Consumes Time Fluid and FE to accelerate conventional budding blocks at an adjustable 1-512x or 1024x when overclocked, auto-outputs mature clusters, and supports Fortune or Precision harvesting |
+| Greenhouse | Uses four stackable plant templates at a former-512-work 1x baseline up to 32x, forced to 64x by Overclock/Creative; supports crops, flowers, saplings, mod plants, real/multi-output harvests, Fortune, JEI, and direct generation into adjacent containers |
 | Bio Crusher | Kills targets through a FakePlayer and produces loot and Experience Fluid; supports spawners and dedicated upgrades |
 | Life Extractor | Converts target health into Life Fluid without normal drops or experience |
 | Infusion Machine | Processes gel, item, and dynamic spawn-egg infusion recipes |
