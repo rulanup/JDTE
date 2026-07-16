@@ -1,7 +1,6 @@
 package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.util.ItemStackKey;
-import com.jdte.common.integrations.ae2.AdvancedItemCollectorAE2Integration;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -21,7 +20,6 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,7 +71,7 @@ public final class AdvancedItemCollectorManager {
         int threshold = JDTEConfig.COMMON.advancedItemCollectorPreDrainThreshold.get();
         if (source == null || !hasThresholdStack(source, threshold)) return;
 
-        if (!transferOversizedSlots(source, sourcePos, collectors, threshold, event.getPlayer())) {
+        if (!transferOversizedSlots(source, sourcePos, collectors, threshold)) {
             event.setCanceled(true);
             event.getPlayer().displayClientMessage(
                     Component.translatable("message.jdte.advanced_item_collector.break_blocked", threshold)
@@ -100,8 +98,7 @@ public final class AdvancedItemCollectorManager {
     }
 
     private static boolean transferOversizedSlots(IItemHandlerModifiable source, BlockPos sourcePos,
-                                                   Set<AdvancedItemCollectorBE> collectors, int threshold,
-                                                   net.minecraft.world.entity.player.Player player) {
+                                                   Set<AdvancedItemCollectorBE> collectors, int threshold) {
         // Direct slot replacement avoids IItemHandler's one-normal-stack extraction limit.
         Vec3 sourceCenter = Vec3.atCenterOf(sourcePos);
         boolean fullyDrained = true;
@@ -115,16 +112,6 @@ public final class AdvancedItemCollectorManager {
                         || collector.isAttachedInventoryAt(sourcePos)
                         || !collector.canCollect(remaining)) {
                     continue;
-                }
-
-                if (JDTEConfig.COMMON.advancedItemCollectorMeDirectTransferEnabled.get()
-                        && ModList.get().isLoaded("ae2")) {
-                    ItemStack meRemainder = AdvancedItemCollectorAE2Integration.tryTransfer(
-                            source, slot, remaining, collector, player);
-                    if (meRemainder != null) {
-                        remaining = meRemainder;
-                        continue;
-                    }
                 }
 
                 ItemStack simulatedRemainder = collector.insertCollectedStack(remaining, true);
@@ -201,6 +188,9 @@ public final class AdvancedItemCollectorManager {
         private final Map<AdvancedItemCollectorBE, AABB> areasByCollector = new IdentityHashMap<>();
         private Map<AdvancedItemCollectorBE, Map<ItemStackKey, PendingGroup>> pending = new IdentityHashMap<>();
         private final Set<ItemEntity> bypass = Collections.newSetFromMap(new IdentityHashMap<>());
+        private final List<AdvancedItemCollectorBE> scanOrder = new ArrayList<>();
+        private final Map<AdvancedItemCollectorBE, Long> nextExistingScan = new IdentityHashMap<>();
+        private int scanCursor;
 
         private void add(AdvancedItemCollectorBE collector) {
             AABB area = collector.getAABB(collector.getBlockPos());
@@ -218,10 +208,19 @@ public final class AdvancedItemCollectorManager {
                 }
             }
             chunksByCollector.put(collector, chunks);
+            scanOrder.add(collector);
+            nextExistingScan.put(collector, 0L);
         }
 
         private void remove(AdvancedItemCollectorBE collector) {
             areasByCollector.remove(collector);
+            nextExistingScan.remove(collector);
+            int scanIndex = scanOrder.indexOf(collector);
+            if (scanIndex >= 0) {
+                scanOrder.remove(scanIndex);
+                if (scanIndex < scanCursor) scanCursor--;
+                if (scanCursor >= scanOrder.size()) scanCursor = 0;
+            }
             Set<Long> chunks = chunksByCollector.remove(collector);
             if (chunks == null) return;
             for (long chunk : chunks) {
@@ -264,6 +263,7 @@ public final class AdvancedItemCollectorManager {
         }
 
         private void flush(ServerLevel level) {
+            scanExistingItems(level);
             if (pending.isEmpty()) return;
 
             Map<AdvancedItemCollectorBE, Map<ItemStackKey, PendingGroup>> current = pending;
@@ -274,6 +274,51 @@ public final class AdvancedItemCollectorManager {
                     PendingGroup group = groupEntry.getValue();
                     long accepted = insertBatch(collector, groupEntry.getKey(), group.totalCount);
                     restoreRemainders(level, group.entities, accepted);
+                }
+            }
+        }
+
+        private void scanExistingItems(ServerLevel level) {
+            if (!JDTEConfig.COMMON.advancedItemCollectorExistingItemScanEnabled.get()
+                    || scanOrder.isEmpty()) {
+                return;
+            }
+
+            long gameTime = level.getGameTime();
+            AdvancedItemCollectorBE collector = null;
+            for (int checked = 0; checked < scanOrder.size(); checked++) {
+                if (scanCursor >= scanOrder.size()) scanCursor = 0;
+                AdvancedItemCollectorBE candidate = scanOrder.get(scanCursor++);
+                if (gameTime >= nextExistingScan.getOrDefault(candidate, 0L)) {
+                    collector = candidate;
+                    break;
+                }
+            }
+            if (collector == null) return;
+
+            int interval = JDTEConfig.COMMON.advancedItemCollectorExistingItemScanInterval.get();
+            nextExistingScan.put(collector, gameTime + interval);
+            AABB area = areasByCollector.get(collector);
+            if (area == null || collector.isRemoved()) return;
+
+            int limit = JDTEConfig.COMMON.advancedItemCollectorExistingItemScanLimit.get();
+            int[] matched = {0};
+            AdvancedItemCollectorBE selectedCollector = collector;
+            List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, area, entity -> {
+                if (matched[0] >= limit || !entity.isAlive()
+                        || !selectedCollector.canCollect(entity.getItem())) {
+                    return false;
+                }
+                matched[0]++;
+                return true;
+            });
+
+            for (ItemEntity entity : entities) {
+                ItemStack remainder = collector.collect(entity.getItem(), entity.position());
+                if (remainder.isEmpty()) {
+                    entity.discard();
+                } else if (remainder.getCount() != entity.getItem().getCount()) {
+                    entity.setItem(remainder);
                 }
             }
         }

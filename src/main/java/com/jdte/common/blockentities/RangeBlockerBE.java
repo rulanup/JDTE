@@ -41,6 +41,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     private final PoweredMachineContainerData poweredData = new PoweredMachineContainerData(this);
     private final MachineEnergyStorage energy = new MachineEnergyStorage(getMaxEnergy());
     private Mode mode = Mode.CONTAINMENT;
+    private EntitySuppressorBE.Target target = EntitySuppressorBE.Target.ALL_LIVING;
     private boolean blacklist;
     private boolean fieldActive;
     private long paidGameTime = Long.MIN_VALUE;
@@ -70,13 +71,16 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     }
 
     public Mode getMode() { return mode; }
+    public EntitySuppressorBE.Target getTarget() { return target; }
     public boolean isBlacklist() { return blacklist; }
     public boolean isFieldActive() { return !isRemoved() && fieldActive; }
 
-    public void setSettings(int mode, boolean blacklist) {
+    public void setSettings(int mode, int target, boolean blacklist) {
         Mode newMode = Mode.values()[Math.floorMod(mode, Mode.values().length)];
         if (this.mode != newMode) pendingDemagnetizationEnergy = 0.0D;
         this.mode = newMode;
+        this.target = EntitySuppressorBE.Target.values()[
+                Math.floorMod(target, EntitySuppressorBE.Target.values().length)];
         this.blacklist = blacklist;
         paidGameTime = Long.MIN_VALUE;
         if (level instanceof ServerLevel) fieldActive = canActivateWithoutConsuming();
@@ -85,16 +89,20 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
         syncClientState();
     }
 
-    public void applyClientSync(int mode, boolean blacklist, boolean active, AABB area) {
+    public void applyClientSync(int mode, int target, boolean blacklist, boolean active, AABB area) {
         this.mode = Mode.values()[Math.floorMod(mode, Mode.values().length)];
+        this.target = EntitySuppressorBE.Target.values()[
+                Math.floorMod(target, EntitySuppressorBE.Target.values().length)];
         this.blacklist = blacklist;
         this.fieldActive = active;
         this.clientSyncedArea = area;
         RangeBlockerManager.refresh(this);
     }
 
-    public void applyClientSettings(int mode, boolean blacklist) {
+    public void applyClientSettings(int mode, int target, boolean blacklist) {
         this.mode = Mode.values()[Math.floorMod(mode, Mode.values().length)];
+        this.target = EntitySuppressorBE.Target.values()[
+                Math.floorMod(target, EntitySuppressorBE.Target.values().length)];
         this.blacklist = blacklist;
         RangeBlockerManager.refresh(this);
     }
@@ -186,7 +194,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
         if (!(level instanceof ServerLevel serverLevel)) return;
         AABB area = getAABB(getBlockPos());
         PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(getBlockPos()),
-                new RangeBlockerSyncPayload(getBlockPos(), mode.ordinal(), blacklist, fieldActive,
+                new RangeBlockerSyncPayload(getBlockPos(), mode.ordinal(), target.ordinal(), blacklist, fieldActive,
                         area.minX, area.minY, area.minZ, area.maxX, area.maxY, area.maxZ));
     }
 
@@ -209,6 +217,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.putInt("rangeBlockerMode", mode.ordinal());
+        tag.putInt("rangeBlockerTarget", target.ordinal());
         tag.putBoolean("rangeBlockerBlacklist", blacklist);
         tag.putBoolean("rangeBlockerActive", fieldActive);
         tag.putInt("rangeBlockerEnergy", energy.getEnergyStored());
@@ -219,6 +228,10 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         mode = Mode.values()[Math.floorMod(tag.getInt("rangeBlockerMode"), Mode.values().length)];
+        target = tag.contains("rangeBlockerTarget")
+                ? EntitySuppressorBE.Target.values()[Math.floorMod(
+                        tag.getInt("rangeBlockerTarget"), EntitySuppressorBE.Target.values().length)]
+                : EntitySuppressorBE.Target.ALL_LIVING;
         blacklist = tag.getBoolean("rangeBlockerBlacklist");
         fieldActive = tag.getBoolean("rangeBlockerActive");
         if (tag.contains("rangeBlockerEnergy")) energy.setEnergy(tag.getInt("rangeBlockerEnergy"));

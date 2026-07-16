@@ -18,12 +18,14 @@ import com.jdte.common.autoioconfig.AutoIoConfigHelper;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.containers.AdvancedPotionBrewerContainer;
 import com.jdte.common.containers.BioCrusherContainer;
+import com.jdte.common.containers.BioFactoryContainer;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
 import com.jdte.common.containers.LootFabricatorContainer;
 import com.jdte.common.containers.GreenhouseContainer;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.upgrades.BioFactoryUpgradeItemStackHandler;
 import com.jdte.common.upgrades.UpgradeSlot;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.common.utils.UpgradeSlotStorage;
@@ -37,6 +39,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
@@ -439,7 +442,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique
     private void jdte$clampFilterPage() {
         if (container instanceof BioCrusherContainer || container instanceof LootFabricatorContainer
-                || container instanceof GreenhouseContainer) return;
+                || container instanceof GreenhouseContainer || container instanceof BioFactoryContainer) return;
         if (!(container instanceof FilterPageHolder holder)) return;
         if (!jdte$hasFilterUpgrades()) {
             if (holder.jdte$getFilterPage() != 0) {
@@ -751,6 +754,32 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                                     .append(Component.literal(": " + current + "/3"))
                                     .copy()
                                     .withStyle(current < 3 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+                        }
+
+                        if (baseMachineBE instanceof com.jdte.common.blockentities.BioFactoryBE factory
+                                && net.neoforged.fml.ModList.get().isLoaded("productivebees")) {
+                            int productivityTotal = factory.getUpgradeHandler().getProductivityCount();
+                            for (ResourceLocation id : BioFactoryUpgradeItemStackHandler.getProductivityUpgradeIds()) {
+                                net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).ifPresent(item -> {
+                                    ItemStack upgrade = new ItemStack(item);
+                                    int tier = BioFactoryUpgradeItemStackHandler.getProductivityTier(upgrade);
+                                    int current = factory.getUpgradeHandler().countProductivityTier(tier);
+                                    lines.add(Component.literal("  ")
+                                            .append(upgrade.getHoverName())
+                                            .append(Component.literal(": " + current + " (" + productivityTotal + "/4)"))
+                                            .copy()
+                                            .withStyle(productivityTotal < 4 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+                                });
+                            }
+                        }
+
+                        if (baseMachineBE instanceof com.jdte.common.blockentities.BioFactoryBE factory) {
+                            int current = factory.getUpgradeHandler().getLootingCount();
+                            lines.add(Component.literal("  ")
+                                    .append(Component.translatable("item.jdte.looting_upgrade"))
+                                    .append(Component.literal(": " + current + "/4"))
+                                    .copy()
+                                    .withStyle(current < 4 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
                         }
 
                         guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(lines), mouseX, mouseY);

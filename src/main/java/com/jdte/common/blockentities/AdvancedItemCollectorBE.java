@@ -9,7 +9,9 @@ import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.jdte.common.integrations.ae2.AdvancedItemCollectorAE2Integration;
 import com.jdte.setup.JDTEBlockEntities;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +24,7 @@ import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.fml.ModList;
 
 public class AdvancedItemCollectorBE extends BaseMachineBE
         implements FilterableBE, AreaAffectingBE, RedstoneControlledBE, ExtendedUpgradeMachine {
@@ -113,7 +116,20 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
             return stack;
         }
         IItemHandler inventory = getAttachedInventory();
-        return inventory == null ? stack : ItemHandlerHelper.insertItemStacked(inventory, stack, simulate);
+        if (inventory == null) return stack;
+
+        ItemStack normalRemainder = ItemHandlerHelper.insertItemStacked(inventory, stack, true);
+        if (normalRemainder.isEmpty()) {
+            return simulate ? ItemStack.EMPTY : ItemHandlerHelper.insertItemStacked(inventory, stack, false);
+        }
+
+        if (JDTEConfig.COMMON.advancedItemCollectorMeDirectTransferEnabled.get()
+                && ModList.get().isLoaded("ae2")) {
+            ItemStack meRemainder = AdvancedItemCollectorAE2Integration.insertCollectedStack(stack, this, simulate);
+            if (meRemainder.isEmpty()) return ItemStack.EMPTY;
+        }
+
+        return simulate ? normalRemainder : ItemHandlerHelper.insertItemStacked(inventory, stack, false);
     }
 
     boolean isAttachedInventoryAt(BlockPos pos) {

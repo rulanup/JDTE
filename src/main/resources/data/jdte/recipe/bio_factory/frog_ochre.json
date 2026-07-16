@@ -1,0 +1,13 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:frog_spawn_egg" },
+  "inputs": [
+    { "ingredient": { "item": "minecraft:magma_cream" }, "count": 4 },
+    { "ingredient": { "item": "minecraft:grass_block" } }
+  ],
+  "outputs": [
+    { "item": { "id": "minecraft:ochre_froglight", "count": 1 } }
+  ],
+  "process_ticks": 1200,
+  "energy": 3000
+}

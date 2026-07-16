@@ -1,0 +1,12 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:snow_golem_spawn_egg" },
+  "inputs": [
+    { "ingredient": { "item": "minecraft:iron_shovel" } }
+  ],
+  "outputs": [
+    { "item": { "id": "minecraft:snowball", "count": 4 } }
+  ],
+  "process_ticks": 300,
+  "energy": 500
+}

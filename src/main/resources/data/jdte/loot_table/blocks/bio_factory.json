@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:block",
+  "pools": [{
+    "rolls": 1,
+    "entries": [{ "type": "minecraft:item", "name": "jdte:bio_factory" }],
+    "conditions": [{ "condition": "minecraft:survives_explosion" }]
+  }]
+}

@@ -74,6 +74,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_ITEM_RECEIVER.get());
                 output.accept(JDTEItems.CRYSTAL_INCUBATOR.get());
                 output.accept(JDTEItems.GREENHOUSE.get());
+                output.accept(JDTEItems.BIO_FACTORY.get());
 
                 // Fluid Receivers
                 output.accept(JDTEItems.BASIC_FLUID_RECEIVER.get());

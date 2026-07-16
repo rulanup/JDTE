@@ -51,7 +51,8 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Item/Fluid Senders | Send internal items or fluid to area targets |
 | Item/Fluid Receivers | Pull items or fluid from area targets |
 | Crystal Incubator | Consumes Time Fluid and FE to accelerate conventional budding blocks at an adjustable 1-512x or 1024x when overclocked, auto-outputs mature clusters, and supports Fortune or Precision harvesting |
-| Greenhouse | Uses four stackable plant templates at a former-512-work 1x baseline up to 32x, forced to 64x by Overclock/Creative; supports crops, flowers, saplings, mod plants, real/multi-output harvests, Fortune, JEI, and direct generation into adjacent containers |
+| Greenhouse | Uses four stackable plant templates at a former-512-work 1x baseline up to 32x, forced to 64x by Overclock/Creative; supports crops, flowers, saplings, mod plants, native four-way connected visuals, Fortune, JEI, and direct generation into adjacent containers |
+| Bio Factory | Uses reusable spawn eggs or Productive Bees cages, food/flowers, FE, and separate Life/Time/culture/product fluids; adjustable 1-32x or 64x with Overclock/Creative, with auto I/O, eight default outputs, loaded bee JEI recipes, and all four Productivity Upgrade tiers |
 | Bio Crusher | Kills targets through a FakePlayer and produces loot and Experience Fluid; supports spawners and dedicated upgrades |
 | Life Extractor | Converts target health into Life Fluid without normal drops or experience |
 | Infusion Machine | Processes gel, item, and dynamic spawn-egg infusion recipes |

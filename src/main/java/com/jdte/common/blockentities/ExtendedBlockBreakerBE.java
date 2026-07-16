@@ -7,13 +7,26 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
+import com.direwolf20.justdirethings.common.items.interfaces.Ability;
+import com.direwolf20.justdirethings.common.items.interfaces.Helpers;
+import com.direwolf20.justdirethings.common.items.interfaces.ToggleableTool;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayer;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExtendedBlockBreakerBE extends BlockBreakerT1BE implements PoweredMachineBE, AreaAffectingBE, FilterableBE, ExtendedUpgradeMachine {
     public FilterData filterData = new FilterData();
@@ -31,4 +44,40 @@ public class ExtendedBlockBreakerBE extends BlockBreakerT1BE implements PoweredM
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
     @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
     @Override public FilterData getFilterData() { return filterData; }
+
+    @Override
+    public List<BlockPos> findBlocksToMine(FakePlayer fakePlayer) {
+        AABB area = getAABB(getBlockPos());
+        return BlockPos.betweenClosedStream(
+                        (int) Math.floor(area.minX), (int) Math.floor(area.minY), (int) Math.floor(area.minZ),
+                        (int) Math.ceil(area.maxX) - 1, (int) Math.ceil(area.maxY) - 1,
+                        (int) Math.ceil(area.maxZ) - 1)
+                .filter(pos -> isBlockValid(fakePlayer, pos))
+                .map(BlockPos::immutable)
+                .sorted(Comparator.comparingDouble(pos -> pos.distSqr(getBlockPos())))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public boolean isBlockValid(FakePlayer fakePlayer, BlockPos pos) {
+        if (!super.isBlockValid(fakePlayer, pos)) return false;
+
+        BlockState state = level.getBlockState(pos);
+        if (filterData.blockItemFilter == 0) {
+            return isStackValidFilter(state.getCloneItemStack(
+                    new BlockHitResult(Vec3.ZERO, net.minecraft.core.Direction.UP, pos, false),
+                    level, pos, fakePlayer));
+        }
+        var tool = getTool();
+        for (var drop : Block.getDrops(state, (net.minecraft.server.level.ServerLevel) level, pos,
+                level.getBlockEntity(pos), fakePlayer, tool)) {
+            if (tool.getItem() instanceof ToggleableTool toggleable
+                    && toggleable.canUseAbility(tool, Ability.SMELTER)
+                    && isStackValidFilter(Helpers.getSmeltedItem(level, drop))) {
+                return true;
+            }
+            if (isStackValidFilter(drop)) return true;
+        }
+        return false;
+    }
 }

@@ -12,7 +12,7 @@ public final class RangeBlockerPacket {
         context.enqueueWork(() -> {
             if (context.player().containerMenu instanceof BaseMachineContainer menu
                     && menu.baseMachineBE instanceof RangeBlockerBE blocker) {
-                blocker.setSettings(payload.mode(), payload.blacklist());
+                blocker.setSettings(payload.mode(), payload.target(), payload.blacklist());
             }
         });
     }

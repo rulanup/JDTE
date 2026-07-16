@@ -1,0 +1,14 @@
+{
+  "parent": "jdte:block/greenhouse_connected_component",
+  "elements": [
+    { "from": [2, 3, 0], "to": [14, 14, 1], "faces": {
+      "north": { "texture": "#glass", "cullface": "north" }, "south": { "texture": "#glass" },
+      "west": { "texture": "#glass" }, "east": { "texture": "#glass" }
+    }},
+    { "from": [2, 14, 0], "to": [14, 16, 2], "faces": {
+      "up": { "texture": "#frame" }, "down": { "texture": "#frame" },
+      "north": { "texture": "#frame", "cullface": "north" }, "south": { "texture": "#frame" },
+      "west": { "texture": "#frame" }, "east": { "texture": "#frame" }
+    }}
+  ]
+}

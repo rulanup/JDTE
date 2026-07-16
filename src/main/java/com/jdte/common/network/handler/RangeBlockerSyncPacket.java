@@ -10,7 +10,8 @@ public final class RangeBlockerSyncPacket {
     public static void handle(RangeBlockerSyncPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (context.player().level().getBlockEntity(payload.blockPos()) instanceof RangeBlockerBE blocker) {
-                blocker.applyClientSync(payload.mode(), payload.blacklist(), payload.active(), payload.area());
+                blocker.applyClientSync(payload.mode(), payload.target(), payload.blacklist(),
+                        payload.active(), payload.area());
             }
         });
     }

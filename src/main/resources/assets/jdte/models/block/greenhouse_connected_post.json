@@ -1,0 +1,10 @@
+{
+  "parent": "jdte:block/greenhouse_connected_component",
+  "elements": [
+    { "from": [0, 3, 0], "to": [2, 16, 2], "faces": {
+      "up": { "texture": "#frame" }, "down": { "texture": "#frame" },
+      "north": { "texture": "#frame", "cullface": "north" }, "south": { "texture": "#frame" },
+      "west": { "texture": "#frame", "cullface": "west" }, "east": { "texture": "#frame" }
+    }}
+  ]
+}

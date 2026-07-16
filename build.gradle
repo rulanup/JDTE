@@ -36,6 +36,7 @@ java {
 }
 
 configurations {
+    productiveBeesEmbedded
     localRuntime {
         exclude group: "curse.maven", module: "ae2-jei-integration-1074338"
         exclude group: "curse.maven", module: "imblocker-483760"
@@ -179,8 +180,20 @@ repositories {
 
 apply from: "$rootDir/dependencies.gradle"
 
+def extractedProductiveLib = layout.buildDirectory.file("generated/productiveLib/productivelib.jar")
+def extractProductiveLib = tasks.register("extractProductiveLib", Sync) {
+    from({ zipTree(configurations.productiveBeesEmbedded.singleFile) })
+    include("META-INF/jarjar/productivelib-*.jar")
+    eachFile { details ->
+        details.relativePath = new RelativePath(true, "productivelib.jar")
+    }
+    includeEmptyDirs = false
+    into(layout.buildDirectory.dir("generated/productiveLib"))
+}
+
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
+    compileOnly files(extractedProductiveLib).builtBy(extractProductiveLib)
 }
 
 tasks.named("processResources", ProcessResources).configure {

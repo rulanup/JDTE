@@ -8,50 +8,39 @@ import appeng.api.storage.MEStorage;
 import com.jdte.common.blockentities.AdvancedItemCollectorBE;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 public final class AdvancedItemCollectorAE2Integration {
     private AdvancedItemCollectorAE2Integration() {
     }
 
     /**
-     * @return the source remainder, or {@code null} when the target has no ME storage capability
+     * Atomically inserts a collected stack into ME storage. A non-empty result means the
+     * complete stack was not accepted and the caller should use the normal item capability.
      */
-    public static ItemStack tryTransfer(IItemHandlerModifiable source, int slot, ItemStack stack,
-                                        AdvancedItemCollectorBE collector, Player player) {
-        if (!(collector.getLevel() instanceof ServerLevel level)) return null;
+    public static ItemStack insertCollectedStack(ItemStack stack, AdvancedItemCollectorBE collector,
+                                                 boolean simulate) {
+        if (!(collector.getLevel() instanceof ServerLevel level)) return stack;
 
         Direction facing = collector.getBlockState().getValue(BlockStateProperties.FACING);
         MEStorage storage = level.getCapability(
                 AECapabilities.ME_STORAGE,
                 collector.getBlockPos().relative(facing),
                 facing.getOpposite());
-        if (storage == null) return null;
+        if (storage == null) return stack;
 
         AEItemKey key = AEItemKey.of(stack);
         if (key == null) return stack;
-        IActionSource actionSource = IActionSource.ofPlayer(player);
 
-        long simulated = storage.insert(key, stack.getCount(), Actionable.SIMULATE, actionSource);
-        if (simulated < stack.getCount()) return stack;
+        IActionSource actionSource = IActionSource.empty();
+        long accepted = storage.insert(key, stack.getCount(), Actionable.SIMULATE, actionSource);
+        if (accepted < stack.getCount()) return stack;
+        if (simulate) return ItemStack.EMPTY;
 
-        int movable = stack.getCount();
-        source.setStackInSlot(slot, ItemStack.EMPTY);
-
-        long inserted = storage.insert(key, movable, Actionable.MODULATE, actionSource);
-        int notInserted = movable - (int) Math.min(movable, Math.max(0L, inserted));
-        if (notInserted > 0) restoreToSourceSlot(source, slot, stack, notInserted);
-        return source.getStackInSlot(slot);
+        long inserted = storage.insert(key, stack.getCount(), Actionable.MODULATE, actionSource);
+        int remainder = stack.getCount() - (int) Math.min(stack.getCount(), Math.max(0L, inserted));
+        return remainder == 0 ? ItemStack.EMPTY : stack.copyWithCount(remainder);
     }
 
-    private static void restoreToSourceSlot(IItemHandlerModifiable source, int slot,
-                                            ItemStack template, int amount) {
-        ItemStack current = source.getStackInSlot(slot);
-        ItemStack restored = current.isEmpty() ? template.copyWithCount(amount) : current.copy();
-        if (!current.isEmpty()) restored.grow(amount);
-        source.setStackInSlot(slot, restored);
-    }
 }

@@ -12,8 +12,16 @@ import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.common.util.FakePlayer;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExtendedFluidCollectorBE extends FluidCollectorT1BE implements PoweredMachineBE, AreaAffectingBE, FilterableBE, ExtendedUpgradeMachine {
     public FilterData filterData = new FilterData();
@@ -31,4 +39,24 @@ public class ExtendedFluidCollectorBE extends FluidCollectorT1BE implements Powe
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
     @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
     @Override public FilterData getFilterData() { return filterData; }
+
+    @Override
+    public List<BlockPos> findSpotsToCollect(FakePlayer fakePlayer) {
+        AABB area = getAABB(getBlockPos());
+        return BlockPos.betweenClosedStream(
+                        (int) Math.floor(area.minX), (int) Math.floor(area.minY), (int) Math.floor(area.minZ),
+                        (int) Math.ceil(area.maxX) - 1, (int) Math.ceil(area.maxY) - 1,
+                        (int) Math.ceil(area.maxZ) - 1)
+                .filter(pos -> isBlockPosValid(pos, fakePlayer))
+                .map(BlockPos::immutable)
+                .sorted(Comparator.comparingDouble(pos -> pos.distSqr(getBlockPos())))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public boolean isBlockPosValid(BlockPos pos, FakePlayer fakePlayer) {
+        if (!super.isBlockPosValid(pos, fakePlayer)) return false;
+        return level.getBlockState(pos).getBlock() instanceof LiquidBlock liquid
+                && isStackValidFilter(liquid);
+    }
 }

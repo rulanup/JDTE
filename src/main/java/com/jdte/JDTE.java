@@ -43,6 +43,7 @@ public class JDTE {
     public static final String MODID = "jdte";
 
     public JDTE(IEventBus modEventBus, ModContainer modContainer) {
+        net.neoforged.neoforge.common.NeoForgeMod.enableMilkFluid();
         modContainer.registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
@@ -170,6 +171,14 @@ public class JDTE {
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GreenhouseBE greenhouse
                         ? greenhouse.getFluidTank() : null,
                 JDTEBlocks.GREENHOUSE.get());
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioFactoryBE factory
+                        ? factory.getEnergyStorage() : null,
+                JDTEBlocks.BIO_FACTORY.get());
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioFactoryBE factory
+                        ? factory.getCombinedFluidHandler() : null,
+                JDTEBlocks.BIO_FACTORY.get());
 
         // Glue Activator energy storage (Advanced and Extended)
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
@@ -357,6 +366,10 @@ public class JDTE {
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.GreenhouseBE greenhouse
                         ? greenhouse.getAutomationItemHandler() : null,
                 JDTEBlocks.GREENHOUSE.get());
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioFactoryBE factory
+                        ? factory.getAutomationItemHandler() : null,
+                JDTEBlocks.BIO_FACTORY.get());
 
         // Item handler for Infusion Machine (input slots)
         event.registerBlock(Capabilities.ItemHandler.BLOCK,

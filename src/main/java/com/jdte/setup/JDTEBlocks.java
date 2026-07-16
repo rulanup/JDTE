@@ -25,6 +25,7 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, RangeBlockerBlock> RANGE_BLOCKER = BLOCKS.register("range_blocker", RangeBlockerBlock::new);
     public static final DeferredHolder<Block, CrystalIncubatorBlock> CRYSTAL_INCUBATOR = BLOCKS.register("crystal_incubator", CrystalIncubatorBlock::new);
     public static final DeferredHolder<Block, GreenhouseBlock> GREENHOUSE = BLOCKS.register("greenhouse", GreenhouseBlock::new);
+    public static final DeferredHolder<Block, BioFactoryBlock> BIO_FACTORY = BLOCKS.register("bio_factory", BioFactoryBlock::new);
 
     // Glue Activator
     public static final DeferredHolder<Block, BasicGlueActivatorBlock> BASIC_GLUE_ACTIVATOR = BLOCKS.register("basic_glue_activator", BasicGlueActivatorBlock::new);

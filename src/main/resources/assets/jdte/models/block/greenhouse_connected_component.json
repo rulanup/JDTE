@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "frame": "justdirethings:block/eclipsealloy_block",
+    "base_side": "justdirethings:block/goosoilside_tier4",
+    "base_top": "justdirethings:block/goofarmland_tier4_moist",
+    "glass": "minecraft:block/glass",
+    "particle": "justdirethings:block/goosoilside_tier4"
+  }
+}

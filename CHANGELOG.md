@@ -4,27 +4,20 @@
 
 #### v0.5.5 (Current)
 
-- **Performance/New**: Reworked all three Time Accelerators to use one managed scheduler. Overlapping accelerators fully add their multipliers, loaded block entities are discovered by chunk, paid virtual ticks remain queued while contributors stay active, execution uses configurable MSPT headroom, and AE2 `IGridTickable` devices are supported.
-- **Fixed/Compatibility**: AE2 grid ticking now takes priority over maintenance-only block entity tickers, allowing AE2 Lightning Tech processing machines and similarly structured AE2 add-on machines to be accelerated correctly.
-- **Compatibility/Fixed**: Added Just Dyna Things to the runtime test environment and fully integrated its Goo behavior. Energy-powered Goo consumes the add-on's configured FE upkeep per active tick without food, while Creative Goo consumes neither food nor machine FE. External item pipes can now extract only from Gel Generator output slots instead of removing gel, fuel, or input materials.
-- **New/Compatibility**: Advanced Potion Brewers now have a Blaze Powder Input toggle, disabled by default. Enabling it allows external containers and pipes to insert Blaze Powder from any side. A configurable safeguard, enabled by default, still rejects fuel-slot insertion from adjacent AE2 `ICraftingProvider` pattern providers while leaving manual insertion and other recipe inputs available.
-- **New/Performance/Compatibility**: Added the Crystal Incubator, an eight-upgrade-slot area machine with an adjustable 1-512x Time Fluid growth rate or 1024x with Overclock/Creative, automatic mature-cluster harvesting into nine output slots, and up to eight Fortune Upgrades. Batched range caching and bounded round-robin work avoid full-volume scans every tick; common budding/cluster tags, datapack extension tags, and a public-API Just Dyna Things adapter cover vanilla, JDT, AE2, Data Energistics, AE2 add-ons, and other conventional budding blocks.
-- **Crystal Incubator**: Changed its block appearance to the Extended Glue Activator textures, added configurable FE capacity and Time Wand-equivalent runtime energy cost, enabled automatic Time Fluid input and nine-slot item output, and made accelerated Just Dyna Things budding blocks preserve their own configured FE/Time Fluid activation costs.
-- **Fixed/Compatibility**: Crystal Incubators now automatically transfer the exact missing activation FE and Time Fluid into Just Dyna Things budding blocks before acceleration, while reserving the Incubator's own current-tick operating cost and avoiding partial two-resource transfers.
-- **Fixed/Performance**: Resource-consuming and ordinary budding blocks now use separate cached lists, round-robin cursors, and bounded per-tick budgets, preventing large groups of Dyna budding blocks from starving vanilla/JDT/AE2 random-tick budding growth in mixed areas.
-- **Balance/Performance**: Ordinary Crystal Incubator targets now use AE2 Growth Accelerator-style forced random ticks. The default 8x setting equals six AE2 Growth Accelerators, other rates scale proportionally, and bounded accumulated work prevents high-rate area operation from creating an unbounded catch-up queue.
-- **New/Performance/Compatibility**: Added the glass-framed Greenhouse with four reusable plant templates, four client-rendered growing plants, Time Fluid and FE costs, and bounded 20-tick batch settlement. It directly uses the Loot Fabricator's four-input/4x4 paged-output layout; Capacity Upgrades expand output storage from 16 to 64 slots. Data-driven vanilla recipes are included, while the public Mystical Agriculture Crop Registry automatically covers enabled Mystical Agriculture and Mystical Agradditions seeds with tier-scaled fluid costs and no reflection or mixins.
-- **Fixed**: Fixed Greenhouse harvests consuming Time Fluid and FE while producing no items because internal output insertion was rejected by seed-only slot validation. Four crop lanes now settle fairly under one shared batch cap and rotate resource priority.
-- **Greenhouse/Performance**: The former 512 growth-work rate is now the adjustable 1x baseline. A JDT-style speed button selects 1-32x, or up to 64x with Overclock/Creative. Bounded loot-table sampling preserves high throughput without executing one loot roll per virtual harvest.
-- **Greenhouse/Compatibility**: Mature crop loot tables now supply all primary products and byproducts, including vanilla seeds and mod-defined secondary drops. Generic block-linked crop seeds are discovered without reflection, and up to three Fortune Upgrades apply through a vanilla Fortune hoe. The progress display was redrawn as a growing soil bed and the machine base now uses JDT Shadowpulse Soil textures.
-- **Greenhouse/Balance**: Removed per-speed-level resource penalties, reduced base FE per harvest from 10,000 to 10, and divides recipe Time Fluid costs by 100 with a 1 mB minimum. Input templates now stack and represent parallel plants; stack density multiplies Time Fluid by 1x up to half the item's maximum stack and 2x above half.
-- **Greenhouse/Plants/JEI**: Added generic BushBlock support for flowers, saplings, mushrooms, and similarly implemented mod plants. Vanilla tree saplings have data-driven log/sapling harvest recipes, custom plants can define multiple explicit outputs or retain mature-block loot, and a dedicated JEI category displays templates, Time Fluid, FE, and preview outputs with a Greenhouse GUI click area.
-- **Greenhouse/Fixed/Automation**: Fixed upgraded high-capacity energy bars overflowing their 32-bit fill calculation, prevented upgrade slots from showing harvest-output tooltips, and stopped idle progress animation when no lane can actually run. Overclock and Creative Upgrades now both force the 64x Greenhouse rate. JEI always draws the complete 4x4 output grid, uses a half-width growth indicator, and keeps the energy bar inside the recipe panel. New harvests are generated directly into an adjacent item container through a cached preferred side, with only remainders falling back to internal output slots; bounded snapshot simulation includes both destinations without per-tick inventory shuttling.
-- **Fixed/Jade**: Added the missing installed-upgrades config translation required by Jade 15.10, preventing its settings assertion from interrupting client resource loading.
-- **New Upgrade**: Added the Crystal Incubator-only Precision Upgrade using JDT's Ore Miner upgrade icon. It applies vanilla Silk Touch to the simulated harvesting tool so mod loot tables retain control of precise drops, and it cannot be installed together with Fortune Upgrades.
-- **GuideME**: Added missing machine item associations, block/item images, recipes, structured resource and upgrade tables, and the omitted Fortune/Precision sections to the bilingual in-game guide.
-- **Balance**: Basic now runs at 16x or 32x with Overclock/Creative; Advanced is adjustable to 64x or runs at 128x with Overclock/Creative; Extended remains adjustable to 512x or runs at 1024x. Basic, Advanced, and Extended Time Fluid costs use fixed 1x, 2x, and 5x tier rates respectively.
-- **Development**: Added AE2 Crystal Science file `8112039`, AE2 Lightning Tech, and Data Energistics to the local runtime test environment.
+- **New**: Added the Crystal Incubator with adjustable 1-512x growth acceleration or 1024x with Overclock/Creative, automatic nine-slot harvesting, eight upgrade slots, Fortune VIII, and broad budding-block support for vanilla, JDT, AE2, Data Energistics, AE2 add-ons, and Just Dyna Things.
+- **New**: Added the Crystal Incubator-only Precision Upgrade, which applies vanilla Silk Touch behavior and conflicts with Fortune Upgrades.
+- **New**: Added the Greenhouse with four reusable stackable plant templates, four rendered plants, 16-64 paged output slots, generic crop/flower/sapling support, Fortune III, JEI recipes, and Mystical Agriculture/Agradditions integration.
+- **New**: Added the Bio Factory with reusable animal or Productive Bees specimens, three material inputs, four isolated fluid routes, 8-32 item outputs, adjustable 1-32x or 64x operation, data-driven animal products, JEI recipes, and cached client-only creature rendering.
+- **Time Accelerators**: Reworked all three tiers around a shared managed scheduler with additive overlap, chunk-based target discovery, retained virtual ticks, configurable MSPT headroom, and public AE2 `IGridTickable` acceleration. Basic runs at 16x/32x, Advanced at up to 64x/128x, and Extended at up to 512x/1024x, with fixed 1x/2x/5x Time Fluid cost tiers.
+- **Crystal Incubator**: Ordinary budding blocks use bounded AE2 Growth Accelerator-style forced random ticks, while resource-consuming Just Dyna Things targets receive their exact required FE and Time Fluid. Separate caches and round-robin budgets keep mixed target areas fair and low-overhead.
+- **Greenhouse**: Supports 1-32x or 64x operation, mature-block loot tables with primary products and byproducts, stack-density scaling, direct generation into adjacent inventories, automatic I/O, native four-direction connected models, and bounded batch processing.
+- **Bio Factory**: Productive Bees compatibility follows Advanced Beehive outputs, productivity and operation genes, all four Productivity Upgrade tiers, Omega comb-block output, and exact item/block/fluid/entity flowering rules. Entity-type bees such as Ribbeet accept component-correct Amber specimens, including inverse-tag semantics.
+- **Machine Updates**: Added the Advanced Potion Brewer Blaze Powder Input toggle with an optional AE2 pattern-provider safeguard. Gel Generators now fully support Just Dyna Things energy-powered and Creative Goo behavior while exposing only valid output slots to external extraction. Range Blocker Containment now provides the Entity Suppressor's six target modes with shared allowlist/blacklist semantics.
+- **GuideME**: Expanded the bilingual in-game guide with missing machines, upgrades, recipes, images, and structured resource tables.
+- **Fixed**: Corrected Greenhouse production, idle progress, high-capacity energy display, upgrade tooltips, output routing, and JEI layout behavior.
+- **Fixed**: Corrected Bio Factory inventory migration, item transfer, probability settlement, reusable-input tooltips, multi-input completion crashes, and Productive Bees flowering detection.
+- **Fixed**: Added the missing Jade installed-upgrades config translation and corrected AE2 add-on acceleration paths that exposed maintenance-only block entity tickers.
+- **Fixed**: Restored configured-area execution and mutable target queues for Extended Block Breakers, Block Swappers, Fluid Collectors, Fluid Placers, and Sensors. Advanced Item Collectors now collect existing drops through bounded round-robin scans and bypass an ME Interface buffer only when it cannot accept the complete stack.
 
 #### v0.5.4
 
@@ -138,27 +131,20 @@
 
 #### v0.5.5（当前）
 
-- **性能/新增**：三档时间加速器全部改用同一统一调度器。重叠加速器倍率完整累加，按区块发现已加载方块实体，在贡献加速器保持启用时保留已付费虚拟 tick，并根据可配置 MSPT 余量统一执行，同时支持 AE2 `IGridTickable` 设备。
-- **修复/兼容**：AE2 网格 tick 现在优先于仅执行维护工作的方块实体 ticker，使 AE2 Lightning Tech 加工机器及采用相同结构的 AE2 附属机器能够被正确加速。
-- **兼容/修复**：将 Just Dyna Things 加入运行测试依赖并完整适配其凝胶行为。能量驱动凝胶工作时按该模组配置逐 tick 消耗 FE，不再需要食物；创造凝胶既不消耗食物，也不消耗机器 FE。外部物品管道现在只能从凝胶发生器输出槽抽取，不再抽走凝胶、燃料或输入材料。
-- **新增/兼容**：高级炼药机新增“烈焰粉输入”开关，默认关闭；开启后外部容器和管道可从任意方向输入烈焰粉。默认启用的可配置保护仍会拒绝相邻 AE2 `ICraftingProvider` 样板供应器向燃料槽插入物品，同时保留手动放入和其他配方输入。
-- **新增/性能/兼容**：新增水晶培育机，拥有 8 个升级槽，可调 1-512x 并消耗时间流体催生范围内母岩，安装超频或创造升级后达到 1024x，自动将成熟晶簇回收到 9 个输出槽，并支持最多 8 个时运升级。机器使用分批范围缓存和有上限的轮询任务，不会每 Tick 全量扫描；通过通用母岩/晶簇标签、可由数据包扩展的 JDTE 标签和 Just Dyna Things 公开 API 兼容原版、JDT、AE2、Data Energistics、AE2 附属及其他常规母岩。
-- **水晶培育机**：方块外观改用扩展粘胶激活器贴图，新增可配置能量容量和按时间手杖等效换算的运行 FE 消耗，自动 I/O 支持时间流体输入与 9 槽产物输出；催生 Just Dyna Things 母岩时继续尊重目标自身配置的 FE/时间流体激活成本。
-- **修复/兼容**：水晶培育机现在会在催生前把 Just Dyna Things 母岩缺少的激活 FE 和时间流体精确补入目标，同时预留培育机当前 Tick 的自身运行成本，并避免只转移其中一种资源。
-- **修复/性能**：耗资源母岩与普通母岩改用独立缓存、轮询游标和有上限的每 Tick 预算，避免混合范围内大量 Dyna 母岩占满批次后饿死原版/JDT/AE2 随机刻母岩。
-- **平衡/性能**：水晶培育机现在按 AE2 晶体催生器的强制随机刻方式催生普通母岩；默认 8x 档位等效 6 个 AE2 晶体催生器，其他倍率按比例换算，并通过有上限的累计任务避免高倍率范围催生形成无限补算队列。
-- **新增/性能/兼容**：新增玻璃框架温室大棚，支持 4 个可复用植物模板并在客户端渲染 4 株植物，消耗时间流体和 FE，服务端默认每 20 Tick 有界批量结算。界面直接采用战利品制造机的四输入与 4x4 分页输出布局，容量升级可将输出空间从 16 格扩展到 64 格。内置数据驱动原版作物配方，并通过公开 Crop Registry 自动兼容已启用的 Mystical Agriculture 与 Mystical Agradditions 种子，按作物等级提高流体成本，不使用反射或 Mixin。
-- **修复**：修复温室大棚因内部产物插入被仅种子槽校验拒绝，导致消耗时间流体和 FE 却没有产出的问题。四条作物生产线现在共享单次批量上限，并轮换资源优先级以保证公平结算。
-- **温室大棚/性能**：原来的 512 生长工作量改为可调倍率的 1x 基准。使用 JDT 风格速度按钮可选择 1-32x，安装超频或创造升级后最高 64x。通过有界掉落表采样保持高吞吐，不会为每次虚拟收获单独执行掉落计算。
-- **温室大棚/兼容**：改为从成熟作物真实掉落表获取全部主产物和副产物，包括原版种子与模组自定义次级掉落；无需反射即可通用识别绑定作物方块的模组种子，并支持最多 3 个时运升级，以原版时运锄执行收获。进度显示重绘为生长苗床，机器底座改用 JDT 暗影脉壤贴图。
-- **温室大棚/平衡**：移除速度档位附加资源成本，将每次收获基础能耗从 10,000 FE 降至 10 FE，并将配方时间流体成本统一除以 100，最低为 1 mB。输入模板支持堆叠并代表并行种植数量；堆叠不超过物品最大堆叠数一半时使用 1 倍流体，超过一半时使用 2 倍流体。
-- **温室大棚/植物/JEI**：通用支持 `BushBlock` 实现的花朵、树苗、蘑菇及同类模组植物；原版树苗提供数据驱动的原木/树苗产物配方，自定义植物可定义多个明确产物或继续使用成熟方块掉落表。新增专用 JEI 分类，显示模板、时间流体、FE 和预览产物，并可从温室苗床进度区域打开。
-- **温室大棚/修复/自动化**：修复高容量升级后能量条因 32 位填充比例溢出而显示不满、升级槽错误显示收获产物 tooltip，以及没有可运行生产线时进度仍在动画的问题。超频与创造升级现在都会强制使用 64x 温室倍率；JEI 始终绘制完整 4x4 输出槽，将生长进度缩短一半，并保证能量条完整位于配方面板内。新收获会通过缓存的优先方向直接生成到相邻物品容器，只有容器装不下的剩余产物才回退到内部输出槽；有界快照预检会同时计算两处容量，不再逐 Tick 搬运库存。
-- **修复/Jade**：补充 Jade 15.10 所需的已安装升级配置翻译，避免其设置界面断言中断客户端资源加载。
-- **新增升级**：新增水晶培育机专用精准升级，使用 JDT 矿石采掘升级图标。自动采收工具应用原版精准采集附魔，由目标模组战利品表决定精准掉落，且不能与时运升级同时安装。
-- **GuideME**：补充缺失的机器物品关联、方块/物品图片、配方、资源与升级表格，并在中英文总升级指南中补回时运和精准升级章节。
-- **平衡**：初级时间加速器改为 16x，安装超频或创造升级后为 32x；高级版可调至 64x，安装超频或创造升级后为 128x；扩展版保持可调至 512x，安装超频或创造升级后为 1024x。初级、高级和扩展版时间流体成本分别使用固定的 1 倍、2 倍和 5 倍档位倍率。
-- **开发环境**：将 AE2 Crystal Science 文件 `8112039`、AE2 Lightning Tech 和 Data Energistics 加入本地运行测试依赖。
+- **新增**：加入水晶培育机，可调 1-512x 催生或通过超频/创造升级达到 1024x，支持 9 槽自动采收、8 个升级槽、时运 VIII，并通用兼容原版、JDT、AE2、Data Energistics、AE2 附属和 Just Dyna Things 母岩。
+- **新增**：加入水晶培育机专用精准升级，沿用原版精准采集逻辑，并与时运升级互斥。
+- **新增**：加入温室大棚，提供 4 个可复用且可堆叠的植物模板、4 株植物渲染、16-64 个分页输出槽、通用作物/花朵/树苗支持、时运 III、JEI 配方及 Mystical Agriculture/Agradditions 兼容。
+- **新增**：加入生物工厂，支持可复用动物或 Productive Bees 样本、3 个材料输入、4 条独立流体路线、8-32 个物品输出槽、可调 1-32x 或 64x 运行、数据驱动物产物、JEI 配方及客户端缓存生物渲染。
+- **时间加速器**：三档加速器改用共享调度器，支持重叠倍率累加、按区块发现目标、保留虚拟 Tick、可配置 MSPT 余量及 AE2 `IGridTickable` 加速。初级为 16x/32x，高级最高 64x/128x，扩展最高 512x/1024x，时间流体成本固定为 1x/2x/5x 档位。
+- **水晶培育机**：普通母岩使用有界的 AE2 晶体催生器式强制随机刻；Just Dyna Things 耗资源母岩会获得其实际所需的 FE 与时间流体。独立缓存与轮询预算保证混合范围公平运行并降低开销。
+- **温室大棚**：支持 1-32x 或 64x 运行、成熟方块掉落表主副产物、堆叠密度消耗、产物直接生成到相邻容器、自动 I/O、原生四方向连接模型和有界批量结算。
+- **生物工厂**：Productive Bees 兼容遵循高级蜂箱产出、产量与工作条件基因、四档产量升级、Omega 蜜脾块产出，以及精确物品/方块/流体/实体授粉规则。Ribbeet 等实体型蜜蜂可识别带正确组件的琥珀块，并支持反向实体标签。
+- **机器调整**：高级炼药机新增烈焰粉输入开关及可选 AE2 样板供应器保护。凝胶发生器完整支持 Just Dyna Things 能量凝胶与创造凝胶，并仅向外部开放有效产物槽抽取。范围屏蔽器围困模式新增与实体抑制器一致的六种目标模式及黑白名单语义。
+- **GuideME**：补充中英文指南缺失的机器、升级、配方、图片和结构化资源表格。
+- **修复**：修正温室大棚生产、空闲进度、高容量能量显示、升级提示、产物路由及 JEI 布局问题。
+- **修复**：修正生物工厂库存迁移、物品转移、概率结算、可复用输入提示、多输入配方结算崩溃及 Productive Bees 授粉识别问题。
+- **修复**：补充 Jade 已安装升级配置翻译，并修正仅暴露维护型方块实体 Ticker 的 AE2 附属机器加速路径。
+- **修复**：恢复扩展高级方块破坏器、方块替换器、流体收集器、流体放置器和传感器的设定范围执行及可修改目标队列；高级物品拾取器新增有界轮询收集已有掉落物，并仅在 ME 接口缓冲无法完整接收时绕过缓冲直传网络。
 
 #### v0.5.4
 

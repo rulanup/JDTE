@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.phys.AABB;
 
-public record RangeBlockerSyncPayload(BlockPos blockPos, int mode, boolean blacklist, boolean active,
+public record RangeBlockerSyncPayload(BlockPos blockPos, int mode, int target, boolean blacklist, boolean active,
                                       double minX, double minY, double minZ,
                                       double maxX, double maxY, double maxZ) implements CustomPacketPayload {
     public static final Type<RangeBlockerSyncPayload> TYPE = new Type<>(JDTE.id("range_blocker_sync"));
@@ -17,6 +17,7 @@ public record RangeBlockerSyncPayload(BlockPos blockPos, int mode, boolean black
     private static void encode(FriendlyByteBuf buf, RangeBlockerSyncPayload payload) {
         buf.writeBlockPos(payload.blockPos);
         buf.writeVarInt(payload.mode);
+        buf.writeVarInt(payload.target);
         buf.writeBoolean(payload.blacklist);
         buf.writeBoolean(payload.active);
         buf.writeDouble(payload.minX);
@@ -28,7 +29,8 @@ public record RangeBlockerSyncPayload(BlockPos blockPos, int mode, boolean black
     }
 
     private static RangeBlockerSyncPayload decode(FriendlyByteBuf buf) {
-        return new RangeBlockerSyncPayload(buf.readBlockPos(), buf.readVarInt(), buf.readBoolean(), buf.readBoolean(),
+        return new RangeBlockerSyncPayload(buf.readBlockPos(), buf.readVarInt(), buf.readVarInt(),
+                buf.readBoolean(), buf.readBoolean(),
                 buf.readDouble(), buf.readDouble(), buf.readDouble(),
                 buf.readDouble(), buf.readDouble(), buf.readDouble());
     }

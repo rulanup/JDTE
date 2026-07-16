@@ -47,6 +47,8 @@ The Greenhouse caches only its four current plant-template definitions. All four
 
 Overclock and Creative Upgrades both lock production to 64x. The growing-bed progress advances only while at least one lane has its required resources and output space. New harvests are generated directly into an adjacent item container, preferring the most recently successful side; only remainders fall back to the Greenhouse's internal output slots.
 
+Greenhouses connect visually when placed next to one another horizontally. Shared glass walls, posts, and roof rails disappear, while the glass roof extends across each joined edge. Connections are visual only; every Greenhouse keeps its own inventory, resources, and upgrades.
+
 ## Crafting
 
 <RecipeFor id="jdte:greenhouse" />

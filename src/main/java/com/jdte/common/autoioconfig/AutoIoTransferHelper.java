@@ -238,6 +238,15 @@ public final class AutoIoTransferHelper {
             itemInputs = boundedSlots(handler, range(0, GreenhouseBE.INPUT_SLOTS));
             itemOutputs = boundedSlots(handler, range(GreenhouseBE.OUTPUT_START_SLOT, greenhouse.getActiveOutputSlots()));
             fluidInput = greenhouse.getFluidTank();
+        } else if (machine instanceof com.jdte.common.blockentities.BioFactoryBE factory) {
+            itemInputs = boundedSlots(handler, com.jdte.common.blockentities.BioFactoryBE.SPECIMEN_SLOT,
+                    com.jdte.common.blockentities.BioFactoryBE.FOOD_SLOT,
+                    com.jdte.common.blockentities.BioFactoryBE.SECONDARY_INPUT_SLOT,
+                    com.jdte.common.blockentities.BioFactoryBE.TERTIARY_INPUT_SLOT);
+            itemOutputs = boundedSlots(handler, range(com.jdte.common.blockentities.BioFactoryBE.OUTPUT_START_SLOT,
+                    factory.getActiveOutputSlots()));
+            fluidInput = factory.getInputFluidHandler();
+            fluidOutput = factory.getOutputFluidHandler();
         } else if (machine instanceof CrystalIncubatorBE incubator) {
             itemOutputs = allSlots(handler);
             fluidInput = incubator.getFluidTank();

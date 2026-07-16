@@ -20,11 +20,12 @@ Major features:
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
-- Advanced Item Collector with eight upgrade slots and event-driven pre-spawn collection without item-flow particles.
+- Advanced Item Collector with eight upgrade slots, event-driven pre-spawn collection, bounded existing-drop scans, and capacity-triggered direct ME insertion without item-flow particles.
 - Entity Suppressor with entity-tick suppression, entity spawn/join blocking, entity and block entity rendering suppression, client particle suppression, and six entity target modes.
-- Range Blocker with event-driven living-entity containment and player-magnet suppression.
+- Range Blocker with six-target event-driven entity containment, projectile boundary protection, and player-magnet suppression.
 - Crystal Incubator with generic budding-block discovery, Time Fluid growth acceleration, Fortune harvesting, and batched area caching.
 - Glass-framed Greenhouse with four client-rendered plants, four reusable stackable plant templates, paged output, bounded batch production, generic plant support, and public-API Mystical Agriculture/Agradditions support.
+- Blazegold-framed Bio Factory with cached client-only creature rendering, data-driven animal products, four isolated fluid routes, eight default outputs, and public-API Productive Bees cages, flowering rules, hive products, and Productivity Upgrades.
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
@@ -48,6 +49,8 @@ Common commands:
 
 If dependency resolution fails, verify CurseMaven access and the coordinates in `dependencies.gradle` before changing source code.
 
+The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and ProductiveLib output types. `extractProductiveLib` copies the embedded ProductiveLib JarJar from the resolved Productive Bees dependency into `build/generated/productiveLib` for `compileOnly` use. It is a generated build artifact and is not packaged into JDTE.
+
 ## Core Dependencies
 
 | Dependency | Version | Purpose |
@@ -61,6 +64,7 @@ If dependency resolution fails, verify CurseMaven access and the coordinates in 
 | FTB Ultimine | CurseForge `8231400` | Optional bulk wrench and Upgrade Card operations |
 | Mystical Agriculture | CurseForge `8344249` | Optional Greenhouse crop registry integration |
 | Mystical Agradditions | CurseForge `7802027` | Optional high-tier Greenhouse crop integration through the shared registry |
+| Productive Bees | CurseForge `8022994` | Optional Bio Factory bee cages, flowering validation, hive products, and Productivity Upgrades |
 | Parchment | `2024.11.17` | Minecraft mappings |
 
 Important JDT packages:
@@ -224,9 +228,10 @@ Rules:
 | Fluid Receiver | Basic, Advanced, Extended | `FluidReceiverBE` | Pulls fluid from configured targets |
 | Advanced Item Collector | Single eight-slot tier | `AdvancedItemCollectorBE` | Intercepts item entities before world insertion and sends them to its facing inventory |
 | Entity Suppressor | Single eight-slot tier | `EntitySuppressorBE` | Suppresses entity ticks or client rendering, blocks entity creation, or disables particles in a filtered area |
-| Range Blocker | Single eight-slot tier | `RangeBlockerBE` | Contains living entities or prevents player magnets from moving item entities in a filtered area |
+| Range Blocker | Single eight-slot tier | `RangeBlockerBE` | Contains six selectable entity categories or prevents player magnets from moving item entities in a filtered area |
 | Crystal Incubator | Single eight-slot tier | `CrystalIncubatorBE` | Accelerates tagged budding blocks with Time Fluid and FE, then Fortune- or Precision-harvests mature neighboring clusters |
 | Greenhouse | Single eight-slot tier | `GreenhouseBE` | Runs four stackable crop/flower/sapling templates at adjustable 1-32x or forced 64x with Overclock/Creative, samples or explicitly defines multi-output harvests, and generates new output directly into adjacent item handlers |
+| Bio Factory | Single eight-slot tier | `BioFactoryBE` | Produces animal or Productive Bees resources at adjustable 1-32x or 64x with Overclock/Creative from reusable specimens and food/flower inputs without spawning server entities |
 | Bio Crusher | Advanced, Extended | `BioCrusherBE` | Produces mob loot and XP fluid, including spawner integration |
 | Life Extractor | Advanced, Extended | `LifeExtractorBE` | Converts target health into Life Fluid without normal drops |
 | Infusion Machine | Advanced, Extended | `InfusionMachineBE` | Performs gel/item and dynamic spawn egg infusion |
@@ -238,6 +243,8 @@ Capability summary:
 - Time Accelerators expose fluid; Advanced and Extended variants also expose energy.
 - The Crystal Incubator exposes energy, Time Fluid input, and an extraction-only nine-slot item inventory; Auto I/O supports fluid input and item output.
 - The Greenhouse exposes energy, Time Fluid input, four plant-template insertion slots, and 16-64 extraction-only paged output slots; its renderer displays four cached plant states without real world crops. Harvest settlement prefers the last successful adjacent item handler and routes newly generated stacks there first. Only remainders use internal output slots, and bounded snapshots preflight both destinations without a per-tick inventory-transfer loop.
+- The Bio Factory exposes energy, one specimen plus three unordered material inputs, 8-32 paged item outputs, isolated Life/Time/culture fluid inputs, and a product-fluid-only output through capabilities and absolute-side auto I/O. Its old output indices remain stable and 34-slot saves expand without moving stored items. Its renderer caches one reduced-scale non-world entity per specimen and never runs server AI; native horizontal multipart connections update only on placement or neighbor changes. Dynamic external recipes default to 10x Time Fluid and 5x Life Fluid costs. Productive Bees compatibility stays in optional integration classes and uses public cage, flowering, gene, config, and production APIs; exact flowering items/fluids replace breeding-food fallback, while `flowerBlock` and block-tag-first `flowerTag` semantics support addon-defined flowering blocks. `entity_types` flowering reads the Amber item's vanilla entity-data component, applies Productive Bees entity-tag/inverse-tag semantics, and generates component-correct Amber variants for JEI. Bee Productivity and operation-condition genes follow Advanced Beehive semantics, the four Productivity tiers share a four-card limit, Omega enables comb-block output, and JEI expands active Advanced Beehive recipe data without reflection. Built-in JDTE recipes accept up to four Looting Upgrades.
+- `GreenhouseBlock` stores four horizontal connection properties. The world blockstate uses native multipart component models to hide shared walls, posts, and roof rails and to fill connected roof strips/corners. Connection flags update only during placement and horizontal neighbor-shape changes; the inventory model remains the complete standalone `greenhouse.json` model.
 - Extended JDT machines expose item and energy capabilities where supported.
 - Glue Activators expose items; powered tiers also expose energy.
 - Gel Generators, Bio Crushers, Infusion Machines, Potion Brewers, and Loot Fabricators expose energy, fluid, and item capabilities as appropriate.
@@ -246,7 +253,8 @@ Capability summary:
 - Fluid sender/receiver tiers expose fluid; powered tiers expose energy.
 - Life Extractors expose energy and fluid.
 - JDT Clickers expose fluid when `FLUID_STORAGE` is installed.
-- The Advanced Item Collector exposes no internal item capability; it writes directly to the adjacent inventory on its facing side.
+- The Advanced Item Collector exposes no internal item capability. New drops use a chunk-indexed event path; existing drops use a configurable bounded round-robin scan. It writes to the adjacent inventory first and bypasses an ME Interface buffer only when the normal item handler cannot accept the complete stack and ME storage can.
+- Extended Block Breakers, Block Swappers, Fluid Collectors, Fluid Placers, Clickers, Block Placers, and Sensors must override their T1 single-target discovery methods so configured `AreaAffectingBE` bounds reach the actual execution path.
 
 Machines with real I/O persist absolute side settings through `AutoIoConfigData`; `AutoIoTransferHelper` executes transfers on the server. Any slot-layout change must also verify auto-I/O mappings, directional capability exposure, and the client cache.
 
@@ -310,6 +318,8 @@ GuideME locations:
 - Current feature pages include `advanced-potion-brewer.md`, `loot-fabricator.md`, and `eclipsealloy-wrench.md` in addition to the machine, upgrade, essence, and automation pages.
 
 Greenhouse data recipes live under `data/jdte/recipe/greenhouse/`. Each recipe declares a reusable `seed` ingredient, an `outputs` list for JEI and explicit harvest results, `display_block`, `growth_work`, and the unreduced base `time_fluid` cost. Optional `harvest_block` selects the mature state used for loot simulation. Set `use_loot_table` to `true` to harvest that state through its real loot table, or to `false` to use `outputs` directly. Runtime applies the configured 100x fluid divisor and the input stack-density multiplier.
+
+Bio Factory data recipes live under `data/jdte/recipe/bio_factory/`. They declare a reusable `specimen`, up to three unordered `inputs` with an `ingredient` and optional positive consumed `count`, probabilistic `outputs`, optional culture and product fluids, process ticks, and FE cost. Zero or omitted input counts are reusable catalysts; legacy `food`/`food_count` remains decode-compatible. Suspicious Stew effects, random valid Goat Horn instruments, and dye-selected wool are applied through vanilla public APIs. Productive Bees recipes are resolved through its public advanced-hive production helper only when the optional mod is loaded.
 
 ## Common Development Workflows
 
@@ -378,8 +388,12 @@ Recommended order:
 - Added the Crystal Incubator with adjustable 1-512x or overclocked 1024x Time Fluid growth acceleration, nine-slot automatic mature-cluster harvesting, Fortune VIII, common/extension tags, batched caching, and public-API Just Dyna Things support.
 - Added Crystal Incubator FE usage, automatic item output, AE2 Growth Accelerator-style ordinary budding ticks with six equivalent accelerators at 8x, exact Dyna target FE/Time Fluid provisioning and target-side charging, and the mutually exclusive Precision Upgrade backed by vanilla Silk Touch loot behavior.
 - Added the Greenhouse with a transparent Eclipse Alloy frame and Shadowpulse Soil base, four client-rendered plants, four reusable stackable plant templates, 16-64 paged output slots, a former-512-work 1x baseline adjustable to 32x or overclocked 64x, fair bounded settlements, mature crop loot sampling, generic crops/flowers/saplings, Fortune III, JEI recipes, and public Crop Registry support for Mystical Agriculture and Mystical Agradditions.
+- Added the Blazegold-framed Bio Factory with reusable animal/bee specimens, food and culture inputs, independent Life/Time/product fluids, adjustable 1-32x or 64x Overclock/Creative speed, auto I/O, 8-32 paged item outputs, data and loaded Productive Bees JEI recipes, reduced cached client-only entity display, and Productivity Upgrade support.
+- Refined the Bio Factory GUI into a compact aligned layout with a specimen-backed four-slot input column, an always-visible production icon with JEI time tooltip, and three reusable-or-consumed material inputs. Expanded built-in production to vanilla bees, Mooshroom milk, Snow Golems, all wool colors, all Froglights, balanced Goat Horns, Suspicious Stew, Cat gifts, and Panda slime, and added native horizontal connected models.
 - Replaced the Advanced Potion Brewer's directional fuel setting with a binary external Blaze Powder input toggle while preserving the configurable AE2 pattern-provider guard.
 - Added AE2 Crystal Science file `8112039`, AE2 Lightning Tech, and Data Energistics to the local runtime test environment.
+- Fixed configured-area execution for the Extended Block Breaker, Block Swapper, Fluid Collector, Fluid Placer, and Sensor; added bounded existing-drop collection and capacity-triggered ME Interface bypass to the Advanced Item Collector.
+- Added the Entity Suppressor's six target modes and matching allowlist/blacklist semantics to Range Blocker Containment; Demagnetization keeps independent item filtering.
 
 ### v0.5.4
 
@@ -462,11 +476,12 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Life Extractor | `jdte.lifeExtractor` | Life Fluid capacity, health conversion, and batch size |
 | Loot Fabricator | `jdte.lootFabricator` | Processing costs, Boss multipliers, Looting copies, and compatibility loot |
 | Sender/Receiver | `jdte.senderReceiver` | Storage, transfer rates, delays, and energy |
-| Advanced Item Collector | `jdte.advancedItemCollector` | Pre-break oversized-container transfer, per-slot threshold, and direct AE2 ME transfer toggle |
+| Advanced Item Collector | `jdte.advancedItemCollector` | Pre-break oversized-container protection, capacity-triggered AE2 ME transfer, and bounded existing-drop scan interval/limit |
 | Entity Suppressor | `jdte.entitySuppressor` | Energy use, named/tamed/Boss protection, and optional removal of existing blocked entities |
-| Range Blocker | `jdte.rangeBlocker` | Separate mode energy costs, entity safety, projectile/ownerless projectile containment, explosion clipping, and optional Mekanism compatibility |
+| Range Blocker | `jdte.rangeBlocker` | Separate mode energy costs, six containment target modes, entity safety, projectile/ownerless projectile containment, explosion clipping, and optional Mekanism compatibility |
 | Crystal Incubator | `jdte.crystalIncubator` | FE/Time Fluid capacity and cost, 512x/1024x rates, cache scanning, bounded growth/harvest batches, and Dyna growth attempts |
 | Greenhouse | `jdte.greenhouse` | FE/Time Fluid capacity, 1-32x/64x speed, 10 FE harvest cost, 100x fluid divisor, settlement interval, generic/Mystical costs, and batch cap |
+| Bio Factory | `jdte.bioFactory` | FE/fluid capacity, cycle timing, settlement interval, default/1-32x/64x Time Fluid speed, Life Fluid yield, and culture-fluid cost |
 | Advanced Potion Brewer | `jdte.advancedPotionBrewer` | Optional rejection of adjacent AE2 crafting providers for Blaze Powder automation |
 | Gel Generator | `jdte.gelGenerator` | Slots, capacity, conversion, and fuel use |
 | Generator upgrade | `jdte.generatorUpgrade` | Energy multiplier and fluid consumption |

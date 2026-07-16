@@ -1,0 +1,18 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:cat_spawn_egg" },
+  "inputs": [
+    { "ingredient": { "tag": "minecraft:cat_food" } }
+  ],
+  "outputs": [
+    { "item": { "id": "minecraft:rabbit_foot", "count": 1 }, "chance": 0.1613 },
+    { "item": { "id": "minecraft:rabbit_hide", "count": 1 }, "chance": 0.1613 },
+    { "item": { "id": "minecraft:string", "count": 1 }, "chance": 0.1613 },
+    { "item": { "id": "minecraft:rotten_flesh", "count": 1 }, "chance": 0.1613 },
+    { "item": { "id": "minecraft:feather", "count": 1 }, "chance": 0.1613 },
+    { "item": { "id": "minecraft:chicken", "count": 1 }, "chance": 0.1613 },
+    { "item": { "id": "minecraft:phantom_membrane", "count": 1 }, "chance": 0.0322 }
+  ],
+  "process_ticks": 2400,
+  "energy": 1500
+}

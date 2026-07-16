@@ -89,6 +89,8 @@ public class JDTEMenus {
             "crystal_incubator", () -> IMenuTypeExtension.create(CrystalIncubatorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<GreenhouseContainer>> GREENHOUSE = MENUS.register(
             "greenhouse", () -> IMenuTypeExtension.create(GreenhouseContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<BioFactoryContainer>> BIO_FACTORY = MENUS.register(
+            "bio_factory", () -> IMenuTypeExtension.create(BioFactoryContainer::new));
 
     // Fluid Receiver
     public static final DeferredHolder<MenuType<?>, MenuType<BasicFluidReceiverContainer>> BASIC_FLUID_RECEIVER = MENUS.register(

@@ -7,6 +7,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
@@ -46,7 +48,7 @@ public final class RangeBlockerManager {
     private static final double PROJECTILE_BOUNDARY_MARGIN = 0.25D;
 
     private static final Map<Level, LevelIndex> LEVELS = new ConcurrentHashMap<>();
-    private static final Map<Level, Map<LivingEntity, ContainmentState>> CONTAINED = new ConcurrentHashMap<>();
+    private static final Map<Level, Map<Entity, ContainmentState>> CONTAINED = new ConcurrentHashMap<>();
     private static final Map<Level, Map<Projectile, ProjectileState>> CONTAINED_PROJECTILES = new ConcurrentHashMap<>();
     private static final Map<Level, Set<ItemEntity>> OWNED_DEMAGNETIZED = new ConcurrentHashMap<>();
 
@@ -75,28 +77,28 @@ public final class RangeBlockerManager {
         Entity entity = event.getEntity();
         if (entity instanceof ItemEntity item) {
             updateDemagnetization(item);
-            return;
         }
         if (entity instanceof Projectile projectile) {
             containProjectile(projectile);
             return;
         }
-        if (!(entity instanceof LivingEntity living) || isAlwaysProtected(living)) return;
+        if (isAlwaysProtected(entity)) return;
 
-        Level level = living.level();
-        Map<LivingEntity, ContainmentState> states = CONTAINED.computeIfAbsent(level, ignored -> new IdentityHashMap<>());
-        ContainmentState state = states.get(living);
-        if (state != null && !state.cached.canAffect(living, true)) {
-            states.remove(living);
+        Level level = entity.level();
+        Map<Entity, ContainmentState> states = CONTAINED.computeIfAbsent(level, ignored -> new IdentityHashMap<>());
+        ContainmentState state = states.get(entity);
+        if (state != null && !state.cached.canAffect(entity, true)) {
+            states.remove(entity);
             state = null;
         }
         if (state == null) {
-            CachedBlocker cached = find(level, living.position(), RangeBlockerBE.Mode.CONTAINMENT, living, null, true);
+            CachedBlocker cached = find(level, entity.position(), RangeBlockerBE.Mode.CONTAINMENT,
+                    entity, null, true);
             if (cached == null) return;
-            state = new ContainmentState(cached, living.position());
-            states.put(living, state);
+            state = new ContainmentState(cached, entity.position());
+            states.put(entity, state);
         }
-        if (containsEntity(state.cached.area, living)) state.lastValidPosition = living.position();
+        if (containsEntity(state.cached.area, entity)) state.lastValidPosition = entity.position();
     }
 
     public static void onEntityTickPost(EntityTickEvent.Post event) {
@@ -109,16 +111,16 @@ public final class RangeBlockerManager {
             }
             return;
         }
-        if (!(event.getEntity() instanceof LivingEntity living)) return;
-        Map<LivingEntity, ContainmentState> states = CONTAINED.get(living.level());
+        Entity entity = event.getEntity();
+        Map<Entity, ContainmentState> states = CONTAINED.get(entity.level());
         if (states == null) return;
-        ContainmentState state = states.get(living);
+        ContainmentState state = states.get(entity);
         if (state == null) return;
-        if (!state.cached.canAffect(living, false)) {
-            states.remove(living);
+        if (!state.cached.canAffect(entity, false)) {
+            states.remove(entity);
             return;
         }
-        if (!containsEntity(state.cached.area, living)) confine(living, state);
+        if (!containsEntity(state.cached.area, entity)) confine(entity, state);
     }
 
     public static void onEntityJoin(EntityJoinLevelEvent event) {
@@ -141,28 +143,28 @@ public final class RangeBlockerManager {
             Map<Projectile, ProjectileState> projectiles = CONTAINED_PROJECTILES.get(event.getLevel());
             if (projectiles != null) projectiles.remove(projectile);
         }
-        if (!(event.getEntity() instanceof LivingEntity living)) return;
-        Map<LivingEntity, ContainmentState> states = CONTAINED.get(event.getLevel());
-        if (states != null) states.remove(living);
+        Map<Entity, ContainmentState> states = CONTAINED.get(event.getLevel());
+        if (states != null) states.remove(event.getEntity());
     }
 
     public static void onTeleport(EntityTeleportEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity living) || isAlwaysProtected(living)) return;
-        Map<LivingEntity, ContainmentState> states = CONTAINED.get(living.level());
-        ContainmentState state = states == null ? null : states.get(living);
-        if (state != null && !state.cached.canAffect(living, true)) {
-            states.remove(living);
+        Entity entity = event.getEntity();
+        if (isAlwaysProtected(entity)) return;
+        Map<Entity, ContainmentState> states = CONTAINED.get(entity.level());
+        ContainmentState state = states == null ? null : states.get(entity);
+        if (state != null && !state.cached.canAffect(entity, true)) {
+            states.remove(entity);
             return;
         }
         if (state == null) {
-            CachedBlocker cached = find(living.level(), living.position(), RangeBlockerBE.Mode.CONTAINMENT,
-                    living, null, true);
+            CachedBlocker cached = find(entity.level(), entity.position(), RangeBlockerBE.Mode.CONTAINMENT,
+                    entity, null, true);
             if (cached == null) return;
-            state = new ContainmentState(cached, living.position());
-            CONTAINED.computeIfAbsent(living.level(), ignored -> new IdentityHashMap<>())
-                    .put(living, state);
+            state = new ContainmentState(cached, entity.position());
+            CONTAINED.computeIfAbsent(entity.level(), ignored -> new IdentityHashMap<>())
+                    .put(entity, state);
         }
-        Vec3 target = clampPosition(living, state.cached.area, event.getTarget(), state.lastValidPosition);
+        Vec3 target = clampPosition(entity, state.cached.area, event.getTarget(), state.lastValidPosition);
         event.setTargetX(target.x);
         event.setTargetY(target.y);
         event.setTargetZ(target.z);
@@ -230,13 +232,13 @@ public final class RangeBlockerManager {
     }
 
     private static CachedBlocker find(Level level, Vec3 position, RangeBlockerBE.Mode mode,
-                                      LivingEntity living, ItemStack stack, boolean consumeEnergy) {
+                                      Entity entity, ItemStack stack, boolean consumeEnergy) {
         LevelIndex index = LEVELS.get(level);
         if (index == null) return null;
         for (CachedBlocker cached : index.at(position)) {
             if (cached.mode != mode || !cached.area.contains(position)) continue;
-            boolean matches = living != null ? cached.matchesLiving(living) : cached.matchesItem(stack);
-            if (matches && cached.canAffect(living, consumeEnergy)) return cached;
+            boolean matches = entity != null ? cached.matches(entity) : cached.matchesItem(stack);
+            if (matches && cached.canAffect(entity, consumeEnergy)) return cached;
         }
         return null;
     }
@@ -305,7 +307,7 @@ public final class RangeBlockerManager {
                 && box.minZ >= area.minZ - BOUNDARY_EPSILON && box.maxZ <= area.maxZ + BOUNDARY_EPSILON;
     }
 
-    private static void confine(LivingEntity entity, ContainmentState state) {
+    private static void confine(Entity entity, ContainmentState state) {
         Vec3 current = entity.position();
         Vec3 target = clampPosition(entity, state.cached.area, current, state.lastValidPosition);
         Vec3 velocity = entity.getDeltaMovement();
@@ -345,14 +347,15 @@ public final class RangeBlockerManager {
 
     private static void releaseAssignments(RangeBlockerBE blocker) {
         if (blocker.getLevel() == null) return;
-        Map<LivingEntity, ContainmentState> states = CONTAINED.get(blocker.getLevel());
+        Map<Entity, ContainmentState> states = CONTAINED.get(blocker.getLevel());
         if (states != null) states.entrySet().removeIf(entry -> entry.getValue().cached.blocker == blocker);
         Map<Projectile, ProjectileState> projectiles = CONTAINED_PROJECTILES.get(blocker.getLevel());
         if (projectiles != null) projectiles.entrySet().removeIf(entry -> entry.getValue().cached.blocker == blocker);
     }
 
     private record CachedBlocker(RangeBlockerBE blocker, AABB area, RangeBlockerBE.Mode mode,
-                                 boolean blacklist, Set<net.minecraft.world.entity.EntityType<?>> entityTypes,
+                                 EntitySuppressorBE.Target target, boolean blacklist,
+                                 Set<net.minecraft.world.entity.EntityType<?>> entityTypes,
                                  List<ItemStack> itemFilters) {
         static CachedBlocker of(RangeBlockerBE blocker) {
             Set<net.minecraft.world.entity.EntityType<?>> entityTypes =
@@ -364,13 +367,13 @@ public final class RangeBlockerManager {
                 itemFilters.add(filter.copy());
                 if (filter.getItem() instanceof SpawnEggItem egg) entityTypes.add(egg.getType(filter));
             }
-            return new CachedBlocker(blocker, blocker.getIndexedArea(), blocker.getMode(), blocker.isBlacklist(),
-                    entityTypes, List.copyOf(itemFilters));
+            return new CachedBlocker(blocker, blocker.getIndexedArea(), blocker.getMode(), blocker.getTarget(),
+                    blocker.isBlacklist(), entityTypes, List.copyOf(itemFilters));
         }
 
-        boolean canAffect(LivingEntity living, boolean consumeEnergy) {
+        boolean canAffect(Entity entity, boolean consumeEnergy) {
             if (!canPower(consumeEnergy)) return false;
-            if (living != null && isAlwaysProtected(living)) return false;
+            if (entity != null && isAlwaysProtected(entity)) return false;
             return true;
         }
 
@@ -379,10 +382,19 @@ public final class RangeBlockerManager {
             return !consumeEnergy || blocker.canApplyEffectThisTick();
         }
 
-        boolean matchesLiving(LivingEntity living) {
-            if (entityTypes.isEmpty()) return true;
-            boolean listed = entityTypes.contains(living.getType());
-            return blacklist ? !listed : listed;
+        boolean matches(Entity entity) {
+            boolean categoryMatch = switch (target) {
+                case HOSTILE -> entity instanceof Mob && entity.getType().getCategory() == MobCategory.MONSTER;
+                case PASSIVE -> entity instanceof Mob && entity.getType().getCategory() != MobCategory.MONSTER;
+                case ALL_LIVING -> entity instanceof LivingEntity;
+                case SELECTED_TYPES -> entityTypes.contains(entity.getType());
+                case NON_LIVING -> !(entity instanceof LivingEntity);
+                case ALL_TYPES -> true;
+            };
+            if (target == EntitySuppressorBE.Target.SELECTED_TYPES) return blacklist != categoryMatch;
+            if (entityTypes.isEmpty()) return categoryMatch;
+            boolean listed = entityTypes.contains(entity.getType());
+            return categoryMatch && (blacklist ? !listed : listed);
         }
 
         boolean matchesItem(ItemStack stack) {
@@ -402,10 +414,16 @@ public final class RangeBlockerManager {
             Entity owner = projectile.getOwner();
             if (owner instanceof Player) return false;
             if (owner == null) {
-                return JDTEConfig.COMMON.rangeBlockerContainOwnerlessProjectiles.get() && entityTypes.isEmpty();
+                return JDTEConfig.COMMON.rangeBlockerContainOwnerlessProjectiles.get()
+                        && (target == EntitySuppressorBE.Target.NON_LIVING
+                        || target == EntitySuppressorBE.Target.ALL_TYPES)
+                        && matches(projectile);
             }
-            if (!(owner instanceof LivingEntity living)) return entityTypes.isEmpty();
-            return matchesLiving(living);
+            if (target == EntitySuppressorBE.Target.NON_LIVING
+                    || target == EntitySuppressorBE.Target.ALL_TYPES) {
+                return matches(projectile);
+            }
+            return matches(owner);
         }
     }
 

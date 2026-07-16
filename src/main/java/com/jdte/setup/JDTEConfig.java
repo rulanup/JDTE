@@ -88,6 +88,9 @@ public class JDTEConfig {
         public final ModConfigSpec.BooleanValue advancedItemCollectorPreDrainEnabled;
         public final ModConfigSpec.IntValue advancedItemCollectorPreDrainThreshold;
         public final ModConfigSpec.BooleanValue advancedItemCollectorMeDirectTransferEnabled;
+        public final ModConfigSpec.BooleanValue advancedItemCollectorExistingItemScanEnabled;
+        public final ModConfigSpec.IntValue advancedItemCollectorExistingItemScanInterval;
+        public final ModConfigSpec.IntValue advancedItemCollectorExistingItemScanLimit;
 
         // Entity Suppressor
         public final ModConfigSpec.IntValue entitySuppressorEnergyCapacity;
@@ -141,6 +144,22 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
         public final ModConfigSpec.IntValue greenhouseGenericFluidCost;
         public final ModConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
+
+        // Bio Factory
+        public final ModConfigSpec.IntValue bioFactoryFluidCapacity;
+        public final ModConfigSpec.IntValue bioFactoryEnergyCapacity;
+        public final ModConfigSpec.IntValue bioFactoryEnergyPerCycle;
+        public final ModConfigSpec.IntValue bioFactoryBaseProcessTicks;
+        public final ModConfigSpec.IntValue bioFactorySettlementInterval;
+        public final ModConfigSpec.IntValue bioFactoryTimeFluidPerCycle;
+        public final ModConfigSpec.IntValue bioFactoryMaxSpeedMultiplier;
+        public final ModConfigSpec.IntValue bioFactoryDefaultSpeedMultiplier;
+        public final ModConfigSpec.IntValue bioFactoryOverclockMaxSpeedMultiplier;
+        public final ModConfigSpec.IntValue bioFactoryLifeFluidPerCycle;
+        public final ModConfigSpec.DoubleValue bioFactoryLifeYieldMultiplier;
+        public final ModConfigSpec.IntValue bioFactoryProcessFluidPerCycle;
+        public final ModConfigSpec.IntValue bioFactoryExternalTimeFluidCostMultiplier;
+        public final ModConfigSpec.IntValue bioFactoryExternalLifeFluidCostMultiplier;
 
         // Gel Generator
         public final ModConfigSpec.IntValue gelGeneratorInputSlots;
@@ -432,9 +451,21 @@ public class JDTEConfig {
                     .translation("config.jdte.jdte.advancedItemCollector.preDrainThreshold")
                     .defineInRange("preDrainThreshold", 10_000_000, 65, Integer.MAX_VALUE);
             advancedItemCollectorMeDirectTransferEnabled = builder
-                    .comment("Directly insert triggered oversized stacks into an attached AE2 ME storage capability")
+                    .comment("Use direct AE2 ME storage insertion when the attached interface item handler cannot accept a complete collected stack")
                     .translation("config.jdte.jdte.advancedItemCollector.meDirectTransferEnabled")
                     .define("meDirectTransferEnabled", true);
+            advancedItemCollectorExistingItemScanEnabled = builder
+                    .comment("Periodically collect item entities that already exist in configured collector areas")
+                    .translation("config.jdte.jdte.advancedItemCollector.existingItemScanEnabled")
+                    .define("existingItemScanEnabled", true);
+            advancedItemCollectorExistingItemScanInterval = builder
+                    .comment("Minimum ticks between existing-item scans for each collector")
+                    .translation("config.jdte.jdte.advancedItemCollector.existingItemScanInterval")
+                    .defineInRange("existingItemScanInterval", 10, 1, 1200);
+            advancedItemCollectorExistingItemScanLimit = builder
+                    .comment("Maximum existing item entities processed by one collector scan")
+                    .translation("config.jdte.jdte.advancedItemCollector.existingItemScanLimit")
+                    .defineInRange("existingItemScanLimit", 256, 1, 4096);
             builder.pop();
 
             builder.comment("Entity Suppressor Settings")
@@ -601,6 +632,42 @@ public class JDTEConfig {
             greenhouseMaxHarvestsPerSettlementV2 = builder
                     .translation("config.jdte.jdte.greenhouse.maxHarvestsPerSettlement")
                     .defineInRange("maxHarvestsPerSettlementV2", 4096, 1, 65536);
+            builder.pop();
+
+            builder.comment("Bio Factory Settings")
+                    .translation("config.jdte.jdte.bioFactory")
+                    .push("bioFactory");
+            bioFactoryFluidCapacity = builder.translation("config.jdte.jdte.bioFactory.fluidCapacity")
+                    .defineInRange("fluidCapacity", 64000, 1000, Integer.MAX_VALUE);
+            bioFactoryEnergyCapacity = builder.translation("config.jdte.jdte.bioFactory.energyCapacity")
+                    .defineInRange("energyCapacity", 10000000, 1000, Integer.MAX_VALUE);
+            bioFactoryEnergyPerCycle = builder.translation("config.jdte.jdte.bioFactory.energyPerCycle")
+                    .defineInRange("energyPerCycle", 1000, 0, Integer.MAX_VALUE);
+            bioFactoryBaseProcessTicks = builder.translation("config.jdte.jdte.bioFactory.baseProcessTicks")
+                    .defineInRange("baseProcessTicks", 600, 1, 72000);
+            bioFactorySettlementInterval = builder.comment("Ticks between lightweight production settlements")
+                    .translation("config.jdte.jdte.bioFactory.settlementInterval")
+                    .defineInRange("settlementInterval", 20, 1, 1200);
+            bioFactoryTimeFluidPerCycle = builder.translation("config.jdte.jdte.bioFactory.timeFluidPerCycle")
+                    .defineInRange("timeFluidPerCycle", 10, 0, Integer.MAX_VALUE);
+            bioFactoryMaxSpeedMultiplier = builder.translation("config.jdte.jdte.bioFactory.maxSpeedMultiplier")
+                    .defineInRange("maxSpeedMultiplier", 32, 1, 64);
+            bioFactoryDefaultSpeedMultiplier = builder.translation("config.jdte.jdte.bioFactory.defaultSpeedMultiplier")
+                    .defineInRange("defaultSpeedMultiplier", 1, 1, 64);
+            bioFactoryOverclockMaxSpeedMultiplier = builder.translation("config.jdte.jdte.bioFactory.overclockMaxSpeedMultiplier")
+                    .defineInRange("overclockMaxSpeedMultiplier", 64, 1, 128);
+            bioFactoryLifeFluidPerCycle = builder.translation("config.jdte.jdte.bioFactory.lifeFluidPerCycle")
+                    .defineInRange("lifeFluidPerCycle", 100, 0, Integer.MAX_VALUE);
+            bioFactoryLifeYieldMultiplier = builder.translation("config.jdte.jdte.bioFactory.lifeYieldMultiplier")
+                    .defineInRange("lifeYieldMultiplier", 2.0D, 1.0D, 64.0D);
+            bioFactoryProcessFluidPerCycle = builder.translation("config.jdte.jdte.bioFactory.processFluidPerCycle")
+                    .defineInRange("processFluidPerCycle", 100, 0, Integer.MAX_VALUE);
+            bioFactoryExternalTimeFluidCostMultiplier = builder
+                    .translation("config.jdte.jdte.bioFactory.externalTimeFluidCostMultiplier")
+                    .defineInRange("externalTimeFluidCostMultiplier", 10, 1, 1000);
+            bioFactoryExternalLifeFluidCostMultiplier = builder
+                    .translation("config.jdte.jdte.bioFactory.externalLifeFluidCostMultiplier")
+                    .defineInRange("externalLifeFluidCostMultiplier", 5, 1, 1000);
             builder.pop();
 
             // Gel Generator

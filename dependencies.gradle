@@ -35,6 +35,8 @@ dependencies {
     compileOnly "curse.maven:just-dyna-things-1189855:7851999"
     compileOnly "curse.maven:mystical-agriculture-246640:8344249"
     compileOnly "curse.maven:mystical-agradditions-256247:7802027"
+    compileOnly "curse.maven:productivebees-377897:${productivebees_file}"
+    productiveBeesEmbedded "curse.maven:productivebees-377897:${productivebees_file}"
 
     // Miscellaneous
     compileOnly "curse.maven:polymorph-388800:${polymorph_file}"
