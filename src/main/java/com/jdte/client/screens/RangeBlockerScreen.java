@@ -21,7 +21,8 @@ public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer>
     private static final String JDT = "justdirethings";
     private static final List<TextureLocalization> MODE_TEXTURES = List.of(
             texture("textures/item/abilityupgrades/orescanner.png", "screen.jdte.range_blocker.mode.0"),
-            texture("textures/item/abilityupgrades/earthquake.png", "screen.jdte.range_blocker.mode.1"));
+            texture("textures/item/abilityupgrades/earthquake.png", "screen.jdte.range_blocker.mode.1"),
+            texture("textures/item/abilityupgrades/mindfog.png", "screen.jdte.range_blocker.mode.2"));
     private static final List<TextureLocalization> LIST_TEXTURES = List.of(
             texture("textures/gui/buttons/allowlistfalse.png", "screen.jdte.range_blocker.blacklist"),
             texture("textures/gui/buttons/allowlisttrue.png", "screen.jdte.range_blocker.allowlist"));
@@ -37,6 +38,7 @@ public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer>
     private int target;
     private boolean blacklist;
     private ToggleButton targetButton;
+    private ToggleButton listButton;
 
     public RangeBlockerScreen(RangeBlockerContainer menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -49,8 +51,8 @@ public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer>
 
     @Override
     public void addFilterButtons() {
-        addRenderableWidget(new ToggleButton(leftPos + 8, topSectionTop + 62, 16, 16,
-                LIST_TEXTURES, blacklist ? 0 : 1, button -> {
+        listButton = addRenderableWidget(new GrayToggleButton(
+                leftPos + 8, topSectionTop + 62, LIST_TEXTURES, blacklist ? 0 : 1, button -> {
                     blacklist = !blacklist;
                     saveSettings();
                 }));
@@ -67,10 +69,10 @@ public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer>
         addRenderableWidget(new ToggleButton(leftPos + 80, topSectionTop + 62, 16, 16,
                 MODE_TEXTURES, mode, button -> {
                     mode = ((ToggleButton) button).getTexturePosition();
-                    updateTargetButton();
+                    updateFilterButtons();
                     saveSettings();
                 }));
-        updateTargetButton();
+        updateFilterButtons();
     }
 
     @Override public void setTopSection() { extraWidth = 60; extraHeight = 0; }
@@ -80,12 +82,11 @@ public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer>
                 Component.translatable(translation));
     }
 
-    private void updateTargetButton() {
-        if (targetButton != null) {
-            targetButton.active = RangeBlockerBE.Mode.values()[
-                    Math.floorMod(mode, RangeBlockerBE.Mode.values().length)]
-                    == RangeBlockerBE.Mode.CONTAINMENT;
-        }
+    private void updateFilterButtons() {
+        RangeBlockerBE.Mode selectedMode = RangeBlockerBE.Mode.values()[
+                Math.floorMod(mode, RangeBlockerBE.Mode.values().length)];
+        if (targetButton != null) targetButton.active = selectedMode == RangeBlockerBE.Mode.CONTAINMENT;
+        if (listButton != null) listButton.active = selectedMode != RangeBlockerBE.Mode.SILENCE;
     }
 
     private static final class GrayToggleButton extends ToggleButton {

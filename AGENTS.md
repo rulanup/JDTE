@@ -22,7 +22,7 @@ Major features:
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
 - Advanced Item Collector with eight upgrade slots, event-driven pre-spawn collection, bounded existing-drop scans, and capacity-triggered direct ME insertion without item-flow particles.
 - Entity Suppressor with entity-tick suppression, entity spawn/join blocking, entity and block entity rendering suppression, client particle suppression, and six entity target modes.
-- Range Blocker with six-target event-driven entity containment, projectile boundary protection, and player-magnet suppression.
+- Range Blocker with six-target event-driven containment, projectile boundary protection, player-magnet suppression, and public-event positional sound suppression.
 - Crystal Incubator with generic budding-block discovery, Time Fluid growth acceleration, Fortune harvesting, and batched area caching.
 - Glass-framed Greenhouse with four client-rendered plants, four reusable stackable plant templates, paged output, bounded batch production, generic plant support, and public-API Mystical Agriculture/Agradditions support.
 - Blazegold-framed Bio Factory with cached client-only creature rendering, data-driven animal products, four isolated fluid routes, eight default outputs, and public-API Productive Bees cages, flowering rules, hive products, and Productivity Upgrades.
@@ -228,7 +228,7 @@ Rules:
 | Fluid Receiver | Basic, Advanced, Extended | `FluidReceiverBE` | Pulls fluid from configured targets |
 | Advanced Item Collector | Single eight-slot tier | `AdvancedItemCollectorBE` | Intercepts item entities before world insertion and sends them to its facing inventory |
 | Entity Suppressor | Single eight-slot tier | `EntitySuppressorBE` | Suppresses entity ticks or client rendering, blocks entity creation, or disables particles in a filtered area |
-| Range Blocker | Single eight-slot tier | `RangeBlockerBE` | Contains six selectable entity categories or prevents player magnets from moving item entities in a filtered area |
+| Range Blocker | Single eight-slot tier | `RangeBlockerBE` | Contains six selectable entity categories, prevents player magnets, or suppresses positional sounds in a configured area |
 | Crystal Incubator | Single eight-slot tier | `CrystalIncubatorBE` | Accelerates tagged budding blocks with Time Fluid and FE, then Fortune- or Precision-harvests mature neighboring clusters |
 | Greenhouse | Single eight-slot tier | `GreenhouseBE` | Runs four stackable crop/flower/sapling templates at adjustable 1-32x or forced 64x with Overclock/Creative, samples or explicitly defines multi-output harvests, and generates new output directly into adjacent item handlers |
 | Bio Factory | Single eight-slot tier | `BioFactoryBE` | Produces animal or Productive Bees resources at adjustable 1-32x or 64x with Overclock/Creative from reusable specimens and food/flower inputs without spawning server entities |
@@ -393,7 +393,7 @@ Recommended order:
 - Replaced the Advanced Potion Brewer's directional fuel setting with a binary external Blaze Powder input toggle while preserving the configurable AE2 pattern-provider guard.
 - Added AE2 Crystal Science file `8112039`, AE2 Lightning Tech, and Data Energistics to the local runtime test environment.
 - Fixed configured-area execution for the Extended Block Breaker, Block Swapper, Fluid Collector, Fluid Placer, and Sensor; added bounded existing-drop collection and capacity-triggered ME Interface bypass to the Advanced Item Collector.
-- Added the Entity Suppressor's six target modes and matching allowlist/blacklist semantics to Range Blocker Containment; Demagnetization keeps independent item filtering.
+- Added the Entity Suppressor's six target modes to Range Blocker Containment and a public-event Silence mode with bounded active-loop cleanup; Demagnetization and Silence default to 1 FE/tick.
 
 ### v0.5.4
 
@@ -478,7 +478,7 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Sender/Receiver | `jdte.senderReceiver` | Storage, transfer rates, delays, and energy |
 | Advanced Item Collector | `jdte.advancedItemCollector` | Pre-break oversized-container protection, capacity-triggered AE2 ME transfer, and bounded existing-drop scan interval/limit |
 | Entity Suppressor | `jdte.entitySuppressor` | Energy use, named/tamed/Boss protection, and optional removal of existing blocked entities |
-| Range Blocker | `jdte.rangeBlocker` | Separate mode energy costs, six containment target modes, entity safety, projectile/ownerless projectile containment, explosion clipping, and optional Mekanism compatibility |
+| Range Blocker | `jdte.rangeBlocker` | Three mode energy costs, six containment targets, sound suppression, entity safety, projectile/explosion boundaries, and optional Mekanism compatibility |
 | Crystal Incubator | `jdte.crystalIncubator` | FE/Time Fluid capacity and cost, 512x/1024x rates, cache scanning, bounded growth/harvest batches, and Dyna growth attempts |
 | Greenhouse | `jdte.greenhouse` | FE/Time Fluid capacity, 1-32x/64x speed, 10 FE harvest cost, 100x fluid divisor, settlement interval, generic/Mystical costs, and batch cap |
 | Bio Factory | `jdte.bioFactory` | FE/fluid capacity, cycle timing, settlement interval, default/1-32x/64x Time Fluid speed, Life Fluid yield, and culture-fluid cost |

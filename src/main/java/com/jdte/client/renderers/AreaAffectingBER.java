@@ -28,6 +28,17 @@ public class AreaAffectingBER implements BlockEntityRenderer<BlockEntity> {
 
     @Override
     public AABB getRenderBoundingBox(BlockEntity blockEntity) {
-        return AABB.encapsulatingFullBlocks(blockEntity.getBlockPos().above(10).north(10).east(10), blockEntity.getBlockPos().below(10).south(10).west(10));
+        if (blockEntity instanceof AreaAffectingBE areaAffectingBE) {
+            BlockPos blockPos = blockEntity.getBlockPos();
+            AABB bounds = areaAffectingBE.getAABB(BlockPos.ZERO).move(blockPos)
+                    .minmax(new AABB(blockPos));
+            if (areaAffectingBE.getAreaAffectingData().xRadius > 0
+                    || areaAffectingBE.getAreaAffectingData().yRadius > 0
+                    || areaAffectingBE.getAreaAffectingData().zRadius > 0) {
+                bounds = bounds.minmax(areaAffectingBE.getAABBOffsetOnly(BlockPos.ZERO).move(blockPos));
+            }
+            return bounds.inflate(1.0D);
+        }
+        return new AABB(blockEntity.getBlockPos()).inflate(1.0D);
     }
 }

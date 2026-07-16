@@ -85,6 +85,8 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onEntityLeave);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onTeleport);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onExplosionDetonate);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtPosition);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtEntity);
         NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onLevelUnload);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();

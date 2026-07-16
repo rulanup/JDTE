@@ -103,7 +103,8 @@ public class JDTEConfig {
         // Range Blocker
         public final ModConfigSpec.IntValue rangeBlockerEnergyCapacity;
         public final ModConfigSpec.IntValue rangeBlockerContainmentEnergyPerTick;
-        public final ModConfigSpec.DoubleValue rangeBlockerDemagnetizationEnergyPerTick;
+        public final ModConfigSpec.IntValue rangeBlockerDemagnetizationEnergyPerTick;
+        public final ModConfigSpec.IntValue rangeBlockerSilenceEnergyPerTick;
         public final ModConfigSpec.BooleanValue rangeBlockerProtectNamed;
         public final ModConfigSpec.BooleanValue rangeBlockerProtectTamed;
         public final ModConfigSpec.BooleanValue rangeBlockerProtectBosses;
@@ -502,9 +503,13 @@ public class JDTEConfig {
                     .translation("config.jdte.jdte.rangeBlocker.containmentEnergyPerTick")
                     .defineInRange("containmentEnergyPerTick", 250, 0, 1000000);
             rangeBlockerDemagnetizationEnergyPerTick = builder
-                    .comment("Average FE consumed per active Demagnetization tick; fractional values are accumulated")
+                    .comment("FE consumed per active Demagnetization tick")
                     .translation("config.jdte.jdte.rangeBlocker.demagnetizationEnergyPerTick")
-                    .defineInRange("demagnetizationEnergyPerTick", 0.25D, 0.0D, 1000000.0D);
+                    .defineInRange("demagnetizationEnergyPerTick", 1, 0, 1000000);
+            rangeBlockerSilenceEnergyPerTick = builder
+                    .comment("FE consumed every tick while Silence mode is active")
+                    .translation("config.jdte.jdte.rangeBlocker.silenceEnergyPerTick")
+                    .defineInRange("silenceEnergyPerTick", 1, 0, 1000000);
             rangeBlockerProtectNamed = builder
                     .translation("config.jdte.jdte.rangeBlocker.protectNamed")
                     .define("protectNamed", true);

@@ -21,7 +21,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
@@ -33,7 +32,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, FilterableBE,
         RedstoneControlledBE, PoweredMachineBE, ExtendedUpgradeMachine {
-    public enum Mode { CONTAINMENT, DEMAGNETIZATION }
+    public enum Mode { CONTAINMENT, DEMAGNETIZATION, SILENCE }
 
     private final AreaAffectingData areaData;
     private final FilterData filterData = new FilterData();
@@ -45,7 +44,6 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     private boolean blacklist;
     private boolean fieldActive;
     private long paidGameTime = Long.MIN_VALUE;
-    private double pendingDemagnetizationEnergy;
     private int filterFingerprint;
     private AABB clientSyncedArea;
 
@@ -62,9 +60,11 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energy; }
     @Override public int getStandardEnergyCost() {
-        return mode == Mode.CONTAINMENT
-                ? JDTEConfig.COMMON.rangeBlockerContainmentEnergyPerTick.get()
-                : Mth.ceil(JDTEConfig.COMMON.rangeBlockerDemagnetizationEnergyPerTick.get());
+        return switch (mode) {
+            case CONTAINMENT -> JDTEConfig.COMMON.rangeBlockerContainmentEnergyPerTick.get();
+            case DEMAGNETIZATION -> JDTEConfig.COMMON.rangeBlockerDemagnetizationEnergyPerTick.get();
+            case SILENCE -> JDTEConfig.COMMON.rangeBlockerSilenceEnergyPerTick.get();
+        };
     }
     @Override public int getMaxEnergy() {
         return UpgradeHelper.adjustEnergyCapacity(this, JDTEConfig.COMMON.rangeBlockerEnergyCapacity.get());
@@ -73,11 +73,13 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     public Mode getMode() { return mode; }
     public EntitySuppressorBE.Target getTarget() { return target; }
     public boolean isBlacklist() { return blacklist; }
-    public boolean isFieldActive() { return !isRemoved() && fieldActive; }
+    public boolean isFieldActive() {
+        return !isRemoved() && fieldActive && level != null
+                && level.getBlockEntity(getBlockPos()) == this;
+    }
 
     public void setSettings(int mode, int target, boolean blacklist) {
         Mode newMode = Mode.values()[Math.floorMod(mode, Mode.values().length)];
-        if (this.mode != newMode) pendingDemagnetizationEnergy = 0.0D;
         this.mode = newMode;
         this.target = EntitySuppressorBE.Target.values()[
                 Math.floorMod(target, EntitySuppressorBE.Target.values().length)];
@@ -117,17 +119,12 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
         if (level.isClientSide || UpgradeHelper.hasCreativeUpgrade(this)) return true;
         long gameTime = level.getGameTime();
         if (paidGameTime == gameTime) return true;
-        double configuredCost = getConfiguredEnergyCost();
-        double pendingAfterTick = mode == Mode.DEMAGNETIZATION
-                ? pendingDemagnetizationEnergy + configuredCost
-                : configuredCost;
-        int cost = Mth.floor(pendingAfterTick + 1.0E-9D);
+        int cost = getStandardEnergyCost();
         if (energy.extractEnergy(cost, true) != cost) {
             setFieldActive(false);
             return false;
         }
         if (cost > 0) energy.extractEnergy(cost, false);
-        if (mode == Mode.DEMAGNETIZATION) pendingDemagnetizationEnergy = pendingAfterTick - cost;
         paidGameTime = gameTime;
         return true;
     }
@@ -135,19 +132,20 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     private boolean canActivateWithoutConsuming() {
         if (isRemoved() || level == null || !isActiveRedstone()) return false;
         if (UpgradeHelper.hasCreativeUpgrade(this)) return true;
-        double configuredCost = getConfiguredEnergyCost();
-        if (configuredCost <= 0.0D) return true;
-        double pendingAfterTick = mode == Mode.DEMAGNETIZATION
-                ? pendingDemagnetizationEnergy + configuredCost
-                : configuredCost;
-        int required = Math.max(1, Mth.floor(pendingAfterTick + 1.0E-9D));
+        int configuredCost = getStandardEnergyCost();
+        if (configuredCost <= 0) return true;
+        int required = Math.max(1, configuredCost);
         return energy.extractEnergy(required, true) == required;
     }
 
-    private double getConfiguredEnergyCost() {
-        return mode == Mode.CONTAINMENT
-                ? JDTEConfig.COMMON.rangeBlockerContainmentEnergyPerTick.get()
-                : JDTEConfig.COMMON.rangeBlockerDemagnetizationEnergyPerTick.get();
+    private boolean consumeSilenceEnergy() {
+        if (isRemoved() || level == null || !isActiveRedstone()) return false;
+        if (UpgradeHelper.hasCreativeUpgrade(this)) return true;
+        int cost = JDTEConfig.COMMON.rangeBlockerSilenceEnergyPerTick.get();
+        if (cost <= 0) return true;
+        if (energy.extractEnergy(cost, true) != cost) return false;
+        energy.extractEnergy(cost, false);
+        return true;
     }
 
     private void setFieldActive(boolean active) {
@@ -160,7 +158,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     @Override public void tickServer() {
         super.tickServer();
         refreshFilterIndexIfNeeded();
-        setFieldActive(canActivateWithoutConsuming());
+        setFieldActive(mode == Mode.SILENCE ? consumeSilenceEnergy() : canActivateWithoutConsuming());
     }
 
     @Override public void tickClient() {
@@ -221,7 +219,6 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
         tag.putBoolean("rangeBlockerBlacklist", blacklist);
         tag.putBoolean("rangeBlockerActive", fieldActive);
         tag.putInt("rangeBlockerEnergy", energy.getEnergyStored());
-        tag.putDouble("rangeBlockerPendingDemagnetizationEnergy", pendingDemagnetizationEnergy);
     }
 
     @Override
@@ -235,7 +232,6 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
         blacklist = tag.getBoolean("rangeBlockerBlacklist");
         fieldActive = tag.getBoolean("rangeBlockerActive");
         if (tag.contains("rangeBlockerEnergy")) energy.setEnergy(tag.getInt("rangeBlockerEnergy"));
-        pendingDemagnetizationEnergy = tag.getDouble("rangeBlockerPendingDemagnetizationEnergy");
         if (level != null) RangeBlockerManager.refresh(this);
     }
 }

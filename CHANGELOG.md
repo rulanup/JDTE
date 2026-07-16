@@ -12,10 +12,11 @@
 - **Crystal Incubator**: Ordinary budding blocks use bounded AE2 Growth Accelerator-style forced random ticks, while resource-consuming Just Dyna Things targets receive their exact required FE and Time Fluid. Separate caches and round-robin budgets keep mixed target areas fair and low-overhead.
 - **Greenhouse**: Supports 1-32x or 64x operation, mature-block loot tables with primary products and byproducts, stack-density scaling, direct generation into adjacent inventories, automatic I/O, native four-direction connected models, and bounded batch processing.
 - **Bio Factory**: Productive Bees compatibility follows Advanced Beehive outputs, productivity and operation genes, all four Productivity Upgrade tiers, Omega comb-block output, and exact item/block/fluid/entity flowering rules. Entity-type bees such as Ribbeet accept component-correct Amber specimens, including inverse-tag semantics.
-- **Machine Updates**: Added the Advanced Potion Brewer Blaze Powder Input toggle with an optional AE2 pattern-provider safeguard. Gel Generators now fully support Just Dyna Things energy-powered and Creative Goo behavior while exposing only valid output slots to external extraction. Range Blocker Containment now provides the Entity Suppressor's six target modes with shared allowlist/blacklist semantics.
+- **Machine Updates**: Added the Advanced Potion Brewer Blaze Powder Input toggle with an optional AE2 pattern-provider safeguard. Gel Generators now fully support Just Dyna Things energy-powered and Creative Goo behavior while exposing only valid output slots to external extraction. Range Blocker Containment now provides six target modes, and its new public-event-based Silence mode blocks server and client-local positional sounds without mixins or reflection. Live block-entity validation prevents dismantled fields from remaining active; Demagnetization and Silence default to 1 FE/tick.
 - **GuideME**: Expanded the bilingual in-game guide with missing machines, upgrades, recipes, images, and structured resource tables.
 - **Fixed**: Corrected Greenhouse production, idle progress, high-capacity energy display, upgrade tooltips, output routing, and JEI layout behavior.
 - **Fixed**: Corrected Bio Factory inventory migration, item transfer, probability settlement, reusable-input tooltips, multi-input completion crashes, and Productive Bees flowering detection.
+- **Fixed**: Range previews now use their actual affected and offset areas for render culling, preventing large Entity Suppressor and Range Blocker previews from disappearing after world re-entry or when the machine block is outside the camera frustum.
 - **Fixed**: Added the missing Jade installed-upgrades config translation and corrected AE2 add-on acceleration paths that exposed maintenance-only block entity tickers.
 - **Fixed**: Restored configured-area execution and mutable target queues for Extended Block Breakers, Block Swappers, Fluid Collectors, Fluid Placers, and Sensors. Advanced Item Collectors now collect existing drops through bounded round-robin scans and bypass an ME Interface buffer only when it cannot accept the complete stack.
 
@@ -139,10 +140,11 @@
 - **水晶培育机**：普通母岩使用有界的 AE2 晶体催生器式强制随机刻；Just Dyna Things 耗资源母岩会获得其实际所需的 FE 与时间流体。独立缓存与轮询预算保证混合范围公平运行并降低开销。
 - **温室大棚**：支持 1-32x 或 64x 运行、成熟方块掉落表主副产物、堆叠密度消耗、产物直接生成到相邻容器、自动 I/O、原生四方向连接模型和有界批量结算。
 - **生物工厂**：Productive Bees 兼容遵循高级蜂箱产出、产量与工作条件基因、四档产量升级、Omega 蜜脾块产出，以及精确物品/方块/流体/实体授粉规则。Ribbeet 等实体型蜜蜂可识别带正确组件的琥珀块，并支持反向实体标签。
-- **机器调整**：高级炼药机新增烈焰粉输入开关及可选 AE2 样板供应器保护。凝胶发生器完整支持 Just Dyna Things 能量凝胶与创造凝胶，并仅向外部开放有效产物槽抽取。范围屏蔽器围困模式新增与实体抑制器一致的六种目标模式及黑白名单语义。
+- **机器调整**：高级炼药机新增烈焰粉输入开关及可选 AE2 样板供应器保护。凝胶发生器完整支持 Just Dyna Things 能量凝胶与创造凝胶，并仅向外部开放有效产物槽抽取。范围屏蔽器围困模式新增六种目标模式，并加入基于公开事件、无需 Mixin 或反射的消音模式，可屏蔽服务端及客户端本地定位声音；实时方块实体校验可防止拆除后旧消音场残留，退磁与消音默认耗能均为 1 FE/tick。
 - **GuideME**：补充中英文指南缺失的机器、升级、配方、图片和结构化资源表格。
 - **修复**：修正温室大棚生产、空闲进度、高容量能量显示、升级提示、产物路由及 JEI 布局问题。
 - **修复**：修正生物工厂库存迁移、物品转移、概率结算、可复用输入提示、多输入配方结算崩溃及 Productive Bees 授粉识别问题。
+- **修复**：范围预览现在使用实际作用范围与偏移范围进行渲染裁剪，避免大型实体抑制器和范围屏蔽器的预览在重进世界后或机器方块位于视锥外时消失。
 - **修复**：补充 Jade 已安装升级配置翻译，并修正仅暴露维护型方块实体 Ticker 的 AE2 附属机器加速路径。
 - **修复**：恢复扩展高级方块破坏器、方块替换器、流体收集器、流体放置器和传感器的设定范围执行及可修改目标队列；高级物品拾取器新增有界轮询收集已有掉落物，并仅在 ME 接口缓冲无法完整接收时绕过缓冲直传网络。
 

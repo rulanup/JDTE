@@ -27,6 +27,7 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.PlayLevelSoundEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
@@ -186,6 +187,35 @@ public final class RangeBlockerManager {
         AABB area = state.cached.area;
         event.getAffectedBlocks().removeIf(pos -> !area.contains(Vec3.atCenterOf(pos)));
         event.getAffectedEntities().removeIf(entity -> !area.contains(entity.position()));
+    }
+
+    public static void onPlaySoundAtPosition(PlayLevelSoundEvent.AtPosition event) {
+        if (shouldSuppressSound(event.getLevel(), event.getPosition())) {
+            event.setCanceled(true);
+        }
+    }
+
+    public static void onPlaySoundAtEntity(PlayLevelSoundEvent.AtEntity event) {
+        if (shouldSuppressSound(event.getLevel(), event.getEntity().position())) {
+            event.setCanceled(true);
+        }
+    }
+
+    public static boolean shouldSuppressSound(Level level, Vec3 position) {
+        LevelIndex index = LEVELS.get(level);
+        if (index == null) return false;
+        for (CachedBlocker cached : index.at(position)) {
+            if (cached.mode == RangeBlockerBE.Mode.SILENCE
+                    && cached.area.contains(position) && cached.canPower(false)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasActiveSilenceField(Level level) {
+        LevelIndex index = LEVELS.get(level);
+        return index != null && index.hasActiveSilenceField();
     }
 
     public static boolean isDemagnetized(ItemEntity item) {
@@ -442,8 +472,10 @@ public final class RangeBlockerManager {
     private static final class LevelIndex {
         private final Map<Long, Set<CachedBlocker>> byChunk = new java.util.HashMap<>();
         private final Map<RangeBlockerBE, Set<Long>> chunksByBlocker = new IdentityHashMap<>();
+        private final Set<RangeBlockerBE> blockers = Collections.newSetFromMap(new IdentityHashMap<>());
 
         void add(RangeBlockerBE blocker) {
+            blockers.add(blocker);
             CachedBlocker cached = CachedBlocker.of(blocker);
             int minX = SectionPos.blockToSectionCoord(Mth.floor(cached.area.minX));
             int maxX = SectionPos.blockToSectionCoord(Mth.ceil(cached.area.maxX) - 1);
@@ -459,6 +491,7 @@ public final class RangeBlockerManager {
         }
 
         void remove(RangeBlockerBE blocker) {
+            blockers.remove(blocker);
             Set<Long> chunks = chunksByBlocker.remove(blocker);
             if (chunks == null) return;
             for (long key : chunks) {
@@ -473,6 +506,13 @@ public final class RangeBlockerManager {
             return byChunk.getOrDefault(ChunkPos.asLong(
                     SectionPos.blockToSectionCoord(Mth.floor(pos.x)),
                     SectionPos.blockToSectionCoord(Mth.floor(pos.z))), Collections.emptySet());
+        }
+
+        boolean hasActiveSilenceField() {
+            for (RangeBlockerBE blocker : blockers) {
+                if (blocker.getMode() == RangeBlockerBE.Mode.SILENCE && blocker.isFieldActive()) return true;
+            }
+            return false;
         }
     }
 }
