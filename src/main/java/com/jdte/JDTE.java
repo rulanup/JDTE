@@ -88,6 +88,7 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtPosition);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtEntity);
         NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onLevelUnload);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.blockentities.FactoryPackerBE::onBlockBreak);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
         }
@@ -156,6 +157,12 @@ public class JDTE {
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.RangeBlockerBE blocker ? blocker.getEnergyStorage() : null,
                 JDTEBlocks.RANGE_BLOCKER.get());
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.FactoryPackerBE packer ? packer.getEnergyStorage() : null,
+                JDTEBlocks.FACTORY_PACKER.get());
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.FactoryPackerBE packer ? packer.getMachineHandler() : null,
+                JDTEBlocks.FACTORY_PACKER.get());
         event.registerBlock(Capabilities.FluidHandler.BLOCK,
                 (level, pos, state, be, side) -> be instanceof com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE fluidMachine ? fluidMachine.getFluidTank() : null,
                 JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get(),

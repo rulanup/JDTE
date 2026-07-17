@@ -20,10 +20,18 @@ import com.jdte.common.network.data.EntitySuppressorPayload;
 import com.jdte.common.network.data.EntitySuppressorSyncPayload;
 import com.jdte.common.network.data.RangeBlockerPayload;
 import com.jdte.common.network.data.RangeBlockerSyncPayload;
+import com.jdte.common.network.data.FactoryPackerStartPayload;
+import com.jdte.common.network.data.FactoryPackageRotatePayload;
+import com.jdte.common.network.data.FactoryPackagePreviewRequestPayload;
+import com.jdte.common.network.data.FactoryPackagePreviewChunkPayload;
 import com.jdte.common.network.handler.EntitySuppressorPacket;
 import com.jdte.common.network.handler.EntitySuppressorSyncPacket;
 import com.jdte.common.network.handler.RangeBlockerPacket;
 import com.jdte.common.network.handler.RangeBlockerSyncPacket;
+import com.jdte.common.network.handler.FactoryPackerStartPacket;
+import com.jdte.common.network.handler.FactoryPackageRotatePacket;
+import com.jdte.common.network.handler.FactoryPackagePreviewRequestPacket;
+import com.jdte.common.network.handler.FactoryPackagePreviewChunkPacket;
 import com.jdte.common.network.handler.AutoIoConfigPacket;
 import com.jdte.common.network.handler.BioCrusherPacket;
 import com.jdte.common.network.handler.FilterPagePacket;
@@ -62,5 +70,11 @@ public class JDTEPacketHandler {
         registrar.playToClient(EntitySuppressorSyncPayload.TYPE, EntitySuppressorSyncPayload.STREAM_CODEC, EntitySuppressorSyncPacket::handle);
         registrar.playToServer(RangeBlockerPayload.TYPE, RangeBlockerPayload.STREAM_CODEC, RangeBlockerPacket::handle);
         registrar.playToClient(RangeBlockerSyncPayload.TYPE, RangeBlockerSyncPayload.STREAM_CODEC, RangeBlockerSyncPacket::handle);
+        registrar.playToServer(FactoryPackerStartPayload.TYPE, FactoryPackerStartPayload.STREAM_CODEC, FactoryPackerStartPacket::handle);
+        registrar.playToServer(FactoryPackageRotatePayload.TYPE, FactoryPackageRotatePayload.STREAM_CODEC, FactoryPackageRotatePacket::handle);
+        registrar.playToServer(FactoryPackagePreviewRequestPayload.TYPE, FactoryPackagePreviewRequestPayload.STREAM_CODEC,
+                FactoryPackagePreviewRequestPacket::handle);
+        registrar.playToClient(FactoryPackagePreviewChunkPayload.TYPE, FactoryPackagePreviewChunkPayload.STREAM_CODEC,
+                FactoryPackagePreviewChunkPacket::handle);
     }
 }

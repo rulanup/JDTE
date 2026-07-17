@@ -39,6 +39,8 @@ public class JDTEMenus {
             "entity_suppressor", () -> IMenuTypeExtension.create(EntitySuppressorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<RangeBlockerContainer>> RANGE_BLOCKER = MENUS.register(
             "range_blocker", () -> IMenuTypeExtension.create(RangeBlockerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<FactoryPackerContainer>> FACTORY_PACKER = MENUS.register(
+            "factory_packer", () -> IMenuTypeExtension.create(FactoryPackerContainer::new));
 
     // Glue Activator
     public static final DeferredHolder<MenuType<?>, MenuType<BasicGlueActivatorContainer>> BASIC_GLUE_ACTIVATOR = MENUS.register(

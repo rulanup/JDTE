@@ -8,6 +8,8 @@
 - **New**: Added the Crystal Incubator-only Precision Upgrade, which applies vanilla Silk Touch behavior and conflicts with Fortune Upgrades.
 - **New**: Added the Greenhouse with four reusable stackable plant templates, four rendered plants, 16-64 paged output slots, generic crop/flower/sapling support, Fortune III, JEI recipes, and Mystical Agriculture/Agradditions integration.
 - **New**: Added the Bio Factory with reusable animal or Productive Bees specimens, three material inputs, four isolated fluid routes, 8-32 item outputs, adjustable 1-32x or 64x operation, data-driven animal products, JEI recipes, and cached client-only creature rendering.
+- **New**: Added the Factory Packer and portable Factory Packages for transactional area relocation. UUID-backed compressed world records preserve blocks, populated block entities, non-player entity trees, and scheduled block/fluid ticks. Packages provide a cached actual-block model preview, right-click anchoring, Alt-scroll horizontal rotation, internal absolute-coordinate remapping, public AE2 move strategies, bounded rollback/restart recovery, and asynchronous I/O.
+- **Factory Packer**: Increased the configurable base X/Y/Z radius from 5 to 10; Range Upgrades now extend it from that larger baseline. New defaults allow 128 blocks per axis and a 1,000,000-block selected volume.
 - **Time Accelerators**: Reworked all three tiers around a shared managed scheduler with additive overlap, chunk-based target discovery, retained virtual ticks, configurable MSPT headroom, and public AE2 `IGridTickable` acceleration. Basic runs at 16x/32x, Advanced at up to 64x/128x, and Extended at up to 512x/1024x, with fixed 1x/2x/5x Time Fluid cost tiers.
 - **Crystal Incubator**: Ordinary budding blocks use bounded AE2 Growth Accelerator-style forced random ticks, while resource-consuming Just Dyna Things targets receive their exact required FE and Time Fluid. Separate caches and round-robin budgets keep mixed target areas fair and low-overhead.
 - **Greenhouse**: Supports 1-32x or 64x operation, mature-block loot tables with primary products and byproducts, stack-density scaling, direct generation into adjacent inventories, automatic I/O, native four-direction connected models, and bounded batch processing.
@@ -19,6 +21,31 @@
 - **Fixed**: Range previews now use their actual affected and offset areas for render culling, preventing large Entity Suppressor and Range Blocker previews from disappearing after world re-entry or when the machine block is outside the camera frustum.
 - **Fixed**: Added the missing Jade installed-upgrades config translation and corrected AE2 add-on acceleration paths that exposed maintenance-only block entity tickers.
 - **Fixed**: Restored configured-area execution and mutable target queues for Extended Block Breakers, Block Swappers, Fluid Collectors, Fluid Placers, and Sensors. Advanced Item Collectors now collect existing drops through bounded round-robin scans and bypass an ME Interface buffer only when it cannot accept the complete stack.
+- **Fixed**: Factory Packer package and Upgrade Card quick transfers no longer call a private JDT container method and therefore no longer crash during Shift transfer or Mouse Tweaks dragging. Placement tooltips now pass the dimension ID as a supported string argument instead of crashing while rendering an anchored package.
+- **Fixed**: Factory Packer permission probes now bypass Sophisticated Storage's loose-drop safety prompt without breaking or draining the storage, allowing populated high-capacity chests and barrels to be serialized and restored with their contents.
+- **Fixed**: Factory Packer cutting and placement rollback now detach saved block entities before replacing their blocks, preventing populated Sophisticated Storage containers and other drop-on-remove inventories from spawning their contents as massive item-entity bursts.
+- **Fixed**: Factory Packer entity snapshots no longer abort when a running machine naturally removes a transient entity before cutting. JDTE time-accelerator visual entities are excluded from packages, while persistent entity snapshots remain authoritative for relocation.
+- **Fixed**: Factory Packer restoration now preserves Logistics Networks node attachment and network registration, removes the irrelevant inherited speed control, and uses a compact JDT-style snapshot icon without overlapping controls.
+- **Fixed**: Removed the Factory Packer progress indicator, placed its operation-status text directly below the package slot, and moved the area-display button up by 18 pixels. Third-party preview model failures are isolated per block state so an incompatible model cannot crash world rendering.
+- **Fixed**: Factory Packer removal now invokes AE2 Crystal Science's public broadcaster unload lifecycle and migrates frequency-band declarations, preventing its runtime manager from dereferencing a destroyed AE2 grid node after cutting or rollback.
+- **Fixed**: Factory Packer restoration now completes block neighbor and lighting updates before inserting captured entities. Logistics Networks nodes therefore begin ticking only after their attached containers are stable, preventing them and their upgrades from dropping during printing.
+- **Usability**: Factory Packer blacklist failures now report localized block names, registry IDs, and bounded source or transformed destination coordinates in chat; operators can click coordinates to teleport above the offending block.
+- **Usability**: Completed Eclipse Alloy Wrench selections can now be resized one face at a time by looking at a boundary and using Ctrl-scroll, with one-block minimum dimensions and Create-style reversed controls from inside the selection.
+- **Fixed**: Moving the Factory Packer's area-preview toggle no longer shifts the radius and offset adjustment buttons out of alignment.
+- **Fixed**: Factory Packer blacklist reports now pass tag and block IDs as supported text arguments instead of crashing the server tick when a blacklisted block is found.
+- **Fixed**: Factory Packer move preparation and resumed removal now disconnect ExtendedAE Plus Wireless Transceivers through public APIs before block entity removal, preventing AE2 connection-list mutation crashes while preserving the saved frequency for restoration.
+- **Fixed**: Rotating a Factory Package now rotates AE2 cable-bus parts and facades to their corresponding sides, and preserves the rotated orientation and push direction of Pattern Providers and other orientable AE2 machines.
+- **Fixed**: Factory Packer capture now removes saved entities before their supporting blocks, preventing Logistics Networks nodes from ticking against temporary air and dropping themselves, filters, or upgrades. Restored nodes derive their attachment directly from their transformed position before registry insertion.
+- **Fixed**: Rotated Factory Packages now transform the X/Z radius and offset of every JDT/JDTE `AreaAffectingBE` through its public API, preserving configured machine areas at 90-, 180-, and 270-degree rotations.
+- **Fixed**: Factory Packer permission probes now run only after snapshots are persisted and captured entities are safely detached. Logistics Networks can no longer interpret the simulated `BreakEvent` as a real host break and replace nodes with item drops before entity capture; denied permissions restore prepared block entities and entities in bounded rollback batches.
+- **Fixed**: Factory Packer now quiesces fully selected Mekanism fission reactors through public APIs before authoritative capture, waits for shutdown before touching coolant or waste infrastructure, and leaves restored reactors inactive. Source topology changes trigger up to three bounded recaptures with post-cut verification instead of immediately rejecting running factories; incomplete reactors are rejected with their full bounds.
+- **Fixed**: Legacy Factory Packer limits of 64 blocks per axis and 32,768 blocks per selection are now corrected to the new 128/1,000,000 defaults, preventing a valid radius-32 selection (65 blocks including its center) from being rejected. Axis and volume failures now report the exact measured value and active limit.
+- **Fixed**: Factory Packer now uses Mekanism's public transmitter API to localize shared chemical-network contents into pressurized tubes before removal, preventing radioactive waste or polonium from being released when the network separates. Mekanism bounding blocks and Immersive Engineering multiblock parts changed by their owner's teardown are treated as expected dependent changes instead of repeatedly recapturing and cutting the factory.
+- **Diagnostics**: Factory Packer operation phases, detailed source-change reasons, expected and actual block IDs, retry counts, and final results can now be sent to the initiating player's chat; this is configurable and enabled by default. Temporary server diagnostics are restored behind the `-Djdte.factoryPackerDebug=true` JVM property and remain disabled by default.
+- **Diagnostics**: The Factory Packer JVM debug switch now records bounded Mekanism removal snapshots before block-entity removal, after detachment, and after block replacement, including MekMM classes, bounding-block controller links, radioactive chemical amounts, radiation-dump eligibility, and local radiation deltas.
+- **Fixed**: Factory Packer post-cut verification now consumes blocks restored by selected multiblock teardown, such as the downward-facing vanilla piston reconstructed from an Immersive Engineering Metal Press. A residue only triggers source recapture when its position was air in the authoritative snapshot, preventing deterministic multiblock reconstruction from causing repeated full-factory rollback.
+- **Fixed**: Rotated Factory Packages now apply a direction-property fallback for blocks whose own `rotate()` implementation is incomplete, restoring Immersive Engineering multiblock orientation without double-rotating compliant blocks. Mekanism bounding-block `main` coordinates and six-side transmitter connection arrays are transformed with the package, while stale connection/acceptor caches are discarded so Mekanism: MoreMachine interfaces, adjacent pipes, and connection visuals rebuild against their new positions.
+- **Fixed**: Factory Package rotation now remaps Integrated Dynamics multipart installation sides, target sides, and directional cable caches. Placement finalization rebroadcasts completed block states so Fusion connected textures and multipart models rebuild only after the full structure is present.
 
 #### v0.5.4
 
@@ -136,6 +163,8 @@
 - **新增**：加入水晶培育机专用精准升级，沿用原版精准采集逻辑，并与时运升级互斥。
 - **新增**：加入温室大棚，提供 4 个可复用且可堆叠的植物模板、4 株植物渲染、16-64 个分页输出槽、通用作物/花朵/树苗支持、时运 III、JEI 配方及 Mystical Agriculture/Agradditions 兼容。
 - **新增**：加入生物工厂，支持可复用动物或 Productive Bees 样本、3 个材料输入、4 条独立流体路线、8-32 个物品输出槽、可调 1-32x 或 64x 运行、数据驱动物产物、JEI 配方及客户端缓存生物渲染。
+- **新增**：加入工厂打包机和便携工厂包裹，可事务化迁移范围内容。UUID 世界压缩记录会保留方块、含物品的方块实体、非玩家实体树及方块/流体计划 Tick；包裹支持缓存式真实方块模型预览、右键定位、Alt 滚轮水平旋转、内部绝对坐标重写、AE2 公开移动策略、有界回滚/重启续作及异步 I/O。
+- **工厂打包机**：可配置基础 X/Y/Z 半径由 5 提高到 10，范围升级从新的基础值继续扩展；单轴长度和范围体积的新默认上限分别提高到 128 格与 1,000,000 格。
 - **时间加速器**：三档加速器改用共享调度器，支持重叠倍率累加、按区块发现目标、保留虚拟 Tick、可配置 MSPT 余量及 AE2 `IGridTickable` 加速。初级为 16x/32x，高级最高 64x/128x，扩展最高 512x/1024x，时间流体成本固定为 1x/2x/5x 档位。
 - **水晶培育机**：普通母岩使用有界的 AE2 晶体催生器式强制随机刻；Just Dyna Things 耗资源母岩会获得其实际所需的 FE 与时间流体。独立缓存与轮询预算保证混合范围公平运行并降低开销。
 - **温室大棚**：支持 1-32x 或 64x 运行、成熟方块掉落表主副产物、堆叠密度消耗、产物直接生成到相邻容器、自动 I/O、原生四方向连接模型和有界批量结算。
@@ -147,6 +176,31 @@
 - **修复**：范围预览现在使用实际作用范围与偏移范围进行渲染裁剪，避免大型实体抑制器和范围屏蔽器的预览在重进世界后或机器方块位于视锥外时消失。
 - **修复**：补充 Jade 已安装升级配置翻译，并修正仅暴露维护型方块实体 Ticker 的 AE2 附属机器加速路径。
 - **修复**：恢复扩展高级方块破坏器、方块替换器、流体收集器、流体放置器和传感器的设定范围执行及可修改目标队列；高级物品拾取器新增有界轮询收集已有掉落物，并仅在 ME 接口缓冲无法完整接收时绕过缓冲直传网络。
+- **修复**：工厂打包机的包裹和升级卡快速转移不再调用 JDT 私有容器方法，修复 Shift 转移或 Mouse Tweaks 拖动时的崩溃；摆放 tooltip 现在以受支持的字符串传入维度 ID，修复悬停已定位包裹时的渲染崩溃。
+- **修复**：工厂打包机的权限探测现在会跳过 Sophisticated Storage 的大量散落物保护提示，但不会破坏或抽空容器，使装有物品的高容量箱子和桶可以连同内容直接序列化并恢复。
+- **修复**：工厂打包机剪切和放置回滚会先移除已保存的方块实体再替换方块，避免 Sophisticated Storage 等在移除时掉落库存的容器生成海量掉落物实体。
+- **修复**：运行中的机器在剪切前自然移除临时实体时不再导致工厂打包失败；JDTE 时间加速视觉实体不会写入包裹，持久实体则以已落盘快照为准继续迁移。
+- **修复**：工厂打包机恢复物流网络节点时会同步维护附着位置和网络注册；移除了无效且重叠的继承速度按钮，并将开始操作改为紧凑的 JDT 快照图标按钮。
+- **修复**：移除工厂打包机进度图标，将运行状态文字直接放到包裹槽下方，并将范围显示按钮上移 18px；第三方预览模型异常按方块状态隔离，不会再让不兼容模型直接导致世界渲染崩溃。
+- **修复**：工厂打包机移除方块实体前会调用 AE2 Crystal Science 广播器的公开卸载生命周期并迁移频段坐标声明，避免剪切或回滚后频段管理器继续访问已销毁的 AE2 网格节点而导致服务端崩溃。
+- **修复**：工厂打包机恢复时会先完成方块邻居与光照更新，再将捕获实体加入世界；物流网络节点只会在附着容器稳定后开始 Tick，避免打印过程中节点及其升级掉落。
+- **易用性**：工厂打包机遇到黑名单方块时，会在聊天栏有界列出本地化名称、注册 ID 及源坐标或变换后的目标坐标；拥有权限的玩家可点击坐标传送到对应方块上方。
+- **易用性**：完成双角点框选后，蚀空合金扳手可对准边界面使用 Ctrl+滚轮单独扩大或缩小该面，范围最小保持 1 格，并沿用 Create 在选区内部反转滚轮方向的交互。
+- **修复**：工厂打包机上移范围预览开关时不再连带移动半径和偏移调节按钮，恢复数值行对齐。
+- **修复**：工厂打包机黑名单报告会将标签和方块 ID 转为受支持的文本参数，不再在发现黑名单方块时导致服务端 Tick 崩溃。
+- **修复**：工厂打包机在移动准备及断点续作移除阶段都会通过公开 API 先断开 ExtendedAE Plus 无线收发器，再移除方块实体，避免 AE2 连接列表并发修改崩溃，并保留已保存频率用于恢复。
+- **修复**：旋转工厂包裹时，AE2 线缆总线上的面板部件与伪装板会移动到对应旋转面，样板供应器及其他可定向 AE2 机器的整体朝向和输出方向也会同步旋转。
+- **修复**：工厂打包机剪切时会先移除已保存实体，再移除其依附方块，避免物流网络节点在宿主暂时变为空气时自行掉落节点、过滤器或升级；恢复节点会先根据变换后位置重建附着坐标，再注册网络。
+- **修复**：旋转工厂包裹现在会通过公开接口变换所有 JDT/JDTE `AreaAffectingBE` 的 X/Z 半径与偏移，使机器设定范围在旋转 90、180 或 270 度后保持正确。
+- **修复**：工厂打包机仅在快照安全落盘并移除已捕获实体后执行权限探测，避免物流网络将模拟 `BreakEvent` 当作真实宿主破坏并在实体捕获前把节点变成掉落物；权限拒绝时会有界分批恢复已准备的方块实体和实体。
+- **修复**：工厂打包机现在会通过公开 API 在权威快照前安全停止完整框选的 Mekanism 裂变反应堆，等待停机后才处理冷却与废料设施，并让恢复后的反应堆保持关闭。源方块拓扑变化会执行最多 3 次有界重新捕获及剪切后复查，不再立即拒绝运行中的工厂；未完整框选的反应堆会报告其完整范围并拒绝操作。
+- **修复**：工厂打包机旧配置中的单轴 64 格和总体积 32,768 格上限现在会自动纠正为新的 128/1,000,000 默认值，避免半径 32（含中心共 65 格）的合法范围被拒绝；轴长或体积超限时会显示实际数值和当前上限。
+- **修复**：工厂打包机现在通过 Mekanism 公开传输器 API，在移除加压管道前将化学品网络的共享内容分配回管道自身，避免废料或钋在网络拆分时释放辐射；Mekanism 边界方块与 Immersive Engineering 多方块结构因主方块拆解产生的从属变化会按预期处理，不再反复重捕获和剪切整座工厂。
+- **诊断**：工厂打包机现在可将操作阶段、详细源变化原因、预期/实际方块 ID、重试次数及最终结果发送到发起玩家聊天栏，此配置默认开启；临时服务端诊断日志改由 JVM 参数 `-Djdte.factoryPackerDebug=true` 控制，默认关闭。
+- **诊断**：工厂打包机 JVM 调试开关现在会有界记录方块实体移除前、网络脱离后及方块替换后的 Mekanism 状态，包括 MekMM 方块实体类、边界方块主机链接、放射性化学品数量、是否会触发辐射倾倒及局部辐射增量。
+- **修复**：工厂打包机剪切后复查会继续清理由已选多方块结构拆解回填的组成方块，例如 Immersive Engineering 金属冲压机还原出的向下原版活塞；只有权威快照中原本为空的位置出现残留方块时才触发源区域重捕获，避免确定性的多方块还原反复回滚整座工厂。
+- **修复**：旋转工厂包裹现在会为自身 `rotate()` 实现不完整的方块补充方向属性旋转，同时避免对已正确旋转的方块重复处理，从而恢复 Immersive Engineering 多方块朝向；Mekanism 边界方块的 `main` 主机坐标及传输器六方向连接数组会随包裹变换，旧连接/接收端缓存会被丢弃，使 Mekanism: MoreMachine 大型机器接口、相邻管道和连接外观在新位置重新建立。
+- **修复**：旋转工厂包裹现在会重排 Integrated Dynamics 多部件的安装面、目标面及线缆方向缓存；打印最终化会重新广播完整方块状态，使 Fusion 连接纹理和多部件模型仅在整座结构摆放完成后统一重建。
 
 #### v0.5.4
 

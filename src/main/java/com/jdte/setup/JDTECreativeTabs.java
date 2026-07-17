@@ -25,6 +25,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
                 output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
                 output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
+                output.accept(JDTEItems.FACTORY_PACKAGE.get());
 
                 // Time Accelerators
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());
@@ -43,6 +44,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ADVANCED_ITEM_COLLECTOR.get());
                 output.accept(JDTEItems.ENTITY_SUPPRESSOR.get());
                 output.accept(JDTEItems.RANGE_BLOCKER.get());
+                output.accept(JDTEItems.FACTORY_PACKER.get());
 
                 // Glue Activators
                 output.accept(JDTEItems.BASIC_GLUE_ACTIVATOR.get());

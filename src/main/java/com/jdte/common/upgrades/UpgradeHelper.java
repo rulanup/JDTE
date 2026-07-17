@@ -17,6 +17,7 @@ import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
+import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.mixin.EnergyStorageAccessor;
@@ -73,6 +74,10 @@ public class UpgradeHelper {
         if (machine instanceof EntitySuppressorBE || machine instanceof RangeBlockerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
                     || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE;
+        }
+        if (machine instanceof FactoryPackerBE) {
+            return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
         }
         return switch (type) {
             case FLUID_STORAGE -> machine instanceof ClickerT1BE;
@@ -225,7 +230,10 @@ public class UpgradeHelper {
 
     public static double getMaxAreaRadius(BaseMachineBE machine) {
         int rangeUpgrades = countUpgrades(machine, UpgradeType.RANGE);
-        return JDTEConfig.COMMON.baseAreaRadius.get() * (1 << rangeUpgrades);
+        double baseRadius = machine instanceof FactoryPackerBE
+                ? JDTEConfig.COMMON.factoryPackerBaseRadius.get()
+                : JDTEConfig.COMMON.baseAreaRadius.get();
+        return baseRadius * (1 << rangeUpgrades);
     }
 
     public static int getMaxAreaOffset(BaseMachineBE machine) {

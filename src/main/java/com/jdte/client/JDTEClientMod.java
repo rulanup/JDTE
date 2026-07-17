@@ -13,11 +13,15 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 public class JDTEClientMod {
     public JDTEClientMod(ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onMouseScroll);
         NeoForge.EVENT_BUS.addListener(WrenchScrollHandler::onMouseScroll);
+        NeoForge.EVENT_BUS.addListener(FactoryPackageScrollHandler::onMouseScroll);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onInteraction);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onRenderLevel);
+        NeoForge.EVENT_BUS.addListener(FactoryPackagePreviewClient::onRenderLevel);
         NeoForge.EVENT_BUS.addListener(AreaPreviewRenderBatch::onRenderLevel);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onRenderGui);
+        NeoForge.EVENT_BUS.addListener(FactoryPackagePreviewClient::onRenderGui);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onClientTick);
     }
 }

@@ -23,6 +23,7 @@ public class WrenchScrollHandler {
     private static final String JDT_MODID = "justdirethings";
 
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
+        if (event.isCanceled()) return;
         Minecraft minecraft = Minecraft.getInstance();
         Player player = minecraft.player;
         if (player == null || minecraft.screen != null || !(minecraft.hitResult instanceof BlockHitResult hitResult)) {

@@ -7,7 +7,9 @@ import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.network.data.WrenchAreaSelectionPayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -102,6 +105,41 @@ public final class WrenchAreaSelectionClient {
         player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5F, 0.7F);
     }
 
+    public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
+        if (event.isCanceled() || secondCorner == null || !Screen.hasControlDown()) {
+            return;
+        }
+
+        Minecraft minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
+        if (player == null || minecraft.screen != null || !isHoldingWrench(player)) {
+            return;
+        }
+
+        int delta = event.getScrollDeltaY() > 0.0D ? 1 : event.getScrollDeltaY() < 0.0D ? -1 : 0;
+        if (delta == 0) return;
+
+        BlockPos min = min(firstCorner, secondCorner);
+        BlockPos max = max(firstCorner, secondCorner);
+        AABB area = AABB.encapsulatingFullBlocks(min, max);
+        Vec3 camera = minecraft.gameRenderer.getMainCamera().getPosition();
+        Direction face = findLookedAtFace(area, camera, player.getLookAngle(), 75.0D);
+        if (face == null) return;
+
+        // Match Create's selection behavior: scrolling from inside the box reverses the adjustment direction.
+        if (area.contains(camera)) delta *= -1;
+        BlockPos[] adjusted = adjustFace(min, max, face, delta, minecraft);
+        firstCorner = adjusted[0];
+        secondCorner = adjusted[1];
+
+        int[] size = getSize(firstCorner, secondCorner);
+        player.displayClientMessage(
+                Component.translatable("message.jdte.wrench_selection.adjusted",
+                        Component.translatable("message.jdte.wrench_selection.face." + face.getName()),
+                        size[0], size[1], size[2]).withStyle(ChatFormatting.GREEN), true);
+        event.setCanceled(true);
+    }
+
     public static void onRenderLevel(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES || firstCorner == null) {
             return;
@@ -114,7 +152,9 @@ public final class WrenchAreaSelectionClient {
 
         BlockPos previewCorner = getPreviewCorner(minecraft);
         AABB area = AABB.encapsulatingFullBlocks(firstCorner, previewCorner);
-        AreaPreviewRenderBatch.enqueueMain(area);
+        Direction selectedFace = secondCorner == null ? null : findLookedAtFace(area,
+                minecraft.gameRenderer.getMainCamera().getPosition(), minecraft.player.getLookAngle(), 75.0D);
+        AreaPreviewRenderBatch.enqueueMain(area, selectedFace);
     }
 
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -165,6 +205,86 @@ public final class WrenchAreaSelectionClient {
                 Math.abs(first.getY() - second.getY()) + 1,
                 Math.abs(first.getZ() - second.getZ()) + 1
         };
+    }
+
+    private static Direction findLookedAtFace(AABB area, Vec3 origin, Vec3 direction, double reach) {
+        Direction result = null;
+        double nearest = Double.POSITIVE_INFINITY;
+        for (Direction face : Direction.values()) {
+            Direction.Axis axis = face.getAxis();
+            double component = axisValue(direction, axis);
+            if (Math.abs(component) < 1.0E-7D) continue;
+            double plane = face.getAxisDirection() == Direction.AxisDirection.NEGATIVE
+                    ? axisMin(area, axis) : axisMax(area, axis);
+            double distance = (plane - axisValue(origin, axis)) / component;
+            if (distance < 0.0D || distance > reach || distance >= nearest) continue;
+            Vec3 hit = origin.add(direction.scale(distance));
+            if (insideFace(area, hit, axis)) {
+                nearest = distance;
+                result = face;
+            }
+        }
+        return result;
+    }
+
+    private static BlockPos[] adjustFace(BlockPos min, BlockPos max, Direction face, int delta,
+                                         Minecraft minecraft) {
+        int minX = min.getX();
+        int minY = min.getY();
+        int minZ = min.getZ();
+        int maxX = max.getX();
+        int maxY = max.getY();
+        int maxZ = max.getZ();
+        switch (face) {
+            case WEST -> minX = Math.min(maxX, minX + delta);
+            case EAST -> maxX = Math.max(minX, maxX - delta);
+            case DOWN -> minY = Math.max(minecraft.level.getMinBuildHeight(), Math.min(maxY, minY + delta));
+            case UP -> maxY = Math.min(minecraft.level.getMaxBuildHeight() - 1, Math.max(minY, maxY - delta));
+            case NORTH -> minZ = Math.min(maxZ, minZ + delta);
+            case SOUTH -> maxZ = Math.max(minZ, maxZ - delta);
+        }
+        return new BlockPos[]{new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ)};
+    }
+
+    private static boolean insideFace(AABB area, Vec3 point, Direction.Axis ignoredAxis) {
+        double epsilon = 1.0E-5D;
+        return (ignoredAxis == Direction.Axis.X || point.x >= area.minX - epsilon && point.x <= area.maxX + epsilon)
+                && (ignoredAxis == Direction.Axis.Y || point.y >= area.minY - epsilon && point.y <= area.maxY + epsilon)
+                && (ignoredAxis == Direction.Axis.Z || point.z >= area.minZ - epsilon && point.z <= area.maxZ + epsilon);
+    }
+
+    private static double axisValue(Vec3 vector, Direction.Axis axis) {
+        return switch (axis) {
+            case X -> vector.x;
+            case Y -> vector.y;
+            case Z -> vector.z;
+        };
+    }
+
+    private static double axisMin(AABB area, Direction.Axis axis) {
+        return switch (axis) {
+            case X -> area.minX;
+            case Y -> area.minY;
+            case Z -> area.minZ;
+        };
+    }
+
+    private static double axisMax(AABB area, Direction.Axis axis) {
+        return switch (axis) {
+            case X -> area.maxX;
+            case Y -> area.maxY;
+            case Z -> area.maxZ;
+        };
+    }
+
+    private static BlockPos min(BlockPos first, BlockPos second) {
+        return new BlockPos(Math.min(first.getX(), second.getX()), Math.min(first.getY(), second.getY()),
+                Math.min(first.getZ(), second.getZ()));
+    }
+
+    private static BlockPos max(BlockPos first, BlockPos second) {
+        return new BlockPos(Math.max(first.getX(), second.getX()), Math.max(first.getY(), second.getY()),
+                Math.max(first.getZ(), second.getZ()));
     }
 
     private static String format(BlockPos pos) {

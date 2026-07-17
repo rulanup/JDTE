@@ -33,7 +33,9 @@ When FTB Ultimine is installed, the scroll adjustment only applies to the active
 
 ### Select an Area
 
-Left-click a block with the Eclipse Alloy Wrench to set the first corner, then left-click another block to set the second corner; each corner plays a selection sound. The selection uses JDT's area preview effect and continuously shows its X/Y/Z dimensions below the crosshair. Once both corners are set, the selection is locked and its corners cannot be changed. Left-click adjustable-area machines to copy the exact selection into each one. Selections exceeding a machine's current radius or offset limits are rejected. Applying the selection does not clear it, allowing reuse across multiple machines; only Shift-left-click clears it and enables a new selection.
+Left-click a block with the Eclipse Alloy Wrench to set the first corner, then left-click another block to set the second corner; each corner plays a selection sound. The selection uses JDT's area preview effect and continuously shows its X/Y/Z dimensions below the crosshair. Once both corners are set, the selection is locked against choosing new corners. Look at one of its six faces, hold Ctrl, and scroll to move only that boundary inward or outward; no dimension can shrink below one block. Scroll direction reverses automatically while the player is inside the selection, matching Create's area-selection behavior.
+
+Left-click adjustable-area machines to copy the exact selection into each one. Selections exceeding a machine's current radius or offset limits are rejected. Applying the selection does not clear it, allowing reuse across multiple machines; only Shift-left-click clears it and enables a new selection.
 
 While held in Creative mode, the Eclipse Alloy Wrench cannot break blocks, preventing corner targets from being removed instantly during selection.
 
