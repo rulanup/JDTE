@@ -24,6 +24,7 @@ import com.jdte.common.network.data.FactoryPackerStartPayload;
 import com.jdte.common.network.data.FactoryPackageRotatePayload;
 import com.jdte.common.network.data.FactoryPackagePreviewRequestPayload;
 import com.jdte.common.network.data.FactoryPackagePreviewChunkPayload;
+import com.jdte.common.network.data.LifeBreederModePayload;
 import com.jdte.common.network.handler.EntitySuppressorPacket;
 import com.jdte.common.network.handler.EntitySuppressorSyncPacket;
 import com.jdte.common.network.handler.RangeBlockerPacket;
@@ -32,6 +33,7 @@ import com.jdte.common.network.handler.FactoryPackerStartPacket;
 import com.jdte.common.network.handler.FactoryPackageRotatePacket;
 import com.jdte.common.network.handler.FactoryPackagePreviewRequestPacket;
 import com.jdte.common.network.handler.FactoryPackagePreviewChunkPacket;
+import com.jdte.common.network.handler.LifeBreederModePacket;
 import com.jdte.common.network.handler.AutoIoConfigPacket;
 import com.jdte.common.network.handler.BioCrusherPacket;
 import com.jdte.common.network.handler.FilterPagePacket;
@@ -76,5 +78,7 @@ public class JDTEPacketHandler {
                 FactoryPackagePreviewRequestPacket::handle);
         registrar.playToClient(FactoryPackagePreviewChunkPayload.TYPE, FactoryPackagePreviewChunkPayload.STREAM_CODEC,
                 FactoryPackagePreviewChunkPacket::handle);
+        registrar.playToServer(LifeBreederModePayload.TYPE, LifeBreederModePayload.STREAM_CODEC,
+                LifeBreederModePacket::handle);
     }
 }

@@ -24,6 +24,7 @@ import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
+import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEAttachments;
 import com.jdte.setup.JDTEConfig;
@@ -247,6 +248,10 @@ public final class AutoIoTransferHelper {
                     factory.getActiveOutputSlots()));
             fluidInput = factory.getInputFluidHandler();
             fluidOutput = factory.getOutputFluidHandler();
+        } else if (machine instanceof LifeBreederBE breeder) {
+            itemInputs = boundedSlots(handler, range(0, LifeBreederBE.FEED_SLOTS));
+            itemOutputs = boundedSlots(handler, range(LifeBreederBE.OUTPUT_START_SLOT, LifeBreederBE.OUTPUT_SLOTS));
+            fluidInput = breeder.getFluidTank();
         } else if (machine instanceof CrystalIncubatorBE incubator) {
             itemOutputs = allSlots(handler);
             fluidInput = incubator.getFluidTank();

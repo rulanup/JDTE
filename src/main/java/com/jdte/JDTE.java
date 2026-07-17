@@ -188,6 +188,14 @@ public class JDTE {
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioFactoryBE factory
                         ? factory.getCombinedFluidHandler() : null,
                 JDTEBlocks.BIO_FACTORY.get());
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LifeBreederBE breeder
+                        ? breeder.getEnergyStorage() : null,
+                JDTEBlocks.LIFE_BREEDER.get());
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LifeBreederBE breeder
+                        ? breeder.getFluidTank() : null,
+                JDTEBlocks.LIFE_BREEDER.get());
 
         // Glue Activator energy storage (Advanced and Extended)
         event.registerBlock(Capabilities.EnergyStorage.BLOCK,
@@ -379,6 +387,10 @@ public class JDTE {
                 (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioFactoryBE factory
                         ? factory.getAutomationItemHandler() : null,
                 JDTEBlocks.BIO_FACTORY.get());
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.LifeBreederBE breeder
+                        ? breeder.getAutomationItemHandler() : null,
+                JDTEBlocks.LIFE_BREEDER.get());
 
         // Item handler for Infusion Machine (input slots)
         event.registerBlock(Capabilities.ItemHandler.BLOCK,

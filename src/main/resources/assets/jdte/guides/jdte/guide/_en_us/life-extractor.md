@@ -29,6 +29,8 @@ The Life Extractor kills mobs within its configured range and produces Life Flui
 - Kills mobs within the configured range
 - Produces Life Fluid from current remaining health: 0.1 mB per HP by default
 - The server config `jdte.lifeExtractor.fluidPerHealth` controls the amount per HP
+- The first 100 health uses the full rate. Each subsequent 100-health band uses 10% less marginal yield than the previous band by default
+- `jdte.lifeExtractor.highHealthLossPercent` controls this marginal loss. Piecewise calculation prevents total output from dropping at a band boundary
 - Targets are removed directly without normal death drops, experience, or loot events
 - Fractional output from entity health and upgrade multipliers accumulates in the machine until it reaches 1 mB
 

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0,
+      "entries": [
+        { "type": "minecraft:item", "name": "jdte:life_breeder" }
+      ],
+      "rolls": 1
+    }
+  ]
+}

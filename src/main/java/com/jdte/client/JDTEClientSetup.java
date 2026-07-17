@@ -68,6 +68,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.CRYSTAL_INCUBATOR.get(), CrystalIncubatorScreen::new);
         event.register(JDTEMenus.GREENHOUSE.get(), GreenhouseScreen::new);
         event.register(JDTEMenus.BIO_FACTORY.get(), BioFactoryScreen::new);
+        event.register(JDTEMenus.LIFE_BREEDER.get(), LifeBreederScreen::new);
 
         // Fluid Receivers
         event.register(JDTEMenus.BASIC_FLUID_RECEIVER.get(), BasicFluidReceiverScreen::new);
@@ -145,6 +146,7 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.CRYSTAL_INCUBATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.GREENHOUSE.get(), com.jdte.client.renderers.GreenhouseBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.BIO_FACTORY.get(), com.jdte.client.renderers.BioFactoryBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.LIFE_BREEDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
 
         // Fluid Receivers - 使用AreaAffectingBER渲染区域
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_FLUID_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);

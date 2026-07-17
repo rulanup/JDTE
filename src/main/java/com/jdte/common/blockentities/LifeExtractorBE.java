@@ -162,9 +162,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
             float currentHealth = livingEntity.getHealth();
             if (currentHealth <= 0) continue;
 
-            double fluidProduced = currentHealth
-                    * JDTEConfig.COMMON.lifeExtractorFluidPerHealth.get()
-                    * getFluidBonusMultiplier();
+            double fluidProduced = calculateLifeFluid(currentHealth) * getFluidBonusMultiplier();
             double loss = getFluidLossMultiplier();
             if (loss > 0) {
                 fluidProduced *= 1.0D - loss;
@@ -190,6 +188,23 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         if (processed > 0) {
             setChanged();
         }
+    }
+
+    public static double calculateLifeFluid(double health) {
+        if (!(health > 0.0D) || !Double.isFinite(health)) return 0.0D;
+        double fluidPerHealth = JDTEConfig.COMMON.lifeExtractorFluidPerHealth.get();
+        if (health <= 100.0D) return health * fluidPerHealth;
+
+        double decay = 1.0D - JDTEConfig.COMMON.lifeExtractorHighHealthLossPercent.get() / 100.0D;
+        if (decay >= 1.0D) return health * fluidPerHealth;
+        if (decay <= 0.0D) return 100.0D * fluidPerHealth;
+
+        double extraHealth = health - 100.0D;
+        long fullBands = (long) Math.floor(extraHealth / 100.0D);
+        double remainder = extraHealth - fullBands * 100.0D;
+        double fullBandHealth = 100.0D * decay * (1.0D - Math.pow(decay, fullBands)) / (1.0D - decay);
+        double remainderHealth = remainder * Math.pow(decay, fullBands + 1.0D);
+        return (100.0D + fullBandHealth + remainderHealth) * fluidPerHealth;
     }
 
     private void flushPendingLifeFluid() {
