@@ -1,7 +1,0 @@
-﻿{
-    "textures":  {
-                     "end":  "jdte:block/sensort3/sensort3_top",
-                     "side":  "jdte:block/sensort3/sensort3_side"
-                 },
-    "parent":  "minecraft:block/cube_column"
-}

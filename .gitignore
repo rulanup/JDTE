@@ -21,3 +21,4 @@ Thumbs.db
 .claude/
 .node_modules/
 CLAUDE.md
+bin/
