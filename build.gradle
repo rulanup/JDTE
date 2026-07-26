@@ -85,6 +85,11 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
+
+    unitTest {
+        enable()
+        testedMod = mods."${mod_id}"
+    }
 }
 
 repositories {
@@ -194,6 +199,13 @@ def extractProductiveLib = tasks.register("extractProductiveLib", Sync) {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
     compileOnly files(extractedProductiveLib).builtBy(extractProductiveLib)
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly "curse.maven:just-dire-things-1002348:7463040"
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
 }
 
 tasks.named("processResources", ProcessResources).configure {
@@ -231,4 +243,11 @@ tasks.named("jar", Jar).configure {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+tasks.register('validateDocs', Exec) {
+    group = 'verification'
+    description = 'Validate lang keys, block registrations, and GuideME pages are consistent.'
+    workingDir = rootDir
+    commandLine 'python', 'scripts/validate_docs.py'
 }
