@@ -218,6 +218,10 @@ Rules:
 - Every required capability must be registered explicitly in `JDTE.registerCapabilities()`.
 - Add conversion targets to `ExtendedUpgradeItem.UPGRADE_MAP`.
 
+### Tiered machine families
+
+JDTE machine families (Item/Fluid Sender and Receiver, Fluid Stabilizer, Glue Activator, Gel Generator, Bio Crusher, Infusion Machine, Life Extractor) share a sunk-logic pattern: the Advanced/Extended tier bodies live in an abstract `Powered<Family>BE` middle class that composes `MachineEnergySupport` (`common/machines/`), and tier shells are ~14-line classes that pass their own `BlockEntityType`, energy constants, and (for Extended) the `ExtendedUpgradeMachine` marker. Containers sink `addMachineSlots`/`stillValid` into `<Family>ContainerBase` or `SimpleMachineContainer`; screens with real bodies use `<Family>ScreenBase`. Shell class names, constructor signatures, registrations, and NBT keys must stay unchanged for save and network compatibility. Note `BaseMachineContainer` calls `addMachineSlots()` from its constructor, so layout choices in container bases must come from overridden methods returning constants, not constructor-assigned fields.
+
 ## Automation Machines
 
 | Family | Tiers | Base block entity | Purpose |
