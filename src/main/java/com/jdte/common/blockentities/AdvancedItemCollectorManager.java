@@ -1,14 +1,13 @@
 package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.util.ItemStackKey;
+import com.jdte.common.region.RegionChunkIndex;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -25,29 +24,33 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
 public final class AdvancedItemCollectorManager {
-    private static final Map<ServerLevel, LevelIndex> LEVELS = new WeakHashMap<>();
+    private static final RegionChunkIndex<AdvancedItemCollectorBE, AdvancedItemCollectorBE> INDEX =
+            new RegionChunkIndex<>();
+    private static final Map<ServerLevel, LevelState> LEVELS = new WeakHashMap<>();
 
     private AdvancedItemCollectorManager() {
     }
 
     public static void register(AdvancedItemCollectorBE collector) {
         if (!(collector.getLevel() instanceof ServerLevel level)) return;
-        LevelIndex index = LEVELS.computeIfAbsent(level, ignored -> new LevelIndex());
-        index.remove(collector);
-        index.add(collector);
+        LevelState state = LEVELS.computeIfAbsent(level, ignored -> new LevelState());
+        state.remove(collector);
+        AABB area = collector.getAABB(collector.getBlockPos());
+        INDEX.add(level, collector, collector, area);
+        state.add(collector, area);
     }
 
     public static void unregister(AdvancedItemCollectorBE collector) {
         if (!(collector.getLevel() instanceof ServerLevel level)) return;
-        LevelIndex index = LEVELS.get(level);
-        if (index != null) index.remove(collector);
+        INDEX.remove(level, collector);
+        LevelState state = LEVELS.get(level);
+        if (state != null) state.remove(collector);
     }
 
     public static void refresh(AdvancedItemCollectorBE collector) {
@@ -61,11 +64,10 @@ public final class AdvancedItemCollectorManager {
             return;
         }
 
-        LevelIndex index = LEVELS.get(level);
-        if (index == null) return;
+        if (LEVELS.get(level) == null) return;
 
         BlockPos sourcePos = event.getPos();
-        Set<AdvancedItemCollectorBE> collectors = index.at(Vec3.atCenterOf(sourcePos));
+        Set<AdvancedItemCollectorBE> collectors = INDEX.entriesAt(level, Vec3.atCenterOf(sourcePos));
         if (collectors.isEmpty()) return;
 
         IItemHandlerModifiable source = findModifiableItemHandler(level, sourcePos);
@@ -143,17 +145,17 @@ public final class AdvancedItemCollectorManager {
         if (!(event.getLevel() instanceof ServerLevel level) || !(event.getEntity() instanceof ItemEntity itemEntity)) {
             return;
         }
-        LevelIndex index = LEVELS.get(level);
-        if (index == null) return;
-        if (index.consumeBypass(itemEntity)) return;
+        LevelState state = LEVELS.get(level);
+        if (state == null) return;
+        if (state.consumeBypass(itemEntity)) return;
 
         Vec3 position = itemEntity.position();
-        Set<AdvancedItemCollectorBE> collectors = index.at(position);
+        Set<AdvancedItemCollectorBE> collectors = INDEX.entriesAt(level, position);
         if (collectors.isEmpty()) return;
 
         if (collectors.size() == 1) {
             AdvancedItemCollectorBE collector = collectors.iterator().next();
-            if (index.enqueueIfCollectible(collector, itemEntity, position)) {
+            if (state.enqueueIfCollectible(collector, itemEntity, position)) {
                 event.setCanceled(true);
             }
             return;
@@ -172,7 +174,7 @@ public final class AdvancedItemCollectorManager {
     }
 
     public static void onServerTick(ServerTickEvent.Post event) {
-        for (Map.Entry<ServerLevel, LevelIndex> entry : LEVELS.entrySet()) {
+        for (Map.Entry<ServerLevel, LevelState> entry : LEVELS.entrySet()) {
             if (entry.getKey().getServer() == event.getServer()) {
                 entry.getValue().flush(entry.getKey());
             }
@@ -180,12 +182,13 @@ public final class AdvancedItemCollectorManager {
     }
 
     public static void onLevelUnload(LevelEvent.Unload event) {
-        if (event.getLevel() instanceof ServerLevel level) LEVELS.remove(level);
+        if (event.getLevel() instanceof ServerLevel level) {
+            INDEX.clear(level);
+            LEVELS.remove(level);
+        }
     }
 
-    private static final class LevelIndex {
-        private final Map<Long, Set<AdvancedItemCollectorBE>> byChunk = new java.util.HashMap<>();
-        private final Map<AdvancedItemCollectorBE, Set<Long>> chunksByCollector = new IdentityHashMap<>();
+    private static final class LevelState {
         private final Map<AdvancedItemCollectorBE, AABB> areasByCollector = new IdentityHashMap<>();
         private Map<AdvancedItemCollectorBE, Map<ItemStackKey, PendingGroup>> pending = new IdentityHashMap<>();
         private final Set<ItemEntity> bypass = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -193,22 +196,8 @@ public final class AdvancedItemCollectorManager {
         private final Map<AdvancedItemCollectorBE, Long> nextExistingScan = new IdentityHashMap<>();
         private int scanCursor;
 
-        private void add(AdvancedItemCollectorBE collector) {
-            AABB area = collector.getAABB(collector.getBlockPos());
-            int minChunkX = SectionPos.blockToSectionCoord(Mth.floor(area.minX));
-            int maxChunkX = SectionPos.blockToSectionCoord(Mth.ceil(area.maxX) - 1);
-            int minChunkZ = SectionPos.blockToSectionCoord(Mth.floor(area.minZ));
-            int maxChunkZ = SectionPos.blockToSectionCoord(Mth.ceil(area.maxZ) - 1);
+        private void add(AdvancedItemCollectorBE collector, AABB area) {
             areasByCollector.put(collector, area);
-            Set<Long> chunks = new LinkedHashSet<>();
-            for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-                for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                    long key = net.minecraft.world.level.ChunkPos.asLong(chunkX, chunkZ);
-                    chunks.add(key);
-                    byChunk.computeIfAbsent(key, ignored -> new LinkedHashSet<>()).add(collector);
-                }
-            }
-            chunksByCollector.put(collector, chunks);
             scanOrder.add(collector);
             nextExistingScan.put(collector, 0L);
         }
@@ -222,21 +211,6 @@ public final class AdvancedItemCollectorManager {
                 if (scanIndex < scanCursor) scanCursor--;
                 if (scanCursor >= scanOrder.size()) scanCursor = 0;
             }
-            Set<Long> chunks = chunksByCollector.remove(collector);
-            if (chunks == null) return;
-            for (long chunk : chunks) {
-                Set<AdvancedItemCollectorBE> collectors = byChunk.get(chunk);
-                if (collectors == null) continue;
-                collectors.remove(collector);
-                if (collectors.isEmpty()) byChunk.remove(chunk);
-            }
-        }
-
-        private Set<AdvancedItemCollectorBE> at(Vec3 position) {
-            long key = net.minecraft.world.level.ChunkPos.asLong(
-                    SectionPos.blockToSectionCoord(Mth.floor(position.x)),
-                    SectionPos.blockToSectionCoord(Mth.floor(position.z)));
-            return byChunk.getOrDefault(key, Collections.emptySet());
         }
 
         private boolean consumeBypass(ItemEntity entity) {

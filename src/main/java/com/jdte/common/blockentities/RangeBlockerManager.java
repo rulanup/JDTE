@@ -1,28 +1,20 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.region.RegionChunkIndex;
+import com.jdte.common.region.RegionTargetMatcher;
 import com.jdte.setup.JDTEConfig;
-import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.ElderGuardian;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.entity.PartEntity;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
@@ -34,7 +26,6 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +39,7 @@ public final class RangeBlockerManager {
     private static final double BOUNDARY_EPSILON = 1.0E-4D;
     private static final double PROJECTILE_BOUNDARY_MARGIN = 0.25D;
 
-    private static final Map<Level, LevelIndex> LEVELS = new ConcurrentHashMap<>();
+    private static final RegionChunkIndex<RangeBlockerBE, CachedBlocker> INDEX = new RegionChunkIndex<>();
     private static final Map<Level, Map<Entity, ContainmentState>> CONTAINED = new ConcurrentHashMap<>();
     private static final Map<Level, Map<Projectile, ProjectileState>> CONTAINED_PROJECTILES = new ConcurrentHashMap<>();
     private static final Map<Level, Set<ItemEntity>> OWNED_DEMAGNETIZED = new ConcurrentHashMap<>();
@@ -57,15 +48,13 @@ public final class RangeBlockerManager {
 
     public static void register(RangeBlockerBE blocker) {
         if (blocker.getLevel() == null) return;
-        LevelIndex index = LEVELS.computeIfAbsent(blocker.getLevel(), ignored -> new LevelIndex());
-        index.remove(blocker);
-        index.add(blocker);
+        CachedBlocker cached = CachedBlocker.of(blocker);
+        INDEX.add(blocker.getLevel(), blocker, cached, cached.area);
     }
 
     public static void unregister(RangeBlockerBE blocker) {
         if (blocker.getLevel() == null) return;
-        LevelIndex index = LEVELS.get(blocker.getLevel());
-        if (index != null) index.remove(blocker);
+        INDEX.remove(blocker.getLevel(), blocker);
         releaseAssignments(blocker);
     }
 
@@ -172,7 +161,7 @@ public final class RangeBlockerManager {
     }
 
     public static void onLevelUnload(LevelEvent.Unload event) {
-        LEVELS.remove(event.getLevel());
+        INDEX.clear(event.getLevel());
         CONTAINED.remove(event.getLevel());
         CONTAINED_PROJECTILES.remove(event.getLevel());
         OWNED_DEMAGNETIZED.remove(event.getLevel());
@@ -202,9 +191,7 @@ public final class RangeBlockerManager {
     }
 
     public static boolean shouldSuppressSound(Level level, Vec3 position) {
-        LevelIndex index = LEVELS.get(level);
-        if (index == null) return false;
-        for (CachedBlocker cached : index.at(position)) {
+        for (CachedBlocker cached : INDEX.entriesAt(level, position)) {
             if (cached.mode == RangeBlockerBE.Mode.SILENCE
                     && cached.area.contains(position) && cached.canPower(false)) {
                 return true;
@@ -214,8 +201,10 @@ public final class RangeBlockerManager {
     }
 
     public static boolean hasActiveSilenceField(Level level) {
-        LevelIndex index = LEVELS.get(level);
-        return index != null && index.hasActiveSilenceField();
+        for (CachedBlocker cached : INDEX.entries(level)) {
+            if (cached.blocker.getMode() == RangeBlockerBE.Mode.SILENCE && cached.blocker.isFieldActive()) return true;
+        }
+        return false;
     }
 
     public static boolean isDemagnetized(ItemEntity item) {
@@ -263,9 +252,7 @@ public final class RangeBlockerManager {
 
     private static CachedBlocker find(Level level, Vec3 position, RangeBlockerBE.Mode mode,
                                       Entity entity, ItemStack stack, boolean consumeEnergy) {
-        LevelIndex index = LEVELS.get(level);
-        if (index == null) return null;
-        for (CachedBlocker cached : index.at(position)) {
+        for (CachedBlocker cached : INDEX.entriesAt(level, position)) {
             if (cached.mode != mode || !cached.area.contains(position)) continue;
             boolean matches = entity != null ? cached.matches(entity) : cached.matchesItem(stack);
             if (matches && cached.canAffect(entity, consumeEnergy)) return cached;
@@ -304,12 +291,12 @@ public final class RangeBlockerManager {
         if (owner instanceof Player) return null;
         if (owner == null && !JDTEConfig.COMMON.rangeBlockerContainOwnerlessProjectiles.get()) return null;
 
-        LevelIndex index = LEVELS.get(projectile.level());
-        if (index == null) return null;
-        CachedBlocker cached = findProjectileInCandidates(index.at(projectile.position()), projectile,
+        CachedBlocker cached = findProjectileInCandidates(
+                INDEX.entriesAt(projectile.level(), projectile.position()), projectile,
                 projectile.position(), consumeEnergy);
         if (cached == null && owner != null) {
-            cached = findProjectileInCandidates(index.at(owner.position()), projectile, owner.position(), consumeEnergy);
+            cached = findProjectileInCandidates(INDEX.entriesAt(projectile.level(), owner.position()),
+                    projectile, owner.position(), consumeEnergy);
         }
         if (cached == null) return null;
         ProjectileState state = new ProjectileState(cached);
@@ -365,14 +352,10 @@ public final class RangeBlockerManager {
     }
 
     private static boolean isAlwaysProtected(Entity entity) {
-        if (entity instanceof PartEntity<?> part && part.getParent() != entity) return isAlwaysProtected(part.getParent());
-        if (entity instanceof Player) return true;
-        if (entity.isPassenger() || entity.isVehicle()) return true;
-        if (JDTEConfig.COMMON.rangeBlockerProtectNamed.get() && entity.hasCustomName()) return true;
-        if (JDTEConfig.COMMON.rangeBlockerProtectTamed.get()
-                && entity instanceof TamableAnimal tamable && tamable.isTame()) return true;
-        return JDTEConfig.COMMON.rangeBlockerProtectBosses.get()
-                && (entity instanceof EnderDragon || entity instanceof WitherBoss || entity instanceof ElderGuardian);
+        return RegionTargetMatcher.isAlwaysProtected(entity,
+                JDTEConfig.COMMON.rangeBlockerProtectNamed.get(),
+                JDTEConfig.COMMON.rangeBlockerProtectTamed.get(),
+                JDTEConfig.COMMON.rangeBlockerProtectBosses.get());
     }
 
     private static void releaseAssignments(RangeBlockerBE blocker) {
@@ -413,18 +396,7 @@ public final class RangeBlockerManager {
         }
 
         boolean matches(Entity entity) {
-            boolean categoryMatch = switch (target) {
-                case HOSTILE -> entity instanceof Mob && entity.getType().getCategory() == MobCategory.MONSTER;
-                case PASSIVE -> entity instanceof Mob && entity.getType().getCategory() != MobCategory.MONSTER;
-                case ALL_LIVING -> entity instanceof LivingEntity;
-                case SELECTED_TYPES -> entityTypes.contains(entity.getType());
-                case NON_LIVING -> !(entity instanceof LivingEntity);
-                case ALL_TYPES -> true;
-            };
-            if (target == EntitySuppressorBE.Target.SELECTED_TYPES) return blacklist != categoryMatch;
-            if (entityTypes.isEmpty()) return categoryMatch;
-            boolean listed = entityTypes.contains(entity.getType());
-            return categoryMatch && (blacklist ? !listed : listed);
+            return RegionTargetMatcher.matches(entity, target, blacklist, entityTypes);
         }
 
         boolean matchesItem(ItemStack stack) {
@@ -468,51 +440,4 @@ public final class RangeBlockerManager {
     }
 
     private record ProjectileState(CachedBlocker cached) {}
-
-    private static final class LevelIndex {
-        private final Map<Long, Set<CachedBlocker>> byChunk = new java.util.HashMap<>();
-        private final Map<RangeBlockerBE, Set<Long>> chunksByBlocker = new IdentityHashMap<>();
-        private final Set<RangeBlockerBE> blockers = Collections.newSetFromMap(new IdentityHashMap<>());
-
-        void add(RangeBlockerBE blocker) {
-            blockers.add(blocker);
-            CachedBlocker cached = CachedBlocker.of(blocker);
-            int minX = SectionPos.blockToSectionCoord(Mth.floor(cached.area.minX));
-            int maxX = SectionPos.blockToSectionCoord(Mth.ceil(cached.area.maxX) - 1);
-            int minZ = SectionPos.blockToSectionCoord(Mth.floor(cached.area.minZ));
-            int maxZ = SectionPos.blockToSectionCoord(Mth.ceil(cached.area.maxZ) - 1);
-            Set<Long> chunks = new LinkedHashSet<>();
-            for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++) {
-                long key = ChunkPos.asLong(x, z);
-                chunks.add(key);
-                byChunk.computeIfAbsent(key, ignored -> new LinkedHashSet<>()).add(cached);
-            }
-            chunksByBlocker.put(blocker, chunks);
-        }
-
-        void remove(RangeBlockerBE blocker) {
-            blockers.remove(blocker);
-            Set<Long> chunks = chunksByBlocker.remove(blocker);
-            if (chunks == null) return;
-            for (long key : chunks) {
-                Set<CachedBlocker> values = byChunk.get(key);
-                if (values == null) continue;
-                values.removeIf(value -> value.blocker == blocker);
-                if (values.isEmpty()) byChunk.remove(key);
-            }
-        }
-
-        Set<CachedBlocker> at(Vec3 pos) {
-            return byChunk.getOrDefault(ChunkPos.asLong(
-                    SectionPos.blockToSectionCoord(Mth.floor(pos.x)),
-                    SectionPos.blockToSectionCoord(Mth.floor(pos.z))), Collections.emptySet());
-        }
-
-        boolean hasActiveSilenceField() {
-            for (RangeBlockerBE blocker : blockers) {
-                if (blocker.getMode() == RangeBlockerBE.Mode.SILENCE && blocker.isFieldActive()) return true;
-            }
-            return false;
-        }
-    }
 }
