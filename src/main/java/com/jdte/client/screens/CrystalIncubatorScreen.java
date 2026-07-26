@@ -2,7 +2,7 @@ package com.jdte.client.screens;
 
 import com.jdte.common.containers.CrystalIncubatorContainer;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.network.chat.Component;

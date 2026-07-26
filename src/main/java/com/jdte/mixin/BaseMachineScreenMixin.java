@@ -12,7 +12,7 @@ import com.jdte.JDTE;
 import com.jdte.client.AutoIoConfigClientCache;
 import com.jdte.client.AutoIoConfigScreenBridge;
 import com.jdte.client.UpgradePopupDragHandler;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.autoioconfig.AutoIoConfigData;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;

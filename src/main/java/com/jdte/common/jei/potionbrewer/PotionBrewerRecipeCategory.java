@@ -1,7 +1,7 @@
 package com.jdte.common.jei.potionbrewer;
 
 import com.jdte.JDTE;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;

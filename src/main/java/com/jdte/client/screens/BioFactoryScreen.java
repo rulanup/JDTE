@@ -6,7 +6,7 @@ import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.containers.BioFactoryContainer;
 import com.jdte.common.network.data.FilterPagePayload;

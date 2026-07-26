@@ -6,7 +6,7 @@ import com.jdte.client.screens.AdvancedPotionBrewerScreen;
 import com.jdte.client.screens.GelGeneratorScreen;
 import com.jdte.client.screens.InfusionMachineScreen;
 import com.jdte.client.screens.LootFabricatorScreen;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.jei.gelgenerator.GelGeneratorRecipeCategory;
 import com.jdte.common.jei.infusion.InfusionRecipeCategory;
 import com.jdte.common.jei.potionbrewer.PotionBrewerRecipeCategory;

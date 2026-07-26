@@ -9,7 +9,7 @@ import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.JDTE;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.containers.GelGeneratorContainer;
 import com.jdte.common.network.data.GelGeneratorPayload;

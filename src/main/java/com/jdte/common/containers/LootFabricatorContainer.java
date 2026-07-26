@@ -2,7 +2,7 @@ package com.jdte.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.LootFabricatorBE;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.core.BlockPos;

@@ -2,7 +2,7 @@ package com.jdte.client.screens;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.jdte.common.containers.LootFabricatorContainer;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;

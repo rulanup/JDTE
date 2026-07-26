@@ -22,6 +22,7 @@
 - **Fixed**: Range previews now use their actual affected and offset areas for render culling, preventing large Entity Suppressor and Range Blocker previews from disappearing after world re-entry or when the machine block is outside the camera frustum.
 - **Fixed**: Added the missing Jade installed-upgrades config translation and corrected AE2 add-on acceleration paths that exposed maintenance-only block entity tickers.
 - **Fixed**: Restored configured-area execution and mutable target queues for Extended Block Breakers, Block Swappers, Fluid Collectors, Fluid Placers, and Sensors. Advanced Item Collectors now collect existing drops through bounded round-robin scans and bypass an ME Interface buffer only when it cannot accept the complete stack.
+- **Fixed**: Moved shared GUI slot-layout loading out of client-only code and read the packaged layout through the classpath, preventing dedicated-server crashes when opening Item Sender, Item Receiver, Greenhouse, or Loot Fabricator menus.
 - **Usability**: Completed Eclipse Alloy Wrench selections can now be resized one face at a time by looking at a boundary and using Ctrl-scroll, with one-block minimum dimensions and Create-style reversed controls from inside the selection.
 
 #### v0.5.4
@@ -154,6 +155,7 @@
 - **修复**：范围预览现在使用实际作用范围与偏移范围进行渲染裁剪，避免大型实体抑制器和范围屏蔽器的预览在重进世界后或机器方块位于视锥外时消失。
 - **修复**：补充 Jade 已安装升级配置翻译，并修正仅暴露维护型方块实体 Ticker 的 AE2 附属机器加速路径。
 - **修复**：恢复扩展高级方块破坏器、方块替换器、流体收集器、流体放置器和传感器的设定范围执行及可修改目标队列；高级物品拾取器新增有界轮询收集已有掉落物，并仅在 ME 接口缓冲无法完整接收时绕过缓冲直传网络。
+- **修复**：将共享 GUI 槽位布局加载从客户端专用代码迁移到共通代码，并通过 classpath 读取模组内置布局，修复专用服务器打开物品发送器、物品接收器、温室大棚或战利品制造机菜单时崩溃的问题。
 - **易用性**：完成双角点框选后，蚀空合金扳手可对准边界面使用 Ctrl+滚轮单独扩大或缩小该面，范围最小保持 1 格，并沿用 Create 在选区内部反转滚轮方向的交互。
 
 

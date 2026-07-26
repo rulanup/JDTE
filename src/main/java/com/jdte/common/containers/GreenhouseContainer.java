@@ -1,7 +1,7 @@
 package com.jdte.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.recipes.GreenhouseCropResolver;

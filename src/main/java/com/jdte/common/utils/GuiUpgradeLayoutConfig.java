@@ -1,11 +1,11 @@
-package com.jdte.client.utils;
+package com.jdte.common.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Reads GUI layout configuration from assets/jdte/gui_layout.json.
@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
  * Falls back to hardcoded defaults if the JSON file cannot be loaded.
  */
 public class GuiUpgradeLayoutConfig {
-    private static final ResourceLocation CONFIG_LOCATION = ResourceLocation.fromNamespaceAndPath("jdte", "gui_layout.json");
+    private static final String CONFIG_RESOURCE = "/assets/jdte/gui_layout.json";
     private static GuiUpgradeLayoutConfig INSTANCE;
 
     // Right panel (upgrade_panel_4): used by 4-slot machines and as right panel for 8-slot machines
@@ -815,14 +815,9 @@ public class GuiUpgradeLayoutConfig {
     }
 
     private static GuiUpgradeLayoutConfig load() {
-        try {
-            var mc = Minecraft.getInstance();
-            if (mc == null) {
-                return new GuiUpgradeLayoutConfig();
-            }
-            var resourceOpt = mc.getResourceManager().getResource(CONFIG_LOCATION);
-            if (resourceOpt.isPresent()) {
-                try (var reader = new InputStreamReader(resourceOpt.get().open())) {
+        try (InputStream stream = GuiUpgradeLayoutConfig.class.getResourceAsStream(CONFIG_RESOURCE)) {
+            if (stream != null) {
+                try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                     JsonObject json = new Gson().fromJson(reader, JsonObject.class);
                     if (json != null && json.has("upgrade_panel_4")) {
                         return new GuiUpgradeLayoutConfig(json);
@@ -830,7 +825,7 @@ public class GuiUpgradeLayoutConfig {
                 }
             }
         } catch (Exception e) {
-            // Fall back to defaults on any error
+            // Keep menus usable with built-in defaults if the packaged layout is unavailable or invalid.
         }
         return new GuiUpgradeLayoutConfig();
     }

@@ -9,7 +9,7 @@ import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.client.PotionBrewerRecipeLockClientCache;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.containers.AdvancedPotionBrewerContainer;
 import com.jdte.common.network.data.PotionBrewerFuelInputPayload;

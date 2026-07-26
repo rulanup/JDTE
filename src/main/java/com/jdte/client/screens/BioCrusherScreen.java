@@ -2,7 +2,7 @@ package com.jdte.client.screens;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.util.MiscTools;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.containers.BioCrusherContainer;
 import com.jdte.common.network.data.BioCrusherPayload;

@@ -3,7 +3,7 @@ package com.jdte.client.screens;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.JDTE;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.containers.LifeExtractorContainer;
 import com.jdte.common.network.data.LifeExtractorPayload;

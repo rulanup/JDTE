@@ -159,7 +159,7 @@ Fortune and Precision are standard `UpgradeType` values restricted to supported 
 - Each upgrade slot has a stack limit of one.
 - `UpgradeItemStackHandler.isItemValid()` checks item type, machine compatibility, aggregate limits, and Overclock/Underclock conflicts.
 - `UpgradeHelper.getUpgradeHandler()` selects the standard or extended attachment through the `ExtendedUpgradeMachine` marker.
-- `GuiUpgradeLayoutConfig` reads `assets/jdte/gui_layout.json`; machine screens use fixed embedded panels instead of draggable upgrade popups.
+- Shared `GuiUpgradeLayoutConfig` reads the packaged `assets/jdte/gui_layout.json` through the classpath without client-only classes, so server menus and client screens use identical slot coordinates on dedicated servers. Machine screens use fixed embedded panels instead of draggable upgrade popups.
 
 ### Capacity and Cost
 

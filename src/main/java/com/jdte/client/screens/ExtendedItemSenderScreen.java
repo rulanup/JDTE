@@ -7,7 +7,7 @@ import com.direwolf20.justdirethings.client.screens.standardbuttons.ValueButtons
 import com.direwolf20.justdirethings.client.screens.widgets.GrayscaleButton;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.common.network.data.TickSpeedPayload;
-import com.jdte.client.utils.GuiUpgradeLayoutConfig;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.containers.ExtendedItemSenderContainer;
 import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.client.gui.GuiGraphics;
