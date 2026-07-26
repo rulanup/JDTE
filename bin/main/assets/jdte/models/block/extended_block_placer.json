@@ -1,0 +1,7 @@
+﻿{
+    "textures":  {
+                     "end":  "jdte:block/blockplacert3/blockplacert3_top",
+                     "side":  "jdte:block/blockplacert3/blockplacert3_side"
+                 },
+    "parent":  "minecraft:block/cube_column"
+}

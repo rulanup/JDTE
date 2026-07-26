@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:bucket"
+    },
+    "C": {
+      "item": "justdirethings:fluid_canister"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "P": {
+      "item": "minecraft:prismarine_crystals"
+    }
+  },
+  "pattern": [
+    "PBP",
+    "GCG",
+    "PBP"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:fluid_upgrade"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["BWB", "RLA", "BTB"],
+  "key": {
+    "B": { "item": "justdirethings:blazegold_ingot" },
+    "W": { "item": "minecraft:wheat" },
+    "R": { "item": "jdte:extended_fluid_receiver" },
+    "L": { "item": "jdte:life_apple" },
+    "A": { "item": "jdte:advanced_item_collector" },
+    "T": { "item": "justdirethings:time_crystal" }
+  },
+  "result": { "count": 1, "id": "jdte:life_breeder" }
+}

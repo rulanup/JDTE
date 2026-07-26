@@ -1,0 +1,11 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "jdte:ender_dragon_spawn_egg" },
+  "food": { "item": "minecraft:glass_bottle" },
+  "food_count": 1,
+  "outputs": [
+    { "item": { "id": "minecraft:dragon_breath", "count": 1 } }
+  ],
+  "process_ticks": 1200,
+  "energy": 5000
+}

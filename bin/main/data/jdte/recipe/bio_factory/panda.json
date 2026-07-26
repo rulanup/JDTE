@@ -1,0 +1,12 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:panda_spawn_egg" },
+  "inputs": [
+    { "ingredient": { "item": "minecraft:bamboo" } }
+  ],
+  "outputs": [
+    { "item": { "id": "minecraft:slime_ball", "count": 1 }, "chance": 0.025 }
+  ],
+  "process_ticks": 1200,
+  "energy": 1000
+}

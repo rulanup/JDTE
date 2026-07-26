@@ -1,0 +1,7 @@
+﻿{
+    "textures":  {
+                     "end":  "jdte:block/blockbreakert3/blockbreakert3_top",
+                     "side":  "jdte:block/blockbreakert3/blockbreakert3_side"
+                 },
+    "parent":  "minecraft:block/cube_column"
+}

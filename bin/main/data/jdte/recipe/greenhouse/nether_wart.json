@@ -1,0 +1,8 @@
+{
+  "type": "jdte:greenhouse",
+  "seed": { "item": "minecraft:nether_wart" },
+  "outputs": [{ "id": "minecraft:nether_wart", "count": 3 }],
+  "display_block": "minecraft:nether_wart",
+  "growth_work": 8192,
+  "time_fluid": 40
+}

@@ -1,0 +1,30 @@
+﻿{
+    "variants":  {
+                     "facing=north":  {
+                                          "model":  "jdte:block/extended_fluid_collector",
+                                          "x":  90
+                                      },
+                     "facing=east":  {
+                                         "y":  90,
+                                         "model":  "jdte:block/extended_fluid_collector",
+                                         "x":  90
+                                     },
+                     "facing=south":  {
+                                          "y":  180,
+                                          "model":  "jdte:block/extended_fluid_collector",
+                                          "x":  90
+                                      },
+                     "facing=up":  {
+                                       "model":  "jdte:block/extended_fluid_collector"
+                                   },
+                     "facing=west":  {
+                                         "y":  270,
+                                         "model":  "jdte:block/extended_fluid_collector",
+                                         "x":  90
+                                     },
+                     "facing=down":  {
+                                         "model":  "jdte:block/extended_fluid_collector",
+                                         "x":  180
+                                     }
+                 }
+}

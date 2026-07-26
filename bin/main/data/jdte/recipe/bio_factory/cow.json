@@ -1,0 +1,10 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:cow_spawn_egg" },
+  "food": { "item": "minecraft:wheat" },
+  "outputs": [],
+  "output_fluid": "minecraft:milk",
+  "output_fluid_amount": 1000,
+  "process_ticks": 600,
+  "energy": 1000
+}

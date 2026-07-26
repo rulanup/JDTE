@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "jdte:block/range_blocker", "x": 90 },
+    "facing=east": { "model": "jdte:block/range_blocker", "x": 90, "y": 90 },
+    "facing=south": { "model": "jdte:block/range_blocker", "x": 90, "y": 180 },
+    "facing=west": { "model": "jdte:block/range_blocker", "x": 90, "y": 270 },
+    "facing=up": { "model": "jdte:block/range_blocker" },
+    "facing=down": { "model": "jdte:block/range_blocker", "x": 180 }
+  }
+}

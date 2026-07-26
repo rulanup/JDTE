@@ -1,0 +1,8 @@
+{
+  "parent": "jdte:block/greenhouse_connected_component",
+  "elements": [
+    { "from": [2, 14, 0], "to": [14, 15, 2], "faces": {
+      "up": { "texture": "#glass" }, "down": { "texture": "#glass" }
+    }}
+  ]
+}

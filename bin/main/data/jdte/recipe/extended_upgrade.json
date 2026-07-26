@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CUC",
+    "UDU",
+    "CUC"
+  ],
+  "key": {
+    "C": {
+      "item": "justdirethings:celestigem"
+    },
+    "U": {
+      "item": "jdte:capacity_upgrade"
+    },
+    "D": {
+      "item": "minecraft:diamond_block"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "jdte:extended_upgrade"
+  }
+}

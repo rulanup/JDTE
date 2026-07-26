@@ -1,0 +1,10 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:turtle_spawn_egg" },
+  "food": { "item": "minecraft:seagrass" },
+  "outputs": [
+    { "item": { "id": "minecraft:turtle_scute", "count": 1 } }
+  ],
+  "process_ticks": 1200,
+  "energy": 1500
+}

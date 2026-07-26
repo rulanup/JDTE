@@ -1,0 +1,14 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:mooshroom_spawn_egg" },
+  "inputs": [
+    { "ingredient": { "item": "minecraft:bowl" }, "count": 1 },
+    { "ingredient": { "item": "minecraft:brown_mushroom" } },
+    { "ingredient": { "tag": "minecraft:small_flowers" }, "count": 1 }
+  ],
+  "outputs": [
+    { "item": { "id": "minecraft:suspicious_stew", "count": 1 } }
+  ],
+  "process_ticks": 600,
+  "energy": 1200
+}

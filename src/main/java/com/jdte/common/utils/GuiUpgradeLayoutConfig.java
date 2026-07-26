@@ -1,11 +1,14 @@
 package com.jdte.common.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Reads GUI layout configuration from assets/jdte/gui_layout.json.
@@ -16,792 +19,16 @@ public class GuiUpgradeLayoutConfig {
     private static final String CONFIG_RESOURCE = "/assets/jdte/gui_layout.json";
     private static GuiUpgradeLayoutConfig INSTANCE;
 
-    // Right panel (upgrade_panel_4): used by 4-slot machines and as right panel for 8-slot machines
-    private final int firstSlotX;
-    private final int firstSlotY;
-    private final int slotSpacing;
-    private final int slotSize;
-    private final int columns;
-    private final int rows;
-    private final int panelPadding;
-
-    // Left panel (upgrade_panel_8_left): used as left panel for 8-slot machines
-    private final int leftFirstSlotX;
-    private final int leftFirstSlotY;
-
-    // Gel generator machine slot positions (gel_generator_slots)
-    private final int gelGenGelX;
-    private final int gelGenGelY;
-    private final int gelGenFoodX;
-    private final int gelGenFoodY;
-    private final int gelGenInputStartX;
-    private final int gelGenInputStartY;
-    private final int gelGenInputSpacing;
-    private final int gelGenInputCount;
-    private final int gelGenInputFluidX;
-    private final int gelGenInputFluidY;
-    private final int gelGenOutputStartX;
-    private final int gelGenOutputStartY;
-    private final int gelGenOutputSpacing;
-    private final int gelGenOutputCount;
-    private final int gelGenOutputFluidX;
-    private final int gelGenOutputFluidY;
-
-    // Gel generator button positions (gel_generator_buttons)
-    private final int gelGenProgressArrowX;
-    private final int gelGenProgressArrowY;
-    private final int gelGenSpeedButtonX;
-    private final int gelGenSpeedButtonY;
-    private final int gelGenAllowlistButtonX;
-    private final int gelGenAllowlistButtonY;
-    private final int gelGenCompareNBTButtonX;
-    private final int gelGenCompareNBTButtonY;
-    private final int gelGenRedstoneButtonX;
-    private final int gelGenRedstoneButtonY;
-    private final int gelGenAutoBalanceX;
-    private final int gelGenAutoBalanceY;
-
-    // Item sender button positions (item_sender_buttons)
-    private final int itemSenderAllowlistX;
-    private final int itemSenderAllowlistY;
-    private final int itemSenderCompareNBTX;
-    private final int itemSenderCompareNBTY;
-    private final int itemSenderRedstoneX;
-    private final int itemSenderRedstoneY;
-    private final int itemSenderRenderAreaX;
-    private final int itemSenderRenderAreaY;
-    private final int itemSenderSpeedButtonX;
-    private final int itemSenderSpeedButtonY;
-
-    // Item sender machine slot positions (item_sender_slots)
-    private final int itemSenderSlotStartX;
-    private final int itemSenderSlotStartY;
-    private final int itemSenderSlotSpacing;
-    private final int itemSenderSlotCount;
-
-    // Basic item sender button positions (basic_item_sender_buttons)
-    private final int basicItemSenderAllowlistX;
-    private final int basicItemSenderAllowlistY;
-    private final int basicItemSenderCompareNBTX;
-    private final int basicItemSenderCompareNBTY;
-    private final int basicItemSenderRedstoneX;
-    private final int basicItemSenderRedstoneY;
-    private final int basicItemSenderRenderAreaX;
-    private final int basicItemSenderRenderAreaY;
-    private final int basicItemSenderSpeedButtonX;
-    private final int basicItemSenderSpeedButtonY;
-
-    // Basic item sender machine slot positions (basic_item_sender_slots)
-    private final int basicItemSenderSlotStartX;
-    private final int basicItemSenderSlotStartY;
-    private final int basicItemSenderSlotSpacing;
-    private final int basicItemSenderSlotCount;
-
-    // Item receiver button positions (item_receiver_buttons)
-    private final int itemReceiverAllowlistX;
-    private final int itemReceiverAllowlistY;
-    private final int itemReceiverCompareNBTX;
-    private final int itemReceiverCompareNBTY;
-    private final int itemReceiverRedstoneX;
-    private final int itemReceiverRedstoneY;
-    private final int itemReceiverRenderAreaX;
-    private final int itemReceiverRenderAreaY;
-    private final int itemReceiverSpeedButtonX;
-    private final int itemReceiverSpeedButtonY;
-
-    // Item receiver machine slot positions (item_receiver_slots)
-    private final int itemReceiverSlotStartX;
-    private final int itemReceiverSlotStartY;
-    private final int itemReceiverSlotSpacing;
-    private final int itemReceiverSlotCount;
-
-    // Basic item receiver button positions (basic_item_receiver_buttons)
-    private final int basicItemReceiverAllowlistX;
-    private final int basicItemReceiverAllowlistY;
-    private final int basicItemReceiverCompareNBTX;
-    private final int basicItemReceiverCompareNBTY;
-    private final int basicItemReceiverRedstoneX;
-    private final int basicItemReceiverRedstoneY;
-    private final int basicItemReceiverRenderAreaX;
-    private final int basicItemReceiverRenderAreaY;
-    private final int basicItemReceiverSpeedButtonX;
-    private final int basicItemReceiverSpeedButtonY;
-
-    // Basic item receiver machine slot positions (basic_item_receiver_slots)
-    private final int basicItemReceiverSlotStartX;
-    private final int basicItemReceiverSlotStartY;
-    private final int basicItemReceiverSlotSpacing;
-    private final int basicItemReceiverSlotCount;
-
-    // Life extractor mode button positions (life_extractor_buttons)
-    private final int lifeExtractorModeButtonX;
-    private final int lifeExtractorModeButtonY;
-
-    // Bio crusher mode button positions (bio_crusher_buttons)
-    private final int bioCrusherModeButtonX;
-    private final int bioCrusherModeButtonY;
-    private final int bioCrusherSharpnessSlotX;
-    private final int bioCrusherSharpnessSlotY;
-    private final int bioCrusherLootingSlotX;
-    private final int bioCrusherLootingSlotY;
-
-    // Advanced potion brewer background, slot, and widget positions
-    private final int potionBrewerBgSrcX;
-    private final int potionBrewerBgSrcY;
-    private final int potionBrewerBgX;
-    private final int potionBrewerBgY;
-    private final int potionBrewerBgWidth;
-    private final int potionBrewerBgHeight;
-    private final int potionBrewerFuelSlotX;
-    private final int potionBrewerFuelSlotY;
-    private final int potionBrewerIngredientSlotX;
-    private final int potionBrewerIngredientSlotY;
-    private final int potionBrewerBottleSlot0X;
-    private final int potionBrewerBottleSlot0Y;
-    private final int potionBrewerBottleSlot1X;
-    private final int potionBrewerBottleSlot1Y;
-    private final int potionBrewerBottleSlot2X;
-    private final int potionBrewerBottleSlot2Y;
-    private final int potionBrewerExtraIngredientStartX;
-    private final int potionBrewerExtraIngredientStartY;
-    private final int potionBrewerExtraIngredientSpacing;
-    private final int potionBrewerExtraIngredientCount;
-    private final int potionBrewerOutputStartX;
-    private final int potionBrewerOutputStartY;
-    private final int potionBrewerOutputSpacing;
-    private final int potionBrewerOutputCount;
-    private final int potionBrewerSpeedButtonX;
-    private final int potionBrewerSpeedButtonY;
-    private final int potionBrewerRedstoneButtonX;
-    private final int potionBrewerRedstoneButtonY;
-    private final int potionBrewerRecipeLockButtonX;
-    private final int potionBrewerRecipeLockButtonY;
-    private final int potionBrewerFuelInputButtonX;
-    private final int potionBrewerFuelInputButtonY;
-    private final int potionBrewerFuelBarX;
-    private final int potionBrewerFuelBarBottomY;
-    private final int potionBrewerBubblesX;
-    private final int potionBrewerBubblesBottomY;
-    private final int potionBrewerArrowX;
-    private final int potionBrewerArrowBottomY;
-    private final int potionBrewerWaterFluidX;
-    private final int potionBrewerWaterFluidY;
-    private final int potionBrewerTimeFluidX;
-    private final int potionBrewerTimeFluidY;
-
-    // Loot fabricator layout, slots, fluids, and widgets
-    private final int lootFabricatorExtraWidth;
-    private final int lootFabricatorExtraHeight;
-    private final int lootFabricatorInputStartX;
-    private final int lootFabricatorInputStartY;
-    private final int lootFabricatorInputSpacing;
-    private final int lootFabricatorOutputStartX;
-    private final int lootFabricatorOutputStartY;
-    private final int lootFabricatorOutputSpacing;
-    private final int lootFabricatorOutputColumns;
-    private final int lootFabricatorOutputRows;
-    private final int lootFabricatorLifeFluidX;
-    private final int lootFabricatorLifeFluidY;
-    private final int lootFabricatorTimeFluidX;
-    private final int lootFabricatorTimeFluidY;
-    private final int lootFabricatorProgressArrowX;
-    private final int lootFabricatorProgressArrowY;
-    private final int lootFabricatorSpeedButtonX;
-    private final int lootFabricatorSpeedButtonY;
-    private final int lootFabricatorRedstoneButtonX;
-    private final int lootFabricatorRedstoneButtonY;
-    private final int lootFabricatorOutputPrevX;
-    private final int lootFabricatorOutputPrevY;
-    private final int lootFabricatorOutputNextX;
-    private final int lootFabricatorOutputNextY;
-    private final int lootFabricatorOutputPageButtonSize;
-    private final int lootFabricatorOutputPageTextX;
-    private final int lootFabricatorOutputPageTextY;
+    private final Map<String, JsonObject> sections = new HashMap<>();
 
     private GuiUpgradeLayoutConfig(JsonObject json) {
-        JsonObject panel = json.getAsJsonObject("upgrade_panel_4");
-        this.firstSlotX = getInt(panel, "first_slot_x", 183);
-        this.firstSlotY = getInt(panel, "first_slot_y", 85);
-        this.slotSpacing = getInt(panel, "slot_spacing", 18);
-        this.slotSize = getInt(panel, "slot_size", 18);
-        this.columns = getInt(panel, "columns", 1);
-        this.rows = getInt(panel, "rows", 4);
-        this.panelPadding = getInt(panel, "panel_padding", 8);
-
-        JsonObject leftPanel = json.getAsJsonObject("upgrade_panel_8_left");
-        if (leftPanel != null) {
-            this.leftFirstSlotX = getInt(leftPanel, "first_slot_x", -22);
-            this.leftFirstSlotY = getInt(leftPanel, "first_slot_y", this.firstSlotY);
-        } else {
-            this.leftFirstSlotX = -22;
-            this.leftFirstSlotY = this.firstSlotY;
+        if (json != null) {
+            for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+                if (entry.getValue().isJsonObject()) {
+                    sections.put(entry.getKey(), entry.getValue().getAsJsonObject());
+                }
+            }
         }
-
-        JsonObject gelGen = json.getAsJsonObject("gel_generator_slots");
-        if (gelGen != null) {
-            this.gelGenGelX = getInt(gelGen, "gel_slot_x", 10);
-            this.gelGenGelY = getInt(gelGen, "gel_slot_y", -12);
-            this.gelGenFoodX = getInt(gelGen, "food_slot_x", 10);
-            this.gelGenFoodY = getInt(gelGen, "food_slot_y", 24);
-            this.gelGenInputStartX = getInt(gelGen, "input_start_x", 44);
-            this.gelGenInputStartY = getInt(gelGen, "input_start_y", -21);
-            this.gelGenInputSpacing = getInt(gelGen, "input_spacing", 18);
-            this.gelGenInputCount = getInt(gelGen, "input_count", 4);
-            this.gelGenInputFluidX = getInt(gelGen, "input_fluid_x", this.gelGenInputStartX + 18);
-            this.gelGenInputFluidY = getInt(gelGen, "input_fluid_y", this.gelGenInputStartY);
-            this.gelGenOutputStartX = getInt(gelGen, "output_start_x", 116);
-            this.gelGenOutputStartY = getInt(gelGen, "output_start_y", -21);
-            this.gelGenOutputSpacing = getInt(gelGen, "output_spacing", 18);
-            this.gelGenOutputCount = getInt(gelGen, "output_count", 4);
-            this.gelGenOutputFluidX = getInt(gelGen, "output_fluid_x", this.gelGenOutputStartX + 18);
-            this.gelGenOutputFluidY = getInt(gelGen, "output_fluid_y", this.gelGenOutputStartY);
-        } else {
-            this.gelGenGelX = 10;
-            this.gelGenGelY = -12;
-            this.gelGenFoodX = 10;
-            this.gelGenFoodY = 24;
-            this.gelGenInputStartX = 44;
-            this.gelGenInputStartY = -21;
-            this.gelGenInputSpacing = 18;
-            this.gelGenInputCount = 4;
-            this.gelGenInputFluidX = 62;
-            this.gelGenInputFluidY = -22;
-            this.gelGenOutputStartX = 116;
-            this.gelGenOutputStartY = -21;
-            this.gelGenOutputSpacing = 18;
-            this.gelGenOutputCount = 4;
-            this.gelGenOutputFluidX = 134;
-            this.gelGenOutputFluidY = -22;
-        }
-
-        JsonObject gelGenButtons = json.getAsJsonObject("gel_generator_buttons");
-        if (gelGenButtons != null) {
-            this.gelGenProgressArrowX = getInt(gelGenButtons, "progress_arrow_x", 88);
-            this.gelGenProgressArrowY = getInt(gelGenButtons, "progress_arrow_y", 8);
-            this.gelGenSpeedButtonX = getInt(gelGenButtons, "speed_button_x", 88);
-            this.gelGenSpeedButtonY = getInt(gelGenButtons, "speed_button_y", 38);
-            this.gelGenAllowlistButtonX = getInt(gelGenButtons, "allowlist_button_x", 170);
-            this.gelGenAllowlistButtonY = getInt(gelGenButtons, "allowlist_button_y", -3);
-            this.gelGenCompareNBTButtonX = getInt(gelGenButtons, "compare_nbt_button_x", 170);
-            this.gelGenCompareNBTButtonY = getInt(gelGenButtons, "compare_nbt_button_y", 15);
-            this.gelGenRedstoneButtonX = getInt(gelGenButtons, "redstone_button_x", 170);
-            this.gelGenRedstoneButtonY = getInt(gelGenButtons, "redstone_button_y", 33);
-            this.gelGenAutoBalanceX = getInt(gelGenButtons, "auto_balance_x", 170);
-            this.gelGenAutoBalanceY = getInt(gelGenButtons, "auto_balance_y", -21);
-        } else {
-            this.gelGenProgressArrowX = 88;
-            this.gelGenProgressArrowY = 8;
-            this.gelGenSpeedButtonX = 88;
-            this.gelGenSpeedButtonY = 38;
-            this.gelGenAllowlistButtonX = 170;
-            this.gelGenAllowlistButtonY = -3;
-            this.gelGenCompareNBTButtonX = 170;
-            this.gelGenCompareNBTButtonY = 15;
-            this.gelGenRedstoneButtonX = 170;
-            this.gelGenRedstoneButtonY = 33;
-            this.gelGenAutoBalanceX = 170;
-            this.gelGenAutoBalanceY = -21;
-        }
-
-        JsonObject itemSenderButtons = json.getAsJsonObject("item_sender_buttons");
-        if (itemSenderButtons != null) {
-            this.itemSenderAllowlistX = getInt(itemSenderButtons, "allowlist_button_x", 8);
-            this.itemSenderAllowlistY = getInt(itemSenderButtons, "allowlist_button_y", 42);
-            this.itemSenderCompareNBTX = getInt(itemSenderButtons, "compare_nbt_button_x", 26);
-            this.itemSenderCompareNBTY = getInt(itemSenderButtons, "compare_nbt_button_y", 42);
-            this.itemSenderRedstoneX = getInt(itemSenderButtons, "redstone_button_x", 134);
-            this.itemSenderRedstoneY = getInt(itemSenderButtons, "redstone_button_y", 42);
-            this.itemSenderRenderAreaX = getInt(itemSenderButtons, "render_area_button_x", 152);
-            this.itemSenderRenderAreaY = getInt(itemSenderButtons, "render_area_button_y", 42);
-            this.itemSenderSpeedButtonX = getInt(itemSenderButtons, "speed_button_x", 78);
-            this.itemSenderSpeedButtonY = getInt(itemSenderButtons, "speed_button_y", 44);
-        } else {
-            this.itemSenderAllowlistX = 8;
-            this.itemSenderAllowlistY = 42;
-            this.itemSenderCompareNBTX = 26;
-            this.itemSenderCompareNBTY = 42;
-            this.itemSenderRedstoneX = 134;
-            this.itemSenderRedstoneY = 42;
-            this.itemSenderRenderAreaX = 152;
-            this.itemSenderRenderAreaY = 42;
-            this.itemSenderSpeedButtonX = 78;
-            this.itemSenderSpeedButtonY = 44;
-        }
-
-        JsonObject itemSenderSlots = json.getAsJsonObject("item_sender_slots");
-        if (itemSenderSlots != null) {
-            this.itemSenderSlotStartX = getInt(itemSenderSlots, "machine_start_x", 8);
-            this.itemSenderSlotStartY = getInt(itemSenderSlots, "machine_start_y", 36);
-            this.itemSenderSlotSpacing = getInt(itemSenderSlots, "machine_spacing", 18);
-            this.itemSenderSlotCount = getInt(itemSenderSlots, "machine_count", 9);
-        } else {
-            this.itemSenderSlotStartX = 8;
-            this.itemSenderSlotStartY = 36;
-            this.itemSenderSlotSpacing = 18;
-            this.itemSenderSlotCount = 9;
-        }
-
-        JsonObject basicItemSenderButtons = json.getAsJsonObject("basic_item_sender_buttons");
-        if (basicItemSenderButtons != null) {
-            this.basicItemSenderAllowlistX = getInt(basicItemSenderButtons, "allowlist_button_x", 8);
-            this.basicItemSenderAllowlistY = getInt(basicItemSenderButtons, "allowlist_button_y", 42);
-            this.basicItemSenderCompareNBTX = getInt(basicItemSenderButtons, "compare_nbt_button_x", 26);
-            this.basicItemSenderCompareNBTY = getInt(basicItemSenderButtons, "compare_nbt_button_y", 42);
-            this.basicItemSenderRedstoneX = getInt(basicItemSenderButtons, "redstone_button_x", 134);
-            this.basicItemSenderRedstoneY = getInt(basicItemSenderButtons, "redstone_button_y", 42);
-            this.basicItemSenderRenderAreaX = getInt(basicItemSenderButtons, "render_area_button_x", 152);
-            this.basicItemSenderRenderAreaY = getInt(basicItemSenderButtons, "render_area_button_y", 42);
-            this.basicItemSenderSpeedButtonX = getInt(basicItemSenderButtons, "speed_button_x", 78);
-            this.basicItemSenderSpeedButtonY = getInt(basicItemSenderButtons, "speed_button_y", 44);
-        } else {
-            this.basicItemSenderAllowlistX = 8;
-            this.basicItemSenderAllowlistY = 42;
-            this.basicItemSenderCompareNBTX = 26;
-            this.basicItemSenderCompareNBTY = 42;
-            this.basicItemSenderRedstoneX = 134;
-            this.basicItemSenderRedstoneY = 42;
-            this.basicItemSenderRenderAreaX = 152;
-            this.basicItemSenderRenderAreaY = 42;
-            this.basicItemSenderSpeedButtonX = 78;
-            this.basicItemSenderSpeedButtonY = 44;
-        }
-
-        JsonObject basicItemSenderSlots = json.getAsJsonObject("basic_item_sender_slots");
-        if (basicItemSenderSlots != null) {
-            this.basicItemSenderSlotStartX = getInt(basicItemSenderSlots, "machine_start_x", 8);
-            this.basicItemSenderSlotStartY = getInt(basicItemSenderSlots, "machine_start_y", 36);
-            this.basicItemSenderSlotSpacing = getInt(basicItemSenderSlots, "machine_spacing", 18);
-            this.basicItemSenderSlotCount = getInt(basicItemSenderSlots, "machine_count", 9);
-        } else {
-            this.basicItemSenderSlotStartX = 8;
-            this.basicItemSenderSlotStartY = 36;
-            this.basicItemSenderSlotSpacing = 18;
-            this.basicItemSenderSlotCount = 9;
-        }
-
-        // --- Item receiver buttons ---
-        JsonObject itemReceiverButtons = json.getAsJsonObject("item_receiver_buttons");
-        if (itemReceiverButtons != null) {
-            this.itemReceiverAllowlistX = getInt(itemReceiverButtons, "allowlist_button_x", 8);
-            this.itemReceiverAllowlistY = getInt(itemReceiverButtons, "allowlist_button_y", 42);
-            this.itemReceiverCompareNBTX = getInt(itemReceiverButtons, "compare_nbt_button_x", 26);
-            this.itemReceiverCompareNBTY = getInt(itemReceiverButtons, "compare_nbt_button_y", 42);
-            this.itemReceiverRedstoneX = getInt(itemReceiverButtons, "redstone_button_x", 134);
-            this.itemReceiverRedstoneY = getInt(itemReceiverButtons, "redstone_button_y", 42);
-            this.itemReceiverRenderAreaX = getInt(itemReceiverButtons, "render_area_button_x", 152);
-            this.itemReceiverRenderAreaY = getInt(itemReceiverButtons, "render_area_button_y", 42);
-            this.itemReceiverSpeedButtonX = getInt(itemReceiverButtons, "speed_button_x", 78);
-            this.itemReceiverSpeedButtonY = getInt(itemReceiverButtons, "speed_button_y", 44);
-        } else {
-            this.itemReceiverAllowlistX = 8;
-            this.itemReceiverAllowlistY = 42;
-            this.itemReceiverCompareNBTX = 26;
-            this.itemReceiverCompareNBTY = 42;
-            this.itemReceiverRedstoneX = 134;
-            this.itemReceiverRedstoneY = 42;
-            this.itemReceiverRenderAreaX = 152;
-            this.itemReceiverRenderAreaY = 42;
-            this.itemReceiverSpeedButtonX = 78;
-            this.itemReceiverSpeedButtonY = 44;
-        }
-
-        JsonObject itemReceiverSlots = json.getAsJsonObject("item_receiver_slots");
-        if (itemReceiverSlots != null) {
-            this.itemReceiverSlotStartX = getInt(itemReceiverSlots, "machine_start_x", 8);
-            this.itemReceiverSlotStartY = getInt(itemReceiverSlots, "machine_start_y", 36);
-            this.itemReceiverSlotSpacing = getInt(itemReceiverSlots, "machine_spacing", 18);
-            this.itemReceiverSlotCount = getInt(itemReceiverSlots, "machine_count", 9);
-        } else {
-            this.itemReceiverSlotStartX = 8;
-            this.itemReceiverSlotStartY = 36;
-            this.itemReceiverSlotSpacing = 18;
-            this.itemReceiverSlotCount = 9;
-        }
-
-        // --- Basic item receiver buttons ---
-        JsonObject basicItemReceiverButtons = json.getAsJsonObject("basic_item_receiver_buttons");
-        if (basicItemReceiverButtons != null) {
-            this.basicItemReceiverAllowlistX = getInt(basicItemReceiverButtons, "allowlist_button_x", 8);
-            this.basicItemReceiverAllowlistY = getInt(basicItemReceiverButtons, "allowlist_button_y", 42);
-            this.basicItemReceiverCompareNBTX = getInt(basicItemReceiverButtons, "compare_nbt_button_x", 26);
-            this.basicItemReceiverCompareNBTY = getInt(basicItemReceiverButtons, "compare_nbt_button_y", 42);
-            this.basicItemReceiverRedstoneX = getInt(basicItemReceiverButtons, "redstone_button_x", 134);
-            this.basicItemReceiverRedstoneY = getInt(basicItemReceiverButtons, "redstone_button_y", 42);
-            this.basicItemReceiverRenderAreaX = getInt(basicItemReceiverButtons, "render_area_button_x", 152);
-            this.basicItemReceiverRenderAreaY = getInt(basicItemReceiverButtons, "render_area_button_y", 42);
-            this.basicItemReceiverSpeedButtonX = getInt(basicItemReceiverButtons, "speed_button_x", 78);
-            this.basicItemReceiverSpeedButtonY = getInt(basicItemReceiverButtons, "speed_button_y", 44);
-        } else {
-            this.basicItemReceiverAllowlistX = 8;
-            this.basicItemReceiverAllowlistY = 42;
-            this.basicItemReceiverCompareNBTX = 26;
-            this.basicItemReceiverCompareNBTY = 42;
-            this.basicItemReceiverRedstoneX = 134;
-            this.basicItemReceiverRedstoneY = 42;
-            this.basicItemReceiverRenderAreaX = 152;
-            this.basicItemReceiverRenderAreaY = 42;
-            this.basicItemReceiverSpeedButtonX = 78;
-            this.basicItemReceiverSpeedButtonY = 44;
-        }
-
-        JsonObject basicItemReceiverSlots = json.getAsJsonObject("basic_item_receiver_slots");
-        if (basicItemReceiverSlots != null) {
-            this.basicItemReceiverSlotStartX = getInt(basicItemReceiverSlots, "machine_start_x", 8);
-            this.basicItemReceiverSlotStartY = getInt(basicItemReceiverSlots, "machine_start_y", 36);
-            this.basicItemReceiverSlotSpacing = getInt(basicItemReceiverSlots, "machine_spacing", 18);
-            this.basicItemReceiverSlotCount = getInt(basicItemReceiverSlots, "machine_count", 9);
-        } else {
-            this.basicItemReceiverSlotStartX = 8;
-            this.basicItemReceiverSlotStartY = 36;
-            this.basicItemReceiverSlotSpacing = 18;
-            this.basicItemReceiverSlotCount = 9;
-        }
-
-        // --- Life extractor buttons ---
-        JsonObject lifeExtractorButtons = json.getAsJsonObject("life_extractor_buttons");
-        if (lifeExtractorButtons != null) {
-            this.lifeExtractorModeButtonX = getInt(lifeExtractorButtons, "mode_button_x", 80);
-            this.lifeExtractorModeButtonY = getInt(lifeExtractorButtons, "mode_button_y", 62);
-        } else {
-            this.lifeExtractorModeButtonX = 80;
-            this.lifeExtractorModeButtonY = 62;
-        }
-
-        // --- Bio crusher buttons ---
-        JsonObject bioCrusherButtons = json.getAsJsonObject("bio_crusher_buttons");
-        if (bioCrusherButtons != null) {
-            this.bioCrusherModeButtonX = getInt(bioCrusherButtons, "mode_button_x", 80);
-            this.bioCrusherModeButtonY = getInt(bioCrusherButtons, "mode_button_y", 36);
-            this.bioCrusherSharpnessSlotX = getInt(bioCrusherButtons, "sharpness_slot_x", this.bioCrusherModeButtonX - 20);
-            this.bioCrusherSharpnessSlotY = getInt(bioCrusherButtons, "sharpness_slot_y", this.bioCrusherModeButtonY);
-            this.bioCrusherLootingSlotX = getInt(bioCrusherButtons, "looting_slot_x", this.bioCrusherModeButtonX + 18);
-            this.bioCrusherLootingSlotY = getInt(bioCrusherButtons, "looting_slot_y", this.bioCrusherModeButtonY);
-        } else {
-            this.bioCrusherModeButtonX = 80;
-            this.bioCrusherModeButtonY = 36;
-            this.bioCrusherSharpnessSlotX = 60;
-            this.bioCrusherSharpnessSlotY = 36;
-            this.bioCrusherLootingSlotX = 98;
-            this.bioCrusherLootingSlotY = 36;
-        }
-
-        JsonObject potionBrewerBackground = json.getAsJsonObject("advanced_potion_brewer_background");
-        if (potionBrewerBackground != null) {
-            this.potionBrewerBgSrcX = getInt(potionBrewerBackground, "src_x", 15);
-            this.potionBrewerBgSrcY = getInt(potionBrewerBackground, "src_y", 15);
-            this.potionBrewerBgX = getInt(potionBrewerBackground, "x", 15);
-            this.potionBrewerBgY = getInt(potionBrewerBackground, "y", 5);
-            this.potionBrewerBgWidth = getInt(potionBrewerBackground, "width", 107);
-            this.potionBrewerBgHeight = getInt(potionBrewerBackground, "height", 63);
-        } else {
-            this.potionBrewerBgSrcX = 15;
-            this.potionBrewerBgSrcY = 15;
-            this.potionBrewerBgX = 15;
-            this.potionBrewerBgY = 5;
-            this.potionBrewerBgWidth = 107;
-            this.potionBrewerBgHeight = 63;
-        }
-
-        JsonObject potionBrewerSlots = json.getAsJsonObject("advanced_potion_brewer_slots");
-        if (potionBrewerSlots != null) {
-            this.potionBrewerFuelSlotX = getInt(potionBrewerSlots, "fuel_slot_x", 17);
-            this.potionBrewerFuelSlotY = getInt(potionBrewerSlots, "fuel_slot_y", 7);
-            this.potionBrewerIngredientSlotX = getInt(potionBrewerSlots, "ingredient_slot_x", 79);
-            this.potionBrewerIngredientSlotY = getInt(potionBrewerSlots, "ingredient_slot_y", 7);
-            this.potionBrewerBottleSlot0X = getInt(potionBrewerSlots, "bottle_slot_0_x", 56);
-            this.potionBrewerBottleSlot0Y = getInt(potionBrewerSlots, "bottle_slot_0_y", 41);
-            this.potionBrewerBottleSlot1X = getInt(potionBrewerSlots, "bottle_slot_1_x", 79);
-            this.potionBrewerBottleSlot1Y = getInt(potionBrewerSlots, "bottle_slot_1_y", 48);
-            this.potionBrewerBottleSlot2X = getInt(potionBrewerSlots, "bottle_slot_2_x", 102);
-            this.potionBrewerBottleSlot2Y = getInt(potionBrewerSlots, "bottle_slot_2_y", 41);
-            this.potionBrewerExtraIngredientStartX = getInt(potionBrewerSlots, "extra_ingredient_start_x", 43);
-            this.potionBrewerExtraIngredientStartY = getInt(potionBrewerSlots, "extra_ingredient_start_y", -21);
-            this.potionBrewerExtraIngredientSpacing = getInt(potionBrewerSlots, "extra_ingredient_spacing", 18);
-            this.potionBrewerExtraIngredientCount = getInt(potionBrewerSlots, "extra_ingredient_count", 5);
-            this.potionBrewerOutputStartX = getInt(potionBrewerSlots, "output_start_x", 128);
-            this.potionBrewerOutputStartY = getInt(potionBrewerSlots, "output_start_y", 13);
-            this.potionBrewerOutputSpacing = getInt(potionBrewerSlots, "output_spacing", 18);
-            this.potionBrewerOutputCount = getInt(potionBrewerSlots, "output_count", 3);
-        } else {
-            this.potionBrewerFuelSlotX = 17;
-            this.potionBrewerFuelSlotY = 7;
-            this.potionBrewerIngredientSlotX = 79;
-            this.potionBrewerIngredientSlotY = 7;
-            this.potionBrewerBottleSlot0X = 56;
-            this.potionBrewerBottleSlot0Y = 41;
-            this.potionBrewerBottleSlot1X = 79;
-            this.potionBrewerBottleSlot1Y = 48;
-            this.potionBrewerBottleSlot2X = 102;
-            this.potionBrewerBottleSlot2Y = 41;
-            this.potionBrewerExtraIngredientStartX = 43;
-            this.potionBrewerExtraIngredientStartY = -21;
-            this.potionBrewerExtraIngredientSpacing = 18;
-            this.potionBrewerExtraIngredientCount = 5;
-            this.potionBrewerOutputStartX = 128;
-            this.potionBrewerOutputStartY = 13;
-            this.potionBrewerOutputSpacing = 18;
-            this.potionBrewerOutputCount = 3;
-        }
-
-        JsonObject potionBrewerWidgets = json.getAsJsonObject("advanced_potion_brewer_widgets");
-        if (potionBrewerWidgets != null) {
-            this.potionBrewerFuelBarX = getInt(potionBrewerWidgets, "fuel_bar_x", 60);
-            this.potionBrewerFuelBarBottomY = getInt(potionBrewerWidgets, "fuel_bar_bottom_y", 38);
-            this.potionBrewerBubblesX = getInt(potionBrewerWidgets, "bubbles_x", 63);
-            this.potionBrewerBubblesBottomY = getInt(potionBrewerWidgets, "bubbles_bottom_y", 33);
-            this.potionBrewerArrowX = getInt(potionBrewerWidgets, "arrow_x", 97);
-            this.potionBrewerArrowBottomY = getInt(potionBrewerWidgets, "arrow_bottom_y", 34);
-        } else {
-            this.potionBrewerFuelBarX = 60;
-            this.potionBrewerFuelBarBottomY = 38;
-            this.potionBrewerBubblesX = 63;
-            this.potionBrewerBubblesBottomY = 33;
-            this.potionBrewerArrowX = 97;
-            this.potionBrewerArrowBottomY = 34;
-        }
-
-        JsonObject potionBrewerFluids = json.getAsJsonObject("advanced_potion_brewer_fluids");
-        if (potionBrewerFluids != null) {
-            this.potionBrewerWaterFluidX = getInt(potionBrewerFluids, "water_fluid_x", -6);
-            this.potionBrewerWaterFluidY = getInt(potionBrewerFluids, "water_fluid_y", -21);
-            this.potionBrewerTimeFluidX = getInt(potionBrewerFluids, "time_fluid_x", 174);
-            this.potionBrewerTimeFluidY = getInt(potionBrewerFluids, "time_fluid_y", -21);
-        } else {
-            this.potionBrewerWaterFluidX = -6;
-            this.potionBrewerWaterFluidY = -21;
-            this.potionBrewerTimeFluidX = 174;
-            this.potionBrewerTimeFluidY = -21;
-        }
-
-        JsonObject potionBrewerButtons = json.getAsJsonObject("advanced_potion_brewer_buttons");
-        if (potionBrewerButtons != null) {
-            this.potionBrewerSpeedButtonX = getInt(potionBrewerButtons, "speed_button_x", 148);
-            this.potionBrewerSpeedButtonY = getInt(potionBrewerButtons, "speed_button_y", 49);
-            this.potionBrewerRedstoneButtonX = getInt(potionBrewerButtons, "redstone_button_x", 150);
-            this.potionBrewerRedstoneButtonY = getInt(potionBrewerButtons, "redstone_button_y", 31);
-            this.potionBrewerRecipeLockButtonX = getInt(potionBrewerButtons, "recipe_lock_button_x", this.potionBrewerRedstoneButtonX);
-            this.potionBrewerRecipeLockButtonY = getInt(potionBrewerButtons, "recipe_lock_button_y", this.potionBrewerRedstoneButtonY - 18);
-            this.potionBrewerFuelInputButtonX = getInt(potionBrewerButtons, "fuel_input_button_x", this.potionBrewerRecipeLockButtonX);
-            this.potionBrewerFuelInputButtonY = getInt(potionBrewerButtons, "fuel_input_button_y", this.potionBrewerRecipeLockButtonY - 18);
-        } else {
-            this.potionBrewerSpeedButtonX = 148;
-            this.potionBrewerSpeedButtonY = 49;
-            this.potionBrewerRedstoneButtonX = 150;
-            this.potionBrewerRedstoneButtonY = 31;
-            this.potionBrewerRecipeLockButtonX = 150;
-            this.potionBrewerRecipeLockButtonY = 13;
-            this.potionBrewerFuelInputButtonX = 150;
-            this.potionBrewerFuelInputButtonY = -5;
-        }
-
-        JsonObject lootLayout = json.getAsJsonObject("loot_fabricator_layout");
-        this.lootFabricatorExtraWidth = getInt(lootLayout, "extra_width", 60);
-        this.lootFabricatorExtraHeight = getInt(lootLayout, "extra_height", 0);
-
-        JsonObject lootSlots = json.getAsJsonObject("loot_fabricator_slots");
-        this.lootFabricatorInputStartX = getInt(lootSlots, "input_start_x", 8);
-        this.lootFabricatorInputStartY = getInt(lootSlots, "input_start_y", -21);
-        this.lootFabricatorInputSpacing = getInt(lootSlots, "input_spacing", 18);
-        this.lootFabricatorOutputStartX = getInt(lootSlots, "output_start_x", 68);
-        this.lootFabricatorOutputStartY = getInt(lootSlots, "output_start_y", -21);
-        this.lootFabricatorOutputSpacing = getInt(lootSlots, "output_spacing", 18);
-        this.lootFabricatorOutputColumns = getInt(lootSlots, "output_columns", 4);
-        this.lootFabricatorOutputRows = getInt(lootSlots, "output_rows", 4);
-
-        JsonObject lootFluids = json.getAsJsonObject("loot_fabricator_fluids");
-        this.lootFabricatorLifeFluidX = getInt(lootFluids, "life_fluid_x", 162);
-        this.lootFabricatorLifeFluidY = getInt(lootFluids, "life_fluid_y", -21);
-        this.lootFabricatorTimeFluidX = getInt(lootFluids, "time_fluid_x", 182);
-        this.lootFabricatorTimeFluidY = getInt(lootFluids, "time_fluid_y", -21);
-
-        JsonObject lootWidgets = json.getAsJsonObject("loot_fabricator_widgets");
-        this.lootFabricatorProgressArrowX = getInt(lootWidgets, "progress_arrow_x", 36);
-        this.lootFabricatorProgressArrowY = getInt(lootWidgets, "progress_arrow_y", 7);
-        this.lootFabricatorSpeedButtonX = getInt(lootWidgets, "speed_button_x", 36);
-        this.lootFabricatorSpeedButtonY = getInt(lootWidgets, "speed_button_y", 24);
-        this.lootFabricatorRedstoneButtonX = getInt(lootWidgets, "redstone_button_x", 142);
-        this.lootFabricatorRedstoneButtonY = getInt(lootWidgets, "redstone_button_y", 17);
-        this.lootFabricatorOutputPrevX = getInt(lootWidgets, "output_prev_x", 54);
-        this.lootFabricatorOutputPrevY = getInt(lootWidgets, "output_prev_y", 36);
-        this.lootFabricatorOutputNextX = getInt(lootWidgets, "output_next_x", 142);
-        this.lootFabricatorOutputNextY = getInt(lootWidgets, "output_next_y", 36);
-        this.lootFabricatorOutputPageButtonSize = getInt(lootWidgets, "output_page_button_size", 12);
-        this.lootFabricatorOutputPageTextX = getInt(lootWidgets, "output_page_text_x", 104);
-        this.lootFabricatorOutputPageTextY = getInt(lootWidgets, "output_page_text_y", 54);
-    }
-
-    private GuiUpgradeLayoutConfig() {
-        // Hardcoded fallback defaults
-        this.firstSlotX = 183;
-        this.firstSlotY = 85;
-        this.slotSpacing = 18;
-        this.slotSize = 18;
-        this.columns = 1;
-        this.rows = 4;
-        this.panelPadding = 8;
-        this.leftFirstSlotX = -22;
-        this.leftFirstSlotY = 85;
-        this.gelGenGelX = 10;
-        this.gelGenGelY = -12;
-        this.gelGenFoodX = 10;
-        this.gelGenFoodY = 24;
-        this.gelGenInputStartX = 44;
-        this.gelGenInputStartY = -21;
-        this.gelGenInputSpacing = 18;
-        this.gelGenInputCount = 4;
-        this.gelGenInputFluidX = 62;
-        this.gelGenInputFluidY = -22;
-        this.gelGenOutputStartX = 116;
-        this.gelGenOutputStartY = -21;
-        this.gelGenOutputSpacing = 18;
-        this.gelGenOutputCount = 4;
-        this.gelGenOutputFluidX = 134;
-        this.gelGenOutputFluidY = -22;
-        this.gelGenProgressArrowX = 88;
-        this.gelGenProgressArrowY = 8;
-        this.gelGenSpeedButtonX = 88;
-        this.gelGenSpeedButtonY = 38;
-        this.gelGenAllowlistButtonX = 170;
-        this.gelGenAllowlistButtonY = -3;
-        this.gelGenCompareNBTButtonX = 170;
-        this.gelGenCompareNBTButtonY = 15;
-        this.gelGenRedstoneButtonX = 170;
-        this.gelGenRedstoneButtonY = 33;
-        this.gelGenAutoBalanceX = 170;
-        this.gelGenAutoBalanceY = -21;
-        this.itemSenderAllowlistX = 8;
-        this.itemSenderAllowlistY = 42;
-        this.itemSenderCompareNBTX = 26;
-        this.itemSenderCompareNBTY = 42;
-        this.itemSenderRedstoneX = 134;
-        this.itemSenderRedstoneY = 42;
-        this.itemSenderRenderAreaX = 152;
-        this.itemSenderRenderAreaY = 42;
-        this.itemSenderSpeedButtonX = 78;
-        this.itemSenderSpeedButtonY = 44;
-        this.itemSenderSlotStartX = 8;
-        this.itemSenderSlotStartY = 36;
-        this.itemSenderSlotSpacing = 18;
-        this.itemSenderSlotCount = 9;
-        this.basicItemSenderAllowlistX = 8;
-        this.basicItemSenderAllowlistY = 42;
-        this.basicItemSenderCompareNBTX = 26;
-        this.basicItemSenderCompareNBTY = 42;
-        this.basicItemSenderRedstoneX = 134;
-        this.basicItemSenderRedstoneY = 42;
-        this.basicItemSenderRenderAreaX = 152;
-        this.basicItemSenderRenderAreaY = 42;
-        this.basicItemSenderSpeedButtonX = 78;
-        this.basicItemSenderSpeedButtonY = 44;
-        this.basicItemSenderSlotStartX = 8;
-        this.basicItemSenderSlotStartY = 36;
-        this.basicItemSenderSlotSpacing = 18;
-        this.basicItemSenderSlotCount = 9;
-        this.itemReceiverAllowlistX = 8;
-        this.itemReceiverAllowlistY = 42;
-        this.itemReceiverCompareNBTX = 26;
-        this.itemReceiverCompareNBTY = 42;
-        this.itemReceiverRedstoneX = 134;
-        this.itemReceiverRedstoneY = 42;
-        this.itemReceiverRenderAreaX = 152;
-        this.itemReceiverRenderAreaY = 42;
-        this.itemReceiverSpeedButtonX = 78;
-        this.itemReceiverSpeedButtonY = 44;
-        this.itemReceiverSlotStartX = 8;
-        this.itemReceiverSlotStartY = 36;
-        this.itemReceiverSlotSpacing = 18;
-        this.itemReceiverSlotCount = 9;
-        this.basicItemReceiverAllowlistX = 8;
-        this.basicItemReceiverAllowlistY = 42;
-        this.basicItemReceiverCompareNBTX = 26;
-        this.basicItemReceiverCompareNBTY = 42;
-        this.basicItemReceiverRedstoneX = 134;
-        this.basicItemReceiverRedstoneY = 42;
-        this.basicItemReceiverRenderAreaX = 152;
-        this.basicItemReceiverRenderAreaY = 42;
-        this.basicItemReceiverSpeedButtonX = 78;
-        this.basicItemReceiverSpeedButtonY = 44;
-        this.basicItemReceiverSlotStartX = 8;
-        this.basicItemReceiverSlotStartY = 36;
-        this.basicItemReceiverSlotSpacing = 18;
-        this.basicItemReceiverSlotCount = 9;
-        this.lifeExtractorModeButtonX = 80;
-        this.lifeExtractorModeButtonY = 62;
-        this.bioCrusherModeButtonX = 80;
-        this.bioCrusherModeButtonY = 36;
-        this.bioCrusherSharpnessSlotX = 60;
-        this.bioCrusherSharpnessSlotY = 36;
-        this.bioCrusherLootingSlotX = 98;
-        this.bioCrusherLootingSlotY = 36;
-        this.potionBrewerBgSrcX = 15;
-        this.potionBrewerBgSrcY = 15;
-        this.potionBrewerBgX = 15;
-        this.potionBrewerBgY = 5;
-        this.potionBrewerBgWidth = 107;
-        this.potionBrewerBgHeight = 63;
-        this.potionBrewerFuelSlotX = 17;
-        this.potionBrewerFuelSlotY = 7;
-        this.potionBrewerIngredientSlotX = 79;
-        this.potionBrewerIngredientSlotY = 7;
-        this.potionBrewerBottleSlot0X = 56;
-        this.potionBrewerBottleSlot0Y = 41;
-        this.potionBrewerBottleSlot1X = 79;
-        this.potionBrewerBottleSlot1Y = 48;
-        this.potionBrewerBottleSlot2X = 102;
-        this.potionBrewerBottleSlot2Y = 41;
-        this.potionBrewerExtraIngredientStartX = 43;
-        this.potionBrewerExtraIngredientStartY = -21;
-        this.potionBrewerExtraIngredientSpacing = 18;
-        this.potionBrewerExtraIngredientCount = 5;
-        this.potionBrewerOutputStartX = 128;
-        this.potionBrewerOutputStartY = 13;
-        this.potionBrewerOutputSpacing = 18;
-        this.potionBrewerOutputCount = 3;
-        this.potionBrewerSpeedButtonX = 148;
-        this.potionBrewerSpeedButtonY = 49;
-        this.potionBrewerRedstoneButtonX = 150;
-        this.potionBrewerRedstoneButtonY = 31;
-        this.potionBrewerRecipeLockButtonX = 150;
-        this.potionBrewerRecipeLockButtonY = 13;
-        this.potionBrewerFuelInputButtonX = 150;
-        this.potionBrewerFuelInputButtonY = -5;
-        this.potionBrewerFuelBarX = 60;
-        this.potionBrewerFuelBarBottomY = 38;
-        this.potionBrewerBubblesX = 63;
-        this.potionBrewerBubblesBottomY = 33;
-        this.potionBrewerArrowX = 97;
-        this.potionBrewerArrowBottomY = 34;
-        this.potionBrewerWaterFluidX = -6;
-        this.potionBrewerWaterFluidY = -21;
-        this.potionBrewerTimeFluidX = 174;
-        this.potionBrewerTimeFluidY = -21;
-        this.lootFabricatorExtraWidth = 60;
-        this.lootFabricatorExtraHeight = 0;
-        this.lootFabricatorInputStartX = 8;
-        this.lootFabricatorInputStartY = -21;
-        this.lootFabricatorInputSpacing = 18;
-        this.lootFabricatorOutputStartX = 68;
-        this.lootFabricatorOutputStartY = -21;
-        this.lootFabricatorOutputSpacing = 18;
-        this.lootFabricatorOutputColumns = 4;
-        this.lootFabricatorOutputRows = 4;
-        this.lootFabricatorLifeFluidX = 162;
-        this.lootFabricatorLifeFluidY = -21;
-        this.lootFabricatorTimeFluidX = 182;
-        this.lootFabricatorTimeFluidY = -21;
-        this.lootFabricatorProgressArrowX = 36;
-        this.lootFabricatorProgressArrowY = 7;
-        this.lootFabricatorSpeedButtonX = 36;
-        this.lootFabricatorSpeedButtonY = 24;
-        this.lootFabricatorRedstoneButtonX = 142;
-        this.lootFabricatorRedstoneButtonY = 17;
-        this.lootFabricatorOutputPrevX = 54;
-        this.lootFabricatorOutputPrevY = 36;
-        this.lootFabricatorOutputNextX = 142;
-        this.lootFabricatorOutputNextY = 36;
-        this.lootFabricatorOutputPageButtonSize = 12;
-        this.lootFabricatorOutputPageTextX = 104;
-        this.lootFabricatorOutputPageTextY = 54;
     }
 
     /**
@@ -827,648 +54,231 @@ public class GuiUpgradeLayoutConfig {
         } catch (Exception e) {
             // Keep menus usable with built-in defaults if the packaged layout is unavailable or invalid.
         }
-        return new GuiUpgradeLayoutConfig();
+        return new GuiUpgradeLayoutConfig(null);
     }
 
-    private static int getInt(JsonObject obj, String key, int defaultValue) {
+    private int get(String section, String key, int defaultValue) {
+        JsonObject obj = sections.get(section);
         return obj != null && obj.has(key) ? obj.get(key).getAsInt() : defaultValue;
     }
 
     // --- Right panel getters ---
 
-    public int getFirstSlotX() {
-        return firstSlotX;
-    }
-
-    public int getFirstSlotY() {
-        return firstSlotY;
-    }
-
-    public int getSlotSpacing() {
-        return slotSpacing;
-    }
-
-    public int getSlotSize() {
-        return slotSize;
-    }
-
-    public int getColumns() {
-        return columns;
-    }
-
-    public int getRows() {
-        return rows;
-    }
-
-    public int getPanelPadding() {
-        return panelPadding;
-    }
-
-    public int getPanelWidth() {
-        return columns * slotSize + 2 * panelPadding;
-    }
-
-    public int getPanelHeight() {
-        return rows * slotSize + 2 * panelPadding;
-    }
+    public int getFirstSlotX() { return get("upgrade_panel_4", "first_slot_x", 183); }
+    public int getFirstSlotY() { return get("upgrade_panel_4", "first_slot_y", 85); }
+    public int getSlotSpacing() { return get("upgrade_panel_4", "slot_spacing", 18); }
+    public int getSlotSize() { return get("upgrade_panel_4", "slot_size", 18); }
+    public int getColumns() { return get("upgrade_panel_4", "columns", 1); }
+    public int getRows() { return get("upgrade_panel_4", "rows", 4); }
+    public int getPanelPadding() { return get("upgrade_panel_4", "panel_padding", 8); }
+    public int getPanelWidth() { return getColumns() * getSlotSize() + 2 * getPanelPadding(); }
+    public int getPanelHeight() { return getRows() * getSlotSize() + 2 * getPanelPadding(); }
 
     // --- Left panel getters (only for 8-slot machines) ---
 
-    public int getLeftFirstSlotX() {
-        return leftFirstSlotX;
-    }
-
-    public int getLeftFirstSlotY() {
-        return leftFirstSlotY;
-    }
+    public int getLeftFirstSlotX() { return get("upgrade_panel_8_left", "first_slot_x", -22); }
+    public int getLeftFirstSlotY() { return get("upgrade_panel_8_left", "first_slot_y", getFirstSlotY()); }
 
     // --- Gel generator machine slot getters ---
 
-    public int getGelGenGelX() {
-        return gelGenGelX;
-    }
-
-    public int getGelGenGelY() {
-        return gelGenGelY;
-    }
-
-    public int getGelGenFoodX() {
-        return gelGenFoodX;
-    }
-
-    public int getGelGenFoodY() {
-        return gelGenFoodY;
-    }
-
-    public int getGelGenInputStartX() {
-        return gelGenInputStartX;
-    }
-
-    public int getGelGenInputStartY() {
-        return gelGenInputStartY;
-    }
-
-    public int getGelGenInputSpacing() {
-        return gelGenInputSpacing;
-    }
-
-    public int getGelGenInputCount() {
-        return gelGenInputCount;
-    }
-
-    public int getGelGenInputFluidX() {
-        return gelGenInputFluidX;
-    }
-
-    public int getGelGenInputFluidY() {
-        return gelGenInputFluidY;
-    }
-
-    public int getGelGenOutputStartX() {
-        return gelGenOutputStartX;
-    }
-
-    public int getGelGenOutputStartY() {
-        return gelGenOutputStartY;
-    }
-
-    public int getGelGenOutputSpacing() {
-        return gelGenOutputSpacing;
-    }
-
-    public int getGelGenOutputCount() {
-        return gelGenOutputCount;
-    }
-
-    public int getGelGenOutputFluidX() {
-        return gelGenOutputFluidX;
-    }
-
-    public int getGelGenOutputFluidY() {
-        return gelGenOutputFluidY;
-    }
+    public int getGelGenGelX() { return get("gel_generator_slots", "gel_slot_x", 10); }
+    public int getGelGenGelY() { return get("gel_generator_slots", "gel_slot_y", -12); }
+    public int getGelGenFoodX() { return get("gel_generator_slots", "food_slot_x", 10); }
+    public int getGelGenFoodY() { return get("gel_generator_slots", "food_slot_y", 24); }
+    public int getGelGenInputStartX() { return get("gel_generator_slots", "input_start_x", 44); }
+    public int getGelGenInputStartY() { return get("gel_generator_slots", "input_start_y", -21); }
+    public int getGelGenInputSpacing() { return get("gel_generator_slots", "input_spacing", 18); }
+    public int getGelGenInputCount() { return get("gel_generator_slots", "input_count", 4); }
+    public int getGelGenInputFluidX() { return get("gel_generator_slots", "input_fluid_x", getGelGenInputStartX() + 18); }
+    public int getGelGenInputFluidY() { return get("gel_generator_slots", "input_fluid_y", getGelGenInputStartY()); }
+    public int getGelGenOutputStartX() { return get("gel_generator_slots", "output_start_x", 116); }
+    public int getGelGenOutputStartY() { return get("gel_generator_slots", "output_start_y", -21); }
+    public int getGelGenOutputSpacing() { return get("gel_generator_slots", "output_spacing", 18); }
+    public int getGelGenOutputCount() { return get("gel_generator_slots", "output_count", 4); }
+    public int getGelGenOutputFluidX() { return get("gel_generator_slots", "output_fluid_x", getGelGenOutputStartX() + 18); }
+    public int getGelGenOutputFluidY() { return get("gel_generator_slots", "output_fluid_y", getGelGenOutputStartY()); }
 
     // --- Gel generator button getters ---
 
-    public int getGelGenProgressArrowX() {
-        return gelGenProgressArrowX;
-    }
-
-    public int getGelGenProgressArrowY() {
-        return gelGenProgressArrowY;
-    }
-
-    public int getGelGenSpeedButtonX() {
-        return gelGenSpeedButtonX;
-    }
-
-    public int getGelGenSpeedButtonY() {
-        return gelGenSpeedButtonY;
-    }
-
-    public int getGelGenAllowlistButtonX() {
-        return gelGenAllowlistButtonX;
-    }
-
-    public int getGelGenAllowlistButtonY() {
-        return gelGenAllowlistButtonY;
-    }
-
-    public int getGelGenCompareNBTButtonX() {
-        return gelGenCompareNBTButtonX;
-    }
-
-    public int getGelGenCompareNBTButtonY() {
-        return gelGenCompareNBTButtonY;
-    }
-
-    public int getGelGenRedstoneButtonX() {
-        return gelGenRedstoneButtonX;
-    }
-
-    public int getGelGenRedstoneButtonY() {
-        return gelGenRedstoneButtonY;
-    }
-
-    public int getGelGenAutoBalanceX() {
-        return gelGenAutoBalanceX;
-    }
-
-    public int getGelGenAutoBalanceY() {
-        return gelGenAutoBalanceY;
-    }
+    public int getGelGenProgressArrowX() { return get("gel_generator_buttons", "progress_arrow_x", 88); }
+    public int getGelGenProgressArrowY() { return get("gel_generator_buttons", "progress_arrow_y", 8); }
+    public int getGelGenSpeedButtonX() { return get("gel_generator_buttons", "speed_button_x", 88); }
+    public int getGelGenSpeedButtonY() { return get("gel_generator_buttons", "speed_button_y", 38); }
+    public int getGelGenAllowlistButtonX() { return get("gel_generator_buttons", "allowlist_button_x", 170); }
+    public int getGelGenAllowlistButtonY() { return get("gel_generator_buttons", "allowlist_button_y", -3); }
+    public int getGelGenCompareNBTButtonX() { return get("gel_generator_buttons", "compare_nbt_button_x", 170); }
+    public int getGelGenCompareNBTButtonY() { return get("gel_generator_buttons", "compare_nbt_button_y", 15); }
+    public int getGelGenRedstoneButtonX() { return get("gel_generator_buttons", "redstone_button_x", 170); }
+    public int getGelGenRedstoneButtonY() { return get("gel_generator_buttons", "redstone_button_y", 33); }
+    public int getGelGenAutoBalanceX() { return get("gel_generator_buttons", "auto_balance_x", 170); }
+    public int getGelGenAutoBalanceY() { return get("gel_generator_buttons", "auto_balance_y", -21); }
 
     // --- Item sender button getters ---
 
-    public int getItemSenderAllowlistX() {
-        return itemSenderAllowlistX;
-    }
-
-    public int getItemSenderAllowlistY() {
-        return itemSenderAllowlistY;
-    }
-
-    public int getItemSenderCompareNBTX() {
-        return itemSenderCompareNBTX;
-    }
-
-    public int getItemSenderCompareNBTY() {
-        return itemSenderCompareNBTY;
-    }
-
-    public int getItemSenderRedstoneX() {
-        return itemSenderRedstoneX;
-    }
-
-    public int getItemSenderRedstoneY() {
-        return itemSenderRedstoneY;
-    }
-
-    public int getItemSenderRenderAreaX() {
-        return itemSenderRenderAreaX;
-    }
-
-    public int getItemSenderRenderAreaY() {
-        return itemSenderRenderAreaY;
-    }
-
-    public int getItemSenderSpeedButtonX() {
-        return itemSenderSpeedButtonX;
-    }
-
-    public int getItemSenderSpeedButtonY() {
-        return itemSenderSpeedButtonY;
-    }
+    public int getItemSenderAllowlistX() { return get("item_sender_buttons", "allowlist_button_x", 8); }
+    public int getItemSenderAllowlistY() { return get("item_sender_buttons", "allowlist_button_y", 42); }
+    public int getItemSenderCompareNBTX() { return get("item_sender_buttons", "compare_nbt_button_x", 26); }
+    public int getItemSenderCompareNBTY() { return get("item_sender_buttons", "compare_nbt_button_y", 42); }
+    public int getItemSenderRedstoneX() { return get("item_sender_buttons", "redstone_button_x", 134); }
+    public int getItemSenderRedstoneY() { return get("item_sender_buttons", "redstone_button_y", 42); }
+    public int getItemSenderRenderAreaX() { return get("item_sender_buttons", "render_area_button_x", 152); }
+    public int getItemSenderRenderAreaY() { return get("item_sender_buttons", "render_area_button_y", 42); }
+    public int getItemSenderSpeedButtonX() { return get("item_sender_buttons", "speed_button_x", 78); }
+    public int getItemSenderSpeedButtonY() { return get("item_sender_buttons", "speed_button_y", 44); }
 
     // --- Item sender slot getters ---
 
-    public int getItemSenderSlotStartX() {
-        return itemSenderSlotStartX;
-    }
-
-    public int getItemSenderSlotStartY() {
-        return itemSenderSlotStartY;
-    }
-
-    public int getItemSenderSlotSpacing() {
-        return itemSenderSlotSpacing;
-    }
-
-    public int getItemSenderSlotCount() {
-        return itemSenderSlotCount;
-    }
+    public int getItemSenderSlotStartX() { return get("item_sender_slots", "machine_start_x", 8); }
+    public int getItemSenderSlotStartY() { return get("item_sender_slots", "machine_start_y", 36); }
+    public int getItemSenderSlotSpacing() { return get("item_sender_slots", "machine_spacing", 18); }
+    public int getItemSenderSlotCount() { return get("item_sender_slots", "machine_count", 9); }
 
     // --- Basic item sender button getters ---
 
-    public int getBasicItemSenderAllowlistX() {
-        return basicItemSenderAllowlistX;
-    }
-
-    public int getBasicItemSenderAllowlistY() {
-        return basicItemSenderAllowlistY;
-    }
-
-    public int getBasicItemSenderCompareNBTX() {
-        return basicItemSenderCompareNBTX;
-    }
-
-    public int getBasicItemSenderCompareNBTY() {
-        return basicItemSenderCompareNBTY;
-    }
-
-    public int getBasicItemSenderRedstoneX() {
-        return basicItemSenderRedstoneX;
-    }
-
-    public int getBasicItemSenderRedstoneY() {
-        return basicItemSenderRedstoneY;
-    }
-
-    public int getBasicItemSenderRenderAreaX() {
-        return basicItemSenderRenderAreaX;
-    }
-
-    public int getBasicItemSenderRenderAreaY() {
-        return basicItemSenderRenderAreaY;
-    }
-
-    public int getBasicItemSenderSpeedButtonX() {
-        return basicItemSenderSpeedButtonX;
-    }
-
-    public int getBasicItemSenderSpeedButtonY() {
-        return basicItemSenderSpeedButtonY;
-    }
+    public int getBasicItemSenderAllowlistX() { return get("basic_item_sender_buttons", "allowlist_button_x", 8); }
+    public int getBasicItemSenderAllowlistY() { return get("basic_item_sender_buttons", "allowlist_button_y", 42); }
+    public int getBasicItemSenderCompareNBTX() { return get("basic_item_sender_buttons", "compare_nbt_button_x", 26); }
+    public int getBasicItemSenderCompareNBTY() { return get("basic_item_sender_buttons", "compare_nbt_button_y", 42); }
+    public int getBasicItemSenderRedstoneX() { return get("basic_item_sender_buttons", "redstone_button_x", 134); }
+    public int getBasicItemSenderRedstoneY() { return get("basic_item_sender_buttons", "redstone_button_y", 42); }
+    public int getBasicItemSenderRenderAreaX() { return get("basic_item_sender_buttons", "render_area_button_x", 152); }
+    public int getBasicItemSenderRenderAreaY() { return get("basic_item_sender_buttons", "render_area_button_y", 42); }
+    public int getBasicItemSenderSpeedButtonX() { return get("basic_item_sender_buttons", "speed_button_x", 78); }
+    public int getBasicItemSenderSpeedButtonY() { return get("basic_item_sender_buttons", "speed_button_y", 44); }
 
     // --- Basic item sender slot getters ---
 
-    public int getBasicItemSenderSlotStartX() {
-        return basicItemSenderSlotStartX;
-    }
-
-    public int getBasicItemSenderSlotStartY() {
-        return basicItemSenderSlotStartY;
-    }
-
-    public int getBasicItemSenderSlotSpacing() {
-        return basicItemSenderSlotSpacing;
-    }
-
-    public int getBasicItemSenderSlotCount() {
-        return basicItemSenderSlotCount;
-    }
+    public int getBasicItemSenderSlotStartX() { return get("basic_item_sender_slots", "machine_start_x", 8); }
+    public int getBasicItemSenderSlotStartY() { return get("basic_item_sender_slots", "machine_start_y", 36); }
+    public int getBasicItemSenderSlotSpacing() { return get("basic_item_sender_slots", "machine_spacing", 18); }
+    public int getBasicItemSenderSlotCount() { return get("basic_item_sender_slots", "machine_count", 9); }
 
     // --- Item receiver button getters ---
 
-    public int getItemReceiverAllowlistX() {
-        return itemReceiverAllowlistX;
-    }
-
-    public int getItemReceiverAllowlistY() {
-        return itemReceiverAllowlistY;
-    }
-
-    public int getItemReceiverCompareNBTX() {
-        return itemReceiverCompareNBTX;
-    }
-
-    public int getItemReceiverCompareNBTY() {
-        return itemReceiverCompareNBTY;
-    }
-
-    public int getItemReceiverRedstoneX() {
-        return itemReceiverRedstoneX;
-    }
-
-    public int getItemReceiverRedstoneY() {
-        return itemReceiverRedstoneY;
-    }
-
-    public int getItemReceiverRenderAreaX() {
-        return itemReceiverRenderAreaX;
-    }
-
-    public int getItemReceiverRenderAreaY() {
-        return itemReceiverRenderAreaY;
-    }
-
-    public int getItemReceiverSpeedButtonX() {
-        return itemReceiverSpeedButtonX;
-    }
-
-    public int getItemReceiverSpeedButtonY() {
-        return itemReceiverSpeedButtonY;
-    }
+    public int getItemReceiverAllowlistX() { return get("item_receiver_buttons", "allowlist_button_x", 8); }
+    public int getItemReceiverAllowlistY() { return get("item_receiver_buttons", "allowlist_button_y", 42); }
+    public int getItemReceiverCompareNBTX() { return get("item_receiver_buttons", "compare_nbt_button_x", 26); }
+    public int getItemReceiverCompareNBTY() { return get("item_receiver_buttons", "compare_nbt_button_y", 42); }
+    public int getItemReceiverRedstoneX() { return get("item_receiver_buttons", "redstone_button_x", 134); }
+    public int getItemReceiverRedstoneY() { return get("item_receiver_buttons", "redstone_button_y", 42); }
+    public int getItemReceiverRenderAreaX() { return get("item_receiver_buttons", "render_area_button_x", 152); }
+    public int getItemReceiverRenderAreaY() { return get("item_receiver_buttons", "render_area_button_y", 42); }
+    public int getItemReceiverSpeedButtonX() { return get("item_receiver_buttons", "speed_button_x", 78); }
+    public int getItemReceiverSpeedButtonY() { return get("item_receiver_buttons", "speed_button_y", 44); }
 
     // --- Item receiver slot getters ---
 
-    public int getItemReceiverSlotStartX() {
-        return itemReceiverSlotStartX;
-    }
-
-    public int getItemReceiverSlotStartY() {
-        return itemReceiverSlotStartY;
-    }
-
-    public int getItemReceiverSlotSpacing() {
-        return itemReceiverSlotSpacing;
-    }
-
-    public int getItemReceiverSlotCount() {
-        return itemReceiverSlotCount;
-    }
+    public int getItemReceiverSlotStartX() { return get("item_receiver_slots", "machine_start_x", 8); }
+    public int getItemReceiverSlotStartY() { return get("item_receiver_slots", "machine_start_y", 36); }
+    public int getItemReceiverSlotSpacing() { return get("item_receiver_slots", "machine_spacing", 18); }
+    public int getItemReceiverSlotCount() { return get("item_receiver_slots", "machine_count", 9); }
 
     // --- Basic item receiver button getters ---
 
-    public int getBasicItemReceiverAllowlistX() {
-        return basicItemReceiverAllowlistX;
-    }
-
-    public int getBasicItemReceiverAllowlistY() {
-        return basicItemReceiverAllowlistY;
-    }
-
-    public int getBasicItemReceiverCompareNBTX() {
-        return basicItemReceiverCompareNBTX;
-    }
-
-    public int getBasicItemReceiverCompareNBTY() {
-        return basicItemReceiverCompareNBTY;
-    }
-
-    public int getBasicItemReceiverRedstoneX() {
-        return basicItemReceiverRedstoneX;
-    }
-
-    public int getBasicItemReceiverRedstoneY() {
-        return basicItemReceiverRedstoneY;
-    }
-
-    public int getBasicItemReceiverRenderAreaX() {
-        return basicItemReceiverRenderAreaX;
-    }
-
-    public int getBasicItemReceiverRenderAreaY() {
-        return basicItemReceiverRenderAreaY;
-    }
-
-    public int getBasicItemReceiverSpeedButtonX() {
-        return basicItemReceiverSpeedButtonX;
-    }
-
-    public int getBasicItemReceiverSpeedButtonY() {
-        return basicItemReceiverSpeedButtonY;
-    }
+    public int getBasicItemReceiverAllowlistX() { return get("basic_item_receiver_buttons", "allowlist_button_x", 8); }
+    public int getBasicItemReceiverAllowlistY() { return get("basic_item_receiver_buttons", "allowlist_button_y", 42); }
+    public int getBasicItemReceiverCompareNBTX() { return get("basic_item_receiver_buttons", "compare_nbt_button_x", 26); }
+    public int getBasicItemReceiverCompareNBTY() { return get("basic_item_receiver_buttons", "compare_nbt_button_y", 42); }
+    public int getBasicItemReceiverRedstoneX() { return get("basic_item_receiver_buttons", "redstone_button_x", 134); }
+    public int getBasicItemReceiverRedstoneY() { return get("basic_item_receiver_buttons", "redstone_button_y", 42); }
+    public int getBasicItemReceiverRenderAreaX() { return get("basic_item_receiver_buttons", "render_area_button_x", 152); }
+    public int getBasicItemReceiverRenderAreaY() { return get("basic_item_receiver_buttons", "render_area_button_y", 42); }
+    public int getBasicItemReceiverSpeedButtonX() { return get("basic_item_receiver_buttons", "speed_button_x", 78); }
+    public int getBasicItemReceiverSpeedButtonY() { return get("basic_item_receiver_buttons", "speed_button_y", 44); }
 
     // --- Basic item receiver slot getters ---
 
-    public int getBasicItemReceiverSlotStartX() {
-        return basicItemReceiverSlotStartX;
-    }
-
-    public int getBasicItemReceiverSlotStartY() {
-        return basicItemReceiverSlotStartY;
-    }
-
-    public int getBasicItemReceiverSlotSpacing() {
-        return basicItemReceiverSlotSpacing;
-    }
-
-    public int getBasicItemReceiverSlotCount() {
-        return basicItemReceiverSlotCount;
-    }
+    public int getBasicItemReceiverSlotStartX() { return get("basic_item_receiver_slots", "machine_start_x", 8); }
+    public int getBasicItemReceiverSlotStartY() { return get("basic_item_receiver_slots", "machine_start_y", 36); }
+    public int getBasicItemReceiverSlotSpacing() { return get("basic_item_receiver_slots", "machine_spacing", 18); }
+    public int getBasicItemReceiverSlotCount() { return get("basic_item_receiver_slots", "machine_count", 9); }
 
     // --- Life extractor mode button getters ---
 
-    public int getLifeExtractorModeButtonX() {
-        return lifeExtractorModeButtonX;
-    }
-
-    public int getLifeExtractorModeButtonY() {
-        return lifeExtractorModeButtonY;
-    }
+    public int getLifeExtractorModeButtonX() { return get("life_extractor_buttons", "mode_button_x", 80); }
+    public int getLifeExtractorModeButtonY() { return get("life_extractor_buttons", "mode_button_y", 62); }
 
     // --- Bio crusher mode button getters ---
 
-    public int getBioCrusherModeButtonX() {
-        return bioCrusherModeButtonX;
-    }
-
-    public int getBioCrusherModeButtonY() {
-        return bioCrusherModeButtonY;
-    }
-
-    public int getBioCrusherSharpnessSlotX() {
-        return bioCrusherSharpnessSlotX;
-    }
-
-    public int getBioCrusherSharpnessSlotY() {
-        return bioCrusherSharpnessSlotY;
-    }
-
-    public int getBioCrusherLootingSlotX() {
-        return bioCrusherLootingSlotX;
-    }
-
-    public int getBioCrusherLootingSlotY() {
-        return bioCrusherLootingSlotY;
-    }
+    public int getBioCrusherModeButtonX() { return get("bio_crusher_buttons", "mode_button_x", 80); }
+    public int getBioCrusherModeButtonY() { return get("bio_crusher_buttons", "mode_button_y", 36); }
+    public int getBioCrusherSharpnessSlotX() { return get("bio_crusher_buttons", "sharpness_slot_x", getBioCrusherModeButtonX() - 20); }
+    public int getBioCrusherSharpnessSlotY() { return get("bio_crusher_buttons", "sharpness_slot_y", getBioCrusherModeButtonY()); }
+    public int getBioCrusherLootingSlotX() { return get("bio_crusher_buttons", "looting_slot_x", getBioCrusherModeButtonX() + 18); }
+    public int getBioCrusherLootingSlotY() { return get("bio_crusher_buttons", "looting_slot_y", getBioCrusherModeButtonY()); }
 
     // --- Advanced potion brewer layout getters ---
 
-    public int getPotionBrewerBgSrcX() {
-        return potionBrewerBgSrcX;
-    }
+    public int getPotionBrewerBgSrcX() { return get("advanced_potion_brewer_background", "src_x", 15); }
+    public int getPotionBrewerBgSrcY() { return get("advanced_potion_brewer_background", "src_y", 15); }
+    public int getPotionBrewerBgX() { return get("advanced_potion_brewer_background", "x", 15); }
+    public int getPotionBrewerBgY() { return get("advanced_potion_brewer_background", "y", 5); }
+    public int getPotionBrewerBgWidth() { return get("advanced_potion_brewer_background", "width", 107); }
+    public int getPotionBrewerBgHeight() { return get("advanced_potion_brewer_background", "height", 63); }
+    public int getPotionBrewerFuelSlotX() { return get("advanced_potion_brewer_slots", "fuel_slot_x", 17); }
+    public int getPotionBrewerFuelSlotY() { return get("advanced_potion_brewer_slots", "fuel_slot_y", 7); }
+    public int getPotionBrewerIngredientSlotX() { return get("advanced_potion_brewer_slots", "ingredient_slot_x", 79); }
+    public int getPotionBrewerIngredientSlotY() { return get("advanced_potion_brewer_slots", "ingredient_slot_y", 7); }
+    public int getPotionBrewerBottleSlot0X() { return get("advanced_potion_brewer_slots", "bottle_slot_0_x", 56); }
+    public int getPotionBrewerBottleSlot0Y() { return get("advanced_potion_brewer_slots", "bottle_slot_0_y", 41); }
+    public int getPotionBrewerBottleSlot1X() { return get("advanced_potion_brewer_slots", "bottle_slot_1_x", 79); }
+    public int getPotionBrewerBottleSlot1Y() { return get("advanced_potion_brewer_slots", "bottle_slot_1_y", 48); }
+    public int getPotionBrewerBottleSlot2X() { return get("advanced_potion_brewer_slots", "bottle_slot_2_x", 102); }
+    public int getPotionBrewerBottleSlot2Y() { return get("advanced_potion_brewer_slots", "bottle_slot_2_y", 41); }
+    public int getPotionBrewerExtraIngredientStartX() { return get("advanced_potion_brewer_slots", "extra_ingredient_start_x", 43); }
+    public int getPotionBrewerExtraIngredientStartY() { return get("advanced_potion_brewer_slots", "extra_ingredient_start_y", -21); }
+    public int getPotionBrewerExtraIngredientSpacing() { return get("advanced_potion_brewer_slots", "extra_ingredient_spacing", 18); }
+    public int getPotionBrewerExtraIngredientCount() { return get("advanced_potion_brewer_slots", "extra_ingredient_count", 5); }
+    public int getPotionBrewerOutputStartX() { return get("advanced_potion_brewer_slots", "output_start_x", 128); }
+    public int getPotionBrewerOutputStartY() { return get("advanced_potion_brewer_slots", "output_start_y", 13); }
+    public int getPotionBrewerOutputSpacing() { return get("advanced_potion_brewer_slots", "output_spacing", 18); }
+    public int getPotionBrewerOutputCount() { return get("advanced_potion_brewer_slots", "output_count", 3); }
+    public int getPotionBrewerSpeedButtonX() { return get("advanced_potion_brewer_buttons", "speed_button_x", 148); }
+    public int getPotionBrewerSpeedButtonY() { return get("advanced_potion_brewer_buttons", "speed_button_y", 49); }
+    public int getPotionBrewerRedstoneButtonX() { return get("advanced_potion_brewer_buttons", "redstone_button_x", 150); }
+    public int getPotionBrewerRedstoneButtonY() { return get("advanced_potion_brewer_buttons", "redstone_button_y", 31); }
+    public int getPotionBrewerRecipeLockButtonX() { return get("advanced_potion_brewer_buttons", "recipe_lock_button_x", getPotionBrewerRedstoneButtonX()); }
+    public int getPotionBrewerRecipeLockButtonY() { return get("advanced_potion_brewer_buttons", "recipe_lock_button_y", getPotionBrewerRedstoneButtonY() - 18); }
+    public int getPotionBrewerFuelInputButtonX() { return get("advanced_potion_brewer_buttons", "fuel_input_button_x", getPotionBrewerRecipeLockButtonX()); }
+    public int getPotionBrewerFuelInputButtonY() { return get("advanced_potion_brewer_buttons", "fuel_input_button_y", getPotionBrewerRecipeLockButtonY() - 18); }
+    public int getPotionBrewerFuelBarX() { return get("advanced_potion_brewer_widgets", "fuel_bar_x", 60); }
+    public int getPotionBrewerFuelBarBottomY() { return get("advanced_potion_brewer_widgets", "fuel_bar_bottom_y", 38); }
+    public int getPotionBrewerBubblesX() { return get("advanced_potion_brewer_widgets", "bubbles_x", 63); }
+    public int getPotionBrewerBubblesBottomY() { return get("advanced_potion_brewer_widgets", "bubbles_bottom_y", 33); }
+    public int getPotionBrewerArrowX() { return get("advanced_potion_brewer_widgets", "arrow_x", 97); }
+    public int getPotionBrewerArrowBottomY() { return get("advanced_potion_brewer_widgets", "arrow_bottom_y", 34); }
+    public int getPotionBrewerWaterFluidX() { return get("advanced_potion_brewer_fluids", "water_fluid_x", -6); }
+    public int getPotionBrewerWaterFluidY() { return get("advanced_potion_brewer_fluids", "water_fluid_y", -21); }
+    public int getPotionBrewerTimeFluidX() { return get("advanced_potion_brewer_fluids", "time_fluid_x", 174); }
+    public int getPotionBrewerTimeFluidY() { return get("advanced_potion_brewer_fluids", "time_fluid_y", -21); }
 
-    public int getPotionBrewerBgSrcY() {
-        return potionBrewerBgSrcY;
-    }
+    // --- Loot fabricator getters ---
 
-    public int getPotionBrewerBgX() {
-        return potionBrewerBgX;
-    }
-
-    public int getPotionBrewerBgY() {
-        return potionBrewerBgY;
-    }
-
-    public int getPotionBrewerBgWidth() {
-        return potionBrewerBgWidth;
-    }
-
-    public int getPotionBrewerBgHeight() {
-        return potionBrewerBgHeight;
-    }
-
-    public int getPotionBrewerFuelSlotX() {
-        return potionBrewerFuelSlotX;
-    }
-
-    public int getPotionBrewerFuelSlotY() {
-        return potionBrewerFuelSlotY;
-    }
-
-    public int getPotionBrewerIngredientSlotX() {
-        return potionBrewerIngredientSlotX;
-    }
-
-    public int getPotionBrewerIngredientSlotY() {
-        return potionBrewerIngredientSlotY;
-    }
-
-    public int getPotionBrewerBottleSlot0X() {
-        return potionBrewerBottleSlot0X;
-    }
-
-    public int getPotionBrewerBottleSlot0Y() {
-        return potionBrewerBottleSlot0Y;
-    }
-
-    public int getPotionBrewerBottleSlot1X() {
-        return potionBrewerBottleSlot1X;
-    }
-
-    public int getPotionBrewerBottleSlot1Y() {
-        return potionBrewerBottleSlot1Y;
-    }
-
-    public int getPotionBrewerBottleSlot2X() {
-        return potionBrewerBottleSlot2X;
-    }
-
-    public int getPotionBrewerBottleSlot2Y() {
-        return potionBrewerBottleSlot2Y;
-    }
-
-    public int getPotionBrewerExtraIngredientStartX() {
-        return potionBrewerExtraIngredientStartX;
-    }
-
-    public int getPotionBrewerExtraIngredientStartY() {
-        return potionBrewerExtraIngredientStartY;
-    }
-
-    public int getPotionBrewerExtraIngredientSpacing() {
-        return potionBrewerExtraIngredientSpacing;
-    }
-
-    public int getPotionBrewerExtraIngredientCount() {
-        return potionBrewerExtraIngredientCount;
-    }
-
-    public int getPotionBrewerOutputStartX() {
-        return potionBrewerOutputStartX;
-    }
-
-    public int getPotionBrewerOutputStartY() {
-        return potionBrewerOutputStartY;
-    }
-
-    public int getPotionBrewerOutputSpacing() {
-        return potionBrewerOutputSpacing;
-    }
-
-    public int getPotionBrewerOutputCount() {
-        return potionBrewerOutputCount;
-    }
-
-    public int getPotionBrewerSpeedButtonX() {
-        return potionBrewerSpeedButtonX;
-    }
-
-    public int getPotionBrewerSpeedButtonY() {
-        return potionBrewerSpeedButtonY;
-    }
-
-    public int getPotionBrewerRedstoneButtonX() {
-        return potionBrewerRedstoneButtonX;
-    }
-
-    public int getPotionBrewerRedstoneButtonY() {
-        return potionBrewerRedstoneButtonY;
-    }
-
-    public int getPotionBrewerRecipeLockButtonX() {
-        return potionBrewerRecipeLockButtonX;
-    }
-
-    public int getPotionBrewerRecipeLockButtonY() {
-        return potionBrewerRecipeLockButtonY;
-    }
-
-    public int getPotionBrewerFuelInputButtonX() {
-        return potionBrewerFuelInputButtonX;
-    }
-
-    public int getPotionBrewerFuelInputButtonY() {
-        return potionBrewerFuelInputButtonY;
-    }
-
-    public int getPotionBrewerFuelBarX() {
-        return potionBrewerFuelBarX;
-    }
-
-    public int getPotionBrewerFuelBarBottomY() {
-        return potionBrewerFuelBarBottomY;
-    }
-
-    public int getPotionBrewerBubblesX() {
-        return potionBrewerBubblesX;
-    }
-
-    public int getPotionBrewerBubblesBottomY() {
-        return potionBrewerBubblesBottomY;
-    }
-
-    public int getPotionBrewerArrowX() {
-        return potionBrewerArrowX;
-    }
-
-    public int getPotionBrewerArrowBottomY() {
-        return potionBrewerArrowBottomY;
-    }
-
-    public int getPotionBrewerWaterFluidX() {
-        return potionBrewerWaterFluidX;
-    }
-
-    public int getPotionBrewerWaterFluidY() {
-        return potionBrewerWaterFluidY;
-    }
-
-    public int getPotionBrewerTimeFluidX() {
-        return potionBrewerTimeFluidX;
-    }
-
-    public int getPotionBrewerTimeFluidY() {
-        return potionBrewerTimeFluidY;
-    }
-
-    public int getLootFabricatorExtraWidth() { return lootFabricatorExtraWidth; }
-    public int getLootFabricatorExtraHeight() { return lootFabricatorExtraHeight; }
-    public int getLootFabricatorInputStartX() { return lootFabricatorInputStartX; }
-    public int getLootFabricatorInputStartY() { return lootFabricatorInputStartY; }
-    public int getLootFabricatorInputSpacing() { return lootFabricatorInputSpacing; }
-    public int getLootFabricatorOutputStartX() { return lootFabricatorOutputStartX; }
-    public int getLootFabricatorOutputStartY() { return lootFabricatorOutputStartY; }
-    public int getLootFabricatorOutputSpacing() { return lootFabricatorOutputSpacing; }
-    public int getLootFabricatorOutputColumns() { return lootFabricatorOutputColumns; }
-    public int getLootFabricatorOutputRows() { return lootFabricatorOutputRows; }
-    public int getLootFabricatorLifeFluidX() { return lootFabricatorLifeFluidX; }
-    public int getLootFabricatorLifeFluidY() { return lootFabricatorLifeFluidY; }
-    public int getLootFabricatorTimeFluidX() { return lootFabricatorTimeFluidX; }
-    public int getLootFabricatorTimeFluidY() { return lootFabricatorTimeFluidY; }
-    public int getLootFabricatorProgressArrowX() { return lootFabricatorProgressArrowX; }
-    public int getLootFabricatorProgressArrowY() { return lootFabricatorProgressArrowY; }
-    public int getLootFabricatorSpeedButtonX() { return lootFabricatorSpeedButtonX; }
-    public int getLootFabricatorSpeedButtonY() { return lootFabricatorSpeedButtonY; }
-    public int getLootFabricatorRedstoneButtonX() { return lootFabricatorRedstoneButtonX; }
-    public int getLootFabricatorRedstoneButtonY() { return lootFabricatorRedstoneButtonY; }
-    public int getLootFabricatorOutputPrevX() { return lootFabricatorOutputPrevX; }
-    public int getLootFabricatorOutputPrevY() { return lootFabricatorOutputPrevY; }
-    public int getLootFabricatorOutputNextX() { return lootFabricatorOutputNextX; }
-    public int getLootFabricatorOutputNextY() { return lootFabricatorOutputNextY; }
-    public int getLootFabricatorOutputPageButtonSize() { return lootFabricatorOutputPageButtonSize; }
-    public int getLootFabricatorOutputPageTextX() { return lootFabricatorOutputPageTextX; }
-    public int getLootFabricatorOutputPageTextY() { return lootFabricatorOutputPageTextY; }
+    public int getLootFabricatorExtraWidth() { return get("loot_fabricator_layout", "extra_width", 60); }
+    public int getLootFabricatorExtraHeight() { return get("loot_fabricator_layout", "extra_height", 0); }
+    public int getLootFabricatorInputStartX() { return get("loot_fabricator_slots", "input_start_x", 8); }
+    public int getLootFabricatorInputStartY() { return get("loot_fabricator_slots", "input_start_y", -21); }
+    public int getLootFabricatorInputSpacing() { return get("loot_fabricator_slots", "input_spacing", 18); }
+    public int getLootFabricatorOutputStartX() { return get("loot_fabricator_slots", "output_start_x", 68); }
+    public int getLootFabricatorOutputStartY() { return get("loot_fabricator_slots", "output_start_y", -21); }
+    public int getLootFabricatorOutputSpacing() { return get("loot_fabricator_slots", "output_spacing", 18); }
+    public int getLootFabricatorOutputColumns() { return get("loot_fabricator_slots", "output_columns", 4); }
+    public int getLootFabricatorOutputRows() { return get("loot_fabricator_slots", "output_rows", 4); }
+    public int getLootFabricatorLifeFluidX() { return get("loot_fabricator_fluids", "life_fluid_x", 162); }
+    public int getLootFabricatorLifeFluidY() { return get("loot_fabricator_fluids", "life_fluid_y", -21); }
+    public int getLootFabricatorTimeFluidX() { return get("loot_fabricator_fluids", "time_fluid_x", 182); }
+    public int getLootFabricatorTimeFluidY() { return get("loot_fabricator_fluids", "time_fluid_y", -21); }
+    public int getLootFabricatorProgressArrowX() { return get("loot_fabricator_widgets", "progress_arrow_x", 36); }
+    public int getLootFabricatorProgressArrowY() { return get("loot_fabricator_widgets", "progress_arrow_y", 7); }
+    public int getLootFabricatorSpeedButtonX() { return get("loot_fabricator_widgets", "speed_button_x", 36); }
+    public int getLootFabricatorSpeedButtonY() { return get("loot_fabricator_widgets", "speed_button_y", 24); }
+    public int getLootFabricatorRedstoneButtonX() { return get("loot_fabricator_widgets", "redstone_button_x", 142); }
+    public int getLootFabricatorRedstoneButtonY() { return get("loot_fabricator_widgets", "redstone_button_y", 17); }
+    public int getLootFabricatorOutputPrevX() { return get("loot_fabricator_widgets", "output_prev_x", 54); }
+    public int getLootFabricatorOutputPrevY() { return get("loot_fabricator_widgets", "output_prev_y", 36); }
+    public int getLootFabricatorOutputNextX() { return get("loot_fabricator_widgets", "output_next_x", 142); }
+    public int getLootFabricatorOutputNextY() { return get("loot_fabricator_widgets", "output_next_y", 36); }
+    public int getLootFabricatorOutputPageButtonSize() { return get("loot_fabricator_widgets", "output_page_button_size", 12); }
+    public int getLootFabricatorOutputPageTextX() { return get("loot_fabricator_widgets", "output_page_text_x", 104); }
+    public int getLootFabricatorOutputPageTextY() { return get("loot_fabricator_widgets", "output_page_text_y", 54); }
 }

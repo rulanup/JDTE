@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": { "item": "jdte:basic_glue_activator" },
+    "G": { "item": "minecraft:gold_ingot" },
+    "R": { "item": "minecraft:redstone" },
+    "D": { "item": "minecraft:diamond" }
+  },
+  "pattern": [
+    "GRG",
+    "DBD",
+    "GRG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_glue_activator"
+  }
+}

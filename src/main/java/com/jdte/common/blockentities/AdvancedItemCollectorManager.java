@@ -55,7 +55,7 @@ public final class AdvancedItemCollectorManager {
     }
 
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (FactoryPackerBE.isPermissionProbe() || event.isCanceled()
+        if (com.jdte.common.factory.FactoryPermissionProbe.isPermissionProbe() || event.isCanceled()
                 || !JDTEConfig.COMMON.advancedItemCollectorPreDrainEnabled.get()
                 || !(event.getLevel() instanceof ServerLevel level)) {
             return;

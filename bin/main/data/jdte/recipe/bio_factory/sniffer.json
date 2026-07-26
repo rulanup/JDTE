@@ -1,0 +1,11 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:sniffer_spawn_egg" },
+  "food": { "item": "minecraft:torchflower_seeds" },
+  "outputs": [
+    { "item": { "id": "minecraft:torchflower_seeds", "count": 1 }, "chance": 0.5 },
+    { "item": { "id": "minecraft:pitcher_pod", "count": 1 }, "chance": 0.5 }
+  ],
+  "process_ticks": 600,
+  "energy": 1000
+}

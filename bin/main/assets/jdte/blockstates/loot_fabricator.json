@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=up": { "model": "jdte:block/loot_fabricator" },
+    "facing=down": { "model": "jdte:block/loot_fabricator", "x": 180 },
+    "facing=north": { "model": "jdte:block/loot_fabricator", "x": 90 },
+    "facing=south": { "model": "jdte:block/loot_fabricator", "x": 90, "y": 180 },
+    "facing=west": { "model": "jdte:block/loot_fabricator", "x": 90, "y": 270 },
+    "facing=east": { "model": "jdte:block/loot_fabricator", "x": 90, "y": 90 }
+  }
+}

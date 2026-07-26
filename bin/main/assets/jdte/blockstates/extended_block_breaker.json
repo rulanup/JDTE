@@ -1,0 +1,30 @@
+﻿{
+    "variants":  {
+                     "facing=north":  {
+                                          "model":  "jdte:block/extended_block_breaker",
+                                          "x":  90
+                                      },
+                     "facing=east":  {
+                                         "y":  90,
+                                         "model":  "jdte:block/extended_block_breaker",
+                                         "x":  90
+                                     },
+                     "facing=south":  {
+                                          "y":  180,
+                                          "model":  "jdte:block/extended_block_breaker",
+                                          "x":  90
+                                      },
+                     "facing=up":  {
+                                       "model":  "jdte:block/extended_block_breaker"
+                                   },
+                     "facing=west":  {
+                                         "y":  270,
+                                         "model":  "jdte:block/extended_block_breaker",
+                                         "x":  90
+                                     },
+                     "facing=down":  {
+                                         "model":  "jdte:block/extended_block_breaker",
+                                         "x":  180
+                                     }
+                 }
+}

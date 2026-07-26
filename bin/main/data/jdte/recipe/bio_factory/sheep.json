@@ -1,0 +1,10 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:sheep_spawn_egg" },
+  "food": { "item": "minecraft:wheat" },
+  "outputs": [
+    { "item": { "id": "minecraft:white_wool", "count": 1 } }
+  ],
+  "process_ticks": 600,
+  "energy": 1000
+}

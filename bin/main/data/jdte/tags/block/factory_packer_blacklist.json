@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "jdte:factory_packer",
+    "minecraft:bedrock",
+    "minecraft:barrier",
+    "minecraft:reinforced_deepslate",
+    "minecraft:command_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:structure_block",
+    "minecraft:jigsaw",
+    "minecraft:end_portal",
+    "minecraft:end_gateway",
+    "minecraft:end_portal_frame",
+    "minecraft:nether_portal",
+    "minecraft:moving_piston",
+    "minecraft:piston_head"
+  ]
+}

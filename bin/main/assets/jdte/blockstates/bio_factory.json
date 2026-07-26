@@ -1,0 +1,25 @@
+{
+  "multipart": [
+    { "apply": { "model": "jdte:block/bio_factory_connected_core" } },
+
+    { "when": { "connect_north": "false" }, "apply": { "model": "jdte:block/bio_factory_connected_boundary" } },
+    { "when": { "connect_east": "false" }, "apply": { "model": "jdte:block/bio_factory_connected_boundary", "y": 90 } },
+    { "when": { "connect_south": "false" }, "apply": { "model": "jdte:block/bio_factory_connected_boundary", "y": 180 } },
+    { "when": { "connect_west": "false" }, "apply": { "model": "jdte:block/bio_factory_connected_boundary", "y": 270 } },
+
+    { "when": { "connect_north": "true" }, "apply": { "model": "jdte:block/bio_factory_connected_extension" } },
+    { "when": { "connect_east": "true" }, "apply": { "model": "jdte:block/bio_factory_connected_extension", "y": 90 } },
+    { "when": { "connect_south": "true" }, "apply": { "model": "jdte:block/bio_factory_connected_extension", "y": 180 } },
+    { "when": { "connect_west": "true" }, "apply": { "model": "jdte:block/bio_factory_connected_extension", "y": 270 } },
+
+    { "when": { "OR": [{ "connect_north": "false" }, { "connect_west": "false" }] }, "apply": { "model": "jdte:block/bio_factory_connected_post" } },
+    { "when": { "OR": [{ "connect_north": "false" }, { "connect_east": "false" }] }, "apply": { "model": "jdte:block/bio_factory_connected_post", "y": 90 } },
+    { "when": { "OR": [{ "connect_south": "false" }, { "connect_east": "false" }] }, "apply": { "model": "jdte:block/bio_factory_connected_post", "y": 180 } },
+    { "when": { "OR": [{ "connect_south": "false" }, { "connect_west": "false" }] }, "apply": { "model": "jdte:block/bio_factory_connected_post", "y": 270 } },
+
+    { "when": { "connect_north": "true", "connect_west": "true" }, "apply": { "model": "jdte:block/bio_factory_connected_corner" } },
+    { "when": { "connect_north": "true", "connect_east": "true" }, "apply": { "model": "jdte:block/bio_factory_connected_corner", "y": 90 } },
+    { "when": { "connect_south": "true", "connect_east": "true" }, "apply": { "model": "jdte:block/bio_factory_connected_corner", "y": 180 } },
+    { "when": { "connect_south": "true", "connect_west": "true" }, "apply": { "model": "jdte:block/bio_factory_connected_corner", "y": 270 } }
+  ]
+}

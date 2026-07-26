@@ -1,0 +1,10 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:armadillo_spawn_egg" },
+  "food": { "item": "minecraft:spider_eye" },
+  "outputs": [
+    { "item": { "id": "minecraft:armadillo_scute", "count": 1 } }
+  ],
+  "process_ticks": 600,
+  "energy": 1000
+}

@@ -1,0 +1,12 @@
+{
+  "type": "jdte:greenhouse",
+  "seed": { "item": "minecraft:mangrove_propagule" },
+  "outputs": [
+    { "id": "minecraft:mangrove_log", "count": 4 },
+    { "id": "minecraft:mangrove_propagule", "count": 1 }
+  ],
+  "display_block": "minecraft:mangrove_propagule",
+  "use_loot_table": false,
+  "growth_work": 32768,
+  "time_fluid": 100
+}

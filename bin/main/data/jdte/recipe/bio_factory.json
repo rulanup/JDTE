@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["GBG", "BLB", "GTG"],
+  "key": {
+    "G": { "item": "minecraft:glass" },
+    "B": { "item": "justdirethings:blazegold_ingot" },
+    "L": { "item": "jdte:loot_fabricator" },
+    "T": { "item": "justdirethings:time_crystal" }
+  },
+  "result": { "count": 1, "id": "jdte:bio_factory" }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["ELE", "RSR", "ELE"],
+  "key": {
+    "E": { "item": "justdirethings:eclipsealloy_ingot" },
+    "L": { "item": "minecraft:lodestone" },
+    "R": { "item": "minecraft:redstone_block" },
+    "S": { "item": "justdirethings:itemcollector" }
+  },
+  "result": { "id": "jdte:range_blocker", "count": 1 }
+}

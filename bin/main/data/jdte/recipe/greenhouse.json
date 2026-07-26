@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": { "item": "justdirethings:celestigem" },
+    "E": { "item": "justdirethings:eclipsealloy_ingot" },
+    "G": { "item": "minecraft:glass" },
+    "I": { "item": "jdte:crystal_incubator" },
+    "T": { "item": "justdirethings:time_crystal" }
+  },
+  "pattern": ["GCG", "EIE", "GTG"],
+  "result": { "count": 1, "id": "jdte:greenhouse" }
+}

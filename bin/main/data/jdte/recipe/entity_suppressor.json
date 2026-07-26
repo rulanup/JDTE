@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["ERE", "RSR", "ERE"],
+  "key": {
+    "E": { "item": "justdirethings:eclipsealloy_ingot" },
+    "R": { "item": "minecraft:ender_eye" },
+    "S": { "item": "justdirethings:sensort2" }
+  },
+  "result": { "id": "jdte:entity_suppressor", "count": 1 }
+}

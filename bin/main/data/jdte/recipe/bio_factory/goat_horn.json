@@ -1,0 +1,13 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:goat_spawn_egg" },
+  "inputs": [
+    { "ingredient": { "item": "minecraft:stone" } },
+    { "ingredient": { "item": "minecraft:amethyst_shard" }, "count": 4 }
+  ],
+  "outputs": [
+    { "item": { "id": "minecraft:goat_horn", "count": 1 }, "chance": 0.25 }
+  ],
+  "process_ticks": 2400,
+  "energy": 2500
+}

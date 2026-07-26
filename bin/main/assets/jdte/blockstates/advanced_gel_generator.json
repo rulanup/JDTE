@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "jdte:block/advanced_gel_generator", "x": 180 },
+    "facing=up": { "model": "jdte:block/advanced_gel_generator" },
+    "facing=north": { "model": "jdte:block/advanced_gel_generator", "x": 90 },
+    "facing=south": { "model": "jdte:block/advanced_gel_generator", "x": 90, "y": 180 },
+    "facing=west": { "model": "jdte:block/advanced_gel_generator", "x": 90, "y": 270 },
+    "facing=east": { "model": "jdte:block/advanced_gel_generator", "x": 90, "y": 90 }
+  }
+}

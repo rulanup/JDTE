@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": { "item": "jdte:advanced_time_accelerator" },
+    "C": { "item": "justdirethings:celestigem" },
+    "D": { "item": "minecraft:diamond_block" }
+  },
+  "pattern": [
+    "CDC",
+    "DAD",
+    "CDC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:extended_time_accelerator"
+  }
+}

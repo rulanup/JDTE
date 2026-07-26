@@ -14,6 +14,8 @@ import com.jdte.common.factory.FactoryPackageStorage.PackageData;
 import com.jdte.common.factory.FactoryPackageStorage.TickRecord;
 import com.jdte.common.factory.FactoryBlockEntityMoveSupport;
 import com.jdte.common.factory.FactoryEntityMoveSupport;
+import com.jdte.common.factory.FactoryOperationReporter;
+import com.jdte.common.factory.FactoryPermissionProbe;
 import com.jdte.common.factory.FactoryScheduledTickSupport;
 import com.jdte.common.factory.FactoryTransform;
 import com.jdte.common.factory.MekanismFactoryMoveIntegration;
@@ -31,14 +33,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -55,8 +52,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.slf4j.Logger;
 
@@ -70,10 +65,8 @@ import java.util.Comparator;
 public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, PoweredMachineBE,
         ExtendedUpgradeMachine {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final ThreadLocal<Boolean> PERMISSION_PROBE = ThreadLocal.withInitial(() -> false);
-    private static final int MAX_BLACKLIST_REPORT_ENTRIES = 16;
     private static final int MAX_MEKANISM_REMOVAL_DEBUG_ENTRIES = 256;
-    private static final boolean DEBUG_LOGGING = Boolean.getBoolean("jdte.factoryPackerDebug");
+    private static final boolean DEBUG_LOGGING = FactoryOperationReporter.DEBUG_LOGGING;
     public enum Phase {
         IDLE,
         CAPTURING,
@@ -174,11 +167,18 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     private transient BlockPos sourceOrigin = BlockPos.ZERO;
     private transient int packageFormatVersion;
     private transient boolean ioPending;
-    private transient List<BlacklistedBlock> blacklistedBlocks = new ArrayList<>();
-    private transient int blacklistedBlockCount;
     private transient Long2ObjectOpenHashMap<BlockRecord> sourceRecordIndex;
-    private transient Phase lastNotifiedPhase;
     private transient int mekanismRemovalDebugEntries;
+    private final transient FactoryOperationReporter reporter =
+            new FactoryOperationReporter(new FactoryOperationReporter.Host() {
+                @Override public UUID packageId() { return packageId; }
+                @Override public Phase phase() { return phase; }
+                @Override public int sourceRetryCount() { return sourceRetryCount; }
+                @Override public int cursor() { return cursor; }
+                @Override public int totalWork() { return totalWork; }
+                @Override public int errorCode() { return errorCode; }
+                @Override public UUID operationOwner() { return operationOwner; }
+            });
 
     public FactoryPackerBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.FACTORY_PACKER.get(), pos, state);
@@ -200,16 +200,6 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     public ContainerData getOperationData() { return operationData; }
     public Phase getPhase() { return phase; }
     public boolean isBusy() { return phase != Phase.IDLE; }
-
-    public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (event.getLevel().getBlockEntity(event.getPos()) instanceof FactoryPackerBE packer
-                && packer.isBusy()) {
-            event.setCanceled(true);
-            event.getPlayer().displayClientMessage(message("cannot_break_busy"), true);
-        }
-    }
-
-    public static boolean isPermissionProbe() { return PERMISSION_PROBE.get(); }
 
     public Component startOperation(ServerPlayer player) {
         if (!(level instanceof ServerLevel serverLevel)) return message("invalid_level");
@@ -251,10 +241,9 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         sourceDimension = null;
         sourceOrigin = BlockPos.ZERO;
         packageFormatVersion = 0;
-        blacklistedBlocks = new ArrayList<>();
-        blacklistedBlockCount = 0;
         mekanismRemovalDebugEntries = 0;
-        lastNotifiedPhase = null;
+        reporter.resetBlacklist();
+        reporter.resetPhaseNotification();
 
         if (storedId.isPresent()) {
             packageId = storedId.get();
@@ -279,7 +268,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     public void tickServer() {
         super.tickServer();
         if (!(level instanceof ServerLevel serverLevel)) return;
-        notifyPhaseChange(serverLevel);
+        reporter.notifyPhaseChange(serverLevel);
         if (ioPending) return;
         int budget = operationBudget();
         switch (phase) {
@@ -310,7 +299,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             case ROLLBACK_PREPARE -> rollbackPreparedMoves(serverLevel, budget);
             case ROLLBACK_PERMISSION -> rollbackPermissionPreparation(serverLevel, budget);
         }
-        notifyPhaseChange(serverLevel);
+        reporter.notifyPhaseChange(serverLevel);
     }
 
     private void capture(ServerLevel level, int budget) {
@@ -320,7 +309,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             BlockState state = level.getBlockState(pos);
             if (state.isAir()) continue;
             if (state.is(BLACKLIST) || pos.equals(getBlockPos())) {
-                rememberBlacklistedBlock(state, pos);
+                reporter.rememberBlacklistedBlock(state, pos);
                 continue;
             }
             CompoundTag blockEntityData = null;
@@ -338,8 +327,8 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         }
         setChanged();
         if (cursor >= volume) {
-            if (blacklistedBlockCount > 0) {
-                reportBlacklistedBlocks(level);
+            if (reporter.blacklistedBlockCount() > 0) {
+                reporter.reportBlacklistedBlocks(level);
                 fail(2);
             } else {
                 captureSupplemental(level);
@@ -396,7 +385,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
                 var check = FactoryBlockEntityMoveSupport.validateMekanismMove(blockEntity, operationOrigin,
                         selectionMax);
                 if (check.reactor() && !check.complete()) {
-                    reportIncompleteReactor(level, check.min(), check.max());
+                    reporter.reportIncompleteReactor(level, check.min(), check.max());
                     fail(19);
                     return;
                 }
@@ -453,8 +442,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         sourceDimension = null;
         sourceOrigin = BlockPos.ZERO;
         sourceRecordIndex = null;
-        blacklistedBlocks = new ArrayList<>();
-        blacklistedBlockCount = 0;
+        reporter.resetBlacklist();
         cursor = 0;
         totalWork = volume(operationSize);
         phase = Phase.RECAPTURING_SOURCE;
@@ -474,8 +462,8 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             BlockState current = level.getBlockState(pos);
             if (expected == null ? !current.isAir() : current.getBlock() != expected.state().getBlock()) {
                 BlockState expectedState = expected == null ? Blocks.AIR.defaultBlockState() : expected.state();
-                reportSourceChange(level, prepared ? "verify_prepared" : "verify_snapshot", pos,
-                        expectedState, current, sourceChangeReason(expectedState, current));
+                reporter.reportSourceChange(level, prepared ? "verify_prepared" : "verify_snapshot", pos,
+                        expectedState, current, FactoryOperationReporter.sourceChangeReason(expectedState, current));
                 handleSourceChange(level, prepared);
                 return;
             }
@@ -532,13 +520,13 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             if (!remaining.isAir()) {
                 BlockRecord original = sourceRecordIndex.get(pos.subtract(operationOrigin).asLong());
                 if (original != null) {
-                    debugLog("dependent-cut-residue", "pos=" + pos + " captured="
-                            + blockStateDescription(original.state()) + " residue="
-                            + blockStateDescription(remaining));
+                    reporter.debugLog("dependent-cut-residue", "pos=" + pos + " captured="
+                            + FactoryOperationReporter.blockStateDescription(original.state()) + " residue="
+                            + FactoryOperationReporter.blockStateDescription(remaining));
                     setAirForMove(level, pos);
                     continue;
                 }
-                reportSourceChange(level, "verify_cut", pos, Blocks.AIR.defaultBlockState(), remaining,
+                reporter.reportSourceChange(level, "verify_cut", pos, Blocks.AIR.defaultBlockState(), remaining,
                         "cut_residue");
                 retryAfterRollback = sourceRetryCount < JDTEConfig.COMMON.factoryPackerSourceChangeRetries.get();
                 errorCode = retryAfterRollback ? 0 : 7;
@@ -563,22 +551,12 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         if (stalePackage != null) deleteRegularAsync(level);
         packageId = UUID.randomUUID();
         sourceRetryCount++;
-        debugLog("source-recapture", "stalePackage=" + stalePackage + " newPackage=" + packageId
+        reporter.debugLog("source-recapture", "stalePackage=" + stalePackage + " newPackage=" + packageId
                 + " retry=" + sourceRetryCount + "/"
                 + JDTEConfig.COMMON.factoryPackerSourceChangeRetries.get());
         retryAfterRollback = false;
         scheduledTicksRemoved = false;
         beginAuthoritativeRecapture();
-    }
-
-    private void reportIncompleteReactor(ServerLevel level, BlockPos min, BlockPos max) {
-        if (operationOwner == null) return;
-        ServerPlayer player = level.getServer().getPlayerList().getPlayer(operationOwner);
-        if (player != null) {
-            player.sendSystemMessage(Component.translatable("message.jdte.factory_packer.incomplete_reactor",
-                    min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ())
-                    .withStyle(ChatFormatting.RED));
-        }
     }
 
     private void beginWrite(ServerLevel level) {
@@ -648,7 +626,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             BlockPos pos = operationOrigin.offset(record.relativePos());
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity == null) {
-                reportSourceChange(level, "prepare_move", pos, record.state(), level.getBlockState(pos),
+                reporter.reportSourceChange(level, "prepare_move", pos, record.state(), level.getBlockState(pos),
                         "missing_block_entity");
                 retryAfterRollback = sourceRetryCount < JDTEConfig.COMMON.factoryPackerSourceChangeRetries.get();
                 errorCode = retryAfterRollback ? 0 : 7;
@@ -758,8 +736,8 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
                     }
                     continue;
                 }
-                reportSourceChange(level, "cut", pos, record.state(), current,
-                        sourceChangeReason(record.state(), current));
+                reporter.reportSourceChange(level, "cut", pos, record.state(), current,
+                        FactoryOperationReporter.sourceChangeReason(record.state(), current));
                 retryAfterRollback = sourceRetryCount < JDTEConfig.COMMON.factoryPackerSourceChangeRetries.get();
                 rollbackLimit = cursor;
                 cursor = rollbackLimit - 1;
@@ -808,24 +786,15 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             BlockPos pos = operationOrigin.offset(record.relativePos());
             BlockState state = level.getBlockState(pos);
             if (state.getBlock() != record.state().getBlock()) {
-                reportSourceChange(level, "permission_check", pos, record.state(), state,
-                        sourceChangeReason(record.state(), state));
+                reporter.reportSourceChange(level, "permission_check", pos, record.state(), state,
+                        FactoryOperationReporter.sourceChangeReason(record.state(), state));
                 retryAfterRollback = sourceRetryCount < JDTEConfig.COMMON.factoryPackerSourceChangeRetries.get();
                 beginPermissionRollback(retryAfterRollback ? 0 : 7);
                 return;
             }
-            BlockEvent.BreakEvent breakEvent = new BlockEvent.BreakEvent(level, pos, state, owner);
-            PERMISSION_PROBE.set(true);
-            boolean wasShiftKeyDown = owner.isShiftKeyDown();
-            owner.setShiftKeyDown(true);
-            try {
-                if (NeoForge.EVENT_BUS.post(breakEvent).isCanceled()) {
-                    beginPermissionRollback(3);
-                    return;
-                }
-            } finally {
-                owner.setShiftKeyDown(wasShiftKeyDown);
-                PERMISSION_PROBE.remove();
+            if (FactoryPermissionProbe.isBreakDenied(level, pos, state, owner)) {
+                beginPermissionRollback(3);
+                return;
             }
         }
         setChanged();
@@ -892,12 +861,12 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             FactoryTransform transform = transform(level);
             for (BlockRecord record : records) {
                 if (record.state().is(BLACKLIST)) {
-                    rememberBlacklistedBlock(record.state(),
+                    reporter.rememberBlacklistedBlock(record.state(),
                             operationOrigin.offset(transform.position(record.relativePos())));
                 }
             }
-            if (blacklistedBlockCount > 0) {
-                reportBlacklistedBlocks(level);
+            if (reporter.blacklistedBlockCount() > 0) {
+                reporter.reportBlacklistedBlocks(level);
                 releaseAfterFailure(2);
                 return;
             }
@@ -1148,17 +1117,17 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
                 && mekanismRemovalDebugEntries < MAX_MEKANISM_REMOVAL_DEBUG_ENTRIES;
         if (logDiagnostics) {
             mekanismRemovalDebugEntries++;
-            debugLog("mekanism-removal", before.describe("before-network-detach", before.radiationLevel()));
-            debugLog("mekanism-removal", prepared.describe("after-network-detach", prepared.radiationLevel()));
+            reporter.debugLog("mekanism-removal", before.describe("before-network-detach", before.radiationLevel()));
+            reporter.debugLog("mekanism-removal", prepared.describe("after-network-detach", prepared.radiationLevel()));
         }
         if (blockEntity != null) level.removeBlockEntity(pos);
         if (logDiagnostics) {
-            debugLog("mekanism-removal", prepared.describe("after-remove-block-entity",
+            reporter.debugLog("mekanism-removal", prepared.describe("after-remove-block-entity",
                     mekanism.api.radiation.IRadiationManager.INSTANCE.getRadiationLevel(level, pos)));
         }
         level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
         if (logDiagnostics) {
-            debugLog("mekanism-removal", prepared.describe("after-set-air",
+            reporter.debugLog("mekanism-removal", prepared.describe("after-set-air",
                     mekanism.api.radiation.IRadiationManager.INSTANCE.getRadiationLevel(level, pos)));
         }
     }
@@ -1266,7 +1235,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
 
     private void completeKeepingError() {
         if (phase != Phase.IDLE && level instanceof ServerLevel serverLevel) {
-            notifyOperationResult(serverLevel);
+            reporter.notifyOperationResult(serverLevel);
         }
         phase = Phase.IDLE;
         cursor = 0;
@@ -1292,135 +1261,11 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         sourceOrigin = BlockPos.ZERO;
         packageFormatVersion = 0;
         ioPending = false;
-        blacklistedBlocks = new ArrayList<>();
-        blacklistedBlockCount = 0;
+        reporter.resetBlacklist();
         sourceRecordIndex = null;
-        lastNotifiedPhase = null;
+        reporter.resetPhaseNotification();
         markDirtyClient();
     }
-
-    private void notifyPhaseChange(ServerLevel level) {
-        if (phase == Phase.IDLE || phase == lastNotifiedPhase) return;
-        lastNotifiedPhase = phase;
-        debugLog("phase", "cursor=" + cursor + "/" + totalWork);
-        if (!JDTEConfig.COMMON.factoryPackerChatNotifications.get()) return;
-        sendOwnerMessage(level, Component.translatable("message.jdte.factory_packer.operation_phase",
-                Component.translatable("screen.jdte.factory_packer.phase." + phase.ordinal()),
-                Math.max(0, cursor), Math.max(0, totalWork)).withStyle(ChatFormatting.GRAY));
-    }
-
-    private void notifyOperationResult(ServerLevel level) {
-        debugLog(errorCode == 0 ? "operation-complete" : "operation-failed",
-                "errorCode=" + errorCode + " cursor=" + cursor + "/" + totalWork);
-        if (!JDTEConfig.COMMON.factoryPackerChatNotifications.get()) return;
-        Component result = errorCode == 0
-                ? Component.translatable("message.jdte.factory_packer.operation_complete")
-                        .withStyle(ChatFormatting.GREEN)
-                : Component.translatable("message.jdte.factory_packer.operation_failed", errorCode,
-                        Component.translatable("screen.jdte.factory_packer.error." + errorCode))
-                        .withStyle(ChatFormatting.RED);
-        sendOwnerMessage(level, result);
-    }
-
-    private void reportSourceChange(ServerLevel level, String stage, BlockPos pos, BlockState expected,
-                                    BlockState current, String reason) {
-        int maxRetries = JDTEConfig.COMMON.factoryPackerSourceChangeRetries.get();
-        boolean willRetry = sourceRetryCount < maxRetries;
-        debugLog("source-change", "stage=" + stage + " reason=" + reason + " pos=" + pos
-                + " expected=" + blockStateDescription(expected) + " current=" + blockStateDescription(current)
-                + " willRetry=" + willRetry + " nextRetry=" + (sourceRetryCount + 1) + "/" + maxRetries);
-        if (!JDTEConfig.COMMON.factoryPackerChatNotifications.get()) return;
-        ServerPlayer player = owner(level);
-        if (player == null) return;
-        Component coordinates = interactiveCoordinates(pos, player.hasPermissions(2),
-                "message.jdte.factory_packer.source_change_teleport");
-        Component retry = willRetry
-                ? Component.translatable("message.jdte.factory_packer.source_change_retry",
-                        sourceRetryCount + 1, maxRetries)
-                : Component.translatable("message.jdte.factory_packer.source_change_final");
-        player.sendSystemMessage(Component.translatable("message.jdte.factory_packer.source_change",
-                Component.translatable("message.jdte.factory_packer.source_stage." + stage),
-                Component.translatable("message.jdte.factory_packer.source_reason." + reason), coordinates, retry)
-                .withStyle(ChatFormatting.RED));
-        player.sendSystemMessage(Component.translatable("message.jdte.factory_packer.source_change_blocks",
-                blockStateComponent(expected), blockStateComponent(current)).withStyle(ChatFormatting.YELLOW));
-    }
-
-    private static String sourceChangeReason(BlockState expected, BlockState current) {
-        if (expected.isAir()) return "unexpected_block";
-        if (current.isAir()) return "missing_block";
-        return "replaced_block";
-    }
-
-    private static Component blockStateComponent(BlockState state) {
-        ResourceLocation id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
-        return Component.translatable("message.jdte.factory_packer.source_block",
-                state.getBlock().getName(), id.toString());
-    }
-
-    private static String blockStateDescription(BlockState state) {
-        return BuiltInRegistries.BLOCK.getKey(state.getBlock()) + " " + state;
-    }
-
-    private ServerPlayer owner(ServerLevel level) {
-        return operationOwner == null ? null : level.getServer().getPlayerList().getPlayer(operationOwner);
-    }
-
-    private void sendOwnerMessage(ServerLevel level, Component component) {
-        ServerPlayer player = owner(level);
-        if (player != null) player.sendSystemMessage(component);
-    }
-
-    private void debugLog(String event, String details) {
-        if (DEBUG_LOGGING) {
-            LOGGER.warn("[FactoryPacker/Debug] package={} phase={} retry={} event={} {}", packageId, phase,
-                    sourceRetryCount, event, details);
-        }
-    }
-
-    private void rememberBlacklistedBlock(BlockState state, BlockPos pos) {
-        blacklistedBlockCount++;
-        if (blacklistedBlocks.size() < MAX_BLACKLIST_REPORT_ENTRIES) {
-            blacklistedBlocks.add(new BlacklistedBlock(state, pos.immutable()));
-        }
-    }
-
-    private void reportBlacklistedBlocks(ServerLevel level) {
-        if (operationOwner == null || blacklistedBlockCount == 0) return;
-        ServerPlayer player = level.getServer().getPlayerList().getPlayer(operationOwner);
-        if (player == null) return;
-
-        player.sendSystemMessage(Component.translatable("message.jdte.factory_packer.blacklist_summary",
-                blacklistedBlockCount, BLACKLIST.location().toString()).withStyle(ChatFormatting.RED));
-        boolean canTeleport = player.hasPermissions(2);
-        for (BlacklistedBlock entry : blacklistedBlocks) {
-            ResourceLocation id = BuiltInRegistries.BLOCK.getKey(entry.state().getBlock());
-            Component coordinates = interactiveCoordinates(entry.pos(), canTeleport,
-                    "message.jdte.factory_packer.blacklist_teleport");
-            player.sendSystemMessage(Component.translatable("message.jdte.factory_packer.blacklist_entry",
-                    entry.state().getBlock().getName(), id.toString(), coordinates)
-                    .withStyle(ChatFormatting.YELLOW));
-        }
-        int hidden = blacklistedBlockCount - blacklistedBlocks.size();
-        if (hidden > 0) {
-            player.sendSystemMessage(Component.translatable("message.jdte.factory_packer.blacklist_more", hidden)
-                    .withStyle(ChatFormatting.GRAY));
-        }
-    }
-
-    private static Component interactiveCoordinates(BlockPos pos, boolean canTeleport, String hoverKey) {
-        MutableComponent coordinates = Component.literal("[" + pos.getX() + ", " + pos.getY() + ", "
-                + pos.getZ() + "]").withStyle(ChatFormatting.AQUA);
-        if (!canTeleport) return coordinates;
-        String command = "/tp @s " + (pos.getX() + 0.5D) + " " + (pos.getY() + 1) + " "
-                + (pos.getZ() + 0.5D);
-        return coordinates.withStyle(style -> style.withUnderlined(true)
-                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        Component.translatable(hoverKey))));
-    }
-
-    private record BlacklistedBlock(BlockState state, BlockPos pos) {}
 
     private int requiredEnergy() {
         if (records == null) return Integer.MAX_VALUE;
@@ -1632,8 +1477,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         sourceOrigin = BlockPos.ZERO;
         packageFormatVersion = 0;
         ioPending = false;
-        blacklistedBlocks = new ArrayList<>();
-        blacklistedBlockCount = 0;
+        reporter.resetBlacklist();
         sourceRecordIndex = null;
     }
 
