@@ -1,5 +1,23 @@
 package com.jdte.setup;
 
+import com.jdte.setup.config.AdvancedItemCollectorConfig;
+import com.jdte.setup.config.AdvancedPotionBrewerConfig;
+import com.jdte.setup.config.BioCrusherConfig;
+import com.jdte.setup.config.BioFactoryConfig;
+import com.jdte.setup.config.CrystalIncubatorConfig;
+import com.jdte.setup.config.EntitySuppressorConfig;
+import com.jdte.setup.config.FactoryPackerConfig;
+import com.jdte.setup.config.GelGeneratorConfig;
+import com.jdte.setup.config.GeneratorUpgradeConfig;
+import com.jdte.setup.config.GreenhouseConfig;
+import com.jdte.setup.config.LifeBreederConfig;
+import com.jdte.setup.config.LifeExtractorConfig;
+import com.jdte.setup.config.LootFabricatorConfig;
+import com.jdte.setup.config.RangeBlockerConfig;
+import com.jdte.setup.config.SenderReceiverConfig;
+import com.jdte.setup.config.TimeAcceleratorConfig;
+import com.jdte.setup.config.UpgradeItemsConfig;
+import com.jdte.setup.config.UpgradesConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -14,6 +32,25 @@ public class JDTEConfig {
     }
 
     public static class Common {
+        public final UpgradesConfig upgrades;
+        public final TimeAcceleratorConfig timeAccelerator;
+        public final BioCrusherConfig bioCrusher;
+        public final LifeExtractorConfig lifeExtractor;
+        public final LootFabricatorConfig lootFabricator;
+        public final SenderReceiverConfig senderReceiver;
+        public final AdvancedItemCollectorConfig advancedItemCollector;
+        public final EntitySuppressorConfig entitySuppressor;
+        public final RangeBlockerConfig rangeBlocker;
+        public final FactoryPackerConfig factoryPacker;
+        public final AdvancedPotionBrewerConfig advancedPotionBrewer;
+        public final CrystalIncubatorConfig crystalIncubator;
+        public final GreenhouseConfig greenhouse;
+        public final BioFactoryConfig bioFactory;
+        public final LifeBreederConfig lifeBreeder;
+        public final GelGeneratorConfig gelGenerator;
+        public final GeneratorUpgradeConfig generatorUpgrade;
+        public final UpgradeItemsConfig upgradeItems;
+
         // Upgrade System
         public final ModConfigSpec.IntValue filterSlotsPerUpgrade;
         public final ModConfigSpec.DoubleValue underclockEnergyMultiplier;
@@ -221,679 +258,212 @@ public class JDTEConfig {
         public Common(ModConfigSpec.Builder builder) {
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
 
-            // Upgrade System
-            builder.comment("Upgrade System Settings").translation("config.jdte.jdte.upgrades").push("upgrades");
-            filterSlotsPerUpgrade = builder
-                    .comment("Number of extra filter slots per filter upgrade card")
-                    .translation("config.jdte.jdte.upgrades.filterSlotsPerUpgrade")
-                    .defineInRange("filterSlotsPerUpgrade", 9, 1, 27);
-            underclockEnergyMultiplier = builder
-                    .comment("Underclock energy cost multiplier (0.2 = 20% of original)")
-                    .translation("config.jdte.jdte.upgrades.underclockEnergyMultiplier")
-                    .defineInRange("underclockEnergyMultiplier", 0.2D, 0.01D, 1.0D);
-            overclockEnergyMultiplier = builder
-                    .comment("Overclock energy cost multiplier (3 = 3x original)")
-                    .translation("config.jdte.jdte.upgrades.overclockEnergyMultiplier")
-                    .defineInRange("overclockEnergyMultiplier", 3, 1, 10);
-            underclockTickSpeed = builder
-                    .comment("Underclock tick speed (locks machine to this tick interval)")
-                    .translation("config.jdte.jdte.upgrades.underclockTickSpeed")
-                    .defineInRange("underclockTickSpeed", 40, 1, 100);
-            overclockTickSpeed = builder
-                    .comment("Overclock tick speed (locks machine to this tick interval)")
-                    .translation("config.jdte.jdte.upgrades.overclockTickSpeed")
-                    .defineInRange("overclockTickSpeed", 1, 1, 10);
-            baseAreaRadius = builder
-                    .comment("Base area radius for range upgrade")
-                    .translation("config.jdte.jdte.upgrades.baseAreaRadius")
-                    .defineInRange("baseAreaRadius", 5.0D, 1.0D, 50.0D);
-            baseAreaOffset = builder
-                    .comment("Base area offset for range upgrade")
-                    .translation("config.jdte.jdte.upgrades.baseAreaOffset")
-                    .defineInRange("baseAreaOffset", 9, 0, 50);
-            builder.pop();
-
-            // Time Accelerator
-            builder.comment("Time Accelerator Settings").translation("config.jdte.jdte.timeAccelerator").push("timeAccelerator");
-            timeAcceleratorBaseFluidCapacity = builder
-                    .comment("Base fluid capacity for time accelerators (mB)")
-                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorBaseFluidCapacity")
-                    .defineInRange("timeAcceleratorBaseFluidCapacity", 1000, 100, 100000);
-            timeAcceleratorFluidCostMultiplier = builder
-                    .comment("Time accelerator fluid cost multiplier. 1.0 matches the JDT Time Wand cost spread over 30 seconds.")
-                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorFluidCostMultiplier")
-                    .defineInRange("timeAcceleratorFluidCostMultiplier", 1.0D, 0.0D, 1000.0D);
-            basicTimeAcceleratorDefaultMultiplier = builder
-                    .comment("Basic time accelerator default multiplier")
-                    .translation("config.jdte.jdte.timeAccelerator.basicTimeAcceleratorDefaultMultiplier")
-                    .defineInRange("basicTimeAcceleratorDefaultMultiplier", 16, 1, 100);
-            basicTimeAcceleratorOverclockMultiplier = builder
-                    .comment("Basic time accelerator overclock multiplier")
-                    .translation("config.jdte.jdte.timeAccelerator.basicTimeAcceleratorOverclockMultiplier")
-                    .defineInRange("basicTimeAcceleratorOverclockMultiplier", 32, 1, 1000);
-            advancedTimeAcceleratorEnergyCapacity = builder
-                    .comment("Advanced time accelerator energy capacity")
-                    .translation("config.jdte.jdte.timeAccelerator.advancedTimeAcceleratorEnergyCapacity")
-                    .defineInRange("advancedTimeAcceleratorEnergyCapacity", 200000, 10000, 10000000);
-            advancedTimeAcceleratorMaxMultiplier = builder
-                    .comment("Advanced time accelerator max adjustable multiplier")
-                    .translation("config.jdte.jdte.timeAccelerator.advancedTimeAcceleratorMaxMultiplier")
-                    .defineInRange("advancedTimeAcceleratorMaxMultiplier", 64, 1, 1000);
-            advancedTimeAcceleratorOverclockMultiplier = builder
-                    .comment("Advanced time accelerator overclock multiplier")
-                    .translation("config.jdte.jdte.timeAccelerator.advancedTimeAcceleratorOverclockMultiplier")
-                    .defineInRange("advancedTimeAcceleratorOverclockMultiplier", 128, 1, 10000);
-            advancedTimeAcceleratorDefaultMultiplier = builder
-                    .comment("Advanced time accelerator default multiplier")
-                    .translation("config.jdte.jdte.timeAccelerator.advancedTimeAcceleratorDefaultMultiplier")
-                    .defineInRange("advancedTimeAcceleratorDefaultMultiplier", 4, 1, 100);
-            extendedTimeAcceleratorMaxMultiplier = builder
-                    .comment("Extended time accelerator maximum adjustable multiplier")
-                    .translation("config.jdte.jdte.timeAccelerator.extendedTimeAcceleratorMaxMultiplier")
-                    .defineInRange("extendedTimeAcceleratorMaxMultiplier", 512, 1, 10000);
-            extendedTimeAcceleratorOverclockMultiplier = builder
-                    .comment("Extended time accelerator multiplier with Overclock or Creative Upgrade")
-                    .translation("config.jdte.jdte.timeAccelerator.extendedTimeAcceleratorOverclockMultiplier")
-                    .defineInRange("extendedTimeAcceleratorOverclockMultiplier", 1024, 1, 100000);
-            timeAcceleratorTargetMspt = builder
-                    .comment("Target total server tick time used by managed Time Accelerator work")
-                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorTargetMspt")
-                    .defineInRange("timeAcceleratorTargetMspt", 45.0D, 1.0D, 50.0D);
-            timeAcceleratorMaxPendingTicks = builder
-                    .comment("Maximum paid virtual ticks retained per Time Accelerator target")
-                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorMaxPendingTicks")
-                    .defineInRange("timeAcceleratorMaxPendingTicks", 1000000L, 1024L, 100000000L);
-            timeAcceleratorExecutionBatchSize = builder
-                    .comment("Maximum virtual ticks processed for one target before rotating to the next target")
-                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorExecutionBatchSize")
-                    .defineInRange("timeAcceleratorExecutionBatchSize", 64, 1, 4096);
-            timeAcceleratorRandomRefreshInterval = builder
-                    .comment("Ticks between random-ticking block target cache refreshes")
-                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorRandomRefreshInterval")
-                    .defineInRange("timeAcceleratorRandomRefreshInterval", 20, 1, 1200);
-            timeAcceleratorAE2Enabled = builder
-                    .comment("Allow Time Accelerators to invoke AE2 IGridTickable services")
-                    .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorAE2Enabled")
-                    .define("timeAcceleratorAE2Enabled", true);
-            builder.pop();
-
-            // Bio Crusher
-            builder.comment("Bio Crusher Settings").translation("config.jdte.jdte.bioCrusher").push("bioCrusher");
-            bioCrusherFluidCapacity = builder
-                    .comment("Base fluid capacity for bio crusher (mB)")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherFluidCapacity")
-                    .defineInRange("bioCrusherFluidCapacity", 16000, 1000, 1000000);
-            bioCrusherEnergyCost = builder
-                    .comment("Base energy cost per operation")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherEnergyCost")
-                    .defineInRange("bioCrusherEnergyCost", 300, 10, 100000);
-            bioCrusherBaseRadius = builder
-                    .comment("Base search radius for bio crusher")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherBaseRadius")
-                    .defineInRange("bioCrusherBaseRadius", 2.5D, 1.0D, 20.0D);
-            bioCrusherExperienceFluidMultiplier = builder
-                    .comment("Experience fluid produced per actual experience point dropped by the entity (mB)")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherExperienceFluidMultiplier")
-                    .defineInRange("experienceFluidPerPoint", 1.0D, 0.0D, 10000.0D);
-            bioCrusherOutputSlotsPerCapacityUpgradeMultiplier = builder
-                    .comment("Multiplier applied to the base output slots opened by each Capacity Upgrade (base is 9 slots per upgrade)")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherOutputSlotsPerCapacityUpgradeMultiplier")
-                    .defineInRange("bioCrusherOutputSlotsPerCapacityUpgradeMultiplier", 2, 1, 10);
-            bioCrusherBaseDamage = builder
-                    .comment("Base damage dealt by bio crusher")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherBaseDamage")
-                    .defineInRange("bioCrusherBaseDamage", 5, 1, 1000);
-            bioCrusherProcessTime = builder
-                    .comment("Base interval in ticks between bio crusher operations")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherProcessTime")
-                    .defineInRange("bioCrusherProcessTime", 5, 1, 200);
-            bioCrusherRespectDamageRestrictions = builder
-                    .comment("When enabled, the bio crusher will not force-kill entities that survive its FakePlayer attack. Disabled by default so protected bosses can still be processed.")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherRespectDamageRestrictions")
-                    .define("respectDamageRestrictions", false);
-            bioCrusherAllowDestroyChaosGuardianCrystals = builder
-                    .comment("Allow Bio Crushers to automatically destroy Draconic Evolution Chaos Guardian Crystals. Disabled by default.")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherAllowDestroyChaosGuardianCrystals")
-                    .define("allowDestroyChaosGuardianCrystals", false);
-            bioCrusherAllowInstantKillChaosGuardian = builder
-                    .comment("Allow Bio Crushers to instantly kill the Draconic Evolution Chaos Guardian with FakePlayer attribution. Disabled by default.")
-                    .translation("config.jdte.jdte.bioCrusher.bioCrusherAllowInstantKillChaosGuardian")
-                    .define("allowInstantKillChaosGuardian", false);
-            lootingExtraDropChance = builder
-                    .comment("Looting extra drop chance per level (0.5 = 50%)")
-                    .translation("config.jdte.jdte.bioCrusher.lootingExtraDropChance")
-                    .defineInRange("lootingExtraDropChance", 0.5D, 0.01D, 1.0D);
-            advancedBioCrusherEnergyCapacity = builder
-                    .comment("Advanced bio crusher energy capacity")
-                    .translation("config.jdte.jdte.bioCrusher.advancedBioCrusherEnergyCapacity")
-                    .defineInRange("advancedBioCrusherEnergyCapacity", 100000, 10000, 10000000);
-            extendedBioCrusherEnergyCapacity = builder
-                    .comment("Extended bio crusher energy capacity")
-                    .translation("config.jdte.jdte.bioCrusher.extendedBioCrusherEnergyCapacity")
-                    .defineInRange("extendedBioCrusherEnergyCapacity", 200000, 10000, 10000000);
-            advancedBioCrusherMaxEntities = builder
-                    .comment("Max entities processed per tick (advanced)")
-                    .translation("config.jdte.jdte.bioCrusher.advancedBioCrusherMaxEntities")
-                    .defineInRange("advancedBioCrusherMaxEntities", 2, 1, 100);
-            extendedBioCrusherMaxEntities = builder
-                    .comment("Max entities processed per tick (extended)")
-                    .translation("config.jdte.jdte.bioCrusher.extendedBioCrusherMaxEntities")
-                    .defineInRange("extendedBioCrusherMaxEntities", 4, 1, 100);
-            builder.pop();
-
-            // Life Extractor
-            builder.comment("Life Extractor Settings").translation("config.jdte.jdte.lifeExtractor").push("lifeExtractor");
-            lifeExtractorFluidPerHealth = builder
-                    .comment("Life Fluid produced per point of the entity's current health (mB)")
-                    .translation("config.jdte.jdte.lifeExtractor.fluidPerHealth")
-                    .defineInRange("fluidPerHealth", 0.1D, 0.001D, 100000.0D);
-            lifeExtractorHighHealthLossPercent = builder
-                    .comment("Marginal yield loss for each complete 100-health band above the first 100 health")
-                    .translation("config.jdte.jdte.lifeExtractor.highHealthLossPercent")
-                    .defineInRange("highHealthLossPercent", 10.0D, 0.0D, 100.0D);
-            builder.pop();
-
-            // Loot Fabricator
-            builder.comment("Loot Fabricator Settings").translation("config.jdte.jdte.lootFabricator").push("lootFabricator");
-            lootFabricatorLifeFluidCost = builder
-                    .comment("Life Fluid consumed per successful loot fabrication operation (mB)")
-                    .translation("config.jdte.jdte.lootFabricator.lifeFluidCost")
-                    .defineInRange("lifeFluidCost", 100, 1, 1_000_000);
-            lootFabricatorBaseTimeFluidCost = builder
-                    .comment("Base Time Fluid consumed per successful loot fabrication operation (mB). Faster machine speeds multiply this integer cost.")
-                    .translation("config.jdte.jdte.lootFabricator.baseTimeFluidCost")
-                    .defineInRange("baseTimeFluidCost", 1, 1, 1_000_000);
-            lootFabricatorLootingFluidCostIncreasePercent = builder
-                    .comment("Additional Life Fluid and Time Fluid cost per Looting Upgrade installed in a Loot Fabricator, in percent.")
-                    .translation("config.jdte.jdte.lootFabricator.lootingFluidCostIncreasePercent")
-                    .defineInRange("lootingFluidCostIncreasePercent", 50, 0, 10_000);
-            builder.pop();
-
-            // Sender/Receiver
-            builder.comment("Sender/Receiver Settings").translation("config.jdte.jdte.senderReceiver").push("senderReceiver");
-            senderStorageSlots = builder
-                    .comment("Internal storage slots for item sender/receiver")
-                    .translation("config.jdte.jdte.senderReceiver.senderStorageSlots")
-                    .defineInRange("senderStorageSlots", 9, 1, 54);
-            advancedItemSenderEnergyCapacity = builder
-                    .comment("Advanced item sender energy capacity")
-                    .translation("config.jdte.jdte.senderReceiver.advancedItemSenderEnergyCapacity")
-                    .defineInRange("advancedItemSenderEnergyCapacity", 50000, 1000, 10000000);
-            advancedItemSenderEnergyCost = builder
-                    .comment("Advanced item sender energy cost per cycle")
-                    .translation("config.jdte.jdte.senderReceiver.advancedItemSenderEnergyCost")
-                    .defineInRange("advancedItemSenderEnergyCost", 500, 10, 100000);
-            extendedItemSenderEnergyCapacity = builder
-                    .comment("Extended item sender energy capacity")
-                    .translation("config.jdte.jdte.senderReceiver.extendedItemSenderEnergyCapacity")
-                    .defineInRange("extendedItemSenderEnergyCapacity", 100000, 1000, 10000000);
-            advancedFluidSenderEnergyCapacity = builder
-                    .comment("Advanced fluid sender energy capacity")
-                    .translation("config.jdte.jdte.senderReceiver.advancedFluidSenderEnergyCapacity")
-                    .defineInRange("advancedFluidSenderEnergyCapacity", 50000, 1000, 10000000);
-            advancedFluidSenderEnergyCost = builder
-                    .comment("Advanced fluid sender energy cost per cycle")
-                    .translation("config.jdte.jdte.senderReceiver.advancedFluidSenderEnergyCost")
-                    .defineInRange("advancedFluidSenderEnergyCost", 500, 10, 100000);
-            extendedFluidSenderEnergyCapacity = builder
-                    .comment("Extended fluid sender energy capacity")
-                    .translation("config.jdte.jdte.senderReceiver.extendedFluidSenderEnergyCapacity")
-                    .defineInRange("extendedFluidSenderEnergyCapacity", 100000, 1000, 10000000);
-            fluidSenderFluidCapacity = builder
-                    .comment("Fluid sender/receiver base fluid capacity (mB)")
-                    .translation("config.jdte.jdte.senderReceiver.fluidSenderFluidCapacity")
-                    .defineInRange("fluidSenderFluidCapacity", 8000, 100, 1000000);
-            fluidSenderUnlimitedTransfer = builder
-                    .comment("When enabled, Fluid Senders move all available internal fluid per operation instead of using the configured fluid batch limits")
-                    .translation("config.jdte.jdte.senderReceiver.fluidSenderUnlimitedTransfer")
-                    .define("fluidSenderUnlimitedTransfer", true);
-            autoIoItemTransferRate = builder
-                    .comment("Maximum items transferred per side and auto I/O operation. Default matches Logistics Network's Netherite tier.")
-                    .translation("config.jdte.jdte.senderReceiver.autoIoItemTransferRate")
-                    .defineInRange("autoIoItemTransferRate", 10000, 1, 1000000);
-            autoIoFluidTransferRate = builder
-                    .comment("Maximum fluid transferred per side and auto I/O operation in mB. Default matches Logistics Network's Netherite tier.")
-                    .translation("config.jdte.jdte.senderReceiver.autoIoFluidTransferRate")
-                    .defineInRange("autoIoFluidTransferRate", 1000000, 1, Integer.MAX_VALUE);
-            senderReceiverItemTransferRate = builder
-                    .comment("Maximum items moved per sender/receiver operation without Overclock. Default matches Logistics Network's Diamond tier.")
-                    .translation("config.jdte.jdte.senderReceiver.senderReceiverItemTransferRate")
-                    .defineInRange("senderReceiverItemTransferRate", 64, 1, 1000000);
-            senderReceiverOverclockItemTransferRate = builder
-                    .comment("Maximum items moved per sender/receiver operation with Overclock or Creative. Default matches Logistics Network's Netherite tier.")
-                    .translation("config.jdte.jdte.senderReceiver.senderReceiverOverclockItemTransferRate")
-                    .defineInRange("senderReceiverOverclockItemTransferRate", 10000, 1, 1000000);
-            senderReceiverFluidTransferRate = builder
-                    .comment("Maximum fluid moved per sender/receiver operation without Overclock in mB. Default matches Logistics Network's Diamond tier.")
-                    .translation("config.jdte.jdte.senderReceiver.senderReceiverFluidTransferRate")
-                    .defineInRange("senderReceiverFluidTransferRate", 20000, 1, Integer.MAX_VALUE);
-            senderReceiverOverclockFluidTransferRate = builder
-                    .comment("Maximum fluid moved per sender/receiver operation with Overclock or Creative in mB. Default matches Logistics Network's Netherite tier.")
-                    .translation("config.jdte.jdte.senderReceiver.senderReceiverOverclockFluidTransferRate")
-                    .defineInRange("senderReceiverOverclockFluidTransferRate", 1000000, 1, Integer.MAX_VALUE);
-            transferFailureBackoffStart = builder
-                    .comment("Initial idle retry delay for auto I/O and sender/receiver transfers in ticks")
-                    .translation("config.jdte.jdte.senderReceiver.transferFailureBackoffStart")
-                    .defineInRange("transferFailureBackoffStart", 10, 1, 200);
-            transferFailureBackoffMax = builder
-                    .comment("Maximum idle retry delay for auto I/O and sender/receiver transfers in ticks")
-                    .translation("config.jdte.jdte.senderReceiver.transferFailureBackoffMax")
-                    .defineInRange("transferFailureBackoffMax", 40, 1, 1200);
-            builder.pop();
-
-            // Advanced Item Collector
-            builder.comment("Advanced Item Collector Settings")
-                    .translation("config.jdte.jdte.advancedItemCollector")
-                    .push("advancedItemCollector");
-            advancedItemCollectorPreDrainEnabled = builder
-                    .comment("Directly transfer oversized container slots before player block breaking creates item entities")
-                    .translation("config.jdte.jdte.advancedItemCollector.preDrainEnabled")
-                    .define("preDrainEnabled", true);
-            advancedItemCollectorPreDrainThreshold = builder
-                    .comment("Minimum item count in one source slot that enables pre-break direct transfer")
-                    .translation("config.jdte.jdte.advancedItemCollector.preDrainThreshold")
-                    .defineInRange("preDrainThreshold", 10_000_000, 65, Integer.MAX_VALUE);
-            advancedItemCollectorMeDirectTransferEnabled = builder
-                    .comment("Use direct AE2 ME storage insertion when the attached interface item handler cannot accept a complete collected stack")
-                    .translation("config.jdte.jdte.advancedItemCollector.meDirectTransferEnabled")
-                    .define("meDirectTransferEnabled", true);
-            advancedItemCollectorExistingItemScanEnabled = builder
-                    .comment("Periodically collect item entities that already exist in configured collector areas")
-                    .translation("config.jdte.jdte.advancedItemCollector.existingItemScanEnabled")
-                    .define("existingItemScanEnabled", true);
-            advancedItemCollectorExistingItemScanInterval = builder
-                    .comment("Minimum ticks between existing-item scans for each collector")
-                    .translation("config.jdte.jdte.advancedItemCollector.existingItemScanInterval")
-                    .defineInRange("existingItemScanInterval", 10, 1, 1200);
-            advancedItemCollectorExistingItemScanLimit = builder
-                    .comment("Maximum existing item entities processed by one collector scan")
-                    .translation("config.jdte.jdte.advancedItemCollector.existingItemScanLimit")
-                    .defineInRange("existingItemScanLimit", 256, 1, 4096);
-            builder.pop();
-
-            builder.comment("Entity Suppressor Settings")
-                    .translation("config.jdte.jdte.entitySuppressor")
-                    .push("entitySuppressor");
-            entitySuppressorEnergyCapacity = builder
-                    .translation("config.jdte.jdte.entitySuppressor.energyCapacity")
-                    .defineInRange("energyCapacity", 200000, 1000, 100000000);
-            entitySuppressorEnergyPerTick = builder
-                    .translation("config.jdte.jdte.entitySuppressor.energyPerTick")
-                    .defineInRange("energyPerTick", 250, 0, 1000000);
-            entitySuppressorProtectNamed = builder
-                    .translation("config.jdte.jdte.entitySuppressor.protectNamed")
-                    .define("protectNamed", true);
-            entitySuppressorProtectTamed = builder
-                    .translation("config.jdte.jdte.entitySuppressor.protectTamed")
-                    .define("protectTamed", true);
-            entitySuppressorProtectBosses = builder
-                    .translation("config.jdte.jdte.entitySuppressor.protectBosses")
-                    .define("protectBosses", true);
-            entitySuppressorRemoveExisting = builder
-                    .comment("Periodically remove matching existing entities while Block Entities mode is active")
-                    .translation("config.jdte.jdte.entitySuppressor.removeExisting")
-                    .define("removeExistingEntities", false);
-            builder.pop();
-
-            builder.comment("Range Blocker Settings")
-                    .translation("config.jdte.jdte.rangeBlocker")
-                    .push("rangeBlocker");
-            rangeBlockerEnergyCapacity = builder
-                    .translation("config.jdte.jdte.rangeBlocker.energyCapacity")
-                    .defineInRange("energyCapacity", 200000, 1000, 100000000);
-            rangeBlockerContainmentEnergyPerTick = builder
-                    .translation("config.jdte.jdte.rangeBlocker.containmentEnergyPerTick")
-                    .defineInRange("containmentEnergyPerTick", 250, 0, 1000000);
-            rangeBlockerDemagnetizationEnergyPerTick = builder
-                    .comment("FE consumed per active Demagnetization tick")
-                    .translation("config.jdte.jdte.rangeBlocker.demagnetizationEnergyPerTick")
-                    .defineInRange("demagnetizationEnergyPerTick", 1, 0, 1000000);
-            rangeBlockerSilenceEnergyPerTick = builder
-                    .comment("FE consumed every tick while Silence mode is active")
-                    .translation("config.jdte.jdte.rangeBlocker.silenceEnergyPerTick")
-                    .defineInRange("silenceEnergyPerTick", 1, 0, 1000000);
-            rangeBlockerProtectNamed = builder
-                    .translation("config.jdte.jdte.rangeBlocker.protectNamed")
-                    .define("protectNamed", true);
-            rangeBlockerProtectTamed = builder
-                    .translation("config.jdte.jdte.rangeBlocker.protectTamed")
-                    .define("protectTamed", true);
-            rangeBlockerProtectBosses = builder
-                    .translation("config.jdte.jdte.rangeBlocker.protectBosses")
-                    .define("protectBosses", true);
-            rangeBlockerMekanismIntegration = builder
-                    .comment("Make Mekanism's MekaSuit magnetic attraction respect demagnetization fields")
-                    .translation("config.jdte.jdte.rangeBlocker.mekanismIntegration")
-                    .define("mekanismIntegration", true);
-            rangeBlockerContainProjectiles = builder
-                    .comment("Destroy non-player projectiles before they cross a Containment field boundary")
-                    .translation("config.jdte.jdte.rangeBlocker.containProjectiles")
-                    .define("containProjectiles", true);
-            rangeBlockerContainOwnerlessProjectiles = builder
-                    .comment("Contain projectiles with no owner, including modded projectiles that do not expose one")
-                    .translation("config.jdte.jdte.rangeBlocker.containOwnerlessProjectiles")
-                    .define("containOwnerlessProjectiles", true);
-            rangeBlockerContainProjectileExplosions = builder
-                    .comment("Prevent explosions from contained projectiles from affecting blocks and entities outside the field")
-                    .translation("config.jdte.jdte.rangeBlocker.containProjectileExplosions")
-                    .define("containProjectileExplosions", true);
-            builder.pop();
-
-            builder.comment("Factory Packer Settings")
-                    .translation("config.jdte.jdte.factoryPacker")
-                    .push("factoryPacker");
-            factoryPackerEnergyCapacity = builder
-                    .translation("config.jdte.jdte.factoryPacker.energyCapacity")
-                    .defineInRange("energyCapacity", 10_000_000, 1000, Integer.MAX_VALUE);
-            factoryPackerBaseRadius = builder
-                    .comment("Base X/Y/Z radius of the Factory Packer; Range Upgrades multiply it by powers of two")
-                    .translation("config.jdte.jdte.factoryPacker.baseRadius")
-                    .defineInRange("baseRadius", 10.0D, 1.0D, 64.0D);
-            factoryPackerEnergyPerBlock = builder
-                    .comment("FE consumed for every non-air block captured")
-                    .translation("config.jdte.jdte.factoryPacker.energyPerBlock")
-                    .defineInRange("energyPerBlock", 100, 0, 1_000_000);
-            factoryPackerBlocksPerTick = builder
-                    .comment("Maximum capture, cut, placement, or update operations per server tick; Overclock and Creative use four times this budget")
-                    .translation("config.jdte.jdte.factoryPacker.blocksPerTick")
-                    .defineInRange("blocksPerTick", 512, 1, 8192);
-            factoryPackerSourceChangeRetries = builder
-                    .comment("Number of bounded recapture attempts when the source topology changes during packing")
-                    .translation("config.jdte.jdte.factoryPacker.sourceChangeRetries")
-                    .defineInRange("sourceChangeRetries", 3, 0, 16);
-            factoryPackerMaxAxis = builder
-                    .comment("Hard per-axis safety limit; legacy values below 65 are corrected to the new default")
-                    .translation("config.jdte.jdte.factoryPacker.maxAxis")
-                    .defineInRange("maxAxis", 128, 65, 256);
-            factoryPackerMaxVolume = builder
-                    .comment("Hard selected-volume safety limit; legacy values below 65536 are corrected to the new default")
-                    .translation("config.jdte.jdte.factoryPacker.maxVolume")
-                    .defineInRange("maxVolume", 1_000_000, 65_536, 16_777_216);
-            factoryPackerMaxCompressedBytes = builder
-                    .translation("config.jdte.jdte.factoryPacker.maxCompressedBytes")
-                    .defineInRange("maxCompressedBytes", 33_554_432, 1_048_576, Integer.MAX_VALUE);
-            factoryPackerMaxUncompressedBytes = builder
-                    .translation("config.jdte.jdte.factoryPacker.maxUncompressedBytes")
-                    .defineInRange("maxUncompressedBytes", 268_435_456, 1_048_576, Integer.MAX_VALUE);
-            factoryPackerPreviewMaxBlocks = builder
-                    .comment("Maximum block positions sent to one client for a held package structure preview")
-                    .translation("config.jdte.jdte.factoryPacker.previewMaxBlocks")
-                    .defineInRange("previewMaxBlocks", 2048, 0, 16384);
-            factoryPackerMaxEntities = builder
-                    .comment("Maximum root entities, including their passenger trees, stored in one package")
-                    .translation("config.jdte.jdte.factoryPacker.maxEntities")
-                    .defineInRange("maxEntities", 4096, 0, 65536);
-            factoryPackerEnergyPerEntity = builder
-                    .translation("config.jdte.jdte.factoryPacker.energyPerEntity")
-                    .defineInRange("energyPerEntity", 100, 0, 1_000_000);
-            factoryPackerMoveEntities = builder
-                    .translation("config.jdte.jdte.factoryPacker.moveEntities")
-                    .define("moveEntities", true);
-            factoryPackerMoveScheduledTicks = builder
-                    .translation("config.jdte.jdte.factoryPacker.moveScheduledTicks")
-                    .define("moveScheduledTicks", true);
-            factoryPackerRemapInternalLinks = builder
-                    .comment("Relocate recognized absolute block positions that point inside the packed area")
-                    .translation("config.jdte.jdte.factoryPacker.remapInternalLinks")
-                    .define("remapInternalLinks", true);
-            factoryPackerUseModMoveStrategies = builder
-                    .comment("Use public mod move strategies, including AE2 block entity move hooks, when available")
-                    .translation("config.jdte.jdte.factoryPacker.useModMoveStrategies")
-                    .define("useModMoveStrategies", true);
-            factoryPackerChatNotifications = builder
-                    .comment("Send operation phases, retries, detailed source changes, and results to the initiating player's chat")
-                    .translation("config.jdte.jdte.factoryPacker.chatNotifications")
-                    .define("chatNotifications", true);
-            builder.pop();
-
-            builder.comment("Advanced Potion Brewer Settings")
-                    .translation("config.jdte.jdte.advancedPotionBrewer")
-                    .push("advancedPotionBrewer");
-            potionBrewerRejectPatternProviderFuelInput = builder
-                    .comment("Reject Blaze Powder insertion into the fuel slot from adjacent AE2 crafting providers")
-                    .translation("config.jdte.jdte.advancedPotionBrewer.rejectPatternProviderFuelInput")
-                    .define("rejectPatternProviderFuelInput", true);
-            builder.pop();
-
-            builder.comment("Crystal Incubator Settings")
-                    .translation("config.jdte.jdte.crystalIncubator")
-                    .push("crystalIncubator");
-            crystalIncubatorFluidCapacity = builder
-                    .translation("config.jdte.jdte.crystalIncubator.fluidCapacity")
-                    .defineInRange("fluidCapacity", 8000, 100, 1000000);
-            crystalIncubatorEnergyCapacity = builder
-                    .translation("config.jdte.jdte.crystalIncubator.energyCapacity")
-                    .defineInRange("energyCapacity", 10000000, 1000, Integer.MAX_VALUE);
-            crystalIncubatorEnergyCostMultiplier = builder
-                    .comment("Multiplier applied to JDT Time Wand-equivalent FE usage")
-                    .translation("config.jdte.jdte.crystalIncubator.energyCostMultiplier")
-                    .defineInRange("energyCostMultiplier", 1.0D, 0.0D, 1000.0D);
-            crystalIncubatorMaxMultiplier = builder
-                    .translation("config.jdte.jdte.crystalIncubator.maxMultiplier")
-                    .defineInRange("maxMultiplier", 512, 1, 65536);
-            crystalIncubatorOverclockMultiplier = builder
-                    .translation("config.jdte.jdte.crystalIncubator.overclockMultiplier")
-                    .defineInRange("overclockMultiplier", 1024, 1, 65536);
-            crystalIncubatorFluidCostMultiplier = builder
-                    .comment("Multiplier applied to JDT Time Wand-equivalent fluid usage")
-                    .translation("config.jdte.jdte.crystalIncubator.fluidCostMultiplier")
-                    .defineInRange("fluidCostMultiplier", 1.0D, 0.0D, 1000.0D);
-            crystalIncubatorRegularGrowthAcceleratorsAt8x = builder
-                    .comment("Equivalent AE2 Growth Accelerators used for ordinary budding blocks at 8x; each calls randomTick once every 10 ticks")
-                    .translation("config.jdte.jdte.crystalIncubator.regularGrowthAcceleratorsAt8x")
-                    .defineInRange("regularGrowthAcceleratorsAt8x", 6.0D, 0.01D, 1024.0D);
-            crystalIncubatorScanBatchSize = builder
-                    .translation("config.jdte.jdte.crystalIncubator.scanBatchSize")
-                    .defineInRange("scanBatchSize", 4096, 16, 1048576);
-            crystalIncubatorCacheRefreshInterval = builder
-                    .translation("config.jdte.jdte.crystalIncubator.cacheRefreshInterval")
-                    .defineInRange("cacheRefreshInterval", 200, 20, 72000);
-            crystalIncubatorMotherBatchSize = builder
-                    .translation("config.jdte.jdte.crystalIncubator.motherBatchSize")
-                    .defineInRange("motherBatchSize", 64, 1, 4096);
-            crystalIncubatorGrowthOperationsPerTick = builder
-                    .translation("config.jdte.jdte.crystalIncubator.growthOperationsPerTick")
-                    .defineInRange("growthOperationsPerTick", 256, 1, 65536);
-            crystalIncubatorHarvestOperationsPerTick = builder
-                    .translation("config.jdte.jdte.crystalIncubator.harvestOperationsPerTick")
-                    .defineInRange("harvestOperationsPerTick", 64, 1, 4096);
-            crystalIncubatorDynaGrowthAttempts = builder
-                    .translation("config.jdte.jdte.crystalIncubator.dynaGrowthAttempts")
-                    .defineInRange("dynaGrowthAttempts", 128, 1, 4096);
-            builder.pop();
-
-            builder.comment("Greenhouse Settings")
-                    .translation("config.jdte.jdte.greenhouse")
-                    .push("greenhouse");
-            greenhouseFluidCapacity = builder
-                    .translation("config.jdte.jdte.greenhouse.fluidCapacity")
-                    .defineInRange("fluidCapacity", 64000, 1000, Integer.MAX_VALUE);
-            greenhouseEnergyCapacity = builder
-                    .translation("config.jdte.jdte.greenhouse.energyCapacity")
-                    .defineInRange("energyCapacity", 10000000, 1000, Integer.MAX_VALUE);
-            greenhouseBaseMultiplier = builder
-                    .translation("config.jdte.jdte.greenhouse.baseMultiplier")
-                    .defineInRange("baseMultiplier", 512, 1, 65536);
-            greenhouseDefaultSpeedMultiplier = builder
-                    .translation("config.jdte.jdte.greenhouse.defaultSpeedMultiplier")
-                    .defineInRange("defaultSpeedMultiplier", 1, 1, 64);
-            greenhouseMaxSpeedMultiplier = builder
-                    .translation("config.jdte.jdte.greenhouse.maxSpeedMultiplier")
-                    .defineInRange("maxSpeedMultiplier", 32, 1, 64);
-            greenhouseOverclockMaxSpeedMultiplier = builder
-                    .translation("config.jdte.jdte.greenhouse.overclockMaxSpeedMultiplier")
-                    .defineInRange("overclockMaxSpeedMultiplier", 64, 1, 256);
-            greenhouseFluidCostDivisor = builder
-                    .translation("config.jdte.jdte.greenhouse.fluidCostDivisor")
-                    .defineInRange("fluidCostDivisor", 100, 1, 1000000);
-            greenhouseSettlementInterval = builder
-                    .comment("Ticks between batched production settlements")
-                    .translation("config.jdte.jdte.greenhouse.settlementInterval")
-                    .defineInRange("settlementInterval", 20, 1, 1200);
-            greenhouseDefaultGrowthWork = builder
-                    .translation("config.jdte.jdte.greenhouse.defaultGrowthWork")
-                    .defineInRange("defaultGrowthWork", 4096, 1, Integer.MAX_VALUE);
-            greenhouseEnergyPerHarvestV2 = builder
-                    .translation("config.jdte.jdte.greenhouse.energyPerHarvest")
-                    .defineInRange("energyPerHarvestV2", 10, 0, Integer.MAX_VALUE);
-            greenhouseMysticalBaseFluidCost = builder
-                    .comment("Mystical Agriculture Time Fluid cost is this value multiplied by crop tier squared")
-                    .translation("config.jdte.jdte.greenhouse.mysticalBaseFluidCost")
-                    .defineInRange("mysticalBaseFluidCost", 25, 1, 1000000);
-            greenhouseGenericFluidCost = builder
-                    .translation("config.jdte.jdte.greenhouse.genericFluidCost")
-                    .defineInRange("genericFluidCost", 10, 1, 1000000);
-            greenhouseMaxHarvestsPerSettlementV2 = builder
-                    .translation("config.jdte.jdte.greenhouse.maxHarvestsPerSettlement")
-                    .defineInRange("maxHarvestsPerSettlementV2", 4096, 1, 65536);
-            builder.pop();
-
-            builder.comment("Bio Factory Settings")
-                    .translation("config.jdte.jdte.bioFactory")
-                    .push("bioFactory");
-            bioFactoryFluidCapacity = builder.translation("config.jdte.jdte.bioFactory.fluidCapacity")
-                    .defineInRange("fluidCapacity", 64000, 1000, Integer.MAX_VALUE);
-            bioFactoryEnergyCapacity = builder.translation("config.jdte.jdte.bioFactory.energyCapacity")
-                    .defineInRange("energyCapacity", 10000000, 1000, Integer.MAX_VALUE);
-            bioFactoryEnergyPerCycle = builder.translation("config.jdte.jdte.bioFactory.energyPerCycle")
-                    .defineInRange("energyPerCycle", 1000, 0, Integer.MAX_VALUE);
-            bioFactoryBaseProcessTicks = builder.translation("config.jdte.jdte.bioFactory.baseProcessTicks")
-                    .defineInRange("baseProcessTicks", 600, 1, 72000);
-            bioFactorySettlementInterval = builder.comment("Ticks between lightweight production settlements")
-                    .translation("config.jdte.jdte.bioFactory.settlementInterval")
-                    .defineInRange("settlementInterval", 20, 1, 1200);
-            bioFactoryTimeFluidPerCycle = builder.translation("config.jdte.jdte.bioFactory.timeFluidPerCycle")
-                    .defineInRange("timeFluidPerCycle", 10, 0, Integer.MAX_VALUE);
-            bioFactoryMaxSpeedMultiplier = builder.translation("config.jdte.jdte.bioFactory.maxSpeedMultiplier")
-                    .defineInRange("maxSpeedMultiplier", 32, 1, 64);
-            bioFactoryDefaultSpeedMultiplier = builder.translation("config.jdte.jdte.bioFactory.defaultSpeedMultiplier")
-                    .defineInRange("defaultSpeedMultiplier", 1, 1, 64);
-            bioFactoryOverclockMaxSpeedMultiplier = builder.translation("config.jdte.jdte.bioFactory.overclockMaxSpeedMultiplier")
-                    .defineInRange("overclockMaxSpeedMultiplier", 64, 1, 128);
-            bioFactoryLifeFluidPerCycle = builder.translation("config.jdte.jdte.bioFactory.lifeFluidPerCycle")
-                    .defineInRange("lifeFluidPerCycle", 100, 0, Integer.MAX_VALUE);
-            bioFactoryLifeYieldMultiplier = builder.translation("config.jdte.jdte.bioFactory.lifeYieldMultiplier")
-                    .defineInRange("lifeYieldMultiplier", 2.0D, 1.0D, 64.0D);
-            bioFactoryProcessFluidPerCycle = builder.translation("config.jdte.jdte.bioFactory.processFluidPerCycle")
-                    .defineInRange("processFluidPerCycle", 100, 0, Integer.MAX_VALUE);
-            bioFactoryExternalTimeFluidCostMultiplier = builder
-                    .translation("config.jdte.jdte.bioFactory.externalTimeFluidCostMultiplier")
-                    .defineInRange("externalTimeFluidCostMultiplier", 10, 1, 1000);
-            bioFactoryExternalLifeFluidCostMultiplier = builder
-                    .translation("config.jdte.jdte.bioFactory.externalLifeFluidCostMultiplier")
-                    .defineInRange("externalLifeFluidCostMultiplier", 5, 1, 1000);
-            builder.pop();
-
-            builder.comment("Life Breeder Settings")
-                    .translation("config.jdte.jdte.lifeBreeder")
-                    .push("lifeBreeder");
-            lifeBreederEnergyCapacity = builder.translation("config.jdte.jdte.lifeBreeder.energyCapacity")
-                    .defineInRange("energyCapacity", 10_000_000, 1000, Integer.MAX_VALUE);
-            lifeBreederFluidCapacity = builder.translation("config.jdte.jdte.lifeBreeder.fluidCapacity")
-                    .defineInRange("fluidCapacity", 64_000, 1000, Integer.MAX_VALUE);
-            lifeBreederBreedEnergyCost = builder.translation("config.jdte.jdte.lifeBreeder.breedEnergyCost")
-                    .defineInRange("breedEnergyCost", 1000, 0, Integer.MAX_VALUE);
-            lifeBreederBreedFluidCost = builder.translation("config.jdte.jdte.lifeBreeder.breedFluidCost")
-                    .defineInRange("breedFluidCost", 100, 0, Integer.MAX_VALUE);
-            lifeBreederEnergyPerGrowthTick = builder
-                    .comment("FE consumed per biological age or breeding-cooldown tick skipped")
-                    .translation("config.jdte.jdte.lifeBreeder.energyPerGrowthTick")
-                    .defineInRange("energyPerGrowthTick", 1, 0, 1000000);
-            lifeBreederGrowthTicksPerMb = builder
-                    .comment("Biological age or cooldown ticks skipped per mB of Life Fluid")
-                    .translation("config.jdte.jdte.lifeBreeder.growthTicksPerMb")
-                    .defineInRange("growthTicksPerMb", 20, 1, 1000000);
-            lifeBreederFluidCostMultiplierV3 = builder
-                    .comment("Multiplier applied after converting biological time into Life Fluid")
-                    .translation("config.jdte.jdte.lifeBreeder.fluidCostMultiplier")
-                    .defineInRange("fluidCostMultiplierV3", 10, 1, 1000000);
-            lifeBreederBreedingCooldownTicks = builder
-                    .comment("Biological time used to price one completed breeding operation; vanilla animals and villagers use 6000 ticks")
-                    .translation("config.jdte.jdte.lifeBreeder.breedingCooldownTicks")
-                    .defineInRange("breedingCooldownTicks", 6000, 1, 72000);
-            lifeBreederProcessingInterval = builder
-                    .comment("Ticks between bounded area processing cycles")
-                    .translation("config.jdte.jdte.lifeBreeder.processingInterval")
-                    .defineInRange("processingInterval", 20, 1, 1200);
-            lifeBreederMaxEntitiesInspected = builder.translation("config.jdte.jdte.lifeBreeder.maxEntitiesInspected")
-                    .defineInRange("maxEntitiesInspected", 256, 1, 4096);
-            lifeBreederMaxPairsPerCycle = builder.translation("config.jdte.jdte.lifeBreeder.maxPairsPerCycle")
-                    .defineInRange("maxPairsPerCycle", 16, 1, 1024);
-            lifeBreederMaxAnimalsGrownPerCycle = builder.translation("config.jdte.jdte.lifeBreeder.maxAnimalsGrownPerCycle")
-                    .defineInRange("maxAnimalsGrownPerCycle", 128, 1, 4096);
-            lifeBreederMaxAnimalsPerType = builder
-                    .comment("Pause breeding a type at this population; set to 0 to disable the density guard")
-                    .translation("config.jdte.jdte.lifeBreeder.maxAnimalsPerType")
-                    .defineInRange("maxAnimalsPerType", 64, 0, 4096);
-            lifeBreederMaxDropsCollectedPerCycle = builder.translation("config.jdte.jdte.lifeBreeder.maxDropsCollectedPerCycle")
-                    .defineInRange("maxDropsCollectedPerCycle", 128, 0, 4096);
-            lifeBreederDefaultSpeedMultiplier = builder.translation("config.jdte.jdte.lifeBreeder.defaultSpeedMultiplier")
-                    .defineInRange("defaultSpeedMultiplier", 1, 1, 32);
-            lifeBreederMaxSpeedMultiplier = builder.translation("config.jdte.jdte.lifeBreeder.maxSpeedMultiplier")
-                    .defineInRange("maxSpeedMultiplier", 32, 1, 256);
-            builder.pop();
-
-            // Gel Generator
-            builder.comment("Gel Generator Settings").translation("config.jdte.jdte.gelGenerator").push("gelGenerator");
-            gelGeneratorInputSlots = builder
-                    .comment("Number of input slots")
-                    .translation("config.jdte.jdte.gelGenerator.gelGeneratorInputSlots")
-                    .defineInRange("gelGeneratorInputSlots", 4, 1, 27);
-            gelGeneratorOutputSlots = builder
-                    .comment("Number of output slots")
-                    .translation("config.jdte.jdte.gelGenerator.gelGeneratorOutputSlots")
-                    .defineInRange("gelGeneratorOutputSlots", 4, 1, 27);
-            gelGeneratorFluidCapacity = builder
-                    .comment("Base fluid capacity (mB)")
-                    .translation("config.jdte.jdte.gelGenerator.gelGeneratorFluidCapacity")
-                    .defineInRange("gelGeneratorFluidCapacity", 4000, 100, 1000000);
-            gelGeneratorEnergyCapacity = builder
-                    .comment("Base energy capacity")
-                    .translation("config.jdte.jdte.gelGenerator.gelGeneratorEnergyCapacity")
-                    .defineInRange("gelGeneratorEnergyCapacity", 100000, 1000, 10000000);
-            gelGeneratorFluidConversionAmount = builder
-                    .comment("Fluid conversion amount per operation (mB)")
-                    .translation("config.jdte.jdte.gelGenerator.gelGeneratorFluidConversionAmount")
-                    .defineInRange("gelGeneratorFluidConversionAmount", 1000, 1, 100000);
-            gelGeneratorFuelUsesPerItem = builder
-                    .comment("Number of uses per food item")
-                    .translation("config.jdte.jdte.gelGenerator.gelGeneratorFuelUsesPerItem")
-                    .defineInRange("gelGeneratorFuelUsesPerItem", 2, 1, 100);
-            gelGeneratorEnergyCost = builder
-                    .comment("Base energy cost per conversion")
-                    .translation("config.jdte.jdte.gelGenerator.gelGeneratorEnergyCost")
-                    .defineInRange("gelGeneratorEnergyCost", 1000, 10, 100000);
-            builder.pop();
-
-            // Generator Upgrade
-            builder.comment("Generator Upgrade Settings").translation("config.jdte.jdte.generatorUpgrade").push("generatorUpgrade");
-            generatorUpgradeEnergyMultiplier = builder
-                    .comment("Generator upgrade energy output multiplier")
-                    .translation("config.jdte.jdte.generatorUpgrade.generatorUpgradeEnergyMultiplier")
-                    .defineInRange("generatorUpgradeEnergyMultiplier", 3, 1, 10);
-            generatorUpgradeFluidCost = builder
-                    .comment("Generator upgrade fluid cost per tick (mB)")
-                    .translation("config.jdte.jdte.generatorUpgrade.generatorUpgradeFluidCost")
-                    .defineInRange("generatorUpgradeFluidCost", 2, 1, 100);
-            builder.pop();
-
-            // Upgrade Items
-            builder.comment("Upgrade Item Settings").translation("config.jdte.jdte.upgradeItems").push("upgradeItems");
-            maxSharpnessUpgrades = builder
-                    .comment("Max sharpness upgrades stackable")
-                    .translation("config.jdte.jdte.upgradeItems.maxSharpnessUpgrades")
-                    .defineInRange("maxSharpnessUpgrades", 6, 1, 64);
-            sharpnessDamagePerUpgrade = builder
-                    .comment("Damage added per sharpness upgrade")
-                    .translation("config.jdte.jdte.upgradeItems.sharpnessDamagePerUpgrade")
-                    .defineInRange("sharpnessDamagePerUpgrade", 5, 1, 100);
-            maxLootingUpgrades = builder
-                    .comment("Max looting upgrades stackable")
-                    .translation("config.jdte.jdte.upgradeItems.maxLootingUpgrades")
-                    .defineInRange("maxLootingUpgrades", 6, 1, 64);
-            builder.pop();
+            upgrades = new UpgradesConfig(builder);
+            timeAccelerator = new TimeAcceleratorConfig(builder);
+            bioCrusher = new BioCrusherConfig(builder);
+            lifeExtractor = new LifeExtractorConfig(builder);
+            lootFabricator = new LootFabricatorConfig(builder);
+            senderReceiver = new SenderReceiverConfig(builder);
+            advancedItemCollector = new AdvancedItemCollectorConfig(builder);
+            entitySuppressor = new EntitySuppressorConfig(builder);
+            rangeBlocker = new RangeBlockerConfig(builder);
+            factoryPacker = new FactoryPackerConfig(builder);
+            advancedPotionBrewer = new AdvancedPotionBrewerConfig(builder);
+            crystalIncubator = new CrystalIncubatorConfig(builder);
+            greenhouse = new GreenhouseConfig(builder);
+            bioFactory = new BioFactoryConfig(builder);
+            lifeBreeder = new LifeBreederConfig(builder);
+            gelGenerator = new GelGeneratorConfig(builder);
+            generatorUpgrade = new GeneratorUpgradeConfig(builder);
+            upgradeItems = new UpgradeItemsConfig(builder);
 
             builder.pop();
+
+            this.filterSlotsPerUpgrade = upgrades.filterSlotsPerUpgrade;
+            this.underclockEnergyMultiplier = upgrades.underclockEnergyMultiplier;
+            this.overclockEnergyMultiplier = upgrades.overclockEnergyMultiplier;
+            this.underclockTickSpeed = upgrades.underclockTickSpeed;
+            this.overclockTickSpeed = upgrades.overclockTickSpeed;
+            this.baseAreaRadius = upgrades.baseAreaRadius;
+            this.baseAreaOffset = upgrades.baseAreaOffset;
+
+            this.basicTimeAcceleratorDefaultMultiplier = timeAccelerator.basicTimeAcceleratorDefaultMultiplier;
+            this.basicTimeAcceleratorOverclockMultiplier = timeAccelerator.basicTimeAcceleratorOverclockMultiplier;
+            this.advancedTimeAcceleratorEnergyCapacity = timeAccelerator.advancedTimeAcceleratorEnergyCapacity;
+            this.advancedTimeAcceleratorMaxMultiplier = timeAccelerator.advancedTimeAcceleratorMaxMultiplier;
+            this.advancedTimeAcceleratorOverclockMultiplier = timeAccelerator.advancedTimeAcceleratorOverclockMultiplier;
+            this.advancedTimeAcceleratorDefaultMultiplier = timeAccelerator.advancedTimeAcceleratorDefaultMultiplier;
+            this.extendedTimeAcceleratorMaxMultiplier = timeAccelerator.extendedTimeAcceleratorMaxMultiplier;
+            this.extendedTimeAcceleratorOverclockMultiplier = timeAccelerator.extendedTimeAcceleratorOverclockMultiplier;
+            this.timeAcceleratorTargetMspt = timeAccelerator.timeAcceleratorTargetMspt;
+            this.timeAcceleratorMaxPendingTicks = timeAccelerator.timeAcceleratorMaxPendingTicks;
+            this.timeAcceleratorExecutionBatchSize = timeAccelerator.timeAcceleratorExecutionBatchSize;
+            this.timeAcceleratorRandomRefreshInterval = timeAccelerator.timeAcceleratorRandomRefreshInterval;
+            this.timeAcceleratorAE2Enabled = timeAccelerator.timeAcceleratorAE2Enabled;
+            this.timeAcceleratorBaseFluidCapacity = timeAccelerator.timeAcceleratorBaseFluidCapacity;
+            this.timeAcceleratorFluidCostMultiplier = timeAccelerator.timeAcceleratorFluidCostMultiplier;
+
+            this.bioCrusherFluidCapacity = bioCrusher.bioCrusherFluidCapacity;
+            this.bioCrusherEnergyCost = bioCrusher.bioCrusherEnergyCost;
+            this.bioCrusherBaseRadius = bioCrusher.bioCrusherBaseRadius;
+            this.bioCrusherExperienceFluidMultiplier = bioCrusher.bioCrusherExperienceFluidMultiplier;
+            this.bioCrusherOutputSlotsPerCapacityUpgradeMultiplier = bioCrusher.bioCrusherOutputSlotsPerCapacityUpgradeMultiplier;
+            this.bioCrusherBaseDamage = bioCrusher.bioCrusherBaseDamage;
+            this.bioCrusherProcessTime = bioCrusher.bioCrusherProcessTime;
+            this.bioCrusherRespectDamageRestrictions = bioCrusher.bioCrusherRespectDamageRestrictions;
+            this.bioCrusherAllowDestroyChaosGuardianCrystals = bioCrusher.bioCrusherAllowDestroyChaosGuardianCrystals;
+            this.bioCrusherAllowInstantKillChaosGuardian = bioCrusher.bioCrusherAllowInstantKillChaosGuardian;
+            this.lootingExtraDropChance = bioCrusher.lootingExtraDropChance;
+            this.advancedBioCrusherEnergyCapacity = bioCrusher.advancedBioCrusherEnergyCapacity;
+            this.extendedBioCrusherEnergyCapacity = bioCrusher.extendedBioCrusherEnergyCapacity;
+            this.advancedBioCrusherMaxEntities = bioCrusher.advancedBioCrusherMaxEntities;
+            this.extendedBioCrusherMaxEntities = bioCrusher.extendedBioCrusherMaxEntities;
+
+            this.lifeExtractorFluidPerHealth = lifeExtractor.lifeExtractorFluidPerHealth;
+            this.lifeExtractorHighHealthLossPercent = lifeExtractor.lifeExtractorHighHealthLossPercent;
+
+            this.lootFabricatorLifeFluidCost = lootFabricator.lootFabricatorLifeFluidCost;
+            this.lootFabricatorBaseTimeFluidCost = lootFabricator.lootFabricatorBaseTimeFluidCost;
+            this.lootFabricatorLootingFluidCostIncreasePercent = lootFabricator.lootFabricatorLootingFluidCostIncreasePercent;
+
+            this.senderStorageSlots = senderReceiver.senderStorageSlots;
+            this.advancedItemSenderEnergyCapacity = senderReceiver.advancedItemSenderEnergyCapacity;
+            this.advancedItemSenderEnergyCost = senderReceiver.advancedItemSenderEnergyCost;
+            this.extendedItemSenderEnergyCapacity = senderReceiver.extendedItemSenderEnergyCapacity;
+            this.advancedFluidSenderEnergyCapacity = senderReceiver.advancedFluidSenderEnergyCapacity;
+            this.advancedFluidSenderEnergyCost = senderReceiver.advancedFluidSenderEnergyCost;
+            this.extendedFluidSenderEnergyCapacity = senderReceiver.extendedFluidSenderEnergyCapacity;
+            this.fluidSenderFluidCapacity = senderReceiver.fluidSenderFluidCapacity;
+            this.fluidSenderUnlimitedTransfer = senderReceiver.fluidSenderUnlimitedTransfer;
+            this.autoIoItemTransferRate = senderReceiver.autoIoItemTransferRate;
+            this.autoIoFluidTransferRate = senderReceiver.autoIoFluidTransferRate;
+            this.senderReceiverItemTransferRate = senderReceiver.senderReceiverItemTransferRate;
+            this.senderReceiverOverclockItemTransferRate = senderReceiver.senderReceiverOverclockItemTransferRate;
+            this.senderReceiverFluidTransferRate = senderReceiver.senderReceiverFluidTransferRate;
+            this.senderReceiverOverclockFluidTransferRate = senderReceiver.senderReceiverOverclockFluidTransferRate;
+            this.transferFailureBackoffStart = senderReceiver.transferFailureBackoffStart;
+            this.transferFailureBackoffMax = senderReceiver.transferFailureBackoffMax;
+
+            this.advancedItemCollectorPreDrainEnabled = advancedItemCollector.advancedItemCollectorPreDrainEnabled;
+            this.advancedItemCollectorPreDrainThreshold = advancedItemCollector.advancedItemCollectorPreDrainThreshold;
+            this.advancedItemCollectorMeDirectTransferEnabled = advancedItemCollector.advancedItemCollectorMeDirectTransferEnabled;
+            this.advancedItemCollectorExistingItemScanEnabled = advancedItemCollector.advancedItemCollectorExistingItemScanEnabled;
+            this.advancedItemCollectorExistingItemScanInterval = advancedItemCollector.advancedItemCollectorExistingItemScanInterval;
+            this.advancedItemCollectorExistingItemScanLimit = advancedItemCollector.advancedItemCollectorExistingItemScanLimit;
+
+            this.entitySuppressorEnergyCapacity = entitySuppressor.entitySuppressorEnergyCapacity;
+            this.entitySuppressorEnergyPerTick = entitySuppressor.entitySuppressorEnergyPerTick;
+            this.entitySuppressorProtectNamed = entitySuppressor.entitySuppressorProtectNamed;
+            this.entitySuppressorProtectTamed = entitySuppressor.entitySuppressorProtectTamed;
+            this.entitySuppressorProtectBosses = entitySuppressor.entitySuppressorProtectBosses;
+            this.entitySuppressorRemoveExisting = entitySuppressor.entitySuppressorRemoveExisting;
+
+            this.rangeBlockerEnergyCapacity = rangeBlocker.rangeBlockerEnergyCapacity;
+            this.rangeBlockerContainmentEnergyPerTick = rangeBlocker.rangeBlockerContainmentEnergyPerTick;
+            this.rangeBlockerDemagnetizationEnergyPerTick = rangeBlocker.rangeBlockerDemagnetizationEnergyPerTick;
+            this.rangeBlockerSilenceEnergyPerTick = rangeBlocker.rangeBlockerSilenceEnergyPerTick;
+            this.rangeBlockerProtectNamed = rangeBlocker.rangeBlockerProtectNamed;
+            this.rangeBlockerProtectTamed = rangeBlocker.rangeBlockerProtectTamed;
+            this.rangeBlockerProtectBosses = rangeBlocker.rangeBlockerProtectBosses;
+            this.rangeBlockerMekanismIntegration = rangeBlocker.rangeBlockerMekanismIntegration;
+            this.rangeBlockerContainProjectiles = rangeBlocker.rangeBlockerContainProjectiles;
+            this.rangeBlockerContainOwnerlessProjectiles = rangeBlocker.rangeBlockerContainOwnerlessProjectiles;
+            this.rangeBlockerContainProjectileExplosions = rangeBlocker.rangeBlockerContainProjectileExplosions;
+
+            this.factoryPackerEnergyCapacity = factoryPacker.factoryPackerEnergyCapacity;
+            this.factoryPackerBaseRadius = factoryPacker.factoryPackerBaseRadius;
+            this.factoryPackerEnergyPerBlock = factoryPacker.factoryPackerEnergyPerBlock;
+            this.factoryPackerBlocksPerTick = factoryPacker.factoryPackerBlocksPerTick;
+            this.factoryPackerSourceChangeRetries = factoryPacker.factoryPackerSourceChangeRetries;
+            this.factoryPackerMaxAxis = factoryPacker.factoryPackerMaxAxis;
+            this.factoryPackerMaxVolume = factoryPacker.factoryPackerMaxVolume;
+            this.factoryPackerMaxCompressedBytes = factoryPacker.factoryPackerMaxCompressedBytes;
+            this.factoryPackerMaxUncompressedBytes = factoryPacker.factoryPackerMaxUncompressedBytes;
+            this.factoryPackerPreviewMaxBlocks = factoryPacker.factoryPackerPreviewMaxBlocks;
+            this.factoryPackerMaxEntities = factoryPacker.factoryPackerMaxEntities;
+            this.factoryPackerEnergyPerEntity = factoryPacker.factoryPackerEnergyPerEntity;
+            this.factoryPackerMoveEntities = factoryPacker.factoryPackerMoveEntities;
+            this.factoryPackerMoveScheduledTicks = factoryPacker.factoryPackerMoveScheduledTicks;
+            this.factoryPackerRemapInternalLinks = factoryPacker.factoryPackerRemapInternalLinks;
+            this.factoryPackerUseModMoveStrategies = factoryPacker.factoryPackerUseModMoveStrategies;
+            this.factoryPackerChatNotifications = factoryPacker.factoryPackerChatNotifications;
+
+            this.potionBrewerRejectPatternProviderFuelInput = advancedPotionBrewer.potionBrewerRejectPatternProviderFuelInput;
+
+            this.crystalIncubatorFluidCapacity = crystalIncubator.crystalIncubatorFluidCapacity;
+            this.crystalIncubatorEnergyCapacity = crystalIncubator.crystalIncubatorEnergyCapacity;
+            this.crystalIncubatorEnergyCostMultiplier = crystalIncubator.crystalIncubatorEnergyCostMultiplier;
+            this.crystalIncubatorMaxMultiplier = crystalIncubator.crystalIncubatorMaxMultiplier;
+            this.crystalIncubatorOverclockMultiplier = crystalIncubator.crystalIncubatorOverclockMultiplier;
+            this.crystalIncubatorFluidCostMultiplier = crystalIncubator.crystalIncubatorFluidCostMultiplier;
+            this.crystalIncubatorRegularGrowthAcceleratorsAt8x = crystalIncubator.crystalIncubatorRegularGrowthAcceleratorsAt8x;
+            this.crystalIncubatorScanBatchSize = crystalIncubator.crystalIncubatorScanBatchSize;
+            this.crystalIncubatorCacheRefreshInterval = crystalIncubator.crystalIncubatorCacheRefreshInterval;
+            this.crystalIncubatorMotherBatchSize = crystalIncubator.crystalIncubatorMotherBatchSize;
+            this.crystalIncubatorGrowthOperationsPerTick = crystalIncubator.crystalIncubatorGrowthOperationsPerTick;
+            this.crystalIncubatorHarvestOperationsPerTick = crystalIncubator.crystalIncubatorHarvestOperationsPerTick;
+            this.crystalIncubatorDynaGrowthAttempts = crystalIncubator.crystalIncubatorDynaGrowthAttempts;
+
+            this.greenhouseFluidCapacity = greenhouse.greenhouseFluidCapacity;
+            this.greenhouseEnergyCapacity = greenhouse.greenhouseEnergyCapacity;
+            this.greenhouseBaseMultiplier = greenhouse.greenhouseBaseMultiplier;
+            this.greenhouseDefaultSpeedMultiplier = greenhouse.greenhouseDefaultSpeedMultiplier;
+            this.greenhouseMaxSpeedMultiplier = greenhouse.greenhouseMaxSpeedMultiplier;
+            this.greenhouseOverclockMaxSpeedMultiplier = greenhouse.greenhouseOverclockMaxSpeedMultiplier;
+            this.greenhouseFluidCostDivisor = greenhouse.greenhouseFluidCostDivisor;
+            this.greenhouseSettlementInterval = greenhouse.greenhouseSettlementInterval;
+            this.greenhouseDefaultGrowthWork = greenhouse.greenhouseDefaultGrowthWork;
+            this.greenhouseEnergyPerHarvestV2 = greenhouse.greenhouseEnergyPerHarvestV2;
+            this.greenhouseMysticalBaseFluidCost = greenhouse.greenhouseMysticalBaseFluidCost;
+            this.greenhouseGenericFluidCost = greenhouse.greenhouseGenericFluidCost;
+            this.greenhouseMaxHarvestsPerSettlementV2 = greenhouse.greenhouseMaxHarvestsPerSettlementV2;
+
+            this.bioFactoryFluidCapacity = bioFactory.bioFactoryFluidCapacity;
+            this.bioFactoryEnergyCapacity = bioFactory.bioFactoryEnergyCapacity;
+            this.bioFactoryEnergyPerCycle = bioFactory.bioFactoryEnergyPerCycle;
+            this.bioFactoryBaseProcessTicks = bioFactory.bioFactoryBaseProcessTicks;
+            this.bioFactorySettlementInterval = bioFactory.bioFactorySettlementInterval;
+            this.bioFactoryTimeFluidPerCycle = bioFactory.bioFactoryTimeFluidPerCycle;
+            this.bioFactoryMaxSpeedMultiplier = bioFactory.bioFactoryMaxSpeedMultiplier;
+            this.bioFactoryDefaultSpeedMultiplier = bioFactory.bioFactoryDefaultSpeedMultiplier;
+            this.bioFactoryOverclockMaxSpeedMultiplier = bioFactory.bioFactoryOverclockMaxSpeedMultiplier;
+            this.bioFactoryLifeFluidPerCycle = bioFactory.bioFactoryLifeFluidPerCycle;
+            this.bioFactoryLifeYieldMultiplier = bioFactory.bioFactoryLifeYieldMultiplier;
+            this.bioFactoryProcessFluidPerCycle = bioFactory.bioFactoryProcessFluidPerCycle;
+            this.bioFactoryExternalTimeFluidCostMultiplier = bioFactory.bioFactoryExternalTimeFluidCostMultiplier;
+            this.bioFactoryExternalLifeFluidCostMultiplier = bioFactory.bioFactoryExternalLifeFluidCostMultiplier;
+
+            this.lifeBreederEnergyCapacity = lifeBreeder.lifeBreederEnergyCapacity;
+            this.lifeBreederFluidCapacity = lifeBreeder.lifeBreederFluidCapacity;
+            this.lifeBreederBreedEnergyCost = lifeBreeder.lifeBreederBreedEnergyCost;
+            this.lifeBreederBreedFluidCost = lifeBreeder.lifeBreederBreedFluidCost;
+            this.lifeBreederEnergyPerGrowthTick = lifeBreeder.lifeBreederEnergyPerGrowthTick;
+            this.lifeBreederGrowthTicksPerMb = lifeBreeder.lifeBreederGrowthTicksPerMb;
+            this.lifeBreederFluidCostMultiplierV3 = lifeBreeder.lifeBreederFluidCostMultiplierV3;
+            this.lifeBreederBreedingCooldownTicks = lifeBreeder.lifeBreederBreedingCooldownTicks;
+            this.lifeBreederProcessingInterval = lifeBreeder.lifeBreederProcessingInterval;
+            this.lifeBreederMaxEntitiesInspected = lifeBreeder.lifeBreederMaxEntitiesInspected;
+            this.lifeBreederMaxPairsPerCycle = lifeBreeder.lifeBreederMaxPairsPerCycle;
+            this.lifeBreederMaxAnimalsGrownPerCycle = lifeBreeder.lifeBreederMaxAnimalsGrownPerCycle;
+            this.lifeBreederMaxAnimalsPerType = lifeBreeder.lifeBreederMaxAnimalsPerType;
+            this.lifeBreederMaxDropsCollectedPerCycle = lifeBreeder.lifeBreederMaxDropsCollectedPerCycle;
+            this.lifeBreederDefaultSpeedMultiplier = lifeBreeder.lifeBreederDefaultSpeedMultiplier;
+            this.lifeBreederMaxSpeedMultiplier = lifeBreeder.lifeBreederMaxSpeedMultiplier;
+
+            this.gelGeneratorInputSlots = gelGenerator.gelGeneratorInputSlots;
+            this.gelGeneratorOutputSlots = gelGenerator.gelGeneratorOutputSlots;
+            this.gelGeneratorFluidCapacity = gelGenerator.gelGeneratorFluidCapacity;
+            this.gelGeneratorEnergyCapacity = gelGenerator.gelGeneratorEnergyCapacity;
+            this.gelGeneratorFluidConversionAmount = gelGenerator.gelGeneratorFluidConversionAmount;
+            this.gelGeneratorFuelUsesPerItem = gelGenerator.gelGeneratorFuelUsesPerItem;
+            this.gelGeneratorEnergyCost = gelGenerator.gelGeneratorEnergyCost;
+
+            this.generatorUpgradeEnergyMultiplier = generatorUpgrade.generatorUpgradeEnergyMultiplier;
+            this.generatorUpgradeFluidCost = generatorUpgrade.generatorUpgradeFluidCost;
+
+            this.maxSharpnessUpgrades = upgradeItems.maxSharpnessUpgrades;
+            this.sharpnessDamagePerUpgrade = upgradeItems.sharpnessDamagePerUpgrade;
+            this.maxLootingUpgrades = upgradeItems.maxLootingUpgrades;
         }
     }
 }
