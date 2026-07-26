@@ -294,7 +294,6 @@ Client mixins:
 |-------|---------|
 | `BaseMachineScreenMixin` | Embedded upgrade panels, filter pages, auto I/O, fluid bars, and slot layout |
 | `BaseMachineScreenAccessor` | Exposes JDT base screen state to custom screens |
-| `ClickerT2ScreenMixin` | Fixes Advanced Clicker settings and embedded-panel layout |
 | `ScreenMixin`, `AbstractContainerScreenMixin` | Expose screen layout fields |
 | `SlotAccessor` | Repositions menu slots dynamically |
 | `ParticleEngineMixin` | Rejects particles at the final client particle-engine insertion point for Entity Suppressor areas |

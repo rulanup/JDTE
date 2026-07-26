@@ -23,5 +23,8 @@ public class JDTEClientMod {
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onRenderGui);
         NeoForge.EVENT_BUS.addListener(FactoryPackagePreviewClient::onRenderGui);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onClientTick);
+        NeoForge.EVENT_BUS.addListener(ScreenEventHandlers::onMouseDragged);
+        NeoForge.EVENT_BUS.addListener(ScreenEventHandlers::onMouseReleased);
+        NeoForge.EVENT_BUS.addListener(ScreenEventHandlers::onScreenOpening);
     }
 }

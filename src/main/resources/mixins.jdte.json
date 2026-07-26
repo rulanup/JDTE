@@ -34,7 +34,6 @@
   "client": [
     "ScreenMixin",
     "BaseMachineScreenAccessor",
-    "ClickerT2ScreenMixin",
     "BaseMachineScreenMixin",
     "BlockEntityRenderDispatcherMixin",
     "SlotAccessor",
