@@ -44,6 +44,11 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
     }
 
     @Override
+    public boolean stillValid(Player player) {
+        return true;
+    }
+
+    @Override
     public ItemStack quickMoveStack(Player player, int index) {
         if (index < 0 || index >= slots.size()) {
             return ItemStack.EMPTY;

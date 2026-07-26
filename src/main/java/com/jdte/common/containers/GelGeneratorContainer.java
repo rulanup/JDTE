@@ -5,8 +5,11 @@ import com.jdte.common.blockentities.GelGeneratorBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -15,17 +18,25 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 import javax.annotation.Nullable;
 
 public abstract class GelGeneratorContainer extends BaseMachineContainer {
+    private final Block machineBlock;
     private ContainerData gelGeneratorData;
     private ContainerData outputFluidData;
 
-    protected GelGeneratorContainer(@Nullable MenuType<?> menuType, int windowId, Inventory playerInventory, BlockPos blockPos) {
+    protected GelGeneratorContainer(@Nullable MenuType<?> menuType, int windowId, Inventory playerInventory, BlockPos blockPos, Block machineBlock) {
         super(menuType, windowId, playerInventory, blockPos);
+        this.machineBlock = machineBlock;
         if (baseMachineBE instanceof GelGeneratorBE gelGenerator) {
             gelGeneratorData = gelGenerator.getGelGeneratorData();
             addDataSlots(gelGeneratorData);
             outputFluidData = gelGenerator.getOutputFluidContainerData();
             addDataSlots(outputFluidData);
         }
+        addPlayerSlots(player.getInventory());
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return stillValid(ContainerLevelAccess.create(player.level(), pos), player, machineBlock);
     }
 
     @Override
