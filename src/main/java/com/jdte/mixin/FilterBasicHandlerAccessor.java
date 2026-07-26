@@ -9,6 +9,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ItemStackHandler.class)
 public interface FilterBasicHandlerAccessor {
+    @Accessor("stacks")
+    NonNullList<ItemStack> jdte$getStacks();
+
     @Mutable
     @Accessor("stacks")
     void jdte$setStacks(NonNullList<ItemStack> stacks);

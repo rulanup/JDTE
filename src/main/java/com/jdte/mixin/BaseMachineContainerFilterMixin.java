@@ -8,9 +8,7 @@ import com.jdte.common.containers.FilterPageHolder;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.utils.UpgradeSlotStorage;
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -59,50 +57,22 @@ public abstract class BaseMachineContainerFilterMixin implements FilterPageHolde
     @Unique
     private void jdte$addDynamicFilterSlots(int startIndex, int x, int y, int amount, int dx, int baseFilterSlots) {
         for (int i = 0; i < amount; i++) {
-            jdte$addSlot(new DynamicFilterSlot(filterHandler, i, x, y, (BaseMachineContainer) (Object) this, baseFilterSlots));
+            ((AbstractContainerMenuInvoker) this).jdte$invokeAddSlot(
+                    new DynamicFilterSlot(filterHandler, i, x, y, (BaseMachineContainer) (Object) this, baseFilterSlots));
             x += dx;
         }
     }
 
     @Unique
-    private void jdte$addSlot(Slot slot) {
-        try {
-            var method = net.minecraft.world.inventory.AbstractContainerMenu.class.getDeclaredMethod("addSlot", Slot.class);
-            method.setAccessible(true);
-            method.invoke(this, slot);
-        } catch (Exception e) {
-            // ignore
-        }
-    }
-
-    @Unique
     private void jdte$expandFilterHandler(int newSize) {
-        NonNullList<ItemStack> oldStacks = jdte$getStacks(filterHandler);
+        FilterBasicHandlerAccessor accessor = (FilterBasicHandlerAccessor) filterHandler;
+        NonNullList<ItemStack> oldStacks = accessor.jdte$getStacks();
         NonNullList<ItemStack> newStacks = NonNullList.withSize(newSize, ItemStack.EMPTY);
 
         for (int i = 0; i < Math.min(oldStacks.size(), newSize); i++) {
             newStacks.set(i, oldStacks.get(i));
         }
 
-        try {
-            java.lang.reflect.Field field = ItemStackHandler.class.getDeclaredField("stacks");
-            field.setAccessible(true);
-            field.set(filterHandler, newStacks);
-        } catch (Exception e) {
-            if (filterHandler instanceof FilterBasicHandlerAccessor accessor) {
-                accessor.jdte$setStacks(newStacks);
-            }
-        }
-    }
-
-    @Unique
-    private NonNullList<ItemStack> jdte$getStacks(FilterBasicHandler handler) {
-        try {
-            var field = handler.getClass().getSuperclass().getDeclaredField("stacks");
-            field.setAccessible(true);
-            return (NonNullList<ItemStack>) field.get(handler);
-        } catch (Exception e) {
-            return NonNullList.withSize(0, ItemStack.EMPTY);
-        }
+        accessor.jdte$setStacks(newStacks);
     }
 }

@@ -1,13 +1,9 @@
 package com.jdte.mixin;
 
-import com.jdte.common.blockentities.BioCrusherBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BaseSpawner;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SpawnData;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,25 +27,12 @@ public class SpawnerMixin {
         cancellable = true
     )
     private void jdte$beforeSpawn(ServerLevel level, BlockPos pos, CallbackInfo ci) {
-        jdte$tryCrushSpawner(level, pos, (BaseSpawner) (Object) this, ci);
-    }
-
-    private static void jdte$tryCrushSpawner(ServerLevel level, BlockPos pos, BaseSpawner spawner, CallbackInfo ci) {
-        BlockPos crusherPos = pos.above();
-        BlockState crusherState = level.getBlockState(crusherPos);
-
-        if (crusherState.getBlock() instanceof com.jdte.common.blocks.AdvancedBioCrusherBlock ||
-            crusherState.getBlock() instanceof com.jdte.common.blocks.ExtendedBioCrusherBlock) {
-
-            BlockEntity be = level.getBlockEntity(crusherPos);
-            if (be instanceof BioCrusherBE crusher) {
-                BaseSpawnerAccessor accessor = (BaseSpawnerAccessor) spawner;
-                SpawnData spawnData = ((BaseSpawnerInvoker) spawner).jdte$getOrCreateNextSpawnData(level, level.getRandom(), pos);
-                if (crusher.processSpawnerCrush(level, pos, spawner, spawnData, accessor.jdte$getSpawnCount())) {
-                    ((BaseSpawnerInvoker) spawner).jdte$delay(level, pos);
-                    ci.cancel();
-                }
-            }
+        BaseSpawner spawner = (BaseSpawner) (Object) this;
+        SpawnData spawnData = ((BaseSpawnerInvoker) spawner).jdte$getOrCreateNextSpawnData(level, level.getRandom(), pos);
+        int spawnCount = ((BaseSpawnerAccessor) spawner).jdte$getSpawnCount();
+        if (SpawnerCrushHelper.tryCrush(level, pos, spawner, spawnData, spawnCount)) {
+            ((BaseSpawnerInvoker) spawner).jdte$delay(level, pos);
+            ci.cancel();
         }
     }
 
@@ -71,21 +54,12 @@ public class SpawnerMixin {
             remap = false
         )
         private void jdte$beforeSpawn(ServerLevel level, BlockPos pos, CallbackInfo ci) {
-            BlockPos crusherPos = pos.above();
-            BlockState crusherState = level.getBlockState(crusherPos);
-
-            if (crusherState.getBlock() instanceof com.jdte.common.blocks.AdvancedBioCrusherBlock ||
-                crusherState.getBlock() instanceof com.jdte.common.blocks.ExtendedBioCrusherBlock) {
-
-                BlockEntity be = level.getBlockEntity(crusherPos);
-                if (be instanceof BioCrusherBE crusher) {
-                    SpawnData spawnData = ((BaseSpawnerInvoker) (Object) this).jdte$getOrCreateNextSpawnData(level, level.getRandom(), pos);
-                    int spawnCount = ((BaseSpawnerAccessor) (Object) this).jdte$getSpawnCount();
-                    if (crusher.processSpawnerCrush(level, pos, (BaseSpawner) (Object) this, spawnData, spawnCount)) {
-                        ((ApothSpawnerInvoker) (Object) this).jdte$apothDelay(level, pos);
-                        ci.cancel();
-                    }
-                }
+            BaseSpawner spawner = (BaseSpawner) (Object) this;
+            SpawnData spawnData = ((BaseSpawnerInvoker) spawner).jdte$getOrCreateNextSpawnData(level, level.getRandom(), pos);
+            int spawnCount = ((BaseSpawnerAccessor) spawner).jdte$getSpawnCount();
+            if (SpawnerCrushHelper.tryCrush(level, pos, spawner, spawnData, spawnCount)) {
+                ((ApothSpawnerInvoker) (Object) this).jdte$apothDelay(level, pos);
+                ci.cancel();
             }
         }
     }

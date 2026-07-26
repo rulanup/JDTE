@@ -369,10 +369,6 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         return areas;
     }
 
-    @Inject(method = "hasClickedOutside", at = @At("HEAD"), cancellable = true)
-    private void jdte$hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton, CallbackInfoReturnable<Boolean> cir) {
-    }
-
     @Unique
     private boolean jdte$isPlayerInventorySlot(Slot slot) {
         return slot instanceof SlotItemHandler slotItemHandler && slotItemHandler.getItemHandler() instanceof InvWrapper;

@@ -50,35 +50,13 @@ public abstract class BaseMachineContainerMixin {
 
         // 添加升级槽位（位置将在Screen中设置）
         for (int i = 0; i < slotCount; i++) {
-            jdte$addSlot(new UpgradeSlot(handler, i, 0, 0));
+            ((AbstractContainerMenuInvoker) this).jdte$invokeAddSlot(new UpgradeSlot(handler, i, 0, 0));
         }
 
         // 只有在没有 fluidData 时才添加
         if (baseMachineBE instanceof ClickerT1BE && fluidData == null) {
             fluidData = new ClickerFluidContainerData(baseMachineBE);
-            jdte$addDataSlots(fluidData);
-        }
-    }
-
-    @Unique
-    private void jdte$addSlot(Slot slot) {
-        try {
-            var method = net.minecraft.world.inventory.AbstractContainerMenu.class.getDeclaredMethod("addSlot", Slot.class);
-            method.setAccessible(true);
-            method.invoke(this, slot);
-        } catch (Exception e) {
-            // ignore
-        }
-    }
-
-    @Unique
-    private void jdte$addDataSlots(net.minecraft.world.inventory.ContainerData data) {
-        try {
-            var method = net.minecraft.world.inventory.AbstractContainerMenu.class.getDeclaredMethod("addDataSlots", net.minecraft.world.inventory.ContainerData.class);
-            method.setAccessible(true);
-            method.invoke(this, data);
-        } catch (Exception e) {
-            // ignore
+            ((AbstractContainerMenuInvoker) this).jdte$invokeAddDataSlots(fluidData);
         }
     }
 

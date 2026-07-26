@@ -274,7 +274,6 @@ Common/server mixins:
 | Mixin | Purpose |
 |-------|---------|
 | `BaseMachineBEMixin` | Upgrade attachments, capacity synchronization, and persistence |
-| `BaseMachineBEPopupMixin` | Legacy popup attachment data compatibility |
 | `BaseMachineBlockMixin` | Overclock extra execution and wrench behavior hooks |
 | `BaseMachineContainerMixin` | Injects standard upgrade slots into JDT menus |
 | `BaseMachineContainerFilterMixin` | Provides dynamic filter slots and pagination |
@@ -309,7 +308,7 @@ Mixin conventions:
 - Do not explicitly extend the target class.
 - Mark custom fields and methods `@Unique` and prefix them with `jdte$`.
 - Prefer `@Shadow` for mapped target fields and verify names against the active JDT jar.
-- Use reflection or interface checks when a method is not declared on the target type.
+- Prefer `@Invoker`/`@Accessor` mixins (e.g. `AbstractContainerMenuInvoker`, `FilterBasicHandlerAccessor`) over reflection when a method or field is not declared on the target type.
 - Move GUI slots only when state or layout changes, not every frame.
 - Declare new GUI layout in `gui_layout.json` and verify upgrade panels, filter pagination, auto I/O, and JEI click areas together.
 

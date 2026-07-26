@@ -1,12 +1,8 @@
 package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
-import com.direwolf20.justdirethings.common.blocks.resources.CoalBlock_T1;
-import com.direwolf20.justdirethings.common.items.FuelCanister;
-import com.direwolf20.justdirethings.common.items.resources.Coal_T1;
 import com.direwolf20.justdirethings.setup.Config;
 import com.jdte.common.upgrades.UpgradeHelper;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,27 +56,11 @@ public abstract class GeneratorT1UpgradeMixin {
         }
 
         int oldMultiplier = fuelBurnMultiplier;
-        if (fuelStack.getItem() instanceof Coal_T1 direCoal) {
-            fuelBurnMultiplier = direCoal.getBurnSpeedMultiplier();
-        } else if (fuelStack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CoalBlock_T1 coalBlock) {
-            fuelBurnMultiplier = coalBlock.getBurnSpeedMultiplier();
-        } else if (fuelStack.getItem() instanceof FuelCanister) {
-            fuelBurnMultiplier = FuelCanister.getBurnSpeedMultiplier(fuelStack);
-        } else {
-            fuelBurnMultiplier = 1;
-        }
+        fuelBurnMultiplier = GeneratorUpgradeHelper.burnSpeedMultiplier(fuelStack);
         if (fuelBurnMultiplier != oldMultiplier) {
             ((GeneratorT1BE) (Object) this).markDirtyClient();
         }
-        if (fuelStack.hasCraftingRemainingItem()) {
-            ItemStack remaining = fuelStack.getCraftingRemainingItem();
-            if (remaining.getItem() instanceof FuelCanister) {
-                FuelCanister.decrementFuel(remaining);
-            }
-            getMachineHandler().setStackInSlot(0, remaining);
-        } else {
-            fuelStack.shrink(2);
-        }
+        GeneratorUpgradeHelper.consumeFuel(getMachineHandler(), fuelStack);
 
         feRemaining = burnTime * getFePerFuelTick() * 3;
         maxBurn = (int) (Math.floor(burnTime) / getBurnSpeedMultiplier());

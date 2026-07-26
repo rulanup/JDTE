@@ -3,9 +3,9 @@
   "package": "com.jdte.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AbstractContainerMenuInvoker",
     "AbstractContainerScreenMixin",
     "BaseMachineBEMixin",
-    "BaseMachineBEPopupMixin",
     "BaseMachineBlockMixin",
     "BaseMachineContainerMixin",
     "BaseMachineContainerFilterMixin",
