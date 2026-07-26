@@ -1,23 +1,11 @@
 package com.jdte.client.screens;
 
-import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.jdte.common.containers.ExtendedFluidSenderContainer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-public class ExtendedFluidSenderScreen extends BaseMachineScreen<ExtendedFluidSenderContainer> {
+public class ExtendedFluidSenderScreen extends FluidSenderScreenBase<ExtendedFluidSenderContainer> {
     public ExtendedFluidSenderScreen(ExtendedFluidSenderContainer container, Inventory inv, Component name) {
         super(container, inv, name);
-    }
-
-    @Override
-    public void setTopSection() {
-        extraWidth = 60;
-        extraHeight = 0;
-    }
-
-    @Override
-    public int getFluidBarOffset() {
-        return 204;
     }
 }
