@@ -46,6 +46,12 @@ public class ExtendedBlockBreakerBE extends BlockBreakerT1BE implements PoweredM
     @Override public FilterData getFilterData() { return filterData; }
 
     @Override
+    public void tickServer() {
+        super.tickServer();
+        chargeItemStack(getMachineHandler().getStackInSlot(0));
+    }
+
+    @Override
     public List<BlockPos> findBlocksToMine(FakePlayer fakePlayer) {
         AABB area = getAABB(getBlockPos());
         return BlockPos.betweenClosedStream(

@@ -2,6 +2,12 @@
 
 ### English
 
+#### v0.5.6 (Unreleased)
+
+- **Fixed**: Extended Block Breakers now charge the held tool from machine energy, matching JDT Block Breaker T2 behavior.
+- **Fixed**: Bio Crushers now kill Ender Dragons directly instead of triggering the vanilla death animation, which never completes outside an end fight and left the dragon in a permanent dying state with no Ender Dragon Essence roll. Spawner-cycle processing gets the same handling.
+- **Fixed**: The Bio Factory now loads the caged bee's full NBT, so Productive Bees gene-modified attributes (behavior, weather tolerance, productivity) on inserted Bee Cages take effect instead of the bee type's defaults.
+
 #### v0.5.5 (Current)
 
 - **New**: Added the Crystal Incubator with adjustable 1-512x growth acceleration or 1024x with Overclock/Creative, automatic nine-slot harvesting, eight upgrade slots, Fortune VIII, and broad budding-block support for vanilla, JDT, AE2, Data Energistics, AE2 add-ons, and Just Dyna Things.
@@ -134,6 +140,12 @@
 ---
 
 ### 中文
+
+#### v0.5.6（未发布）
+
+- **修复**：扩展破坏器现在会用机器电量为槽内工具充电，与 JDT 高级破坏器（T2）行为一致。
+- **修复**：生物粉碎机击杀末影龙时改为直接击杀，不再触发原版死亡动画——该动画在非末地战斗环境下永远无法完成，导致末影龙永久假死且无法掉落末影龙精华。刷怪笼周期处理同样修复。
+- **修复**：生物工厂现在完整加载蜜蜂笼中蜜蜂的 NBT，Productive Bees 基因修改后的属性（行为、天气耐受性、产量）对放入的蜜蜂笼生效，不再使用蜂种默认值。
 
 #### v0.5.5（当前）
 

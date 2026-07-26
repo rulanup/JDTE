@@ -339,6 +339,15 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             }
 
             BioCrusherDropCapture.CaptureResult<Boolean> result = BioCrusherDropCapture.capture(entity, () -> {
+                // Vanilla EnderDragon.hurt() intercepts lethal damage (locks health at 1 and enters the
+                // DYING animation phase, which never finishes outside an end fight), so kill it directly.
+                if (entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon) {
+                    createForcedDrops(serverLevel, entity, playerDamage);
+                    entity.setHealth(0.0F);
+                    entity.remove(Entity.RemovalReason.KILLED);
+                    BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, entity, fakePlayer);
+                    return true;
+                }
                 if (draconicGuardian && JDTEConfig.COMMON.bioCrusherAllowInstantKillChaosGuardian.get()) {
                     DraconicEvolutionIntegration.attackGuardian(entity, playerDamage);
                 } else {
@@ -627,6 +636,13 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         try {
             DamageSource playerDamage = serverLevel.damageSources().playerAttack(fakePlayer);
             BioCrusherDropCapture.CaptureResult<Boolean> result = BioCrusherDropCapture.capture(livingEntity, () -> {
+                if (livingEntity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon) {
+                    createForcedDrops(serverLevel, livingEntity, playerDamage);
+                    livingEntity.setHealth(0.0F);
+                    livingEntity.remove(Entity.RemovalReason.KILLED);
+                    BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, livingEntity, fakePlayer);
+                    return true;
+                }
                 livingEntity.hurt(playerDamage, Float.MAX_VALUE);
                 if (!livingEntity.isDeadOrDying()) {
                     if (JDTEConfig.COMMON.bioCrusherRespectDamageRestrictions.get()

@@ -53,7 +53,9 @@ public final class ProductiveBeesBioFactoryIntegration {
 
     public static Bee createBee(ItemStack stack, Level level) {
         if (stack.getItem() instanceof BeeCage && BeeCage.isFilled(stack)) {
-            return BeeCage.getEntityFromStack(stack, level, false);
+            // withInfo=true so the caged bee's NBT (including gene attribute attachments
+            // like bee_behavior/bee_weather_tolerance/bee_productivity) is loaded onto the entity
+            return BeeCage.getEntityFromStack(stack, level, true);
         }
         if (stack.getItem() instanceof SpawnEggItem egg) {
             Entity entity = egg.getType(stack).create(level);
