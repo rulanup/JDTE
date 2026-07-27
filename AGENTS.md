@@ -25,7 +25,7 @@ Major features:
 - Range Blocker with six-target event-driven containment, projectile boundary protection, player-magnet suppression, and public-event positional sound suppression.
 - Crystal Incubator with generic budding-block discovery, Time Fluid growth acceleration, Fortune harvesting, and batched area caching.
 - Glass-framed Greenhouse with four client-rendered plants, four reusable stackable plant templates, paged output, bounded batch production, generic plant support, and public-API Mystical Agriculture/Agradditions support.
-- Blazegold-framed Bio Factory with cached client-only creature rendering, data-driven animal products, four isolated fluid routes, eight default outputs, and public-API Productive Bees cages, flowering rules, hive products, and Productivity Upgrades.
+- Blazegold-framed Bio Factory with cached client-only creature rendering, data-driven animal products, four isolated fluid routes, eight default outputs, and public-API Productive Bees cages, flowering rules, hive products, Productivity Upgrades, and a non-self-breeding Life Fluid Bee production chain.
 - Life Breeder with three breeding/growth modes, 2x2 feed inputs, 4x2 collected-product outputs, direct biological-age advancement, standard `Animal` and Villager compatibility, spawn-egg entity filters, and bounded area processing.
 - Factory Packer with UUID-backed portable packages, populated block entities, entity trees, scheduled ticks, horizontal rotation, internal-link remapping, cached actual-block previews, public AE2 move strategies, Logistics Networks node recovery, Mekanism fission-reactor quiescing and radioactive-transmitter preservation, dependent multiblock teardown handling, bounded live-source recapture, asynchronous compressed storage, rollback, restart recovery, and actionable blacklist reports.
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
@@ -66,7 +66,7 @@ The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and Produ
 | FTB Ultimine | CurseForge `8231400` | Optional bulk wrench and Upgrade Card operations |
 | Mystical Agriculture | CurseForge `8344249` | Optional Greenhouse crop registry integration |
 | Mystical Agradditions | CurseForge `7802027` | Optional high-tier Greenhouse crop integration through the shared registry |
-| Productive Bees | CurseForge `8022994` | Optional Bio Factory bee cages, flowering validation, hive products, and Productivity Upgrades |
+| Productive Bees | CurseForge `8022994` | Optional Bio Factory bee cages, flowering validation, hive products, Productivity Upgrades, and Life Fluid Bee content |
 | Mekanism | `10.7.19.85` | Optional Factory Packer fission-reactor shutdown and radioactive transmitter-content preservation through public APIs |
 | Parchment | `2024.11.17` | Minecraft mappings |
 
@@ -193,7 +193,7 @@ Core behavior:
 
 Advanced defaults include `BASE_ENERGY_CAPACITY = 200000`, `MAX_MULTIPLIER = 64`, and `OVERCLOCK_MULTIPLIER = 128`. FE cost derives from `Config.TIMEWAND_RF_COST`; fluid cost derives from `Config.TIMEWAND_FLUID_COST` and `JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier`, then applies fixed Basic/Advanced/Extended tier factors of 1x/2x/5x. The base fluid multiplier can be changed with `/jdte timeaccelerator fluidCostMultiplier <value>`.
 
-All three tiers use the shared `ExtendedTimeAccelerationManager`. Active accelerators submit work to a server-post-tick scheduler that discovers loaded block entities through chunk maps, sums overlapping multipliers without discarding contributions, rotates bounded target batches inside configurable MSPT headroom, and retains paid virtual ticks while their contributing accelerators remain active. Random-ticking targets use a periodically refreshed cache. Optional AE2 support resolves public in-world grid nodes and invokes their `IGridTickable` services without reflection or mixins. `TimeAcceleratorBE.accelerateArea()` remains as the fallback/reference implementation.
+All three tiers use the shared `ExtendedTimeAccelerationManager`. Active accelerators submit work to a server-post-tick scheduler that discovers loaded block entities through chunk maps, sums overlapping multipliers without discarding contributions, rotates bounded target batches under fixed per-tick execution and scan budgets, and retains paid virtual ticks while their contributing accelerators remain active. High server MSPT no longer pauses acceleration; excess work remains queued instead. Random-ticking targets use a periodically refreshed cache. Optional AE2 support resolves public in-world grid nodes and invokes their `IGridTickable` services without reflection or mixins. `TimeAcceleratorBE.accelerateArea()` remains as the fallback/reference implementation.
 
 ## Extended Machines
 
@@ -394,7 +394,7 @@ Recommended order:
 
 ### v0.5.5 (Current)
 
-- Reworked all Time Accelerators to use a shared managed stacking scheduler with retained virtual ticks, chunk-based target discovery, dynamic MSPT headroom, and AE2 `IGridTickable` support.
+- Reworked all Time Accelerators to use a shared managed stacking scheduler with retained virtual ticks, chunk-based target discovery, fixed per-tick execution and scan budgets without MSPT pausing, and AE2 `IGridTickable` support.
 - Balanced tier limits and Time Fluid costs: Basic runs at 16x or 32x with Overclock/Creative, Advanced is adjustable to 64x or runs at 128x with Overclock/Creative, Extended remains adjustable to 512x or runs at 1024x, and Basic/Advanced/Extended use 1x/2x/5x Time Fluid cost rates.
 - Added the Crystal Incubator with adjustable 1-512x or overclocked 1024x Time Fluid growth acceleration, nine-slot automatic mature-cluster harvesting, Fortune VIII, common/extension tags, batched caching, and public-API Just Dyna Things support.
 - Added Crystal Incubator FE usage, automatic item output, AE2 Growth Accelerator-style ordinary budding ticks with six equivalent accelerators at 8x, exact Dyna target FE/Time Fluid provisioning and target-side charging, and the mutually exclusive Precision Upgrade backed by vanilla Silk Touch loot behavior.
@@ -488,7 +488,7 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Category | Path | Purpose |
 |----------|------|---------|
 | Upgrade system | `jdte.upgrades` | Filter slots, energy multipliers, tick speed, and area limits |
-| Time Accelerator | `jdte.timeAccelerator` | Fluid capacity, tier multipliers, energy/fluid costs, and shared scheduler MSPT, queue, batch, refresh, and AE2 controls |
+| Time Accelerator | `jdte.timeAccelerator` | Fluid capacity, tier multipliers, energy/fluid costs, and shared scheduler execution, scan, queue, batch, refresh, and AE2 controls |
 | Bio Crusher | `jdte.bioCrusher` | Fluid, energy, damage, range, output scaling, and integrations |
 | Life Extractor | `jdte.lifeExtractor` | Life Fluid capacity, health conversion, and batch size |
 | Loot Fabricator | `jdte.lootFabricator` | Processing costs, Boss multipliers, Looting copies, and compatibility loot |

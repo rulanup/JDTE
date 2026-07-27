@@ -17,7 +17,9 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -49,6 +51,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE {
+    private static final ResourceLocation PRODUCTIVE_BEES_CONFIGURABLE_EGG =
+            ResourceLocation.fromNamespaceAndPath("productivebees", "spawn_egg_configurable_bee");
     public static final int INPUT_SLOTS = 4;
     public static final int OUTPUT_SLOTS = 64;
     public static final int BASE_OUTPUT_SLOTS = 16;
@@ -93,7 +97,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         itemHandler = new ItemStackHandler(MACHINE_SLOTS) {
             @Override public int getSlotLimit(int slot) { return slot < INPUT_SLOTS ? 1 : 64; }
             @Override public boolean isItemValid(int slot, ItemStack stack) {
-                return slot < INPUT_SLOTS ? stack.getItem() instanceof SpawnEggItem : slot < MACHINE_SLOTS;
+                return slot < INPUT_SLOTS ? isSupportedLootTemplate(stack) : slot < MACHINE_SLOTS;
             }
             @Override protected void onContentsChanged(int slot) { setChanged(); }
         };
@@ -295,9 +299,14 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         List<Integer> slots = new ArrayList<>();
         for (int i = 0; i < INPUT_SLOTS; i++) {
             int slot = (nextInputSlot + i) % INPUT_SLOTS;
-            if (itemHandler.getStackInSlot(slot).getItem() instanceof SpawnEggItem) slots.add(slot);
+            if (isSupportedLootTemplate(itemHandler.getStackInSlot(slot))) slots.add(slot);
         }
         return slots;
+    }
+
+    private static boolean isSupportedLootTemplate(ItemStack stack) {
+        if (!(stack.getItem() instanceof SpawnEggItem)) return false;
+        return !BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(PRODUCTIVE_BEES_CONFIGURABLE_EGG);
     }
 
     private void resetProgress() {

@@ -1,4 +1,4 @@
-package com.jdte.mixin;
+package com.jdte.common.utils;
 
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blocks.AdvancedBioCrusherBlock;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-final class SpawnerCrushHelper {
+public final class SpawnerCrushHelper {
     private SpawnerCrushHelper() {
     }
 
@@ -19,7 +19,7 @@ final class SpawnerCrushHelper {
      * generate drops instead of spawning entities. Returns true when the cycle was consumed;
      * the caller must then reset the spawner delay and cancel vanilla spawning.
      */
-    static boolean tryCrush(ServerLevel level, BlockPos pos, BaseSpawner spawner, SpawnData spawnData, int spawnCount) {
+    public static boolean tryCrush(ServerLevel level, BlockPos pos, BaseSpawner spawner, SpawnData spawnData, int spawnCount) {
         BlockPos crusherPos = pos.above();
         BlockState crusherState = level.getBlockState(crusherPos);
         if (!(crusherState.getBlock() instanceof AdvancedBioCrusherBlock)

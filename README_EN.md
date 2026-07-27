@@ -35,7 +35,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 - Basic Time Accelerator: 16x by default or 32x with Overclock/Creative; consumes JDT Time Fluid only.
 - Advanced Time Accelerator: adjustable from 1-64x or 128x with Overclock/Creative; consumes Time Fluid and FE at twice the Basic tier's Time Fluid rate.
 - Extended Time Accelerator: an eight-slot tier adjustable from 1-512x or 1024x with Overclock/Creative; consumes Time Fluid at five times the Basic tier's rate.
-- All three tiers share the managed scheduler. Overlapping multipliers fully stack while chunk target discovery, paid virtual-tick queues, dynamic MSPT headroom, and AE2 `IGridTickable` support reduce large-area and multi-machine overhead.
+- All three tiers share the managed scheduler. Overlapping multipliers fully stack while chunk target discovery, paid virtual-tick queues, and fixed per-tick execution and scan budgets reduce large-area and multi-machine overhead. Acceleration no longer stops when server MSPT is high, and AE2 `IGridTickable` devices remain supported.
 - The Extended Upgrade converts JDT T2 Clickers, Block Breakers, Block Placers, Block Swappers, Droppers, Sensors, Fluid Collectors, and Fluid Placers into eight-slot variants while preserving machine data.
 
 ### Automation Machines
@@ -52,12 +52,12 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Item/Fluid Receivers | Pull items or fluid from area targets |
 | Crystal Incubator | Consumes Time Fluid and FE to accelerate conventional budding blocks at an adjustable 1-512x or 1024x when overclocked, auto-outputs mature clusters, and supports Fortune or Precision harvesting |
 | Greenhouse | Uses four stackable plant templates at a former-512-work 1x baseline up to 32x, forced to 64x by Overclock/Creative; supports crops, flowers, saplings, mod plants, native four-way connected visuals, Fortune, JEI, and direct generation into adjacent containers |
-| Bio Factory | Uses reusable spawn eggs or Productive Bees cages, food/flowers, FE, and separate Life/Time/culture/product fluids; adjustable 1-32x or 64x with Overclock/Creative, with auto I/O, eight default outputs, loaded bee JEI recipes, and all four Productivity Upgrade tiers |
+| Bio Factory | Uses reusable spawn eggs or Productive Bees cages, food/flowers, FE, and separate Life/Time/culture/product fluids; supports the Life Fluid Bee flowering on Life Extractors, adjustable 1-32x or 64x operation, auto I/O, eight default outputs, loaded bee JEI recipes, and all four Productivity Upgrade tiers |
 | Life Breeder | Automatically feeds and pairs standard animals or Villagers in a configured area, advances baby growth and breeding cooldowns at 1-32x, completes them with Overclock/Creative, supports spawn-egg allowlist/denylist filters and time-derived Life Fluid costs, and collects bounded batches of real drops into 4x2 outputs |
 | Factory Packer | Transactionally relocates blocks, populated block entities, non-player entities, and scheduled ticks with live-source recapture, safe Mekanism reactor and radioactive-transmitter handling, dependent multiblock teardown support, cached previews, rotation, AE2 move strategies, asynchronous I/O, rollback, and restart recovery |
 | Bio Crusher | Kills targets through a FakePlayer and produces loot and Experience Fluid; supports spawners and dedicated upgrades |
 | Life Extractor | Converts target health into Life Fluid without normal drops or experience |
-| Infusion Machine | Processes gel, item, and dynamic spawn-egg infusion recipes |
+| Infusion Machine | Processes gel, item, and dynamic spawn-egg infusion recipes; with Productive Bees, one Egg, 64 B of Life Fluid, and 1,000,000 FE create a Life Fluid Bee |
 | Advanced Potion Brewer | Ordered six-step brewing with recipe locking, water and Time Fluid, auto I/O, a separate external Blaze Powder input toggle, and JEI brewing chains |
 | Loot Fabricator | Uses spawn egg templates, Life Fluid, Time Fluid, and FE to manufacture mob loot |
 
@@ -81,7 +81,7 @@ Unsupported modes are skipped. Senders expose Auto Input only and Receivers expo
 
 - Jade displays icons, localized names, and aggregated counts for installed upgrades.
 - JEI categories cover the Gel Generator, Infusion Machine, Advanced Potion Brewer, and Loot Fabricator.
-- Optional integrations include FTB Ultimine, AE2/ExtendedAE, Mekanism, Apothic Spawners, and Draconic Evolution.
+- Optional integrations include FTB Ultimine, AE2/ExtendedAE, Mekanism, Apothic Spawners, Draconic Evolution, and Productive Bees; the latter adds a non-self-breeding Life Fluid Bee, Life Extractor flowering, and 250 mB centrifuge output per comb.
 
 ## Requirements
 

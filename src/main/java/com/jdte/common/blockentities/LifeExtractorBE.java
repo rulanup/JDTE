@@ -42,6 +42,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     public static final int BASE_FLUID_CAPACITY = 16000;
     public static final int BASE_ENERGY_COST = 300;
     public static final float BASE_RADIUS = 5.0f;
+    public static final double LIFE_FLUID_OUTPUT_MULTIPLIER = 5.0D;
 
     public final JDTEFluidTank fluidTank;
     public final FluidContainerData fluidContainerData;
@@ -193,18 +194,18 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     public static double calculateLifeFluid(double health) {
         if (!(health > 0.0D) || !Double.isFinite(health)) return 0.0D;
         double fluidPerHealth = JDTEConfig.COMMON.lifeExtractorFluidPerHealth.get();
-        if (health <= 100.0D) return health * fluidPerHealth;
+        if (health <= 100.0D) return health * fluidPerHealth * LIFE_FLUID_OUTPUT_MULTIPLIER;
 
         double decay = 1.0D - JDTEConfig.COMMON.lifeExtractorHighHealthLossPercent.get() / 100.0D;
-        if (decay >= 1.0D) return health * fluidPerHealth;
-        if (decay <= 0.0D) return 100.0D * fluidPerHealth;
+        if (decay >= 1.0D) return health * fluidPerHealth * LIFE_FLUID_OUTPUT_MULTIPLIER;
+        if (decay <= 0.0D) return 100.0D * fluidPerHealth * LIFE_FLUID_OUTPUT_MULTIPLIER;
 
         double extraHealth = health - 100.0D;
         long fullBands = (long) Math.floor(extraHealth / 100.0D);
         double remainder = extraHealth - fullBands * 100.0D;
         double fullBandHealth = 100.0D * decay * (1.0D - Math.pow(decay, fullBands)) / (1.0D - decay);
         double remainderHealth = remainder * Math.pow(decay, fullBands + 1.0D);
-        return (100.0D + fullBandHealth + remainderHealth) * fluidPerHealth;
+        return (100.0D + fullBandHealth + remainderHealth) * fluidPerHealth * LIFE_FLUID_OUTPUT_MULTIPLIER;
     }
 
     private void flushPendingLifeFluid() {

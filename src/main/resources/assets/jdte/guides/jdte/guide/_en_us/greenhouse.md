@@ -32,6 +32,7 @@ Capacity, Fluid, Overclock, Creative, and Fortune Upgrades are supported. Up to 
 ## Plant Compatibility
 
 - Built-in recipes cover wheat, carrots, potatoes, beetroot, pumpkins, melons, nether wart, and cocoa beans.
+- Every currently loaded Botany Pots crop is discovered dynamically together with a compatible soil, including recipes added by other mods or data packs; data-pack reloads refresh the cache automatically.
 - Every enabled Mystical Agriculture crop is discovered through its public Crop Registry.
 - Mystical Agradditions registers its crops in the same registry and is covered automatically.
 - Other mod seeds linked to a crop block with an `age` property are discovered generically.
@@ -43,7 +44,7 @@ Capacity, Fluid, Overclock, Creative, and Fortune Upgrades are supported. Up to 
 
 The JEI category displays the plant template, base Time Fluid, base FE, and preview outputs. Clicking the growing-soil progress area in the Greenhouse GUI opens the category.
 
-The Greenhouse caches only its four current plant-template definitions. All four lanes share one bounded settlement cap and rotate resource priority. Each plant uses at most four real loot samples per settlement before scaling them as a batch; it creates no item entities, performs no area scans, and never loops loot tables at the theoretical harvest count.
+The Greenhouse caches only its four current plant-template definitions. All four lanes share one bounded settlement cap and rotate resource priority. Standard plants use at most four real loot samples per settlement before batch scaling. Botany Pots crops invoke their native drop providers and callbacks once per mature cycle so probabilistic drops and function semantics remain intact. Neither path creates item entities or performs area scans.
 
 Overclock and Creative Upgrades both lock production to 64x. The growing-bed progress advances only while at least one lane has its required resources and output space. New harvests are generated directly into an adjacent item container, preferring the most recently successful side; only remainders fall back to the Greenhouse's internal output slots.
 

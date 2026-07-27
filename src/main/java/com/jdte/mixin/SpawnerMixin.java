@@ -1,5 +1,6 @@
 package com.jdte.mixin;
 
+import com.jdte.common.utils.SpawnerCrushHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BaseSpawner;

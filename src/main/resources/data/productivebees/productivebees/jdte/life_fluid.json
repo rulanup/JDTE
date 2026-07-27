@@ -1,0 +1,15 @@
+{
+  "primaryColor": "#dc143c",
+  "secondaryColor": "#5a081b",
+  "tertiaryColor": "#ff8fa3",
+  "particleColor": "#dc143c",
+  "flowerTag": "jdte:life_fluid_bee_flowers",
+  "description": "productivebees.ingredient.description.only_spawnegg",
+  "selfbreed": false,
+  "conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "jdte"
+    }
+  ]
+}

@@ -13,7 +13,8 @@ public class TimeAcceleratorConfig {
     public final ModConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
     public final ModConfigSpec.IntValue extendedTimeAcceleratorMaxMultiplier;
     public final ModConfigSpec.IntValue extendedTimeAcceleratorOverclockMultiplier;
-    public final ModConfigSpec.DoubleValue timeAcceleratorTargetMspt;
+    public final ModConfigSpec.IntValue timeAcceleratorMaxExecutionsPerTick;
+    public final ModConfigSpec.IntValue timeAcceleratorMaxScannedBlocksPerTick;
     public final ModConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
     public final ModConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
     public final ModConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
@@ -61,10 +62,14 @@ public class TimeAcceleratorConfig {
                 .comment("Extended time accelerator multiplier with Overclock or Creative Upgrade")
                 .translation("config.jdte.jdte.timeAccelerator.extendedTimeAcceleratorOverclockMultiplier")
                 .defineInRange("extendedTimeAcceleratorOverclockMultiplier", 1024, 1, 100000);
-        timeAcceleratorTargetMspt = builder
-                .comment("Target total server tick time used by managed Time Accelerator work")
-                .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorTargetMspt")
-                .defineInRange("timeAcceleratorTargetMspt", 45.0D, 1.0D, 50.0D);
+        timeAcceleratorMaxExecutionsPerTick = builder
+                .comment("Maximum managed virtual ticks executed per server tick. Work above this limit remains queued.")
+                .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorMaxExecutionsPerTick")
+                .defineInRange("timeAcceleratorMaxExecutionsPerTick", 4096, 1, 1000000);
+        timeAcceleratorMaxScannedBlocksPerTick = builder
+                .comment("Maximum random-ticking block positions scanned per server tick")
+                .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorMaxScannedBlocksPerTick")
+                .defineInRange("timeAcceleratorMaxScannedBlocksPerTick", 16384, 256, 1000000);
         timeAcceleratorMaxPendingTicks = builder
                 .comment("Maximum paid virtual ticks retained per Time Accelerator target")
                 .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorMaxPendingTicks")

@@ -38,6 +38,7 @@ dependencies {
     compileOnly "curse.maven:mystical-agriculture-246640:8344249"
     compileOnly "curse.maven:mystical-agradditions-256247:7802027"
     compileOnly "curse.maven:productivebees-377897:${productivebees_file}"
+    compileOnly "curse.maven:botany-pots-353928:8243851"
     compileOnly "curse.maven:logistics-network-1448257:${logistics_network_file}"
     productiveBeesEmbedded "curse.maven:productivebees-377897:${productivebees_file}"
 
@@ -84,6 +85,8 @@ dependencies {
     localRuntime "curse.maven:mystical-agriculture-246640:8344249"
     localRuntime "curse.maven:mystical-agradditions-256247:7802027"
     localRuntime "curse.maven:cucumber-272335:8035802"
+    localRuntime "curse.maven:super-factory-manager-306935:8370241"
+    localRuntime "curse.maven:botany-pots-353928:8243851"
 
     // Integration / utility mods
     localRuntime "curse.maven:polymorph-388800:${polymorph_file}"

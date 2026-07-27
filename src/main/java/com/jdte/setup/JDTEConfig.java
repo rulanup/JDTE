@@ -69,7 +69,8 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
         public final ModConfigSpec.IntValue extendedTimeAcceleratorMaxMultiplier;
         public final ModConfigSpec.IntValue extendedTimeAcceleratorOverclockMultiplier;
-        public final ModConfigSpec.DoubleValue timeAcceleratorTargetMspt;
+        public final ModConfigSpec.IntValue timeAcceleratorMaxExecutionsPerTick;
+        public final ModConfigSpec.IntValue timeAcceleratorMaxScannedBlocksPerTick;
         public final ModConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
         public final ModConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
         public final ModConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
@@ -295,7 +296,8 @@ public class JDTEConfig {
             this.advancedTimeAcceleratorDefaultMultiplier = timeAccelerator.advancedTimeAcceleratorDefaultMultiplier;
             this.extendedTimeAcceleratorMaxMultiplier = timeAccelerator.extendedTimeAcceleratorMaxMultiplier;
             this.extendedTimeAcceleratorOverclockMultiplier = timeAccelerator.extendedTimeAcceleratorOverclockMultiplier;
-            this.timeAcceleratorTargetMspt = timeAccelerator.timeAcceleratorTargetMspt;
+            this.timeAcceleratorMaxExecutionsPerTick = timeAccelerator.timeAcceleratorMaxExecutionsPerTick;
+            this.timeAcceleratorMaxScannedBlocksPerTick = timeAccelerator.timeAcceleratorMaxScannedBlocksPerTick;
             this.timeAcceleratorMaxPendingTicks = timeAccelerator.timeAcceleratorMaxPendingTicks;
             this.timeAcceleratorExecutionBatchSize = timeAccelerator.timeAcceleratorExecutionBatchSize;
             this.timeAcceleratorRandomRefreshInterval = timeAccelerator.timeAcceleratorRandomRefreshInterval;

@@ -1,0 +1,17 @@
+{
+  "type": "productivebees:advanced_beehive",
+  "ingredient": "productivebees:life_fluid",
+  "results": [
+    {
+      "item": {
+        "item": "productivebees:configurable_honeycomb"
+      }
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "productivebees"
+    }
+  ]
+}

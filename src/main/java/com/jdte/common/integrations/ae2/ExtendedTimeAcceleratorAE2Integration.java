@@ -24,14 +24,14 @@ public final class ExtendedTimeAcceleratorAE2Integration {
         return !findEndpoints(level, pos).isEmpty();
     }
 
-    public static Result accelerate(ServerLevel level, BlockPos pos, int requestedTicks, long deadline) {
+    public static Result accelerate(ServerLevel level, BlockPos pos, int requestedTicks) {
         List<Endpoint> active = findEndpoints(level, pos);
         if (active.isEmpty()) {
             return new Result(0, false, true);
         }
 
         int executed = 0;
-        for (; executed < requestedTicks && !active.isEmpty() && System.nanoTime() < deadline; executed++) {
+        for (; executed < requestedTicks && !active.isEmpty(); executed++) {
             Iterator<Endpoint> iterator = active.iterator();
             while (iterator.hasNext()) {
                 Endpoint endpoint = iterator.next();

@@ -40,7 +40,6 @@ public final class ExtendedTimeAccelerationManager {
             ResourceLocation.fromNamespaceAndPath("justdirethings", "tick_speed_deny"));
     private static final boolean AE2_LOADED = ModList.get().isLoaded("ae2");
     private static final Map<ServerLevel, LevelState> LEVELS = new IdentityHashMap<>();
-    private static final Map<MinecraftServer, Long> TICK_STARTS = new IdentityHashMap<>();
     private static final Map<MinecraftServer, Integer> LEVEL_CURSORS = new IdentityHashMap<>();
 
     private ExtendedTimeAccelerationManager() {
@@ -52,18 +51,8 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
-    public static void onServerTickPre(ServerTickEvent.Pre event) {
-        TICK_STARTS.put(event.getServer(), System.nanoTime());
-    }
-
     public static void onServerTickPost(ServerTickEvent.Post event) {
         MinecraftServer server = event.getServer();
-        long now = System.nanoTime();
-        Long recordedStart = TICK_STARTS.remove(server);
-        long tickStart = recordedStart == null ? now : recordedStart;
-        long targetNanos = (long) (JDTEConfig.COMMON.timeAcceleratorTargetMspt.get() * 1_000_000.0D);
-        long deadline = tickStart + targetNanos;
-
         List<Map.Entry<ServerLevel, LevelState>> states = new ArrayList<>();
         for (Map.Entry<ServerLevel, LevelState> entry : LEVELS.entrySet()) {
             if (entry.getKey().getServer() == server && entry.getValue().hasWork()) {
@@ -76,13 +65,18 @@ public final class ExtendedTimeAccelerationManager {
 
         int startIndex = Math.floorMod(LEVEL_CURSORS.getOrDefault(server, 0), states.size());
         LEVEL_CURSORS.put(server, startIndex + 1);
+        int executionBudget = JDTEConfig.COMMON.timeAcceleratorMaxExecutionsPerTick.get();
+        int scanBudget = JDTEConfig.COMMON.timeAcceleratorMaxScannedBlocksPerTick.get();
+        int executionBase = executionBudget / states.size();
+        int executionExtra = executionBudget % states.size();
+        int scanBase = scanBudget / states.size();
+        int scanExtra = scanBudget % states.size();
         for (int offset = 0; offset < states.size(); offset++) {
             Map.Entry<ServerLevel, LevelState> entry = states.get((startIndex + offset) % states.size());
-            int levelsLeft = states.size() - offset;
-            now = System.nanoTime();
-            long levelDeadline = levelsLeft == 1 ? deadline : now + Math.max(0L, deadline - now) / levelsLeft;
-            entry.getValue().prepare(entry.getKey(), levelDeadline);
-            entry.getValue().execute(entry.getKey(), levelDeadline);
+            int levelScanBudget = scanBase + (offset < scanExtra ? 1 : 0);
+            int levelExecutionBudget = executionBase + (offset < executionExtra ? 1 : 0);
+            entry.getValue().prepare(entry.getKey(), levelScanBudget);
+            entry.getValue().execute(entry.getKey(), levelExecutionBudget);
         }
     }
 
@@ -95,7 +89,6 @@ public final class ExtendedTimeAccelerationManager {
     public static void onServerStopped(ServerStoppedEvent event) {
         MinecraftServer server = event.getServer();
         LEVELS.keySet().removeIf(level -> level.getServer() == server);
-        TICK_STARTS.remove(server);
         LEVEL_CURSORS.remove(server);
     }
 
@@ -114,6 +107,22 @@ public final class ExtendedTimeAccelerationManager {
     private record ExecutionResult(int executed, boolean valid, boolean idle) {
         private static ExecutionResult invalid() {
             return new ExecutionResult(0, false, true);
+        }
+    }
+
+    private static final class TickBudget {
+        private int remaining;
+
+        private TickBudget(int remaining) {
+            this.remaining = Math.max(0, remaining);
+        }
+
+        private boolean consumeOne() {
+            if (remaining <= 0) {
+                return false;
+            }
+            remaining--;
+            return true;
         }
     }
 
@@ -225,7 +234,8 @@ public final class ExtendedTimeAccelerationManager {
             return !submitted.isEmpty() || !pending.isEmpty();
         }
 
-        private void prepare(ServerLevel level, long deadline) {
+        private void prepare(ServerLevel level, int maxScannedBlocks) {
+            TickBudget scanBudget = new TickBudget(maxScannedBlocks);
             if (level.getGameTime() % 200L == 0L) {
                 nextEffectTick.entrySet().removeIf(entry -> entry.getValue() + 200L < level.getGameTime());
             }
@@ -271,7 +281,7 @@ public final class ExtendedTimeAccelerationManager {
 
             discoverBlockEntities(level, byChunk);
             for (AcceleratorContext context : contexts) {
-                context.targets.addAll(getRandomTargets(level, context, deadline));
+                context.targets.addAll(getRandomTargets(level, context, scanBudget));
             }
 
             long maxPending = JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get();
@@ -331,7 +341,7 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
-        private List<TargetKey> getRandomTargets(ServerLevel level, AcceleratorContext context, long deadline) {
+        private List<TargetKey> getRandomTargets(ServerLevel level, AcceleratorContext context, TickBudget scanBudget) {
             RandomTargetCache cache = randomTargets.computeIfAbsent(context.accelerator, ignored -> new RandomTargetCache());
             long gameTime = level.getGameTime();
             boolean areaChanged = cache.area == null || !cache.area.equals(context.area);
@@ -342,9 +352,8 @@ public final class ExtendedTimeAccelerationManager {
                 beginRandomTargetRefresh(cache, context.area, areaChanged);
             }
 
-            int checked = 0;
             BlockPos.MutableBlockPos scanPos = new BlockPos.MutableBlockPos();
-            while (cache.scanIndex < cache.scanVolume && System.nanoTime() < deadline) {
+            while (cache.scanIndex < cache.scanVolume && scanBudget.consumeOne()) {
                 int index = cache.scanIndex++;
                 int xOffset = index % cache.sizeX;
                 int remainder = index / cache.sizeX;
@@ -358,9 +367,6 @@ public final class ExtendedTimeAccelerationManager {
                 if (MiscTools.isValidTickAccelBlock(level, state, null)
                         && context.accelerator.isBlockValidFilter(level, scanPos, state)) {
                     cache.rebuildingTargets.add(new TargetKey(scanPos, TargetKind.RANDOM_TICK));
-                }
-                if ((++checked & 255) == 0 && System.nanoTime() >= deadline) {
-                    break;
                 }
             }
             if (cache.scanIndex >= cache.scanVolume) {
@@ -424,17 +430,19 @@ public final class ExtendedTimeAccelerationManager {
             work.add(accelerator, accepted, multiplier);
         }
 
-        private void execute(ServerLevel level, long deadline) {
+        private void execute(ServerLevel level, int maxExecutions) {
             int batchSize = JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get();
-            while (!queue.isEmpty() && System.nanoTime() < deadline) {
+            int executedThisTick = 0;
+            while (!queue.isEmpty() && executedThisTick < maxExecutions) {
                 TargetKey target = queue.removeFirst();
                 queued.remove(target);
                 PendingTarget work = pending.get(target);
                 if (work == null) {
                     continue;
                 }
-                int requested = (int) Math.min(work.virtualTicks, batchSize);
-                ExecutionResult result = executeTarget(level, target, requested, deadline);
+                int remainingBudget = maxExecutions - executedThisTick;
+                int requested = (int) Math.min(work.virtualTicks, Math.min(batchSize, remainingBudget));
+                ExecutionResult result = executeTarget(level, target, requested);
                 if (!result.valid) {
                     pending.remove(target);
                     nextEffectTick.remove(target.pos());
@@ -445,6 +453,7 @@ public final class ExtendedTimeAccelerationManager {
                     break;
                 }
 
+                executedThisTick += result.executed;
                 int displayMultiplier = work.displayMultiplier();
                 work.consume(result.executed);
                 spawnEffect(level, target.pos(), displayMultiplier);
@@ -462,20 +471,20 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
-        private ExecutionResult executeTarget(ServerLevel level, TargetKey target, int requested, long deadline) {
+        private ExecutionResult executeTarget(ServerLevel level, TargetKey target, int requested) {
             return switch (target.kind()) {
-                case BLOCK_ENTITY -> executeBlockEntity(level, target.pos(), requested, deadline);
-                case RANDOM_TICK -> executeRandomTicks(level, target.pos(), requested, deadline);
+                case BLOCK_ENTITY -> executeBlockEntity(level, target.pos(), requested);
+                case RANDOM_TICK -> executeRandomTicks(level, target.pos(), requested);
                 case AE2_GRID -> {
                     ExtendedTimeAcceleratorAE2Integration.Result result =
-                            ExtendedTimeAcceleratorAE2Integration.accelerate(level, target.pos(), requested, deadline);
+                            ExtendedTimeAcceleratorAE2Integration.accelerate(level, target.pos(), requested);
                     yield new ExecutionResult(result.executed(), result.valid(), result.idle());
                 }
             };
         }
 
         @SuppressWarnings("unchecked")
-        private ExecutionResult executeBlockEntity(ServerLevel level, BlockPos pos, int requested, long deadline) {
+        private ExecutionResult executeBlockEntity(ServerLevel level, BlockPos pos, int requested) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity == null || blockEntity.isRemoved() || blockEntity instanceof TimeAcceleratorMachine) {
                 return ExecutionResult.invalid();
@@ -486,23 +495,22 @@ public final class ExtendedTimeAccelerationManager {
                 return ExecutionResult.invalid();
             }
             int executed = 0;
-            for (; executed < requested && !blockEntity.isRemoved() && System.nanoTime() < deadline; executed++) {
+            for (; executed < requested && !blockEntity.isRemoved(); executed++) {
                 ticker.tick(level, pos, blockEntity.getBlockState(), blockEntity);
             }
             return new ExecutionResult(executed, true, false);
         }
 
-        private ExecutionResult executeRandomTicks(ServerLevel level, BlockPos pos, int requested, long deadline) {
+        private ExecutionResult executeRandomTicks(ServerLevel level, BlockPos pos, int requested) {
             BlockState state = level.getBlockState(pos);
             if (state.hasBlockEntity() || !state.isRandomlyTicking()
                     || !MiscTools.isValidTickAccelBlock(level, state, null)) {
                 return ExecutionResult.invalid();
             }
-            int executed = 0;
-            for (; executed < requested && System.nanoTime() < deadline; executed++) {
+            for (int executed = 0; executed < requested; executed++) {
                 state.randomTick(level, pos, level.random);
             }
-            return new ExecutionResult(executed, true, false);
+            return new ExecutionResult(requested, true, false);
         }
 
         private void spawnEffect(ServerLevel level, BlockPos pos, int multiplier) {

@@ -21,6 +21,7 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.utils.BioCrusherDropCapture;
 import com.jdte.common.utils.MobLootSpawnEggHelper;
 import com.jdte.common.player.LifeAppleProgression;
+import com.jdte.common.recipes.GreenhouseCropResolver;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
@@ -70,7 +71,6 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
-        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPre);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
@@ -95,6 +95,7 @@ public class JDTE {
     }
 
     private void syncSpawnEggRecipes(OnDatapackSyncEvent event) {
+        GreenhouseCropResolver.invalidateCaches();
         MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
         SpawnEggRecipeSyncPayload payload = new SpawnEggRecipeSyncPayload(
                 MobLootSpawnEggHelper.getRecipeIds(event.getPlayerList().getServer().getResourceManager()));

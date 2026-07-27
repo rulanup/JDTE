@@ -24,6 +24,8 @@ The Bio Factory uses a reusable spawn egg or Productive Bees cage as a specimen 
 | Culture fluid | Supports fluid-flowering bees and data recipe fluid inputs |
 | Product fluid | Exports milk and other fluids independently from all input tanks |
 
+The Bio Factory has a fixed 5x base work rate without increasing per-cycle costs. A recipe with the default 600 work units completes in about 6 seconds at the displayed 1x setting, 0.2 seconds at 32x, or 0.1 seconds at the 64x Overclock/Creative limit; each completed cycle keeps its original resource cost.
+
 Base production consumes FE. The three material slots are unordered and each requirement independently declares consumption. Food, flowering inputs, and environment blocks are normally reusable; balance materials such as bowls, flowers, Magma Cream, and Amethyst Shards are removed only after a successful cycle. The machine still runs at base yield and speed without Life or Time Fluid, and resources are charged only after outputs fit and are committed. Creative removes all machine resource costs and includes Overclock behavior.
 
 Built-in JDTE animal recipes use the base Life and Time Fluid costs. Dynamic external recipes such as Productive Bees use 10x Time Fluid and 5x Life Fluid by default; both server-side multipliers are configurable.
@@ -34,6 +36,7 @@ Built-in JDTE animal recipes use the base Life and Time Fluid costs. Dynamic ext
 - Balanced recipes include a 25% Goat Horn cycle using Stone plus four consumed Amethyst Shards, Suspicious Stew whose consumed flower supplies the vanilla effect, slow Cat gifts using vanilla gift probabilities, and a 2.5% Panda slime-ball cycle.
 - Modpacks can add `jdte:bio_factory` recipes with up to three unordered `inputs`. Each entry has an `ingredient`; omitted or zero `count` is reusable, while a positive value is consumed only after successful settlement. Legacy `food` and `food_count` recipes remain readable.
 - With Productive Bees installed, filled cages work directly, as do spawn eggs that identify a concrete bee.
+- JDTE's Life Fluid Bee uses an Advanced or Extended Life Extractor as a reusable flowering block and produces Life Fluid Honeycombs that centrifuge into 250 mB of Life Fluid plus Wax. It cannot self-breed but retains gene and all four Productivity Upgrade interactions.
 - Productive Bees validates only the specific flowering item or fluid declared by that bee. Generic breeding flowers are no longer treated as universal production inputs. The machine recognizes exact addon `flowerBlock` values, while `flowerTag` resolves as a block tag first and falls back to an item tag only when empty, so addon flowering blocks such as Time Crystal Blocks work directly; JEI displays the matching block, concrete item, or culture fluid.
 - Productive Bees uses the currently loaded `advanced_beehive` production recipes. Each bee's Productivity gene uses the Advanced Beehive's exact output formula, while behavior and weather-tolerance genes determine whether the current conditions permit production.
 - Alpha, Beta, Gamma, and Omega Productivity Upgrades share a combined four-card limit. Their additive multipliers follow the current Productive Bees configuration, and Omega produces the corresponding comb block exactly like an Advanced Beehive.

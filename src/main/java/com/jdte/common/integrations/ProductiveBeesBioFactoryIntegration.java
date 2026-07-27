@@ -1,39 +1,55 @@
 package com.jdte.common.integrations;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
 import cy.jdkdigital.productivebees.ProductiveBees;
 import cy.jdkdigital.productivebees.ProductiveBeesConfig;
 import cy.jdkdigital.productivebees.capabilities.attributes.BeeAttributesHandler;
+import cy.jdkdigital.productivebees.common.block.entity.AmberBlockEntity;
 import cy.jdkdigital.productivebees.common.crafting.ingredient.BeeIngredient;
 import cy.jdkdigital.productivebees.common.entity.bee.ConfigurableBee;
 import cy.jdkdigital.productivebees.common.item.AmberItem;
 import cy.jdkdigital.productivebees.common.item.BeeCage;
 import cy.jdkdigital.productivebees.common.recipe.AdvancedBeehiveRecipe;
+import cy.jdkdigital.productivebees.init.ModDataComponents;
+import cy.jdkdigital.productivebees.init.ModEntities;
 import cy.jdkdigital.productivebees.init.ModItems;
 import cy.jdkdigital.productivebees.init.ModRecipeTypes;
+import cy.jdkdigital.productivebees.init.ModTags;
 import cy.jdkdigital.productivebees.setup.BeeReloadListener;
 import cy.jdkdigital.productivebees.util.BeeHelper;
 import cy.jdkdigital.productivebees.util.GeneAttribute;
 import cy.jdkdigital.productivebees.util.GeneValue;
 import cy.jdkdigital.productivelib.common.recipe.TagOutputRecipe.ChancedOutput;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +61,20 @@ public final class ProductiveBeesBioFactoryIntegration {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private ProductiveBeesBioFactoryIntegration() { }
+
+    public static List<ItemStack> getLifeFluidBeeCreativeItems() {
+        ResourceLocation beeType = ResourceLocation.fromNamespaceAndPath("productivebees", "life_fluid");
+
+        CompoundTag entityData = new CompoundTag();
+        entityData.putString("id", "productivebees:configurable_bee");
+        entityData.putString("type", beeType.toString());
+        ItemStack spawnEgg = new ItemStack(ModItems.CONFIGURABLE_SPAWN_EGG.get());
+        spawnEgg.set(DataComponents.ENTITY_DATA, CustomData.of(entityData));
+
+        ItemStack honeycomb = new ItemStack(ModItems.CONFIGURABLE_HONEYCOMB.get());
+        honeycomb.set(ModDataComponents.BEE_TYPE.get(), beeType);
+        return List.of(spawnEgg, honeycomb);
+    }
 
     public static boolean isBeeSpecimen(ItemStack stack) {
         return stack.getItem() instanceof BeeCage && BeeCage.isFilled(stack)
@@ -76,13 +106,27 @@ public final class ProductiveBeesBioFactoryIntegration {
     private static boolean matchesConfiguredEntityFlower(ConfigurableBee bee, ItemStack stack) {
         if (!(stack.getItem() instanceof AmberItem)) return false;
         CompoundTag data = getBeeData(bee);
-        if (!usesEntityTypeFlowers(data)) return false;
-        CustomData entityData = stack.get(DataComponents.ENTITY_DATA);
-        if (entityData == null) return false;
-        ResourceLocation entityId = ResourceLocation.tryParse(entityData.copyTag().getString("id"));
+        CompoundTag containedEntity = getContainedAmberEntity(stack);
+        if (containedEntity == null) return false;
+        ResourceLocation entityId = ResourceLocation.tryParse(containedEntity.getString("id"));
         if (entityId == null) return false;
+        if (usesWannabeeAmberFlower(bee, data)) {
+            return BuiltInRegistries.ENTITY_TYPE.containsKey(entityId);
+        }
+        if (!usesEntityTypeFlowers(data)) return false;
         return BuiltInRegistries.ENTITY_TYPE.getOptional(entityId)
                 .map(entityType -> matchesConfiguredEntityType(data, entityType)).orElse(false);
+    }
+
+    private static CompoundTag getContainedAmberEntity(ItemStack stack) {
+        CustomData entityData = stack.get(DataComponents.ENTITY_DATA);
+        if (entityData != null) return entityData.copyTag();
+
+        CustomData blockEntityData = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (blockEntityData == null) return null;
+        CompoundTag blockData = blockEntityData.copyTag();
+        return blockData.contains("EntityData", net.minecraft.nbt.Tag.TAG_COMPOUND)
+                ? blockData.getCompound("EntityData") : null;
     }
 
     private static boolean matchesConfiguredBlockFlower(ConfigurableBee bee, ItemStack stack) {
@@ -113,6 +157,12 @@ public final class ProductiveBeesBioFactoryIntegration {
         return data != null && "entity_types".equals(data.getString("flowerType")) && data.contains("flowerTag");
     }
 
+    private static boolean usesWannabeeAmberFlower(ConfigurableBee bee, CompoundTag data) {
+        return data != null
+                && ResourceLocation.fromNamespaceAndPath("productivebees", "wanna").equals(bee.getBeeType())
+                && "productivebees:amber".equals(data.getString("flowerBlock"));
+    }
+
     private static boolean matchesConfiguredEntityType(CompoundTag data, EntityType<?> entityType) {
         try {
             String configuredTag = data.getString("flowerTag");
@@ -132,13 +182,58 @@ public final class ProductiveBeesBioFactoryIntegration {
                 && (!level.isThundering() || productive.canOperateDuringThunder());
     }
 
-    public static List<ItemStack> produce(Level level, Bee bee, boolean blockOutput, double multiplier) {
+    public static List<ItemStack> produce(Level level, Bee bee, ItemStack food, BlockPos origin,
+                                          boolean blockOutput, double multiplier) {
         if (bee == null) return List.of();
-        List<ItemStack> outputs = BeeHelper.getBeeProduce(level, bee, blockOutput, multiplier);
+        List<ItemStack> outputs = isWannabeeWithAmber(bee, food)
+                ? getWannabeeProduce(level, food, origin, multiplier)
+                : BeeHelper.getBeeProduce(level, bee, blockOutput, multiplier);
         GeneValue productivity = getAttribute(bee, GeneAttribute.PRODUCTIVITY);
         if (productivity == null || productivity.getValue() <= 0) return outputs;
         int value = productivity.getValue();
         outputs.forEach(stack -> applyProductivity(stack, value));
+        return outputs;
+    }
+
+    private static boolean isWannabeeWithAmber(Bee bee, ItemStack food) {
+        return bee instanceof ConfigurableBee configurable
+                && food.getItem() instanceof AmberItem
+                && usesWannabeeAmberFlower(configurable, getBeeData(configurable));
+    }
+
+    private static List<ItemStack> getWannabeeProduce(Level level, ItemStack amber, BlockPos origin, double multiplier) {
+        if (!(level instanceof ServerLevel serverLevel)) return List.of();
+        CompoundTag entityData = getContainedAmberEntity(amber);
+        if (entityData == null) return List.of();
+        Entity contained = AmberBlockEntity.createEntity(serverLevel, entityData);
+        if (!(contained instanceof Mob mob)) return List.of();
+        mob.setPos(Vec3.atCenterOf(origin));
+
+        LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(mob.getLootTable());
+        if (lootTable.equals(LootTable.EMPTY)) return List.of();
+        FakePlayer wannabee = FakePlayerFactory.get(serverLevel,
+                new GameProfile(ModEntities.WANNA_BEE_UUID, "wanna_bee"));
+        LootParams params = new LootParams.Builder(serverLevel)
+                .withParameter(LootContextParams.LAST_DAMAGE_PLAYER, wannabee)
+                .withParameter(LootContextParams.DAMAGE_SOURCE, level.damageSources().generic())
+                .withParameter(LootContextParams.TOOL, new ItemStack(Items.DIAMOND_AXE))
+                .withOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, wannabee)
+                .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, wannabee)
+                .withParameter(LootContextParams.THIS_ENTITY, contained)
+                .withParameter(LootContextParams.ORIGIN,
+                        new Vec3(origin.getX(), origin.getY(), origin.getZ()))
+                .create(LootContextParamSets.ENTITY);
+        List<ItemStack> candidates = lootTable.getRandomItems(params).stream()
+                .filter(stack -> !stack.is(ModTags.WANNABEE_LOOT_BLACKLIST))
+                .toList();
+        if (candidates.isEmpty()) return List.of();
+
+        int rolls = (int) Math.floor(multiplier);
+        if (level.random.nextDouble() < multiplier % 1.0D) rolls++;
+        List<ItemStack> outputs = new ArrayList<>(Math.max(0, rolls));
+        for (int roll = 0; roll < rolls; roll++) {
+            outputs.add(candidates.get(level.random.nextInt(candidates.size())).copy());
+        }
         return outputs;
     }
 

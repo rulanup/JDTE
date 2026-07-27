@@ -68,6 +68,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     private final GreenhouseCropDefinition[] cachedDefinitions = new GreenhouseCropDefinition[INPUT_SLOTS];
     private final ResourceLocation[] displayBlockIds = new ResourceLocation[INPUT_SLOTS];
     private final long[] growthWork = new long[INPUT_SLOTS];
+    private long cachedRecipeGeneration = -1L;
     private final ItemStackHandler itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
         @Override
         public int getSlotLimit(int slot) {
@@ -281,6 +282,11 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     }
 
     private GreenhouseCropDefinition[] resolveDefinitions() {
+        long recipeGeneration = GreenhouseCropResolver.cacheGeneration();
+        if (cachedRecipeGeneration != recipeGeneration) {
+            cachedRecipeGeneration = recipeGeneration;
+            for (int slot = 0; slot < INPUT_SLOTS; slot++) clearCachedDefinition(slot);
+        }
         for (int slot = 0; slot < INPUT_SLOTS; slot++) {
             getDefinition(slot);
         }
@@ -338,7 +344,9 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     }
 
     private int generateAndStoreDrops(ServerLevel serverLevel, GreenhouseCropDefinition definition, int harvests) {
-        int samples = Math.min(LOOT_SAMPLES_PER_SETTLEMENT, harvests);
+        int samples = definition.harvestGenerator() == null
+                ? Math.min(LOOT_SAMPLES_PER_SETTLEMENT, harvests)
+                : harvests;
         int baseGroup = harvests / samples;
         int extraGroups = harvests % samples;
         int completed = 0;
@@ -356,6 +364,9 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     }
 
     private List<ItemStack> generateSingleHarvest(ServerLevel serverLevel, GreenhouseCropDefinition definition, ItemStack tool) {
+        if (definition.harvestGenerator() != null) {
+            return definition.generateHarvest(serverLevel, worldPosition, tool);
+        }
         if (!definition.useLootTable()) return definition.outputs();
         BlockState matureState = getMatureState(definition.harvestBlock());
         List<ItemStack> drops = matureState == null ? List.of() : Block.getDrops(
