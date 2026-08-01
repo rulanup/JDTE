@@ -15,6 +15,7 @@ import com.jdte.common.jei.greenhouse.GreenhouseRecipeCategory;
 import com.jdte.common.jei.biofactory.BioFactoryJeiRecipe;
 import com.jdte.common.jei.biofactory.BioFactoryRecipeCategory;
 import com.jdte.client.screens.GreenhouseScreen;
+import com.jdte.client.screens.LargeGreenhouseScreen;
 import com.jdte.client.screens.BioFactoryScreen;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import mezz.jei.api.IModPlugin;
@@ -92,6 +93,7 @@ public class JDTEJeiPlugin implements IModPlugin {
             registration.addRecipeCatalyst(machine, LootFabricatorRecipeCategory.RECIPE_TYPE);
         }
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(JDTEItems.LARGE_GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.BIO_FACTORY.get()), BioFactoryRecipeCategory.RECIPE_TYPE);
     }
 
@@ -99,6 +101,7 @@ public class JDTEJeiPlugin implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGenericGuiContainerHandler(BaseMachineScreen.class, new AutoIoConfigJeiGuiHandler());
         registration.addRecipeClickArea(GreenhouseScreen.class, 36, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeClickArea(LargeGreenhouseScreen.class, 64, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(BioFactoryScreen.class, 35, 6, 32, 12, BioFactoryRecipeCategory.RECIPE_TYPE);
     }
 

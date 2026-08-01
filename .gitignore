@@ -22,3 +22,6 @@ Thumbs.db
 .node_modules/
 CLAUDE.md
 bin/
+
+# Eclipse
+.eclipse/

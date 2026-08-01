@@ -91,6 +91,8 @@ public class JDTEMenus {
             "crystal_incubator", () -> IMenuTypeExtension.create(CrystalIncubatorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<GreenhouseContainer>> GREENHOUSE = MENUS.register(
             "greenhouse", () -> IMenuTypeExtension.create(GreenhouseContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<LargeGreenhouseContainer>> LARGE_GREENHOUSE = MENUS.register(
+            "large_greenhouse", () -> IMenuTypeExtension.create(LargeGreenhouseContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<BioFactoryContainer>> BIO_FACTORY = MENUS.register(
             "bio_factory", () -> IMenuTypeExtension.create(BioFactoryContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<LifeBreederContainer>> LIFE_BREEDER = MENUS.register(

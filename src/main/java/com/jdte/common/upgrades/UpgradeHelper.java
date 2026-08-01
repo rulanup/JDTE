@@ -15,6 +15,7 @@ import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
+import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
@@ -60,7 +61,7 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
-        if (machine instanceof GreenhouseBE) {
+        if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
                     || type == UpgradeType.FORTUNE;
@@ -111,7 +112,8 @@ public class UpgradeHelper {
     }
 
     public static int getMaxUpgrades(BaseMachineBE machine, UpgradeType type) {
-        if (machine instanceof GreenhouseBE && type == UpgradeType.FORTUNE) {
+        if ((machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+                && type == UpgradeType.FORTUNE) {
             return 3;
         }
         return type.getMaxPerMachine();
@@ -214,7 +216,7 @@ public class UpgradeHelper {
     }
 
     public static boolean usesLockedDelay(BaseMachineBE machine) {
-        return !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE)
+        return !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof BioFactoryBE) && !(machine instanceof LifeBreederBE);
     }
 

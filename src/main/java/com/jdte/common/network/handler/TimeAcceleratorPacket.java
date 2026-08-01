@@ -5,6 +5,7 @@ import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
+import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -27,6 +28,9 @@ public class TimeAcceleratorPacket {
                 incubator.setMultiplier(payload.multiplier());
             } else if (container instanceof BaseMachineContainer machineContainer
                     && machineContainer.baseMachineBE instanceof GreenhouseBE greenhouse) {
+                greenhouse.setMultiplier(payload.multiplier());
+            } else if (container instanceof BaseMachineContainer machineContainer
+                    && machineContainer.baseMachineBE instanceof LargeGreenhouseBE greenhouse) {
                 greenhouse.setMultiplier(payload.multiplier());
             } else if (container instanceof BaseMachineContainer machineContainer
                     && machineContainer.baseMachineBE instanceof BioFactoryBE factory) {

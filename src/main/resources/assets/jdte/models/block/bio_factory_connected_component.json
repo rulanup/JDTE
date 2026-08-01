@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "frame": "justdirethings:block/blazegold_block",
+    "base_side": "minecraft:block/smooth_basalt",
+    "base_top": "minecraft:block/smooth_basalt",
+    "glass": "minecraft:block/glass",
+    "particle": "justdirethings:block/blazegold_block"
+  }
+}

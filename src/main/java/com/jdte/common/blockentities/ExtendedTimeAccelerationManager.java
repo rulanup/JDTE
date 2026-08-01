@@ -227,6 +227,8 @@ public final class ExtendedTimeAccelerationManager {
         private final Map<TargetKey, PendingTarget> pending = new LinkedHashMap<>();
         private final ArrayDeque<TargetKey> queue = new ArrayDeque<>();
         private final Set<TargetKey> queued = new LinkedHashSet<>();
+        private final Set<CoalescedAcceleratedMachine> coalescedTargets =
+                Collections.newSetFromMap(new IdentityHashMap<>());
         private final Map<TimeAcceleratorBE, RandomTargetCache> randomTargets = new IdentityHashMap<>();
         private final Map<BlockPos, Long> nextEffectTick = new LinkedHashMap<>();
 
@@ -433,35 +435,41 @@ public final class ExtendedTimeAccelerationManager {
         private void execute(ServerLevel level, int maxExecutions) {
             int batchSize = JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get();
             int executedThisTick = 0;
-            while (!queue.isEmpty() && executedThisTick < maxExecutions) {
-                TargetKey target = queue.removeFirst();
-                queued.remove(target);
-                PendingTarget work = pending.get(target);
-                if (work == null) {
-                    continue;
-                }
-                int remainingBudget = maxExecutions - executedThisTick;
-                int requested = (int) Math.min(work.virtualTicks, Math.min(batchSize, remainingBudget));
-                ExecutionResult result = executeTarget(level, target, requested);
-                if (!result.valid) {
-                    pending.remove(target);
-                    nextEffectTick.remove(target.pos());
-                    continue;
-                }
-                if (result.executed <= 0) {
-                    addToQueue(target);
-                    break;
-                }
+            coalescedTargets.clear();
+            try {
+                while (!queue.isEmpty() && executedThisTick < maxExecutions) {
+                    TargetKey target = queue.removeFirst();
+                    queued.remove(target);
+                    PendingTarget work = pending.get(target);
+                    if (work == null) {
+                        continue;
+                    }
+                    int remainingBudget = maxExecutions - executedThisTick;
+                    int requested = (int) Math.min(work.virtualTicks, Math.min(batchSize, remainingBudget));
+                    ExecutionResult result = executeTarget(level, target, requested);
+                    if (!result.valid) {
+                        pending.remove(target);
+                        nextEffectTick.remove(target.pos());
+                        continue;
+                    }
+                    if (result.executed <= 0) {
+                        addToQueue(target);
+                        break;
+                    }
 
-                executedThisTick += result.executed;
-                int displayMultiplier = work.displayMultiplier();
-                work.consume(result.executed);
-                spawnEffect(level, target.pos(), displayMultiplier);
-                if (result.idle || work.virtualTicks <= 0) {
-                    pending.remove(target);
-                } else {
-                    addToQueue(target);
+                    executedThisTick += result.executed;
+                    int displayMultiplier = work.displayMultiplier();
+                    work.consume(result.executed);
+                    spawnEffect(level, target.pos(), displayMultiplier);
+                    if (result.idle || work.virtualTicks <= 0) {
+                        pending.remove(target);
+                    } else {
+                        addToQueue(target);
+                    }
                 }
+            } finally {
+                coalescedTargets.forEach(CoalescedAcceleratedMachine::flushAcceleratedTicks);
+                coalescedTargets.clear();
             }
         }
 
@@ -493,6 +501,11 @@ public final class ExtendedTimeAccelerationManager {
                     level, (BlockEntityType<BlockEntity>) blockEntity.getType());
             if (ticker == null || !MiscTools.isValidTickAccelBlock(level, blockEntity.getBlockState(), blockEntity)) {
                 return ExecutionResult.invalid();
+            }
+            if (blockEntity instanceof CoalescedAcceleratedMachine coalesced) {
+                coalesced.accumulateAcceleratedTicks(requested);
+                coalescedTargets.add(coalesced);
+                return new ExecutionResult(requested, true, false);
             }
             int executed = 0;
             for (; executed < requested && !blockEntity.isRemoved(); executed++) {

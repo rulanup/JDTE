@@ -281,4 +281,31 @@ public class GuiUpgradeLayoutConfig {
     public int getLootFabricatorOutputPageButtonSize() { return get("loot_fabricator_widgets", "output_page_button_size", 12); }
     public int getLootFabricatorOutputPageTextX() { return get("loot_fabricator_widgets", "output_page_text_x", 104); }
     public int getLootFabricatorOutputPageTextY() { return get("loot_fabricator_widgets", "output_page_text_y", 54); }
+
+    // --- Greenhouse slot getters ---
+
+    public int getGreenhouseInputStartX() { return get("greenhouse_slots", "input_start_x", 8); }
+    public int getGreenhouseInputStartY() { return get("greenhouse_slots", "input_start_y", -21); }
+    public int getGreenhouseInputSpacing() { return get("greenhouse_slots", "input_spacing", 18); }
+    public int getGreenhouseOutputStartX() { return get("greenhouse_slots", "output_start_x", 102); }
+    public int getGreenhouseOutputStartY() { return get("greenhouse_slots", "output_start_y", -21); }
+    public int getGreenhouseOutputSpacing() { return get("greenhouse_slots", "output_spacing", 18); }
+    public int getGreenhouseOutputColumns() { return get("greenhouse_slots", "output_columns", 4); }
+    public int getGreenhouseOutputRows() { return get("greenhouse_slots", "output_rows", 4); }
+
+    // --- Greenhouse widget getters ---
+
+    public int getGreenhouseProgressArrowX() { return get("greenhouse_widgets", "progress_arrow_x", 64); }
+    public int getGreenhouseProgressArrowY() { return get("greenhouse_widgets", "progress_arrow_y", 7); }
+    public int getGreenhouseSpeedButtonX() { return get("greenhouse_widgets", "speed_button_x", 64); }
+    public int getGreenhouseSpeedButtonY() { return get("greenhouse_widgets", "speed_button_y", 24); }
+    public int getGreenhouseRedstoneButtonX() { return get("greenhouse_widgets", "redstone_button_x", 175); }
+    public int getGreenhouseRedstoneButtonY() { return get("greenhouse_widgets", "redstone_button_y", 51); }
+    public int getGreenhouseOutputPrevX() { return get("greenhouse_widgets", "output_prev_x", 106); }
+    public int getGreenhouseOutputPrevY() { return get("greenhouse_widgets", "output_prev_y", 51); }
+    public int getGreenhouseOutputNextX() { return get("greenhouse_widgets", "output_next_x", 160); }
+    public int getGreenhouseOutputNextY() { return get("greenhouse_widgets", "output_next_y", 51); }
+    public int getGreenhouseOutputPageButtonSize() { return get("greenhouse_widgets", "output_page_button_size", 12); }
+    public int getGreenhouseOutputPageTextX() { return get("greenhouse_widgets", "output_page_text_x", 133); }
+    public int getGreenhouseOutputPageTextY() { return get("greenhouse_widgets", "output_page_text_y", 53); }
 }

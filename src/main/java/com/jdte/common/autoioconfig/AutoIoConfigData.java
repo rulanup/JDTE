@@ -13,6 +13,15 @@ public class AutoIoConfigData implements INBTSerializable<CompoundTag> {
     private int outputMask = DEFAULT_SIDE_MASK;
     private int transferCooldown;
     private int failureBackoff;
+    private long lastTransferGameTime = Long.MIN_VALUE;
+
+    public boolean beginRealServerTick(long gameTime) {
+        if (lastTransferGameTime == gameTime) {
+            return false;
+        }
+        lastTransferGameTime = gameTime;
+        return true;
+    }
 
     public int getInputMask() {
         return inputMask & ALL_SIDES_MASK;

@@ -11,43 +11,44 @@ item_ids:
 
 <BlockImage id="jdte:bio_factory" scale="2" />
 
-The Bio Factory uses a reusable spawn egg or Productive Bees cage as a specimen and converts food, flowering inputs, culture fluid, FE, Life Fluid, and Time Fluid into biological products. The creature inside the Blazegold frame is client-only; the server never spawns, pathfinds, or ticks a real entity.
+The Bio Factory uses a reusable spawn egg or Productive Bees cage as a specimen and converts materials, fluids, and FE into biological products. The displayed creature is client-only; no real entity is spawned or ticked.
 
-## Slots and Fluids
+## Quick Start
 
-| Position | Purpose |
-|----------|---------|
-| Four-slot input column | The first slot is the specimen slot with a bee-egg backdrop; the other three accept food, flowering inputs, environment catalysts, or consumed materials |
-| 2x4 outputs | Eight item slots by default; each Capacity Upgrade adds eight internal slots, up to 32 |
-| Life Fluid | Doubles the completed cycle's yield by default when enough is available |
-| Time Fluid | Enables the speed control when available: 1-32x, or up to 64x with Overclock/Creative |
-| Culture fluid | Supports fluid-flowering bees and data recipe fluid inputs |
-| Product fluid | Exports milk and other fluids independently from all input tanks |
+1. Put a spawn egg or filled bee cage in the specimen slot.
+2. Follow JEI and place food, flowering inputs, or consumed materials in the three unordered material slots.
+3. Supply FE. Life Fluid raises yield, Time Fluid enables speed control, and culture fluid serves fluid-flowering recipes.
+4. Extract item products and product fluid through their separate outputs.
 
-The Bio Factory has a fixed 5x base work rate without increasing per-cycle costs. A recipe with the default 600 work units completes in about 6 seconds at the displayed 1x setting, 0.2 seconds at 32x, or 0.1 seconds at the 64x Overclock/Creative limit; each completed cycle keeps its original resource cost.
+## Slots and Resources
 
-Base production consumes FE. The three material slots are unordered and each requirement independently declares consumption. Food, flowering inputs, and environment blocks are normally reusable; balance materials such as bowls, flowers, Magma Cream, and Amethyst Shards are removed only after a successful cycle. The machine still runs at base yield and speed without Life or Time Fluid, and resources are charged only after outputs fit and are committed. Creative removes all machine resource costs and includes Overclock behavior.
+| Area | Purpose |
+|------|---------|
+| One specimen slot | Reusable spawn egg or bee cage |
+| Three material slots | Unordered; each recipe decides whether an input is consumed |
+| Eight output slots | Each Capacity Upgrade adds eight, up to 32 |
+| Life Fluid | Doubles cycle yield by default when sufficient |
+| Time Fluid | Enables `1-32x`; Overclock or Creative uses 64x |
+| Culture/product fluids | Culture fluid is an input; milk and other fluid products have a separate output |
 
-Built-in JDTE animal recipes use the base Life and Time Fluid costs. Dynamic external recipes such as Productive Bees use 10x Time Fluid and 5x Life Fluid by default; both server-side multipliers are configurable.
+The machine has a fixed 5x base work rate without increasing cycle costs. FE, fluids, and consumed materials are charged only when every product fits. It still runs at base yield and speed without Life or Time Fluid.
 
-## Animal and Bee Compatibility
+## Recipe Compatibility
 
-- Built-in recipes additionally cover vanilla Bee honeycomb, Mooshroom milk, Snow Golem snowballs, all 16 wool colors, and all three Froglights. Froglights consume four Magma Cream per cycle, while Grass Block, Packed Ice, or Sand selects the Ochre, Verdant, or Pearlescent variant.
-- Balanced recipes include a 25% Goat Horn cycle using Stone plus four consumed Amethyst Shards, Suspicious Stew whose consumed flower supplies the vanilla effect, slow Cat gifts using vanilla gift probabilities, and a 2.5% Panda slime-ball cycle.
-- Modpacks can add `jdte:bio_factory` recipes with up to three unordered `inputs`. Each entry has an `ingredient`; omitted or zero `count` is reusable, while a positive value is consumed only after successful settlement. Legacy `food` and `food_count` recipes remain readable.
-- With Productive Bees installed, filled cages work directly, as do spawn eggs that identify a concrete bee.
-- JDTE's Life Fluid Bee uses an Advanced or Extended Life Extractor as a reusable flowering block and produces Life Fluid Honeycombs that centrifuge into 250 mB of Life Fluid plus Wax. It cannot self-breed but retains gene and all four Productivity Upgrade interactions.
-- Productive Bees validates only the specific flowering item or fluid declared by that bee. Generic breeding flowers are no longer treated as universal production inputs. The machine recognizes exact addon `flowerBlock` values, while `flowerTag` resolves as a block tag first and falls back to an item tag only when empty, so addon flowering blocks such as Time Crystal Blocks work directly; JEI displays the matching block, concrete item, or culture fluid.
-- Productive Bees uses the currently loaded `advanced_beehive` production recipes. Each bee's Productivity gene uses the Advanced Beehive's exact output formula, while behavior and weather-tolerance genes determine whether the current conditions permit production.
-- Alpha, Beta, Gamma, and Omega Productivity Upgrades share a combined four-card limit. Their additive multipliers follow the current Productive Bees configuration, and Omega produces the corresponding comb block exactly like an Advanced Beehive.
-- Built-in JDTE recipes accept up to four Looting Upgrades. Each card uses the project's shared extra-drop chance to attempt one additional copy of the item products generated by that cycle; Looting does not affect dynamic Productive Bees recipes.
-- Endurance and Temper remain intact on the caged specimen. Productive Bees uses them for real-bee stinging, aggression, and hive-release behavior; because the Bio Factory never spawns or ticks a bee entity, it does not invent an unrelated production multiplier for those traits.
+- Built-in recipes cover common animal products, all wool colors, Honeycomb, Snowballs, Froglights, Goat Horns, Suspicious Stew, Cat gifts, Panda Slimeballs, and more.
+- Modpacks can add `jdte:bio_factory` recipes with up to three unordered inputs. `count: 0` is reusable; a positive count is consumed.
+- Productive Bees specimens use the loaded Advanced Beehive products, exact flowering item or fluid, environmental conditions, and Productivity gene.
+- Alpha, Beta, Gamma, and Omega Productivity Upgrades share a four-card limit; Omega can produce comb blocks.
+- JDTE's Life Fluid Bee flowers on an Advanced or Extended Life Extractor, and its comb centrifuges into Life Fluid plus Wax.
 
-JDTE's Bio Factory JEI category displays both data-driven recipes and the Productive Bees Advanced Beehive recipes actually loaded by the current datapacks, including all four inputs, chance outputs, fluid bars, and FE. Hovering the production progress icon shows the recipe's base ticks and seconds.
+JEI displays exact inputs, chance products, fluids, FE, and processing time.
 
-## Performance
+## Upgrades and Automation
 
-Recipes are resolved only when the specimen, one of the three material slots, or culture fluid changes. Progress normally settles in configurable 20-tick batches and settles early near completion so high speed settings retain their real ratio. Output capacity is preflight before commit, and the machine never scans an area, creates item entities, or runs creature AI. The client caches one reduced-scale display entity per visible machine with a 32-block render distance. Adjacent Bio Factories connect glass walls, posts, and roof rails through native block states updated only on placement or neighbor changes.
+- Supports Capacity, Fluid, Overclock, Creative, and recipe-specific dedicated upgrades.
+- Built-in JDTE recipes accept up to four Looting Upgrades; dynamic Productive Bees recipes do not use Looting.
+- Creative includes Overclock and removes machine resource costs.
+- Auto I/O keeps all three input fluids separate from product fluid so input pipes cannot drain fluid products.
 
 ## Crafting
 

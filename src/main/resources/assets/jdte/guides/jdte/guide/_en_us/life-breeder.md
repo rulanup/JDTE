@@ -11,34 +11,39 @@ item_ids:
 
 <BlockImage id="jdte:life_breeder" scale="2" />
 
-The Life Breeder automatically pairs breedable animals or Villagers in its configured area and directly advances baby growth and adult breeding cooldowns. Standard animals use their native breeding path. Villagers use their public offspring logic and machine-supplied food without requiring an extra bed. Parent NBT is never copied and entity AI is not repeatedly ticked.
+The Life Breeder breeds animals or Villagers in its configured area and directly advances baby growth and adult breeding cooldowns. It uses each creature's native breeding path, never copies parent NBT, and does not repeat complete entity AI ticks.
+
+## Quick Start
+
+1. Configure the work area and mode.
+2. Put breeding food for creatures in the area into the 2x2 input.
+3. Supply FE and Life Fluid, then select a `1-32x` speed.
+4. Existing item entities such as eggs are collected into the 4x2 output. Items that do not fit remain in the world.
 
 ## Modes
 
 | Mode | Behavior |
 |------|----------|
-| Breeding and Growth | Feeds compatible pairs while accelerating babies and adult breeding cooldowns |
-| Breeding Only | Pairs only adults that can currently breed |
-| Growth Only | Advances babies and adult cooldowns without consuming feed to breed |
+| Breeding and Growth | Pairs creatures while advancing babies and adult cooldowns |
+| Breeding Only | Breeds only adults that can currently mate |
+| Growth Only | Advances growth and cooldowns without consuming feed to breed |
 
-The 2x2 inputs can hold breeding food for different animals. A Villager pair requires 24 food points: six Bread or 24 Carrots, Potatoes, or Beetroot, with mixed inputs supported. Successful breeding also consumes FE and Life Fluid. The 4x2 outputs collect bounded batches of item entities that actually exist in the area, such as eggs or modded animal products. Items that do not fit remain safely in the world.
+A Villager pair needs 24 food points, such as six Bread or 24 Carrots, Potatoes, or Beetroot; mixed food works. No additional empty bed is required.
 
-## Speed and Upgrades
+## Costs and Upgrades
 
-- Normal speed is adjustable from `1-32x`. Processing is batched every 20 ticks by default; the multiplier advances biological age without repeating AI or complete entity ticks.
-- Overclock completes the remaining baby age or adult cooldown for each processed animal, while charging for the biological ticks actually skipped.
-- Creative includes Overclock behavior and removes FE and Life Fluid costs.
-- Eight upgrade slots accept Capacity, Fluid, Range, Filter, Overclock, and Creative Upgrades.
-- Entity filters use spawn eggs. Allowlist mode processes only listed types, denylist mode excludes them, and an empty filter permits every supported creature.
-- Redstone control, area settings, and absolute-side auto I/O are supported. Automatic input reaches only feed and Life Fluid, while automatic output extracts only collected products.
+- Life Fluid follows the biological ticks actually skipped. Defaults charge 10 mB per 20 growth ticks and about 3000 mB per breeding pair.
+- Overclock completes the remaining baby age or adult cooldown for each processed creature and charges for the time actually skipped.
+- Creative includes Overclock and removes FE and Life Fluid costs.
+- Capacity, Fluid, Range, Filter, Overclock, and Creative Upgrades are supported, together with redstone control and absolute-side auto I/O.
+- Filter slots use spawn eggs: allowlist processes only listed types, denylist excludes them, and an empty filter allows every compatible creature.
 
-Life Fluid is derived from the biological ticks actually skipped and uses a configurable 10x default factor. Breeding is priced from the standard 6000-tick cooldown or the base breeding cost, whichever is larger, resulting in 3000 mB per pair with default settings. Growth cost scales linearly with the age or cooldown time advanced in that settlement; advancing 20 biological ticks costs 10 mB by default.
+## Compatibility and Limits
 
-## Compatibility and Performance
-
-Modded creatures that extend Minecraft `Animal` and implement the standard `isFood`, `canMate`, and offspring paths work automatically. Sex, breed, and genetics restrictions remain controlled by the creature. Villagers have a dedicated public-API adapter; fully custom creatures outside the `Animal` or `AgeableMob` systems are not force-bred.
-
-The machine queries entity sections only in loaded chunks and has separate per-cycle limits for inspection, pairing, growth, and item collection. Breeding pauses at 64 animals of one type by default. All budgets and costs are server-configurable.
+- Modded creatures using Minecraft's standard `Animal` and `AgeableMob` breeding/growth APIs work automatically; their own sex, breed, and genetics rules remain authoritative.
+- Villagers use a dedicated public-API adapter. Fully custom entities outside the standard systems are not force-bred.
+- Only loaded chunks are queried, with separate budgets for scanning, pairing, growth, and item collection.
+- Breeding pauses at 64 creatures of one type by default to prevent unbounded growth. Costs and budgets are server-configurable.
 
 ## Crafting
 

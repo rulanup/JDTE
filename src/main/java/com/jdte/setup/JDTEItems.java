@@ -54,6 +54,8 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> RANGE_BLOCKER = ITEMS.register("range_blocker", () -> new BlockItem(JDTEBlocks.RANGE_BLOCKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> CRYSTAL_INCUBATOR = ITEMS.register("crystal_incubator", () -> new BlockItem(JDTEBlocks.CRYSTAL_INCUBATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> GREENHOUSE = ITEMS.register("greenhouse", () -> new BlockItem(JDTEBlocks.GREENHOUSE.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> LARGE_GREENHOUSE = ITEMS.register("large_greenhouse",
+            () -> new BlockItem(JDTEBlocks.LARGE_GREENHOUSE.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> BIO_FACTORY = ITEMS.register("bio_factory", () -> new BlockItem(JDTEBlocks.BIO_FACTORY.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> LIFE_BREEDER = ITEMS.register("life_breeder", () -> new BlockItem(JDTEBlocks.LIFE_BREEDER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> FACTORY_PACKER = ITEMS.register("factory_packer", () -> new BlockItem(JDTEBlocks.FACTORY_PACKER.get(), new Item.Properties()));

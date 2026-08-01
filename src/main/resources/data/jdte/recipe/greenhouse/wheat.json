@@ -6,6 +6,7 @@
     { "id": "minecraft:wheat_seeds", "count": 1 }
   ],
   "display_block": "minecraft:wheat",
+  "use_loot_table": false,
   "growth_work": 4096,
   "time_fluid": 10
 }

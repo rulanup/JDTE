@@ -2,6 +2,7 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
+import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeItemStackHandler;
 import net.minecraft.core.BlockPos;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +22,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BaseMachineBlock.class)
 public abstract class BaseMachineBlockMixin {
+    @Inject(method = "getDrops", at = @At("RETURN"))
+    private void jdte$removeMachineDataFromNormalDrops(BlockState state, LootParams.Builder builder,
+                                                       CallbackInfoReturnable<java.util.List<ItemStack>> cir) {
+        for (ItemStack stack : cir.getReturnValue()) {
+            if (stack.is(state.getBlock().asItem())) {
+                stack.remove(JustDireDataComponents.CUSTOM_DATA_1);
+            }
+        }
+    }
+
     @Inject(method = "getTicker", at = @At("RETURN"), cancellable = true)
     private <T extends BlockEntity> void jdte$wrapServerTicker(Level level, BlockState state, BlockEntityType<T> type, CallbackInfoReturnable<BlockEntityTicker<T>> cir) {
         if (level.isClientSide()) {

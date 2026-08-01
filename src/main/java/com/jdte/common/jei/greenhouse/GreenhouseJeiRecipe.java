@@ -2,6 +2,7 @@ package com.jdte.common.jei.greenhouse;
 
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import com.jdte.common.recipes.GreenhouseCropResolver;
+import com.jdte.common.integrations.BotanyPotsGreenhouseIntegration;
 import com.jdte.common.integrations.MysticalAgricultureGreenhouseIntegration;
 import com.jdte.common.recipes.GreenhouseRecipe;
 import com.jdte.setup.JDTEConfig;
@@ -51,6 +52,19 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
                                 "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath()),
                         new ItemStack(item), definition.outputs(), definition.timeFluid(), definition.growthWork()));
             });
+        }
+
+        if (ModList.get().isLoaded("botanypots") && minecraft.level != null) {
+            for (var crop : BotanyPotsGreenhouseIntegration.getCrops(minecraft.level)) {
+                if (!seen.add(crop.seed().getItem()) || crop.definition().outputs().isEmpty()) continue;
+                ResourceLocation seedId = BuiltInRegistries.ITEM.getKey(crop.seed().getItem());
+                ResourceLocation recipeId = crop.recipeId();
+                result.add(create(ResourceLocation.fromNamespaceAndPath("jdte",
+                                "jei/greenhouse/botanypots/" + recipeId.getNamespace() + "/"
+                                        + recipeId.getPath() + "/" + seedId.getNamespace() + "/" + seedId.getPath()),
+                        crop.seed(), crop.definition().outputs(), crop.definition().timeFluid(),
+                        crop.definition().growthWork()));
+            }
         }
 
         for (Item item : BuiltInRegistries.ITEM) {

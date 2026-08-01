@@ -38,26 +38,48 @@ public final class BotanyPotsGreenhouseIntegration {
 
         for (var cropHolder : level.getRecipeManager().getAllRecipesFor(Crop.TYPE.get())) {
             Crop crop = cropHolder.value();
-            GreenhouseContext probe = new GreenhouseContext(level, BlockPos.ZERO, ItemStack.EMPTY,
-                    seed.copyWithCount(1), ItemStack.EMPTY, crop, null, 1);
-            if (!crop.couldMatch(seed, probe, level) || !crop.matches(probe, level)) continue;
-
-            SoilMatch soilMatch = findCompatibleSoil(level, seed, crop);
-            if (soilMatch == null) continue;
-
-            GreenhouseContext context = soilMatch.context();
-            int growthWork = Math.max(1, Helpers.getRequiredGrowthTicks(context, level, crop, soilMatch.soil()));
-            List<ItemStack> previewOutputs = getPreviewOutputs(crop, seed);
-            ResourceLocation displayBlock = getDisplayBlock(crop, context, level, seed, previewOutputs);
-            ItemStack soilItem = soilMatch.soilItem().copyWithCount(1);
-            ItemStack seedItem = seed.copyWithCount(1);
-
-            return new GreenhouseCropDefinition(previewOutputs, displayBlock, displayBlock, false,
-                    growthWork, JDTEConfig.COMMON.greenhouseGenericFluidCost.get(),
-                    (serverLevel, pos, tool) -> harvest(serverLevel, pos, tool, seedItem, soilItem, crop,
-                            soilMatch.soil(), growthWork));
+            GreenhouseCropDefinition definition = createDefinition(level, seed, crop);
+            if (definition != null) return definition;
         }
         return null;
+    }
+
+    /** Enumerates the concrete planting items exposed by every loaded Botany Pots data recipe. */
+    public static List<DiscoveredCrop> getCrops(Level level) {
+        if (level == null) return List.of();
+        List<DiscoveredCrop> result = new ArrayList<>();
+        for (var cropHolder : level.getRecipeManager().getAllRecipesFor(Crop.TYPE.get())) {
+            if (!(cropHolder.value() instanceof BasicCrop basicCrop)) continue;
+            for (ItemStack seed : basicCrop.getBasicProperties().input().getItems()) {
+                if (seed.isEmpty()) continue;
+                GreenhouseCropDefinition definition = createDefinition(level, seed, cropHolder.value());
+                if (definition != null) {
+                    result.add(new DiscoveredCrop(cropHolder.id(), seed.copyWithCount(1), definition));
+                }
+            }
+        }
+        return List.copyOf(result);
+    }
+
+    private static GreenhouseCropDefinition createDefinition(Level level, ItemStack seed, Crop crop) {
+        GreenhouseContext probe = new GreenhouseContext(level, BlockPos.ZERO, ItemStack.EMPTY,
+                seed.copyWithCount(1), ItemStack.EMPTY, crop, null, 1);
+        if (!crop.couldMatch(seed, probe, level) || !crop.matches(probe, level)) return null;
+
+        SoilMatch soilMatch = findCompatibleSoil(level, seed, crop);
+        if (soilMatch == null) return null;
+
+        GreenhouseContext context = soilMatch.context();
+        int growthWork = Math.max(1, Helpers.getRequiredGrowthTicks(context, level, crop, soilMatch.soil()));
+        List<ItemStack> previewOutputs = getPreviewOutputs(crop, seed);
+        ResourceLocation displayBlock = getDisplayBlock(crop, context, level, seed, previewOutputs);
+        ItemStack soilItem = soilMatch.soilItem().copyWithCount(1);
+        ItemStack seedItem = seed.copyWithCount(1);
+
+        return new GreenhouseCropDefinition(previewOutputs, displayBlock, displayBlock, false,
+                growthWork, JDTEConfig.COMMON.greenhouseGenericFluidCost.get(),
+                (serverLevel, pos, tool) -> harvest(serverLevel, pos, tool, seedItem, soilItem, crop,
+                        soilMatch.soil(), growthWork));
     }
 
     private static SoilMatch findCompatibleSoil(Level level, ItemStack seed, Crop crop) {
@@ -142,6 +164,10 @@ public final class BotanyPotsGreenhouseIntegration {
     }
 
     private record SoilMatch(Soil soil, ItemStack soilItem, GreenhouseContext context) {
+    }
+
+    public record DiscoveredCrop(ResourceLocation recipeId, ItemStack seed,
+                                 GreenhouseCropDefinition definition) {
     }
 
     private record GreenhouseContext(Level level, BlockPos pos, ItemStack soilItem, ItemStack seedItem,

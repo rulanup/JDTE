@@ -11,44 +11,44 @@ item_ids:
 
 <BlockImage id="jdte:greenhouse" scale="2" />
 
-The Greenhouse retains up to four crops, flowers, or saplings as reusable planting templates and consumes Time Fluid and FE to produce plant products quickly. Its transparent chamber renders all four matching plants without placing, random-ticking, or breaking real blocks in the world.
+The Greenhouse retains crops, flowers, or saplings as reusable templates and consumes FE plus Time Fluid to generate their products. Displayed plants are client-only and no real crop blocks are placed or broken.
 
-## Operating Parameters
+## Quick Start
+
+1. Put up to four plant templates in the left slots. Templates are not consumed; stack size represents parallel plants.
+2. Supply FE and Time Fluid, then select a `1-32x` speed.
+3. Products enter paged output slots and can be sent through auto I/O or directly into adjacent inventories.
+
+## Production and Capacity
 
 | Property | Behavior |
 |----------|----------|
-| 1x baseline | Accumulates 512 growth work each tick |
-| Multiplier | Speed button adjusts 1-32x; Overclock or Creative unlocks 64x |
-| Energy per harvest | 10 FE with no additional speed-level penalty |
-| Fluid per harvest | Recipe cost divided by 100 and rounded up, with a 1 mB minimum |
-| Settlement | Combines production once every 20 ticks by default |
-| Input | Four stackable plant templates plus Time Fluid; stack count represents parallel plants |
-| Stack fluid | 1x through half the item's maximum stack, 2x above half |
-| Output | 16 paged product slots by default; each Capacity Upgrade adds 16, up to 64 |
-| Auto I/O | Supports seed and Time Fluid input plus product output |
+| Base speed | 512 growth work per tick at 1x; settles in 20-tick batches by default |
+| Per harvest | 10 FE; recipe Time Fluid divided by 100 and rounded up, minimum 1 mB |
+| Template stacks | Up to half the item's stack limit uses 1x fluid; larger stacks use 2x |
+| Outputs | 16 slots by default; each Capacity Upgrade adds 16, up to 64 |
+| Slot limit | 64 by default; 1024/2048/4096 with one/two/three Capacity Upgrades |
 
-Capacity, Fluid, Overclock, Creative, and Fortune Upgrades are supported. Up to three Fortune Upgrades apply vanilla Fortune III; Range, Filter, Underclock, and Precision are unavailable.
+Production pauses safely when outputs are blocked. Horizontally adjacent Greenhouses connect visually but keep separate inventories and upgrades.
 
 ## Plant Compatibility
 
-- Built-in recipes cover wheat, carrots, potatoes, beetroot, pumpkins, melons, nether wart, and cocoa beans.
-- Every currently loaded Botany Pots crop is discovered dynamically together with a compatible soil, including recipes added by other mods or data packs; data-pack reloads refresh the cache automatically.
-- Every enabled Mystical Agriculture crop is discovered through its public Crop Registry.
-- Mystical Agradditions registers its crops in the same registry and is covered automatically.
-- Other mod seeds linked to a crop block with an `age` property are discovered generically.
-- Flowers, saplings, mushrooms, and similar mod plants implemented as `BushBlock` are supported generically and default to their own loot tables.
-- Built-in vanilla sapling recipes produce matching logs and return saplings. Mod trees whose full products cannot be derived through a stable public API can define multiple explicit outputs in data packs.
-- Mature crop loot tables provide the harvest, so wheat includes wheat and seeds while mod crops retain their secondary and Fortune drops.
-- Mystical crop Time Fluid cost grows with the square of crop tier.
-- Modpacks can add more plants with `jdte:greenhouse` recipes and choose explicit `outputs` or mature-block loot with `use_loot_table`.
+Resolution order is: JDTE data recipe → dedicated Mystical Agriculture integration → Botany Pots → generic plant detection.
 
-The JEI category displays the plant template, base Time Fluid, base FE, and preview outputs. Clicking the growing-soil progress area in the Greenhouse GUI opens the category.
+- Built-in recipes cover common vanilla crops, Nether Wart, Cocoa Beans, and saplings.
+- Mystical Agriculture and Mystical Agradditions use the public Crop Registry and their mature crop drops.
+- Every loaded Botany Pots crop recipe is enumerated directly, including Spore Blossoms and plants added by mods or datapacks.
+- Other crops with an `age` property and common flowers, saplings, or mushrooms are detected when possible.
+- Modpacks can add `jdte:greenhouse` data recipes with explicit templates, products, and fluid costs.
 
-The Greenhouse caches only its four current plant-template definitions. All four lanes share one bounded settlement cap and rotate resource priority. Standard plants use at most four real loot samples per settlement before batch scaling. Botany Pots crops invoke their native drop providers and callbacks once per mature cycle so probabilistic drops and function semantics remain intact. Neither path creates item entities or performs area scans.
+JEI shows the template, base costs, and preview products. Click the growing-bed progress area to open the category.
 
-Overclock and Creative Upgrades both lock production to 64x. The growing-bed progress advances only while at least one lane has its required resources and output space. New harvests are generated directly into an adjacent item container, preferring the most recently successful side; only remainders fall back to the Greenhouse's internal output slots.
+## Upgrades and Automation
 
-Greenhouses connect visually when placed next to one another horizontally. Shared glass walls, posts, and roof rails disappear, while the glass roof extends across each joined edge. Connections are visual only; every Greenhouse keeps its own inventory, resources, and upgrades.
+- Supports Capacity, Fluid, Fortune, Overclock, and Creative Upgrades.
+- Each of up to three Fortune Upgrades adds 10% to average final output.
+- Overclock or Creative locks production to 64x; Creative removes resource costs.
+- Auto I/O accepts templates and Time Fluid and exports products. High-volume output is grouped and pushed to adjacent inventories at the end of the tick.
 
 ## Crafting
 

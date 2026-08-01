@@ -1,0 +1,13 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "frame": "justdirethings:block/eclipsealloy_block",
+    "base_side": "justdirethings:block/goosoilside_tier4",
+    "soil": "justdirethings:block/goofarmland_tier4_moist",
+    "glass": "jdte:block/large_greenhouse_glass",
+    "glass_edge": "jdte:block/large_greenhouse_glass_edge",
+    "panel": "justdirethings:block/celestigem_block",
+    "particle": "justdirethings:block/goosoilside_tier4"
+  }
+}

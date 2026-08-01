@@ -126,6 +126,12 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
             if (ticker == null) {
                 return false;
             }
+            if (blockEntity instanceof CoalescedAcceleratedMachine coalesced) {
+                coalesced.accumulateAcceleratedTicks(multiplier);
+                coalesced.flushAcceleratedTicks();
+                spawnAccelerationEffect(serverLevel, blockPos, multiplier);
+                return true;
+            }
             for (int i = 0; i < multiplier; i++) {
                 ticker.tick(serverLevel, blockPos, blockEntity.getBlockState(), blockEntity);
             }

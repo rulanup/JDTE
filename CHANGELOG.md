@@ -2,14 +2,18 @@
 
 ### English
 
-#### v0.5.6 (Unreleased)
+#### v0.5.6 (Current)
 
-- **New**: Added an optional Productive Bees Life Fluid Bee. Infusing one Egg with 64 B of Life Fluid and 1,000,000 FE creates its non-self-breeding configurable spawn egg; Advanced or Extended Life Extractors are its flowering blocks, and each centrifuged comb yields 250 mB of Life Fluid plus Wax. Its bee, particles, spawn egg, and configurable comb now use the same crimson palette as Life Fluid; component-correct spawn egg and comb stacks appear in the JDTE creative tab and link to the Infusion Machine guide. Productive Bees configurable eggs are rejected by the Loot Fabricator because they have no entity loot.
-- **Fixed**: Extended Block Breakers now charge the held tool from machine energy, matching JDT Block Breaker T2 behavior.
-- **Fixed**: Bio Crushers now kill Ender Dragons directly instead of triggering the vanilla death animation, which never completes outside an end fight and left the dragon in a permanent dying state with no Ender Dragon Essence roll. Forced kills now notify the associated vanilla End Dragon Fight state machine so its health bar and fight state are cleared correctly. Spawner-cycle processing gets the same handling.
-- **Fixed**: The Bio Factory now loads the caged bee's full NBT, so Productive Bees gene-modified attributes (behavior, weather tolerance, productivity) on inserted Bee Cages take effect instead of the bee type's defaults.
+- **New**: Added the 3×3×2 Large Greenhouse with nine reusable plant templates, paged high-capacity output, structure-wide I/O, and client-only crop rendering.
+- **Compatibility**: Greenhouses now enumerate every loaded Botany Pots crop recipe, including block-derived plants such as Spore Blossoms, while dedicated Mystical Agriculture handling takes priority.
+- **Balance**: Greenhouse Fortune adds 10% average output per card. Capacity Upgrades add one output page and raise per-slot limits to 1024/2048/4096.
+- **Performance**: Greenhouses coalesce accelerated production, inventory changes, and oversized adjacent-inventory output under configurable real-tick budgets.
+- **Performance**: Time Accelerators retain queued work under load and use fixed scan/execution budgets instead of pausing from MSPT.
+- **New**: Added the optional Productive Bees Life Fluid Bee chain with infusion, flowering, comb processing, and matching visuals.
+- **Fixed**: Reduced Large Greenhouse rendering/server overhead and fixed several machine compatibility issues, including Extended Block Breaker charging, Bio Crusher dragon kills, and caged-bee gene persistence.
+- **Docs**: Shortened and reorganized machine guides, tooltips, and this changelog.
 
-#### v0.5.5 (Current)
+#### v0.5.5
 
 - **New**: Added the Crystal Incubator with adjustable 1-512x growth acceleration or 1024x with Overclock/Creative, automatic nine-slot harvesting, eight upgrade slots, Fortune VIII, and broad budding-block support for vanilla, JDT, AE2, Data Energistics, AE2 add-ons, and Just Dyna Things.
 - **New**: Added the Crystal Incubator-only Precision Upgrade, which applies vanilla Silk Touch behavior and conflicts with Fortune Upgrades.
@@ -142,13 +146,23 @@
 
 ### 中文
 
-#### v0.5.6（未发布）
+#### v0.5.6(当前)
 
-- **修复**：扩展破坏器现在会用机器电量为槽内工具充电，与 JDT 高级破坏器（T2）行为一致。
-- **修复**：生物粉碎机击杀末影龙时改为直接击杀，不再触发原版死亡动画——该动画在非末地战斗环境下永远无法完成，导致末影龙永久假死且无法掉落末影龙精华。刷怪笼周期处理同样修复。
-- **修复**：生物工厂现在完整加载蜜蜂笼中蜜蜂的 NBT，Productive Bees 基因修改后的属性（行为、天气耐受性、产量）对放入的蜜蜂笼生效，不再使用蜂种默认值。
+- **变更**:大型温室结构从 3×3×3 缩减为 3×3×2(共 18 格),采用平玻璃顶、现代无框玻璃墙和极简角柱,外观更整洁。
+- **变更**:大型温室 I/O 在底层侧面增加了视觉标记面板;底层基座任意面均可输入种子/时间流体/能量,输出物从任意面抽出。
+- **修复**:大型温室客户端性能:删除每次结算后的无条件区块重建(此前导致周期性 FPS 掉帧),缓存成熟作物 BlockState 以消除每帧的注册表查询和 stream 分配。
+- **修复**:大型温室服务端性能:将可运行掩码计算移出每 tick 路径,仅在结算阶段计算(此前每秒扫描输出空间 20 次)。
+- **性能**:两种温室会在 Tick 末按完整物品组件合并超大批次输出,绕过单次 64 个的提取限制。每个目标默认每个真实服务器 Tick 最多处理 65,536 个物品和 16 种物品,两项预算均可配置。
+- **性能**:温室生产结算改为共享一份轻量容量账本,按真实 Tick 缓存容量升级槽位上限,并合并内部库存脏标记。必须逐次执行的动态收获提供器共享可配置的每 Tick 128 次调用预算,超额工作不会丢失。
+- **注意**:v0.5.5 旧存档的 3×3×3 温室可安全破坏(移除逻辑仍会扫除旧顶层)。建议更新前先拆除以避免视觉瑕疵。
+- **新增**:加入可选的 Productive Bees 生命流体蜜蜂生产链,包含灌注、授粉、蜜脾处理、配套视觉和创造模式示例。
+- **新增**:温室大棚原生支持 Botany Pots 作物发现及逐次随机掉落生成。
+- **新增**:加入严格 3×3 温室多方块,提供中心主控、81 个分布式种植位、分页输出、全结构自动化、固定 5 倍工作速率、有界结算及每成员一株代表作物渲染。
+- **移除**：移除时间加速器按 MSPT 暂停的逻辑及目标 MSPT 配置，改由固定执行与扫描预算限制负载。
+- **修复**：时间加速调度改用确定性的每 Tick 预算并保留排队工作，避免高负载时停止加速。
+- **修复**：扩展破坏器可用机器电量为工具充电；生物粉碎机可正确完成末影龙击杀与战斗状态；生物工厂会保留蜜蜂笼的基因 NBT。
 
-#### v0.5.5（当前）
+#### v0.5.5
 
 - **新增**：加入水晶培育机，可调 1-512x 催生或通过超频/创造升级达到 1024x，支持 9 槽自动采收、8 个升级槽、时运 VIII，并通用兼容原版、JDT、AE2、Data Energistics、AE2 附属和 Just Dyna Things 母岩。
 - **新增**：加入水晶培育机专用精准升级，沿用原版精准采集逻辑，并与时运升级互斥。

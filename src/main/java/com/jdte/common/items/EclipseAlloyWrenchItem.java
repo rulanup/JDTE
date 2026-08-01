@@ -4,6 +4,7 @@ import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.direwolf20.justdirethings.common.items.FerricoreWrench;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.JDTE;
+import com.jdte.common.blocks.LargeGreenhousePartBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -42,6 +43,10 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof LargeGreenhousePartBlock part) {
+            pos = part.getControllerPos(pos, state);
+            state = level.getBlockState(pos);
+        }
         Block block = state.getBlock();
         Player player = context.getPlayer();
 

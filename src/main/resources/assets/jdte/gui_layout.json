@@ -244,5 +244,32 @@
     "output_page_button_size": 12,
     "output_page_text_x": 104,
     "output_page_text_y": 54
+  },
+  "greenhouse_slots": {
+    "comment": "大型温室种子槽和当前页产物槽坐标，均相对于 getGuiLeft()/getGuiTop()。种子槽 3 列 x4 行（12 个）；BaseMachineScreen 的能量条顶端为 getGuiTop()-21，因此产物槽顶端保持 -21 对齐。",
+    "input_start_x": 8,
+    "input_start_y": -21,
+    "input_spacing": 18,
+    "output_start_x": 102,
+    "output_start_y": -21,
+    "output_spacing": 18,
+    "output_columns": 4,
+    "output_rows": 4
+  },
+  "greenhouse_widgets": {
+    "comment": "大型温室进度、速度、红石和产物翻页组件坐标。进度箭头和速度按钮相对原位置右移 4px；产物翻页按钮和页码相对原位置下移 2px。",
+    "progress_arrow_x": 68,
+    "progress_arrow_y": 7,
+    "speed_button_x": 68,
+    "speed_button_y": 24,
+    "redstone_button_x": 175,
+    "redstone_button_y": 51,
+    "output_prev_x": 106,
+    "output_prev_y": 53,
+    "output_next_x": 160,
+    "output_next_y": 53,
+    "output_page_button_size": 12,
+    "output_page_text_x": 133,
+    "output_page_text_y": 55
   }
 }

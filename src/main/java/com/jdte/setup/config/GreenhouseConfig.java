@@ -16,6 +16,10 @@ public class GreenhouseConfig {
     public final ModConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
     public final ModConfigSpec.IntValue greenhouseGenericFluidCost;
     public final ModConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
+    public final ModConfigSpec.LongValue greenhouseMaxPendingWork;
+    public final ModConfigSpec.IntValue greenhouseEventOutputItemBudget;
+    public final ModConfigSpec.IntValue greenhouseEventOutputTypeBudget;
+    public final ModConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
 
     public GreenhouseConfig(ModConfigSpec.Builder builder) {
         builder.comment("Greenhouse Settings")
@@ -62,6 +66,22 @@ public class GreenhouseConfig {
         greenhouseMaxHarvestsPerSettlementV2 = builder
                 .translation("config.jdte.jdte.greenhouse.maxHarvestsPerSettlement")
                 .defineInRange("maxHarvestsPerSettlementV2", 4096, 1, 65536);
+        greenhouseMaxPendingWork = builder
+                .comment("Maximum stored work debt per greenhouse planting slot")
+                .translation("config.jdte.jdte.greenhouse.maxPendingWork")
+                .defineInRange("maxPendingWork", 67_108_864L, 1L, Long.MAX_VALUE);
+        greenhouseEventOutputItemBudget = builder
+                .comment("Maximum items one Greenhouse may push into one adjacent item handler per real server tick")
+                .translation("config.jdte.jdte.greenhouse.eventOutputItemBudget")
+                .defineInRange("eventOutputItemBudget", 65_536, 1, 1_048_576);
+        greenhouseEventOutputTypeBudget = builder
+                .comment("Maximum distinct item types one Greenhouse may offer to one adjacent item handler per real server tick")
+                .translation("config.jdte.jdte.greenhouse.eventOutputTypeBudget")
+                .defineInRange("eventOutputTypeBudget", 16, 1, 64);
+        greenhouseDynamicHarvestCallsPerTick = builder
+                .comment("Maximum exact dynamic harvest-provider calls shared by one Greenhouse per real server tick")
+                .translation("config.jdte.jdte.greenhouse.dynamicHarvestCallsPerTick")
+                .defineInRange("dynamicHarvestCallsPerTick", 128, 1, 4096);
         builder.pop();
     }
 }

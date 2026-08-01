@@ -29,6 +29,9 @@ GUIDE_ALIASES = {
     "extended_fluid_placer": "extended-machines",
 }
 
+# Internal structure blocks are registered for world state, not as standalone machines.
+NON_GUIDE_BLOCKS = {"large_greenhouse_part"}
+
 TIER_PREFIXES = ("basic_", "advanced_", "extended_")
 
 
@@ -88,6 +91,8 @@ def main():
         errors.append(f"guide page missing Chinese original: {page}")
 
     for block in blocks:
+        if block in NON_GUIDE_BLOCKS:
+            continue
         family = guide_family(block)
         full = block.replace("_", "-")
         if f"{family}.md" not in zh_pages and f"{full}.md" not in zh_pages:

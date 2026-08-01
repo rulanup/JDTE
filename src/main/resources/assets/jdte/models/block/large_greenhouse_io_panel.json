@@ -1,0 +1,13 @@
+{
+  "parent": "jdte:block/large_greenhouse_component",
+  "textures": {
+    "io": "jdte:block/greenhouse_io_panel"
+  },
+  "elements": [
+    { "from": [3, 6, 0], "to": [13, 12, 1], "faces": {
+      "north": { "texture": "#io", "uv": [3, 3, 13, 11] },
+      "up": { "texture": "#frame" }, "down": { "texture": "#frame" },
+      "west": { "texture": "#frame" }, "east": { "texture": "#frame" }
+    }}
+  ]
+}

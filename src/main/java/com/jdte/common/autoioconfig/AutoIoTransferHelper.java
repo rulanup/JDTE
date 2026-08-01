@@ -9,6 +9,7 @@ import com.direwolf20.justdirethings.common.blockentities.FluidCollectorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.FluidPlacerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
+import com.direwolf20.justdirethings.util.ItemStackKey;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.FluidReceiverBE;
@@ -19,6 +20,8 @@ import com.jdte.common.blockentities.GlueActivatorBE;
 import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.blockentities.ItemReceiverBE;
 import com.jdte.common.blockentities.ItemSenderBE;
+import com.jdte.common.blockentities.LargeGreenhouseBE;
+import com.jdte.common.blocks.LargeGreenhouseStructure;
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
@@ -32,6 +35,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -39,7 +44,14 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public final class AutoIoTransferHelper {
     private static final int SUCCESS_COOLDOWN_TICKS = 0;
@@ -52,6 +64,8 @@ public final class AutoIoTransferHelper {
     private static final int IO_SIDE_DOWN = 5;
 
     private static final int[] NO_SLOTS = new int[0];
+    private static final Map<BaseMachineBE, Map<EndpointKey, CachedItemEndpoint>> EVENT_OUTPUT_ENDPOINTS =
+            new WeakHashMap<>();
 
     private AutoIoTransferHelper() {
     }
@@ -81,9 +95,14 @@ public final class AutoIoTransferHelper {
         }
 
         AutoIoConfigData data = machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get());
+        if (!data.beginRealServerTick(serverLevel.getGameTime())) {
+            return;
+        }
         int inputMask = data.getInputMask();
         int outputMask = data.getOutputMask();
-        if (inputMask == 0 && outputMask == 0) {
+        boolean eventDrivenGreenhouse = machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
+        int periodicOutputMask = eventDrivenGreenhouse ? 0 : outputMask;
+        if (inputMask == 0 && periodicOutputMask == 0) {
             data.resetTransferState();
             return;
         }
@@ -104,7 +123,7 @@ public final class AutoIoTransferHelper {
             return;
         }
 
-        boolean moved = transferEnabledSides(serverLevel, machine, inputMask, outputMask, routes);
+        boolean moved = transferEnabledSides(serverLevel, machine, inputMask, periodicOutputMask, routes);
         if (moved) {
             data.setFailureBackoff(0);
             data.setTransferCooldown(SUCCESS_COOLDOWN_TICKS);
@@ -117,6 +136,71 @@ public final class AutoIoTransferHelper {
                 : Math.min(getMaxFailureBackoff(), data.getFailureBackoff() * 2);
         data.setFailureBackoff(nextBackoff);
         data.setTransferCooldown(nextBackoff);
+    }
+
+    public static EventOutputResult flushEventDrivenGreenhouseOutput(BaseMachineBE machine, int[] sourceSlots) {
+        if (!(machine.getLevel() instanceof ServerLevel level) || sourceSlots.length == 0) {
+            return new EventOutputResult(false, false);
+        }
+        AutoIoConfigData data = machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get());
+        int outputMask = data.getOutputMask();
+        if (outputMask == 0 || OverclockDirectTransferHelper.isEnabled(machine)) {
+            return new EventOutputResult(false, false);
+        }
+
+        boolean moved = false;
+        Set<EndpointKey> visited = new HashSet<>();
+        Map<EndpointKey, CachedItemEndpoint> endpointCache = EVENT_OUTPUT_ENDPOINTS
+                .computeIfAbsent(machine, ignored -> new java.util.HashMap<>());
+        int startSide = (int) (level.getGameTime() % AutoIoConfigData.SIDE_COUNT);
+        for (int i = 0; i < AutoIoConfigData.SIDE_COUNT; i++) {
+            int uiSide = (startSide + i) % AutoIoConfigData.SIDE_COUNT;
+            if ((outputMask & (1 << uiSide)) == 0) continue;
+            Direction side = directionForUiSide(machine, uiSide);
+            Direction neighborSide = side.getOpposite();
+            for (BlockPos neighborPos : externalNeighbors(level, machine, side)) {
+                EndpointKey key = new EndpointKey(neighborPos.immutable(), neighborSide);
+                if (!visited.add(key)) continue;
+                IItemHandler target = resolveCachedItemEndpoint(level, key, endpointCache);
+                if (target != null) {
+                    moved |= pushGroupedOversizedItems(machine.getMachineHandler(), sourceSlots, target,
+                            JDTEConfig.COMMON.greenhouseEventOutputItemBudget.get(),
+                            JDTEConfig.COMMON.greenhouseEventOutputTypeBudget.get(),
+                            level.getGameTime() + key.hashCode());
+                }
+            }
+        }
+        endpointCache.keySet().retainAll(visited);
+        if (moved) machine.setChanged();
+        return new EventOutputResult(moved, true);
+    }
+
+    public static void forgetEventDrivenGreenhouse(BaseMachineBE machine) {
+        EVENT_OUTPUT_ENDPOINTS.remove(machine);
+    }
+
+    private static IItemHandler resolveCachedItemEndpoint(ServerLevel level, EndpointKey key,
+                                                          Map<EndpointKey, CachedItemEndpoint> cache) {
+        BlockState state = level.getBlockState(key.pos());
+        BlockEntity blockEntity = level.getBlockEntity(key.pos());
+        CachedItemEndpoint cached = cache.get(key);
+        if (cached != null && cached.state().equals(state) && cached.blockEntity() == blockEntity
+                && (blockEntity == null || !blockEntity.isRemoved())) {
+            return cached.handler();
+        }
+        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, key.pos(), key.side());
+        if (handler == null) cache.remove(key);
+        else cache.put(key, new CachedItemEndpoint(state, blockEntity, handler));
+        return handler;
+    }
+
+    public record EventOutputResult(boolean moved, boolean outputEnabled) {
+    }
+
+    private record EndpointKey(BlockPos pos, Direction side) {
+    }
+
+    private record CachedItemEndpoint(BlockState state, BlockEntity blockEntity, IItemHandler handler) {
     }
 
     private static boolean transferEnabledSides(ServerLevel level, BaseMachineBE machine,
@@ -142,10 +226,21 @@ public final class AutoIoTransferHelper {
     private static boolean transferSide(ServerLevel level, BaseMachineBE machine, Direction side, IoRoutes routes,
                                         boolean inputEnabled, boolean outputEnabled) {
         boolean moved = false;
-        BlockPos neighborPos = machine.getBlockPos().relative(side);
-        Direction neighborSide = side.getOpposite();
-
         ItemStackHandler internalItems = machine.getMachineHandler();
+        for (BlockPos neighborPos : externalNeighbors(level, machine, side)) {
+            Direction neighborSide = side.getOpposite();
+            if (transferNeighbor(level, machine, neighborPos, neighborSide, routes, inputEnabled, outputEnabled,
+                    internalItems)) {
+                moved = true;
+            }
+        }
+        return moved;
+    }
+
+    private static boolean transferNeighbor(ServerLevel level, BaseMachineBE machine, BlockPos neighborPos,
+                                            Direction neighborSide, IoRoutes routes, boolean inputEnabled,
+                                            boolean outputEnabled, ItemStackHandler internalItems) {
+        boolean moved = false;
         if (outputEnabled && internalItems != null && routes.hasItemOutputs()) {
             IItemHandler externalItems = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, neighborSide);
             if (externalItems != null) {
@@ -176,6 +271,17 @@ public final class AutoIoTransferHelper {
         }
 
         return moved;
+    }
+
+    private static List<BlockPos> externalNeighbors(ServerLevel level, BaseMachineBE machine, Direction side) {
+        if (!(machine instanceof LargeGreenhouseBE greenhouse)) {
+            return List.of(machine.getBlockPos().relative(side));
+        }
+        return greenhouse.getBoundaryNeighbors().stream()
+                .filter(neighbor -> neighbor.exposedSide() == side)
+                .map(LargeGreenhouseStructure.BoundaryNeighbor::pos)
+                .distinct()
+                .toList();
     }
 
     private static IoRoutes getRoutes(BaseMachineBE machine) {
@@ -238,6 +344,11 @@ public final class AutoIoTransferHelper {
         } else if (machine instanceof GreenhouseBE greenhouse) {
             itemInputs = boundedSlots(handler, range(0, GreenhouseBE.INPUT_SLOTS));
             itemOutputs = boundedSlots(handler, range(GreenhouseBE.OUTPUT_START_SLOT, greenhouse.getActiveOutputSlots()));
+            fluidInput = greenhouse.getFluidTank();
+        } else if (machine instanceof com.jdte.common.blockentities.LargeGreenhouseBE greenhouse) {
+            itemInputs = boundedSlots(handler, range(0, com.jdte.common.blockentities.LargeGreenhouseBE.INPUT_SLOTS));
+            itemOutputs = boundedSlots(handler, range(com.jdte.common.blockentities.LargeGreenhouseBE.OUTPUT_START_SLOT,
+                    greenhouse.getActiveOutputSlots()));
             fluidInput = greenhouse.getFluidTank();
         } else if (machine instanceof com.jdte.common.blockentities.BioFactoryBE factory) {
             itemInputs = boundedSlots(handler, com.jdte.common.blockentities.BioFactoryBE.SPECIMEN_SLOT,
@@ -346,6 +457,79 @@ public final class AutoIoTransferHelper {
             }
         }
         return moved > 0;
+    }
+
+    /**
+     * Flushes Greenhouse output without going through ItemStackHandler#extractItem, which deliberately clamps every
+     * extraction to the item's vanilla maximum stack size. Greenhouse slots may contain thousands of items, so the
+     * dirty slots are grouped by their complete item/component identity and offered to the destination as one large
+     * stack per type. The source is changed only after the destination reports how many items it actually accepted.
+     */
+    private static boolean pushGroupedOversizedItems(ItemStackHandler source, int[] sourceSlots, IItemHandler target,
+                                                     int itemBudget, int typeBudget, long rotationSeed) {
+        Map<ItemStackKey, OversizedSourceGroup> grouped = new LinkedHashMap<>();
+        for (int sourceSlot : sourceSlots) {
+            if (sourceSlot < 0 || sourceSlot >= source.getSlots()) continue;
+            ItemStack stack = source.getStackInSlot(sourceSlot);
+            if (stack.isEmpty()) continue;
+            ItemStackKey key = new ItemStackKey(stack, true);
+            grouped.computeIfAbsent(key, ignored -> new OversizedSourceGroup(key))
+                    .add(sourceSlot, stack.getCount());
+        }
+        if (grouped.isEmpty()) return false;
+
+        List<OversizedSourceGroup> groups = new ArrayList<>(grouped.values());
+        int start = (int) Math.floorMod(rotationSeed, groups.size());
+        int remainingItemBudget = Math.max(1, itemBudget);
+        int remainingTypeBudget = Math.max(1, typeBudget);
+        boolean moved = false;
+        for (int offset = 0; offset < groups.size()
+                && remainingItemBudget > 0 && remainingTypeBudget > 0; offset++) {
+            OversizedSourceGroup group = groups.get((start + offset) % groups.size());
+            remainingTypeBudget--;
+            int offeredCount = (int) Math.min(group.totalCount, remainingItemBudget);
+            if (offeredCount <= 0) continue;
+
+            ItemStack offered = group.key.getStack(offeredCount);
+            ItemStack remainder = ItemHandlerHelper.insertItemStacked(target, offered, false);
+            int accepted = offeredCount - remainder.getCount();
+            if (accepted <= 0) continue;
+
+            consumeAcceptedItems(source, group, accepted);
+            remainingItemBudget -= accepted;
+            moved = true;
+        }
+        return moved;
+    }
+
+    private static void consumeAcceptedItems(ItemStackHandler source, OversizedSourceGroup group, int accepted) {
+        int remaining = accepted;
+        for (int sourceSlot : group.sourceSlots) {
+            if (remaining <= 0) break;
+            ItemStack current = source.getStackInSlot(sourceSlot);
+            if (current.isEmpty() || !group.key.equals(new ItemStackKey(current, true))) continue;
+            int consumed = Math.min(current.getCount(), remaining);
+            source.setStackInSlot(sourceSlot, current.copyWithCount(current.getCount() - consumed));
+            remaining -= consumed;
+        }
+        if (remaining != 0) {
+            throw new IllegalStateException("Greenhouse output changed during an atomic server-thread transfer");
+        }
+    }
+
+    private static final class OversizedSourceGroup {
+        private final ItemStackKey key;
+        private final List<Integer> sourceSlots = new ArrayList<>();
+        private long totalCount;
+
+        private OversizedSourceGroup(ItemStackKey key) {
+            this.key = key;
+        }
+
+        private void add(int sourceSlot, int count) {
+            sourceSlots.add(sourceSlot);
+            totalCount += count;
+        }
     }
 
     private static ItemStack insertIntoSlots(ItemStackHandler target, int[] targetSlots, ItemStack stack, boolean simulate) {

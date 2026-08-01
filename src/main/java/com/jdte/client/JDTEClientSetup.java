@@ -67,6 +67,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.EXTENDED_ITEM_RECEIVER.get(), DefaultExtendedItemReceiverScreen::new);
         event.register(JDTEMenus.CRYSTAL_INCUBATOR.get(), CrystalIncubatorScreen::new);
         event.register(JDTEMenus.GREENHOUSE.get(), GreenhouseScreen::new);
+        event.register(JDTEMenus.LARGE_GREENHOUSE.get(), LargeGreenhouseScreen::new);
         event.register(JDTEMenus.BIO_FACTORY.get(), BioFactoryScreen::new);
         event.register(JDTEMenus.LIFE_BREEDER.get(), LifeBreederScreen::new);
 
@@ -145,6 +146,7 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_ITEM_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.CRYSTAL_INCUBATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.GREENHOUSE.get(), com.jdte.client.renderers.GreenhouseBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.LARGE_GREENHOUSE.get(), com.jdte.client.renderers.LargeGreenhouseBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.BIO_FACTORY.get(), com.jdte.client.renderers.BioFactoryBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.LIFE_BREEDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
 

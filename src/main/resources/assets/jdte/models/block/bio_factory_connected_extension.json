@@ -1,10 +1,8 @@
 {
-  "parent": "jdte:block/greenhouse_connected_extension",
-  "textures": {
-    "frame": "justdirethings:block/blazegold_block",
-    "base_side": "minecraft:block/smooth_basalt",
-    "base_top": "minecraft:block/smooth_basalt",
-    "glass": "minecraft:block/glass",
-    "particle": "justdirethings:block/blazegold_block"
-  }
+  "parent": "jdte:block/bio_factory_connected_component",
+  "elements": [
+    { "from": [2, 14, 0], "to": [14, 15, 2], "faces": {
+      "up": { "texture": "#glass" }, "down": { "texture": "#glass" }
+    }}
+  ]
 }

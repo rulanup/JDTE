@@ -203,6 +203,10 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
         public final ModConfigSpec.IntValue greenhouseGenericFluidCost;
         public final ModConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
+        public final ModConfigSpec.LongValue greenhouseMaxPendingWork;
+        public final ModConfigSpec.IntValue greenhouseEventOutputItemBudget;
+        public final ModConfigSpec.IntValue greenhouseEventOutputTypeBudget;
+        public final ModConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
 
         // Bio Factory
         public final ModConfigSpec.IntValue bioFactoryFluidCapacity;
@@ -419,6 +423,10 @@ public class JDTEConfig {
             this.greenhouseMysticalBaseFluidCost = greenhouse.greenhouseMysticalBaseFluidCost;
             this.greenhouseGenericFluidCost = greenhouse.greenhouseGenericFluidCost;
             this.greenhouseMaxHarvestsPerSettlementV2 = greenhouse.greenhouseMaxHarvestsPerSettlementV2;
+            this.greenhouseMaxPendingWork = greenhouse.greenhouseMaxPendingWork;
+            this.greenhouseEventOutputItemBudget = greenhouse.greenhouseEventOutputItemBudget;
+            this.greenhouseEventOutputTypeBudget = greenhouse.greenhouseEventOutputTypeBudget;
+            this.greenhouseDynamicHarvestCallsPerTick = greenhouse.greenhouseDynamicHarvestCallsPerTick;
 
             this.bioFactoryFluidCapacity = bioFactory.bioFactoryFluidCapacity;
             this.bioFactoryEnergyCapacity = bioFactory.bioFactoryEnergyCapacity;

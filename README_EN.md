@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.5`
+Current version: `0.5.6`
 
 [中文 README](README.md)
 
@@ -23,7 +23,7 @@ Standard machines have four upgrade slots and extended machines have eight. Empt
 | Range | Raises area radius and offset limits | 2 |
 | Filter | Adds nine filter slots per card | 2 |
 | Creative | Removes FE cost and includes overclock behavior | 1 |
-| Fortune | Gel Generator, Crystal Incubator, and Greenhouse; adds one vanilla Fortune level per card | 8 (3 in Greenhouse) |
+| Fortune | Adds one vanilla Fortune level per card in Gel Generators and Crystal Incubators; adds 10% average output per card in both Greenhouses | 8 (3 in Greenhouse) |
 | Precision | Crystal Incubator only; harvests through vanilla Silk Touch loot logic and conflicts with Fortune | 1 |
 | Looting | Dedicated to Bio Crushers and the Loot Fabricator | 6 |
 | Sharpness | Bio Crusher only; adds five damage per card | 6 |
@@ -51,7 +51,8 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Item/Fluid Senders | Send internal items or fluid to area targets |
 | Item/Fluid Receivers | Pull items or fluid from area targets |
 | Crystal Incubator | Consumes Time Fluid and FE to accelerate conventional budding blocks at an adjustable 1-512x or 1024x when overclocked, auto-outputs mature clusters, and supports Fortune or Precision harvesting |
-| Greenhouse | Uses four stackable plant templates at a former-512-work 1x baseline up to 32x, forced to 64x by Overclock/Creative; supports crops, flowers, saplings, mod plants, native four-way connected visuals, Fortune, JEI, and direct generation into adjacent containers |
+| Greenhouse | Original horizontally connectable machine with four stackable plant templates, 1-4 pages of high-capacity internal output, Fortune, JEI, real-tick-coalesced acceleration, and bounded Auto I/O |
+| Large Greenhouse | Places as one 3×3×2 machine with its sole controller at the front-center of the bottom layer, nine stackable plant templates, and up to 64 unified output slots; all base-layer faces accept input/output |
 | Bio Factory | Uses reusable spawn eggs or Productive Bees cages, food/flowers, FE, and separate Life/Time/culture/product fluids; supports the Life Fluid Bee flowering on Life Extractors, adjustable 1-32x or 64x operation, auto I/O, eight default outputs, loaded bee JEI recipes, and all four Productivity Upgrade tiers |
 | Life Breeder | Automatically feeds and pairs standard animals or Villagers in a configured area, advances baby growth and breeding cooldowns at 1-32x, completes them with Overclock/Creative, supports spawn-egg allowlist/denylist filters and time-derived Life Fluid costs, and collects bounded batches of real drops into 4x2 outputs |
 | Factory Packer | Transactionally relocates blocks, populated block entities, non-player entities, and scheduled ticks with live-source recapture, safe Mekanism reactor and radioactive-transmitter handling, dependent multiblock teardown support, cached previews, rotation, AE2 move strategies, asynchronous I/O, rollback, and restart recovery |

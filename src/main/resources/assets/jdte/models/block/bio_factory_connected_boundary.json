@@ -1,10 +1,14 @@
 {
-  "parent": "jdte:block/greenhouse_connected_boundary",
-  "textures": {
-    "frame": "justdirethings:block/blazegold_block",
-    "base_side": "minecraft:block/smooth_basalt",
-    "base_top": "minecraft:block/smooth_basalt",
-    "glass": "minecraft:block/glass",
-    "particle": "justdirethings:block/blazegold_block"
-  }
+  "parent": "jdte:block/bio_factory_connected_component",
+  "elements": [
+    { "from": [2, 3, 0], "to": [14, 14, 1], "faces": {
+      "north": { "texture": "#glass", "cullface": "north" }, "south": { "texture": "#glass" },
+      "west": { "texture": "#glass" }, "east": { "texture": "#glass" }
+    }},
+    { "from": [2, 14, 0], "to": [14, 16, 2], "faces": {
+      "up": { "texture": "#frame" }, "down": { "texture": "#frame" },
+      "north": { "texture": "#frame", "cullface": "north" }, "south": { "texture": "#frame" },
+      "west": { "texture": "#frame" }, "east": { "texture": "#frame" }
+    }}
+  ]
 }

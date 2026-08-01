@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "jdte:block/large_greenhouse_controller" },
+    "facing=east": { "model": "jdte:block/large_greenhouse_controller", "y": 90 },
+    "facing=south": { "model": "jdte:block/large_greenhouse_controller", "y": 180 },
+    "facing=west": { "model": "jdte:block/large_greenhouse_controller", "y": 270 }
+  }
+}

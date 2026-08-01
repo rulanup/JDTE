@@ -11,6 +11,7 @@ import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.containers.GreenhouseContainer;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
+import com.jdte.client.screens.util.GreenhouseSlotCountRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -18,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
@@ -31,6 +33,15 @@ public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
     public GreenhouseScreen(GreenhouseContainer container, Inventory inventory, Component title) {
         super(container, inventory, title);
         greenhouseContainer = container;
+    }
+
+    @Override
+    protected void renderSlotContents(GuiGraphics graphics, ItemStack stack, Slot slot, String countLabel) {
+        if (greenhouseContainer.isOutputSlot(slot) && stack.getCount() > 1) {
+            GreenhouseSlotCountRenderer.render(graphics, font, stack, slot, imageWidth, countLabel);
+            return;
+        }
+        super.renderSlotContents(graphics, stack, slot, countLabel);
     }
 
     @Override

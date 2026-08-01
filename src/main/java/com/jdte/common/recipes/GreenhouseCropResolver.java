@@ -39,13 +39,16 @@ public final class GreenhouseCropResolver {
                         recipe.growthWork(), recipe.timeFluid());
             }
         }
-        if (ModList.get().isLoaded("botanypots")) {
-            GreenhouseCropDefinition botanyPots = BotanyPotsGreenhouseIntegration.find(level, seed);
-            if (botanyPots != null) return botanyPots;
-        }
+        // Prefer dedicated integrations over broad recipe providers. In particular,
+        // Botany Pots compatibility packs also register Mystical Agriculture seeds;
+        // resolving those first would bypass MA's crop registry and loot behavior.
         if (ModList.get().isLoaded("mysticalagriculture")) {
             GreenhouseCropDefinition mystical = MysticalAgricultureGreenhouseIntegration.find(seed);
             if (mystical != null) return mystical;
+        }
+        if (ModList.get().isLoaded("botanypots")) {
+            GreenhouseCropDefinition botanyPots = BotanyPotsGreenhouseIntegration.find(level, seed);
+            if (botanyPots != null) return botanyPots;
         }
         if (seed.getItem() instanceof BlockItem blockItem
                 && (blockItem.getBlock() instanceof CropBlock || blockItem.getBlock() instanceof BushBlock
