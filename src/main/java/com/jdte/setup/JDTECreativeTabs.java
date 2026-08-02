@@ -79,6 +79,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.CRYSTAL_INCUBATOR.get());
                 output.accept(JDTEItems.GREENHOUSE.get());
                 output.accept(JDTEItems.LARGE_GREENHOUSE.get());
+                output.accept(JDTEItems.LIFE_SYNTHESIS_VAT.get());
                 output.accept(JDTEItems.BIO_FACTORY.get());
                 output.accept(JDTEItems.LIFE_BREEDER.get());
 

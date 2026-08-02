@@ -30,7 +30,7 @@ GUIDE_ALIASES = {
 }
 
 # Internal structure blocks are registered for world state, not as standalone machines.
-NON_GUIDE_BLOCKS = {"large_greenhouse_part"}
+NON_GUIDE_BLOCKS = {"large_greenhouse_part", "life_synthesis_part"}
 
 TIER_PREFIXES = ("basic_", "advanced_", "extended_")
 

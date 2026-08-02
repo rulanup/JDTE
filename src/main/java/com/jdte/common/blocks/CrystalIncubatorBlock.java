@@ -18,6 +18,7 @@ public class CrystalIncubatorBlock extends BaseMachineBlock {
         super(Properties.of()
                 .sound(SoundType.METAL)
                 .strength(3.0F)
+                .noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));
     }
 

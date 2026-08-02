@@ -1,0 +1,63 @@
+---
+navigation:
+  title: Life Synthesis Vat
+  icon: "jdte:life_synthesis_vat"
+  position: 23
+item_ids:
+  - jdte:life_synthesis_vat
+---
+
+# Life Synthesis Vat
+
+<ItemImage id="jdte:life_synthesis_vat" scale="2" />
+
+The Life Synthesis Vat is a single-placement **3×3×2** machine: it grows tissue from organic culture media and a nutrient fluid, then distills it into Life Fluid. It is the late-game, mob-free Life Fluid production line.
+
+## Quick Start
+
+1. Clear a complete 3×3×2 area and place the machine.
+2. The controller with the front viewport opens the main screen: insert culture media (wheat, carrots, meat, eggs, golden apples) and supply Water and FE.
+3. When the culture progress fills up, batches are distilled automatically: direct neighbors with fluid capability get priority, the rest goes into the internal Life Fluid tank.
+4. Attach pipes to any controller face or configure Auto I/O in the screen.
+
+## Recipe Tiers
+
+| Tier | Culture media examples | Per batch | Nutrient | Time | Energy |
+|------|------------------------|-----------|----------|------|--------|
+| Plant | Wheat, beetroot, carrot, potato, melon slice, saplings, flowers, pumpkin/melon | 8 items (2 for pumpkin/melon) → 250 mB | 1000 mB Water | 200 ticks | 2000 FE |
+| Protein | Raw/cooked meat, eggs, fish, milk bucket, honey bottle | 4 items (1 for milk/honey) → 500 mB | 1000 mB Water | 400 ticks | 5000 FE |
+| Enriched | Golden apple, enchanted golden apple, nether star, wither skeleton skull, boss essences | 1 item → 1250 mB | 1000 mB Water | 800 ticks | 12000 FE |
+
+- Every batch consumes 1000 mB of Water (or the recipe's nutrient fluid).
+- While Time Fluid is available, each batch drains an extra 100 mB (configurable) and culture speed doubles.
+- Life Fluid and Life Apple items can never be used as media, preventing feedback loops.
+
+## Core Values
+
+| Property | Value |
+|----------|-------|
+| Speed | 1-32x; Overclock or Creative locks it to 64x; Time Fluid boost doubles it again |
+| Energy capacity | 20,000,000 FE (configurable) |
+| Fluid tanks | Nutrient / Time / Life, 64,000 mB each by default (configurable) |
+| Pending (undistilled) queue | Up to 262,144 mB (configurable); production stops when full |
+| Settlement | Batched every 20 ticks, up to 1,024 batches per settlement |
+
+Progress is only reset when the recipe disappears (media swapped out or nutrient type no longer matches); missing FE, water, or Time Fluid only pauses production and never loses progress.
+
+## Upgrades
+
+- Supported: Capacity, Fluid, Overclock, Creative.
+- Not supported: Range, Filter, Underclock, Precision, Fortune.
+- Creative removes FE and Time Fluid costs, but media and nutrient are still consumed.
+
+## Output Strategy
+
+Distillation fills adjacent fluid handlers on the 3×3×2 boundary in "most recently successful neighbor first" order; whatever cannot be exported goes into the internal Life Fluid tank, which pipes or Auto I/O can extract.
+
+## Placement and Removal
+
+The controller sits at the front center of the base layer; the other 17 blocks are stateless structure parts. Right-click any part to open the controller; breaking any part tears down the whole structure and drops a single Life Synthesis Vat item. Legacy 3×3×3 structures automatically remove their third layer after loading.
+
+## Crafting
+
+<RecipeFor id="jdte:life_synthesis_vat" />

@@ -101,6 +101,8 @@ public class JDTEBlockEntities {
             "greenhouse", () -> BlockEntityType.Builder.of(GreenhouseBE::new, JDTEBlocks.GREENHOUSE.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LargeGreenhouseBE>> LARGE_GREENHOUSE = BLOCK_ENTITIES.register(
             "large_greenhouse", () -> BlockEntityType.Builder.of(LargeGreenhouseBE::new, JDTEBlocks.LARGE_GREENHOUSE.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LifeSynthesisVatBE>> LIFE_SYNTHESIS_VAT = BLOCK_ENTITIES.register(
+            "life_synthesis_vat", () -> BlockEntityType.Builder.of(LifeSynthesisVatBE::new, JDTEBlocks.LIFE_SYNTHESIS_VAT.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BioFactoryBE>> BIO_FACTORY = BLOCK_ENTITIES.register(
             "bio_factory", () -> BlockEntityType.Builder.of(BioFactoryBE::new, JDTEBlocks.BIO_FACTORY.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LifeBreederBE>> LIFE_BREEDER = BLOCK_ENTITIES.register(

@@ -13,7 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class EntitySuppressorBlock extends BaseMachineBlock {
     public EntitySuppressorBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(2.5f).isRedstoneConductor(BaseMachineBlock::never));
+        super(Properties.of().sound(SoundType.METAL).strength(2.5f).noOcclusion()
+                .isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new EntitySuppressorBE(pos, state); }

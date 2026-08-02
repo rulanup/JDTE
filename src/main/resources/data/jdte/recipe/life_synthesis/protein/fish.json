@@ -1,0 +1,14 @@
+{
+  "type": "jdte:life_synthesis",
+  "tier": "protein",
+  "inputs": [
+    { "ingredient": [
+      { "item": "minecraft:cod" }, { "item": "minecraft:cooked_cod" },
+      { "item": "minecraft:salmon" }, { "item": "minecraft:cooked_salmon" }
+    ], "count": 4 }
+  ],
+  "fluid_inputs": [ { "id": "minecraft:water", "amount": 1000 } ],
+  "output": { "id": "jdte:life_fluid_source", "amount": 500 },
+  "process_ticks": 400,
+  "energy": 5000
+}

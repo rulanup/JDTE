@@ -18,9 +18,11 @@ import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.blockentities.LifeExtractorBE;
+import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blocks.LargeGreenhousePartBlock;
+import com.jdte.common.blocks.LifeSynthesisPartBlock;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.Direction;
@@ -89,6 +91,20 @@ public final class MachineCapabilities {
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getAutomationItemHandler() : null;
 
+    /** 生命合成舱结构部件：转发到其控制器方块实体。 */
+    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> LIFE_SYNTHESIS_PART_ENERGY =
+            (level, pos, state, be, side) -> state.getBlock() instanceof LifeSynthesisPartBlock part
+                    && part.getController(level, pos, state) != null
+                    ? part.getController(level, pos, state).getEnergyStorage() : null;
+    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LIFE_SYNTHESIS_PART_FLUID =
+            (level, pos, state, be, side) -> state.getBlock() instanceof LifeSynthesisPartBlock part
+                    && part.getController(level, pos, state) != null
+                    ? part.getController(level, pos, state).getCombinedFluidHandler() : null;
+    private static final IBlockCapabilityProvider<IItemHandler, Direction> LIFE_SYNTHESIS_PART_ITEMS =
+            (level, pos, state, be, side) -> state.getBlock() instanceof LifeSynthesisPartBlock part
+                    && part.getController(level, pos, state) != null
+                    ? part.getController(level, pos, state).getAutomationItemHandler() : null;
+
     // 机器特有的 provider（仅当能力不满足上述通用模式时使用）
 
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> GEL_GENERATOR_FLUID =
@@ -127,6 +143,10 @@ public final class MachineCapabilities {
             (level, pos, state, be, side) -> be instanceof BioFactoryBE factory ? factory.getCombinedFluidHandler() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> BIO_FACTORY_ITEMS =
             (level, pos, state, be, side) -> be instanceof BioFactoryBE factory ? factory.getAutomationItemHandler() : null;
+    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LIFE_SYNTHESIS_FLUID =
+            (level, pos, state, be, side) -> be instanceof LifeSynthesisVatBE vat ? vat.getCombinedFluidHandler() : null;
+    private static final IBlockCapabilityProvider<IItemHandler, Direction> LIFE_SYNTHESIS_ITEMS =
+            (level, pos, state, be, side) -> be instanceof LifeSynthesisVatBE vat ? vat.getAutomationItemHandler() : null;
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> LIFE_BREEDER_FLUID =
             (level, pos, state, be, side) -> be instanceof LifeBreederBE breeder ? breeder.getFluidTank() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> LIFE_BREEDER_ITEMS =
@@ -209,6 +229,9 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.LARGE_GREENHOUSE, energy(POWERED_ENERGY), fluid(LARGE_GREENHOUSE_FLUID), items(LARGE_GREENHOUSE_ITEMS)),
             machine(JDTEBlocks.LARGE_GREENHOUSE_PART, energy(LARGE_GREENHOUSE_PART_ENERGY),
                     fluid(LARGE_GREENHOUSE_PART_FLUID), items(LARGE_GREENHOUSE_PART_ITEMS)),
+            machine(JDTEBlocks.LIFE_SYNTHESIS_VAT, energy(POWERED_ENERGY), fluid(LIFE_SYNTHESIS_FLUID), items(LIFE_SYNTHESIS_ITEMS)),
+            machine(JDTEBlocks.LIFE_SYNTHESIS_PART, energy(LIFE_SYNTHESIS_PART_ENERGY),
+                    fluid(LIFE_SYNTHESIS_PART_FLUID), items(LIFE_SYNTHESIS_PART_ITEMS)),
             machine(JDTEBlocks.BIO_FACTORY, energy(POWERED_ENERGY), fluid(BIO_FACTORY_FLUID), items(BIO_FACTORY_ITEMS)),
             machine(JDTEBlocks.LIFE_BREEDER, energy(POWERED_ENERGY), fluid(LIFE_BREEDER_FLUID), items(LIFE_BREEDER_ITEMS)),
             machine(JDTEBlocks.LOOT_FABRICATOR, energy(POWERED_ENERGY), fluid(LOOT_FABRICATOR_FLUID), items(LOOT_FABRICATOR_ITEMS)),

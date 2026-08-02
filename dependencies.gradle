@@ -87,7 +87,8 @@ dependencies {
     localRuntime "curse.maven:cucumber-272335:8035802"
     localRuntime "curse.maven:super-factory-manager-306935:8370241"
     localRuntime "curse.maven:botany-pots-353928:8243851"
-    implementation "curse.maven:botany-pots-mystical-agriculture-compat-1329409:8177218"
+    compileOnly "curse.maven:botany-pots-mystical-agriculture-compat-1329409:8177218"
+    localRuntime "curse.maven:botany-pots-mystical-agriculture-compat-1329409:8177218"
 
     // Integration / utility mods
     localRuntime "curse.maven:polymorph-388800:${polymorph_file}"

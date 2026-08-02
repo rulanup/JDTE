@@ -23,6 +23,7 @@ import com.jdte.common.utils.BioCrusherDropCapture;
 import com.jdte.common.utils.MobLootSpawnEggHelper;
 import com.jdte.common.player.LifeAppleProgression;
 import com.jdte.common.recipes.GreenhouseCropResolver;
+import com.jdte.common.recipes.RecipeCacheSignal;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -97,6 +98,7 @@ public class JDTE {
 
     private void syncSpawnEggRecipes(OnDatapackSyncEvent event) {
         GreenhouseCropResolver.invalidateCaches();
+        RecipeCacheSignal.invalidate();
         MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
         SpawnEggRecipeSyncPayload payload = new SpawnEggRecipeSyncPayload(
                 MobLootSpawnEggHelper.getRecipeIds(event.getPlayerList().getServer().getResourceManager()));

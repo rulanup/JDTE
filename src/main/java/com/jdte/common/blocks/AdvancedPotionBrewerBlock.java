@@ -23,6 +23,7 @@ public class AdvancedPotionBrewerBlock extends BaseMachineBlock {
         super(Properties.of()
                 .sound(SoundType.METAL)
                 .strength(2.5f)
+                .noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never)
         );
     }

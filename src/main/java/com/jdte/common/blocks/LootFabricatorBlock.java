@@ -20,7 +20,8 @@ import javax.annotation.Nullable;
 
 public class LootFabricatorBlock extends BaseMachineBlock {
     public LootFabricatorBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(3.0F).isRedstoneConductor(BaseMachineBlock::never));
+        super(Properties.of().sound(SoundType.METAL).strength(3.0F).noOcclusion()
+                .isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Override

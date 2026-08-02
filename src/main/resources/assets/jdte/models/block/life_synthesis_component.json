@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "frame": "jdte:block/life_synthesis_frame",
+    "glass": "jdte:block/life_synthesis_glass",
+    "particle": "jdte:block/life_synthesis_frame"
+  }
+}

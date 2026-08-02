@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "jdte:block/life_synthesis_vat", "x": 180 },
+    "facing=up": { "model": "jdte:block/life_synthesis_vat" },
+    "facing=north": { "model": "jdte:block/life_synthesis_vat" },
+    "facing=east": { "model": "jdte:block/life_synthesis_vat", "y": 90 },
+    "facing=south": { "model": "jdte:block/life_synthesis_vat", "y": 180 },
+    "facing=west": { "model": "jdte:block/life_synthesis_vat", "y": 270 }
+  }
+}

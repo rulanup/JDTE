@@ -20,7 +20,8 @@ import javax.annotation.Nullable;
 
 public class LifeBreederBlock extends BaseMachineBlock {
     public LifeBreederBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(4.0F).requiresCorrectToolForDrops());
+        super(Properties.of().sound(SoundType.METAL).strength(4.0F).requiresCorrectToolForDrops()
+                .noOcclusion());
     }
 
     @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,

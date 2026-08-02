@@ -27,6 +27,8 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, GreenhouseBlock> GREENHOUSE = BLOCKS.register("greenhouse", GreenhouseBlock::new);
     public static final DeferredHolder<Block, LargeGreenhouseBlock> LARGE_GREENHOUSE = BLOCKS.register("large_greenhouse", LargeGreenhouseBlock::new);
     public static final DeferredHolder<Block, LargeGreenhousePartBlock> LARGE_GREENHOUSE_PART = BLOCKS.register("large_greenhouse_part", LargeGreenhousePartBlock::new);
+    public static final DeferredHolder<Block, LifeSynthesisVatBlock> LIFE_SYNTHESIS_VAT = BLOCKS.register("life_synthesis_vat", LifeSynthesisVatBlock::new);
+    public static final DeferredHolder<Block, LifeSynthesisPartBlock> LIFE_SYNTHESIS_PART = BLOCKS.register("life_synthesis_part", LifeSynthesisPartBlock::new);
     public static final DeferredHolder<Block, BioFactoryBlock> BIO_FACTORY = BLOCKS.register("bio_factory", BioFactoryBlock::new);
     public static final DeferredHolder<Block, LifeBreederBlock> LIFE_BREEDER = BLOCKS.register("life_breeder", LifeBreederBlock::new);
     public static final DeferredHolder<Block, FactoryPackerBlock> FACTORY_PACKER = BLOCKS.register("factory_packer", FactoryPackerBlock::new);

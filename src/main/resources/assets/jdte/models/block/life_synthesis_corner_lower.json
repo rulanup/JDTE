@@ -1,0 +1,24 @@
+{
+  "parent": "jdte:block/life_synthesis_component",
+  "elements": [
+    { "from": [0, 3, 0], "to": [3, 16, 3], "faces": {
+      "north": { "texture": "#frame" }, "south": { "texture": "#frame" },
+      "up": { "texture": "#frame" }, "down": { "texture": "#frame" },
+      "west": { "texture": "#frame" }, "east": { "texture": "#frame" }
+    }},
+    { "from": [3, 3, 0], "to": [16, 5, 3], "faces": {
+      "north": { "texture": "#frame" }, "south": { "texture": "#frame" },
+      "up": { "texture": "#frame" }, "east": { "texture": "#frame" }
+    }},
+    { "from": [0, 3, 3], "to": [3, 5, 16], "faces": {
+      "west": { "texture": "#frame" }, "east": { "texture": "#frame" },
+      "up": { "texture": "#frame" }, "south": { "texture": "#frame" }
+    }},
+    { "from": [3, 5, 1], "to": [16, 16, 2], "faces": {
+      "north": { "texture": "#glass", "shade": false }, "south": { "texture": "#glass", "shade": false }
+    }},
+    { "from": [1, 5, 3], "to": [2, 16, 16], "faces": {
+      "west": { "texture": "#glass", "shade": false }, "east": { "texture": "#glass", "shade": false }
+    }}
+  ]
+}

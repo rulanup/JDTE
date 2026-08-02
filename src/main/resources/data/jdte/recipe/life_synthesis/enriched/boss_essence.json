@@ -1,0 +1,13 @@
+{
+  "type": "jdte:life_synthesis",
+  "tier": "enriched",
+  "inputs": [ { "ingredient": [
+    { "item": "jdte:wither_essence" },
+    { "item": "jdte:ender_dragon_essence" },
+    { "item": "jdte:elder_guardian_essence" }
+  ], "count": 1 } ],
+  "fluid_inputs": [ { "id": "minecraft:water", "amount": 1000 } ],
+  "output": { "id": "jdte:life_fluid_source", "amount": 1250 },
+  "process_ticks": 800,
+  "energy": 12000
+}

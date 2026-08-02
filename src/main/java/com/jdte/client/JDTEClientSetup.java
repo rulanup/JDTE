@@ -2,20 +2,34 @@ package com.jdte.client;
 
 import com.jdte.JDTE;
 import com.jdte.client.entityrenders.TimeAcceleratorEffectRenderer;
+import com.jdte.client.renderers.AdvancedItemCollectorBER;
 import com.jdte.client.renderers.TimeAcceleratorBER;
 import com.jdte.client.screens.*;
+import com.jdte.common.items.FactoryPackageItem;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEEntities;
+import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEMenus;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 
 @EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class JDTEClientSetup {
+    @SubscribeEvent
+    public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ItemProperties.register(
+                JDTEItems.FACTORY_PACKAGE.get(),
+                ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),
+                (stack, level, entity, seed) -> FactoryPackageItem.isFilled(stack) ? 1.0F : 0.0F));
+    }
+
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         // Time Accelerators
@@ -70,6 +84,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.LARGE_GREENHOUSE.get(), LargeGreenhouseScreen::new);
         event.register(JDTEMenus.BIO_FACTORY.get(), BioFactoryScreen::new);
         event.register(JDTEMenus.LIFE_BREEDER.get(), LifeBreederScreen::new);
+        event.register(JDTEMenus.LIFE_SYNTHESIS_VAT.get(), LifeSynthesisScreen::new);
 
         // Fluid Receivers
         event.register(JDTEMenus.BASIC_FLUID_RECEIVER.get(), BasicFluidReceiverScreen::new);
@@ -115,7 +130,7 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_SENSOR.get(), com.direwolf20.justdirethings.client.blockentityrenders.SensorT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_COLLECTOR.get(), com.direwolf20.justdirethings.client.blockentityrenders.FluidCollectorT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_PLACER.get(), com.direwolf20.justdirethings.client.blockentityrenders.FluidPlacerT2BER::new);
-        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ITEM_COLLECTOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ITEM_COLLECTOR.get(), AdvancedItemCollectorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ENTITY_SUPPRESSOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.RANGE_BLOCKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.FACTORY_PACKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
@@ -149,6 +164,7 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.LARGE_GREENHOUSE.get(), com.jdte.client.renderers.LargeGreenhouseBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.BIO_FACTORY.get(), com.jdte.client.renderers.BioFactoryBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.LIFE_BREEDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.LIFE_SYNTHESIS_VAT.get(), com.jdte.client.renderers.LifeSynthesisVatBER::new);
 
         // Fluid Receivers - 使用AreaAffectingBER渲染区域
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_FLUID_RECEIVER.get(), com.jdte.client.renderers.AreaAffectingBER::new);

@@ -1,29 +1,29 @@
 {
   "variants": {
     "facing=down": {
-      "model": "justdirethings:block/itemcollector"
+      "model": "jdte:block/advanced_item_collector"
     },
     "facing=east": {
-      "model": "justdirethings:block/itemcollector",
+      "model": "jdte:block/advanced_item_collector",
       "x": -90,
       "y": 90
     },
     "facing=north": {
-      "model": "justdirethings:block/itemcollector",
+      "model": "jdte:block/advanced_item_collector",
       "x": -90
     },
     "facing=south": {
-      "model": "justdirethings:block/itemcollector",
+      "model": "jdte:block/advanced_item_collector",
       "x": -90,
       "y": 180
     },
     "facing=west": {
-      "model": "justdirethings:block/itemcollector",
+      "model": "jdte:block/advanced_item_collector",
       "x": -90,
       "y": 270
     },
     "facing=up": {
-      "model": "justdirethings:block/itemcollector",
+      "model": "jdte:block/advanced_item_collector",
       "x": -180,
       "y": 180,
       "z": 180

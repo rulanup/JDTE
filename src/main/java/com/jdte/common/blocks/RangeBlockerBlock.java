@@ -13,7 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class RangeBlockerBlock extends BaseMachineBlock {
     public RangeBlockerBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(2.5F).isRedstoneConductor(BaseMachineBlock::never));
+        super(Properties.of().sound(SoundType.METAL).strength(2.5F).noOcclusion()
+                .isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new RangeBlockerBE(pos, state); }

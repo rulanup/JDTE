@@ -17,6 +17,7 @@ public class FactoryPackerBlock extends BaseMachineBlock {
     public FactoryPackerBlock() {
         super(Properties.of().sound(SoundType.METAL).strength(3.5F)
                 .explosionResistance(3_600_000.0F)
+                .noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));
     }
 

@@ -12,6 +12,7 @@ import com.jdte.setup.config.GeneratorUpgradeConfig;
 import com.jdte.setup.config.GreenhouseConfig;
 import com.jdte.setup.config.LifeBreederConfig;
 import com.jdte.setup.config.LifeExtractorConfig;
+import com.jdte.setup.config.LifeSynthesisVatConfig;
 import com.jdte.setup.config.LootFabricatorConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
@@ -45,6 +46,7 @@ public class JDTEConfig {
         public final AdvancedPotionBrewerConfig advancedPotionBrewer;
         public final CrystalIncubatorConfig crystalIncubator;
         public final GreenhouseConfig greenhouse;
+        public final LifeSynthesisVatConfig lifeSynthesisVat;
         public final BioFactoryConfig bioFactory;
         public final LifeBreederConfig lifeBreeder;
         public final GelGeneratorConfig gelGenerator;
@@ -276,6 +278,7 @@ public class JDTEConfig {
             advancedPotionBrewer = new AdvancedPotionBrewerConfig(builder);
             crystalIncubator = new CrystalIncubatorConfig(builder);
             greenhouse = new GreenhouseConfig(builder);
+            lifeSynthesisVat = new LifeSynthesisVatConfig(builder);
             bioFactory = new BioFactoryConfig(builder);
             lifeBreeder = new LifeBreederConfig(builder);
             gelGenerator = new GelGeneratorConfig(builder);

@@ -1,0 +1,10 @@
+{
+  "parent": "jdte:block/life_synthesis_component",
+  "elements": [
+    { "from": [0, 0, 0], "to": [16, 3, 16], "faces": {
+      "down": { "texture": "#frame", "cullface": "down" }, "up": { "texture": "#frame" },
+      "north": { "texture": "#frame" }, "south": { "texture": "#frame" },
+      "west": { "texture": "#frame" }, "east": { "texture": "#frame" }
+    }}
+  ]
+}

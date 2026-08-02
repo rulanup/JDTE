@@ -22,7 +22,9 @@ import com.jdte.common.blockentities.ItemReceiverBE;
 import com.jdte.common.blockentities.ItemSenderBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blocks.LargeGreenhouseStructure;
+import com.jdte.common.blocks.LifeSynthesisStructure;
 import com.jdte.common.blockentities.LifeExtractorBE;
+import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
@@ -274,14 +276,21 @@ public final class AutoIoTransferHelper {
     }
 
     private static List<BlockPos> externalNeighbors(ServerLevel level, BaseMachineBE machine, Direction side) {
-        if (!(machine instanceof LargeGreenhouseBE greenhouse)) {
-            return List.of(machine.getBlockPos().relative(side));
+        if (machine instanceof LargeGreenhouseBE greenhouse) {
+            return greenhouse.getBoundaryNeighbors().stream()
+                    .filter(neighbor -> neighbor.exposedSide() == side)
+                    .map(LargeGreenhouseStructure.BoundaryNeighbor::pos)
+                    .distinct()
+                    .toList();
         }
-        return greenhouse.getBoundaryNeighbors().stream()
-                .filter(neighbor -> neighbor.exposedSide() == side)
-                .map(LargeGreenhouseStructure.BoundaryNeighbor::pos)
-                .distinct()
-                .toList();
+        if (machine instanceof LifeSynthesisVatBE vat) {
+            return vat.getBoundaryNeighbors().stream()
+                    .filter(neighbor -> neighbor.exposedSide() == side)
+                    .map(LifeSynthesisStructure.BoundaryNeighbor::pos)
+                    .distinct()
+                    .toList();
+        }
+        return List.of(machine.getBlockPos().relative(side));
     }
 
     private static IoRoutes getRoutes(BaseMachineBE machine) {
@@ -350,6 +359,11 @@ public final class AutoIoTransferHelper {
             itemOutputs = boundedSlots(handler, range(com.jdte.common.blockentities.LargeGreenhouseBE.OUTPUT_START_SLOT,
                     greenhouse.getActiveOutputSlots()));
             fluidInput = greenhouse.getFluidTank();
+        } else if (machine instanceof LifeSynthesisVatBE vat) {
+            // 合成舱：培养基输入 12 槽；流体输入走组合罐（养分/时间），生命流体输出走生命罐
+            itemInputs = boundedSlots(handler, range(0, LifeSynthesisVatBE.INPUT_SLOTS));
+            fluidInput = vat.getCombinedFluidHandler();
+            fluidOutput = vat.getLifeFluidTank();
         } else if (machine instanceof com.jdte.common.blockentities.BioFactoryBE factory) {
             itemInputs = boundedSlots(handler, com.jdte.common.blockentities.BioFactoryBE.SPECIMEN_SLOT,
                     com.jdte.common.blockentities.BioFactoryBE.FOOD_SLOT,

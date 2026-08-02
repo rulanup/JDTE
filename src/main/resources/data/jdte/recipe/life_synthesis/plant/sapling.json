@@ -1,0 +1,9 @@
+{
+  "type": "jdte:life_synthesis",
+  "tier": "plant",
+  "inputs": [ { "ingredient": { "tag": "minecraft:saplings" }, "count": 8 } ],
+  "fluid_inputs": [ { "id": "minecraft:water", "amount": 1000 } ],
+  "output": { "id": "jdte:life_fluid_source", "amount": 250 },
+  "process_ticks": 200,
+  "energy": 2000
+}
