@@ -19,6 +19,7 @@ Thumbs.db
 # AI tools
 .opencode/
 .claude/
+.qoder/
 .node_modules/
 CLAUDE.md
 bin/
