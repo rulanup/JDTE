@@ -21,6 +21,7 @@ Major features:
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
 - Advanced Item Collector with eight upgrade slots, event-driven pre-spawn collection, bounded existing-drop scans, and capacity-triggered direct ME insertion without item-flow particles.
+- Advanced Energy Transmitter with eight upgrade slots, configurable 3D FE distribution, batched target discovery, a persistent capability cache, bounded round-robin demand planning, overclock-scaled transfer budgets, public-API Applied Flux ME energy extraction without storage scans, Jade status reporting, and UUID-bound cross-dimensional charging for vanilla and Curios-equipped player items.
 - Entity Suppressor with entity-tick suppression, entity spawn/join blocking, entity and block entity rendering suppression, client particle suppression, and six entity target modes.
 - Range Blocker with six-target event-driven containment, projectile boundary protection, player-magnet suppression, and public-event positional sound suppression.
 - Crystal Incubator with generic budding-block discovery, Time Fluid growth acceleration, Fortune harvesting, and batched area caching.
@@ -236,6 +237,7 @@ JDTE machine families (Item/Fluid Sender and Receiver, Fluid Stabilizer, Glue Ac
 | Item Receiver | Basic, Advanced, Extended | `ItemReceiverBE` | Pulls items from configured targets |
 | Fluid Receiver | Basic, Advanced, Extended | `FluidReceiverBE` | Pulls fluid from configured targets |
 | Advanced Item Collector | Single eight-slot tier | `AdvancedItemCollectorBE` | Intercepts item entities before world insertion and sends them to its facing inventory |
+| Advanced Energy Transmitter | Single eight-slot tier | `AdvancedEnergyTransmitterBE` | Discovers FE receivers in bounded scan batches, serves the persistent target cache through fair bounded round-robin delivery, and independently fast-charges UUID-bound online player equipment through vanilla and optional Curios APIs |
 | Entity Suppressor | Single eight-slot tier | `EntitySuppressorBE` | Suppresses entity ticks or client rendering, blocks entity creation, or disables particles in a filtered area |
 | Range Blocker | Single eight-slot tier | `RangeBlockerBE` | Contains six selectable entity categories, prevents player magnets, or suppresses positional sounds in a configured area |
 | Crystal Incubator | Single eight-slot tier | `CrystalIncubatorBE` | Accelerates tagged budding blocks with Time Fluid and FE, then Fortune- or Precision-harvests mature neighboring clusters |
@@ -501,6 +503,7 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Loot Fabricator | `jdte.lootFabricator` | Processing costs, Boss multipliers, Looting copies, and compatibility loot |
 | Sender/Receiver | `jdte.senderReceiver` | Storage, transfer rates, delays, and energy |
 | Advanced Item Collector | `jdte.advancedItemCollector` | Pre-break oversized-container protection, capacity-triggered AE2 ME transfer, and bounded existing-drop scan interval/limit |
+| Advanced Energy Transmitter | `jdte.advancedEnergyTransmitter` | FE capacity, transmit delay, cache refresh and scan budgets, attempted targets, per-target throughput, loop exclusion, and particle defaults/budget |
 | Entity Suppressor | `jdte.entitySuppressor` | Energy use, named/tamed/Boss protection, and optional removal of existing blocked entities |
 | Range Blocker | `jdte.rangeBlocker` | Three mode energy costs, six containment targets, sound suppression, entity safety, projectile/explosion boundaries, and optional Mekanism compatibility |
 | Crystal Incubator | `jdte.crystalIncubator` | FE/Time Fluid capacity and cost, 512x/1024x rates, cache scanning, bounded growth/harvest batches, and Dyna growth attempts |

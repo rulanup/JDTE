@@ -113,6 +113,9 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BIO_CRUSHER = ITEMS.register("extended_bio_crusher", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_CRUSHER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> LOOT_FABRICATOR = ITEMS.register("loot_fabricator", () -> new BlockItem(JDTEBlocks.LOOT_FABRICATOR.get(), new Item.Properties()));
 
+    // Advanced Energy Transmitter
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_ENERGY_TRANSMITTER = ITEMS.register("advanced_energy_transmitter", () -> new BlockItem(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get(), new Item.Properties()));
+
     // Boss Essences
     public static final DeferredHolder<Item, BossEssenceItem> WITHER_ESSENCE = ITEMS.register("wither_essence", BossEssenceItem::new);
     public static final DeferredHolder<Item, BossEssenceItem> ENDER_DRAGON_ESSENCE = ITEMS.register("ender_dragon_essence", BossEssenceItem::new);

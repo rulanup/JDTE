@@ -6,7 +6,7 @@ import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachin
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.client.AutoIoConfigClientCache;
-import com.jdte.client.AutoIoConfigScreenBridge;
+import com.jdte.client.MachineScreenAreaProvider;
 import com.jdte.client.UpgradePopupDragHandler;
 import com.jdte.client.screens.util.AutoIoConfigPanelHelper;
 import com.jdte.client.screens.util.FilterPageWidgetHelper;
@@ -50,12 +50,13 @@ import java.util.Collections;
 import java.util.List;
 
 @Mixin(BaseMachineScreen.class)
-public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixin implements UpgradePopupDragHandler, AutoIoConfigScreenBridge {
+public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixin implements UpgradePopupDragHandler, MachineScreenAreaProvider {
     @Shadow protected BaseMachineContainer container;
     @Shadow protected BaseMachineBE baseMachineBE;
     @Shadow protected int topSectionLeft;
     @Shadow protected int topSectionTop;
     @Shadow protected int topSectionHeight;
+    @Shadow protected int topSectionWidth;
     @Shadow protected int extraWidth;
     @Shadow protected int extraHeight;
     @Shadow protected ResourceLocation SOCIALBACKGROUND;
@@ -180,7 +181,16 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     }
 
     @Override
-    public List<Rect2i> jdte$getAutoIoConfigExtraAreas() {
+    public List<Rect2i> jdte$getMachineScreenAreas() {
+        List<Rect2i> areas = new ArrayList<>();
+        areas.add(new Rect2i(topSectionLeft, topSectionTop - 20, topSectionWidth, topSectionHeight + 20));
+        areas.addAll(UpgradeSlotLayoutHelper.getPanelAreas(jdte$getUpgradeSlots(), getGuiLeft(), getGuiTop()));
+        areas.addAll(jdte$getAutoIoConfigExtraAreas());
+        return List.copyOf(areas);
+    }
+
+    @Unique
+    private List<Rect2i> jdte$getAutoIoConfigExtraAreas() {
         if (!jdte$hasIoConfigTarget()) {
             return Collections.emptyList();
         }

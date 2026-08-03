@@ -1,6 +1,7 @@
 package com.jdte.setup;
 
 import com.jdte.setup.config.AdvancedItemCollectorConfig;
+import com.jdte.setup.config.AdvancedEnergyTransmitterConfig;
 import com.jdte.setup.config.AdvancedPotionBrewerConfig;
 import com.jdte.setup.config.BioCrusherConfig;
 import com.jdte.setup.config.BioFactoryConfig;
@@ -52,6 +53,7 @@ public class JDTEConfig {
         public final GelGeneratorConfig gelGenerator;
         public final GeneratorUpgradeConfig generatorUpgrade;
         public final UpgradeItemsConfig upgradeItems;
+        public final AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
 
         // Upgrade System
         public final ModConfigSpec.IntValue filterSlotsPerUpgrade;
@@ -262,6 +264,22 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue sharpnessDamagePerUpgrade;
         public final ModConfigSpec.IntValue maxLootingUpgrades;
 
+        // Advanced Energy Transmitter
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterEnergyCapacity;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterBaseTickDelay;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterTargetRefreshInterval;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterScanBlocksPerTick;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterMaxTargetsPerTick;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterMaxTransferPerTarget;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterTransferBudgetPerTick;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterOverclockTransferMultiplier;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterMeExtractionLimitPerTick;
+        public final ModConfigSpec.BooleanValue advancedEnergyTransmitterExcludeTransmitters;
+        public final ModConfigSpec.BooleanValue advancedEnergyTransmitterShowParticlesByDefault;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterMaxParticleTargetsPerTick;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterPlayerChargeMaxItemsPerTick;
+        public final ModConfigSpec.IntValue advancedEnergyTransmitterPlayerChargeMaxCallsPerItem;
+
         public Common(ModConfigSpec.Builder builder) {
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
 
@@ -284,6 +302,7 @@ public class JDTEConfig {
             gelGenerator = new GelGeneratorConfig(builder);
             generatorUpgrade = new GeneratorUpgradeConfig(builder);
             upgradeItems = new UpgradeItemsConfig(builder);
+            advancedEnergyTransmitter = new AdvancedEnergyTransmitterConfig(builder);
 
             builder.pop();
 
@@ -477,6 +496,21 @@ public class JDTEConfig {
             this.maxSharpnessUpgrades = upgradeItems.maxSharpnessUpgrades;
             this.sharpnessDamagePerUpgrade = upgradeItems.sharpnessDamagePerUpgrade;
             this.maxLootingUpgrades = upgradeItems.maxLootingUpgrades;
+
+            this.advancedEnergyTransmitterEnergyCapacity = advancedEnergyTransmitter.energyCapacity;
+            this.advancedEnergyTransmitterBaseTickDelay = advancedEnergyTransmitter.baseTickDelay;
+            this.advancedEnergyTransmitterTargetRefreshInterval = advancedEnergyTransmitter.targetRefreshInterval;
+            this.advancedEnergyTransmitterScanBlocksPerTick = advancedEnergyTransmitter.scanBlocksPerTick;
+            this.advancedEnergyTransmitterMaxTargetsPerTick = advancedEnergyTransmitter.maxTargetsPerTick;
+            this.advancedEnergyTransmitterMaxTransferPerTarget = advancedEnergyTransmitter.maxTransferPerTarget;
+            this.advancedEnergyTransmitterTransferBudgetPerTick = advancedEnergyTransmitter.transferBudgetPerTick;
+            this.advancedEnergyTransmitterOverclockTransferMultiplier = advancedEnergyTransmitter.overclockTransferMultiplier;
+            this.advancedEnergyTransmitterMeExtractionLimitPerTick = advancedEnergyTransmitter.meExtractionLimitPerTick;
+            this.advancedEnergyTransmitterExcludeTransmitters = advancedEnergyTransmitter.excludeTransmitters;
+            this.advancedEnergyTransmitterShowParticlesByDefault = advancedEnergyTransmitter.showParticlesByDefault;
+            this.advancedEnergyTransmitterMaxParticleTargetsPerTick = advancedEnergyTransmitter.maxParticleTargetsPerTick;
+            this.advancedEnergyTransmitterPlayerChargeMaxItemsPerTick = advancedEnergyTransmitter.playerChargeMaxItemsPerTick;
+            this.advancedEnergyTransmitterPlayerChargeMaxCallsPerItem = advancedEnergyTransmitter.playerChargeMaxCallsPerItem;
         }
     }
 }

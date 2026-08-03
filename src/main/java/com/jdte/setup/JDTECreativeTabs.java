@@ -104,6 +104,9 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_BIO_CRUSHER.get());
                 output.accept(JDTEItems.LOOT_FABRICATOR.get());
 
+                // Advanced Energy Transmitter
+                output.accept(JDTEItems.ADVANCED_ENERGY_TRANSMITTER.get());
+
                 // Boss Essences
                 output.accept(JDTEItems.WITHER_ESSENCE.get());
                 output.accept(JDTEItems.WITHER_SPAWN_EGG.get());

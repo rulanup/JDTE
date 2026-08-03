@@ -131,4 +131,8 @@ public class JDTEMenus {
             "extended_bio_crusher", () -> IMenuTypeExtension.create(ExtendedBioCrusherContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<LootFabricatorContainer>> LOOT_FABRICATOR = MENUS.register(
             "loot_fabricator", () -> IMenuTypeExtension.create(LootFabricatorContainer::new));
+
+    // Advanced Energy Transmitter
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedEnergyTransmitterContainer>> ADVANCED_ENERGY_TRANSMITTER = MENUS.register(
+            "advanced_energy_transmitter", () -> IMenuTypeExtension.create(AdvancedEnergyTransmitterContainer::new));
 }

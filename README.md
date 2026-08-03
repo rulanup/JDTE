@@ -43,6 +43,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 | 机器 | 功能 |
 |---|---|
 | 高级物品拾取器 | 在掉落物进入世界前写入朝向一侧的容器；支持超大堆叠预转移、AE2 `ME_STORAGE` 和 ExtendedAE 接口 |
+| 高级能量传输器 | 在可配置三维范围内向所有可接收 FE 的方块公平供能；固定预算批量规划缺口，超频提高吞吐但不增加扫描，安装 AE2 与应用通量后可直接连接 ME 线缆并按需使用能源磁盘 FE；可绑定在线玩家，跨维度优先直充快捷栏、主副手、护甲和 Curios 饰品中的 FE 装备 |
 | 实体抑制器 | 抑制实体更新、禁止实体生成、禁用实体渲染、禁用方块实体渲染或禁用粒子 |
 | 范围屏蔽器 | 围困范围内生物，或阻止玩家磁铁吸取范围内掉落物 |
 | 粘胶激活器 | 自动执行 JDT 粘胶相关操作 |
@@ -81,7 +82,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 
 ### 兼容与信息显示
 
-- Jade 显示机器已安装升级的图标、名称和合并数量。
+- Jade 显示机器已安装升级的图标、名称和合并数量，并为高级能量传输器显示 ME 网络、绑定玩家及在线直充状态。
 - JEI 提供凝胶发生器、灌注机、高级炼药机和战利品制造机分类。
 - 可选兼容 FTB Ultimine、AE2/ExtendedAE、Mekanism、Apothic Spawners、Draconic Evolution 和 Productive Bees；后者增加不可自繁殖的生命流体蜜蜂、生命提取器授粉和每蜜脾 250 mB 的离心产液链。
 

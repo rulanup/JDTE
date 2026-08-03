@@ -131,4 +131,8 @@ public class JDTEBlockEntities {
             "extended_bio_crusher", () -> BlockEntityType.Builder.of(ExtendedBioCrusherBE::new, JDTEBlocks.EXTENDED_BIO_CRUSHER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LootFabricatorBE>> LOOT_FABRICATOR = BLOCK_ENTITIES.register(
             "loot_fabricator", () -> BlockEntityType.Builder.of(LootFabricatorBE::new, JDTEBlocks.LOOT_FABRICATOR.get()).build(null));
+
+    // Advanced Energy Transmitter
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedEnergyTransmitterBE>> ADVANCED_ENERGY_TRANSMITTER = BLOCK_ENTITIES.register(
+            "advanced_energy_transmitter", () -> BlockEntityType.Builder.of(AdvancedEnergyTransmitterBE::new, JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get()).build(null));
 }

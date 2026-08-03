@@ -2,6 +2,7 @@ package com.jdte.client;
 
 import com.jdte.JDTE;
 import com.jdte.client.entityrenders.TimeAcceleratorEffectRenderer;
+import com.jdte.client.renderers.AdvancedEnergyTransmitterBER;
 import com.jdte.client.renderers.AdvancedItemCollectorBER;
 import com.jdte.client.renderers.TimeAcceleratorBER;
 import com.jdte.client.screens.*;
@@ -106,6 +107,9 @@ public class JDTEClientSetup {
 
         // Potion Brewer
         event.register(JDTEMenus.ADVANCED_POTION_BREWER.get(), AdvancedPotionBrewerScreen::new);
+
+        // Advanced Energy Transmitter
+        event.register(JDTEMenus.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterScreen::new);
     }
 
     @SubscribeEvent
@@ -178,5 +182,8 @@ public class JDTEClientSetup {
         // Bio Crusher - 使用AreaAffectingBER渲染区域
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_BIO_CRUSHER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BIO_CRUSHER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+
+        // Advanced Energy Transmitter
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterBER::new);
     }
 }

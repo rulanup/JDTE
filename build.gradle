@@ -107,6 +107,13 @@ repositories {
         url = "https://maven.createmod.net"
     }
     maven {
+        name = "LDLib2"
+        url = "https://maven.firstdarkdev.xyz/snapshots"
+        content {
+            includeGroup "com.lowdragmc.ldlib2"
+        }
+    }
+    maven {
         name = "ModMaven"
         url = "https://modmaven.dev"
     }

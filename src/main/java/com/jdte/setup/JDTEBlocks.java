@@ -82,4 +82,7 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, AdvancedBioCrusherBlock> ADVANCED_BIO_CRUSHER = BLOCKS.register("advanced_bio_crusher", AdvancedBioCrusherBlock::new);
     public static final DeferredHolder<Block, ExtendedBioCrusherBlock> EXTENDED_BIO_CRUSHER = BLOCKS.register("extended_bio_crusher", ExtendedBioCrusherBlock::new);
     public static final DeferredHolder<Block, LootFabricatorBlock> LOOT_FABRICATOR = BLOCKS.register("loot_fabricator", LootFabricatorBlock::new);
+
+    // Advanced Energy Transmitter
+    public static final DeferredHolder<Block, AdvancedEnergyTransmitterBlock> ADVANCED_ENERGY_TRANSMITTER = BLOCKS.register("advanced_energy_transmitter", AdvancedEnergyTransmitterBlock::new);
 }

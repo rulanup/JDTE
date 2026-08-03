@@ -25,7 +25,10 @@ dependencies {
 
     // Major mods
     compileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
-    compileOnly "com.simibubi.create:create-${minecraft_version}:${create_version}"
+    compileOnly "curse.maven:applied-flux-965012:${applied_flux_file}"
+    compileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}") {
+        exclude group: "com.tterrag.registrate", module: "Registrate"
+    }
     compileOnly "mekanism:Mekanism:${mekanism_version}"
     compileOnly "mekanism:Mekanism:${mekanism_version}:generators"
     compileOnly "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
@@ -74,6 +77,7 @@ dependencies {
 
     // Major mods - full runtime
     localRuntime("com.simibubi.create:create-${minecraft_version}:${create_version}") {
+        exclude group: "com.tterrag.registrate", module: "Registrate"
         exclude group: "maven.modrinth", module: "journeymap"
         exclude group: "info.journeymap", module: "journeymap-api-neoforge"
     }
@@ -127,6 +131,8 @@ dependencies {
     localRuntime "curse.maven:ae2-crystal-science-1435174:8112039"
     localRuntime "curse.maven:ae2-lightning-tech-1527395:8422767"
     localRuntime "curse.maven:data-energistics-1565514:8429524"
+    localRuntime "curse.maven:neo-eco-ae-extension-1460639:8463264"
+    localRuntime "com.lowdragmc.ldlib2:ldlib2-neoforge-${minecraft_version}:2.2.8:all"
 
     // ========================================
     // Client-only runtime mods

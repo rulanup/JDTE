@@ -18,6 +18,7 @@ import com.jdte.common.blockentities.GreenhouseOutputManager;
 import com.jdte.common.blockentities.RangeBlockerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
+import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySources;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.utils.BioCrusherDropCapture;
 import com.jdte.common.utils.MobLootSpawnEggHelper;
@@ -115,6 +116,7 @@ public class JDTE {
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         MachineCapabilities.register(event);
+        AdvancedEnergyTransmitterEnergySources.registerCapabilities(event);
     }
 
     public static ResourceLocation id(String path) {

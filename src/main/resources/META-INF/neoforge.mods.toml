@@ -31,6 +31,20 @@ description='''${mod_description}'''
     side="BOTH"
 
 [[dependencies.${mod_id}]]
+    modId="ae2"
+    type="optional"
+    versionRange="[19.2.17,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="appflux"
+    type="optional"
+    versionRange="[1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
     modId="productivebees"
     type="optional"
     versionRange="[1.21.1-13.13.5,)"

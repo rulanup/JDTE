@@ -11,6 +11,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.jdte.common.blockentities.AdvancedItemCollectorBE;
+import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
@@ -90,6 +91,11 @@ public class UpgradeHelper {
         if (machine instanceof FactoryPackerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+        }
+        if (machine instanceof AdvancedEnergyTransmitterBE) {
+            return type == UpgradeType.RANGE || type == UpgradeType.FILTER
+                    || type == UpgradeType.CAPACITY || type == UpgradeType.OVERCLOCK
+                    || type == UpgradeType.CREATIVE;
         }
         return switch (type) {
             case FLUID_STORAGE -> machine instanceof ClickerT1BE;

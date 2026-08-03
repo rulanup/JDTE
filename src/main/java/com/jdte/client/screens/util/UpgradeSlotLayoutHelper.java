@@ -16,6 +16,7 @@ import com.jdte.mixin.SlotAccessor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
@@ -175,6 +176,25 @@ public final class UpgradeSlotLayoutHelper {
             int sy = guiTop + originY + i * config.getSlotSpacing();
             guiGraphics.blitSprite(SLOT_SPRITE, sx, sy, config.getSlotSize(), config.getSlotSize());
         }
+    }
+
+    public static List<Rect2i> getPanelAreas(int totalSlots, int guiLeft, int guiTop) {
+        if (totalSlots <= 0) {
+            return List.of();
+        }
+        var config = GuiUpgradeLayoutConfig.getInstance();
+        List<Rect2i> areas = new ArrayList<>(2);
+        areas.add(getPanelArea(config, guiLeft, guiTop, config.getFirstSlotX(), config.getFirstSlotY()));
+        if (totalSlots > 4) {
+            areas.add(getPanelArea(config, guiLeft, guiTop, config.getLeftFirstSlotX(), config.getLeftFirstSlotY()));
+        }
+        return List.copyOf(areas);
+    }
+
+    private static Rect2i getPanelArea(GuiUpgradeLayoutConfig config, int guiLeft, int guiTop, int originX, int originY) {
+        int panelX = guiLeft + originX - (PANEL_WIDTH - config.getSlotSize()) / 2;
+        int panelY = guiTop + originY - (PANEL_HEIGHT - config.getRows() * config.getSlotSize()) / 2;
+        return new Rect2i(panelX, panelY, PANEL_WIDTH, PANEL_HEIGHT);
     }
 
     public static List<FormattedText> buildEmptyUpgradeSlotTooltip(BaseMachineBE baseMachineBE) {

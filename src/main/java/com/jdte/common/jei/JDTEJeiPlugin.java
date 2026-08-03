@@ -1,7 +1,7 @@
 package com.jdte.common.jei;
 
 import com.jdte.JDTE;
-import com.jdte.client.jei.AutoIoConfigJeiGuiHandler;
+import com.jdte.client.jei.MachineScreenJeiGuiHandler;
 import com.jdte.common.jei.gelgenerator.GelGeneratorJeiRecipe;
 import com.jdte.common.jei.gelgenerator.GelGeneratorRecipeCategory;
 import com.jdte.common.jei.infusion.InfusionJeiRecipe;
@@ -105,7 +105,7 @@ public class JDTEJeiPlugin implements IModPlugin {
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
-        registration.addGenericGuiContainerHandler(BaseMachineScreen.class, new AutoIoConfigJeiGuiHandler());
+        registration.addGenericGuiContainerHandler(BaseMachineScreen.class, new MachineScreenJeiGuiHandler());
         registration.addRecipeClickArea(GreenhouseScreen.class, 36, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(LargeGreenhouseScreen.class, 64, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(BioFactoryScreen.class, 35, 6, 32, 12, BioFactoryRecipeCategory.RECIPE_TYPE);

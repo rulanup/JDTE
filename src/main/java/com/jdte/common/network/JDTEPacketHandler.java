@@ -1,6 +1,8 @@
 package com.jdte.common.network;
 
 import com.jdte.JDTE;
+import com.jdte.common.network.data.AdvancedEnergyTransmitterPayload;
+import com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload;
 import com.jdte.common.network.data.AutoIoConfigPayload;
 import com.jdte.common.network.data.AutoIoConfigSyncPayload;
 import com.jdte.common.network.data.BioCrusherPayload;
@@ -26,6 +28,8 @@ import com.jdte.common.network.data.FactoryPackagePreviewRequestPayload;
 import com.jdte.common.network.data.FactoryPackagePreviewChunkPayload;
 import com.jdte.common.network.data.LifeBreederModePayload;
 import com.jdte.common.network.data.LifeSynthesisRunningPayload;
+import com.jdte.common.network.handler.AdvancedEnergyTransmitterPacket;
+import com.jdte.common.network.handler.AdvancedEnergyTransmitterBindingPacket;
 import com.jdte.common.network.handler.EntitySuppressorPacket;
 import com.jdte.common.network.handler.EntitySuppressorSyncPacket;
 import com.jdte.common.network.handler.RangeBlockerPacket;
@@ -55,6 +59,11 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class JDTEPacketHandler {
     public static void registerNetworking(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(JDTE.MODID);
+        registrar.playToServer(AdvancedEnergyTransmitterPayload.TYPE, AdvancedEnergyTransmitterPayload.STREAM_CODEC,
+                AdvancedEnergyTransmitterPacket::handle);
+        registrar.playToServer(AdvancedEnergyTransmitterBindingPayload.TYPE,
+                AdvancedEnergyTransmitterBindingPayload.STREAM_CODEC,
+                AdvancedEnergyTransmitterBindingPacket::handle);
         registrar.playToServer(TimeAcceleratorPayload.TYPE, TimeAcceleratorPayload.STREAM_CODEC, TimeAcceleratorPacket.get()::handle);
         registrar.playToServer(GelGeneratorPayload.TYPE, GelGeneratorPayload.STREAM_CODEC, GelGeneratorPacket.get()::handle);
         registrar.playToServer(LifeExtractorPayload.TYPE, LifeExtractorPayload.STREAM_CODEC, LifeExtractorPacket.get()::handle);

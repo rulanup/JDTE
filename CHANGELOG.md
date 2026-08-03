@@ -2,7 +2,14 @@
 
 ### English
 
-#### v0.5.6 (Current)
+#### v0.5.7 (Current)
+
+- **New**: Added the Advanced Energy Transmitter with eight upgrade slots, configurable 3D FE delivery, filtering, player binding, and JDT-style rendering and controls.
+- **Performance**: Added bounded incremental target scans, persistent capability caching, fair round-robin demand batching, and overclock-scaled throughput without additional scans or target attempts.
+- **Compatibility**: Added public-API Applied Flux ME energy extraction, cross-dimensional charging for bound players' vanilla and Curios equipment, and Jade network/player status.
+- **GUI**: JEI and EMI now avoid JDTE machine extension panels, and Advanced Energy Transmitter status text is smaller and repositioned.
+
+#### v0.5.6
 
 - **New**: Added the 3×3×2 Life Synthesis Vat with plant, protein, and enriched recipe tiers for producing Life Fluid.
 - **New**: Added the 3×3×2 Large Greenhouse, which operates nine times faster than the Greenhouse.
@@ -151,7 +158,14 @@
 
 ### 中文
 
-#### v0.5.6(当前)
+#### v0.5.7(当前)
+
+- **新增**：加入高级能量传输器，提供 8 个升级槽，支持可配置三维 FE 输送、过滤、玩家绑定及 JDT 风格的渲染和操作。
+- **性能**：采用有界增量目标扫描、能力缓存、公平轮询和批量需求处理；超频仅提高传输预算，不增加扫描或目标尝试次数。
+- **兼容**：加入可选的 Applied Flux ME 网络取电、绑定玩家跨维度原版与 Curios 装备充电，以及 Jade 网络和玩家状态显示。
+- **GUI**：JEI 和 EMI 现在会避让 JDTE 机器扩展面板，并缩小和调整高级能量传输器状态文字。
+
+#### v0.5.6
 
 - **新增**：加入 3×3×2 生命合成舱，提供植物、蛋白和富集三档配方，用于生产生命流体。
 - **新增**: 加入 3×3×2 大型温室大棚, 相较于温室大棚 9 倍工作速率。

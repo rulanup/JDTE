@@ -5,6 +5,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.setup.Registration;
+import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.BioFactoryBE;
@@ -27,6 +28,7 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
@@ -64,6 +66,12 @@ public final class MachineCapabilities {
     /** 所有实现 {@code PoweredMachineBE} 的机器的能量存储。 */
     private static final IBlockCapabilityProvider<IEnergyStorage, Direction> POWERED_ENERGY =
             (level, pos, state, be, side) -> be instanceof PoweredMachineBE powered ? powered.getEnergyStorage() : null;
+
+    /** 与 JDT 原版传输器一致，只允许朝向面上的相邻设备向传输器输入 FE。 */
+    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> TRANSMITTER_INPUT_ENERGY =
+            (level, pos, state, be, side) -> be instanceof AdvancedEnergyTransmitterBE transmitter
+                    && side != null && side == state.getValue(BlockStateProperties.FACING)
+                    ? transmitter.getEnergyStorage() : null;
 
     /** 标准机器物品槽（机器自身的机器 handler）。 */
     private static final IBlockCapabilityProvider<IItemHandler, Direction> MACHINE_ITEMS =
@@ -235,7 +243,10 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.BIO_FACTORY, energy(POWERED_ENERGY), fluid(BIO_FACTORY_FLUID), items(BIO_FACTORY_ITEMS)),
             machine(JDTEBlocks.LIFE_BREEDER, energy(POWERED_ENERGY), fluid(LIFE_BREEDER_FLUID), items(LIFE_BREEDER_ITEMS)),
             machine(JDTEBlocks.LOOT_FABRICATOR, energy(POWERED_ENERGY), fluid(LOOT_FABRICATOR_FLUID), items(LOOT_FABRICATOR_ITEMS)),
-            machine(JDTEBlocks.ADVANCED_POTION_BREWER, energy(POWERED_ENERGY), fluid(POTION_BREWER_FLUID), items(POTION_BREWER_ITEMS))
+            machine(JDTEBlocks.ADVANCED_POTION_BREWER, energy(POWERED_ENERGY), fluid(POTION_BREWER_FLUID), items(POTION_BREWER_ITEMS)),
+
+            // --- Advanced Energy Transmitter ---
+            machine(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER, energy(TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS))
     );
 
     /** 跨越 jdte 自身机器表的注册（如 Clicker 流体同时作用于 JDT 的 Clicker T1/T2）。 */

@@ -4,6 +4,9 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.jdte.JDTE;
 import com.jdte.common.blockentities.BioCrusherBE;
+import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
+import com.jdte.common.blocks.AdvancedEnergyTransmitterBlock;
+import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySource;
 import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -30,17 +33,78 @@ import java.util.List;
 @WailaPlugin(JDTE.MODID)
 public class JDTEJadePlugin implements IWailaPlugin {
     private static final ResourceLocation UID = JDTE.id("installed_upgrades");
+    private static final ResourceLocation TRANSMITTER_STATUS_UID = JDTE.id("advanced_energy_transmitter_status");
     private static final String TAG_UPGRADES = "jdte_upgrades";
+    private static final String TAG_ME_STATUS = "jdte_me_status";
+    private static final String TAG_PLAYER_BOUND = "jdte_player_bound";
+    private static final String TAG_PLAYER_ONLINE = "jdte_player_online";
+    private static final String TAG_PLAYER_NAME = "jdte_player_name";
     private static final UpgradeProvider UPGRADE_PROVIDER = new UpgradeProvider();
+    private static final TransmitterStatusProvider TRANSMITTER_STATUS_PROVIDER =
+            new TransmitterStatusProvider();
 
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, BaseMachineBE.class);
+        registration.registerBlockDataProvider(
+                TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBE.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(UPGRADE_PROVIDER, BaseMachineBlock.class);
+        registration.registerBlockComponent(
+                TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBlock.class);
+    }
+
+    private static class TransmitterStatusProvider
+            implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
+        @Override
+        public void appendServerData(CompoundTag data, BlockAccessor accessor) {
+            if (!(accessor.getBlockEntity() instanceof AdvancedEnergyTransmitterBE transmitter)) {
+                return;
+            }
+            data.putInt(TAG_ME_STATUS, transmitter.getEnergyNetworkStatus().ordinal());
+            data.putBoolean(TAG_PLAYER_BOUND, transmitter.hasBoundPlayer());
+            data.putBoolean(TAG_PLAYER_ONLINE, transmitter.isBoundPlayerOnline());
+            data.putString(TAG_PLAYER_NAME, transmitter.getBoundPlayerName());
+        }
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            CompoundTag data = accessor.getServerData();
+            AdvancedEnergyTransmitterEnergySource.Status[] statuses =
+                    AdvancedEnergyTransmitterEnergySource.Status.values();
+            int ordinal = Math.floorMod(data.getInt(TAG_ME_STATUS), statuses.length);
+            AdvancedEnergyTransmitterEnergySource.Status status = statuses[ordinal];
+            String meKey = switch (status) {
+                case ONLINE -> "jdte.screen.energy_transmitter.me_online_direct";
+                case OFFLINE -> "jdte.screen.energy_transmitter.me_offline";
+                case UNAVAILABLE -> "jdte.screen.energy_transmitter.me_unavailable";
+            };
+            ChatFormatting meColor = status == AdvancedEnergyTransmitterEnergySource.Status.ONLINE
+                    ? ChatFormatting.GREEN
+                    : status == AdvancedEnergyTransmitterEnergySource.Status.OFFLINE
+                    ? ChatFormatting.RED : ChatFormatting.GRAY;
+            tooltip.add(Component.translatable(meKey).withStyle(meColor));
+
+            if (!data.getBoolean(TAG_PLAYER_BOUND)) {
+                tooltip.add(Component.translatable("jdte.screen.energy_transmitter.player_unbound")
+                        .withStyle(ChatFormatting.GRAY));
+                return;
+            }
+            boolean online = data.getBoolean(TAG_PLAYER_ONLINE);
+            tooltip.add(Component.translatable(online
+                            ? "jdte.screen.energy_transmitter.player_online"
+                            : "jdte.screen.energy_transmitter.player_offline",
+                    data.getString(TAG_PLAYER_NAME)).withStyle(
+                    online ? ChatFormatting.GREEN : ChatFormatting.RED));
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return TRANSMITTER_STATUS_UID;
+        }
     }
 
     private static class UpgradeProvider implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {

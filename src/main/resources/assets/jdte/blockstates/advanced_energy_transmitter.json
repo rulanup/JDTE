@@ -1,0 +1,37 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "jdte:block/advanced_energy_transmitter"
+    },
+    "facing=east": {
+      "model": "jdte:block/advanced_energy_transmitter",
+      "x": -90,
+      "y": 90,
+      "z": 0
+    },
+    "facing=north": {
+      "model": "jdte:block/advanced_energy_transmitter",
+      "x": -90,
+      "y": 0,
+      "z": 0
+    },
+    "facing=south": {
+      "model": "jdte:block/advanced_energy_transmitter",
+      "x": -90,
+      "y": 180,
+      "z": 0
+    },
+    "facing=west": {
+      "model": "jdte:block/advanced_energy_transmitter",
+      "x": -90,
+      "y": 270,
+      "z": 0
+    },
+    "facing=up": {
+      "model": "jdte:block/advanced_energy_transmitter",
+      "x": -180,
+      "y": 180,
+      "z": 180
+    }
+  }
+}
