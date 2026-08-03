@@ -18,6 +18,8 @@ import com.jdte.common.network.data.WrenchAreaAdjustResultPayload;
 import com.jdte.common.network.data.WrenchAreaSelectionPayload;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
+import com.jdte.common.network.data.MineralExtractorOutputPagePayload;
+import com.jdte.common.network.data.MineralSurveyOpenPayload;
 import com.jdte.common.network.data.EntitySuppressorPayload;
 import com.jdte.common.network.data.EntitySuppressorSyncPayload;
 import com.jdte.common.network.data.RangeBlockerPayload;
@@ -53,6 +55,8 @@ import com.jdte.common.network.handler.WrenchAreaAdjustResultPacket;
 import com.jdte.common.network.handler.WrenchAreaSelectionPacket;
 import com.jdte.common.network.handler.SpawnEggRecipeSyncPacket;
 import com.jdte.common.network.handler.LootFabricatorLootSyncPacket;
+import com.jdte.common.network.handler.MineralExtractorOutputPagePacket;
+import com.jdte.common.network.handler.MineralSurveyOpenPacket;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -79,6 +83,10 @@ public class JDTEPacketHandler {
         registrar.playToServer(WrenchAreaSelectionPayload.TYPE, WrenchAreaSelectionPayload.STREAM_CODEC, WrenchAreaSelectionPacket.get()::handleServer);
         registrar.playToClient(SpawnEggRecipeSyncPayload.TYPE, SpawnEggRecipeSyncPayload.STREAM_CODEC, SpawnEggRecipeSyncPacket::handle);
         registrar.playToClient(LootFabricatorLootSyncPayload.TYPE, LootFabricatorLootSyncPayload.STREAM_CODEC, LootFabricatorLootSyncPacket::handle);
+        registrar.playToServer(MineralExtractorOutputPagePayload.TYPE,
+                MineralExtractorOutputPagePayload.STREAM_CODEC, MineralExtractorOutputPagePacket::handle);
+        registrar.playToClient(MineralSurveyOpenPayload.TYPE, MineralSurveyOpenPayload.STREAM_CODEC,
+                MineralSurveyOpenPacket::handle);
         registrar.playToServer(EntitySuppressorPayload.TYPE, EntitySuppressorPayload.STREAM_CODEC, EntitySuppressorPacket::handle);
         registrar.playToClient(EntitySuppressorSyncPayload.TYPE, EntitySuppressorSyncPayload.STREAM_CODEC, EntitySuppressorSyncPacket::handle);
         registrar.playToServer(RangeBlockerPayload.TYPE, RangeBlockerPayload.STREAM_CODEC, RangeBlockerPacket::handle);

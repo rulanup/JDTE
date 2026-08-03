@@ -85,6 +85,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.LARGE_GREENHOUSE.get(), LargeGreenhouseScreen::new);
         event.register(JDTEMenus.BIO_FACTORY.get(), BioFactoryScreen::new);
         event.register(JDTEMenus.LIFE_BREEDER.get(), LifeBreederScreen::new);
+        event.register(JDTEMenus.MINERAL_EXTRACTOR.get(), MineralExtractorScreen::new);
         event.register(JDTEMenus.LIFE_SYNTHESIS_VAT.get(), LifeSynthesisScreen::new);
 
         // Fluid Receivers

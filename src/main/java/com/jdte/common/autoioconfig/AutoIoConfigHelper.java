@@ -19,7 +19,8 @@ import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.blockentities.ItemReceiverBE;
 import com.jdte.common.blockentities.ItemSenderBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
-import com.jdte.common.blockentities.GreenhouseOutputManager;
+import com.jdte.common.blockentities.MachineOutputManager;
+import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.setup.JDTEAttachments;
 
 public final class AutoIoConfigHelper {
@@ -44,7 +45,7 @@ public final class AutoIoConfigHelper {
                 || machine instanceof AdvancedPotionBrewerBE) {
             return true;
         }
-        if (machine instanceof LootFabricatorBE) {
+        if (machine instanceof LootFabricatorBE || machine instanceof MineralExtractorBE) {
             return true;
         }
         return machine instanceof ClickerT1BE
@@ -80,7 +81,7 @@ public final class AutoIoConfigHelper {
         int supportedInputMask = supportsInput(machine) ? inputMask : AutoIoConfigData.DEFAULT_SIDE_MASK;
         int supportedOutputMask = supportsOutput(machine) ? outputMask : AutoIoConfigData.DEFAULT_SIDE_MASK;
         machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).setMasks(supportedInputMask, supportedOutputMask);
-        GreenhouseOutputManager.wake(machine);
+        MachineOutputManager.wake(machine);
         machine.markDirtyClient();
     }
 

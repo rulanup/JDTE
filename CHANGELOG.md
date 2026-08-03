@@ -4,6 +4,9 @@
 
 #### v0.5.7 (Current)
 
+- **New**: Added Mineral Surveys and the Mineral Extractor with reload-cached biome ore profiles, normalized estimated weights, datapack overrides, Experience/Time Fluid, filtering, paged outputs, auto I/O, and coalesced 1024x production.
+- **Architecture**: Standard ore placement is analyzed through public codecs without reflection; machine ticks only query the server index, and custom features can be declared through `jdte/mineral_sources` datapack entries.
+- **Safety**: Production simulates complete output batches before charging resources, while stale surveys stop until recorded again.
 - **New**: Added the Advanced Energy Transmitter with eight upgrade slots, configurable 3D FE delivery, filtering, player binding, and JDT-style rendering and controls.
 - **Performance**: Added bounded incremental target scans, persistent capability caching, fair round-robin demand batching, and overclock-scaled throughput without additional scans or target attempts.
 - **Compatibility**: Added public-API Applied Flux ME energy extraction, cross-dimensional charging for bound players' vanilla and Curios equipment, and Jade network/player status.
@@ -160,6 +163,9 @@
 
 #### v0.5.7(当前)
 
+- **新增**：加入矿物清单与矿物提取机。群系矿物配置在数据包重载时缓存，支持归一化估算权重、数据包覆盖、经验/时间双流体、过滤、分页输出、自动 I/O 和合并式 1024x 生产。
+- **架构**：标准矿石放置仅通过公开 Codec 分析，不使用反射；机器 Tick 只查询服务器索引，自定义 Feature 可通过 `jdte/mineral_sources` 数据包条目声明。
+- **安全**：生产前模拟完整输出批次，成功后才扣除资源；过期清单会停机，重新记录后方可继续。
 - **新增**：加入高级能量传输器，提供 8 个升级槽，支持可配置三维 FE 输送、过滤、玩家绑定及 JDT 风格的渲染和操作。
 - **性能**：采用有界增量目标扫描、能力缓存、公平轮询和批量需求处理；超频仅提高传输预算，不增加扫描或目标尝试次数。
 - **兼容**：加入可选的 Applied Flux ME 网络取电、绑定玩家跨维度原版与 Curios 装备充电，以及 Jade 网络和玩家状态显示。

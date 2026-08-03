@@ -26,6 +26,7 @@ import com.jdte.common.blocks.LifeSynthesisStructure;
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
+import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
@@ -102,8 +103,9 @@ public final class AutoIoTransferHelper {
         }
         int inputMask = data.getInputMask();
         int outputMask = data.getOutputMask();
-        boolean eventDrivenGreenhouse = machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
-        int periodicOutputMask = eventDrivenGreenhouse ? 0 : outputMask;
+        boolean eventDrivenOutput = machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE
+                || machine instanceof MineralExtractorBE;
+        int periodicOutputMask = eventDrivenOutput ? 0 : outputMask;
         if (inputMask == 0 && periodicOutputMask == 0) {
             data.resetTransferState();
             return;
@@ -140,7 +142,7 @@ public final class AutoIoTransferHelper {
         data.setTransferCooldown(nextBackoff);
     }
 
-    public static EventOutputResult flushEventDrivenGreenhouseOutput(BaseMachineBE machine, int[] sourceSlots) {
+    public static EventOutputResult flushEventDrivenOutput(BaseMachineBE machine, int[] sourceSlots) {
         if (!(machine.getLevel() instanceof ServerLevel level) || sourceSlots.length == 0) {
             return new EventOutputResult(false, false);
         }
@@ -177,7 +179,7 @@ public final class AutoIoTransferHelper {
         return new EventOutputResult(moved, true);
     }
 
-    public static void forgetEventDrivenGreenhouse(BaseMachineBE machine) {
+    public static void forgetEventDrivenOutput(BaseMachineBE machine) {
         EVENT_OUTPUT_ENDPOINTS.remove(machine);
     }
 
@@ -333,6 +335,10 @@ public final class AutoIoTransferHelper {
             itemInputs = boundedSlots(handler, range(0, LootFabricatorBE.INPUT_SLOTS));
             itemOutputs = boundedSlots(handler, range(LootFabricatorBE.INPUT_SLOTS, fabricator.getActiveOutputSlots()));
             fluidInput = fabricator.getFluidHandler();
+        } else if (machine instanceof MineralExtractorBE extractor) {
+            itemInputs = boundedSlots(handler, MineralExtractorBE.SURVEY_SLOT);
+            itemOutputs = boundedSlots(handler, range(MineralExtractorBE.OUTPUT_START_SLOT, extractor.getActiveOutputSlots()));
+            fluidInput = extractor.getCombinedFluidHandler();
         } else if (machine instanceof GlueActivatorBE) {
             itemInputs = boundedSlots(handler, GlueActivatorBE.REVIVE_SLOT);
         } else if (machine instanceof FluidStabilizerBE) {

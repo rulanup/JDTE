@@ -21,6 +21,7 @@ import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
+import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blocks.LargeGreenhousePartBlock;
 import com.jdte.common.blocks.LifeSynthesisPartBlock;
@@ -135,6 +136,10 @@ public final class MachineCapabilities {
             (level, pos, state, be, side) -> be instanceof LootFabricatorBE fabricator ? fabricator.getFluidHandler() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> LOOT_FABRICATOR_ITEMS =
             (level, pos, state, be, side) -> be instanceof LootFabricatorBE fabricator ? fabricator.getAutomationItemHandler() : null;
+    private static final IBlockCapabilityProvider<IFluidHandler, Direction> MINERAL_EXTRACTOR_FLUID =
+            (level, pos, state, be, side) -> be instanceof MineralExtractorBE extractor ? extractor.getCombinedFluidHandler() : null;
+    private static final IBlockCapabilityProvider<IItemHandler, Direction> MINERAL_EXTRACTOR_ITEMS =
+            (level, pos, state, be, side) -> be instanceof MineralExtractorBE extractor ? extractor.getAutomationItemHandler() : null;
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> POTION_BREWER_FLUID =
             (level, pos, state, be, side) -> be instanceof AdvancedPotionBrewerBE brewer ? brewer.getFluidHandler() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> POTION_BREWER_ITEMS =
@@ -243,6 +248,7 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.BIO_FACTORY, energy(POWERED_ENERGY), fluid(BIO_FACTORY_FLUID), items(BIO_FACTORY_ITEMS)),
             machine(JDTEBlocks.LIFE_BREEDER, energy(POWERED_ENERGY), fluid(LIFE_BREEDER_FLUID), items(LIFE_BREEDER_ITEMS)),
             machine(JDTEBlocks.LOOT_FABRICATOR, energy(POWERED_ENERGY), fluid(LOOT_FABRICATOR_FLUID), items(LOOT_FABRICATOR_ITEMS)),
+            machine(JDTEBlocks.MINERAL_EXTRACTOR, energy(POWERED_ENERGY), fluid(MINERAL_EXTRACTOR_FLUID), items(MINERAL_EXTRACTOR_ITEMS)),
             machine(JDTEBlocks.ADVANCED_POTION_BREWER, energy(POWERED_ENERGY), fluid(POTION_BREWER_FLUID), items(POTION_BREWER_ITEMS)),
 
             // --- Advanced Energy Transmitter ---

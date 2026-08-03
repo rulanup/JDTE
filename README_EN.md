@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.6`
+Current version: `0.5.7`
 
 [中文 README](README.md)
 
@@ -63,6 +63,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Infusion Machine | Processes gel, item, and dynamic spawn-egg infusion recipes; with Productive Bees, one Egg, 64 B of Life Fluid, and 1,000,000 FE create a Life Fluid Bee |
 | Advanced Potion Brewer | Ordered six-step brewing with recipe locking, water and Time Fluid, auto I/O, a separate external Blaze Powder input toggle, and JEI brewing chains |
 | Loot Fabricator | Uses spawn egg templates, Life Fluid, Time Fluid, and FE to manufacture mob loot |
+| Mineral Extractor | Produces ore blocks in weighted batches from its local biome or a Mineral Survey; supports Experience/Time Fluid, filtering, paged outputs, auto I/O, and 1024x overclocking |
 
 ### Automatic I/O
 

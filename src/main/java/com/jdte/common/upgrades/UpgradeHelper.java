@@ -20,6 +20,7 @@ import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
+import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
@@ -63,6 +64,11 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if (machine instanceof MineralExtractorBE) {
+            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.FILTER
+                    || type == UpgradeType.CREATIVE;
+        }
         if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
@@ -229,7 +235,7 @@ public class UpgradeHelper {
     public static boolean usesLockedDelay(BaseMachineBE machine) {
         return !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof BioFactoryBE) && !(machine instanceof LifeBreederBE)
-                && !(machine instanceof LifeSynthesisVatBE);
+                && !(machine instanceof LifeSynthesisVatBE) && !(machine instanceof MineralExtractorBE);
     }
 
     public static boolean hasOverclock(BaseMachineBE machine) {

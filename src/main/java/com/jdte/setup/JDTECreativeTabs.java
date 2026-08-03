@@ -28,6 +28,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
                 output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
                 output.accept(JDTEItems.FACTORY_PACKAGE.get());
+                output.accept(JDTEItems.MINERAL_SURVEY.get());
 
                 // Time Accelerators
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());
@@ -82,6 +83,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.LIFE_SYNTHESIS_VAT.get());
                 output.accept(JDTEItems.BIO_FACTORY.get());
                 output.accept(JDTEItems.LIFE_BREEDER.get());
+                output.accept(JDTEItems.MINERAL_EXTRACTOR.get());
 
                 // Fluid Receivers
                 output.accept(JDTEItems.BASIC_FLUID_RECEIVER.get());

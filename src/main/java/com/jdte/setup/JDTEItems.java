@@ -7,6 +7,7 @@ import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.FactoryPackageItem;
 import com.jdte.common.items.LifeAppleItem;
 import com.jdte.common.items.LootingUpgradeItem;
+import com.jdte.common.items.MineralSurveyItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.upgrades.UpgradeType;
@@ -37,6 +38,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, EclipseAlloyWrenchItem> ECLIPSEALLOY_WRENCH = ITEMS.register("eclipsealloy_wrench", EclipseAlloyWrenchItem::new);
     public static final DeferredHolder<Item, Item> TIME_FLUID_CATALYST = ITEMS.register("time_fluid_catalyst", () -> new Item(new Item.Properties()));
     public static final DeferredHolder<Item, FactoryPackageItem> FACTORY_PACKAGE = ITEMS.register("factory_package", FactoryPackageItem::new);
+    public static final DeferredHolder<Item, MineralSurveyItem> MINERAL_SURVEY = ITEMS.register("mineral_survey", MineralSurveyItem::new);
 
     public static final DeferredHolder<Item, BlockItem> BASIC_TIME_ACCELERATOR = ITEMS.register("basic_time_accelerator", () -> new BlockItem(JDTEBlocks.BASIC_TIME_ACCELERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ADVANCED_TIME_ACCELERATOR = ITEMS.register("advanced_time_accelerator", () -> new BlockItem(JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(), new Item.Properties()));
@@ -61,6 +63,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> BIO_FACTORY = ITEMS.register("bio_factory", () -> new BlockItem(JDTEBlocks.BIO_FACTORY.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> LIFE_BREEDER = ITEMS.register("life_breeder", () -> new BlockItem(JDTEBlocks.LIFE_BREEDER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> FACTORY_PACKER = ITEMS.register("factory_packer", () -> new BlockItem(JDTEBlocks.FACTORY_PACKER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> MINERAL_EXTRACTOR = ITEMS.register("mineral_extractor", () -> new BlockItem(JDTEBlocks.MINERAL_EXTRACTOR.get(), new Item.Properties()));
 
     // Glue Activator
     public static final DeferredHolder<Item, BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));

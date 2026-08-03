@@ -16,12 +16,12 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Coalesces greenhouse output changes into one adjacent-inventory flush per real server tick. */
-public final class GreenhouseOutputManager {
+/** Coalesces machine output changes into one adjacent-inventory flush per real server tick. */
+public final class MachineOutputManager {
     private static final Map<ServerLevel, IdentityHashMap<BaseMachineBE, PendingOutput>> LEVELS =
             new IdentityHashMap<>();
 
-    private GreenhouseOutputManager() {
+    private MachineOutputManager() {
     }
 
     public static void submit(BaseMachineBE machine, int absoluteSlot) {
@@ -32,18 +32,9 @@ public final class GreenhouseOutputManager {
     }
 
     public static void wake(BaseMachineBE machine) {
-        int start;
-        int count;
-        if (machine instanceof GreenhouseBE greenhouse) {
-            start = GreenhouseBE.OUTPUT_START_SLOT;
-            count = greenhouse.getActiveOutputSlots();
-        } else if (machine instanceof LargeGreenhouseBE greenhouse) {
-            start = LargeGreenhouseBE.OUTPUT_START_SLOT;
-            count = greenhouse.getActiveOutputSlots();
-        } else {
-            return;
-        }
-        for (int slot = start; slot < start + count; slot++) {
+        OutputRange range = outputRange(machine);
+        if (range == null) return;
+        for (int slot = range.start(); slot < range.start() + range.count(); slot++) {
             ItemStack stack = machine.getMachineHandler().getStackInSlot(slot);
             if (!stack.isEmpty()) submit(machine, slot);
         }
@@ -54,6 +45,19 @@ public final class GreenhouseOutputManager {
                 pending.failureBackoff = 0;
             }
         }
+    }
+
+    private static OutputRange outputRange(BaseMachineBE machine) {
+        if (machine instanceof GreenhouseBE greenhouse) {
+            return new OutputRange(GreenhouseBE.OUTPUT_START_SLOT, greenhouse.getActiveOutputSlots());
+        }
+        if (machine instanceof LargeGreenhouseBE greenhouse) {
+            return new OutputRange(LargeGreenhouseBE.OUTPUT_START_SLOT, greenhouse.getActiveOutputSlots());
+        }
+        if (machine instanceof MineralExtractorBE extractor) {
+            return new OutputRange(MineralExtractorBE.OUTPUT_START_SLOT, extractor.getActiveOutputSlots());
+        }
+        return null;
     }
 
     public static void onServerTickPost(ServerTickEvent.Post event) {
@@ -68,7 +72,7 @@ public final class GreenhouseOutputManager {
                 BaseMachineBE machine = entry.getKey();
                 PendingOutput pending = entry.getValue();
                 if (machine.isRemoved() || machine.getLevel() != level) {
-                    AutoIoTransferHelper.forgetEventDrivenGreenhouse(machine);
+                    AutoIoTransferHelper.forgetEventDrivenOutput(machine);
                     machines.remove(machine);
                     continue;
                 }
@@ -82,7 +86,7 @@ public final class GreenhouseOutputManager {
 
                 int[] slots = pending.slots.stream().toArray();
                 AutoIoTransferHelper.EventOutputResult result =
-                        AutoIoTransferHelper.flushEventDrivenGreenhouseOutput(machine, slots);
+                        AutoIoTransferHelper.flushEventDrivenOutput(machine, slots);
                 pruneEmptySlots(machine, pending.slots);
                 if (result.moved()) {
                     pending.failureBackoff = 0;
@@ -104,14 +108,14 @@ public final class GreenhouseOutputManager {
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel level) {
             IdentityHashMap<BaseMachineBE, PendingOutput> removed = LEVELS.remove(level);
-            if (removed != null) removed.keySet().forEach(AutoIoTransferHelper::forgetEventDrivenGreenhouse);
+            if (removed != null) removed.keySet().forEach(AutoIoTransferHelper::forgetEventDrivenOutput);
         }
     }
 
     public static void onServerStopped(ServerStoppedEvent event) {
         LEVELS.entrySet().removeIf(entry -> {
             if (entry.getKey().getServer() != event.getServer()) return false;
-            entry.getValue().keySet().forEach(AutoIoTransferHelper::forgetEventDrivenGreenhouse);
+            entry.getValue().keySet().forEach(AutoIoTransferHelper::forgetEventDrivenOutput);
             return true;
         });
     }
@@ -122,6 +126,9 @@ public final class GreenhouseOutputManager {
             if (slot >= handlerSlots || machine.getMachineHandler().getStackInSlot(slot).isEmpty()) slots.clear(slot);
             if (slot == Integer.MAX_VALUE) break;
         }
+    }
+
+    private record OutputRange(int start, int count) {
     }
 
     private static final class PendingOutput {

@@ -5,6 +5,7 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTECreativeTabs;
+import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEEntities;
 import com.jdte.setup.JDTEFluids;
 import com.jdte.setup.JDTEItems;
@@ -14,11 +15,13 @@ import com.jdte.common.commands.JDTECommands;
 import com.jdte.common.blockentities.AdvancedItemCollectorManager;
 import com.jdte.common.blockentities.EntitySuppressorManager;
 import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
-import com.jdte.common.blockentities.GreenhouseOutputManager;
+import com.jdte.common.blockentities.MachineOutputManager;
 import com.jdte.common.blockentities.RangeBlockerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySources;
+import com.jdte.common.minerals.MineralSourceReloadListener;
+import com.jdte.common.minerals.MineralSurveyIndex;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.utils.BioCrusherDropCapture;
 import com.jdte.common.utils.MobLootSpawnEggHelper;
@@ -36,7 +39,9 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @Mod(JDTE.MODID)
@@ -48,6 +53,7 @@ public class JDTE {
         modContainer.registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
+        JDTEDataComponents.DATA_COMPONENTS.register(modEventBus);
         JDTEBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         JDTEMenus.MENUS.register(modEventBus);
         JDTEAttachments.ATTACHMENT_TYPES.register(modEventBus);
@@ -65,6 +71,8 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
         NeoForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
+        NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
+        NeoForge.EVENT_BUS.addListener(this::clearMineralIndex);
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onBlockBreak);
@@ -74,9 +82,9 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, GreenhouseOutputManager::onServerTickPost);
-        NeoForge.EVENT_BUS.addListener(GreenhouseOutputManager::onLevelUnload);
-        NeoForge.EVENT_BUS.addListener(GreenhouseOutputManager::onServerStopped);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, MachineOutputManager::onServerTickPost);
+        NeoForge.EVENT_BUS.addListener(MachineOutputManager::onLevelUnload);
+        NeoForge.EVENT_BUS.addListener(MachineOutputManager::onServerStopped);
         NeoForge.EVENT_BUS.addListener(EntitySuppressorManager::onEntityTick);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onItemPickup);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onEntityJoin);
@@ -98,6 +106,9 @@ public class JDTE {
     }
 
     private void syncSpawnEggRecipes(OnDatapackSyncEvent event) {
+        if (event.getPlayer() == null) {
+            MineralSurveyIndex.rebuild(event.getPlayerList().getServer());
+        }
         GreenhouseCropResolver.invalidateCaches();
         RecipeCacheSignal.invalidate();
         MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
@@ -112,6 +123,14 @@ public class JDTE {
             PacketDistributor.sendToAllPlayers(payload);
             PacketDistributor.sendToAllPlayers(lootPayload);
         }
+    }
+
+    private void addReloadListeners(AddReloadListenerEvent event) {
+        event.addListener(new MineralSourceReloadListener());
+    }
+
+    private void clearMineralIndex(ServerStoppedEvent event) {
+        MineralSurveyIndex.clear(event.getServer());
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {

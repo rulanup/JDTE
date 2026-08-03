@@ -8,6 +8,7 @@ import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
+import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -42,6 +43,9 @@ public class TimeAcceleratorPacket {
             } else if (container instanceof BaseMachineContainer machineContainer
                     && machineContainer.baseMachineBE instanceof LifeSynthesisVatBE vat) {
                 vat.setMultiplier(payload.multiplier());
+            } else if (container instanceof BaseMachineContainer machineContainer
+                    && machineContainer.baseMachineBE instanceof MineralExtractorBE extractor) {
+                extractor.setMultiplier(payload.multiplier());
             }
         });
     }

@@ -1,0 +1,7 @@
+{
+  "parent": "jdte:block/loot_fabricator",
+  "textures": {
+    "model": "minecraft:block/deepslate_iron_ore",
+    "particle": "minecraft:block/deepslate"
+  }
+}

@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.5.6`
+当前版本：`0.5.7`
 
 [English README](README_EN.md)
 
@@ -63,6 +63,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 | 灌注机 | 执行凝胶、物品及动态刷怪蛋灌注配方；安装资源蜜蜂后可用鸡蛋、64 B 生命流体和 1,000,000 FE 制造生命流体蜜蜂 |
 | 高级炼药机 | 六步有序酿造，支持配方锁定、水和时间流体、自动 I/O、独立烈焰粉外部输入开关及 JEI 酿造链 |
 | 战利品制造机 | 使用刷怪蛋模板、生命流体、时间流体和 FE 制造生物战利品 |
+| 矿物提取机 | 按本地群系或矿物清单中的标准世界生成权重批量生产矿石方块；支持经验/时间流体、过滤、分页输出、自动 I/O 和 1024x 超频 |
 
 ### 自动输入输出
 

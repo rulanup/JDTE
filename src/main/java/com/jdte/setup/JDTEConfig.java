@@ -15,6 +15,7 @@ import com.jdte.setup.config.LifeBreederConfig;
 import com.jdte.setup.config.LifeExtractorConfig;
 import com.jdte.setup.config.LifeSynthesisVatConfig;
 import com.jdte.setup.config.LootFabricatorConfig;
+import com.jdte.setup.config.MineralExtractorConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
 import com.jdte.setup.config.TimeAcceleratorConfig;
@@ -39,6 +40,7 @@ public class JDTEConfig {
         public final BioCrusherConfig bioCrusher;
         public final LifeExtractorConfig lifeExtractor;
         public final LootFabricatorConfig lootFabricator;
+        public final MineralExtractorConfig mineralExtractor;
         public final SenderReceiverConfig senderReceiver;
         public final AdvancedItemCollectorConfig advancedItemCollector;
         public final EntitySuppressorConfig entitySuppressor;
@@ -288,6 +290,7 @@ public class JDTEConfig {
             bioCrusher = new BioCrusherConfig(builder);
             lifeExtractor = new LifeExtractorConfig(builder);
             lootFabricator = new LootFabricatorConfig(builder);
+            mineralExtractor = new MineralExtractorConfig(builder);
             senderReceiver = new SenderReceiverConfig(builder);
             advancedItemCollector = new AdvancedItemCollectorConfig(builder);
             entitySuppressor = new EntitySuppressorConfig(builder);

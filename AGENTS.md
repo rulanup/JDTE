@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.5.6` |
+| Current version | `0.5.7` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.233+` |
 | Just Dire Things | `1.5.7+` |
@@ -34,6 +34,7 @@ Major features:
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
+- Mineral Survey snapshots and the Mineral Extractor, backed by a reload-built biome ore index, public-codec world-generation analysis, datapack overrides, fixed-point weighted batch production, dual fluids, filtering, paged outputs, and 1024x coalesced work.
 - Eclipse Alloy Wrench for rotation, NBT-preserving machine pickup, reusable two-corner selection, Ctrl-scroll face resizing, and optional FTB Ultimine bulk operations.
 - Permanent Life Apple progression and JEI categories for machine recipes.
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
@@ -95,6 +96,7 @@ src/main/
 |   |   |-- integrations/                 # Apothic, Draconic Evolution, FTB Ultimine
 |   |   |-- items/                        # Upgrade cards, wrench, and conversion items
 |   |   |-- jei/                          # JEI plugin, recipe wrappers, and categories
+|   |   |-- minerals/                      # Reload-built biome mineral index, surveys, and batch production
 |   |   |-- network/                      # Payloads and packet handlers
 |   |   |-- player/                       # Life Apple attachment and progression
 |   |   |-- recipes/                      # Machine recipe models
@@ -252,6 +254,7 @@ JDTE machine families (Item/Fluid Sender and Receiver, Fluid Stabilizer, Glue Ac
 | Infusion Machine | Advanced, Extended | `InfusionMachineBE` | Performs gel/item and dynamic spawn egg infusion |
 | Advanced Potion Brewer | Advanced | `AdvancedPotionBrewerBE` | Ordered brewing using water, Time Fluid, fuel, and FE |
 | Loot Fabricator | Single eight-slot tier | `LootFabricatorBE` | Produces mob loot from reusable spawn egg templates |
+| Mineral Extractor | Single eight-slot tier | `MineralExtractorBE` | Produces weighted ore-block batches from a reload-cached local biome profile or an inserted Mineral Survey |
 
 Capability summary:
 

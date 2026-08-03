@@ -104,7 +104,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             }
             if (slot >= OUTPUT_START_SLOT) {
                 if (batchingOutputChanges) batchedOutputChanges.set(slot);
-                else GreenhouseOutputManager.submit(LargeGreenhouseBE.this, slot);
+                else MachineOutputManager.submit(LargeGreenhouseBE.this, slot);
             }
             if (!batchingOutputChanges || slot < OUTPUT_START_SLOT) setChanged();
         }
@@ -706,7 +706,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         batchingOutputChanges = false;
         for (int slot = batchedOutputChanges.nextSetBit(0); slot >= 0;
              slot = batchedOutputChanges.nextSetBit(slot + 1)) {
-            GreenhouseOutputManager.submit(this, slot);
+            MachineOutputManager.submit(this, slot);
         }
         batchedOutputChanges.clear();
         setChanged();
