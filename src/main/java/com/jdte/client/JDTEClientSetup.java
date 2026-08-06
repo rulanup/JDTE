@@ -41,6 +41,8 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorScreen::new);
         event.register(JDTEMenus.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorScreen::new);
         event.register(JDTEMenus.EXTENDED_TIME_ACCELERATOR.get(), ExtendedTimeAcceleratorScreen::new);
+        event.register(JDTEMenus.TIME_FREEZER.get(), TimeFreezerScreen::new);
+        event.register(JDTEMenus.EXTENDED_TIME_FREEZER.get(), ExtendedTimeFreezerScreen::new);
 
         // Extended Machines
         event.register(JDTEMenus.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.screens.ClickerT2Screen::new);

@@ -10,7 +10,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 | Mod name | `JDT Extras` |
 | Current version | `0.5.7` |
 | Minecraft | `1.21.1` |
-| NeoForge | `21.1.233+` |
+| NeoForge | `21.1.215+` |
 | Just Dire Things | `1.5.7+` |
 | Java | `21` |
 
@@ -18,6 +18,7 @@ Major features:
 
 - 13 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting, and Sharpness.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
+- Time Freezer and Extended Time Freezer machines that consume Time Fluid to freeze a dimension's day/night cycle and weather, plus the permission-4 `/jdte timefreezer list` command for server operators.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
 - Advanced Item Collector with eight upgrade slots, event-driven pre-spawn collection, bounded existing-drop scans, and capacity-triggered direct ME insertion without item-flow particles.
@@ -62,7 +63,7 @@ The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and Produ
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| NeoForge | `21.1.233` | Mod loader and API |
+| NeoForge | `21.1.215` | Mod loader and API |
 | Just Dire Things | `1.5.7` | Base machines, interfaces, config, and Time Fluid |
 | GuideME | `21.1.16` | In-game documentation |
 | JEI | `19.27.0.340` | Recipe categories, catalysts, information pages, and GUI click areas |
@@ -239,6 +240,7 @@ JDTE machine families (Item/Fluid Sender and Receiver, Fluid Stabilizer, Glue Ac
 | Fluid Sender | Basic, Advanced, Extended | `FluidSenderBE` | Sends internal fluid to configured targets |
 | Item Receiver | Basic, Advanced, Extended | `ItemReceiverBE` | Pulls items from configured targets |
 | Fluid Receiver | Basic, Advanced, Extended | `FluidReceiverBE` | Pulls fluid from configured targets |
+| Time Freezer | Basic, Extended | `TimeFreezerBE` | Freezes the dimension's day/night cycle and weather while consuming configurable Time Fluid per tick (default 100 mB); Creative upgrade waives the cost; `/jdte timefreezer list` (permission 4) reports every machine |
 | Advanced Item Collector | Single eight-slot tier | `AdvancedItemCollectorBE` | Intercepts item entities before world insertion and sends them to its facing inventory |
 | Advanced Energy Transmitter | Single eight-slot tier | `AdvancedEnergyTransmitterBE` | Discovers FE receivers in bounded scan batches, serves the persistent target cache through fair bounded round-robin delivery, and independently fast-charges UUID-bound online player equipment through vanilla and optional Curios APIs |
 | Entity Suppressor | Single eight-slot tier | `EntitySuppressorBE` | Suppresses entity ticks or client rendering, blocks entity creation, or disables particles in a filtered area |
@@ -404,6 +406,10 @@ Recommended order:
 | Recipe is unavailable | Invalid recipe path or JSON | Check `data/jdte/recipe/{name}.json` |
 
 ## Version History
+
+### v0.5.6
+
+- Added the Time Freezer and Extended Time Freezer machines: they consume configurable Time Fluid per tick (default 100 mB) to freeze their dimension's day/night cycle and weather through a global freeze-target coordinator, support redstone control, 4/8 standard upgrade slots, Creative upgrade waivers, pipe and bucket fluid input, and the permission-4 `/jdte timefreezer list` server command that reports every machine with clickable teleport coordinates.
 
 ### v0.5.5 (Current)
 

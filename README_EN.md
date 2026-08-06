@@ -91,7 +91,7 @@ Unsupported modes are skipped. Senders expose Auto Input only and Receivers expo
 ## Requirements
 
 - Minecraft `1.21.1`
-- NeoForge `21.1.233+`
+- NeoForge `21.1.215+`
 - Just Dire Things `1.5.7+`
 - Java `21`
 

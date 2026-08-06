@@ -17,6 +17,10 @@ public class JDTEMenus {
             "advanced_time_accelerator", () -> IMenuTypeExtension.create(AdvancedTimeAcceleratorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedTimeAcceleratorContainer>> EXTENDED_TIME_ACCELERATOR = MENUS.register(
             "extended_time_accelerator", () -> IMenuTypeExtension.create(ExtendedTimeAcceleratorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<TimeFreezerContainer>> TIME_FREEZER = MENUS.register(
+            "time_freezer", () -> IMenuTypeExtension.create(TimeFreezerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedTimeFreezerContainer>> EXTENDED_TIME_FREEZER = MENUS.register(
+            "extended_time_freezer", () -> IMenuTypeExtension.create(ExtendedTimeFreezerContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedClickerContainer>> EXTENDED_CLICKER = MENUS.register(
             "extended_clicker", () -> IMenuTypeExtension.create(ExtendedClickerContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedBlockBreakerContainer>> EXTENDED_BLOCK_BREAKER = MENUS.register(

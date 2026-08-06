@@ -91,7 +91,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 ## 安装要求
 
 - Minecraft `1.21.1`
-- NeoForge `21.1.233+`
+- NeoForge `21.1.215+`
 - Just Dire Things `1.5.7+`
 - Java `21`
 

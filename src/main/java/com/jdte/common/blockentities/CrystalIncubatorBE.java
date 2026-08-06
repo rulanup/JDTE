@@ -26,13 +26,19 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpgradeMachine, PoweredMachineBE {
     private static final double AE2_GROWTH_ACCELERATOR_INTERVAL_TICKS = 10.0D;
@@ -58,6 +64,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     private int regularGrowthCursor;
     private int dynaGrowthCursor;
     private int harvestCursor;
+    private final Map<Block, Boolean> matureCrystalCache = new HashMap<>();
     private double pendingRandomTicks;
     private int multiplier;
     private final MachineEnergyStorage energyStorage;
@@ -302,8 +309,9 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             for (Direction direction : Direction.values()) {
                 BlockPos crystalPos = motherPos.relative(direction);
                 BlockState crystalState = serverLevel.getBlockState(crystalPos);
-                if (crystalState.is(JDTETags.CRYSTAL_INCUBATOR_HARVESTABLE_CRYSTALS)
-                        || isDynaMatureCrystal(mother, crystalState)) {
+                if (isDynaMatureCrystal(mother, crystalState)
+                        || (crystalState.is(JDTETags.CRYSTAL_INCUBATOR_HARVESTABLE_CRYSTALS)
+                        && isMatureHarvestableCrystal(serverLevel, crystalState, crystalPos))) {
                     if (harvestCrystal(serverLevel, crystalPos, crystalState)) {
                         budget--;
                     }
@@ -363,6 +371,40 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     private boolean isDynaMatureCrystal(BlockEntity budding, BlockState state) {
         return ModList.get().isLoaded("justdynathings")
                 && JustDynaThingsCrystalIntegration.isMatureCrystal(budding, state);
+    }
+
+    private boolean isMatureHarvestableCrystal(ServerLevel serverLevel, BlockState state, BlockPos pos) {
+        IntegerProperty ageProperty = findAgeProperty(state);
+        if (ageProperty != null) {
+            return state.getValue(ageProperty) >= ageProperty.getPossibleValues().size() - 1;
+        }
+        return matureCrystalCache.computeIfAbsent(state.getBlock(),
+                block -> hasMatureCrystalDrops(serverLevel, state, pos));
+    }
+
+    @Nullable
+    private static IntegerProperty findAgeProperty(BlockState state) {
+        for (Property<?> property : state.getProperties()) {
+            if (property instanceof IntegerProperty integerProperty && property.getName().equals("age")) {
+                return integerProperty;
+            }
+        }
+        return null;
+    }
+
+    private boolean hasMatureCrystalDrops(ServerLevel serverLevel, BlockState state, BlockPos pos) {
+        List<ItemStack> drops = Block.getDrops(state, serverLevel, pos,
+                serverLevel.getBlockEntity(pos), getFakePlayer(serverLevel),
+                new ItemStack(Items.DIAMOND_PICKAXE));
+        if (drops.isEmpty()) {
+            return false;
+        }
+        for (ItemStack drop : drops) {
+            if (!drop.is(Tags.Items.DUSTS)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int normalizeCursor(int cursor) {
