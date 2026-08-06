@@ -16,6 +16,7 @@ import com.jdte.common.blockentities.EntitySuppressorManager;
 import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
 import com.jdte.common.blockentities.GreenhouseOutputManager;
 import com.jdte.common.blockentities.RangeBlockerManager;
+import com.jdte.common.blockentities.TimeFreezerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
@@ -73,6 +74,8 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
+        NeoForge.EVENT_BUS.addListener(TimeFreezerManager::onLevelUnload);
+        NeoForge.EVENT_BUS.addListener(TimeFreezerManager::onServerStopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, GreenhouseOutputManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(GreenhouseOutputManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(GreenhouseOutputManager::onServerStopped);

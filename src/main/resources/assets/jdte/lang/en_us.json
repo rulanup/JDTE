@@ -1,4 +1,4 @@
-{
+﻿{
   "itemGroup.jdte": "JDT Extras",
   "item.jdte.capacity_upgrade": "Capacity Upgrade",
   "item.jdte.overclock_upgrade": "Overclock Upgrade",
@@ -17,6 +17,8 @@
   "block.jdte.basic_time_accelerator": "Basic Time Accelerator",
   "block.jdte.advanced_time_accelerator": "Advanced Time Accelerator",
   "block.jdte.extended_time_accelerator": "Extended Time Accelerator",
+  "block.jdte.time_freezer": "Time Freezer",
+  "block.jdte.extended_time_freezer": "Extended Time Freezer",
   "block.jdte.extended_clicker": "Extended Clicker T2",
   "block.jdte.extended_block_breaker": "Extended Block Breaker T2",
   "block.jdte.extended_block_placer": "Extended Block Placer T2",
@@ -461,7 +463,7 @@
   "jdte.screen.life_synthesis_vat.time": "Time Fluid: %s / %s mB",
   "jdte.screen.life_synthesis_vat.life": "Life Fluid: %s / %s mB",
   "jdte.screen.life_synthesis_vat.recipe_tooltip": "Current recipe",
-  "jdte.screen.life_synthesis_vat.recipe_stats": "%s FE · %s ticks",
+  "jdte.screen.life_synthesis_vat.recipe_stats": "%s FE 路 %s ticks",
   "jdte.tier.plant": "Plant",
   "jdte.tier.protein": "Protein",
   "jdte.tier.enriched": "Enriched",
@@ -649,5 +651,16 @@
   "config.jdte.jdte.lifeBreeder.maxAnimalsPerType": "Population Limit per Type",
   "config.jdte.jdte.lifeBreeder.maxDropsCollectedPerCycle": "Maximum Drops Collected per Cycle",
   "config.jdte.jdte.lifeBreeder.defaultSpeedMultiplier": "Default Speed Multiplier",
-  "config.jdte.jdte.lifeBreeder.maxSpeedMultiplier": "Maximum Speed Multiplier"
+  "config.jdte.jdte.lifeBreeder.maxSpeedMultiplier": "Maximum Speed Multiplier",
+  "config.jdte.jdte.timeFreezer": "Time Freezer Settings",
+  "config.jdte.jdte.timeFreezer.fluidCapacity": "Time Fluid Capacity",
+  "config.jdte.jdte.timeFreezer.fluidCapacity.desc": "Time Fluid tank capacity of the Time Freezer and Extended Time Freezer (mB)",
+  "config.jdte.jdte.timeFreezer.fluidPerTick": "Time Fluid per Tick",
+  "config.jdte.jdte.timeFreezer.fluidPerTick.desc": "Time Fluid consumed per tick while freezing time and weather",
+  "command.jdte.timefreezer.list.empty": "No time freezers found.",
+  "command.jdte.timefreezer.list.header": "Time Freezers (%s):",
+  "command.jdte.timefreezer.list.entry": "%s %s %s (Time Fluid: %s/%s mB)",
+  "command.jdte.timefreezer.active": "FREEZING",
+  "command.jdte.timefreezer.inactive": "idle",
+  "command.jdte.timefreezer.list.teleport_hint": "Click to teleport to this Time Freezer in %s"
 }

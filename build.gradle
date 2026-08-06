@@ -186,14 +186,26 @@ repositories {
 apply from: "$rootDir/dependencies.gradle"
 
 def extractedProductiveLib = layout.buildDirectory.file("generated/productiveLib/productivelib.jar")
-def extractProductiveLib = tasks.register("extractProductiveLib", Sync) {
-    from({ zipTree(configurations.productiveBeesEmbedded.singleFile) })
-    include("META-INF/jarjar/productivelib-*.jar")
-    eachFile { details ->
-        details.relativePath = new RelativePath(true, "productivelib.jar")
+def extractProductiveLib = tasks.register("extractProductiveLib") {
+    doLast {
+        def beeJar = configurations.productiveBeesEmbedded.incoming.artifactView { lenient = true }.files.find {
+            it.name.contains("productivebees")
+        }
+        if (beeJar == null || !beeJar.exists()) {
+            logger.warn("Productive Bees dependency not available; skipping ProductiveLib extraction")
+            return
+        }
+        copy {
+            from(zipTree(beeJar)) {
+                include("META-INF/jarjar/productivelib-*.jar")
+                eachFile { details ->
+                    details.relativePath = new RelativePath(true, "productivelib.jar")
+                }
+            }
+            includeEmptyDirs = false
+            into(layout.buildDirectory.dir("generated/productiveLib"))
+        }
     }
-    includeEmptyDirs = false
-    into(layout.buildDirectory.dir("generated/productiveLib"))
 }
 
 dependencies {

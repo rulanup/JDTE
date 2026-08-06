@@ -41,6 +41,8 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> BASIC_TIME_ACCELERATOR = ITEMS.register("basic_time_accelerator", () -> new BlockItem(JDTEBlocks.BASIC_TIME_ACCELERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ADVANCED_TIME_ACCELERATOR = ITEMS.register("advanced_time_accelerator", () -> new BlockItem(JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_TIME_ACCELERATOR = ITEMS.register("extended_time_accelerator", () -> new BlockItem(JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> TIME_FREEZER = ITEMS.register("time_freezer", () -> new BlockItem(JDTEBlocks.TIME_FREEZER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_TIME_FREEZER = ITEMS.register("extended_time_freezer", () -> new BlockItem(JDTEBlocks.EXTENDED_TIME_FREEZER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_CLICKER = ITEMS.register("extended_clicker", () -> new BlockItem(JDTEBlocks.EXTENDED_CLICKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_BREAKER = ITEMS.register("extended_block_breaker", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_BREAKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_PLACER = ITEMS.register("extended_block_placer", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_PLACER.get(), new Item.Properties()));

@@ -34,6 +34,10 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ADVANCED_TIME_ACCELERATOR.get());
                 output.accept(JDTEItems.EXTENDED_TIME_ACCELERATOR.get());
 
+                // Time Freezers
+                output.accept(JDTEItems.TIME_FREEZER.get());
+                output.accept(JDTEItems.EXTENDED_TIME_FREEZER.get());
+
                 // Extended Machines
                 output.accept(JDTEItems.EXTENDED_CLICKER.get());
                 output.accept(JDTEItems.EXTENDED_BLOCK_BREAKER.get());
