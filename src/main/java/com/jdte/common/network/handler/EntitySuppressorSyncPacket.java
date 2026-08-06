@@ -2,14 +2,16 @@ package com.jdte.common.network.handler;
 
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.network.data.EntitySuppressorSyncPayload;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.jdte.common.network.PacketContext;
+import net.minecraft.client.Minecraft;
 
 public final class EntitySuppressorSyncPacket {
     private EntitySuppressorSyncPacket() {}
 
-    public static void handle(EntitySuppressorSyncPayload payload, IPayloadContext context) {
+    public static void handle(EntitySuppressorSyncPayload payload, PacketContext context) {
         context.enqueueWork(() -> {
-            if (context.player().level().getBlockEntity(payload.blockPos()) instanceof EntitySuppressorBE suppressor) {
+            if (Minecraft.getInstance().level != null
+                    && Minecraft.getInstance().level.getBlockEntity(payload.blockPos()) instanceof EntitySuppressorBE suppressor) {
                 suppressor.applyClientSync(payload.mode(), payload.target(), payload.blacklist(),
                         payload.particleActive(), payload.entitySuppressionActive(),
                         payload.renderingSuppressionActive(), payload.area());

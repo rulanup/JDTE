@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin({FluidCollectorT1BE.class, FluidCollectorT2BE.class, FluidPlacerT1BE.class, FluidPlacerT2BE.class, GeneratorFluidT1BE.class, ParadoxMachineBE.class})
+@Mixin(value = {FluidCollectorT1BE.class, FluidCollectorT2BE.class, FluidPlacerT1BE.class, FluidPlacerT2BE.class, GeneratorFluidT1BE.class, ParadoxMachineBE.class}, remap = false)
 public abstract class FluidCapacityMixin {
-    @Inject(method = "getMaxMB", at = @At("RETURN"), cancellable = true)
+    @Inject(remap = false, method = "getMaxMB", at = @At("RETURN"), cancellable = true)
     private void jdte$adjustMaxMb(CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(UpgradeHelper.adjustFluidCapacity((BaseMachineBE) (Object) this, cir.getReturnValue()));
     }

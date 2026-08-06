@@ -1,5 +1,6 @@
 package com.jdte.client.screens;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
@@ -30,10 +31,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +84,7 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
     /** JDT 基类使用 int 计算填充比例，扩容后的大容量会溢出并把填充高度算成 0。 */
     private void renderEnergyBar(GuiGraphics graphics) {
         int maxEnergy = Math.max(1, vatContainer.getVat().getMaxEnergy());
-        int fill = Math.clamp((int) ((long) vatContainer.getEnergy() * 70L / maxEnergy), 0, 70);
+        int fill = net.minecraft.util.Mth.clamp((int) ((long) vatContainer.getEnergy() * 70L / maxEnergy), 0, 70);
         int x = topSectionLeft + getEnergyBarOffset();
         int y = topSectionTop + 5;
         graphics.blit(POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
@@ -94,7 +94,7 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
     private void renderMachineSlotBackgrounds(GuiGraphics graphics) {
         for (int i = 0; i < LifeSynthesisVatBE.INPUT_SLOTS; i++) {
             Slot slot = container.slots.get(i);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, ResourceLocation.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
     }
@@ -102,7 +102,7 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
     private void renderCultureProgress(GuiGraphics graphics) {
         int x = getGuiLeft() + PROGRESS_X;
         int y = getGuiTop() + PROGRESS_Y;
-        int progressWidth = Math.clamp(vatContainer.getProgress() * 24
+        int progressWidth = net.minecraft.util.Mth.clamp(vatContainer.getProgress() * 24
                 / Math.max(1, vatContainer.getProgressMax()), 0, 24);
         graphics.fill(x, y + 5, x + 24, y + 10, 0xFF2B1A1A);
         if (progressWidth > 0) graphics.fill(x, y + 5, x + progressWidth, y + 10, 0xFFDC143C);
@@ -126,7 +126,7 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
         int x = getGuiLeft() + relativeX;
         int y = getGuiTop() + TANK_Y;
         graphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
-        int height = Math.clamp((int) ((long) amount * 70L / Math.max(1, vatContainer.getFluidCapacity())), 0, 70);
+        int height = net.minecraft.util.Mth.clamp((int) ((long) amount * 70L / Math.max(1, vatContainer.getFluidCapacity())), 0, 70);
         if (height > 0 && !stack.isEmpty()) renderFluid(graphics, stack, x + 1, y + 71, 16, height);
         graphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
     }
@@ -140,12 +140,13 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
         RenderSystem.setShaderColor((tint >> 16 & 255) / 255.0F, (tint >> 8 & 255) / 255.0F,
                 (tint & 255) / 255.0F, (tint >>> 24) / 255.0F);
         PoseStack pose = graphics.pose();
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        buffer.addVertex(pose.last().pose(), x, bottom, 0).setUv(sprite.getU0(), sprite.getV1());
-        buffer.addVertex(pose.last().pose(), x + width, bottom, 0).setUv(sprite.getU1(), sprite.getV1());
-        buffer.addVertex(pose.last().pose(), x + width, bottom - height, 0).setUv(sprite.getU1(), sprite.getV0());
-        buffer.addVertex(pose.last().pose(), x, bottom - height, 0).setUv(sprite.getU0(), sprite.getV0());
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        buffer.vertex(pose.last().pose(), x, bottom, 0).uv(sprite.getU0(), sprite.getV1()).endVertex();
+        buffer.vertex(pose.last().pose(), x + width, bottom, 0).uv(sprite.getU1(), sprite.getV1()).endVertex();
+        buffer.vertex(pose.last().pose(), x + width, bottom - height, 0).uv(sprite.getU1(), sprite.getV0()).endVertex();
+        buffer.vertex(pose.last().pose(), x, bottom - height, 0).uv(sprite.getU0(), sprite.getV0()).endVertex();
+        BufferUploader.drawWithShader(buffer.end());
         RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
@@ -167,7 +168,7 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
                 getGuiTop() + SPEED_Y,
                 24, 12, vatContainer.getMultiplier(), 1, vatContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.life_synthesis_vat.multiplier"), button ->
-                PacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
+                JDTEPacketHandler.CHANNEL.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
         addRenderableWidget(multiplierButton);
     }
 
@@ -218,10 +219,10 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
     private LifeSynthesisRecipe currentRecipe() {
         int index = vatContainer.getRecipeIndex();
         if (index < 0 || minecraft == null || minecraft.level == null) return null;
-        List<RecipeHolder<LifeSynthesisRecipe>> recipes = minecraft.level.getRecipeManager()
+        List<LifeSynthesisRecipe> recipes = minecraft.level.getRecipeManager()
                 .getAllRecipesFor(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get());
         if (index >= recipes.size()) return null;
-        return recipes.get(index).value();
+        return recipes.get(index);
     }
 
     private List<Component> recipeTooltip(LifeSynthesisRecipe recipe) {
@@ -238,10 +239,10 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
         FluidStack nutrient = recipe.nutrient();
         if (!nutrient.isEmpty()) {
             if (!summary.isEmpty()) summary.append(" + ");
-            summary.append(nutrient.getHoverName().getString()).append(' ').append(nutrient.getAmount()).append("mB");
+            summary.append(nutrient.getDisplayName().getString()).append(' ').append(nutrient.getAmount()).append("mB");
         }
         FluidStack output = recipe.output();
-        summary.append(" → ").append(output.getHoverName().getString()).append(' ').append(output.getAmount()).append("mB");
+        summary.append(" → ").append(output.getDisplayName().getString()).append(' ').append(output.getAmount()).append("mB");
         lines.add(Component.literal(summary.toString()));
         lines.add(Component.translatable("jdte.screen.life_synthesis_vat.recipe_stats",
                 recipe.energy(), recipe.processTicks()));

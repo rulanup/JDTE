@@ -26,9 +26,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public abstract class FluidReceiverBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, FluidMachineBE, AreaAffectingBE, BaseFilterMachine {
     public static final int BASE_FLUID_CAPACITY = 8000; // 8 buckets
@@ -124,7 +124,7 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
     }
 
     private boolean receiveFluidFromSide(ServerLevel serverLevel, BlockPos sourcePos, Direction side, int fluidToReceive) {
-        IFluidHandler sourceHandler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, sourcePos, side);
+        IFluidHandler sourceHandler = com.jdte.common.capabilities.ForgeCapabilityHelper.get(serverLevel, sourcePos, ForgeCapabilities.FLUID_HANDLER, side);
         if (sourceHandler == null) return false;
 
         FluidStack extracted = sourceHandler.drain(fluidToReceive, IFluidHandler.FluidAction.SIMULATE);
@@ -216,7 +216,7 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override
@@ -235,17 +235,17 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("fluidTank", fluidTank.serializeNBT());
         saveAreaSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
+            fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
         }
         loadAreaSettings(tag);
         areaAffectingData.area = null;

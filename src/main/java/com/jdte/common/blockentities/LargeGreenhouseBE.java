@@ -35,10 +35,10 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.common.util.FakePlayerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -421,7 +421,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     private boolean hasOutputSpace(GreenhouseCropDefinition definition) {
         if (definition.outputs().isEmpty()) return false;
-        ItemStack primary = definition.outputs().getFirst();
+        ItemStack primary = definition.outputs().get(0);
         return getInsertableCount(primary) >= primary.getCount();
     }
 
@@ -432,7 +432,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             ItemStack existing = itemHandler.getStackInSlot(slot);
             if (existing.isEmpty()) {
                 capacity += itemHandler.getSlotLimit(slot);
-            } else if (ItemStack.isSameItemSameComponents(existing, output)) {
+            } else if (ItemStack.isSameItemSameTags(existing, output)) {
                 capacity += Math.max(0, itemHandler.getSlotLimit(slot) - existing.getCount());
             }
         }
@@ -524,7 +524,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         long remaining = amount;
         for (int slot = 0; slot < handler.getSlots() && remaining > 0; slot++) {
             ItemStack existing = handler.getStackInSlot(slot);
-            if (!existing.isEmpty() && ItemStack.isSameItemSameComponents(existing, template)) {
+            if (!existing.isEmpty() && ItemStack.isSameItemSameTags(existing, template)) {
                 remaining -= insertIntoSlot(handler, slot, template, remaining, simulate);
             }
         }
@@ -559,7 +559,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     private GreenhouseCropDefinition getDefinition(int slot) {
         ItemStack seed = getLocalSeed(slot);
-        if (!ItemStack.isSameItemSameComponents(seed, cachedSeeds[slot])) {
+        if (!ItemStack.isSameItemSameTags(seed, cachedSeeds[slot])) {
             cachedSeeds[slot] = seed.isEmpty() ? ItemStack.EMPTY : seed.copyWithCount(1);
             cachedDefinitions[slot] = GreenhouseCropResolver.find(level, seed);
             ResourceLocation nextDisplay = cachedDefinitions[slot] == null ? null : cachedDefinitions[slot].displayBlock();
@@ -631,7 +631,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         boolean overclocked = creative || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0;
         int effectiveMultiplier = overclocked
                 ? JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get()
-                : Math.clamp(multiplier, 1, JDTEConfig.COMMON.greenhouseMaxSpeedMultiplier.get());
+                : net.minecraft.util.Mth.clamp(multiplier, 1, JDTEConfig.COMMON.greenhouseMaxSpeedMultiplier.get());
         int energyPerHarvest = creative ? 0 : JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get();
         int fortuneLevel = Math.min(3, UpgradeHelper.countUpgrades(this, UpgradeType.FORTUNE));
         return new ProductionSettings(effectiveMultiplier, creative, energyPerHarvest, fortuneLevel);
@@ -644,10 +644,10 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         if (UpgradeHelper.hasOverclock(this)) {
             return JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get();
         }
-        return Math.clamp(multiplier, 1, getMaxSelectableMultiplier());
+        return net.minecraft.util.Mth.clamp(multiplier, 1, getMaxSelectableMultiplier());
     }
     public void setMultiplier(int multiplier) {
-        int clamped = Math.clamp(multiplier, 1, getMaxSelectableMultiplier());
+        int clamped = net.minecraft.util.Mth.clamp(multiplier, 1, getMaxSelectableMultiplier());
         if (this.multiplier != clamped) {
             this.multiplier = clamped;
             setChanged();
@@ -737,10 +737,10 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     @Override public boolean canRun() { return true; }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", OversizedItemStackHandlerSerialization.serialize(itemHandler, provider));
-        tag.put("fluid", fluidTank.serializeNBT(provider));
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("inventory", OversizedItemStackHandlerSerialization.serialize(itemHandler));
+        tag.put("fluid", fluidTank.serializeNBT());
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putLongArray("growthWork", growthWork);
         tag.putInt("settlementTicker", settlementTicker);
@@ -753,10 +753,10 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) loadInventory(tag.getCompound("inventory"), provider);
-        if (tag.contains("fluid")) fluidTank.deserializeNBT(provider, tag.getCompound("fluid"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        if (tag.contains("inventory")) loadInventory(tag.getCompound("inventory"));
+        if (tag.contains("fluid")) fluidTank.deserializeNBT(tag.getCompound("fluid"));
         if (tag.contains("energy")) energyStorage.setEnergy(tag.getInt("energy"));
         if (tag.contains("growthWork", Tag.TAG_LONG_ARRAY)) {
             long[] savedWork = tag.getLongArray("growthWork");
@@ -775,13 +775,13 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         Arrays.fill(cachedDefinitions, null);
     }
 
-    private void loadInventory(CompoundTag inventoryTag, HolderLookup.Provider provider) {
+    private void loadInventory(CompoundTag inventoryTag) {
         if (inventoryTag.getInt("Size") != LEGACY_TOTAL_SLOTS) {
-            OversizedItemStackHandlerSerialization.deserialize(itemHandler, provider, inventoryTag);
+            OversizedItemStackHandlerSerialization.deserialize(itemHandler, inventoryTag);
             return;
         }
         ItemStackHandler legacy = new ItemStackHandler(LEGACY_TOTAL_SLOTS);
-        legacy.deserializeNBT(provider, inventoryTag);
+        legacy.deserializeNBT(inventoryTag);
         for (int slot = 0; slot < LEGACY_INPUT_SLOTS; slot++) {
             itemHandler.setStackInSlot(slot, legacy.getStackInSlot(slot));
         }

@@ -1,5 +1,6 @@
 package com.jdte.client;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.jdte.JDTE;
@@ -16,8 +17,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.network.PacketDistributor;
 
 public class WrenchScrollHandler {
     private static final String JDT_MODID = "justdirethings";
@@ -46,7 +47,7 @@ public class WrenchScrollHandler {
             return;
         }
 
-        int delta = event.getScrollDeltaY() > 0.0D ? 1 : event.getScrollDeltaY() < 0.0D ? -1 : 0;
+        int delta = event.getScrollDelta() > 0.0D ? 1 : event.getScrollDelta() < 0.0D ? -1 : 0;
         if (delta == 0) {
             return;
         }
@@ -56,7 +57,7 @@ public class WrenchScrollHandler {
             return;
         }
 
-        PacketDistributor.sendToServer(new WrenchAreaAdjustPayload(targetPos, delta));
+        JDTEPacketHandler.CHANNEL.sendToServer(new WrenchAreaAdjustPayload(targetPos, delta));
         event.setCanceled(true);
     }
 

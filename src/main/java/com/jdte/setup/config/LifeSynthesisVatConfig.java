@@ -1,20 +1,20 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class LifeSynthesisVatConfig {
-    public final ModConfigSpec.IntValue energyCapacity;
-    public final ModConfigSpec.IntValue fluidCapacity;
-    public final ModConfigSpec.IntValue baseWorkRate;
-    public final ModConfigSpec.IntValue defaultSpeedMultiplier;
-    public final ModConfigSpec.IntValue maxSpeedMultiplier;
-    public final ModConfigSpec.IntValue overclockMaxSpeedMultiplier;
-    public final ModConfigSpec.IntValue settlementInterval;
-    public final ModConfigSpec.IntValue timeFluidPerBatch;
-    public final ModConfigSpec.IntValue pendingLifeFluidCap;
-    public final ModConfigSpec.IntValue maxBatchesPerSettlement;
+    public final ForgeConfigSpec.IntValue energyCapacity;
+    public final ForgeConfigSpec.IntValue fluidCapacity;
+    public final ForgeConfigSpec.IntValue baseWorkRate;
+    public final ForgeConfigSpec.IntValue defaultSpeedMultiplier;
+    public final ForgeConfigSpec.IntValue maxSpeedMultiplier;
+    public final ForgeConfigSpec.IntValue overclockMaxSpeedMultiplier;
+    public final ForgeConfigSpec.IntValue settlementInterval;
+    public final ForgeConfigSpec.IntValue timeFluidPerBatch;
+    public final ForgeConfigSpec.IntValue pendingLifeFluidCap;
+    public final ForgeConfigSpec.IntValue maxBatchesPerSettlement;
 
-    public LifeSynthesisVatConfig(ModConfigSpec.Builder builder) {
+    public LifeSynthesisVatConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Life Synthesis Vat Settings")
                 .translation("config.jdte.jdte.lifeSynthesisVat")
                 .push("lifeSynthesisVat");

@@ -20,10 +20,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.event.TickEvent;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -51,7 +51,10 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
-    public static void onServerTickPost(ServerTickEvent.Post event) {
+    public static void onServerTickPost(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         MinecraftServer server = event.getServer();
         List<Map.Entry<ServerLevel, LevelState>> states = new ArrayList<>();
         for (Map.Entry<ServerLevel, LevelState> entry : LEVELS.entrySet()) {

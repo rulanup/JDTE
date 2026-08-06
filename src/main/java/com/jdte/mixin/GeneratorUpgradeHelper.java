@@ -5,7 +5,7 @@ import com.direwolf20.justdirethings.common.items.FuelCanister;
 import com.direwolf20.justdirethings.common.items.resources.Coal_T1;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 final class GeneratorUpgradeHelper {
     private GeneratorUpgradeHelper() {

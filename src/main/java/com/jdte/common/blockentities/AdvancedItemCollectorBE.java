@@ -20,15 +20,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.fml.ModList;
 
 public class AdvancedItemCollectorBE extends BaseMachineBE
         implements FilterableBE, AreaAffectingBE, RedstoneControlledBE, ExtendedUpgradeMachine {
-    private BlockCapabilityCache<IItemHandler, Direction> attachedInventory;
     private final FilterData filterData = new FilterData();
     private final RedstoneControlData redstoneControlData = new RedstoneControlData();
     private final AreaAffectingData areaAffectingData;
@@ -50,7 +48,7 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override
@@ -88,10 +86,7 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
         AdvancedItemCollectorManager.refresh(this);
     }
 
-    @Override
     public void handleRotate(Direction oldDirection, Direction newDirection) {
-        AreaAffectingBE.super.handleRotate(oldDirection, newDirection);
-        attachedInventory = null;
         AdvancedItemCollectorManager.refresh(this);
     }
 
@@ -139,14 +134,21 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
 
     private IItemHandler getAttachedInventory() {
         if (!(level instanceof ServerLevel serverLevel)) return null;
-        if (attachedInventory == null) {
-            Direction facing = getBlockState().getValue(BlockStateProperties.FACING);
-            attachedInventory = BlockCapabilityCache.create(
-                    Capabilities.ItemHandler.BLOCK,
-                    serverLevel,
-                    getBlockPos().relative(facing),
-                    facing.getOpposite());
+        Direction facing = getBlockState().getValue(BlockStateProperties.FACING);
+        BlockEntity neighbor = serverLevel.getBlockEntity(getBlockPos().relative(facing));
+        if (neighbor == null) return null;
+
+        // Prefer the side facing the collector, then support inventories that only expose an unsided
+        // or differently sided Forge capability.
+        IItemHandler handler = neighbor.getCapability(ForgeCapabilities.ITEM_HANDLER, facing.getOpposite()).orElse(null);
+        if (handler != null) return handler;
+        handler = neighbor.getCapability(ForgeCapabilities.ITEM_HANDLER, null).orElse(null);
+        if (handler != null) return handler;
+        for (Direction side : Direction.values()) {
+            if (side == facing.getOpposite()) continue;
+            handler = neighbor.getCapability(ForgeCapabilities.ITEM_HANDLER, side).orElse(null);
+            if (handler != null) return handler;
         }
-        return attachedInventory.getCapability();
+        return null;
     }
 }

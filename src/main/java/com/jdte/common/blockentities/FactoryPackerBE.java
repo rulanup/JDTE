@@ -52,7 +52,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -316,7 +316,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity != null) {
                 try {
-                    blockEntityData = blockEntity.saveWithId(level.registryAccess());
+                    blockEntityData = blockEntity.saveWithId();
                 } catch (Throwable throwable) {
                     LOGGER.error("Failed to capture factory block entity at {}", pos, throwable);
                     fail(4);
@@ -340,7 +340,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         entityRecords = new ArrayList<>();
         if (JDTEConfig.COMMON.factoryPackerMoveEntities.get()) {
             BlockPos max = operationOrigin.offset(operationSize).offset(-1, -1, -1);
-            AABB area = AABB.encapsulatingFullBlocks(operationOrigin, max);
+            AABB area = new AABB(operationOrigin, max.offset(1, 1, 1));
             List<Entity> roots = level.getEntities((Entity) null, area, entity ->
                     !(entity instanceof Player) && !(entity instanceof TimeAcceleratorEffectEntity)
                             && entity.getVehicle() == null && entity.shouldBeSaved()
@@ -636,7 +636,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
                 return;
             }
             try {
-                CompoundTag moveData = FactoryBlockEntityMoveSupport.beginMove(blockEntity, level.registryAccess());
+                CompoundTag moveData = FactoryBlockEntityMoveSupport.beginMove(blockEntity);
                 if (moveData == null) throw new IllegalStateException("Block entity move strategy rejected the move");
                 records.set(cursor, new BlockRecord(record.relativePos(), record.state(), moveData));
                 rollbackLimit = cursor;
@@ -1123,12 +1123,12 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         if (blockEntity != null) level.removeBlockEntity(pos);
         if (logDiagnostics) {
             reporter.debugLog("mekanism-removal", prepared.describe("after-remove-block-entity",
-                    mekanism.api.radiation.IRadiationManager.INSTANCE.getRadiationLevel(level, pos)));
+                    MekanismFactoryMoveIntegration.currentRadiation(level, pos)));
         }
         level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
         if (logDiagnostics) {
             reporter.debugLog("mekanism-removal", prepared.describe("after-set-air",
-                    mekanism.api.radiation.IRadiationManager.INSTANCE.getRadiationLevel(level, pos)));
+                    MekanismFactoryMoveIntegration.currentRadiation(level, pos)));
         }
     }
 
@@ -1315,7 +1315,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             BlockPos origin = target.get().origin();
             Vec3i dimensions = FactoryPackageItem.getRotatedSize(stack);
             BlockPos max = origin.offset(dimensions).offset(-1, -1, -1);
-            AABB absolute = AABB.encapsulatingFullBlocks(origin, max);
+            AABB absolute = new AABB(origin, max.offset(1, 1, 1));
             BlockPos delta = pos.subtract(getBlockPos());
             return absolute.move(delta.getX(), delta.getY(), delta.getZ());
         }
@@ -1346,7 +1346,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
                 if (!level.getChunkSource().hasChunk(x, z)) return message("chunks_not_loaded");
             }
         }
-        if (AABB.encapsulatingFullBlocks(bounds.min(), max).contains(getBlockPos().getCenter())) {
+        if (new AABB(bounds.min(), max.offset(1, 1, 1)).contains(getBlockPos().getCenter())) {
             return message("contains_packer");
         }
         return null;
@@ -1415,14 +1415,9 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     }
 
     @Override
-    public void handleRotate(Direction oldDirection, Direction newDirection) {
-        if (!isBusy()) AreaAffectingBE.super.handleRotate(oldDirection, newDirection);
-    }
-
-    @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("factoryPackageSlot", packageHandler.serializeNBT(provider));
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("factoryPackageSlot", packageHandler.serializeNBT());
         tag.putInt("factoryPackerEnergy", energy.getEnergyStored());
         tag.putInt("factoryPackerPhase", phase.ordinal());
         tag.putInt("factoryPackerCursor", cursor);
@@ -1446,9 +1441,9 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("factoryPackageSlot")) packageHandler.deserializeNBT(provider, tag.getCompound("factoryPackageSlot"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        if (tag.contains("factoryPackageSlot")) packageHandler.deserializeNBT(tag.getCompound("factoryPackageSlot"));
         if (tag.contains("factoryPackerEnergy")) energy.setEnergy(tag.getInt("factoryPackerEnergy"));
         phase = Phase.values()[Math.floorMod(tag.getInt("factoryPackerPhase"), Phase.values().length)];
         cursor = tag.getInt("factoryPackerCursor");

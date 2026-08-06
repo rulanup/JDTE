@@ -12,11 +12,12 @@ import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,10 +35,10 @@ public class ExtendedFluidCollectorBE extends FluidCollectorT1BE implements Powe
     }
 
     @Override public PoweredMachineContainerData getContainerData() { return poweredMachineData; }
-    @Override public MachineEnergyStorage getEnergyStorage() { return getData(Registration.ENERGYSTORAGE_MACHINES); }
+    @Override public MachineEnergyStorage getEnergyStorage() { return com.jdte.setup.JDTEAttachments.energy(this); }
     @Override public int getStandardEnergyCost() { return 250; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
     @Override public FilterData getFilterData() { return filterData; }
 
     @Override
@@ -57,6 +58,6 @@ public class ExtendedFluidCollectorBE extends FluidCollectorT1BE implements Powe
     public boolean isBlockPosValid(BlockPos pos, FakePlayer fakePlayer) {
         if (!super.isBlockPosValid(pos, fakePlayer)) return false;
         return level.getBlockState(pos).getBlock() instanceof LiquidBlock liquid
-                && isStackValidFilter(liquid);
+                && isStackValidFilter(new ItemStack(liquid));
     }
 }

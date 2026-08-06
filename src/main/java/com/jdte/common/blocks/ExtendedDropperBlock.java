@@ -13,12 +13,12 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class ExtendedDropperBlock extends BaseMachineBlock {
+public class ExtendedDropperBlock extends JDTEMachineBlock {
     public ExtendedDropperBlock() {
         super(Properties.of().sound(SoundType.METAL).strength(2.5f).isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Nullable @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new ExtendedDropperBE(pos, state); }
-    @Override public void openMenu(Player player, BlockPos blockPos) { player.openMenu(new SimpleMenuProvider((w, p, e) -> new ExtendedDropperContainer(w, p, blockPos), Component.translatable("block.jdte.extended_dropper")), buf -> buf.writeBlockPos(blockPos)); }
+    @Override public void openMenu(Player player, BlockPos blockPos) { openScreen(player,new SimpleMenuProvider((w, p, e) -> new ExtendedDropperContainer(w, p, blockPos), Component.translatable("block.jdte.extended_dropper")), buf -> buf.writeBlockPos(blockPos)); }
     @Override public boolean isValidBE(BlockEntity blockEntity) { return blockEntity instanceof ExtendedDropperBE; }
 }

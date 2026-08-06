@@ -3,7 +3,7 @@ package com.jdte.common.upgrades;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class UpgradeItemStackHandler extends ItemStackHandler {
@@ -72,9 +72,6 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         if (machine != null) {
             UpgradeHelper.syncCapacities(machine);
             UpgradeHelper.trimInactiveFilterSlots(machine);
-            if (machine.getLevel() != null) {
-                machine.getLevel().invalidateCapabilities(machine.getBlockPos());
-            }
             machine.markDirtyClient();
         }
     }

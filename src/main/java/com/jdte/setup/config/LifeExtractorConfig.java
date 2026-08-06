@@ -1,12 +1,12 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class LifeExtractorConfig {
-    public final ModConfigSpec.DoubleValue lifeExtractorFluidPerHealth;
-    public final ModConfigSpec.DoubleValue lifeExtractorHighHealthLossPercent;
+    public final ForgeConfigSpec.DoubleValue lifeExtractorFluidPerHealth;
+    public final ForgeConfigSpec.DoubleValue lifeExtractorHighHealthLossPercent;
 
-    public LifeExtractorConfig(ModConfigSpec.Builder builder) {
+    public LifeExtractorConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Life Extractor Settings").translation("config.jdte.jdte.lifeExtractor").push("lifeExtractor");
         lifeExtractorFluidPerHealth = builder
                 .comment("Life Fluid produced per point of the entity's current health (mB)")

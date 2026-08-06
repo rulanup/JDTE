@@ -1,20 +1,23 @@
 package com.jdte.common.recipes;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonObject;
 import com.jdte.setup.JDTERecipes;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
+/** The Forge 1.20.1 NBT/byte-buffer form of the JDTE infusion recipe. */
 public class InfusionRecipe implements CraftingRecipe {
     private final ResourceLocation id;
     private final ItemStack input;
@@ -31,102 +34,64 @@ public class InfusionRecipe implements CraftingRecipe {
     }
 
     public boolean matches(ItemStack stack, FluidStack fluid) {
-        return ItemStack.isSameItemSameComponents(input, stack)
+        return ItemStack.isSameItemSameTags(input, stack)
                 && stack.getCount() >= input.getCount()
                 && fluidInput.getFluid().isSame(fluid.getFluid())
                 && fluid.getAmount() >= fluidInput.getAmount();
     }
 
-    public ItemStack getInput() {
-        return input;
-    }
+    public ItemStack getInput() { return input.copy(); }
+    public FluidStack getFluidInput() { return fluidInput.copy(); }
+    public ItemStack getOutput() { return output.copy(); }
+    public int getEnergyCost() { return energyCost; }
 
-    public FluidStack getFluidInput() {
-        return fluidInput;
-    }
-
-    public ItemStack getOutput() {
-        return output.copy();
-    }
-
-    public int getEnergyCost() {
-        return energyCost;
-    }
-
-    @Override
-    public boolean matches(net.minecraft.world.item.crafting.CraftingInput input, Level level) {
-        return false;
-    }
-
-    @Override
-    public ItemStack assemble(net.minecraft.world.item.crafting.CraftingInput input, net.minecraft.core.HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getResultItem(net.minecraft.core.HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean isSpecial() {
-        return true;
-    }
-
-    @Override
-    public RecipeType<?> getType() {
-        return JDTERecipes.INFUSION_RECIPE_TYPE.get();
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return JDTERecipes.INFUSION_RECIPE_SERIALIZER.get();
-    }
-
-    @Override
-    public net.minecraft.world.item.crafting.CraftingBookCategory category() {
-        return net.minecraft.world.item.crafting.CraftingBookCategory.MISC;
-    }
+    @Override public boolean matches(CraftingContainer input, Level level) { return false; }
+    @Override public ItemStack assemble(CraftingContainer input, RegistryAccess registryAccess) { return ItemStack.EMPTY; }
+    @Override public boolean canCraftInDimensions(int width, int height) { return false; }
+    @Override public ItemStack getResultItem(RegistryAccess registryAccess) { return ItemStack.EMPTY; }
+    @Override public ResourceLocation getId() { return id; }
+    @Override public boolean isSpecial() { return true; }
+    @Override public RecipeType<?> getType() { return JDTERecipes.INFUSION_RECIPE_TYPE.get(); }
+    @Override public RecipeSerializer<?> getSerializer() { return JDTERecipes.INFUSION_RECIPE_SERIALIZER.get(); }
+    @Override public CraftingBookCategory category() { return CraftingBookCategory.MISC; }
 
     public static class Serializer implements RecipeSerializer<InfusionRecipe> {
-        private static final MapCodec<InfusionRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ResourceLocation.CODEC.fieldOf("id").forGetter(r -> r.id),
-                ItemStack.CODEC.fieldOf("input").forGetter(InfusionRecipe::getInput),
-                FluidStack.CODEC.fieldOf("fluid").forGetter(InfusionRecipe::getFluidInput),
-                ItemStack.CODEC.fieldOf("output").forGetter(r -> r.output),
-                net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("energy").forGetter(InfusionRecipe::getEnergyCost)
-        ).apply(instance, InfusionRecipe::new));
-
         @Override
-        public MapCodec<InfusionRecipe> codec() {
-            return CODEC;
+        public InfusionRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+            ResourceLocation storedId = json.has("id")
+                    ? new ResourceLocation(GsonHelper.getAsString(json, "id")) : recipeId;
+            return new InfusionRecipe(storedId, itemStack(GsonHelper.getAsJsonObject(json, "input")),
+                    fluidStack(GsonHelper.getAsJsonObject(json, "fluid")),
+                    itemStack(GsonHelper.getAsJsonObject(json, "output")),
+                    GsonHelper.getAsInt(json, "energy"));
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, InfusionRecipe> streamCodec() {
-            return StreamCodec.of(this::toNetwork, this::fromNetwork);
+        public InfusionRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+            ItemStack input = buffer.readItem();
+            FluidStack fluid = new FluidStack(BuiltInRegistries.FLUID.get(buffer.readResourceLocation()), buffer.readVarInt());
+            ItemStack output = buffer.readItem();
+            return new InfusionRecipe(recipeId, input, fluid, output, buffer.readVarInt());
         }
 
-        private void toNetwork(RegistryFriendlyByteBuf buf, InfusionRecipe recipe) {
-            ItemStack.STREAM_CODEC.encode(buf, recipe.input);
-            ByteBufCodecs.holderRegistry(Registries.FLUID).encode(buf, recipe.fluidInput.getFluid().builtInRegistryHolder());
-            ByteBufCodecs.INT.encode(buf, recipe.fluidInput.getAmount());
-            ItemStack.STREAM_CODEC.encode(buf, recipe.output);
-            ByteBufCodecs.INT.encode(buf, recipe.energyCost);
+        @Override
+        public void toNetwork(FriendlyByteBuf buffer, InfusionRecipe recipe) {
+            buffer.writeItem(recipe.input);
+            buffer.writeResourceLocation(BuiltInRegistries.FLUID.getKey(recipe.fluidInput.getFluid()));
+            buffer.writeVarInt(recipe.fluidInput.getAmount());
+            buffer.writeItem(recipe.output);
+            buffer.writeVarInt(recipe.energyCost);
         }
 
-        private InfusionRecipe fromNetwork(RegistryFriendlyByteBuf buf) {
-            ItemStack input = ItemStack.STREAM_CODEC.decode(buf);
-            var fluidHolder = ByteBufCodecs.holderRegistry(Registries.FLUID).decode(buf);
-            int fluidAmount = ByteBufCodecs.INT.decode(buf);
-            ItemStack output = ItemStack.STREAM_CODEC.decode(buf);
-            int energyCost = ByteBufCodecs.INT.decode(buf);
-            return new InfusionRecipe(ResourceLocation.parse("network"), input, new FluidStack(fluidHolder.value(), fluidAmount), output, energyCost);
+        static ItemStack itemStack(JsonObject json) {
+            Item item = BuiltInRegistries.ITEM.get(new ResourceLocation(GsonHelper.getAsString(json, "id")));
+            if (item == null) throw new IllegalArgumentException("Unknown item in JDTE recipe: " + json);
+            return new ItemStack(item, GsonHelper.getAsInt(json, "count", 1));
+        }
+
+        static FluidStack fluidStack(JsonObject json) {
+            return new FluidStack(BuiltInRegistries.FLUID.get(new ResourceLocation(GsonHelper.getAsString(json, "id"))),
+                    GsonHelper.getAsInt(json, "amount"));
         }
     }
 }

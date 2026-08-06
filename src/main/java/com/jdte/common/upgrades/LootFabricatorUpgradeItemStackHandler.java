@@ -4,7 +4,6 @@ import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.items.LootingUpgradeItem;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.ArrayList;
@@ -31,8 +30,8 @@ public class LootFabricatorUpgradeItemStackHandler extends UpgradeItemStackHandl
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-        super.deserializeNBT(provider, tag);
+    public void deserializeNBT(CompoundTag tag) {
+        super.deserializeNBT(tag);
         if (getSlots() == SLOT_COUNT) return;
 
         List<ItemStack> oldStacks = new ArrayList<>();

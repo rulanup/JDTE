@@ -15,13 +15,12 @@ import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.PlayLevelSoundEvent;
-import net.neoforged.neoforge.event.level.ExplosionEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.PlayLevelSoundEvent;
+import net.minecraftforge.event.level.ExplosionEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,8 +62,7 @@ public final class RangeBlockerManager {
         if (!blocker.isRemoved()) register(blocker);
     }
 
-    public static void onEntityTickPre(EntityTickEvent.Pre event) {
-        Entity entity = event.getEntity();
+    public static void onEntityTickPre(Entity entity) {
         if (entity instanceof ItemEntity item) {
             updateDemagnetization(item);
         }
@@ -91,8 +89,8 @@ public final class RangeBlockerManager {
         if (containsEntity(state.cached.area, entity)) state.lastValidPosition = entity.position();
     }
 
-    public static void onEntityTickPost(EntityTickEvent.Post event) {
-        if (event.getEntity() instanceof Projectile projectile) {
+    public static void onEntityTickPost(Entity entity) {
+        if (entity instanceof Projectile projectile) {
             Map<Projectile, ProjectileState> states = CONTAINED_PROJECTILES.get(projectile.level());
             ProjectileState state = states == null ? null : states.get(projectile);
             if (state != null && !containsBox(state.cached.area, projectile.getBoundingBox())) {
@@ -101,7 +99,6 @@ public final class RangeBlockerManager {
             }
             return;
         }
-        Entity entity = event.getEntity();
         Map<Entity, ContainmentState> states = CONTAINED.get(entity.level());
         if (states == null) return;
         ContainmentState state = states.get(entity);
@@ -378,7 +375,7 @@ public final class RangeBlockerManager {
                 ItemStack filter = blocker.getFilterHandler().getStackInSlot(slot);
                 if (filter.isEmpty()) continue;
                 itemFilters.add(filter.copy());
-                if (filter.getItem() instanceof SpawnEggItem egg) entityTypes.add(egg.getType(filter));
+                if (filter.getItem() instanceof SpawnEggItem egg) entityTypes.add(egg.getType(filter.getTag()));
             }
             return new CachedBlocker(blocker, blocker.getIndexedArea(), blocker.getMode(), blocker.getTarget(),
                     blocker.isBlacklist(), entityTypes, List.copyOf(itemFilters));
@@ -404,7 +401,7 @@ public final class RangeBlockerManager {
             if (itemFilters.isEmpty()) return true;
             boolean listed = false;
             for (ItemStack filter : itemFilters) {
-                if (ItemStack.isSameItemSameComponents(filter, stack)) {
+                if (ItemStack.isSameItemSameTags(filter, stack)) {
                     listed = true;
                     break;
                 }

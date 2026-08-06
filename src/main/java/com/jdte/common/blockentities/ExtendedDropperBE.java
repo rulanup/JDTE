@@ -1,12 +1,11 @@
 package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.common.blockentities.DropperT2BE;
-import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 public class ExtendedDropperBE extends DropperT2BE implements ExtendedUpgradeMachine {
     public ExtendedDropperBE(BlockPos pPos, BlockState pBlockState) {
@@ -15,14 +14,14 @@ public class ExtendedDropperBE extends DropperT2BE implements ExtendedUpgradeMac
 
     @Override
     public ItemStackHandler getMachineHandler() {
-        ItemStackHandler handler = getData(Registration.MACHINE_HANDLER);
+        ItemStackHandler handler = super.getMachineHandler();
         if (handler.getSlots() < MACHINE_SLOTS) {
             ItemStackHandler resized = new ItemStackHandler(MACHINE_SLOTS);
             for (int i = 0; i < handler.getSlots(); i++) {
                 ItemStack stack = handler.getStackInSlot(i);
                 if (!stack.isEmpty()) resized.setStackInSlot(i, stack);
             }
-            setData(Registration.MACHINE_HANDLER, resized);
+            machineHandler = resized;
             setChanged();
             return resized;
         }

@@ -1,5 +1,6 @@
 package com.jdte.mixin;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
@@ -10,6 +11,7 @@ import com.jdte.client.AutoIoConfigScreenBridge;
 import com.jdte.client.UpgradePopupDragHandler;
 import com.jdte.client.screens.util.AutoIoConfigPanelHelper;
 import com.jdte.client.screens.util.FilterPageWidgetHelper;
+import com.jdte.client.screens.util.GuiSpriteCompat;
 import com.jdte.client.screens.util.MachineFluidBarRenderer;
 import com.jdte.client.screens.util.UpgradeSlotLayoutHelper;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
@@ -25,15 +27,17 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeSlot;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.common.utils.UpgradeSlotStorage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -49,7 +53,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@Mixin(BaseMachineScreen.class)
+@Mixin(value = BaseMachineScreen.class, remap = false)
 public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixin implements UpgradePopupDragHandler, AutoIoConfigScreenBridge {
     @Shadow protected BaseMachineContainer container;
     @Shadow protected BaseMachineBE baseMachineBE;
@@ -58,7 +62,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Shadow protected int topSectionHeight;
     @Shadow protected int extraWidth;
     @Shadow protected int extraHeight;
-    @Shadow protected ResourceLocation SOCIALBACKGROUND;
+    @Shadow protected ResourceLocation BACKGROUND_SPRITE;
 
     @Unique private static final ResourceLocation JDTE_IO_CONFIG = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/hammer3.png");
     @Unique private int jdte$filterPressed = 0;
@@ -70,6 +74,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique private boolean jdte$ioConfigOpen;
     @Unique private int jdte$ioConfigButtonX;
     @Unique private int jdte$ioConfigButtonY;
+    @Unique private boolean jdte$rebuildingForResize;
 
     @Unique
     private int jdte$getUpgradeSlots() {
@@ -77,7 +82,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         return UpgradeSlotStorage.getUpgradeSlots(container);
     }
 
-    @Inject(method = "init", at = @At("HEAD"))
+    @Inject(remap = false, method = "init", at = @At("HEAD"))
     private void jdte$expandLowerSection(CallbackInfo ci) {
         if (jdte$baseImageHeight < 0) {
             jdte$baseImageHeight = imageHeight;
@@ -85,7 +90,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         imageHeight = jdte$baseImageHeight;
     }
 
-    @Inject(method = "setTopSection", at = @At("TAIL"))
+    @Inject(remap = false, method = "setTopSection", at = @At("TAIL"))
     private void jdte$expandMachinePanel(CallbackInfo ci) {
         this.extraHeight = Math.max(this.extraHeight, 0);
         if (baseMachineBE != null) {
@@ -98,28 +103,67 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         }
     }
 
-    @Inject(method = "renderBg", at = @At("HEAD"))
+    @Inject(remap = false, method = "renderBg", at = @At("HEAD"))
     private void jdte$prepareDynamicLayout(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+        jdte$refreshStaleLayout();
         if (container == null || baseMachineBE == null) return;
         jdte$clampFilterPage();
         UpgradeSlotLayoutHelper.layoutSlots(container, jdte$getUpgradeSlots());
     }
 
-    @Inject(method = "renderBg", at = @At(value = "INVOKE", target = "Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;drawSlot(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V", ordinal = 0))
+    @Inject(remap = false, method = "renderInventoryBackground", at = @At("HEAD"), cancellable = true)
+    private void jdte$renderForgeInventoryBackground(GuiGraphics guiGraphics, int guiLeft, int guiTop, CallbackInfo ci) {
+        int inventoryHeight = imageHeight - 73;
+        if (inventoryHeight > 0) {
+            // Forge JDT's atlas no longer contains the framed inventory backdrop from the 1.21 build.
+            // Draw the shared panel frame here; BaseMachineScreen still renders every inventory slot normally.
+            GuiSpriteCompat.blitSprite(guiGraphics, BACKGROUND_SPRITE, guiLeft, guiTop + 75, imageWidth, inventoryHeight);
+        }
+        ci.cancel();
+    }
+
+    /**
+     * Forge 1.20.1 can keep an open container screen alive across a window resize.
+     * Rebuild the widgets if its logical bounds or container origin missed that resize.
+     */
+    @Unique
+    private void jdte$refreshStaleLayout() {
+        if (jdte$rebuildingForResize) return;
+
+        Minecraft minecraft = Minecraft.getInstance();
+        int scaledWidth = minecraft.getWindow().getGuiScaledWidth();
+        int scaledHeight = minecraft.getWindow().getGuiScaledHeight();
+        if (scaledWidth <= 0 || scaledHeight <= 0) return;
+
+        int expectedLeft = (width - imageWidth) / 2;
+        int expectedTop = (height - imageHeight) / 2;
+        boolean staleWindowBounds = width != scaledWidth || height != scaledHeight;
+        boolean staleGuiOrigin = getGuiLeft() != expectedLeft || getGuiTop() != expectedTop;
+        if (!staleWindowBounds && !staleGuiOrigin) return;
+
+        jdte$rebuildingForResize = true;
+        try {
+            ((Screen) (Object) this).resize(minecraft, scaledWidth, scaledHeight);
+        } finally {
+            jdte$rebuildingForResize = false;
+        }
+    }
+
+    @Inject(remap = false, method = "renderBg", at = @At("TAIL"))
     private void jdte$renderUpgradePopup(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
         int slots = jdte$getUpgradeSlots();
         if (slots <= 0) return;
         UpgradeSlotLayoutHelper.renderFixedUpgradePanels(guiGraphics, slots, getGuiLeft(), getGuiTop());
     }
 
-    @Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
+    @Inject(remap = false, method = "drawSlot", at = @At("HEAD"), cancellable = true)
     private void jdte$hideInactiveFilterSlots(GuiGraphics guiGraphics, Slot slot, CallbackInfo ci) {
         if (slot instanceof DynamicFilterSlot filterSlot && !filterSlot.isActive()) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    @Inject(remap = false, method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void jdte$mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (button != 0) return;
 
@@ -194,7 +238,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         return areas;
     }
 
-    @Inject(method = "init", at = @At("TAIL"))
+    @Inject(remap = false, method = "init", at = @At("TAIL"))
     private void jdte$initFilterPage(CallbackInfo ci) {
         jdte$updateFilterButtonPositions();
         if (jdte$hasIoConfigTarget()) {
@@ -235,7 +279,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
             holder.jdte$setFilterPage(newPage);
         }
         UpgradeSlotLayoutHelper.layoutSlots(container, jdte$getUpgradeSlots());
-        PacketDistributor.sendToServer(new FilterPagePayload(newPage));
+        JDTEPacketHandler.CHANNEL.sendToServer(new FilterPagePayload(newPage));
         jdte$playClickSound();
     }
 
@@ -248,7 +292,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         if (!jdte$hasFilterUpgrades()) {
             if (holder.jdte$getFilterPage() != 0) {
                 holder.jdte$setFilterPage(0);
-                PacketDistributor.sendToServer(new FilterPagePayload(0));
+                JDTEPacketHandler.CHANNEL.sendToServer(new FilterPagePayload(0));
             }
             return;
         }
@@ -256,7 +300,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         int maxPage = FilterPageWidgetHelper.getMaxFilterPage(container, baseMachineBE, slotsPerPage);
         if (holder.jdte$getFilterPage() > maxPage) {
             holder.jdte$setFilterPage(0);
-            PacketDistributor.sendToServer(new FilterPagePayload(0));
+            JDTEPacketHandler.CHANNEL.sendToServer(new FilterPagePayload(0));
         }
     }
 
@@ -270,7 +314,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         return MiscTools.inBounds(jdte$filterNextX, jdte$filterButtonsY, 12, 12, mouseX, mouseY);
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
+    @Inject(remap = false, method = "renderBg", at = @At("TAIL"))
     private void jdte$renderFilterPageButtons(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
         if (container == null || baseMachineBE == null) return;
         if (!jdte$hasFilterUpgrades()) return;
@@ -284,12 +328,12 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 currentPage, maxPage, jdte$filterPressed);
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
+    @Inject(remap = false, method = "renderBg", at = @At("TAIL"))
     private void jdte$renderIoConfig(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
         if (!jdte$hasIoConfigTarget()) return;
         jdte$updateIoConfigButtonPosition();
         if (jdte$ioConfigOpen) {
-            AutoIoConfigPanelHelper.renderPanel(guiGraphics, SOCIALBACKGROUND, jdte$getIoConfigPanelX(), jdte$getIoConfigPanelY(),
+            AutoIoConfigPanelHelper.renderPanel(guiGraphics, BACKGROUND_SPRITE, jdte$getIoConfigPanelX(), jdte$getIoConfigPanelY(),
                     AutoIoConfigClientCache.getInputMask(baseMachineBE), AutoIoConfigClientCache.getOutputMask(baseMachineBE));
         }
         AutoIoConfigPanelHelper.drawSmallIconButton(guiGraphics, jdte$ioConfigButtonX, jdte$ioConfigButtonY, JDTE_IO_CONFIG, true);
@@ -341,7 +385,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
+    @Inject(remap = false, method = "renderTooltip", at = @At("TAIL"))
     private void jdte$renderUpgradeTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (container == null || baseMachineBE == null) return;
 
@@ -363,17 +407,17 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         }
     }
 
-    @ModifyConstant(method = "addAreaButtons", constant = @Constant(doubleValue = 5.0D), require = 0)
+    @ModifyConstant(remap = false, method = "addAreaButtons", constant = @Constant(doubleValue = 5.0D), require = 0)
     private double jdte$areaRadiusMax(double original) {
         return UpgradeHelper.getMaxAreaRadius(baseMachineBE);
     }
 
-    @ModifyConstant(method = "addAreaButtons", constant = @Constant(intValue = 9), require = 0)
+    @ModifyConstant(remap = false, method = "addAreaButtons", constant = @Constant(intValue = 9), require = 0)
     private int jdte$areaOffsetMax(int original) {
         return UpgradeHelper.getMaxAreaOffset(baseMachineBE);
     }
 
-    @ModifyConstant(method = "addAreaButtons", constant = @Constant(intValue = -9), require = 0)
+    @ModifyConstant(remap = false, method = "addAreaButtons", constant = @Constant(intValue = -9), require = 0)
     private int jdte$areaOffsetMin(int original) {
         return -UpgradeHelper.getMaxAreaOffset(baseMachineBE);
     }
@@ -383,7 +427,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         return 204;
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
+    @Inject(remap = false, method = "renderBg", at = @At("TAIL"))
     private void jdte$renderClickerFluidBar(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
         if (!UpgradeHelper.hasFluidStorageUpgrade(baseMachineBE)) {
             return;
@@ -395,7 +439,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 topSectionLeft + offset, topSectionTop + 5);
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
+    @Inject(remap = false, method = "renderTooltip", at = @At("TAIL"))
     private void jdte$renderClickerFluidTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (!UpgradeHelper.hasFluidStorageUpgrade(baseMachineBE)) {
             return;
@@ -409,11 +453,11 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         FluidStack fluidStack = container.getFluidStack();
         int maxMb = UpgradeHelper.getClickerFluidCapacity(baseMachineBE);
         guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
-                Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(container.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
+                Component.translatable("justdirethings.screen.fluid", fluidStack.getDisplayName(), MagicHelpers.withSuffix(container.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
         )), mouseX, mouseY);
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
+    @Inject(remap = false, method = "renderTooltip", at = @At("TAIL"))
     private void jdte$renderFilterButtonTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (container == null || baseMachineBE == null) return;
         if (!jdte$hasFilterUpgrades()) return;
@@ -426,7 +470,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         }
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
+    @Inject(remap = false, method = "renderTooltip", at = @At("TAIL"))
     private void jdte$renderIoConfigTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (!jdte$hasIoConfigTarget()) return;
         jdte$updateIoConfigButtonPosition();

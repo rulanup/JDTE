@@ -1,5 +1,6 @@
 package com.jdte.client.screens;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
@@ -19,7 +20,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 public class LargeGreenhouseScreen extends BaseMachineScreen<LargeGreenhouseContainer> {
     private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
@@ -32,15 +33,6 @@ public class LargeGreenhouseScreen extends BaseMachineScreen<LargeGreenhouseCont
     public LargeGreenhouseScreen(LargeGreenhouseContainer container, Inventory inventory, Component title) {
         super(container, inventory, title);
         greenhouseContainer = container;
-    }
-
-    @Override
-    protected void renderSlotContents(GuiGraphics graphics, ItemStack stack, Slot slot, String countLabel) {
-        if (greenhouseContainer.isOutputSlot(slot) && stack.getCount() > 1) {
-            GreenhouseSlotCountRenderer.render(graphics, font, stack, slot, imageWidth, countLabel);
-            return;
-        }
-        super.renderSlotContents(graphics, stack, slot, countLabel);
     }
 
     @Override
@@ -61,7 +53,7 @@ public class LargeGreenhouseScreen extends BaseMachineScreen<LargeGreenhouseCont
 
     private void renderEnergyBar(GuiGraphics graphics) {
         int maxEnergy = Math.max(1, greenhouseContainer.getLargeGreenhouse().getMaxEnergy());
-        int fill = Math.clamp((int) ((long) greenhouseContainer.getEnergy() * 70L / maxEnergy), 0, 70);
+        int fill = net.minecraft.util.Mth.clamp((int) ((long) greenhouseContainer.getEnergy() * 70L / maxEnergy), 0, 70);
         int x = topSectionLeft + getEnergyBarOffset();
         int y = topSectionTop + 5;
         graphics.blit(POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
@@ -73,7 +65,7 @@ public class LargeGreenhouseScreen extends BaseMachineScreen<LargeGreenhouseCont
                 + greenhouseContainer.getOutputSlotsPerPage();
         for (int i = 0; i < Math.min(machineSlots, container.slots.size()); i++) {
             Slot slot = container.slots.get(i);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, ResourceLocation.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
     }
@@ -82,7 +74,7 @@ public class LargeGreenhouseScreen extends BaseMachineScreen<LargeGreenhouseCont
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int x = getGuiLeft() + layout.getGreenhouseProgressArrowX();
         int y = getGuiTop() + layout.getGreenhouseProgressArrowY();
-        int stage = Math.clamp(greenhouseContainer.getProgress() * 5
+        int stage = net.minecraft.util.Mth.clamp(greenhouseContainer.getProgress() * 5
                 / Math.max(1, greenhouseContainer.getProgressMax()), 0, 5);
         graphics.fill(x, y + 10, x + 24, y + 14, 0xFF38271E);
         graphics.fill(x + 1, y + 10, x + 23, y + 12, 0xFF6A4930);
@@ -139,7 +131,7 @@ public class LargeGreenhouseScreen extends BaseMachineScreen<LargeGreenhouseCont
                 24, 12, greenhouseContainer.getMultiplier(), 1, greenhouseContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.large_greenhouse.multiplier"), button -> {
                     int multiplier = ((NumberButton) button).getValue();
-                    PacketDistributor.sendToServer(new TimeAcceleratorPayload(multiplier));
+                    JDTEPacketHandler.CHANNEL.sendToServer(new TimeAcceleratorPayload(multiplier));
                 });
         addRenderableWidget(multiplierButton);
     }
@@ -167,7 +159,7 @@ public class LargeGreenhouseScreen extends BaseMachineScreen<LargeGreenhouseCont
             return super.mouseClicked(mouseX, mouseY, button);
         }
         greenhouseContainer.setOutputPage(greenhouseContainer.getOutputPage() + delta);
-        PacketDistributor.sendToServer(new FilterPagePayload(greenhouseContainer.getOutputPage()));
+        JDTEPacketHandler.CHANNEL.sendToServer(new FilterPagePayload(greenhouseContainer.getOutputPage()));
         playPageSound();
         return true;
     }

@@ -4,12 +4,12 @@ import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachin
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.network.data.FactoryPackerStartPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.jdte.common.network.PacketContext;
 
 public final class FactoryPackerStartPacket {
     private FactoryPackerStartPacket() {}
 
-    public static void handle(FactoryPackerStartPayload payload, IPayloadContext context) {
+    public static void handle(FactoryPackerStartPayload payload, PacketContext context) {
         context.enqueueWork(() -> {
             if (context.player() instanceof ServerPlayer player
                     && player.containerMenu instanceof BaseMachineContainer menu

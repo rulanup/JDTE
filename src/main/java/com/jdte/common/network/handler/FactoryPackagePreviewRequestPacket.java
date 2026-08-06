@@ -1,5 +1,6 @@
 package com.jdte.common.network.handler;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.factory.FactoryPackageStorage;
 import com.jdte.common.factory.FactoryPackageStorage.BlockRecord;
 import com.jdte.common.items.FactoryPackageItem;
@@ -13,8 +14,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.PacketDistributor;
+import com.jdte.common.network.PacketContext;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public final class FactoryPackagePreviewRequestPacket {
 
     private FactoryPackagePreviewRequestPacket() {}
 
-    public static void handle(FactoryPackagePreviewRequestPayload payload, IPayloadContext context) {
+    public static void handle(FactoryPackagePreviewRequestPayload payload, PacketContext context) {
         context.enqueueWork(() -> {
             if (!(context.player() instanceof ServerPlayer player)) return;
             ItemStack held = FactoryPackageItem.isFilled(player.getMainHandItem())
@@ -46,7 +47,7 @@ public final class FactoryPackagePreviewRequestPacket {
                             for (int index = 0; index < chunks; index++) {
                                 int from = index * CHUNK_SIZE;
                                 int to = Math.min(blocks.size(), from + CHUNK_SIZE);
-                                PacketDistributor.sendToPlayer(player, new FactoryPackagePreviewChunkPayload(
+                                JDTEPacketHandler.sendToPlayer(player, new FactoryPackagePreviewChunkPayload(
                                         payload.packageId(), data.size(), index, chunks,
                                         List.copyOf(blocks.subList(from, to))));
                             }

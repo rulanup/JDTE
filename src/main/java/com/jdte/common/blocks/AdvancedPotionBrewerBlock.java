@@ -6,7 +6,7 @@ import com.jdte.common.containers.AdvancedPotionBrewerContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class AdvancedPotionBrewerBlock extends BaseMachineBlock {
+public class AdvancedPotionBrewerBlock extends JDTEMachineBlock {
     public AdvancedPotionBrewerBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
@@ -29,8 +29,9 @@ public class AdvancedPotionBrewerBlock extends BaseMachineBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
-        return FluidContainerTransfer.useItemOn(itemStack, blockState, level, blockPos, player, hand, hit);
+    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack itemStack = player.getItemInHand(hand);
+        return useWithFluidContainer(itemStack, blockState, level, blockPos, player, hand, hit);
     }
 
     @Nullable
@@ -41,7 +42,7 @@ public class AdvancedPotionBrewerBlock extends BaseMachineBlock {
 
     @Override
     public void openMenu(Player player, BlockPos blockPos) {
-        player.openMenu(new SimpleMenuProvider(
+        openScreen(player,new SimpleMenuProvider(
                 (windowId, playerInventory, playerEntity) -> new AdvancedPotionBrewerContainer(windowId, playerInventory, blockPos),
                 Component.translatable("block.jdte.advanced_potion_brewer")), (buf -> {
             buf.writeBlockPos(blockPos);

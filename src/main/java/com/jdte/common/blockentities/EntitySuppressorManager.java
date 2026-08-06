@@ -12,12 +12,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.common.util.TriState;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -43,20 +41,17 @@ public final class EntitySuppressorManager {
         if (!suppressor.isRemoved()) register(suppressor);
     }
 
-    public static void onEntityTick(EntityTickEvent.Pre event) {
-        Entity entity = event.getEntity();
-        if (isAlwaysProtected(entity)) return;
+    public static boolean shouldSuppressEntityTick(Entity entity) {
+        if (isAlwaysProtected(entity)) return false;
         boolean server = entity.level() instanceof ServerLevel;
-        if (matches(entity.level(), entity.position(), entity,
-                EntitySuppressorBE.Mode.SUPPRESS_TICK, server)) {
-            event.setCanceled(true);
-        }
+        return matches(entity.level(), entity.position(), entity,
+                EntitySuppressorBE.Mode.SUPPRESS_TICK, server);
     }
 
-    public static void onItemPickup(ItemEntityPickupEvent.Pre event) {
-        Entity item = event.getItemEntity();
+    public static void onItemPickup(EntityItemPickupEvent event) {
+        Entity item = event.getItem();
         if (matches(item.level(), item.position(), item, EntitySuppressorBE.Mode.SUPPRESS_TICK, true)) {
-            event.setCanPickup(TriState.FALSE);
+            event.setCanceled(true);
         }
     }
 
@@ -80,7 +75,7 @@ public final class EntitySuppressorManager {
         Mob mob = event.getEntity();
         if (!(mob.level() instanceof ServerLevel) || isAlwaysProtected(mob)) return;
         if (matches(mob.level(), mob.position(), mob, EntitySuppressorBE.Mode.BLOCK_ENTITY, true)) {
-            event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
+            event.setResult(net.minecraftforge.eventbus.api.Event.Result.DENY);
         }
     }
 
@@ -157,7 +152,7 @@ public final class EntitySuppressorManager {
             Set<net.minecraft.world.entity.EntityType<?>> types = Collections.newSetFromMap(new IdentityHashMap<>());
             for (int slot = 0; slot < suppressor.getFilterHandler().getSlots(); slot++) {
                 ItemStack stack = suppressor.getFilterHandler().getStackInSlot(slot);
-                if (stack.getItem() instanceof SpawnEggItem egg) types.add(egg.getType(stack));
+                if (stack.getItem() instanceof SpawnEggItem egg) types.add(egg.getType(stack.getTag()));
             }
             return new CachedSuppressor(suppressor, suppressor.getIndexedArea(),
                     suppressor.getMode(), suppressor.getTarget(), suppressor.isBlacklist(), types);

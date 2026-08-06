@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class ExtendedClickerBlock extends BaseMachineBlock {
+public class ExtendedClickerBlock extends JDTEMachineBlock {
     public ExtendedClickerBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
@@ -31,7 +31,7 @@ public class ExtendedClickerBlock extends BaseMachineBlock {
 
     @Override
     public void openMenu(Player player, BlockPos blockPos) {
-        player.openMenu(new SimpleMenuProvider(
+        openScreen(player,new SimpleMenuProvider(
                 (windowId, playerInventory, playerEntity) -> new ExtendedClickerContainer(windowId, playerInventory, blockPos), Component.translatable("block.jdte.extended_clicker")), (buf -> {
             buf.writeBlockPos(blockPos);
         }));

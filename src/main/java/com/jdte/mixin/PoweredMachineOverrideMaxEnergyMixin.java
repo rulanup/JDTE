@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin({EnergyTransmitterBE.class, GeneratorFluidT1BE.class, GeneratorT1BE.class, ParadoxMachineBE.class})
+@Mixin(value = {EnergyTransmitterBE.class, GeneratorFluidT1BE.class, GeneratorT1BE.class, ParadoxMachineBE.class}, remap = false)
 public abstract class PoweredMachineOverrideMaxEnergyMixin {
-    @Inject(method = "getMaxEnergy", at = @At("RETURN"), cancellable = true)
+    @Inject(remap = false, method = "getMaxEnergy", at = @At("RETURN"), cancellable = true)
     private void jdte$adjustMaxEnergy(CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(UpgradeHelper.adjustEnergyCapacity((BaseMachineBE) (Object) this, cir.getReturnValue()));
     }

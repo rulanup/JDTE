@@ -17,7 +17,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,11 +35,10 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
         List<GreenhouseJeiRecipe> result = new ArrayList<>();
         Set<Item> seen = new HashSet<>();
 
-        for (var holder : manager.getAllRecipesFor(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
-            GreenhouseRecipe recipe = holder.value();
+        for (GreenhouseRecipe recipe : manager.getAllRecipesFor(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
             for (ItemStack stack : recipe.seed().getItems()) {
                 if (!stack.isEmpty() && seen.add(stack.getItem())) {
-                    result.add(create(holder.id(), stack, recipe.outputs(), recipe.timeFluid(), recipe.growthWork()));
+                    result.add(create(recipe.getId(), stack, recipe.outputs(), recipe.timeFluid(), recipe.growthWork()));
                 }
             }
         }

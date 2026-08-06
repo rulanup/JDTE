@@ -4,9 +4,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.level.ServerLevel;
-import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
-import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +58,8 @@ public final class BioCrusherDropCapture {
         CaptureContext context = ACTIVE_CAPTURE.get();
         if (context == null || context.target != entity || context.experienceCaptured) return;
 
-        int baseExperience = entity.getExperienceReward(level, player);
-        int finalExperience = EventHooks.getExperienceDrop(entity, player, baseExperience);
+        int baseExperience = entity.getExperienceReward();
+        int finalExperience = ForgeEventFactory.getExperienceDrop(entity, player, baseExperience);
         if (!context.experienceCaptured) {
             context.experience = Math.max(0, finalExperience);
             context.experienceCaptured = true;

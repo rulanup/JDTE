@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class CrystalIncubatorBlock extends BaseMachineBlock {
+public class CrystalIncubatorBlock extends JDTEMachineBlock {
     public CrystalIncubatorBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
@@ -30,7 +30,7 @@ public class CrystalIncubatorBlock extends BaseMachineBlock {
 
     @Override
     public void openMenu(Player player, BlockPos blockPos) {
-        player.openMenu(new SimpleMenuProvider(
+        openScreen(player,new SimpleMenuProvider(
                 (windowId, inventory, ignored) -> new CrystalIncubatorContainer(windowId, inventory, blockPos),
                 Component.translatable("block.jdte.crystal_incubator")), buffer -> buffer.writeBlockPos(blockPos));
     }

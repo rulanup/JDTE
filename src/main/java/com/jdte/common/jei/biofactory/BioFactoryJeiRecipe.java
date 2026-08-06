@@ -6,7 +6,7 @@ import com.jdte.setup.JDTERecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,13 +25,12 @@ public record BioFactoryJeiRecipe(ResourceLocation id, List<ItemStack> specimens
                 : minecraft.getConnection() != null ? minecraft.getConnection().getRecipeManager() : null;
         if (manager == null) return List.of();
         List<BioFactoryJeiRecipe> result = new ArrayList<>();
-        for (var holder : manager.getAllRecipesFor(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get())) {
-            BioFactoryRecipe recipe = holder.value();
+        for (BioFactoryRecipe recipe : manager.getAllRecipesFor(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get())) {
             List<JeiOutput> outputs = recipe.outputs().stream()
                     .map(output -> new JeiOutput(List.of(output.stack()), output.chance())).toList();
             List<JeiInput> inputs = recipe.inputs().stream()
                     .map(input -> new JeiInput(List.of(input.ingredient().getItems()), input.count())).toList();
-            result.add(new BioFactoryJeiRecipe(holder.id(), List.of(recipe.specimen().getItems()),
+            result.add(new BioFactoryJeiRecipe(recipe.getId(), List.of(recipe.specimen().getItems()),
                     inputs, outputs, recipe.processFluid(),
                     recipe.processFluidAmount(), recipe.outputFluid(), recipe.outputFluidAmount(),
                     com.jdte.setup.JDTEConfig.COMMON.bioFactoryLifeFluidPerCycle.get(),

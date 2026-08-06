@@ -15,8 +15,7 @@ public final class GreenhouseSlotCountRenderer {
     public static void render(GuiGraphics graphics, Font font, ItemStack stack, Slot slot,
                               int imageWidth, String countLabel) {
         int seed = slot.x + slot.y * imageWidth;
-        if (slot.isFake()) graphics.renderFakeItem(stack, slot.x, slot.y, seed);
-        else graphics.renderItem(stack, slot.x, slot.y, seed);
+        graphics.renderItem(stack, slot.x, slot.y, seed);
 
         // Preserve durability/cooldown decorations without drawing the vanilla-sized count.
         graphics.renderItemDecorations(font, stack.copyWithCount(1), slot.x, slot.y, null);

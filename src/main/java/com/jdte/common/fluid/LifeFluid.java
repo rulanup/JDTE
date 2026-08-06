@@ -6,9 +6,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.neoforged.neoforge.fluids.BaseFlowingFluid;
+import net.minecraftforge.fluids.ForgeFlowingFluid;
 
-public abstract class LifeFluid extends BaseFlowingFluid {
+public abstract class LifeFluid extends ForgeFlowingFluid {
     public static final Properties PROPERTIES = new Properties(
             JDTEFluids.LIFE_FLUID_TYPE,
             JDTEFluids.LIFE_FLUID_FLOWING,

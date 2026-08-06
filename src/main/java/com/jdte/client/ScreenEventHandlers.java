@@ -3,7 +3,7 @@ package com.jdte.client;
 import com.direwolf20.justdirethings.client.screens.ClickerT2Screen;
 import com.jdte.common.blockentities.ExtendedClickerBE;
 import com.jdte.mixin.BaseMachineScreenAccessor;
-import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 
 public final class ScreenEventHandlers {
     private ScreenEventHandlers() {

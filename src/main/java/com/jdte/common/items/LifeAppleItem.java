@@ -17,14 +17,14 @@ public class LifeAppleItem extends Item {
                 .stacksTo(64)
                 .food(new FoodProperties.Builder()
                         .nutrition(0)
-                        .saturationModifier(0)
-                        .alwaysEdible()
+                        .saturationMod(0.0F)
+                        .alwaysEat()
                         .build())
         );
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack) {
         return 20;
     }
 
@@ -38,8 +38,8 @@ public class LifeAppleItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.jdte.life_apple").withStyle(ChatFormatting.RED));
     }
 }

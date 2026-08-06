@@ -1,24 +1,24 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class BioFactoryConfig {
-    public final ModConfigSpec.IntValue bioFactoryFluidCapacity;
-    public final ModConfigSpec.IntValue bioFactoryEnergyCapacity;
-    public final ModConfigSpec.IntValue bioFactoryEnergyPerCycle;
-    public final ModConfigSpec.IntValue bioFactoryBaseProcessTicks;
-    public final ModConfigSpec.IntValue bioFactorySettlementInterval;
-    public final ModConfigSpec.IntValue bioFactoryTimeFluidPerCycle;
-    public final ModConfigSpec.IntValue bioFactoryMaxSpeedMultiplier;
-    public final ModConfigSpec.IntValue bioFactoryDefaultSpeedMultiplier;
-    public final ModConfigSpec.IntValue bioFactoryOverclockMaxSpeedMultiplier;
-    public final ModConfigSpec.IntValue bioFactoryLifeFluidPerCycle;
-    public final ModConfigSpec.DoubleValue bioFactoryLifeYieldMultiplier;
-    public final ModConfigSpec.IntValue bioFactoryProcessFluidPerCycle;
-    public final ModConfigSpec.IntValue bioFactoryExternalTimeFluidCostMultiplier;
-    public final ModConfigSpec.IntValue bioFactoryExternalLifeFluidCostMultiplier;
+    public final ForgeConfigSpec.IntValue bioFactoryFluidCapacity;
+    public final ForgeConfigSpec.IntValue bioFactoryEnergyCapacity;
+    public final ForgeConfigSpec.IntValue bioFactoryEnergyPerCycle;
+    public final ForgeConfigSpec.IntValue bioFactoryBaseProcessTicks;
+    public final ForgeConfigSpec.IntValue bioFactorySettlementInterval;
+    public final ForgeConfigSpec.IntValue bioFactoryTimeFluidPerCycle;
+    public final ForgeConfigSpec.IntValue bioFactoryMaxSpeedMultiplier;
+    public final ForgeConfigSpec.IntValue bioFactoryDefaultSpeedMultiplier;
+    public final ForgeConfigSpec.IntValue bioFactoryOverclockMaxSpeedMultiplier;
+    public final ForgeConfigSpec.IntValue bioFactoryLifeFluidPerCycle;
+    public final ForgeConfigSpec.DoubleValue bioFactoryLifeYieldMultiplier;
+    public final ForgeConfigSpec.IntValue bioFactoryProcessFluidPerCycle;
+    public final ForgeConfigSpec.IntValue bioFactoryExternalTimeFluidCostMultiplier;
+    public final ForgeConfigSpec.IntValue bioFactoryExternalLifeFluidCostMultiplier;
 
-    public BioFactoryConfig(ModConfigSpec.Builder builder) {
+    public BioFactoryConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Bio Factory Settings")
                 .translation("config.jdte.jdte.bioFactory")
                 .push("bioFactory");

@@ -1,23 +1,25 @@
 package com.jdte.common.recipes;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import com.google.gson.JsonObject;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 
 public record BioFactoryOutput(ItemStack stack, float chance) {
-    public static final Codec<BioFactoryOutput> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ItemStack.CODEC.fieldOf("item").forGetter(BioFactoryOutput::stack),
-            Codec.FLOAT.optionalFieldOf("chance", 1.0F).forGetter(BioFactoryOutput::chance)
-    ).apply(instance, BioFactoryOutput::new));
+    public static BioFactoryOutput fromJson(JsonObject json) {
+        return new BioFactoryOutput(InfusionRecipe.Serializer.itemStack(GsonHelper.getAsJsonObject(json, "item")),
+                GsonHelper.getAsFloat(json, "chance", 1.0F));
+    }
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, BioFactoryOutput> STREAM_CODEC = StreamCodec.composite(
-            ItemStack.STREAM_CODEC, BioFactoryOutput::stack,
-            ByteBufCodecs.FLOAT, BioFactoryOutput::chance,
-            BioFactoryOutput::new);
+    public static BioFactoryOutput fromNetwork(FriendlyByteBuf buffer) {
+        return new BioFactoryOutput(buffer.readItem(), buffer.readFloat());
+    }
+
+    public void toNetwork(FriendlyByteBuf buffer) {
+        buffer.writeItem(stack);
+        buffer.writeFloat(chance);
+    }
 
     public ItemStack roll(RandomSource random, double multiplier) {
         if (stack.isEmpty() || random.nextFloat() >= chance) return ItemStack.EMPTY;

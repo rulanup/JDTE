@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,10 +35,10 @@ public class ExtendedFluidPlacerBE extends FluidPlacerT1BE implements PoweredMac
     }
 
     @Override public PoweredMachineContainerData getContainerData() { return poweredMachineData; }
-    @Override public MachineEnergyStorage getEnergyStorage() { return getData(Registration.ENERGYSTORAGE_MACHINES); }
+    @Override public MachineEnergyStorage getEnergyStorage() { return com.jdte.setup.JDTEAttachments.energy(this); }
     @Override public int getStandardEnergyCost() { return 250; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
     @Override public FilterData getFilterData() { return filterData; }
 
     @Override

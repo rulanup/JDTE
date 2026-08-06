@@ -2,7 +2,6 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeItemStackHandler;
 import net.minecraft.core.BlockPos;
@@ -20,19 +19,21 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(BaseMachineBlock.class)
+@Mixin(value = BaseMachineBlock.class, remap = false)
 public abstract class BaseMachineBlockMixin {
-    @Inject(method = "getDrops", at = @At("RETURN"))
+    @Inject(remap = false, method = "getDrops", at = @At("RETURN"))
     private void jdte$removeMachineDataFromNormalDrops(BlockState state, LootParams.Builder builder,
                                                        CallbackInfoReturnable<java.util.List<ItemStack>> cir) {
         for (ItemStack stack : cir.getReturnValue()) {
             if (stack.is(state.getBlock().asItem())) {
-                stack.remove(JustDireDataComponents.CUSTOM_DATA_1);
+                if (stack.getTag() != null) {
+                    stack.getTag().remove("JustDiresBEData");
+                }
             }
         }
     }
 
-    @Inject(method = "getTicker", at = @At("RETURN"), cancellable = true)
+    @Inject(remap = false, method = "getTicker", at = @At("RETURN"), cancellable = true)
     private <T extends BlockEntity> void jdte$wrapServerTicker(Level level, BlockState state, BlockEntityType<T> type, CallbackInfoReturnable<BlockEntityTicker<T>> cir) {
         if (level.isClientSide()) {
             return;
@@ -51,7 +52,7 @@ public abstract class BaseMachineBlockMixin {
         });
     }
 
-    @Inject(method = "onRemove", at = @At("HEAD"))
+    @Inject(remap = false, method = "onRemove", at = @At("HEAD"))
     private void jdte$dropUpgradeCards(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving, CallbackInfo ci) {
         if (level.isClientSide() || newState.getBlock() == state.getBlock()) {
             return;
@@ -64,7 +65,7 @@ public abstract class BaseMachineBlockMixin {
 
         UpgradeItemStackHandler handler = UpgradeHelper.getUpgradeHandler(machine);
         if (machine instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
-            net.neoforged.neoforge.items.ItemStackHandler customHandler = fabricator.getUpgradeHandler();
+            net.minecraftforge.items.ItemStackHandler customHandler = fabricator.getUpgradeHandler();
             for (int i = 0; i < customHandler.getSlots(); i++) {
                 ItemStack stack = customHandler.getStackInSlot(i);
                 if (!stack.isEmpty()) {

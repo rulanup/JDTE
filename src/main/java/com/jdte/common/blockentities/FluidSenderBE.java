@@ -27,9 +27,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,7 +156,7 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
     }
 
     private int sendFluidToSide(ServerLevel serverLevel, BlockPos targetPos, Direction side, int limit) {
-        IFluidHandler targetHandler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, side);
+        IFluidHandler targetHandler = com.jdte.common.capabilities.ForgeCapabilityHelper.get(serverLevel, targetPos, ForgeCapabilities.FLUID_HANDLER, side);
         if (targetHandler == null) return 0;
 
         FluidStack toSend = fluidTank.drain(limit, IFluidHandler.FluidAction.SIMULATE);
@@ -209,16 +209,16 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
     private boolean hasFluidTarget(ServerLevel serverLevel, BlockPos targetPos) {
         Direction preferredSide = getSideFacingMachine(targetPos);
         if (preferredSide != null
-                && serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, preferredSide) != null) {
+                && com.jdte.common.capabilities.ForgeCapabilityHelper.get(serverLevel, targetPos, ForgeCapabilities.FLUID_HANDLER, preferredSide) != null) {
             return true;
         }
         for (Direction side : Direction.values()) {
             if (side != preferredSide
-                    && serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, side) != null) {
+                    && com.jdte.common.capabilities.ForgeCapabilityHelper.get(serverLevel, targetPos, ForgeCapabilities.FLUID_HANDLER, side) != null) {
                 return true;
             }
         }
-        return serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, null) != null;
+        return com.jdte.common.capabilities.ForgeCapabilityHelper.get(serverLevel, targetPos, ForgeCapabilities.FLUID_HANDLER, null) != null;
     }
 
     private boolean sameArea(AABB first, AABB second) {
@@ -297,7 +297,7 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override
@@ -316,17 +316,17 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("fluidTank", fluidTank.serializeNBT());
         saveAreaSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
+            fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
         }
         loadAreaSettings(tag);
         areaAffectingData.area = null;

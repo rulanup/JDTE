@@ -43,10 +43,10 @@ public class TimeAcceleratorEffectEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(TICKSPEED, 2);
-        builder.define(REMAINING_TIME, 10);
-        builder.define(TOTAL_TIME, 10);
+    protected void defineSynchedData() {
+        entityData.define(TICKSPEED, 2);
+        entityData.define(REMAINING_TIME, 10);
+        entityData.define(TOTAL_TIME, 10);
     }
 
     public int getTickSpeed() {
@@ -86,7 +86,7 @@ public class TimeAcceleratorEffectEntity extends Entity {
         if (compound.contains("totalTime"))
             this.entityData.set(TOTAL_TIME, compound.getInt("totalTime"));
         if (compound.contains("blockpos"))
-            this.blockPos = NbtUtils.readBlockPos(compound, "blockpos").orElse(null);
+            this.blockPos = NbtUtils.readBlockPos(compound.getCompound("blockpos"));
     }
 
     @Override

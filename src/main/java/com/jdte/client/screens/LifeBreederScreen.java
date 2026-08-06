@@ -1,5 +1,6 @@
 package com.jdte.client.screens;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory.TextureLocalization;
@@ -14,7 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -45,14 +46,14 @@ public class LifeBreederScreen extends BaseMachineScreen<LifeBreederContainer> {
         renderEnergyBar(graphics);
         for (int index = 0; index < Math.min(LifeBreederBE.TOTAL_SLOTS, container.slots.size()); index++) {
             Slot slot = container.slots.get(index);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, ResourceLocation.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
     }
 
     private void renderEnergyBar(GuiGraphics graphics) {
         int maxEnergy = Math.max(1, breederContainer.getBreeder().getMaxEnergy());
-        int fill = Math.clamp((int) ((long) breederContainer.getEnergy() * 70L / maxEnergy), 0, 70);
+        int fill = net.minecraft.util.Mth.clamp((int) ((long) breederContainer.getEnergy() * 70L / maxEnergy), 0, 70);
         int x = topSectionLeft + getEnergyBarOffset();
         int y = topSectionTop + 5;
         graphics.blit(POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
@@ -65,7 +66,7 @@ public class LifeBreederScreen extends BaseMachineScreen<LifeBreederContainer> {
                 leftPos + 44, topSectionTop + 62, 16, 16, MODE_TEXTURES,
                 breederContainer.getMode(), button -> {
                     int mode = ((ToggleButton) button).getTexturePosition();
-                    PacketDistributor.sendToServer(new LifeBreederModePayload(mode));
+                    JDTEPacketHandler.CHANNEL.sendToServer(new LifeBreederModePayload(mode));
                 }));
     }
 
@@ -82,7 +83,7 @@ public class LifeBreederScreen extends BaseMachineScreen<LifeBreederContainer> {
                 getGuiLeft() + 140, topSectionTop + 44, 24, 12,
                 breederContainer.getMultiplier(), 1, breederContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.life_breeder.multiplier"), button ->
-                PacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
+                JDTEPacketHandler.CHANNEL.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
         addRenderableWidget(multiplierButton);
     }
 

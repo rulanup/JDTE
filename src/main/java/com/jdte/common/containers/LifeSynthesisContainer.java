@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class LifeSynthesisContainer extends BaseMachineContainer {
     public LifeSynthesisContainer(int id, Inventory inventory, FriendlyByteBuf data) {
@@ -93,7 +93,7 @@ public class LifeSynthesisContainer extends BaseMachineContainer {
             Slot target = slots.get(index);
             if (target.mayPlace(stack) && target.hasItem()) {
                 ItemStack existing = target.getItem();
-                if (ItemStack.isSameItemSameComponents(stack, existing)) {
+                if (ItemStack.isSameItemSameTags(stack, existing)) {
                     int max = Math.min(target.getMaxStackSize(stack), stack.getMaxStackSize());
                     int transferable = Math.min(stack.getCount(), max - existing.getCount());
                     if (transferable > 0) {

@@ -26,7 +26,6 @@ public class AreaAffectingBER implements BlockEntityRenderer<BlockEntity> {
         }
     }
 
-    @Override
     public AABB getRenderBoundingBox(BlockEntity blockEntity) {
         if (blockEntity instanceof AreaAffectingBE areaAffectingBE) {
             BlockPos blockPos = blockEntity.getBlockPos();

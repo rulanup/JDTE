@@ -1,7 +1,7 @@
 package com.jdte.common.blockentities;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ final class GreenhouseCapacityLedger {
             long remaining = (long) drop.getCount() * repetitions;
             for (int slot = 0; slot < workingCounts.length && remaining > 0; slot++) {
                 if (!workingTypes[slot].isEmpty()
-                        && ItemStack.isSameItemSameComponents(workingTypes[slot], drop)) {
+                        && ItemStack.isSameItemSameTags(workingTypes[slot], drop)) {
                     remaining = fill(slot, drop, remaining, workingTypes, workingCounts);
                 }
             }

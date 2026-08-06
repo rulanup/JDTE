@@ -2,6 +2,7 @@ package com.jdte.common.autoioconfig;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.jdte.common.capabilities.ForgeCapabilityHelper;
 import com.jdte.common.blockentities.FluidReceiverBE;
 import com.jdte.common.blockentities.FluidSenderBE;
 import com.jdte.common.blockentities.ItemReceiverBE;
@@ -16,11 +17,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -379,31 +380,31 @@ public final class OverclockDirectTransferHelper {
     }
 
     private static int tryItemSide(ServerLevel level, BlockPos pos, Direction side, ItemHandlerOperation operation) {
-        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side);
+        IItemHandler handler = ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.ITEM_HANDLER, side);
         return handler == null ? 0 : operation.apply(handler);
     }
 
     private static int tryFluidSide(ServerLevel level, BlockPos pos, Direction side, FluidHandlerOperation operation) {
-        IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, side);
+        IFluidHandler handler = ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.FLUID_HANDLER, side);
         return handler == null ? 0 : operation.apply(handler);
     }
 
     private static boolean hasItemCapability(ServerLevel level, BaseMachineBE machine, BlockPos pos) {
         Direction preferred = sideFacingMachine(machine, pos);
-        if (preferred != null && level.getCapability(Capabilities.ItemHandler.BLOCK, pos, preferred) != null) return true;
+        if (preferred != null && ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.ITEM_HANDLER, preferred) != null) return true;
         for (Direction side : Direction.values()) {
-            if (side != preferred && level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side) != null) return true;
+            if (side != preferred && ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.ITEM_HANDLER, side) != null) return true;
         }
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null) != null;
+        return ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.ITEM_HANDLER, null) != null;
     }
 
     private static boolean hasFluidCapability(ServerLevel level, BaseMachineBE machine, BlockPos pos) {
         Direction preferred = sideFacingMachine(machine, pos);
-        if (preferred != null && level.getCapability(Capabilities.FluidHandler.BLOCK, pos, preferred) != null) return true;
+        if (preferred != null && ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.FLUID_HANDLER, preferred) != null) return true;
         for (Direction side : Direction.values()) {
-            if (side != preferred && level.getCapability(Capabilities.FluidHandler.BLOCK, pos, side) != null) return true;
+            if (side != preferred && ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.FLUID_HANDLER, side) != null) return true;
         }
-        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null) != null;
+        return ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.FLUID_HANDLER, null) != null;
     }
 
     private static List<ItemEndpoint> getAdjacentItemEndpoints(ServerLevel level, BaseMachineBE machine, int mask) {
@@ -412,7 +413,7 @@ public final class OverclockDirectTransferHelper {
             if ((mask & (1 << sideIndex)) == 0) continue;
             Direction direction = directionForUiSide(sideIndex);
             BlockPos pos = machine.getBlockPos().relative(direction);
-            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction.getOpposite());
+            IItemHandler handler = ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
             if (handler != null) endpoints.add(new ItemEndpoint(pos, handler));
         }
         return endpoints;
@@ -424,7 +425,7 @@ public final class OverclockDirectTransferHelper {
             if ((mask & (1 << sideIndex)) == 0) continue;
             Direction direction = directionForUiSide(sideIndex);
             BlockPos pos = machine.getBlockPos().relative(direction);
-            IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, direction.getOpposite());
+            IFluidHandler handler = ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.FLUID_HANDLER, direction.getOpposite());
             if (handler != null) endpoints.add(new FluidEndpoint(pos, handler));
         }
         return endpoints;

@@ -1,27 +1,27 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class SenderReceiverConfig {
-    public final ModConfigSpec.IntValue senderStorageSlots;
-    public final ModConfigSpec.IntValue advancedItemSenderEnergyCapacity;
-    public final ModConfigSpec.IntValue advancedItemSenderEnergyCost;
-    public final ModConfigSpec.IntValue extendedItemSenderEnergyCapacity;
-    public final ModConfigSpec.IntValue advancedFluidSenderEnergyCapacity;
-    public final ModConfigSpec.IntValue advancedFluidSenderEnergyCost;
-    public final ModConfigSpec.IntValue extendedFluidSenderEnergyCapacity;
-    public final ModConfigSpec.IntValue fluidSenderFluidCapacity;
-    public final ModConfigSpec.BooleanValue fluidSenderUnlimitedTransfer;
-    public final ModConfigSpec.IntValue autoIoItemTransferRate;
-    public final ModConfigSpec.IntValue autoIoFluidTransferRate;
-    public final ModConfigSpec.IntValue senderReceiverItemTransferRate;
-    public final ModConfigSpec.IntValue senderReceiverOverclockItemTransferRate;
-    public final ModConfigSpec.IntValue senderReceiverFluidTransferRate;
-    public final ModConfigSpec.IntValue senderReceiverOverclockFluidTransferRate;
-    public final ModConfigSpec.IntValue transferFailureBackoffStart;
-    public final ModConfigSpec.IntValue transferFailureBackoffMax;
+    public final ForgeConfigSpec.IntValue senderStorageSlots;
+    public final ForgeConfigSpec.IntValue advancedItemSenderEnergyCapacity;
+    public final ForgeConfigSpec.IntValue advancedItemSenderEnergyCost;
+    public final ForgeConfigSpec.IntValue extendedItemSenderEnergyCapacity;
+    public final ForgeConfigSpec.IntValue advancedFluidSenderEnergyCapacity;
+    public final ForgeConfigSpec.IntValue advancedFluidSenderEnergyCost;
+    public final ForgeConfigSpec.IntValue extendedFluidSenderEnergyCapacity;
+    public final ForgeConfigSpec.IntValue fluidSenderFluidCapacity;
+    public final ForgeConfigSpec.BooleanValue fluidSenderUnlimitedTransfer;
+    public final ForgeConfigSpec.IntValue autoIoItemTransferRate;
+    public final ForgeConfigSpec.IntValue autoIoFluidTransferRate;
+    public final ForgeConfigSpec.IntValue senderReceiverItemTransferRate;
+    public final ForgeConfigSpec.IntValue senderReceiverOverclockItemTransferRate;
+    public final ForgeConfigSpec.IntValue senderReceiverFluidTransferRate;
+    public final ForgeConfigSpec.IntValue senderReceiverOverclockFluidTransferRate;
+    public final ForgeConfigSpec.IntValue transferFailureBackoffStart;
+    public final ForgeConfigSpec.IntValue transferFailureBackoffMax;
 
-    public SenderReceiverConfig(ModConfigSpec.Builder builder) {
+    public SenderReceiverConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Sender/Receiver Settings").translation("config.jdte.jdte.senderReceiver").push("senderReceiver");
         senderStorageSlots = builder
                 .comment("Internal storage slots for item sender/receiver")

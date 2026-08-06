@@ -12,7 +12,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -46,9 +46,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
     private static class UpgradeProvider implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
         @Override
         public void appendServerData(CompoundTag data, BlockAccessor accessor) {
-            if (!(accessor.getBlockEntity() instanceof BaseMachineBE machine)) {
-                return;
-            }
+            if (!(accessor.getBlockEntity() instanceof BaseMachineBE machine)) return;
 
             List<ItemStack> upgrades = new ArrayList<>();
             collect(upgrades, UpgradeHelper.getUpgradeHandler(machine));
@@ -56,32 +54,23 @@ public class JDTEJadePlugin implements IWailaPlugin {
                 collect(upgrades, crusher.getLootingHandler());
                 collect(upgrades, crusher.getSharpnessHandler());
             }
-            if (upgrades.isEmpty()) {
-                return;
-            }
+            if (upgrades.isEmpty()) return;
 
             ListTag serialized = new ListTag();
-            for (ItemStack upgrade : upgrades) {
-                serialized.add(upgrade.save(accessor.getLevel().registryAccess()));
-            }
+            for (ItemStack upgrade : upgrades) serialized.add(upgrade.save(new CompoundTag()));
             data.put(TAG_UPGRADES, serialized);
         }
 
         @Override
         public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
             ListTag serialized = accessor.getServerData().getList(TAG_UPGRADES, Tag.TAG_COMPOUND);
-            if (serialized.isEmpty()) {
-                return;
-            }
+            if (serialized.isEmpty()) return;
 
             tooltip.add(Component.translatable("jade.jdte.installed_upgrades").withStyle(ChatFormatting.GRAY));
             IElementHelper elements = IElementHelper.get();
             for (int index = 0; index < serialized.size(); index++) {
-                ItemStack upgrade = ItemStack.parseOptional(
-                        accessor.getLevel().registryAccess(), serialized.getCompound(index));
-                if (upgrade.isEmpty()) {
-                    continue;
-                }
+                ItemStack upgrade = ItemStack.of(serialized.getCompound(index));
+                if (upgrade.isEmpty()) continue;
                 Component label = Component.literal(" ")
                         .append(upgrade.getHoverName())
                         .append(Component.literal(" x" + upgrade.getCount()).withStyle(ChatFormatting.GRAY));
@@ -97,18 +86,12 @@ public class JDTEJadePlugin implements IWailaPlugin {
         private static void collect(List<ItemStack> upgrades, IItemHandler handler) {
             for (int slot = 0; slot < handler.getSlots(); slot++) {
                 ItemStack stack = handler.getStackInSlot(slot);
-                if (stack.isEmpty()) {
-                    continue;
-                }
+                if (stack.isEmpty()) continue;
                 ItemStack existing = upgrades.stream()
-                        .filter(candidate -> ItemStack.isSameItemSameComponents(candidate, stack))
-                        .findFirst()
-                        .orElse(null);
-                if (existing == null) {
-                    upgrades.add(stack.copy());
-                } else {
-                    existing.grow(stack.getCount());
-                }
+                        .filter(candidate -> ItemStack.isSameItemSameTags(candidate, stack))
+                        .findFirst().orElse(null);
+                if (existing == null) upgrades.add(stack.copy());
+                else existing.grow(stack.getCount());
             }
         }
     }

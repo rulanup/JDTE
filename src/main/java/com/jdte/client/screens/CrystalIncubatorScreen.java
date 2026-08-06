@@ -1,5 +1,6 @@
 package com.jdte.client.screens;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.containers.CrystalIncubatorContainer;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
@@ -7,7 +8,7 @@ import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 public class CrystalIncubatorScreen extends ExtendedItemReceiverScreen<CrystalIncubatorContainer> {
     private int multiplier;
@@ -27,7 +28,7 @@ public class CrystalIncubatorScreen extends ExtendedItemReceiverScreen<CrystalIn
                 34, 12, multiplier, 1, JDTEConfig.COMMON.crystalIncubatorMaxMultiplier.get(),
                 Component.translatable("jdte.screen.multiplier"), button -> {
                     multiplier = ((NumberButton) button).getValue();
-                    PacketDistributor.sendToServer(new TimeAcceleratorPayload(multiplier));
+                    JDTEPacketHandler.CHANNEL.sendToServer(new TimeAcceleratorPayload(multiplier));
                 }));
     }
 

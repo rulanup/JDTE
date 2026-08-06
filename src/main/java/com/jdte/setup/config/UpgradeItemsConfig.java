@@ -1,13 +1,13 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class UpgradeItemsConfig {
-    public final ModConfigSpec.IntValue maxSharpnessUpgrades;
-    public final ModConfigSpec.IntValue sharpnessDamagePerUpgrade;
-    public final ModConfigSpec.IntValue maxLootingUpgrades;
+    public final ForgeConfigSpec.IntValue maxSharpnessUpgrades;
+    public final ForgeConfigSpec.IntValue sharpnessDamagePerUpgrade;
+    public final ForgeConfigSpec.IntValue maxLootingUpgrades;
 
-    public UpgradeItemsConfig(ModConfigSpec.Builder builder) {
+    public UpgradeItemsConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Upgrade Item Settings").translation("config.jdte.jdte.upgradeItems").push("upgradeItems");
         maxSharpnessUpgrades = builder
                 .comment("Max sharpness upgrades stackable")

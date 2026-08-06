@@ -16,7 +16,6 @@ import com.jdte.common.blockentities.EntitySuppressorManager;
 import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
 import com.jdte.common.blockentities.GreenhouseOutputManager;
 import com.jdte.common.blockentities.RangeBlockerManager;
-import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.utils.BioCrusherDropCapture;
@@ -27,29 +26,31 @@ import com.jdte.common.recipes.RecipeCacheSignal;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.network.PacketDistributor;
 
 @Mod(JDTE.MODID)
 public class JDTE {
     public static final String MODID = "jdte";
 
-    public JDTE(IEventBus modEventBus, ModContainer modContainer) {
-        net.neoforged.neoforge.common.NeoForgeMod.enableMilkFluid();
-        modContainer.registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
+    public JDTE() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
         JDTEBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         JDTEMenus.MENUS.register(modEventBus);
-        JDTEAttachments.ATTACHMENT_TYPES.register(modEventBus);
         JDTECreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         JDTEEntities.ENTITIES.register(modEventBus);
         JDTEFluids.FLUID_TYPES.register(modEventBus);
@@ -58,39 +59,38 @@ public class JDTE {
         JDTEFluids.BUCKET_ITEMS.register(modEventBus);
         JDTERecipes.RECIPE_TYPES.register(modEventBus);
         JDTERecipes.RECIPE_SERIALIZERS.register(modEventBus);
-        modEventBus.addListener(this::registerCapabilities);
+        modEventBus.addListener(JDTEAttachments::registerCapabilities);
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
-        NeoForge.EVENT_BUS.addListener(JDTECommands::register);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
-        NeoForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
-        NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
-        NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onBlockBreak);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
-        NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
-        NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
-        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
-        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
-        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, GreenhouseOutputManager::onServerTickPost);
-        NeoForge.EVENT_BUS.addListener(GreenhouseOutputManager::onLevelUnload);
-        NeoForge.EVENT_BUS.addListener(GreenhouseOutputManager::onServerStopped);
-        NeoForge.EVENT_BUS.addListener(EntitySuppressorManager::onEntityTick);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onItemPickup);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onEntityJoin);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onMobSpawnPosition);
-        NeoForge.EVENT_BUS.addListener(EntitySuppressorManager::onLevelUnload);
-        NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onEntityTickPre);
-        NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onEntityTickPost);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onEntityJoin);
-        NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onEntityLeave);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onTeleport);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onExplosionDetonate);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtPosition);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtEntity);
-        NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onLevelUnload);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
+        MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.level.block.entity.BlockEntity.class, JDTEAttachments::attachBlockCapabilities);
+        MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.entity.Entity.class, JDTEAttachments::attachPlayerCapabilities);
+        MinecraftForge.EVENT_BUS.addListener(JDTECommands::register);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
+        MinecraftForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
+        MinecraftForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
+        MinecraftForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onBlockBreak);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
+        MinecraftForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
+        MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, GreenhouseOutputManager::onServerTickPost);
+        MinecraftForge.EVENT_BUS.addListener(GreenhouseOutputManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(GreenhouseOutputManager::onServerStopped);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onItemPickup);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onEntityJoin);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, EntitySuppressorManager::onMobSpawnPosition);
+        MinecraftForge.EVENT_BUS.addListener(EntitySuppressorManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onEntityJoin);
+        MinecraftForge.EVENT_BUS.addListener(RangeBlockerManager::onEntityLeave);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onTeleport);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onExplosionDetonate);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtPosition);
+        MinecraftForge.EVENT_BUS.addListener(RangeBlockerManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> com.jdte.client.JDTEClientMod::new);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
         }
@@ -105,16 +105,12 @@ public class JDTE {
         LootFabricatorLootSyncPayload lootPayload = new LootFabricatorLootSyncPayload(
                 MobLootSpawnEggHelper.getLootDropsBySpawnEgg(event.getPlayerList().getServer().getResourceManager()));
         if (event.getPlayer() != null) {
-            PacketDistributor.sendToPlayer(event.getPlayer(), payload);
-            PacketDistributor.sendToPlayer(event.getPlayer(), lootPayload);
+            JDTEPacketHandler.sendToPlayer(event.getPlayer(), payload);
+            JDTEPacketHandler.sendToPlayer(event.getPlayer(), lootPayload);
         } else {
-            PacketDistributor.sendToAllPlayers(payload);
-            PacketDistributor.sendToAllPlayers(lootPayload);
+            JDTEPacketHandler.sendToAll(payload);
+            JDTEPacketHandler.sendToAll(lootPayload);
         }
-    }
-
-    private void registerCapabilities(RegisterCapabilitiesEvent event) {
-        MachineCapabilities.register(event);
     }
 
     public static ResourceLocation id(String path) {

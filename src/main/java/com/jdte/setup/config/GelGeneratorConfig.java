@@ -1,17 +1,17 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class GelGeneratorConfig {
-    public final ModConfigSpec.IntValue gelGeneratorInputSlots;
-    public final ModConfigSpec.IntValue gelGeneratorOutputSlots;
-    public final ModConfigSpec.IntValue gelGeneratorFluidCapacity;
-    public final ModConfigSpec.IntValue gelGeneratorEnergyCapacity;
-    public final ModConfigSpec.IntValue gelGeneratorFluidConversionAmount;
-    public final ModConfigSpec.IntValue gelGeneratorFuelUsesPerItem;
-    public final ModConfigSpec.IntValue gelGeneratorEnergyCost;
+    public final ForgeConfigSpec.IntValue gelGeneratorInputSlots;
+    public final ForgeConfigSpec.IntValue gelGeneratorOutputSlots;
+    public final ForgeConfigSpec.IntValue gelGeneratorFluidCapacity;
+    public final ForgeConfigSpec.IntValue gelGeneratorEnergyCapacity;
+    public final ForgeConfigSpec.IntValue gelGeneratorFluidConversionAmount;
+    public final ForgeConfigSpec.IntValue gelGeneratorFuelUsesPerItem;
+    public final ForgeConfigSpec.IntValue gelGeneratorEnergyCost;
 
-    public GelGeneratorConfig(ModConfigSpec.Builder builder) {
+    public GelGeneratorConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Gel Generator Settings").translation("config.jdte.jdte.gelGenerator").push("gelGenerator");
         gelGeneratorInputSlots = builder
                 .comment("Number of input slots")

@@ -84,14 +84,14 @@ public abstract class PoweredBioCrusherBE extends BioCrusherBE implements Powere
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("energy", energyStorage.getEnergyStored());
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         if (tag.contains("energy")) {
             energyStorage.setEnergy(tag.getInt("energy"));
         }

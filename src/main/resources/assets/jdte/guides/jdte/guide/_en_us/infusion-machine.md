@@ -86,7 +86,7 @@ The machine automatically discovers registered spawn eggs and entity loot tables
 
 ### Life Fluid Bee
 
-With Productive Bees installed, infusing one Egg with 64,000 mB of Life Fluid and 1,000,000 FE creates a non-self-breeding Life Fluid Bee Spawn Egg. The bee uses an Advanced or Extended Life Extractor as its flowering block and produces Life Fluid Honeycombs in Productive Bees hives or the Bio Factory. Centrifuging each comb yields 250 mB of Life Fluid and Wax. Configurable Productive Bees spawn eggs have no entity loot and are rejected by the Loot Fabricator.
+With Productive Bees installed, infusing one Egg with 64,000 mB of Life Fluid and 1,000,000 FE creates a non-self-breeding Life Fluid Bee Spawn Egg. The bee uses an Advanced or Extended Life Extractor as its flowering block and produces Life Fluid Honeycombs in Productive Bees hives or the Bio Factory. Centrifuging each comb yields 250 mB of Life Fluid and Wax. Configurable Productive Bees spawn eggs are accepted by the Loot Fabricator when their configured entity provides loot.
 
 ### Upgrade Effects
 

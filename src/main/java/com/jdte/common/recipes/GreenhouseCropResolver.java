@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.core.registries.BuiltInRegistries;
 import com.jdte.setup.JDTEConfig;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 public final class GreenhouseCropResolver {
     private static long cacheGeneration;
@@ -31,8 +31,7 @@ public final class GreenhouseCropResolver {
         if (level == null || seed.isEmpty()) {
             return null;
         }
-        for (var holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
-            GreenhouseRecipe recipe = holder.value();
+        for (GreenhouseRecipe recipe : level.getRecipeManager().getAllRecipesFor(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
             if (recipe.matchesSeed(seed)) {
                 return new GreenhouseCropDefinition(recipe.outputs(), recipe.displayBlock(),
                         recipe.harvestBlock().orElse(recipe.displayBlock()), recipe.useLootTable(),

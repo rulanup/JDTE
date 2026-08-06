@@ -1,26 +1,26 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class LifeBreederConfig {
-    public final ModConfigSpec.IntValue lifeBreederEnergyCapacity;
-    public final ModConfigSpec.IntValue lifeBreederFluidCapacity;
-    public final ModConfigSpec.IntValue lifeBreederBreedEnergyCost;
-    public final ModConfigSpec.IntValue lifeBreederBreedFluidCost;
-    public final ModConfigSpec.IntValue lifeBreederEnergyPerGrowthTick;
-    public final ModConfigSpec.IntValue lifeBreederGrowthTicksPerMb;
-    public final ModConfigSpec.IntValue lifeBreederFluidCostMultiplierV3;
-    public final ModConfigSpec.IntValue lifeBreederBreedingCooldownTicks;
-    public final ModConfigSpec.IntValue lifeBreederProcessingInterval;
-    public final ModConfigSpec.IntValue lifeBreederMaxEntitiesInspected;
-    public final ModConfigSpec.IntValue lifeBreederMaxPairsPerCycle;
-    public final ModConfigSpec.IntValue lifeBreederMaxAnimalsGrownPerCycle;
-    public final ModConfigSpec.IntValue lifeBreederMaxAnimalsPerType;
-    public final ModConfigSpec.IntValue lifeBreederMaxDropsCollectedPerCycle;
-    public final ModConfigSpec.IntValue lifeBreederDefaultSpeedMultiplier;
-    public final ModConfigSpec.IntValue lifeBreederMaxSpeedMultiplier;
+    public final ForgeConfigSpec.IntValue lifeBreederEnergyCapacity;
+    public final ForgeConfigSpec.IntValue lifeBreederFluidCapacity;
+    public final ForgeConfigSpec.IntValue lifeBreederBreedEnergyCost;
+    public final ForgeConfigSpec.IntValue lifeBreederBreedFluidCost;
+    public final ForgeConfigSpec.IntValue lifeBreederEnergyPerGrowthTick;
+    public final ForgeConfigSpec.IntValue lifeBreederGrowthTicksPerMb;
+    public final ForgeConfigSpec.IntValue lifeBreederFluidCostMultiplierV3;
+    public final ForgeConfigSpec.IntValue lifeBreederBreedingCooldownTicks;
+    public final ForgeConfigSpec.IntValue lifeBreederProcessingInterval;
+    public final ForgeConfigSpec.IntValue lifeBreederMaxEntitiesInspected;
+    public final ForgeConfigSpec.IntValue lifeBreederMaxPairsPerCycle;
+    public final ForgeConfigSpec.IntValue lifeBreederMaxAnimalsGrownPerCycle;
+    public final ForgeConfigSpec.IntValue lifeBreederMaxAnimalsPerType;
+    public final ForgeConfigSpec.IntValue lifeBreederMaxDropsCollectedPerCycle;
+    public final ForgeConfigSpec.IntValue lifeBreederDefaultSpeedMultiplier;
+    public final ForgeConfigSpec.IntValue lifeBreederMaxSpeedMultiplier;
 
-    public LifeBreederConfig(ModConfigSpec.Builder builder) {
+    public LifeBreederConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Life Breeder Settings")
                 .translation("config.jdte.jdte.lifeBreeder")
                 .push("lifeBreeder");

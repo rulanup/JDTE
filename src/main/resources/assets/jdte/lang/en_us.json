@@ -649,5 +649,7 @@
   "config.jdte.jdte.lifeBreeder.maxAnimalsPerType": "Population Limit per Type",
   "config.jdte.jdte.lifeBreeder.maxDropsCollectedPerCycle": "Maximum Drops Collected per Cycle",
   "config.jdte.jdte.lifeBreeder.defaultSpeedMultiplier": "Default Speed Multiplier",
-  "config.jdte.jdte.lifeBreeder.maxSpeedMultiplier": "Maximum Speed Multiplier"
+  "config.jdte.jdte.lifeBreeder.maxSpeedMultiplier": "Maximum Speed Multiplier",
+  "config.jade.plugin_appliedcreate.grid_node_state": "Grid Node State",
+  "config.jade.plugin_appliedcreate.power_storage": "Power Storage"
 }

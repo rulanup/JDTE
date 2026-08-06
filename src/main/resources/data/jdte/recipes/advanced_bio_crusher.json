@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
+  "key": {
+    "A": { "item": "minecraft:diamond" },
+    "B": { "item": "minecraft:gold_ingot" },
+    "C": { "item": "minecraft:iron_ingot" },
+    "D": { "item": "minecraft:nether_star" }
+  },
+  "result": {
+    "count": 1,
+    "item": "jdte:advanced_bio_crusher"
+  }
+}

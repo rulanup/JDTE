@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
@@ -28,7 +29,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE, FilterableBE,
         RedstoneControlledBE, PoweredMachineBE, ExtendedUpgradeMachine {
@@ -68,7 +69,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energy; }
@@ -174,7 +175,9 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
         int fingerprint = 1;
         FilterBasicHandler handler = getFilterHandler();
         for (int slot = 0; slot < handler.getSlots(); slot++) {
-            fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(handler.getStackInSlot(slot));
+            ItemStack stack = handler.getStackInSlot(slot);
+            fingerprint = 31 * fingerprint + 31 * System.identityHashCode(stack.getItem())
+                    + (stack.hasTag() ? stack.getTag().hashCode() : 0);
         }
         if (fingerprint != filterFingerprint) {
             filterFingerprint = fingerprint;
@@ -188,7 +191,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     private void syncClientState() {
         if (!(level instanceof ServerLevel serverLevel)) return;
         AABB area = getAABB(getBlockPos());
-        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(getBlockPos()),
+        JDTEPacketHandler.sendToTrackingChunk(serverLevel, new ChunkPos(getBlockPos()),
                 new EntitySuppressorSyncPayload(getBlockPos(), mode.ordinal(), target.ordinal(), blacklist,
                         particleActive, entitySuppressionActive, renderingSuppressionActive,
                         area.minX, area.minY, area.minZ, area.maxX, area.maxY, area.maxZ));
@@ -202,16 +205,14 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
         syncClientState();
     }
 
-    @Override
     public void handleRotate(Direction oldDirection, Direction newDirection) {
-        AreaAffectingBE.super.handleRotate(oldDirection, newDirection);
         EntitySuppressorManager.refresh(this);
         syncClientState();
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("entitySuppressorMode", mode.ordinal());
         tag.putInt("entitySuppressorTarget", target.ordinal());
         tag.putBoolean("entitySuppressorBlacklist", blacklist);
@@ -222,8 +223,8 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         mode = Mode.values()[Math.floorMod(tag.getInt("entitySuppressorMode"), Mode.values().length)];
         target = Target.values()[Math.floorMod(tag.getInt("entitySuppressorTarget"), Target.values().length)];
         blacklist = tag.getBoolean("entitySuppressorBlacklist");

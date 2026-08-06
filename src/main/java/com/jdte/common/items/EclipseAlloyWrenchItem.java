@@ -2,8 +2,8 @@ package com.jdte.common.items;
 
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.direwolf20.justdirethings.common.items.FerricoreWrench;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.JDTE;
+import com.jdte.common.blocks.JDTEMachineBlock;
 import com.jdte.common.blocks.LargeGreenhousePartBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -18,13 +18,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 
 public class EclipseAlloyWrenchItem extends FerricoreWrench {
     private static final String JDT_MODID = "justdirethings";
@@ -81,13 +82,26 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
             return false;
         }
 
-        BlockState rotatedState = ((BaseMachineBlock) state.getBlock()).direRotate(state, level, pos, Rotation.CLOCKWISE_90);
+        BlockState rotatedState = state.getBlock() instanceof JDTEMachineBlock jdteBlock
+                ? jdteBlock.direRotate(state, level, pos, Rotation.CLOCKWISE_90)
+                : rotateFacingProperty(state, Rotation.CLOCKWISE_90);
         if (rotatedState.equals(state)) {
             return false;
         }
         level.setBlock(pos, rotatedState, 3);
         level.playSound(null, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
+    }
+
+    private static BlockState rotateFacingProperty(BlockState state, Rotation rotation) {
+        for (Property<?> property : state.getProperties()) {
+            if (property instanceof DirectionProperty directionProperty
+                    && "facing".equals(property.getName())) {
+                DirectionProperty facingProperty = directionProperty;
+                return state.setValue(facingProperty, rotation.rotate(state.getValue(facingProperty)));
+            }
+        }
+        return state.rotate(rotation);
     }
 
     public static boolean pickupMachine(Level level, BlockPos pos, Player player) {
@@ -104,9 +118,9 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity != null) {
-            CompoundTag tag = blockEntity.saveCustomOnly(level.registryAccess());
+            CompoundTag tag = blockEntity.saveWithoutMetadata();
             if (!tag.isEmpty()) {
-                pickedStack.set(JustDireDataComponents.CUSTOM_DATA_1, CustomData.of(tag));
+                pickedStack.getOrCreateTag().put("JustDiresBEData", tag);
             }
         }
 

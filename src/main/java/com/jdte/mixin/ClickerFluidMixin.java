@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ClickerT1BE.class)
+@Mixin(value = ClickerT1BE.class, remap = false)
 public abstract class ClickerFluidMixin {
-    @Inject(method = "tickServer", at = @At("HEAD"))
+    @Inject(remap = false, method = "tickServer", at = @At("HEAD"))
     private void jdte$fillFluidItem(CallbackInfo ci) {
         UpgradeHelper.syncClickerFluidTank((BaseMachineBE) (Object) this);
         UpgradeHelper.fillClickerItemFromTank((BaseMachineBE) (Object) this);

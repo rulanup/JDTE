@@ -18,9 +18,9 @@
     "fluid": "jdte:life_fluid_source",
     "amount": 250
   },
-  "neoforge:conditions": [
+  "conditions": [
     {
-      "type": "neoforge:mod_loaded",
+      "type": "forge:mod_loaded",
       "modid": "productivebees"
     }
   ]

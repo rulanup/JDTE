@@ -4,7 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.jdte.common.network.PacketContext;
 
 import com.jdte.common.network.data.WrenchAreaAdjustResultPayload;
 
@@ -15,7 +15,7 @@ public class WrenchAreaAdjustResultPacket {
         return INSTANCE;
     }
 
-    public void handle(WrenchAreaAdjustResultPayload payload, IPayloadContext context) {
+    public void handle(WrenchAreaAdjustResultPayload payload, PacketContext context) {
         context.enqueueWork(() -> {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player == null) return;

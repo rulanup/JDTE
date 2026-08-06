@@ -649,5 +649,7 @@
   "config.jdte.jdte.lifeBreeder.maxAnimalsPerType": "每类生物数量上限",
   "config.jdte.jdte.lifeBreeder.maxDropsCollectedPerCycle": "每轮最大回收掉落物数",
   "config.jdte.jdte.lifeBreeder.defaultSpeedMultiplier": "默认速度倍率",
-  "config.jdte.jdte.lifeBreeder.maxSpeedMultiplier": "最大速度倍率"
+  "config.jdte.jdte.lifeBreeder.maxSpeedMultiplier": "最大速度倍率",
+  "config.jade.plugin_appliedcreate.grid_node_state": "网络节点状态",
+  "config.jade.plugin_appliedcreate.power_storage": "能量存储"
 }

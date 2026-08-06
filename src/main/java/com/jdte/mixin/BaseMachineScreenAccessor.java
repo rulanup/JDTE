@@ -5,7 +5,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(BaseMachineScreen.class)
+@Mixin(value = BaseMachineScreen.class, remap = false)
 public interface BaseMachineScreenAccessor {
     @Accessor("baseMachineBE")
     BaseMachineBE jdte$getBaseMachineBE();

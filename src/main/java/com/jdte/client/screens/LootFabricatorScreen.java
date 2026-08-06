@@ -1,5 +1,6 @@
 package com.jdte.client.screens;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.jdte.common.containers.LootFabricatorContainer;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
@@ -12,7 +13,7 @@ import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.common.network.data.TickSpeedPayload;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.jdte.common.network.data.FilterPagePayload;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 import com.direwolf20.justdirethings.util.MiscTools;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -30,8 +31,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidStack;
 
 public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContainer> {
     private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
@@ -69,7 +70,7 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
         int machineSlots = lootContainer.getOutputSlotsPerPage() + com.jdte.common.blockentities.LootFabricatorBE.INPUT_SLOTS;
         for (int i = 0; i < Math.min(machineSlots, lootContainer.slots.size()); i++) {
             Slot slot = lootContainer.slots.get(i);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, ResourceLocation.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
     }
@@ -85,7 +86,7 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
     }
 
     private void drawArrow(GuiGraphics graphics, int x, int y, int width, int color) {
-        int clamped = Math.clamp(width, 0, 24);
+        int clamped = net.minecraft.util.Mth.clamp(width, 0, 24);
         if (clamped <= 0) return;
         int body = Math.min(16, clamped);
         graphics.fill(x, y + 5, x + body, y + 10, color);
@@ -116,7 +117,8 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
         RenderSystem.setShaderColor((tint >> 16 & 255) / 255.0F, (tint >> 8 & 255) / 255.0F, (tint & 255) / 255.0F, 1.0F);
         PoseStack pose = graphics.pose();
         pose.pushPose();
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         int textureWidth = sprite.contents().width();
         int textureHeight = sprite.contents().height();
         for (int yOffset = 0; yOffset < height; yOffset += textureHeight) {
@@ -126,13 +128,17 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
             for (int xOffset = 0; xOffset < width; xOffset += textureWidth) {
                 int drawWidth = Math.min(textureWidth, width - xOffset);
                 float uMax = sprite.getU0() + (sprite.getU1() - sprite.getU0()) * drawWidth / textureWidth;
-                buffer.addVertex(pose.last().pose(), startX + xOffset, drawY + drawHeight, 0).setUv(sprite.getU0(), vMax);
-                buffer.addVertex(pose.last().pose(), startX + xOffset + drawWidth, drawY + drawHeight, 0).setUv(uMax, vMax);
-                buffer.addVertex(pose.last().pose(), startX + xOffset + drawWidth, drawY, 0).setUv(uMax, sprite.getV0());
-                buffer.addVertex(pose.last().pose(), startX + xOffset, drawY, 0).setUv(sprite.getU0(), sprite.getV0());
+                buffer.vertex(pose.last().pose(), startX + xOffset, drawY + drawHeight, 0)
+                        .uv(sprite.getU0(), vMax).endVertex();
+                buffer.vertex(pose.last().pose(), startX + xOffset + drawWidth, drawY + drawHeight, 0)
+                        .uv(uMax, vMax).endVertex();
+                buffer.vertex(pose.last().pose(), startX + xOffset + drawWidth, drawY, 0)
+                        .uv(uMax, sprite.getV0()).endVertex();
+                buffer.vertex(pose.last().pose(), startX + xOffset, drawY, 0)
+                        .uv(sprite.getU0(), sprite.getV0()).endVertex();
             }
         }
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        BufferUploader.drawWithShader(buffer.end());
         pose.popPose();
         RenderSystem.setShaderColor(1, 1, 1, 1);
     }
@@ -141,7 +147,7 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
         var layout = GuiUpgradeLayoutConfig.getInstance();
         addRenderableWidget(ToggleButtonFactory.TICKSPEEDBUTTON(getGuiLeft() + layout.getLootFabricatorSpeedButtonX(), getGuiTop() + layout.getLootFabricatorSpeedButtonY(), tickSpeed, button -> {
             tickSpeed = ((NumberButton) button).getValue();
-            PacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
+            com.direwolf20.justdirethings.common.network.PacketHandler.CHANNEL.sendToServer(new TickSpeedPayload(tickSpeed));
         }));
     }
 
@@ -163,7 +169,7 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
             else if (MiscTools.inBounds(getGuiLeft() + layout.getLootFabricatorOutputNextX(), getGuiTop() + layout.getLootFabricatorOutputNextY(), buttonSize, buttonSize, mouseX, mouseY)) page++;
             else return super.mouseClicked(mouseX, mouseY, button);
             lootContainer.setOutputPage(page);
-            PacketDistributor.sendToServer(new FilterPagePayload(lootContainer.getOutputPage()));
+            JDTEPacketHandler.CHANNEL.sendToServer(new FilterPagePayload(lootContainer.getOutputPage()));
             if (minecraft != null) {
                 minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }

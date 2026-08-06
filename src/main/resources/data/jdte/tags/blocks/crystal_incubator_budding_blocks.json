@@ -1,0 +1,9 @@
+{
+  "values": [
+    "#forge:budding_blocks",
+    {
+      "id": "minecraft:budding_amethyst",
+      "required": false
+    }
+  ]
+}

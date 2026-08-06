@@ -21,8 +21,8 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,7 +173,7 @@ public final class UpgradeSlotLayoutHelper {
         for (int i = 0; i < slotCount; i++) {
             int sx = guiLeft + originX;
             int sy = guiTop + originY + i * config.getSlotSpacing();
-            guiGraphics.blitSprite(SLOT_SPRITE, sx, sy, config.getSlotSize(), config.getSlotSize());
+            GuiSpriteCompat.blitSprite(guiGraphics, SLOT_SPRITE, sx, sy, config.getSlotSize(), config.getSlotSize());
         }
     }
 
@@ -207,7 +207,7 @@ public final class UpgradeSlotLayoutHelper {
         }
 
         if (baseMachineBE instanceof com.jdte.common.blockentities.BioFactoryBE factory
-                && net.neoforged.fml.ModList.get().isLoaded("productivebees")) {
+                && net.minecraftforge.fml.ModList.get().isLoaded("productivebees")) {
             int productivityTotal = factory.getUpgradeHandler().getProductivityCount();
             for (ResourceLocation id : BioFactoryUpgradeItemStackHandler.getProductivityUpgradeIds()) {
                 net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).ifPresent(item -> {

@@ -14,11 +14,11 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionBrewing;
+import com.jdte.common.utils.BrewingCompat;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
     public final ContainerData brewerData;
@@ -150,7 +150,7 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
         if (stack.isEmpty()) {
             return false;
         }
-        PotionBrewing brewing = player.level().potionBrewing();
+        BrewingCompat brewing = BrewingCompat.INSTANCE;
         return brewing.isInput(stack)
                 || stack.is(Items.POTION)
                 || stack.is(Items.SPLASH_POTION)
@@ -159,7 +159,7 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
     }
 
     private boolean isBrewingIngredient(Player player, ItemStack stack) {
-        return !stack.isEmpty() && player.level().potionBrewing().isIngredient(stack);
+        return !stack.isEmpty() && BrewingCompat.INSTANCE.isIngredient(stack);
     }
 
     private boolean moveStackToRange(ItemStack stack, int startIndex, int endIndex, boolean reverseDirection) {
@@ -170,7 +170,7 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
             Slot slot = slots.get(i);
             if (slot.hasItem() && slot.mayPlace(stack)) {
                 ItemStack existing = slot.getItem();
-                if (ItemStack.isSameItemSameComponents(stack, existing)) {
+                if (ItemStack.isSameItemSameTags(stack, existing)) {
                     int maxSize = Math.min(slot.getMaxStackSize(existing), existing.getMaxStackSize());
                     int movable = Math.min(stack.getCount(), maxSize - existing.getCount());
                     if (movable > 0) {
@@ -274,7 +274,7 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
     }
 
     private static class SingleItemSlot extends SlotItemHandler {
-        private SingleItemSlot(net.neoforged.neoforge.items.IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+        private SingleItemSlot(net.minecraftforge.items.IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
         }
 
@@ -290,7 +290,7 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
     }
 
     private static class OutputSlot extends SingleItemSlot {
-        private OutputSlot(net.neoforged.neoforge.items.IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+        private OutputSlot(net.minecraftforge.items.IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
         }
 

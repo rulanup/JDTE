@@ -1,25 +1,25 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class BioCrusherConfig {
-    public final ModConfigSpec.IntValue bioCrusherFluidCapacity;
-    public final ModConfigSpec.IntValue bioCrusherEnergyCost;
-    public final ModConfigSpec.DoubleValue bioCrusherBaseRadius;
-    public final ModConfigSpec.DoubleValue bioCrusherExperienceFluidMultiplier;
-    public final ModConfigSpec.IntValue bioCrusherOutputSlotsPerCapacityUpgradeMultiplier;
-    public final ModConfigSpec.IntValue bioCrusherBaseDamage;
-    public final ModConfigSpec.IntValue bioCrusherProcessTime;
-    public final ModConfigSpec.BooleanValue bioCrusherRespectDamageRestrictions;
-    public final ModConfigSpec.BooleanValue bioCrusherAllowDestroyChaosGuardianCrystals;
-    public final ModConfigSpec.BooleanValue bioCrusherAllowInstantKillChaosGuardian;
-    public final ModConfigSpec.DoubleValue lootingExtraDropChance;
-    public final ModConfigSpec.IntValue advancedBioCrusherEnergyCapacity;
-    public final ModConfigSpec.IntValue extendedBioCrusherEnergyCapacity;
-    public final ModConfigSpec.IntValue advancedBioCrusherMaxEntities;
-    public final ModConfigSpec.IntValue extendedBioCrusherMaxEntities;
+    public final ForgeConfigSpec.IntValue bioCrusherFluidCapacity;
+    public final ForgeConfigSpec.IntValue bioCrusherEnergyCost;
+    public final ForgeConfigSpec.DoubleValue bioCrusherBaseRadius;
+    public final ForgeConfigSpec.DoubleValue bioCrusherExperienceFluidMultiplier;
+    public final ForgeConfigSpec.IntValue bioCrusherOutputSlotsPerCapacityUpgradeMultiplier;
+    public final ForgeConfigSpec.IntValue bioCrusherBaseDamage;
+    public final ForgeConfigSpec.IntValue bioCrusherProcessTime;
+    public final ForgeConfigSpec.BooleanValue bioCrusherRespectDamageRestrictions;
+    public final ForgeConfigSpec.BooleanValue bioCrusherAllowDestroyChaosGuardianCrystals;
+    public final ForgeConfigSpec.BooleanValue bioCrusherAllowInstantKillChaosGuardian;
+    public final ForgeConfigSpec.DoubleValue lootingExtraDropChance;
+    public final ForgeConfigSpec.IntValue advancedBioCrusherEnergyCapacity;
+    public final ForgeConfigSpec.IntValue extendedBioCrusherEnergyCapacity;
+    public final ForgeConfigSpec.IntValue advancedBioCrusherMaxEntities;
+    public final ForgeConfigSpec.IntValue extendedBioCrusherMaxEntities;
 
-    public BioCrusherConfig(ModConfigSpec.Builder builder) {
+    public BioCrusherConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Bio Crusher Settings").translation("config.jdte.jdte.bioCrusher").push("bioCrusher");
         bioCrusherFluidCapacity = builder
                 .comment("Base fluid capacity for bio crusher (mB)")

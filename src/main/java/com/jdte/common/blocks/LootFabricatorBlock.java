@@ -6,7 +6,7 @@ import com.jdte.common.containers.LootFabricatorContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,20 +18,21 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class LootFabricatorBlock extends BaseMachineBlock {
+public class LootFabricatorBlock extends JDTEMachineBlock {
     public LootFabricatorBlock() {
         super(Properties.of().sound(SoundType.METAL).strength(3.0F).noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
-        return FluidContainerTransfer.useItemOn(itemStack, blockState, level, blockPos, player, hand, hit);
+    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack itemStack = player.getItemInHand(hand);
+        return useWithFluidContainer(itemStack, blockState, level, blockPos, player, hand, hit);
     }
 
     @Nullable @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new LootFabricatorBE(pos, state); }
     @Override public void openMenu(Player player, BlockPos pos) {
-        player.openMenu(new SimpleMenuProvider((id, inventory, ignored) -> new LootFabricatorContainer(id, inventory, pos),
+        openScreen(player,new SimpleMenuProvider((id, inventory, ignored) -> new LootFabricatorContainer(id, inventory, pos),
                 Component.translatable("block.jdte.loot_fabricator")), buf -> buf.writeBlockPos(pos));
     }
     @Override public boolean isValidBE(BlockEntity blockEntity) { return blockEntity instanceof LootFabricatorBE; }

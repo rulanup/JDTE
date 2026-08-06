@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class ExtendedFluidStabilizerBlock extends BaseMachineBlock {
+public class ExtendedFluidStabilizerBlock extends JDTEMachineBlock {
     public ExtendedFluidStabilizerBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
@@ -30,7 +30,7 @@ public class ExtendedFluidStabilizerBlock extends BaseMachineBlock {
 
     @Override
     public void openMenu(Player player, BlockPos blockPos) {
-        player.openMenu(new SimpleMenuProvider(
+        openScreen(player,new SimpleMenuProvider(
                 (windowId, playerInventory, playerEntity) -> new ExtendedFluidStabilizerContainer(windowId, playerInventory, blockPos), Component.translatable("block.jdte.extended_fluid_stabilizer")), (buf -> {
             buf.writeBlockPos(blockPos);
         }));

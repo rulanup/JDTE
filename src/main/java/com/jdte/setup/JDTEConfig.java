@@ -19,15 +19,15 @@ import com.jdte.setup.config.SenderReceiverConfig;
 import com.jdte.setup.config.TimeAcceleratorConfig;
 import com.jdte.setup.config.UpgradeItemsConfig;
 import com.jdte.setup.config.UpgradesConfig;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class JDTEConfig {
-    public static final ModConfigSpec COMMON_SPEC;
+    public static final ForgeConfigSpec COMMON_SPEC;
     public static final Common COMMON;
 
     static {
-        Pair<Common, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Common::new);
+        Pair<Common, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Common::new);
         COMMON = pair.getLeft();
         COMMON_SPEC = pair.getRight();
     }
@@ -54,215 +54,215 @@ public class JDTEConfig {
         public final UpgradeItemsConfig upgradeItems;
 
         // Upgrade System
-        public final ModConfigSpec.IntValue filterSlotsPerUpgrade;
-        public final ModConfigSpec.DoubleValue underclockEnergyMultiplier;
-        public final ModConfigSpec.IntValue overclockEnergyMultiplier;
-        public final ModConfigSpec.IntValue underclockTickSpeed;
-        public final ModConfigSpec.IntValue overclockTickSpeed;
-        public final ModConfigSpec.DoubleValue baseAreaRadius;
-        public final ModConfigSpec.IntValue baseAreaOffset;
+        public final ForgeConfigSpec.IntValue filterSlotsPerUpgrade;
+        public final ForgeConfigSpec.DoubleValue underclockEnergyMultiplier;
+        public final ForgeConfigSpec.IntValue overclockEnergyMultiplier;
+        public final ForgeConfigSpec.IntValue underclockTickSpeed;
+        public final ForgeConfigSpec.IntValue overclockTickSpeed;
+        public final ForgeConfigSpec.DoubleValue baseAreaRadius;
+        public final ForgeConfigSpec.IntValue baseAreaOffset;
 
         // Time Accelerator
-        public final ModConfigSpec.IntValue basicTimeAcceleratorDefaultMultiplier;
-        public final ModConfigSpec.IntValue basicTimeAcceleratorOverclockMultiplier;
-        public final ModConfigSpec.IntValue advancedTimeAcceleratorEnergyCapacity;
-        public final ModConfigSpec.IntValue advancedTimeAcceleratorMaxMultiplier;
-        public final ModConfigSpec.IntValue advancedTimeAcceleratorOverclockMultiplier;
-        public final ModConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
-        public final ModConfigSpec.IntValue extendedTimeAcceleratorMaxMultiplier;
-        public final ModConfigSpec.IntValue extendedTimeAcceleratorOverclockMultiplier;
-        public final ModConfigSpec.IntValue timeAcceleratorMaxExecutionsPerTick;
-        public final ModConfigSpec.IntValue timeAcceleratorMaxScannedBlocksPerTick;
-        public final ModConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
-        public final ModConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
-        public final ModConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
-        public final ModConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
-        public final ModConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
-        public final ModConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
+        public final ForgeConfigSpec.IntValue basicTimeAcceleratorDefaultMultiplier;
+        public final ForgeConfigSpec.IntValue basicTimeAcceleratorOverclockMultiplier;
+        public final ForgeConfigSpec.IntValue advancedTimeAcceleratorEnergyCapacity;
+        public final ForgeConfigSpec.IntValue advancedTimeAcceleratorMaxMultiplier;
+        public final ForgeConfigSpec.IntValue advancedTimeAcceleratorOverclockMultiplier;
+        public final ForgeConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
+        public final ForgeConfigSpec.IntValue extendedTimeAcceleratorMaxMultiplier;
+        public final ForgeConfigSpec.IntValue extendedTimeAcceleratorOverclockMultiplier;
+        public final ForgeConfigSpec.IntValue timeAcceleratorMaxExecutionsPerTick;
+        public final ForgeConfigSpec.IntValue timeAcceleratorMaxScannedBlocksPerTick;
+        public final ForgeConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
+        public final ForgeConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
+        public final ForgeConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
+        public final ForgeConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
+        public final ForgeConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
+        public final ForgeConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
 
         // Bio Crusher
-        public final ModConfigSpec.IntValue bioCrusherFluidCapacity;
-        public final ModConfigSpec.IntValue bioCrusherEnergyCost;
-        public final ModConfigSpec.DoubleValue bioCrusherBaseRadius;
-        public final ModConfigSpec.DoubleValue bioCrusherExperienceFluidMultiplier;
-        public final ModConfigSpec.IntValue bioCrusherOutputSlotsPerCapacityUpgradeMultiplier;
-        public final ModConfigSpec.IntValue bioCrusherBaseDamage;
-        public final ModConfigSpec.IntValue bioCrusherProcessTime;
-        public final ModConfigSpec.BooleanValue bioCrusherRespectDamageRestrictions;
-        public final ModConfigSpec.BooleanValue bioCrusherAllowDestroyChaosGuardianCrystals;
-        public final ModConfigSpec.BooleanValue bioCrusherAllowInstantKillChaosGuardian;
-        public final ModConfigSpec.DoubleValue lootingExtraDropChance;
-        public final ModConfigSpec.IntValue advancedBioCrusherEnergyCapacity;
-        public final ModConfigSpec.IntValue extendedBioCrusherEnergyCapacity;
-        public final ModConfigSpec.IntValue advancedBioCrusherMaxEntities;
-        public final ModConfigSpec.IntValue extendedBioCrusherMaxEntities;
+        public final ForgeConfigSpec.IntValue bioCrusherFluidCapacity;
+        public final ForgeConfigSpec.IntValue bioCrusherEnergyCost;
+        public final ForgeConfigSpec.DoubleValue bioCrusherBaseRadius;
+        public final ForgeConfigSpec.DoubleValue bioCrusherExperienceFluidMultiplier;
+        public final ForgeConfigSpec.IntValue bioCrusherOutputSlotsPerCapacityUpgradeMultiplier;
+        public final ForgeConfigSpec.IntValue bioCrusherBaseDamage;
+        public final ForgeConfigSpec.IntValue bioCrusherProcessTime;
+        public final ForgeConfigSpec.BooleanValue bioCrusherRespectDamageRestrictions;
+        public final ForgeConfigSpec.BooleanValue bioCrusherAllowDestroyChaosGuardianCrystals;
+        public final ForgeConfigSpec.BooleanValue bioCrusherAllowInstantKillChaosGuardian;
+        public final ForgeConfigSpec.DoubleValue lootingExtraDropChance;
+        public final ForgeConfigSpec.IntValue advancedBioCrusherEnergyCapacity;
+        public final ForgeConfigSpec.IntValue extendedBioCrusherEnergyCapacity;
+        public final ForgeConfigSpec.IntValue advancedBioCrusherMaxEntities;
+        public final ForgeConfigSpec.IntValue extendedBioCrusherMaxEntities;
 
         // Life Extractor
-        public final ModConfigSpec.DoubleValue lifeExtractorFluidPerHealth;
-        public final ModConfigSpec.DoubleValue lifeExtractorHighHealthLossPercent;
+        public final ForgeConfigSpec.DoubleValue lifeExtractorFluidPerHealth;
+        public final ForgeConfigSpec.DoubleValue lifeExtractorHighHealthLossPercent;
 
         // Loot Fabricator
-        public final ModConfigSpec.IntValue lootFabricatorLifeFluidCost;
-        public final ModConfigSpec.IntValue lootFabricatorBaseTimeFluidCost;
-        public final ModConfigSpec.IntValue lootFabricatorLootingFluidCostIncreasePercent;
+        public final ForgeConfigSpec.IntValue lootFabricatorLifeFluidCost;
+        public final ForgeConfigSpec.IntValue lootFabricatorBaseTimeFluidCost;
+        public final ForgeConfigSpec.IntValue lootFabricatorLootingFluidCostIncreasePercent;
 
         // Item/Fluid Sender/Receiver
-        public final ModConfigSpec.IntValue senderStorageSlots;
-        public final ModConfigSpec.IntValue advancedItemSenderEnergyCapacity;
-        public final ModConfigSpec.IntValue advancedItemSenderEnergyCost;
-        public final ModConfigSpec.IntValue extendedItemSenderEnergyCapacity;
-        public final ModConfigSpec.IntValue advancedFluidSenderEnergyCapacity;
-        public final ModConfigSpec.IntValue advancedFluidSenderEnergyCost;
-        public final ModConfigSpec.IntValue extendedFluidSenderEnergyCapacity;
-        public final ModConfigSpec.IntValue fluidSenderFluidCapacity;
-        public final ModConfigSpec.BooleanValue fluidSenderUnlimitedTransfer;
-        public final ModConfigSpec.IntValue autoIoItemTransferRate;
-        public final ModConfigSpec.IntValue autoIoFluidTransferRate;
-        public final ModConfigSpec.IntValue senderReceiverItemTransferRate;
-        public final ModConfigSpec.IntValue senderReceiverOverclockItemTransferRate;
-        public final ModConfigSpec.IntValue senderReceiverFluidTransferRate;
-        public final ModConfigSpec.IntValue senderReceiverOverclockFluidTransferRate;
-        public final ModConfigSpec.IntValue transferFailureBackoffStart;
-        public final ModConfigSpec.IntValue transferFailureBackoffMax;
+        public final ForgeConfigSpec.IntValue senderStorageSlots;
+        public final ForgeConfigSpec.IntValue advancedItemSenderEnergyCapacity;
+        public final ForgeConfigSpec.IntValue advancedItemSenderEnergyCost;
+        public final ForgeConfigSpec.IntValue extendedItemSenderEnergyCapacity;
+        public final ForgeConfigSpec.IntValue advancedFluidSenderEnergyCapacity;
+        public final ForgeConfigSpec.IntValue advancedFluidSenderEnergyCost;
+        public final ForgeConfigSpec.IntValue extendedFluidSenderEnergyCapacity;
+        public final ForgeConfigSpec.IntValue fluidSenderFluidCapacity;
+        public final ForgeConfigSpec.BooleanValue fluidSenderUnlimitedTransfer;
+        public final ForgeConfigSpec.IntValue autoIoItemTransferRate;
+        public final ForgeConfigSpec.IntValue autoIoFluidTransferRate;
+        public final ForgeConfigSpec.IntValue senderReceiverItemTransferRate;
+        public final ForgeConfigSpec.IntValue senderReceiverOverclockItemTransferRate;
+        public final ForgeConfigSpec.IntValue senderReceiverFluidTransferRate;
+        public final ForgeConfigSpec.IntValue senderReceiverOverclockFluidTransferRate;
+        public final ForgeConfigSpec.IntValue transferFailureBackoffStart;
+        public final ForgeConfigSpec.IntValue transferFailureBackoffMax;
 
         // Advanced Item Collector
-        public final ModConfigSpec.BooleanValue advancedItemCollectorPreDrainEnabled;
-        public final ModConfigSpec.IntValue advancedItemCollectorPreDrainThreshold;
-        public final ModConfigSpec.BooleanValue advancedItemCollectorMeDirectTransferEnabled;
-        public final ModConfigSpec.BooleanValue advancedItemCollectorExistingItemScanEnabled;
-        public final ModConfigSpec.IntValue advancedItemCollectorExistingItemScanInterval;
-        public final ModConfigSpec.IntValue advancedItemCollectorExistingItemScanLimit;
+        public final ForgeConfigSpec.BooleanValue advancedItemCollectorPreDrainEnabled;
+        public final ForgeConfigSpec.IntValue advancedItemCollectorPreDrainThreshold;
+        public final ForgeConfigSpec.BooleanValue advancedItemCollectorMeDirectTransferEnabled;
+        public final ForgeConfigSpec.BooleanValue advancedItemCollectorExistingItemScanEnabled;
+        public final ForgeConfigSpec.IntValue advancedItemCollectorExistingItemScanInterval;
+        public final ForgeConfigSpec.IntValue advancedItemCollectorExistingItemScanLimit;
 
         // Entity Suppressor
-        public final ModConfigSpec.IntValue entitySuppressorEnergyCapacity;
-        public final ModConfigSpec.IntValue entitySuppressorEnergyPerTick;
-        public final ModConfigSpec.BooleanValue entitySuppressorProtectNamed;
-        public final ModConfigSpec.BooleanValue entitySuppressorProtectTamed;
-        public final ModConfigSpec.BooleanValue entitySuppressorProtectBosses;
-        public final ModConfigSpec.BooleanValue entitySuppressorRemoveExisting;
+        public final ForgeConfigSpec.IntValue entitySuppressorEnergyCapacity;
+        public final ForgeConfigSpec.IntValue entitySuppressorEnergyPerTick;
+        public final ForgeConfigSpec.BooleanValue entitySuppressorProtectNamed;
+        public final ForgeConfigSpec.BooleanValue entitySuppressorProtectTamed;
+        public final ForgeConfigSpec.BooleanValue entitySuppressorProtectBosses;
+        public final ForgeConfigSpec.BooleanValue entitySuppressorRemoveExisting;
 
         // Range Blocker
-        public final ModConfigSpec.IntValue rangeBlockerEnergyCapacity;
-        public final ModConfigSpec.IntValue rangeBlockerContainmentEnergyPerTick;
-        public final ModConfigSpec.IntValue rangeBlockerDemagnetizationEnergyPerTick;
-        public final ModConfigSpec.IntValue rangeBlockerSilenceEnergyPerTick;
-        public final ModConfigSpec.BooleanValue rangeBlockerProtectNamed;
-        public final ModConfigSpec.BooleanValue rangeBlockerProtectTamed;
-        public final ModConfigSpec.BooleanValue rangeBlockerProtectBosses;
-        public final ModConfigSpec.BooleanValue rangeBlockerMekanismIntegration;
-        public final ModConfigSpec.BooleanValue rangeBlockerContainProjectiles;
-        public final ModConfigSpec.BooleanValue rangeBlockerContainOwnerlessProjectiles;
-        public final ModConfigSpec.BooleanValue rangeBlockerContainProjectileExplosions;
+        public final ForgeConfigSpec.IntValue rangeBlockerEnergyCapacity;
+        public final ForgeConfigSpec.IntValue rangeBlockerContainmentEnergyPerTick;
+        public final ForgeConfigSpec.IntValue rangeBlockerDemagnetizationEnergyPerTick;
+        public final ForgeConfigSpec.IntValue rangeBlockerSilenceEnergyPerTick;
+        public final ForgeConfigSpec.BooleanValue rangeBlockerProtectNamed;
+        public final ForgeConfigSpec.BooleanValue rangeBlockerProtectTamed;
+        public final ForgeConfigSpec.BooleanValue rangeBlockerProtectBosses;
+        public final ForgeConfigSpec.BooleanValue rangeBlockerMekanismIntegration;
+        public final ForgeConfigSpec.BooleanValue rangeBlockerContainProjectiles;
+        public final ForgeConfigSpec.BooleanValue rangeBlockerContainOwnerlessProjectiles;
+        public final ForgeConfigSpec.BooleanValue rangeBlockerContainProjectileExplosions;
 
         // Factory Packer
-        public final ModConfigSpec.IntValue factoryPackerEnergyCapacity;
-        public final ModConfigSpec.DoubleValue factoryPackerBaseRadius;
-        public final ModConfigSpec.IntValue factoryPackerEnergyPerBlock;
-        public final ModConfigSpec.IntValue factoryPackerBlocksPerTick;
-        public final ModConfigSpec.IntValue factoryPackerSourceChangeRetries;
-        public final ModConfigSpec.IntValue factoryPackerMaxAxis;
-        public final ModConfigSpec.IntValue factoryPackerMaxVolume;
-        public final ModConfigSpec.IntValue factoryPackerMaxCompressedBytes;
-        public final ModConfigSpec.IntValue factoryPackerMaxUncompressedBytes;
-        public final ModConfigSpec.IntValue factoryPackerPreviewMaxBlocks;
-        public final ModConfigSpec.IntValue factoryPackerMaxEntities;
-        public final ModConfigSpec.IntValue factoryPackerEnergyPerEntity;
-        public final ModConfigSpec.BooleanValue factoryPackerMoveEntities;
-        public final ModConfigSpec.BooleanValue factoryPackerMoveScheduledTicks;
-        public final ModConfigSpec.BooleanValue factoryPackerRemapInternalLinks;
-        public final ModConfigSpec.BooleanValue factoryPackerUseModMoveStrategies;
-        public final ModConfigSpec.BooleanValue factoryPackerChatNotifications;
+        public final ForgeConfigSpec.IntValue factoryPackerEnergyCapacity;
+        public final ForgeConfigSpec.DoubleValue factoryPackerBaseRadius;
+        public final ForgeConfigSpec.IntValue factoryPackerEnergyPerBlock;
+        public final ForgeConfigSpec.IntValue factoryPackerBlocksPerTick;
+        public final ForgeConfigSpec.IntValue factoryPackerSourceChangeRetries;
+        public final ForgeConfigSpec.IntValue factoryPackerMaxAxis;
+        public final ForgeConfigSpec.IntValue factoryPackerMaxVolume;
+        public final ForgeConfigSpec.IntValue factoryPackerMaxCompressedBytes;
+        public final ForgeConfigSpec.IntValue factoryPackerMaxUncompressedBytes;
+        public final ForgeConfigSpec.IntValue factoryPackerPreviewMaxBlocks;
+        public final ForgeConfigSpec.IntValue factoryPackerMaxEntities;
+        public final ForgeConfigSpec.IntValue factoryPackerEnergyPerEntity;
+        public final ForgeConfigSpec.BooleanValue factoryPackerMoveEntities;
+        public final ForgeConfigSpec.BooleanValue factoryPackerMoveScheduledTicks;
+        public final ForgeConfigSpec.BooleanValue factoryPackerRemapInternalLinks;
+        public final ForgeConfigSpec.BooleanValue factoryPackerUseModMoveStrategies;
+        public final ForgeConfigSpec.BooleanValue factoryPackerChatNotifications;
 
         // Advanced Potion Brewer
-        public final ModConfigSpec.BooleanValue potionBrewerRejectPatternProviderFuelInput;
+        public final ForgeConfigSpec.BooleanValue potionBrewerRejectPatternProviderFuelInput;
 
         // Crystal Incubator
-        public final ModConfigSpec.IntValue crystalIncubatorFluidCapacity;
-        public final ModConfigSpec.IntValue crystalIncubatorEnergyCapacity;
-        public final ModConfigSpec.DoubleValue crystalIncubatorEnergyCostMultiplier;
-        public final ModConfigSpec.IntValue crystalIncubatorMaxMultiplier;
-        public final ModConfigSpec.IntValue crystalIncubatorOverclockMultiplier;
-        public final ModConfigSpec.DoubleValue crystalIncubatorFluidCostMultiplier;
-        public final ModConfigSpec.DoubleValue crystalIncubatorRegularGrowthAcceleratorsAt8x;
-        public final ModConfigSpec.IntValue crystalIncubatorScanBatchSize;
-        public final ModConfigSpec.IntValue crystalIncubatorCacheRefreshInterval;
-        public final ModConfigSpec.IntValue crystalIncubatorMotherBatchSize;
-        public final ModConfigSpec.IntValue crystalIncubatorGrowthOperationsPerTick;
-        public final ModConfigSpec.IntValue crystalIncubatorHarvestOperationsPerTick;
-        public final ModConfigSpec.IntValue crystalIncubatorDynaGrowthAttempts;
+        public final ForgeConfigSpec.IntValue crystalIncubatorFluidCapacity;
+        public final ForgeConfigSpec.IntValue crystalIncubatorEnergyCapacity;
+        public final ForgeConfigSpec.DoubleValue crystalIncubatorEnergyCostMultiplier;
+        public final ForgeConfigSpec.IntValue crystalIncubatorMaxMultiplier;
+        public final ForgeConfigSpec.IntValue crystalIncubatorOverclockMultiplier;
+        public final ForgeConfigSpec.DoubleValue crystalIncubatorFluidCostMultiplier;
+        public final ForgeConfigSpec.DoubleValue crystalIncubatorRegularGrowthAcceleratorsAt8x;
+        public final ForgeConfigSpec.IntValue crystalIncubatorScanBatchSize;
+        public final ForgeConfigSpec.IntValue crystalIncubatorCacheRefreshInterval;
+        public final ForgeConfigSpec.IntValue crystalIncubatorMotherBatchSize;
+        public final ForgeConfigSpec.IntValue crystalIncubatorGrowthOperationsPerTick;
+        public final ForgeConfigSpec.IntValue crystalIncubatorHarvestOperationsPerTick;
+        public final ForgeConfigSpec.IntValue crystalIncubatorDynaGrowthAttempts;
 
         // Greenhouse
-        public final ModConfigSpec.IntValue greenhouseFluidCapacity;
-        public final ModConfigSpec.IntValue greenhouseEnergyCapacity;
-        public final ModConfigSpec.IntValue greenhouseBaseMultiplier;
-        public final ModConfigSpec.IntValue greenhouseDefaultSpeedMultiplier;
-        public final ModConfigSpec.IntValue greenhouseMaxSpeedMultiplier;
-        public final ModConfigSpec.IntValue greenhouseOverclockMaxSpeedMultiplier;
-        public final ModConfigSpec.IntValue greenhouseFluidCostDivisor;
-        public final ModConfigSpec.IntValue greenhouseSettlementInterval;
-        public final ModConfigSpec.IntValue greenhouseDefaultGrowthWork;
-        public final ModConfigSpec.IntValue greenhouseEnergyPerHarvestV2;
-        public final ModConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
-        public final ModConfigSpec.IntValue greenhouseGenericFluidCost;
-        public final ModConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
-        public final ModConfigSpec.LongValue greenhouseMaxPendingWork;
-        public final ModConfigSpec.IntValue greenhouseEventOutputItemBudget;
-        public final ModConfigSpec.IntValue greenhouseEventOutputTypeBudget;
-        public final ModConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
+        public final ForgeConfigSpec.IntValue greenhouseFluidCapacity;
+        public final ForgeConfigSpec.IntValue greenhouseEnergyCapacity;
+        public final ForgeConfigSpec.IntValue greenhouseBaseMultiplier;
+        public final ForgeConfigSpec.IntValue greenhouseDefaultSpeedMultiplier;
+        public final ForgeConfigSpec.IntValue greenhouseMaxSpeedMultiplier;
+        public final ForgeConfigSpec.IntValue greenhouseOverclockMaxSpeedMultiplier;
+        public final ForgeConfigSpec.IntValue greenhouseFluidCostDivisor;
+        public final ForgeConfigSpec.IntValue greenhouseSettlementInterval;
+        public final ForgeConfigSpec.IntValue greenhouseDefaultGrowthWork;
+        public final ForgeConfigSpec.IntValue greenhouseEnergyPerHarvestV2;
+        public final ForgeConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
+        public final ForgeConfigSpec.IntValue greenhouseGenericFluidCost;
+        public final ForgeConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
+        public final ForgeConfigSpec.LongValue greenhouseMaxPendingWork;
+        public final ForgeConfigSpec.IntValue greenhouseEventOutputItemBudget;
+        public final ForgeConfigSpec.IntValue greenhouseEventOutputTypeBudget;
+        public final ForgeConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
 
         // Bio Factory
-        public final ModConfigSpec.IntValue bioFactoryFluidCapacity;
-        public final ModConfigSpec.IntValue bioFactoryEnergyCapacity;
-        public final ModConfigSpec.IntValue bioFactoryEnergyPerCycle;
-        public final ModConfigSpec.IntValue bioFactoryBaseProcessTicks;
-        public final ModConfigSpec.IntValue bioFactorySettlementInterval;
-        public final ModConfigSpec.IntValue bioFactoryTimeFluidPerCycle;
-        public final ModConfigSpec.IntValue bioFactoryMaxSpeedMultiplier;
-        public final ModConfigSpec.IntValue bioFactoryDefaultSpeedMultiplier;
-        public final ModConfigSpec.IntValue bioFactoryOverclockMaxSpeedMultiplier;
-        public final ModConfigSpec.IntValue bioFactoryLifeFluidPerCycle;
-        public final ModConfigSpec.DoubleValue bioFactoryLifeYieldMultiplier;
-        public final ModConfigSpec.IntValue bioFactoryProcessFluidPerCycle;
-        public final ModConfigSpec.IntValue bioFactoryExternalTimeFluidCostMultiplier;
-        public final ModConfigSpec.IntValue bioFactoryExternalLifeFluidCostMultiplier;
+        public final ForgeConfigSpec.IntValue bioFactoryFluidCapacity;
+        public final ForgeConfigSpec.IntValue bioFactoryEnergyCapacity;
+        public final ForgeConfigSpec.IntValue bioFactoryEnergyPerCycle;
+        public final ForgeConfigSpec.IntValue bioFactoryBaseProcessTicks;
+        public final ForgeConfigSpec.IntValue bioFactorySettlementInterval;
+        public final ForgeConfigSpec.IntValue bioFactoryTimeFluidPerCycle;
+        public final ForgeConfigSpec.IntValue bioFactoryMaxSpeedMultiplier;
+        public final ForgeConfigSpec.IntValue bioFactoryDefaultSpeedMultiplier;
+        public final ForgeConfigSpec.IntValue bioFactoryOverclockMaxSpeedMultiplier;
+        public final ForgeConfigSpec.IntValue bioFactoryLifeFluidPerCycle;
+        public final ForgeConfigSpec.DoubleValue bioFactoryLifeYieldMultiplier;
+        public final ForgeConfigSpec.IntValue bioFactoryProcessFluidPerCycle;
+        public final ForgeConfigSpec.IntValue bioFactoryExternalTimeFluidCostMultiplier;
+        public final ForgeConfigSpec.IntValue bioFactoryExternalLifeFluidCostMultiplier;
 
         // Life Breeder
-        public final ModConfigSpec.IntValue lifeBreederEnergyCapacity;
-        public final ModConfigSpec.IntValue lifeBreederFluidCapacity;
-        public final ModConfigSpec.IntValue lifeBreederBreedEnergyCost;
-        public final ModConfigSpec.IntValue lifeBreederBreedFluidCost;
-        public final ModConfigSpec.IntValue lifeBreederEnergyPerGrowthTick;
-        public final ModConfigSpec.IntValue lifeBreederGrowthTicksPerMb;
-        public final ModConfigSpec.IntValue lifeBreederFluidCostMultiplierV3;
-        public final ModConfigSpec.IntValue lifeBreederBreedingCooldownTicks;
-        public final ModConfigSpec.IntValue lifeBreederProcessingInterval;
-        public final ModConfigSpec.IntValue lifeBreederMaxEntitiesInspected;
-        public final ModConfigSpec.IntValue lifeBreederMaxPairsPerCycle;
-        public final ModConfigSpec.IntValue lifeBreederMaxAnimalsGrownPerCycle;
-        public final ModConfigSpec.IntValue lifeBreederMaxAnimalsPerType;
-        public final ModConfigSpec.IntValue lifeBreederMaxDropsCollectedPerCycle;
-        public final ModConfigSpec.IntValue lifeBreederDefaultSpeedMultiplier;
-        public final ModConfigSpec.IntValue lifeBreederMaxSpeedMultiplier;
+        public final ForgeConfigSpec.IntValue lifeBreederEnergyCapacity;
+        public final ForgeConfigSpec.IntValue lifeBreederFluidCapacity;
+        public final ForgeConfigSpec.IntValue lifeBreederBreedEnergyCost;
+        public final ForgeConfigSpec.IntValue lifeBreederBreedFluidCost;
+        public final ForgeConfigSpec.IntValue lifeBreederEnergyPerGrowthTick;
+        public final ForgeConfigSpec.IntValue lifeBreederGrowthTicksPerMb;
+        public final ForgeConfigSpec.IntValue lifeBreederFluidCostMultiplierV3;
+        public final ForgeConfigSpec.IntValue lifeBreederBreedingCooldownTicks;
+        public final ForgeConfigSpec.IntValue lifeBreederProcessingInterval;
+        public final ForgeConfigSpec.IntValue lifeBreederMaxEntitiesInspected;
+        public final ForgeConfigSpec.IntValue lifeBreederMaxPairsPerCycle;
+        public final ForgeConfigSpec.IntValue lifeBreederMaxAnimalsGrownPerCycle;
+        public final ForgeConfigSpec.IntValue lifeBreederMaxAnimalsPerType;
+        public final ForgeConfigSpec.IntValue lifeBreederMaxDropsCollectedPerCycle;
+        public final ForgeConfigSpec.IntValue lifeBreederDefaultSpeedMultiplier;
+        public final ForgeConfigSpec.IntValue lifeBreederMaxSpeedMultiplier;
 
         // Gel Generator
-        public final ModConfigSpec.IntValue gelGeneratorInputSlots;
-        public final ModConfigSpec.IntValue gelGeneratorOutputSlots;
-        public final ModConfigSpec.IntValue gelGeneratorFluidCapacity;
-        public final ModConfigSpec.IntValue gelGeneratorEnergyCapacity;
-        public final ModConfigSpec.IntValue gelGeneratorFluidConversionAmount;
-        public final ModConfigSpec.IntValue gelGeneratorFuelUsesPerItem;
-        public final ModConfigSpec.IntValue gelGeneratorEnergyCost;
+        public final ForgeConfigSpec.IntValue gelGeneratorInputSlots;
+        public final ForgeConfigSpec.IntValue gelGeneratorOutputSlots;
+        public final ForgeConfigSpec.IntValue gelGeneratorFluidCapacity;
+        public final ForgeConfigSpec.IntValue gelGeneratorEnergyCapacity;
+        public final ForgeConfigSpec.IntValue gelGeneratorFluidConversionAmount;
+        public final ForgeConfigSpec.IntValue gelGeneratorFuelUsesPerItem;
+        public final ForgeConfigSpec.IntValue gelGeneratorEnergyCost;
 
         // Generator Upgrade
-        public final ModConfigSpec.IntValue generatorUpgradeEnergyMultiplier;
-        public final ModConfigSpec.IntValue generatorUpgradeFluidCost;
+        public final ForgeConfigSpec.IntValue generatorUpgradeEnergyMultiplier;
+        public final ForgeConfigSpec.IntValue generatorUpgradeFluidCost;
 
         // Upgrade Items
-        public final ModConfigSpec.IntValue maxSharpnessUpgrades;
-        public final ModConfigSpec.IntValue sharpnessDamagePerUpgrade;
-        public final ModConfigSpec.IntValue maxLootingUpgrades;
+        public final ForgeConfigSpec.IntValue maxSharpnessUpgrades;
+        public final ForgeConfigSpec.IntValue sharpnessDamagePerUpgrade;
+        public final ForgeConfigSpec.IntValue maxLootingUpgrades;
 
-        public Common(ModConfigSpec.Builder builder) {
+        public Common(ForgeConfigSpec.Builder builder) {
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
 
             upgrades = new UpgradesConfig(builder);

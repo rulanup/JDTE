@@ -1,5 +1,6 @@
 package com.jdte.common.items;
 
+import net.minecraft.world.level.Level;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.common.upgrades.UpgradeCardInsertionHelper;
 import net.minecraft.ChatFormatting;
@@ -30,8 +31,8 @@ public class UpgradeCardItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.jdte." + type.getSerializedName()).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.jdte.max", type.getMaxPerMachine()).withStyle(ChatFormatting.DARK_GRAY));
     }

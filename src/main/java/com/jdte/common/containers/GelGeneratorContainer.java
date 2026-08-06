@@ -12,8 +12,8 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.items.SlotItemHandler;
 
 import javax.annotation.Nullable;
 

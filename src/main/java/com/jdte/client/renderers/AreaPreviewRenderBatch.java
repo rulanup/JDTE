@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 import org.slf4j.Logger;
 
@@ -71,12 +71,12 @@ public final class AreaPreviewRenderBatch {
             }
             for (Preview preview : PREVIEWS) {
                 if (preview.offset()) {
-                    RenderHelpers.renderBoxSolid(poseStack, matrix, buffers, preview.area(), 0, 0, 1, 0.125F);
+                    RenderHelpers.renderBoxSolid(matrix, buffers, preview.area(), 0, 0, 1, 0.125F);
                 } else {
-                    RenderHelpers.renderBoxSolid(poseStack, matrix, buffers, preview.area(), 1, 0, 0, 0.125F);
+                    RenderHelpers.renderBoxSolid(matrix, buffers, preview.area(), 1, 0, 0, 0.125F);
                 }
                 if (preview.selectedFace() != null) {
-                    RenderHelpers.renderBoxSolid(poseStack, matrix, buffers,
+                    RenderHelpers.renderBoxSolid(matrix, buffers,
                             faceHighlight(preview.area(), preview.selectedFace()), 1.0F, 0.75F, 0.1F, 0.3F);
                 }
             }
@@ -86,7 +86,7 @@ public final class AreaPreviewRenderBatch {
                 Matrix4f blueprintMatrix = poseStack.last().pose();
                 for (BlueprintBlock block : blueprint.blocks()) {
                     AABB bounds = new AABB(block.relativePos());
-                    RenderHelpers.renderBoxSolid(poseStack, blueprintMatrix, buffers, bounds,
+                    RenderHelpers.renderBoxSolid(blueprintMatrix, buffers, bounds,
                             0.15F, 0.85F, 1.0F, 0.18F);
                 }
                 for (BlueprintBlock block : blueprint.blocks()) {

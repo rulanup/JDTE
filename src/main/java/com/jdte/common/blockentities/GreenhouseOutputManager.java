@@ -6,9 +6,9 @@ import com.jdte.setup.JDTEConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.event.TickEvent;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -56,7 +56,10 @@ public final class GreenhouseOutputManager {
         }
     }
 
-    public static void onServerTickPost(ServerTickEvent.Post event) {
+    public static void onServerTickPost(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         MinecraftServer server = event.getServer();
         for (Map.Entry<ServerLevel, IdentityHashMap<BaseMachineBE, PendingOutput>> levelEntry
                 : new ArrayList<>(LEVELS.entrySet())) {

@@ -19,7 +19,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import com.direwolf20.justdirethings.setup.Registration;
 
 public class LootFabricatorRecipeCategory implements IRecipeCategory<LootFabricatorJeiRecipe> {
@@ -72,8 +72,7 @@ public class LootFabricatorRecipeCategory implements IRecipeCategory<LootFabrica
                 .setFluidRenderer(maxTimeFluidCost, false, 16, 70)
                 .addFluidStack(Registration.TIME_FLUID_SOURCE.get(), maxTimeFluidCost)
                 .addRichTooltipCallback((view, tooltip) -> {
-                    tooltip.clear();
-                    tooltip.add(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 1).getHoverName());
+                    tooltip.add(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 1).getDisplayName());
                     tooltip.add(Component.translatable("jei.jdte.loot_fabricator.time_fluid_range",
                             baseTimeFluidCost, maxTimeFluidCost).withStyle(ChatFormatting.GRAY));
                 });
@@ -90,12 +89,12 @@ public class LootFabricatorRecipeCategory implements IRecipeCategory<LootFabrica
 
     @Override
     public void draw(LootFabricatorJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphics graphics, double mouseX, double mouseY) {
-        graphics.blitSprite(JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
+        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
         for (int i = 0; i < LootFabricatorBE.INPUT_SLOTS; i++) {
-            graphics.blitSprite(SLOT, INPUT_X, INPUT_Y + i * 18, 18, 18);
+            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, SLOT, INPUT_X, INPUT_Y + i * 18, 18, 18);
         }
         for (int i = 0; i < 16; i++) {
-            graphics.blitSprite(SLOT, outputX(i), outputY(i), 18, 18);
+            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, SLOT, outputX(i), outputY(i), 18, 18);
         }
         drawArrow(graphics, 70, 30);
         drawEnergyBar(graphics, mouseX, mouseY);
@@ -109,7 +108,7 @@ public class LootFabricatorRecipeCategory implements IRecipeCategory<LootFabrica
     }
 
     private static void drawArrowLayer(GuiGraphics graphics, int x, int y, int width, int color) {
-        int clamped = Math.clamp(width, 0, 24);
+        int clamped = net.minecraft.util.Mth.clamp(width, 0, 24);
         if (clamped <= 0) return;
         int body = Math.min(16, clamped);
         graphics.fill(x, y + 5, x + body, y + 10, color);
@@ -134,9 +133,8 @@ public class LootFabricatorRecipeCategory implements IRecipeCategory<LootFabrica
 
     private static void drawEnergyBar(GuiGraphics graphics, double mouseX, double mouseY) {
         int fillHeight = 1 + (int) ((System.currentTimeMillis() / 35) % 70);
-        graphics.blit(JDT_POWER_BAR, ENERGY_X, INPUT_Y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(JDT_POWER_BAR, ENERGY_X + 1, INPUT_Y + 70 - fillHeight,
-                19, 70 - fillHeight, 16, fillHeight, 36, 72);
+        com.jdte.client.screens.util.GuiSpriteCompat.blitPowerBar(graphics, JDT_POWER_BAR,
+                ENERGY_X, INPUT_Y, fillHeight);
         if (mouseX >= ENERGY_X && mouseX < ENERGY_X + 18 && mouseY >= INPUT_Y && mouseY < INPUT_Y + 72) {
             graphics.renderTooltip(Minecraft.getInstance().font,
                     Component.translatable("jei.jdte.loot_fabricator.energy", LootFabricatorBE.ENERGY_COST),

@@ -1,16 +1,16 @@
 package com.jdte.setup.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class EntitySuppressorConfig {
-    public final ModConfigSpec.IntValue entitySuppressorEnergyCapacity;
-    public final ModConfigSpec.IntValue entitySuppressorEnergyPerTick;
-    public final ModConfigSpec.BooleanValue entitySuppressorProtectNamed;
-    public final ModConfigSpec.BooleanValue entitySuppressorProtectTamed;
-    public final ModConfigSpec.BooleanValue entitySuppressorProtectBosses;
-    public final ModConfigSpec.BooleanValue entitySuppressorRemoveExisting;
+    public final ForgeConfigSpec.IntValue entitySuppressorEnergyCapacity;
+    public final ForgeConfigSpec.IntValue entitySuppressorEnergyPerTick;
+    public final ForgeConfigSpec.BooleanValue entitySuppressorProtectNamed;
+    public final ForgeConfigSpec.BooleanValue entitySuppressorProtectTamed;
+    public final ForgeConfigSpec.BooleanValue entitySuppressorProtectBosses;
+    public final ForgeConfigSpec.BooleanValue entitySuppressorRemoveExisting;
 
-    public EntitySuppressorConfig(ModConfigSpec.Builder builder) {
+    public EntitySuppressorConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Entity Suppressor Settings")
                 .translation("config.jdte.jdte.entitySuppressor")
                 .push("entitySuppressor");

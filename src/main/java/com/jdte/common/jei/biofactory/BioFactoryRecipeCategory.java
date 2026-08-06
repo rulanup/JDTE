@@ -98,9 +98,9 @@ public class BioFactoryRecipeCategory implements IRecipeCategory<BioFactoryJeiRe
 
     @Override public void draw(BioFactoryJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphics graphics,
                                double mouseX, double mouseY) {
-        graphics.blitSprite(BACKGROUND, 0, 0, WIDTH, HEIGHT);
-        for (int i = 0; i < 4; i++) graphics.blitSprite(SLOT, 29, 6 + i * 18, 18, 18);
-        for (int i = 0; i < 8; i++) graphics.blitSprite(SLOT, 74 + (i % 2) * 18, 6 + (i / 2) * 18, 18, 18);
+        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, BACKGROUND, 0, 0, WIDTH, HEIGHT);
+        for (int i = 0; i < 4; i++) com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, SLOT, 29, 6 + i * 18, 18, 18);
+        for (int i = 0; i < 8; i++) com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, SLOT, 74 + (i % 2) * 18, 6 + (i / 2) * 18, 18, 18);
         if (recipe.processFluid().isEmpty()) drawEmptyTank(graphics, PROCESS_FLUID_X);
         if (recipe.outputFluid().isEmpty()) drawEmptyTank(graphics, PRODUCT_FLUID_X);
         drawProductionPulse(graphics, 53, 31);
@@ -113,8 +113,7 @@ public class BioFactoryRecipeCategory implements IRecipeCategory<BioFactoryJeiRe
                             recipe.processTicks(), formattedSeconds), (int) mouseX, (int) mouseY);
         }
         int fill = 1 + (int) ((System.currentTimeMillis() / 35L) % 70L);
-        graphics.blit(POWER_BAR, ENERGY_X, FLUID_Y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(POWER_BAR, ENERGY_X + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
+        com.jdte.client.screens.util.GuiSpriteCompat.blitPowerBar(graphics, POWER_BAR, ENERGY_X, FLUID_Y, fill);
         if (mouseX >= ENERGY_X && mouseX < ENERGY_X + 18 && mouseY >= FLUID_Y && mouseY < FLUID_Y + 72) {
             graphics.renderTooltip(net.minecraft.client.Minecraft.getInstance().font,
                     Component.literal(recipe.energy() + " FE"), (int) mouseX, (int) mouseY);

@@ -1,5 +1,6 @@
 package com.jdte.common.network.handler;
 
+import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
@@ -15,9 +16,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.network.PacketDistributor;
+import com.jdte.common.network.PacketContext;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +30,7 @@ public class WrenchAreaAdjustPacket {
         return INSTANCE;
     }
 
-    public void handle(WrenchAreaAdjustPayload payload, IPayloadContext context) {
+    public void handle(WrenchAreaAdjustPayload payload, PacketContext context) {
         context.enqueueWork(() -> {
             if (!(context.player() instanceof ServerPlayer player) || !player.mayBuild() || !isHoldingWrench(player)) {
                 return;
@@ -71,7 +72,7 @@ public class WrenchAreaAdjustPacket {
             }
 
             if (adjusted) {
-                PacketDistributor.sendToPlayer(player, new WrenchAreaAdjustResultPayload(lastRadius, lastMaxRadius));
+                JDTEPacketHandler.sendToPlayer(player, new WrenchAreaAdjustResultPayload(lastRadius, lastMaxRadius));
             }
         });
     }

@@ -66,7 +66,7 @@ public class ExtendedUpgradeItem extends Item {
         BlockEntity oldBE = level.getBlockEntity(pos);
         CompoundTag data = null;
         if (oldBE != null) {
-            data = oldBE.saveWithFullMetadata(level.registryAccess());
+            data = oldBE.saveWithFullMetadata();
         }
 
         // Get facing direction before removing
@@ -80,7 +80,7 @@ public class ExtendedUpgradeItem extends Item {
         if (data != null) {
             BlockEntity newBE = level.getBlockEntity(pos);
             if (newBE != null) {
-                newBE.loadCustomOnly(data, level.registryAccess());
+                newBE.load(data);
             }
         }
 
@@ -94,8 +94,8 @@ public class ExtendedUpgradeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.jdte.extended_upgrade").withStyle(ChatFormatting.GRAY));
     }
 }

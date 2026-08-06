@@ -60,7 +60,7 @@ public final class AutoIoConfigHelper {
             return AutoIoConfigData.DEFAULT_SIDE_MASK;
         }
         return supportsInput(machine)
-                ? machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).getInputMask()
+                ? JDTEAttachments.autoIo(machine).getInputMask()
                 : AutoIoConfigData.DEFAULT_SIDE_MASK;
     }
 
@@ -69,7 +69,7 @@ public final class AutoIoConfigHelper {
             return AutoIoConfigData.DEFAULT_SIDE_MASK;
         }
         return supportsOutput(machine)
-                ? machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).getOutputMask()
+                ? JDTEAttachments.autoIo(machine).getOutputMask()
                 : AutoIoConfigData.DEFAULT_SIDE_MASK;
     }
 
@@ -79,7 +79,7 @@ public final class AutoIoConfigHelper {
         }
         int supportedInputMask = supportsInput(machine) ? inputMask : AutoIoConfigData.DEFAULT_SIDE_MASK;
         int supportedOutputMask = supportsOutput(machine) ? outputMask : AutoIoConfigData.DEFAULT_SIDE_MASK;
-        machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get()).setMasks(supportedInputMask, supportedOutputMask);
+        JDTEAttachments.autoIo(machine).setMasks(supportedInputMask, supportedOutputMask);
         GreenhouseOutputManager.wake(machine);
         machine.markDirtyClient();
     }

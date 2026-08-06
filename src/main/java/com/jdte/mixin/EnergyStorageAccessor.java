@@ -1,6 +1,6 @@
 package com.jdte.mixin;
 
-import net.neoforged.neoforge.energy.EnergyStorage;
+import net.minecraftforge.energy.EnergyStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 

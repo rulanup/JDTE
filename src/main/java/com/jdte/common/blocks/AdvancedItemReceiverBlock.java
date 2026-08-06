@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class AdvancedItemReceiverBlock extends BaseMachineBlock {
+public class AdvancedItemReceiverBlock extends JDTEMachineBlock {
     public AdvancedItemReceiverBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
@@ -30,7 +30,7 @@ public class AdvancedItemReceiverBlock extends BaseMachineBlock {
 
     @Override
     public void openMenu(Player player, BlockPos blockPos) {
-        player.openMenu(new SimpleMenuProvider(
+        openScreen(player,new SimpleMenuProvider(
                 (windowId, playerInventory, playerEntity) -> new AdvancedItemReceiverContainer(windowId, playerInventory, blockPos), Component.translatable("block.jdte.advanced_item_receiver")), (buf -> {
             buf.writeBlockPos(blockPos);
         }));

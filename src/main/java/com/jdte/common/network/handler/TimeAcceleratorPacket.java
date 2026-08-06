@@ -10,7 +10,7 @@ import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.jdte.common.network.PacketContext;
 
 public class TimeAcceleratorPacket {
     private static final TimeAcceleratorPacket INSTANCE = new TimeAcceleratorPacket();
@@ -19,7 +19,7 @@ public class TimeAcceleratorPacket {
         return INSTANCE;
     }
 
-    public void handle(TimeAcceleratorPayload payload, IPayloadContext context) {
+    public void handle(TimeAcceleratorPayload payload, PacketContext context) {
         context.enqueueWork(() -> {
             AbstractContainerMenu container = context.player().containerMenu;
             if (container instanceof BaseMachineContainer machineContainer && machineContainer.baseMachineBE instanceof AdvancedTimeAcceleratorBE accelerator) {

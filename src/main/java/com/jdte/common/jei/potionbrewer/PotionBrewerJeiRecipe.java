@@ -4,21 +4,20 @@ import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.utils.InfusionFluidHelper;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionBrewing;
-import net.minecraft.world.item.alchemy.PotionContents;
+import com.jdte.common.utils.BrewingCompat;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.common.brewing.BrewingRecipe;
-import net.neoforged.neoforge.common.brewing.IBrewingRecipe;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.common.brewing.BrewingRecipe;
+import net.minecraftforge.common.brewing.IBrewingRecipe;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public record PotionBrewerJeiRecipe(
             return List.of();
         }
 
-        PotionBrewing brewing = minecraft.level.potionBrewing();
+        BrewingCompat brewing = BrewingCompat.INSTANCE;
         Map<String, PotionBrewerJeiRecipe> recipes = new LinkedHashMap<>();
         Set<String> completeChainOutputs = new HashSet<>();
         List<Transition> transitions = getTransitions(brewing);
@@ -79,7 +78,7 @@ public record PotionBrewerJeiRecipe(
     private static void addCompleteChainRecipes(Map<String, PotionBrewerJeiRecipe> recipes,
                                                 Set<String> completeChainOutputs,
                                                 Map<String, List<Transition>> transitionsByInput) {
-        ItemStack waterBottle = single(PotionContents.createItemStack(Items.POTION, Potions.WATER));
+        ItemStack waterBottle = single(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
         addCompleteChainRecipe(recipes, completeChainOutputs, List.of(), waterBottle);
 
         Queue<ChainNode> queue = new ArrayDeque<>();
@@ -117,7 +116,7 @@ public record PotionBrewerJeiRecipe(
         }
     }
 
-    private static List<Transition> getTransitions(PotionBrewing brewing) {
+    private static List<Transition> getTransitions(BrewingCompat brewing) {
         List<ItemStack> inputs = getCandidateInputs(brewing);
         List<ItemStack> ingredients = getCandidateIngredients(brewing);
         Map<String, TransitionBuilder> transitions = new LinkedHashMap<>();
@@ -128,7 +127,7 @@ public record PotionBrewerJeiRecipe(
                     continue;
                 }
                 ItemStack output = single(brewing.mix(ingredient, input.copy()));
-                if (output.isEmpty() || ItemStack.isSameItemSameComponents(input, output)) {
+                if (output.isEmpty() || ItemStack.isSameItemSameTags(input, output)) {
                     continue;
                 }
 
@@ -152,7 +151,7 @@ public record PotionBrewerJeiRecipe(
         return byInput;
     }
 
-    private static List<ItemStack> getCandidateInputs(PotionBrewing brewing) {
+    private static List<ItemStack> getCandidateInputs(BrewingCompat brewing) {
         Map<String, ItemStack> inputs = new LinkedHashMap<>();
 
         addPotionContainerInputs(inputs, brewing, Items.POTION);
@@ -175,16 +174,16 @@ public record PotionBrewerJeiRecipe(
         return List.copyOf(inputs.values());
     }
 
-    private static void addPotionContainerInputs(Map<String, ItemStack> inputs, PotionBrewing brewing, Item containerItem) {
-        for (Holder<Potion> potion : sortedPotions()) {
-            ItemStack stack = single(PotionContents.createItemStack(containerItem, potion));
+    private static void addPotionContainerInputs(Map<String, ItemStack> inputs, BrewingCompat brewing, Item containerItem) {
+        for (Potion potion : sortedPotions()) {
+            ItemStack stack = single(PotionUtils.setPotion(new ItemStack(containerItem), potion));
             if (!stack.isEmpty() && brewing.isInput(stack)) {
                 addStack(inputs, stack);
             }
         }
     }
 
-    private static List<ItemStack> getCandidateIngredients(PotionBrewing brewing) {
+    private static List<ItemStack> getCandidateIngredients(BrewingCompat brewing) {
         Map<String, ItemStack> ingredients = new LinkedHashMap<>();
 
         for (Item item : sortedItems()) {
@@ -219,10 +218,13 @@ public record PotionBrewerJeiRecipe(
                 .toList();
     }
 
-    private static List<Holder.Reference<Potion>> sortedPotions() {
-        return BuiltInRegistries.POTION.holders()
-                .sorted(Comparator.comparing(holder -> holder.key().location().toString()))
-                .toList();
+    private static List<Potion> sortedPotions() {
+        List<Potion> potions = new ArrayList<>();
+        for (Potion potion : BuiltInRegistries.POTION) {
+            potions.add(potion);
+        }
+        potions.sort(Comparator.comparing(potion -> BuiltInRegistries.POTION.getKey(potion).toString()));
+        return potions;
     }
 
     private static void addCompleteChainRecipe(Map<String, PotionBrewerJeiRecipe> recipes,
@@ -328,7 +330,7 @@ public record PotionBrewerJeiRecipe(
         if (stack.isEmpty()) {
             return "empty";
         }
-        return BuiltInRegistries.ITEM.getKey(stack.getItem()) + "@" + stack.getCount() + "@" + stack.getComponents();
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()) + "@" + stack.getCount() + "@" + stack.getTag();
     }
 
     private static String fluidKey(FluidStack stack) {

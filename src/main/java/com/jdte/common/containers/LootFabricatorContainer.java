@@ -16,7 +16,7 @@ import net.minecraft.world.item.SpawnEggItem;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.upgrades.UpgradeType;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class LootFabricatorContainer extends BaseMachineContainer implements FilterPageHolder {
     private int outputPage;
@@ -55,7 +55,7 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
     @Override public int jdte$getFilterPage() { return outputPage; }
     public int getMaxOutputPage() { return baseMachineBE instanceof LootFabricatorBE machine ? Math.max(0, (machine.getMachineData().get(2) - 1) / getOutputSlotsPerPage()) : 0; }
     public void setOutputPage(int page) {
-        int clamped = Math.clamp(page, 0, getMaxOutputPage());
+        int clamped = net.minecraft.util.Mth.clamp(page, 0, getMaxOutputPage());
         if (outputPage == clamped) return;
         outputPage = clamped;
         broadcastChanges();
@@ -93,7 +93,7 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
             Slot target = slots.get(index);
             if (target.mayPlace(stack) && target.hasItem()) {
                 ItemStack existing = target.getItem();
-                if (ItemStack.isSameItemSameComponents(stack, existing)) {
+                if (ItemStack.isSameItemSameTags(stack, existing)) {
                     int max = Math.min(target.getMaxStackSize(stack), stack.getMaxStackSize());
                     int transferable = Math.min(stack.getCount(), max - existing.getCount());
                     if (transferable > 0) {
@@ -122,13 +122,13 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
     }
 
     private static class SingleSlot extends SlotItemHandler {
-        SingleSlot(net.neoforged.neoforge.items.IItemHandler handler, int index, int x, int y) { super(handler, index, x, y); }
+        SingleSlot(net.minecraftforge.items.IItemHandler handler, int index, int x, int y) { super(handler, index, x, y); }
         @Override public int getMaxStackSize() { return 1; }
     }
     private static class OutputSlot extends SlotItemHandler {
         private final LootFabricatorContainer container;
         private final int pageSlot;
-        OutputSlot(net.neoforged.neoforge.items.IItemHandler handler, int pageSlot, int x, int y, LootFabricatorContainer container) {
+        OutputSlot(net.minecraftforge.items.IItemHandler handler, int pageSlot, int x, int y, LootFabricatorContainer container) {
             super(handler, LootFabricatorBE.INPUT_SLOTS + pageSlot, x, y);
             this.container = container;
             this.pageSlot = pageSlot;
@@ -138,7 +138,7 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
         @Override public boolean hasItem() { return !getItem().isEmpty(); }
         @Override public void set(ItemStack stack) {
             if (!isActiveSlot()) return;
-            ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
+            ((net.minecraftforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
             setChanged();
         }
         @Override public void initialize(ItemStack stack) { set(stack); }

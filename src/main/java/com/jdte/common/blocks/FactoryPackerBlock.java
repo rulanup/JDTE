@@ -13,7 +13,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class FactoryPackerBlock extends BaseMachineBlock {
+public class FactoryPackerBlock extends JDTEMachineBlock {
     public FactoryPackerBlock() {
         super(Properties.of().sound(SoundType.METAL).strength(3.5F)
                 .explosionResistance(3_600_000.0F)
@@ -36,7 +36,7 @@ public class FactoryPackerBlock extends BaseMachineBlock {
     }
 
     @Override public void openMenu(Player player, BlockPos pos) {
-        player.openMenu(new SimpleMenuProvider((id, inventory, ignored) ->
+        openScreen(player,new SimpleMenuProvider((id, inventory, ignored) ->
                         new FactoryPackerContainer(id, inventory, pos),
                         Component.translatable("block.jdte.factory_packer")),
                 buffer -> buffer.writeBlockPos(pos));

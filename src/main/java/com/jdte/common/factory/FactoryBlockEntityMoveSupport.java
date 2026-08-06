@@ -4,7 +4,6 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -12,15 +11,20 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 public final class FactoryBlockEntityMoveSupport {
     private FactoryBlockEntityMoveSupport() {}
 
+    private static boolean isModLoaded(String modId) {
+        ModList modList = ModList.get();
+        return modList != null && modList.isLoaded(modId);
+    }
+
     public static BlockState rotateState(BlockState state, Rotation rotation) {
         if (rotation == Rotation.NONE) return state;
         BlockState rotated;
-        if (rotation != Rotation.NONE && ModList.get().isLoaded("ae2")) {
+        if (rotation != Rotation.NONE && isModLoaded("ae2")) {
             rotated = AE2FactoryMoveIntegration.rotateState(state, rotation);
         } else {
             rotated = state.rotate(rotation);
@@ -40,13 +44,13 @@ public final class FactoryBlockEntityMoveSupport {
 
     public static CompoundTag rotateMoveData(CompoundTag data, Rotation rotation) {
         CompoundTag rotated = data;
-        if (rotation != Rotation.NONE && ModList.get().isLoaded("ae2")) {
+        if (rotation != Rotation.NONE && isModLoaded("ae2")) {
             rotated = AE2FactoryMoveIntegration.rotateMoveData(rotated, rotation);
         }
-        if (rotation != Rotation.NONE && ModList.get().isLoaded("mekanism")) {
+        if (rotation != Rotation.NONE && isModLoaded("mekanism")) {
             MekanismFactoryMoveIntegration.rotateMoveData(rotated, rotation);
         }
-        if (rotation != Rotation.NONE && ModList.get().isLoaded("integrateddynamics")) {
+        if (rotation != Rotation.NONE && isModLoaded("integrateddynamics")) {
             IntegratedDynamicsFactoryMoveIntegration.rotateMoveData(rotated, rotation);
         }
         return rotated;
@@ -71,42 +75,42 @@ public final class FactoryBlockEntityMoveSupport {
         }
     }
 
-    public static CompoundTag beginMove(BlockEntity blockEntity, HolderLookup.Provider registries) {
-        if (JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get() && ModList.get().isLoaded("ae2")) {
-            return AE2FactoryMoveIntegration.beginMove(blockEntity, registries);
+    public static CompoundTag beginMove(BlockEntity blockEntity) {
+        if (JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get() && isModLoaded("ae2")) {
+            return AE2FactoryMoveIntegration.beginMove(blockEntity);
         }
-        return blockEntity.saveWithId(registries);
+        return blockEntity.saveWithId();
     }
 
     public static MekanismFactoryMoveIntegration.ReactorCheck validateMekanismMove(BlockEntity blockEntity,
                                                                                    BlockPos selectionMin,
                                                                                    BlockPos selectionMax) {
-        if (!ModList.get().isLoaded("mekanismgenerators")) {
+        if (!isModLoaded("mekanismgenerators")) {
             return new MekanismFactoryMoveIntegration.ReactorCheck(false, true, BlockPos.ZERO, BlockPos.ZERO);
         }
         return MekanismFactoryMoveIntegration.validate(blockEntity, selectionMin, selectionMax);
     }
 
     public static void quiesceForMove(BlockEntity blockEntity) {
-        if (ModList.get().isLoaded("mekanismgenerators")) {
+        if (isModLoaded("mekanismgenerators")) {
             MekanismFactoryMoveIntegration.quiesce(blockEntity);
         }
     }
 
     public static boolean isQuiescedForMove(BlockEntity blockEntity) {
-        return !ModList.get().isLoaded("mekanismgenerators")
+        return !isModLoaded("mekanismgenerators")
                 || MekanismFactoryMoveIntegration.isQuiesced(blockEntity);
     }
 
     public static void preserveMekanismTransmitterContents(BlockEntity blockEntity) {
-        if (blockEntity != null && ModList.get().isLoaded("mekanism")) {
+        if (blockEntity != null && isModLoaded("mekanism")) {
             MekanismFactoryMoveIntegration.preserveTransmitterContents(blockEntity);
         }
     }
 
     public static MekanismFactoryMoveIntegration.RemovalDiagnostics captureMekanismRemovalDiagnostics(
             net.minecraft.server.level.ServerLevel level, BlockPos pos, BlockEntity blockEntity) {
-        if (!ModList.get().isLoaded("mekanism")) {
+        if (!isModLoaded("mekanism")) {
             return new MekanismFactoryMoveIntegration.RemovalDiagnostics(false, "", "", false,
                     "", "", 0);
         }
@@ -126,14 +130,14 @@ public final class FactoryBlockEntityMoveSupport {
 
     public static void prepareRemoval(BlockEntity blockEntity) {
         if (blockEntity == null || !JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get()) return;
-        if (ModList.get().isLoaded("ae2cs")) {
+        if (isModLoaded("ae2cs")) {
             AE2CrystalScienceFactoryMoveIntegration.prepareRemoval(blockEntity);
         }
     }
 
     public static void prepareNetworkDetach(BlockEntity blockEntity) {
         if (blockEntity == null || !JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get()) return;
-        if (ModList.get().isLoaded("extendedae_plus")) {
+        if (isModLoaded("extendedae_plus")) {
             ExtendedAEPlusFactoryMoveIntegration.prepareNetworkDetach(blockEntity);
         }
     }
@@ -141,16 +145,16 @@ public final class FactoryBlockEntityMoveSupport {
     public static void finalizeExternalMove(BlockEntity blockEntity, ResourceLocation sourceDimension,
                                             BlockPos sourcePos) {
         if (blockEntity == null || !JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get()) return;
-        if (ModList.get().isLoaded("ae2cs")) {
+        if (isModLoaded("ae2cs")) {
             AE2CrystalScienceFactoryMoveIntegration.finalizeMove(blockEntity, sourceDimension, sourcePos);
         }
     }
 
     public static boolean completeMove(BlockState state, CompoundTag data, Level level, BlockPos pos) {
-        if (JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get() && ModList.get().isLoaded("ae2")) {
+        if (JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get() && isModLoaded("ae2")) {
             return AE2FactoryMoveIntegration.completeMove(state, data, level, pos);
         }
-        BlockEntity blockEntity = BlockEntity.loadStatic(pos, state, data, level.registryAccess());
+        BlockEntity blockEntity = BlockEntity.loadStatic(pos, state, data);
         if (blockEntity == null) return false;
         level.setBlockEntity(blockEntity);
         blockEntity.setChanged();

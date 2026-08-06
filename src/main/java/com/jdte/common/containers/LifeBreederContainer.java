@@ -12,8 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class LifeBreederContainer extends BaseMachineContainer {
     public LifeBreederContainer(int id, Inventory inventory, FriendlyByteBuf data) {
@@ -84,7 +84,7 @@ public class LifeBreederContainer extends BaseMachineContainer {
             Slot target = slots.get(index);
             if (target.mayPlace(stack) && target.hasItem()) {
                 ItemStack existing = target.getItem();
-                if (ItemStack.isSameItemSameComponents(stack, existing)) {
+                if (ItemStack.isSameItemSameTags(stack, existing)) {
                     int max = Math.min(target.getMaxStackSize(stack), stack.getMaxStackSize());
                     int transferable = Math.min(stack.getCount(), max - existing.getCount());
                     if (transferable > 0) {

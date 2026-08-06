@@ -29,9 +29,9 @@ public class ExtendedSensorBE extends SensorT1BE implements FilterableBE, Powere
         poweredMachineData = new PoweredMachineContainerData(this);
     }
 
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return super.getFilterHandler(); }
     @Override public PoweredMachineContainerData getContainerData() { return poweredMachineData; }
-    @Override public MachineEnergyStorage getEnergyStorage() { return getData(Registration.ENERGYSTORAGE_MACHINES); }
+    @Override public MachineEnergyStorage getEnergyStorage() { return com.jdte.setup.JDTEAttachments.energy(this); }
     @Override public int getStandardEnergyCost() { return 250; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
 

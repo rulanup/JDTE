@@ -126,9 +126,9 @@ public class LifeSynthesisRecipeCategory implements IRecipeCategory<LifeSynthesi
         int count = recipe.inputs().size();
         int offsetX = contentOffsetX(count);
         int cols = columns(count);
-        graphics.blitSprite(BACKGROUND, 0, 0, getWidth(), HEIGHT);
+        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, BACKGROUND, 0, 0, getWidth(), HEIGHT);
         for (int i = 0; i < count; i++) {
-            graphics.blitSprite(SLOT, offsetX + INPUT_X - 1 + (i % cols) * SLOT_SPACING, INPUT_Y - 1 + (i / cols) * SLOT_SPACING, 18, 18);
+            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, SLOT, offsetX + INPUT_X - 1 + (i % cols) * SLOT_SPACING, INPUT_Y - 1 + (i / cols) * SLOT_SPACING, 18, 18);
         }
         int pulseX = offsetX + progressX(count);
         drawProductionPulse(graphics, pulseX, PULSE_Y);
@@ -142,8 +142,7 @@ public class LifeSynthesisRecipeCategory implements IRecipeCategory<LifeSynthesi
         }
         int energyX = offsetX + energyX(count);
         int fill = 1 + (int) ((System.currentTimeMillis() / 35L) % 70L);
-        graphics.blit(POWER_BAR, energyX, FLUID_Y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(POWER_BAR, energyX + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
+        com.jdte.client.screens.util.GuiSpriteCompat.blitPowerBar(graphics, POWER_BAR, energyX, FLUID_Y, fill);
         if (mouseX >= energyX && mouseX < energyX + 18 && mouseY >= FLUID_Y && mouseY < FLUID_Y + 72) {
             graphics.renderTooltip(net.minecraft.client.Minecraft.getInstance().font,
                     Component.literal(recipe.energy() + " FE"), (int) mouseX, (int) mouseY);

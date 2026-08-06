@@ -2,30 +2,28 @@ package com.jdte.common.integrations;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
-import cy.jdkdigital.productivebees.ProductiveBees;
 import cy.jdkdigital.productivebees.ProductiveBeesConfig;
-import cy.jdkdigital.productivebees.capabilities.attributes.BeeAttributesHandler;
 import cy.jdkdigital.productivebees.common.block.entity.AmberBlockEntity;
-import cy.jdkdigital.productivebees.common.crafting.ingredient.BeeIngredient;
 import cy.jdkdigital.productivebees.common.entity.bee.ConfigurableBee;
+import cy.jdkdigital.productivebees.common.entity.bee.ProductiveBee;
 import cy.jdkdigital.productivebees.common.item.AmberItem;
 import cy.jdkdigital.productivebees.common.item.BeeCage;
 import cy.jdkdigital.productivebees.common.recipe.AdvancedBeehiveRecipe;
-import cy.jdkdigital.productivebees.init.ModDataComponents;
+import cy.jdkdigital.productivebees.compat.jei.ingredients.BeeIngredient;
 import cy.jdkdigital.productivebees.init.ModEntities;
 import cy.jdkdigital.productivebees.init.ModItems;
 import cy.jdkdigital.productivebees.init.ModRecipeTypes;
 import cy.jdkdigital.productivebees.init.ModTags;
 import cy.jdkdigital.productivebees.setup.BeeReloadListener;
+import cy.jdkdigital.productivebees.util.BeeAttributes;
+import cy.jdkdigital.productivebees.util.BeeCreator;
 import cy.jdkdigital.productivebees.util.BeeHelper;
-import cy.jdkdigital.productivebees.util.GeneAttribute;
-import cy.jdkdigital.productivebees.util.GeneValue;
-import cy.jdkdigital.productivelib.common.recipe.TagOutputRecipe.ChancedOutput;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
@@ -39,40 +37,29 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.util.FakePlayer;
-import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayerFactory;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.slf4j.Logger;
 
+/** Forge 1.20.1 bridge for Productive Bees' public API. */
 public final class ProductiveBeesBioFactoryIntegration {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private ProductiveBeesBioFactoryIntegration() { }
+    private ProductiveBeesBioFactoryIntegration() {
+    }
 
     public static List<ItemStack> getLifeFluidBeeCreativeItems() {
-        ResourceLocation beeType = ResourceLocation.fromNamespaceAndPath("productivebees", "life_fluid");
-
-        CompoundTag entityData = new CompoundTag();
-        entityData.putString("id", "productivebees:configurable_bee");
-        entityData.putString("type", beeType.toString());
         ItemStack spawnEgg = new ItemStack(ModItems.CONFIGURABLE_SPAWN_EGG.get());
-        spawnEgg.set(DataComponents.ENTITY_DATA, CustomData.of(entityData));
-
+        BeeCreator.setTag("productivebees:life_fluid", spawnEgg);
         ItemStack honeycomb = new ItemStack(ModItems.CONFIGURABLE_HONEYCOMB.get());
-        honeycomb.set(ModDataComponents.BEE_TYPE.get(), beeType);
+        BeeCreator.setTag("productivebees:life_fluid", honeycomb);
         return List.of(spawnEgg, honeycomb);
     }
 
@@ -83,13 +70,21 @@ public final class ProductiveBeesBioFactoryIntegration {
 
     public static Bee createBee(ItemStack stack, Level level) {
         if (stack.getItem() instanceof BeeCage && BeeCage.isFilled(stack)) {
-            // withInfo=true so the caged bee's NBT (including gene attribute attachments
-            // like bee_behavior/bee_weather_tolerance/bee_productivity) is loaded onto the entity
             return BeeCage.getEntityFromStack(stack, level, true);
         }
         if (stack.getItem() instanceof SpawnEggItem egg) {
-            Entity entity = egg.getType(stack).create(level);
-            return entity instanceof Bee bee ? bee : null;
+            EntityType<?> type = egg.getType(stack.getTag());
+            Entity entity = type == null ? null : type.create(level);
+            if (entity instanceof Bee bee) {
+                // Forge 1.20.1 keeps spawn-egg entity data in EntityTag. This is
+                // needed for Productive Bees' configurable spawn egg, whose
+                // EntityType itself is shared by every configured bee.
+                CompoundTag tag = stack.getTag();
+                if (tag != null && tag.contains("EntityTag", Tag.TAG_COMPOUND)) {
+                    bee.load(tag.getCompound("EntityTag"));
+                }
+                return bee;
+            }
         }
         return null;
     }
@@ -97,7 +92,8 @@ public final class ProductiveBeesBioFactoryIntegration {
     public static boolean isValidFood(Bee bee, ItemStack food, ItemStack fluidBucket) {
         if (bee instanceof ConfigurableBee configurable) {
             return matchesConfiguredEntityFlower(configurable, food)
-                    || configurable.isFlowerItem(food) || matchesConfiguredBlockFlower(configurable, food)
+                    || configurable.isFlowerItem(food)
+                    || matchesConfiguredBlockFlower(configurable, food)
                     || configurable.isFlowerItem(fluidBucket);
         }
         return bee != null && bee.isFood(food);
@@ -107,26 +103,22 @@ public final class ProductiveBeesBioFactoryIntegration {
         if (!(stack.getItem() instanceof AmberItem)) return false;
         CompoundTag data = getBeeData(bee);
         CompoundTag containedEntity = getContainedAmberEntity(stack);
-        if (containedEntity == null) return false;
-        ResourceLocation entityId = ResourceLocation.tryParse(containedEntity.getString("id"));
+        if (containedEntity == null || !containedEntity.contains("entityType", Tag.TAG_STRING)) return false;
+
+        ResourceLocation entityId = ResourceLocation.tryParse(containedEntity.getString("entityType"));
         if (entityId == null) return false;
-        if (usesWannabeeAmberFlower(bee, data)) {
-            return BuiltInRegistries.ENTITY_TYPE.containsKey(entityId);
-        }
+        if (usesWannabeeAmberFlower(bee, data)) return BuiltInRegistries.ENTITY_TYPE.containsKey(entityId);
         if (!usesEntityTypeFlowers(data)) return false;
         return BuiltInRegistries.ENTITY_TYPE.getOptional(entityId)
-                .map(entityType -> matchesConfiguredEntityType(data, entityType)).orElse(false);
+                .map(type -> matchesConfiguredEntityType(data, type)).orElse(false);
     }
 
     private static CompoundTag getContainedAmberEntity(ItemStack stack) {
-        CustomData entityData = stack.get(DataComponents.ENTITY_DATA);
-        if (entityData != null) return entityData.copyTag();
-
-        CustomData blockEntityData = stack.get(DataComponents.BLOCK_ENTITY_DATA);
-        if (blockEntityData == null) return null;
-        CompoundTag blockData = blockEntityData.copyTag();
-        return blockData.contains("EntityData", net.minecraft.nbt.Tag.TAG_COMPOUND)
-                ? blockData.getCompound("EntityData") : null;
+        CompoundTag tag = stack.getTag();
+        if (tag == null || !tag.contains("BlockEntityTag", Tag.TAG_COMPOUND)) return null;
+        CompoundTag blockEntity = tag.getCompound("BlockEntityTag");
+        return blockEntity.contains("EntityData", Tag.TAG_COMPOUND)
+                ? blockEntity.getCompound("EntityData") : null;
     }
 
     private static boolean matchesConfiguredBlockFlower(ConfigurableBee bee, ItemStack stack) {
@@ -134,19 +126,18 @@ public final class ProductiveBeesBioFactoryIntegration {
         CompoundTag data = getBeeData(bee);
         if (data == null || !"blocks".equals(data.getString("flowerType"))) return false;
         try {
-            if (data.contains("flowerBlock")) {
-                Block expected = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(data.getString("flowerBlock")));
-                if (blockItem.getBlock() == expected) return true;
-            }
+            if (data.contains("flowerBlock")
+                    && blockItem.getBlock() == BuiltInRegistries.BLOCK.get(
+                    ResourceLocation.tryParse(data.getString("flowerBlock")))) return true;
             if (data.contains("flowerTag")) {
-                TagKey<Block> tag = TagKey.create(Registries.BLOCK,
-                        ResourceLocation.parse(data.getString("flowerTag")));
+                TagKey<net.minecraft.world.level.block.Block> tag = TagKey.create(Registries.BLOCK,
+                        ResourceLocation.tryParse(data.getString("flowerTag")));
                 return blockItem.getBlock().builtInRegistryHolder().is(tag);
             }
-            return false;
         } catch (RuntimeException ignored) {
-            return false;
+            // Datapack-defined bee data is optional and may be invalid after a reload.
         }
+        return false;
     }
 
     private static CompoundTag getBeeData(ConfigurableBee bee) {
@@ -154,12 +145,12 @@ public final class ProductiveBeesBioFactoryIntegration {
     }
 
     private static boolean usesEntityTypeFlowers(CompoundTag data) {
-        return data != null && "entity_types".equals(data.getString("flowerType")) && data.contains("flowerTag");
+        return data != null && "entity_types".equals(data.getString("flowerType"))
+                && data.contains("flowerTag", Tag.TAG_STRING);
     }
 
     private static boolean usesWannabeeAmberFlower(ConfigurableBee bee, CompoundTag data) {
-        return data != null
-                && ResourceLocation.fromNamespaceAndPath("productivebees", "wanna").equals(bee.getBeeType())
+        return data != null && "productivebees:wanna".equals(bee.getBeeType())
                 && "productivebees:amber".equals(data.getString("flowerBlock"));
     }
 
@@ -168,7 +159,8 @@ public final class ProductiveBeesBioFactoryIntegration {
             String configuredTag = data.getString("flowerTag");
             boolean inverse = data.getBoolean("inverseFlower") || configuredTag.startsWith("!");
             if (configuredTag.startsWith("!")) configuredTag = configuredTag.substring(1);
-            TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(configuredTag));
+            TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE,
+                    ResourceLocation.tryParse(configuredTag));
             return inverse != entityType.is(tag);
         } catch (RuntimeException ignored) {
             return false;
@@ -176,7 +168,7 @@ public final class ProductiveBeesBioFactoryIntegration {
     }
 
     public static boolean canOperate(Level level, Bee bee) {
-        if (!(bee instanceof cy.jdkdigital.productivebees.common.entity.bee.ProductiveBee productive)) return true;
+        if (!(bee instanceof ProductiveBee productive)) return true;
         return (!level.isNight() || productive.canOperateDuringNight())
                 && (!level.isRaining() || productive.canOperateDuringRain())
                 && (!level.isThundering() || productive.canOperateDuringThunder());
@@ -188,10 +180,10 @@ public final class ProductiveBeesBioFactoryIntegration {
         List<ItemStack> outputs = isWannabeeWithAmber(bee, food)
                 ? getWannabeeProduce(level, food, origin, multiplier)
                 : BeeHelper.getBeeProduce(level, bee, blockOutput, multiplier);
-        GeneValue productivity = getAttribute(bee, GeneAttribute.PRODUCTIVITY);
-        if (productivity == null || productivity.getValue() <= 0) return outputs;
-        int value = productivity.getValue();
-        outputs.forEach(stack -> applyProductivity(stack, value));
+        Integer productivity = bee instanceof ProductiveBee productive
+                ? productive.getAttributeValue(BeeAttributes.PRODUCTIVITY) : null;
+        if (productivity == null || productivity <= 0) return outputs;
+        outputs.forEach(stack -> applyProductivity(stack, productivity));
         return outputs;
     }
 
@@ -207,40 +199,38 @@ public final class ProductiveBeesBioFactoryIntegration {
         if (entityData == null) return List.of();
         Entity contained = AmberBlockEntity.createEntity(serverLevel, entityData);
         if (!(contained instanceof Mob mob)) return List.of();
-        mob.setPos(Vec3.atCenterOf(origin));
+        mob.setPos(origin.getX() + 0.5D, origin.getY() + 0.5D, origin.getZ() + 0.5D);
 
-        LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(mob.getLootTable());
-        if (lootTable.equals(LootTable.EMPTY)) return List.of();
+        ResourceLocation lootId = mob.getLootTable();
+        net.minecraft.world.level.storage.loot.LootTable lootTable =
+                serverLevel.getServer().getLootData().getLootTable(lootId);
+        if (lootTable.equals(net.minecraft.world.level.storage.loot.LootTable.EMPTY)) return List.of();
         FakePlayer wannabee = FakePlayerFactory.get(serverLevel,
                 new GameProfile(ModEntities.WANNA_BEE_UUID, "wanna_bee"));
-        LootParams params = new LootParams.Builder(serverLevel)
-                .withParameter(LootContextParams.LAST_DAMAGE_PLAYER, wannabee)
-                .withParameter(LootContextParams.DAMAGE_SOURCE, level.damageSources().generic())
-                .withParameter(LootContextParams.TOOL, new ItemStack(Items.DIAMOND_AXE))
-                .withOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, wannabee)
-                .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, wannabee)
-                .withParameter(LootContextParams.THIS_ENTITY, contained)
-                .withParameter(LootContextParams.ORIGIN,
-                        new Vec3(origin.getX(), origin.getY(), origin.getZ()))
-                .create(LootContextParamSets.ENTITY);
+        net.minecraft.world.level.storage.loot.LootParams params =
+                new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.LAST_DAMAGE_PLAYER, wannabee)
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DAMAGE_SOURCE,
+                                level.damageSources().generic())
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.TOOL,
+                                new ItemStack(Items.DIAMOND_AXE))
+                        .withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DIRECT_KILLER_ENTITY, wannabee)
+                        .withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.KILLER_ENTITY, wannabee)
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, contained)
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,
+                                contained.position())
+                        .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY);
         List<ItemStack> candidates = lootTable.getRandomItems(params).stream()
-                .filter(stack -> !stack.is(ModTags.WANNABEE_LOOT_BLACKLIST))
-                .toList();
+                .filter(stack -> !stack.is(ModTags.WANNABEE_LOOT_BLACKLIST)).toList();
         if (candidates.isEmpty()) return List.of();
 
-        int rolls = (int) Math.floor(multiplier);
-        if (level.random.nextDouble() < multiplier % 1.0D) rolls++;
-        List<ItemStack> outputs = new ArrayList<>(Math.max(0, rolls));
+        int rolls = (int) Math.floor(Math.max(0.0D, multiplier));
+        if (level.random.nextDouble() < multiplier - Math.floor(multiplier)) rolls++;
+        List<ItemStack> outputs = new ArrayList<>(rolls);
         for (int roll = 0; roll < rolls; roll++) {
             outputs.add(candidates.get(level.random.nextInt(candidates.size())).copy());
         }
         return outputs;
-    }
-
-    private static GeneValue getAttribute(Bee bee, GeneAttribute attribute) {
-        if (!bee.hasData(ProductiveBees.ATTRIBUTE_HANDLER)) return null;
-        BeeAttributesHandler attributes = bee.getData(ProductiveBees.ATTRIBUTE_HANDLER);
-        return attributes.getAttributeValue(attribute);
     }
 
     private static void applyProductivity(ItemStack stack, int value) {
@@ -263,8 +253,7 @@ public final class ProductiveBeesBioFactoryIntegration {
 
     public static List<JeiRecipe> getJeiRecipes(Level level, RecipeManager recipes) {
         List<JeiRecipe> result = new ArrayList<>();
-        for (var holder : recipes.getAllRecipesFor(ModRecipeTypes.ADVANCED_BEEHIVE_TYPE.get())) {
-            AdvancedBeehiveRecipe recipe = holder.value();
+        for (AdvancedBeehiveRecipe recipe : recipes.getAllRecipesFor(ModRecipeTypes.ADVANCED_BEEHIVE_TYPE.get())) {
             BeeIngredient ingredient = recipe.ingredient.get();
             Entity entity = ingredient.getCachedEntity(level);
             if (!(entity instanceof Bee bee)) continue;
@@ -274,10 +263,7 @@ public final class ProductiveBeesBioFactoryIntegration {
             FloweringInputs flowering = getFloweringInputs(bee);
             List<JeiOutput> outputs = getDisplayOutputs(recipe.getRecipeOutputs());
             if (outputs.isEmpty()) continue;
-
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath("jdte",
-                    "bio_factory/productivebees/" + holder.id().getPath());
-            result.add(new JeiRecipe(id, cage, flowering.items(), flowering.fluid(), outputs));
+            result.add(new JeiRecipe(recipe.getId(), cage, flowering.items(), flowering.fluid(), outputs));
         }
         LOGGER.info("Prepared {} Productive Bees Bio Factory JEI recipes", result.size());
         return result;
@@ -290,14 +276,14 @@ public final class ProductiveBeesBioFactoryIntegration {
             CompoundTag data = getBeeData(configurable);
             if (usesEntityTypeFlowers(data)) {
                 addEntityTypeFlowers(result, data);
-            } else {
-                if (data != null && data.contains("flowerTag")) addFlowerTag(result, data.getString("flowerTag"));
-                if (data != null && data.contains("flowerBlock")) addBlock(result, data.getString("flowerBlock"));
-                if (data != null && data.contains("flowerItem")) addItem(result, data.getString("flowerItem"));
-                if (data != null && data.contains("flowerFluid")) fluid = resolveFluid(data.getString("flowerFluid"));
+            } else if (data != null) {
+                if (data.contains("flowerTag", Tag.TAG_STRING)) addFlowerTag(result, data.getString("flowerTag"));
+                if (data.contains("flowerBlock", Tag.TAG_STRING)) addBlock(result, data.getString("flowerBlock"));
+                if (data.contains("flowerItem", Tag.TAG_STRING)) addItem(result, data.getString("flowerItem"));
+                if (data.contains("flowerFluid", Tag.TAG_STRING)) fluid = resolveFluid(data.getString("flowerFluid"));
             }
         } else {
-            BuiltInRegistries.ITEM.getTag(ItemTags.BEE_FOOD).ifPresent(tag ->
+            BuiltInRegistries.ITEM.getTag(ItemTags.FLOWERS).ifPresent(tag ->
                     tag.forEach(item -> addUnique(result, new ItemStack(item.value()))));
         }
         return new FloweringInputs(List.copyOf(result), fluid);
@@ -305,14 +291,33 @@ public final class ProductiveBeesBioFactoryIntegration {
 
     private static void addEntityTypeFlowers(List<ItemStack> result, CompoundTag data) {
         BuiltInRegistries.ENTITY_TYPE.stream()
-                .filter(entityType -> matchesConfiguredEntityType(data, entityType))
-                .map(AmberItem::getFakeAmberItem)
+                .filter(type -> matchesConfiguredEntityType(data, type))
+                .map(ProductiveBeesBioFactoryIntegration::createAmberFlower)
                 .forEach(stack -> addUnique(result, stack));
+    }
+
+    /**
+     * Productive Bees' Forge amber item stores the contained entity in the
+     * legacy BlockEntityTag format. getFakeAmberItem only creates the display
+     * name, so JEI entries need the entityType field added before they can be
+     * used as a real flowering item.
+     */
+    private static ItemStack createAmberFlower(EntityType<?> entityType) {
+        ItemStack stack = AmberItem.getFakeAmberItem(entityType);
+        ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(entityType);
+        if (id == null) return stack;
+
+        CompoundTag blockEntity = stack.getOrCreateTagElement("BlockEntityTag");
+        CompoundTag entityData = blockEntity.getCompound("EntityData");
+        entityData.putString("entityType", id.toString());
+        blockEntity.put("EntityData", entityData);
+        return stack;
     }
 
     private static void addBlock(List<ItemStack> result, String id) {
         try {
-            BuiltInRegistries.BLOCK.getOptional(ResourceLocation.parse(id))
+            ResourceLocation location = ResourceLocation.tryParse(id);
+            if (location != null) BuiltInRegistries.BLOCK.getOptional(location)
                     .ifPresent(block -> addUnique(result, new ItemStack(block.asItem())));
         } catch (RuntimeException ignored) {
         }
@@ -320,27 +325,24 @@ public final class ProductiveBeesBioFactoryIntegration {
 
     private static void addFlowerTag(List<ItemStack> result, String id) {
         try {
-            ResourceLocation location = ResourceLocation.parse(id);
-            TagKey<Block> blockTag = TagKey.create(Registries.BLOCK, location);
+            ResourceLocation location = ResourceLocation.tryParse(id);
+            if (location == null) return;
+            TagKey<net.minecraft.world.level.block.Block> blockTag = TagKey.create(Registries.BLOCK, location);
             BuiltInRegistries.BLOCK.getTag(blockTag).ifPresent(values -> values.forEach(holder ->
                     addUnique(result, new ItemStack(holder.value().asItem()))));
-            if (result.isEmpty()) addItemTag(result, id);
-        } catch (RuntimeException ignored) {
-        }
-    }
-
-    private static void addItemTag(List<ItemStack> result, String id) {
-        try {
-            TagKey<net.minecraft.world.item.Item> tag = TagKey.create(Registries.ITEM, ResourceLocation.parse(id));
-            BuiltInRegistries.ITEM.getTag(tag).ifPresent(values ->
-                    values.forEach(item -> addUnique(result, new ItemStack(item.value()))));
+            if (result.isEmpty()) {
+                TagKey<net.minecraft.world.item.Item> itemTag = TagKey.create(Registries.ITEM, location);
+                BuiltInRegistries.ITEM.getTag(itemTag).ifPresent(values -> values.forEach(holder ->
+                        addUnique(result, new ItemStack(holder.value()))));
+            }
         } catch (RuntimeException ignored) {
         }
     }
 
     private static void addItem(List<ItemStack> result, String id) {
         try {
-            BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(id))
+            ResourceLocation location = ResourceLocation.tryParse(id);
+            if (location != null) BuiltInRegistries.ITEM.getOptional(location)
                     .ifPresent(item -> addUnique(result, new ItemStack(item)));
         } catch (RuntimeException ignored) {
         }
@@ -349,41 +351,47 @@ public final class ProductiveBeesBioFactoryIntegration {
     private static Optional<ResourceLocation> resolveFluid(String value) {
         try {
             if (value.startsWith("#")) {
-                TagKey<Fluid> tag = TagKey.create(Registries.FLUID, ResourceLocation.parse(value.substring(1)));
+                ResourceLocation location = ResourceLocation.tryParse(value.substring(1));
+                if (location == null) return Optional.empty();
+                TagKey<Fluid> tag = TagKey.create(Registries.FLUID, location);
                 return BuiltInRegistries.FLUID.getTag(tag).flatMap(values -> values.stream()
                         .map(holder -> holder.value())
-                        .filter(fluid -> fluid.getBucket() != net.minecraft.world.item.Items.AIR)
+                        .filter(fluid -> fluid.getBucket() != Items.AIR)
                         .map(BuiltInRegistries.FLUID::getKey)
                         .findFirst());
             }
-            ResourceLocation id = ResourceLocation.parse(value);
-            return BuiltInRegistries.FLUID.getOptional(id).isPresent() ? Optional.of(id) : Optional.empty();
+            ResourceLocation id = ResourceLocation.tryParse(value);
+            return id != null && BuiltInRegistries.FLUID.getOptional(id).isPresent()
+                    ? Optional.of(id) : Optional.empty();
         } catch (RuntimeException ignored) {
             return Optional.empty();
         }
     }
 
     private static void addUnique(List<ItemStack> result, ItemStack stack) {
-        if (stack.isEmpty() || result.stream().anyMatch(existing -> ItemStack.isSameItemSameComponents(existing, stack))) return;
+        if (stack.isEmpty() || result.stream().anyMatch(existing -> ItemStack.isSameItemSameTags(existing, stack))) return;
         result.add(stack);
     }
 
-    private static List<JeiOutput> getDisplayOutputs(Map<ItemStack, ChancedOutput> recipeOutputs) {
+    private static List<JeiOutput> getDisplayOutputs(Map<ItemStack, IntArrayTag> recipeOutputs) {
         List<JeiOutput> outputs = new ArrayList<>();
-        for (Map.Entry<ItemStack, ChancedOutput> entry : recipeOutputs.entrySet()) {
-            if (entry.getKey().isEmpty()) continue;
-            ChancedOutput output = entry.getValue();
-            ItemStack stack = entry.getKey().copyWithCount(Math.max(1, output.max()));
-            outputs.add(new JeiOutput(List.of(stack), output.chance()));
+        for (Map.Entry<ItemStack, IntArrayTag> entry : recipeOutputs.entrySet()) {
+            IntArrayTag values = entry.getValue();
+            if (entry.getKey().isEmpty() || values.size() < 3) continue;
+            int max = Math.max(1, values.get(1).getAsInt());
+            float chance = Math.max(0.0F, Math.min(1.0F, values.get(2).getAsInt() / 100.0F));
+            outputs.add(new JeiOutput(List.of(entry.getKey().copyWithCount(max)), chance));
         }
         return List.copyOf(outputs);
     }
 
-    private record FloweringInputs(List<ItemStack> items, Optional<ResourceLocation> fluid) { }
+    private record FloweringInputs(List<ItemStack> items, Optional<ResourceLocation> fluid) {
+    }
 
     public record JeiRecipe(ResourceLocation id, ItemStack specimen, List<ItemStack> foods,
-                            Optional<ResourceLocation> processFluid,
-                            List<JeiOutput> outputs) { }
+                            Optional<ResourceLocation> processFluid, List<JeiOutput> outputs) {
+    }
 
-    public record JeiOutput(List<ItemStack> stacks, float chance) { }
+    public record JeiOutput(List<ItemStack> stacks, float chance) {
+    }
 }

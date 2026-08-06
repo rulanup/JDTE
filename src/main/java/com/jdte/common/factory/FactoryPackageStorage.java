@@ -15,7 +15,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.LevelResource;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,7 +40,7 @@ public final class FactoryPackageStorage {
         Path path = packagePath(server, data.id(), null);
         Path temp = path.resolveSibling(path.getFileName() + ".tmp");
         Files.createDirectories(path.getParent());
-        NbtIo.writeCompressed(encode(data), temp);
+        NbtIo.writeCompressed(encode(data), temp.toFile());
         if (Files.size(temp) > maxCompressedBytes) {
             Files.deleteIfExists(temp);
             throw new IOException("Factory package exceeds compressed size limit");
@@ -46,8 +50,11 @@ public final class FactoryPackageStorage {
 
     public static PackageData read(MinecraftServer server, UUID id, UUID claimToken,
                                    long maxUncompressedBytes, HolderLookup.Provider registries) throws IOException {
-        CompoundTag root = NbtIo.readCompressed(packagePath(server, id, claimToken),
-                NbtAccounter.create(maxUncompressedBytes));
+        CompoundTag root;
+        try (InputStream file = Files.newInputStream(packagePath(server, id, claimToken));
+             DataInputStream input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file)))) {
+            root = NbtIo.read(input, new NbtAccounter(maxUncompressedBytes));
+        }
         return decode(id, root, registries);
     }
 

@@ -1,8 +1,7 @@
 package com.jdte.common.autoioconfig;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.minecraftforge.common.util.INBTSerializable;
 
 public class AutoIoConfigData implements INBTSerializable<CompoundTag> {
     public static final int SIDE_COUNT = 6;
@@ -59,7 +58,7 @@ public class AutoIoConfigData implements INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+    public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putInt("inputMask", getInputMask());
         tag.putInt("outputMask", getOutputMask());
@@ -67,7 +66,7 @@ public class AutoIoConfigData implements INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         if (nbt.contains("inputMask") || nbt.contains("outputMask")) {
             setMasks(nbt.getInt("inputMask"), nbt.getInt("outputMask"));
             return;

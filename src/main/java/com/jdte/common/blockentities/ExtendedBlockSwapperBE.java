@@ -33,10 +33,10 @@ public class ExtendedBlockSwapperBE extends BlockSwapperT1BE implements PoweredM
     }
 
     @Override public PoweredMachineContainerData getContainerData() { return poweredMachineData; }
-    @Override public MachineEnergyStorage getEnergyStorage() { return getData(Registration.ENERGYSTORAGE_MACHINES); }
+    @Override public MachineEnergyStorage getEnergyStorage() { return com.jdte.setup.JDTEAttachments.energy(this); }
     @Override public int getStandardEnergyCost() { return 250; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
     @Override public FilterData getFilterData() { return filterData; }
 
     @Override

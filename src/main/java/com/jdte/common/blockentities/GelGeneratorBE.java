@@ -29,16 +29,15 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMachineBE, FilterableBE, RedstoneControlledBE, FluidMachineBE, BaseFilterMachine {
     public static final int GEL_SLOT = 0;
@@ -156,7 +155,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
             @Override
             public FluidStack drain(FluidStack resource, FluidAction action) {
-                if (resource.isEmpty() || !outputFluidTank.getFluid().is(resource.getFluid())) {
+                if (resource.isEmpty() || outputFluidTank.getFluid().getFluid() != resource.getFluid()) {
                     return FluidStack.EMPTY;
                 }
                 return outputFluidTank.drain(resource, action);
@@ -349,7 +348,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
             }
             if (template.isEmpty()) {
                 template = stack.copyWithCount(1);
-            } else if (!ItemStack.isSameItemSameComponents(template, stack)) {
+            } else if (!ItemStack.isSameItemSameTags(template, stack)) {
                 return;
             }
             total += stack.getCount();
@@ -374,7 +373,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
                 continue;
             }
 
-            if (current.isEmpty() || !ItemStack.isSameItemSameComponents(current, template) || current.getCount() != targetCount) {
+            if (current.isEmpty() || !ItemStack.isSameItemSameTags(current, template) || current.getCount() != targetCount) {
                 itemHandler.setStackInSlot(slot, template.copyWithCount(targetCount));
                 changed = true;
             }
@@ -403,7 +402,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     private boolean canOutputToSlot(int slot, ItemStack result) {
         ItemStack outputStack = itemHandler.getStackInSlot(slot);
         return outputStack.isEmpty() && result.getCount() <= result.getMaxStackSize()
-                || (ItemStack.isSameItemSameComponents(outputStack, result) && outputStack.getCount() + result.getCount() <= outputStack.getMaxStackSize());
+                || (ItemStack.isSameItemSameTags(outputStack, result) && outputStack.getCount() + result.getCount() <= outputStack.getMaxStackSize());
     }
 
     private void insertOutput(int slot, ItemStack result) {
@@ -422,16 +421,14 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         }
 
         BlockState inputState = blockItem.getBlock().defaultBlockState();
-        for (RecipeHolder<GooSpreadRecipe> recipe : level.getRecipeManager().getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get())) {
-            GooSpreadRecipe value = recipe.value();
-            if (value.getTierRequirement() <= gelTier && value.getInput().equals(inputState)) {
-                return createItemConversion(value.getOutput());
+        for (GooSpreadRecipe recipe : level.getRecipeManager().getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get())) {
+            if (recipe.getTierRequirement() <= gelTier && recipe.getInput().equals(inputState)) {
+                return createItemConversion(recipe.getOutput());
             }
         }
-        for (RecipeHolder<GooSpreadRecipeTag> recipe : level.getRecipeManager().getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE_TAG.get())) {
-            GooSpreadRecipeTag value = recipe.value();
-            if (value.getTierRequirement() <= gelTier && inputState.is(value.getInput().getTag())) {
-                return createItemConversion(value.getOutput());
+        for (GooSpreadRecipeTag recipe : level.getRecipeManager().getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE_TAG.get())) {
+            if (recipe.getTierRequirement() <= gelTier && inputState.is(recipe.getInput())) {
+                return createItemConversion(recipe.getOutput());
             }
         }
 
@@ -500,10 +497,9 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         }
 
         FluidStack inputStack = fluidTank.getFluid();
-        for (RecipeHolder<GooSpreadRecipe> recipe : level.getRecipeManager().getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get())) {
-            GooSpreadRecipe value = recipe.value();
-            if (value.getTierRequirement() <= gelTier && isInputFluid(value.getInput(), inputStack)) {
-                return getOutputFluid(value.getOutput());
+        for (GooSpreadRecipe recipe : level.getRecipeManager().getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get())) {
+            if (recipe.getTierRequirement() <= gelTier && isInputFluid(recipe.getInput(), inputStack)) {
+                return getOutputFluid(recipe.getOutput());
             }
         }
         return FluidStack.EMPTY;
@@ -517,7 +513,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         if (!(outputState.getBlock() instanceof LiquidBlock liquidBlock)) {
             return FluidStack.EMPTY;
         }
-        return new FluidStack(liquidBlock.fluid, FLUID_CONVERSION_AMOUNT);
+        return new FluidStack(outputState.getFluidState().getType(), FLUID_CONVERSION_AMOUNT);
     }
 
     private boolean hasConversionForAnyTier(ItemStack stack) {
@@ -715,7 +711,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override
@@ -742,11 +738,11 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
-        tag.put("outputFluidTank", outputFluidTank.serializeNBT(provider));
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("inventory", itemHandler.serializeNBT());
+        tag.put("fluidTank", fluidTank.serializeNBT());
+        tag.put("outputFluidTank", outputFluidTank.serializeNBT());
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("conversionProgress", conversionProgress);
         tag.putInt("fuelUsesRemaining", fuelUsesRemaining);
@@ -754,16 +750,16 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         if (tag.contains("inventory")) {
-            loadInventory(tag.getCompound("inventory"), provider);
+            loadInventory(tag.getCompound("inventory"));
         }
         if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
+            fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
         }
         if (tag.contains("outputFluidTank")) {
-            outputFluidTank.deserializeNBT(provider, tag.getCompound("outputFluidTank"));
+            outputFluidTank.deserializeNBT(tag.getCompound("outputFluidTank"));
         }
         if (tag.contains("energy")) {
             energyStorage.setEnergy(tag.getInt("energy"));
@@ -779,9 +775,9 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         }
     }
 
-    private void loadInventory(CompoundTag inventoryTag, HolderLookup.Provider provider) {
+    private void loadInventory(CompoundTag inventoryTag) {
         ItemStackHandler loaded = new ItemStackHandler(TOTAL_SLOTS);
-        loaded.deserializeNBT(provider, inventoryTag);
+        loaded.deserializeNBT(inventoryTag);
 
         for (int i = 0; i < TOTAL_SLOTS; i++) {
             itemHandler.setStackInSlot(i, ItemStack.EMPTY);

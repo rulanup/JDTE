@@ -23,10 +23,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.ItemStackHandler;
 
 public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, BaseFilterMachine {
     public static final int STORAGE_SLOTS = 9;
@@ -127,7 +127,7 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     }
 
     private int sendItemsToSide(ServerLevel serverLevel, BlockPos targetPos, Direction side, int limit) {
-        IItemHandler targetHandler = serverLevel.getCapability(Capabilities.ItemHandler.BLOCK, targetPos, side);
+        IItemHandler targetHandler = com.jdte.common.capabilities.ForgeCapabilityHelper.get(serverLevel, targetPos, ForgeCapabilities.ITEM_HANDLER, side);
         if (targetHandler == null) return 0;
 
         int sent = 0;
@@ -199,7 +199,7 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override
@@ -218,17 +218,17 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("inventory", itemHandler.serializeNBT());
         saveAreaSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
+            itemHandler.deserializeNBT(tag.getCompound("inventory"));
         }
         loadAreaSettings(tag);
         areaAffectingData.area = null;
