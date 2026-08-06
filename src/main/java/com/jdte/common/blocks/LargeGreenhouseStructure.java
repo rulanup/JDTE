@@ -72,9 +72,13 @@ public final class LargeGreenhouseStructure {
                             .setValue(LargeGreenhousePartBlock.DEPTH, LargeGreenhousePartBlock.DepthPart.fromOffset(depth))
                             .setValue(LargeGreenhousePartBlock.LAYER, LargeGreenhousePartBlock.LayerPart.fromOffset(y));
                     if (!level.setBlock(pos, state, 3)) {
-                        for (BlockPos rollback : placed) level.removeBlock(rollback, false);
+                        for (BlockPos rollback : placed) {
+                            level.removeBlock(rollback, false);
+                            level.invalidateCapabilities(rollback);
+                        }
                         return false;
                     }
+                    level.invalidateCapabilities(pos);
                     placed.add(pos);
                 }
             }
@@ -117,6 +121,7 @@ public final class LargeGreenhouseStructure {
                     if (state.is(com.jdte.setup.JDTEBlocks.LARGE_GREENHOUSE_PART.get())
                             && controllerPosition(pos, state).equals(controller)) {
                         level.removeBlock(pos, false);
+                        level.invalidateCapabilities(pos);
                     }
                 }
             }

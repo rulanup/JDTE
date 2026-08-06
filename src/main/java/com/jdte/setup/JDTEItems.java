@@ -64,6 +64,8 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> LIFE_BREEDER = ITEMS.register("life_breeder", () -> new BlockItem(JDTEBlocks.LIFE_BREEDER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> FACTORY_PACKER = ITEMS.register("factory_packer", () -> new BlockItem(JDTEBlocks.FACTORY_PACKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> MINERAL_EXTRACTOR = ITEMS.register("mineral_extractor", () -> new BlockItem(JDTEBlocks.MINERAL_EXTRACTOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> LARGE_MINERAL_EXTRACTOR = ITEMS.register("large_mineral_extractor",
+            () -> new BlockItem(JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get(), new Item.Properties()));
 
     // Glue Activator
     public static final DeferredHolder<Item, BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));

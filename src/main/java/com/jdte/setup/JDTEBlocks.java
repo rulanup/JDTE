@@ -33,6 +33,8 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, LifeBreederBlock> LIFE_BREEDER = BLOCKS.register("life_breeder", LifeBreederBlock::new);
     public static final DeferredHolder<Block, FactoryPackerBlock> FACTORY_PACKER = BLOCKS.register("factory_packer", FactoryPackerBlock::new);
     public static final DeferredHolder<Block, MineralExtractorBlock> MINERAL_EXTRACTOR = BLOCKS.register("mineral_extractor", MineralExtractorBlock::new);
+    public static final DeferredHolder<Block, LargeMineralExtractorBlock> LARGE_MINERAL_EXTRACTOR = BLOCKS.register("large_mineral_extractor", LargeMineralExtractorBlock::new);
+    public static final DeferredHolder<Block, LargeMineralExtractorPartBlock> LARGE_MINERAL_EXTRACTOR_PART = BLOCKS.register("large_mineral_extractor_part", LargeMineralExtractorPartBlock::new);
 
     // Glue Activator
     public static final DeferredHolder<Block, BasicGlueActivatorBlock> BASIC_GLUE_ACTIVATOR = BLOCKS.register("basic_glue_activator", BasicGlueActivatorBlock::new);

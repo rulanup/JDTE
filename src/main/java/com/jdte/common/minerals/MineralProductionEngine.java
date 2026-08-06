@@ -20,11 +20,57 @@ public final class MineralProductionEngine {
         return entries.stream().filter(filter).toList();
     }
 
+    /** 合并多张清单中的同类矿物；权重饱和累加，避免重复候选和 long 溢出。 */
+    public static List<MineralEntry> mergeWeightedEntries(List<MineralEntry> entries) {
+        Map<ResourceLocation, MineralEntry> merged = new LinkedHashMap<>();
+        for (MineralEntry entry : entries) {
+            merged.merge(entry.oreId(), entry, (left, right) -> new MineralEntry(
+                    left.oreId(),
+                    saturatingAdd(left.weight(), right.weight()),
+                    Math.min(left.minY(), right.minY()),
+                    Math.max(left.maxY(), right.maxY()),
+                    Math.max(left.veinSize(), right.veinSize()),
+                    left.confidence()));
+        }
+        return List.copyOf(merged.values());
+    }
+
+    public static boolean allowsListedCandidate(boolean allowlist, boolean hasFilter, boolean listed) {
+        return !hasFilter || (allowlist ? listed : !listed);
+    }
+
+    public static long scaleOutput(long amount, int resultCount) {
+        if (amount <= 0L || resultCount <= 0) return 0L;
+        return saturatingMultiply(amount, resultCount);
+    }
+
     public static long accumulateWork(long pendingWork, long elapsedTicks, long multiplier, long maxPendingWork) {
         long limit = Math.max(0L, maxPendingWork);
         long pending = Math.max(0L, Math.min(pendingWork, limit));
         long added = saturatingMultiply(Math.max(0L, elapsedTicks), Math.max(0L, multiplier));
         return Math.min(limit, saturatingAdd(pending, added));
+    }
+
+    public static WorkAllocation workForTick(int selectedMultiplier, long baseProductionMultiplier,
+                                             boolean accelerationAvailable) {
+        long baseWork = Math.max(1L, baseProductionMultiplier);
+        long acceleratedWork = accelerationAvailable
+                ? saturatingMultiply(Math.max(0L, selectedMultiplier - 1L), baseWork) : 0L;
+        return new WorkAllocation(baseWork, acceleratedWork);
+    }
+
+    public static boolean shouldSettle(long pendingBaseWork, long pendingAcceleratedWork,
+                                       long processTicks, int settlementTicker, int settlementInterval) {
+        long requiredWork = Math.max(1L, processTicks);
+        return saturatingAdd(Math.max(0L, pendingBaseWork), Math.max(0L, pendingAcceleratedWork)) >= requiredWork
+                || settlementTicker >= Math.max(1, settlementInterval);
+    }
+
+    public static CycleAllocation allocateCycles(long baseCycles, long acceleratedCycles, long settledCycles) {
+        long settled = Math.max(0L, settledCycles);
+        long base = Math.min(Math.max(0L, baseCycles), settled);
+        long accelerated = Math.min(Math.max(0L, acceleratedCycles), settled - base);
+        return new CycleAllocation(base, accelerated);
     }
 
     public static Batch distribute(List<MineralEntry> entries, long requestedCycles,
@@ -115,6 +161,18 @@ public final class MineralProductionEngine {
     }
 
     private record Fraction(ResourceLocation id, BigInteger remainder) {
+    }
+
+    public record WorkAllocation(long baseWork, long acceleratedWork) {
+        public long totalWork() {
+            return saturatingAdd(baseWork, acceleratedWork);
+        }
+    }
+
+    public record CycleAllocation(long baseCycles, long acceleratedCycles) {
+        public long totalCycles() {
+            return baseCycles + acceleratedCycles;
+        }
     }
 
     public record Batch(long consumedCycles, Map<ResourceLocation, Long> amounts) {

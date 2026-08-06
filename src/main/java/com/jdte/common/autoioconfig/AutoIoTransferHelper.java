@@ -21,7 +21,9 @@ import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.blockentities.ItemReceiverBE;
 import com.jdte.common.blockentities.ItemSenderBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
+import com.jdte.common.blockentities.LargeMineralExtractorBE;
 import com.jdte.common.blocks.LargeGreenhouseStructure;
+import com.jdte.common.blocks.LargeMineralExtractorStructure;
 import com.jdte.common.blocks.LifeSynthesisStructure;
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
@@ -278,6 +280,13 @@ public final class AutoIoTransferHelper {
     }
 
     private static List<BlockPos> externalNeighbors(ServerLevel level, BaseMachineBE machine, Direction side) {
+        if (machine instanceof LargeMineralExtractorBE extractor) {
+            return extractor.getBoundaryNeighbors().stream()
+                    .filter(neighbor -> neighbor.exposedSide() == side)
+                    .map(LargeMineralExtractorStructure.BoundaryNeighbor::pos)
+                    .distinct()
+                    .toList();
+        }
         if (machine instanceof LargeGreenhouseBE greenhouse) {
             return greenhouse.getBoundaryNeighbors().stream()
                     .filter(neighbor -> neighbor.exposedSide() == side)
@@ -336,8 +345,8 @@ public final class AutoIoTransferHelper {
             itemOutputs = boundedSlots(handler, range(LootFabricatorBE.INPUT_SLOTS, fabricator.getActiveOutputSlots()));
             fluidInput = fabricator.getFluidHandler();
         } else if (machine instanceof MineralExtractorBE extractor) {
-            itemInputs = boundedSlots(handler, MineralExtractorBE.SURVEY_SLOT);
-            itemOutputs = boundedSlots(handler, range(MineralExtractorBE.OUTPUT_START_SLOT, extractor.getActiveOutputSlots()));
+            itemInputs = boundedSlots(handler, range(0, extractor.surveySlotCount()));
+            itemOutputs = boundedSlots(handler, range(extractor.outputStartSlot(), extractor.getActiveOutputSlots()));
             fluidInput = extractor.getCombinedFluidHandler();
         } else if (machine instanceof GlueActivatorBE) {
             itemInputs = boundedSlots(handler, GlueActivatorBE.REVIVE_SLOT);

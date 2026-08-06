@@ -245,6 +245,62 @@
     "output_page_text_x": 104,
     "output_page_text_y": 54
   },
+  "mineral_extractor_layout": {
+    "comment": "矿物提取机相对 JDT 基础机器界面增加的尺寸。",
+    "extra_width": 60,
+    "extra_height": 0
+  },
+  "mineral_extractor_slots": {
+    "comment": "矿物清单槽和当前页输出槽坐标，均相对于 getGuiLeft()/getGuiTop()。",
+    "survey_x": 8,
+    "survey_y": -17,
+    "output_start_x": 68,
+    "output_start_y": -21,
+    "output_spacing": 18,
+    "output_columns": 4,
+    "output_rows": 4
+  },
+  "mineral_extractor_fluids": {
+    "comment": "经验流体槽和时间流体槽坐标。",
+    "experience_x": 162,
+    "experience_y": -21,
+    "time_x": 182,
+    "time_y": -21
+  },
+  "mineral_extractor_widgets": {
+    "comment": "矿物提取机控件布局。状态文字与速度按钮 X 对齐、与第三行输出槽 Y 对齐；页码文字位于翻页按钮同一行。F3+T 会重载绘制坐标，容器槽位调整仍需重新打开界面。",
+    "progress_x": 30,
+    "progress_y": -18,
+    "speed_x": 7,
+    "speed_y": 2,
+    "allowlist_x": 142,
+    "allowlist_y": -1,
+    "redstone_x": 142,
+    "redstone_y": 17,
+    "output_prev_x": 54,
+    "output_next_x": 144,
+    "output_page_y": 36,
+    "output_page_text_x": 39,
+    "output_page_text_y": 38,
+    "output_page_button_size": 12,
+    "status_x": 7,
+    "status_y": 19
+  },
+  "large_mineral_extractor_slots": {
+    "comment": "大型矿物提取机四张清单使用 1x4 布局，顶部与输出槽顶部平齐。",
+    "survey_x": 8,
+    "survey_y": -21,
+    "survey_spacing": 18
+  },
+  "large_mineral_extractor_widgets": {
+    "comment": "进度、速度与两行状态信息位于单列矿物清单右侧。",
+    "progress_x": 32,
+    "progress_y": -19,
+    "speed_x": 34,
+    "speed_y": -6,
+    "status_x": 30,
+    "status_y": 10
+  },
   "greenhouse_slots": {
     "comment": "大型温室种子槽和当前页产物槽坐标，均相对于 getGuiLeft()/getGuiTop()。种子槽 3 列 x4 行（12 个）；BaseMachineScreen 的能量条顶端为 getGuiTop()-21，因此产物槽顶端保持 -21 对齐。",
     "input_start_x": 8,

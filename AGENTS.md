@@ -34,9 +34,10 @@ Major features:
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
-- Mineral Survey snapshots and the Mineral Extractor, backed by a reload-built biome ore index, public-codec world-generation analysis, datapack overrides, fixed-point weighted batch production, dual fluids, filtering, paged outputs, and 1024x coalesced work.
+- Mineral Survey snapshots, the Mineral Extractor, and the 3×3×2 Large Mineral Extractor, backed by a reload-built biome ore index, public-codec world-generation analysis, datapack overrides, fixed-point weighted batch production, dual fluids, smelting, filtering, paged outputs, and coalesced work up to 64x. The large tier merges four surveys and accumulates base work four times faster through one shared production pipeline.
 - Eclipse Alloy Wrench for rotation, NBT-preserving machine pickup, reusable two-corner selection, Ctrl-scroll face resizing, and optional FTB Ultimine bulk operations.
 - Permanent Life Apple progression and JEI categories for machine recipes.
+- The Large Mineral Extractor controller occupies the front-center bottom position and owns all state; its other 17 blocks have no block entities and resolve the controller in O(1) from coordinate state. The controller exposes no FE, fluid, or item capability; pipes and active auto I/O are restricted to the structure's outer boundary.
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
 
@@ -254,7 +255,8 @@ JDTE machine families (Item/Fluid Sender and Receiver, Fluid Stabilizer, Glue Ac
 | Infusion Machine | Advanced, Extended | `InfusionMachineBE` | Performs gel/item and dynamic spawn egg infusion |
 | Advanced Potion Brewer | Advanced | `AdvancedPotionBrewerBE` | Ordered brewing using water, Time Fluid, fuel, and FE |
 | Loot Fabricator | Single eight-slot tier | `LootFabricatorBE` | Produces mob loot from reusable spawn egg templates |
-| Mineral Extractor | Single eight-slot tier | `MineralExtractorBE` | Produces weighted ore-block batches from a reload-cached local biome profile or an inserted Mineral Survey |
+| Mineral Extractor | Single eight-slot tier | `MineralExtractorBE` | Produces weighted ore-block batches from a reload-cached local biome profile or one inserted Mineral Survey |
+| Large Mineral Extractor | Single eight-slot 3×3×2 tier | `LargeMineralExtractorBE` | Reuses the standard production pipeline, merges four Mineral Surveys, and accumulates base work four times faster through one controller and 17 stateless parts |
 
 Capability summary:
 

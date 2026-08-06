@@ -2,9 +2,11 @@ package com.jdte.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.MineralExtractorBE;
-import com.jdte.common.items.UpgradeCardItem;
+import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEItems;
+import com.jdte.mixin.AbstractContainerMenuInvoker;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -17,10 +19,10 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
-public final class MineralExtractorContainer extends BaseMachineContainer implements FilterPageHolder {
-    private static final int OUTPUT_COLUMNS = 4;
-    private static final int OUTPUT_ROWS = 4;
-    private static final int OUTPUT_SLOTS_PER_PAGE = OUTPUT_COLUMNS * OUTPUT_ROWS;
+public class MineralExtractorContainer extends BaseMachineContainer implements FilterPageHolder {
+    protected static final int OUTPUT_COLUMNS = 4;
+    protected static final int OUTPUT_ROWS = 4;
+    protected static final int OUTPUT_SLOTS_PER_PAGE = OUTPUT_COLUMNS * OUTPUT_ROWS;
     private int outputPage;
     private int filterPage;
 
@@ -29,18 +31,36 @@ public final class MineralExtractorContainer extends BaseMachineContainer implem
     }
 
     public MineralExtractorContainer(int id, Inventory inventory, BlockPos pos) {
-        super(JDTEMenus.MINERAL_EXTRACTOR.get(), id, inventory, pos);
+        this(JDTEMenus.MINERAL_EXTRACTOR.get(), id, inventory, pos);
+    }
+
+    protected MineralExtractorContainer(net.minecraft.world.inventory.MenuType<?> menuType,
+                                        int id, Inventory inventory, BlockPos pos) {
+        super(menuType, id, inventory, pos);
         if (baseMachineBE instanceof MineralExtractorBE extractor) addDataSlots(extractor.getMachineData());
         addPlayerSlots(inventory);
     }
 
     @Override public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
-        addSlot(new SurveySlot(machineHandler, MineralExtractorBE.SURVEY_SLOT, 20, 28));
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        int surveySlots = getSurveySlotCount();
+        int surveyX = surveySlots == 1
+                ? layout.getMineralExtractorSurveyX() : layout.getLargeMineralExtractorSurveyX();
+        int surveyY = surveySlots == 1
+                ? layout.getMineralExtractorSurveyY() : layout.getLargeMineralExtractorSurveyY();
+        int surveySpacing = surveySlots == 1 ? 18 : layout.getLargeMineralExtractorSurveySpacing();
+        for (int slot = 0; slot < surveySlots; slot++) {
+            addSlot(new SurveySlot(machineHandler, slot,
+                    surveyX,
+                    surveyY + slot * surveySpacing));
+        }
         for (int pageSlot = 0; pageSlot < OUTPUT_SLOTS_PER_PAGE; pageSlot++) {
             addSlot(new PagedOutputSlot(machineHandler, pageSlot,
-                    62 + pageSlot % OUTPUT_COLUMNS * 18,
-                    10 + pageSlot / OUTPUT_COLUMNS * 18, this));
+                    layout.getMineralExtractorOutputStartX()
+                            + pageSlot % OUTPUT_COLUMNS * layout.getMineralExtractorOutputSpacing(),
+                    layout.getMineralExtractorOutputStartY()
+                            + pageSlot / OUTPUT_COLUMNS * layout.getMineralExtractorOutputSpacing(), this));
         }
     }
 
@@ -88,25 +108,43 @@ public final class MineralExtractorContainer extends BaseMachineContainer implem
         if (!slot.hasItem()) return ItemStack.EMPTY;
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
-        int machineEnd = 1 + OUTPUT_SLOTS_PER_PAGE;
+        int surveySlots = getSurveySlotCount();
+        int machineEnd = surveySlots + OUTPUT_SLOTS_PER_PAGE;
         int filterEnd = machineEnd + FILTER_SLOTS;
         int upgradeEnd = filterEnd + MineralExtractorBE.UPGRADE_SLOTS;
         if (index < machineEnd) {
-            if (!moveItemStackTo(stack, upgradeEnd, slots.size(), true)) return ItemStack.EMPTY;
+            if (!moveStack(stack, upgradeEnd, slots.size(), true)) return ItemStack.EMPTY;
         } else if (index < filterEnd) {
             return ItemStack.EMPTY;
         } else if (index < upgradeEnd) {
-            if (!moveItemStackTo(stack, upgradeEnd, slots.size(), true)) return ItemStack.EMPTY;
+            if (!moveStack(stack, upgradeEnd, slots.size(), true)) return ItemStack.EMPTY;
         } else if (stack.is(JDTEItems.MINERAL_SURVEY.get())) {
-            if (!moveItemStackTo(stack, 0, 1, false)) return ItemStack.EMPTY;
-        } else if (stack.getItem() instanceof UpgradeCardItem) {
-            if (!moveItemStackTo(stack, filterEnd, upgradeEnd, false)) return ItemStack.EMPTY;
+            if (!moveStack(stack, 0, surveySlots, false)) return ItemStack.EMPTY;
+        } else if (UpgradeHelper.isUpgrade(stack)) {
+            if (!moveStack(stack, filterEnd, upgradeEnd, false)) return ItemStack.EMPTY;
         } else {
             return ItemStack.EMPTY;
         }
         if (stack.isEmpty()) slot.set(ItemStack.EMPTY); else slot.setChanged();
         slot.onTake(player, stack);
         return original;
+    }
+
+    public int getSurveySlotCount() {
+        return baseMachineBE instanceof MineralExtractorBE extractor ? extractor.surveySlotCount() : 1;
+    }
+
+    public int getMachineSlotCount() {
+        return getSurveySlotCount() + OUTPUT_SLOTS_PER_PAGE;
+    }
+
+    protected int outputStartSlot() {
+        return getSurveySlotCount();
+    }
+
+    private boolean moveStack(ItemStack stack, int startIndex, int endIndex, boolean reverseDirection) {
+        return ((AbstractContainerMenuInvoker) (Object) this)
+                .jdte$invokeMoveItemStackTo(stack, startIndex, endIndex, reverseDirection);
     }
 
     private static final class SurveySlot extends SlotItemHandler {
@@ -119,12 +157,12 @@ public final class MineralExtractorContainer extends BaseMachineContainer implem
         private final MineralExtractorContainer container;
         private PagedOutputSlot(IItemHandler handler, int pageSlot, int x, int y,
                                 MineralExtractorContainer container) {
-            super(handler, MineralExtractorBE.OUTPUT_START_SLOT + pageSlot, x, y);
+            super(handler, container.outputStartSlot() + pageSlot, x, y);
             this.pageSlot = pageSlot;
             this.container = container;
         }
         @Override public int getSlotIndex() {
-            return MineralExtractorBE.OUTPUT_START_SLOT
+            return container.outputStartSlot()
                     + container.outputPage * OUTPUT_SLOTS_PER_PAGE + pageSlot;
         }
         @Override public ItemStack getItem() {
@@ -141,7 +179,7 @@ public final class MineralExtractorContainer extends BaseMachineContainer implem
         @Override public boolean mayPlace(ItemStack stack) { return false; }
         @Override public boolean mayPickup(Player player) { return active() && !getItem().isEmpty(); }
         private boolean active() {
-            return getSlotIndex() < MineralExtractorBE.OUTPUT_START_SLOT + container.getActiveOutputSlots()
+            return getSlotIndex() < container.outputStartSlot() + container.getActiveOutputSlots()
                     && getSlotIndex() < getItemHandler().getSlots();
         }
     }

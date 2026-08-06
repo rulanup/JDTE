@@ -101,6 +101,8 @@ public class JDTEMenus {
             "life_breeder", () -> IMenuTypeExtension.create(LifeBreederContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<MineralExtractorContainer>> MINERAL_EXTRACTOR = MENUS.register(
             "mineral_extractor", () -> IMenuTypeExtension.create(MineralExtractorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<MineralExtractorContainer>> LARGE_MINERAL_EXTRACTOR = MENUS.register(
+            "large_mineral_extractor", () -> IMenuTypeExtension.create(LargeMineralExtractorContainer::new));
 
     // Fluid Receiver
     public static final DeferredHolder<MenuType<?>, MenuType<BasicFluidReceiverContainer>> BASIC_FLUID_RECEIVER = MENUS.register(

@@ -22,7 +22,14 @@ final class FluidContainerTransfer {
     private FluidContainerTransfer() {
     }
 
-    static ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
+    static ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos,
+                                           Player player, InteractionHand hand, BlockHitResult hit) {
+        return useItemOn(itemStack, level, blockPos, blockPos, player, hand, hit);
+    }
+
+    static ItemInteractionResult useItemOn(ItemStack itemStack, Level level, BlockPos capabilityPos,
+                                           BlockPos ownerPos, Player player, InteractionHand hand,
+                                           BlockHitResult hit) {
         if (level.isClientSide) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
@@ -32,19 +39,26 @@ final class FluidContainerTransfer {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        IFluidHandler blockHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, blockPos, hit.getDirection());
+        IFluidHandler blockHandler = level.getCapability(
+                Capabilities.FluidHandler.BLOCK, capabilityPos, hit.getDirection());
         if (blockHandler == null) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
         FluidStack containerFluid = itemHandler.getFluidInTank(0);
         if (containerFluid.isEmpty()) {
-            return fillContainerFromBlock(itemStack, level, blockPos, player, hand, itemHandler, blockHandler);
+            return fillContainerFromBlock(itemStack, level, capabilityPos, ownerPos,
+                    player, hand, itemHandler, blockHandler);
         }
-        return fillBlockFromContainer(itemStack, level, blockPos, player, hand, itemHandler, blockHandler);
+        return fillBlockFromContainer(itemStack, level, capabilityPos, ownerPos,
+                player, hand, itemHandler, blockHandler);
     }
 
-    private static ItemInteractionResult fillContainerFromBlock(ItemStack itemStack, Level level, BlockPos blockPos, Player player, InteractionHand hand, IFluidHandlerItem itemHandler, IFluidHandler blockHandler) {
+    private static ItemInteractionResult fillContainerFromBlock(ItemStack itemStack, Level level,
+                                                                 BlockPos interactionPos, BlockPos ownerPos,
+                                                                 Player player, InteractionHand hand,
+                                                                 IFluidHandlerItem itemHandler,
+                                                                 IFluidHandler blockHandler) {
         FluidStack simulatedDrain = blockHandler.drain(itemHandler.getTankCapacity(0), IFluidHandler.FluidAction.SIMULATE);
         if (simulatedDrain.getAmount() <= 0) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -60,14 +74,27 @@ final class FluidContainerTransfer {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        itemHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        int filled = itemHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (filled <= 0) {
+            blockHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (filled < drained.getAmount()) {
+            FluidStack remainder = drained.copy();
+            remainder.setAmount(drained.getAmount() - filled);
+            blockHandler.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
+        }
         updateHeldContainer(itemStack, player, hand, itemHandler);
-        markChanged(level, blockPos);
-        level.playSound(null, blockPos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+        markChanged(level, ownerPos);
+        level.playSound(null, interactionPos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
         return ItemInteractionResult.SUCCESS;
     }
 
-    private static ItemInteractionResult fillBlockFromContainer(ItemStack itemStack, Level level, BlockPos blockPos, Player player, InteractionHand hand, IFluidHandlerItem itemHandler, IFluidHandler blockHandler) {
+    private static ItemInteractionResult fillBlockFromContainer(ItemStack itemStack, Level level,
+                                                                 BlockPos interactionPos, BlockPos ownerPos,
+                                                                 Player player, InteractionHand hand,
+                                                                 IFluidHandlerItem itemHandler,
+                                                                 IFluidHandler blockHandler) {
         FluidStack containerFluid = itemHandler.getFluidInTank(0);
         int fillAmount = blockHandler.fill(containerFluid, IFluidHandler.FluidAction.SIMULATE);
         if (fillAmount <= 0) {
@@ -91,8 +118,8 @@ final class FluidContainerTransfer {
             itemHandler.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
         }
         updateHeldContainer(itemStack, player, hand, itemHandler);
-        markChanged(level, blockPos);
-        level.playSound(null, blockPos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+        markChanged(level, ownerPos);
+        level.playSound(null, interactionPos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
         return ItemInteractionResult.SUCCESS;
     }
 

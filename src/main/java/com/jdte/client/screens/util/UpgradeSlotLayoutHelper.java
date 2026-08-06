@@ -217,6 +217,16 @@ public final class UpgradeSlotLayoutHelper {
                     .withStyle(canAdd ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
         }
 
+        if (baseMachineBE instanceof com.jdte.common.blockentities.MineralExtractorBE) {
+            int current = UpgradeHelper.hasSmelterUpgrade(baseMachineBE) ? 1 : 0;
+            ItemStack smelter = new ItemStack(com.direwolf20.justdirethings.setup.Registration.UPGRADE_SMELTER.get());
+            lines.add(Component.literal("  ")
+                    .append(smelter.getHoverName())
+                    .append(Component.literal(": " + current + "/1"))
+                    .copy()
+                    .withStyle(current == 0 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+        }
+
         if (baseMachineBE instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
             int current = fabricator.getLootingLevel();
             lines.add(Component.literal("  ")

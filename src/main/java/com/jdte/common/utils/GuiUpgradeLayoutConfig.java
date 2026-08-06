@@ -3,10 +3,15 @@ package com.jdte.common.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +22,8 @@ import java.util.Map;
  */
 public class GuiUpgradeLayoutConfig {
     private static final String CONFIG_RESOURCE = "/assets/jdte/gui_layout.json";
-    private static GuiUpgradeLayoutConfig INSTANCE;
+    private static final ResourceLocation LAYOUT_RESOURCE = ResourceLocation.fromNamespaceAndPath("jdte", "gui_layout.json");
+    private static volatile GuiUpgradeLayoutConfig INSTANCE;
 
     private final Map<String, JsonObject> sections = new HashMap<>();
 
@@ -35,26 +41,61 @@ public class GuiUpgradeLayoutConfig {
      * Get the singleton config instance. Loads from JSON on first access.
      */
     public static GuiUpgradeLayoutConfig getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = load();
+        GuiUpgradeLayoutConfig instance = INSTANCE;
+        if (instance == null) {
+            synchronized (GuiUpgradeLayoutConfig.class) {
+                instance = INSTANCE;
+                if (instance == null) {
+                    instance = loadFromClasspath();
+                    INSTANCE = instance;
+                }
+            }
         }
-        return INSTANCE;
+        return instance;
     }
 
-    private static GuiUpgradeLayoutConfig load() {
+    public static void reload(ResourceManager resourceManager) {
+        GuiUpgradeLayoutConfig sourceLayout = loadDevelopmentSource();
+        INSTANCE = sourceLayout != null ? sourceLayout : resourceManager.getResource(LAYOUT_RESOURCE)
+                .map(resource -> {
+                    try (var reader = resource.openAsReader()) {
+                        return parse(reader);
+                    } catch (Exception ignored) {
+                        return new GuiUpgradeLayoutConfig(null);
+                    }
+                })
+                .orElseGet(() -> new GuiUpgradeLayoutConfig(null));
+    }
+
+    private static GuiUpgradeLayoutConfig loadDevelopmentSource() {
+        if (FMLEnvironment.production) return null;
+        Path source = Path.of("src", "main", "resources", "assets", "jdte", "gui_layout.json");
+        if (!Files.isRegularFile(source)) return null;
+        try (var reader = Files.newBufferedReader(source, StandardCharsets.UTF_8)) {
+            return parse(reader);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static GuiUpgradeLayoutConfig loadFromClasspath() {
         try (InputStream stream = GuiUpgradeLayoutConfig.class.getResourceAsStream(CONFIG_RESOURCE)) {
             if (stream != null) {
                 try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-                    JsonObject json = new Gson().fromJson(reader, JsonObject.class);
-                    if (json != null && json.has("upgrade_panel_4")) {
-                        return new GuiUpgradeLayoutConfig(json);
-                    }
+                    return parse(reader);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             // Keep menus usable with built-in defaults if the packaged layout is unavailable or invalid.
         }
         return new GuiUpgradeLayoutConfig(null);
+    }
+
+    private static GuiUpgradeLayoutConfig parse(java.io.Reader reader) {
+        JsonObject json = new Gson().fromJson(reader, JsonObject.class);
+        return json != null && json.has("upgrade_panel_4")
+                ? new GuiUpgradeLayoutConfig(json)
+                : new GuiUpgradeLayoutConfig(null);
     }
 
     private int get(String section, String key, int defaultValue) {
@@ -281,6 +322,51 @@ public class GuiUpgradeLayoutConfig {
     public int getLootFabricatorOutputPageButtonSize() { return get("loot_fabricator_widgets", "output_page_button_size", 12); }
     public int getLootFabricatorOutputPageTextX() { return get("loot_fabricator_widgets", "output_page_text_x", 104); }
     public int getLootFabricatorOutputPageTextY() { return get("loot_fabricator_widgets", "output_page_text_y", 54); }
+
+    // --- Mineral extractor layout getters ---
+
+    public int getMineralExtractorExtraWidth() { return get("mineral_extractor_layout", "extra_width", 60); }
+    public int getMineralExtractorExtraHeight() { return get("mineral_extractor_layout", "extra_height", 0); }
+    public int getMineralExtractorSurveyX() { return get("mineral_extractor_slots", "survey_x", 8); }
+    public int getMineralExtractorSurveyY() { return get("mineral_extractor_slots", "survey_y", -17); }
+    public int getMineralExtractorOutputStartX() { return get("mineral_extractor_slots", "output_start_x", 68); }
+    public int getMineralExtractorOutputStartY() { return get("mineral_extractor_slots", "output_start_y", -21); }
+    public int getMineralExtractorOutputSpacing() { return get("mineral_extractor_slots", "output_spacing", 18); }
+    public int getMineralExtractorOutputColumns() { return get("mineral_extractor_slots", "output_columns", 4); }
+    public int getMineralExtractorOutputRows() { return get("mineral_extractor_slots", "output_rows", 4); }
+    public int getMineralExtractorExperienceFluidX() { return get("mineral_extractor_fluids", "experience_x", 162); }
+    public int getMineralExtractorExperienceFluidY() { return get("mineral_extractor_fluids", "experience_y", -21); }
+    public int getMineralExtractorTimeFluidX() { return get("mineral_extractor_fluids", "time_x", 182); }
+    public int getMineralExtractorTimeFluidY() { return get("mineral_extractor_fluids", "time_y", -21); }
+    public int getMineralExtractorProgressX() { return get("mineral_extractor_widgets", "progress_x", 30); }
+    public int getMineralExtractorProgressY() { return get("mineral_extractor_widgets", "progress_y", -13); }
+    public int getMineralExtractorSpeedX() { return get("mineral_extractor_widgets", "speed_x", 8); }
+    public int getMineralExtractorSpeedY() { return get("mineral_extractor_widgets", "speed_y", -2); }
+    public int getMineralExtractorAllowlistX() { return get("mineral_extractor_widgets", "allowlist_x", 142); }
+    public int getMineralExtractorAllowlistY() { return get("mineral_extractor_widgets", "allowlist_y", -1); }
+    public int getMineralExtractorRedstoneX() { return get("mineral_extractor_widgets", "redstone_x", 142); }
+    public int getMineralExtractorRedstoneY() { return get("mineral_extractor_widgets", "redstone_y", 17); }
+    public int getMineralExtractorOutputPrevX() { return get("mineral_extractor_widgets", "output_prev_x", 54); }
+    public int getMineralExtractorOutputNextX() { return get("mineral_extractor_widgets", "output_next_x", 144); }
+    public int getMineralExtractorOutputPageY() { return get("mineral_extractor_widgets", "output_page_y", 36); }
+    public int getMineralExtractorOutputPageTextX() { return get("mineral_extractor_widgets", "output_page_text_x", 39); }
+    public int getMineralExtractorOutputPageTextY() { return get("mineral_extractor_widgets", "output_page_text_y", 38); }
+    public int getMineralExtractorOutputPageButtonSize() { return get("mineral_extractor_widgets", "output_page_button_size", 12); }
+    public int getMineralExtractorStatusX() { return get("mineral_extractor_widgets", "status_x", getMineralExtractorSpeedX()); }
+    public int getMineralExtractorStatusY() { return get("mineral_extractor_widgets", "status_y",
+            getMineralExtractorOutputStartY() + 2 * getMineralExtractorOutputSpacing()); }
+
+    // --- Large mineral extractor layout getters ---
+
+    public int getLargeMineralExtractorSurveyX() { return get("large_mineral_extractor_slots", "survey_x", 8); }
+    public int getLargeMineralExtractorSurveyY() { return get("large_mineral_extractor_slots", "survey_y", -21); }
+    public int getLargeMineralExtractorSurveySpacing() { return get("large_mineral_extractor_slots", "survey_spacing", 18); }
+    public int getLargeMineralExtractorProgressX() { return get("large_mineral_extractor_widgets", "progress_x", 32); }
+    public int getLargeMineralExtractorProgressY() { return get("large_mineral_extractor_widgets", "progress_y", -19); }
+    public int getLargeMineralExtractorSpeedX() { return get("large_mineral_extractor_widgets", "speed_x", 34); }
+    public int getLargeMineralExtractorSpeedY() { return get("large_mineral_extractor_widgets", "speed_y", -6); }
+    public int getLargeMineralExtractorStatusX() { return get("large_mineral_extractor_widgets", "status_x", 30); }
+    public int getLargeMineralExtractorStatusY() { return get("large_mineral_extractor_widgets", "status_y", 10); }
 
     // --- Greenhouse slot getters ---
 

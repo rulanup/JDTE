@@ -1,6 +1,7 @@
 package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -27,6 +28,9 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+        if (machine instanceof MineralExtractorBE && UpgradeHelper.isSmelterUpgrade(stack)) {
+            return countSmelter(slot) == 0;
+        }
         if (!(stack.getItem() instanceof UpgradeCardItem upgradeCard)) {
             return false;
         }
@@ -77,6 +81,14 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
             }
             machine.markDirtyClient();
         }
+    }
+
+    private int countSmelter(int ignoredSlot) {
+        int count = 0;
+        for (int slot = 0; slot < getSlots(); slot++) {
+            if (slot != ignoredSlot && UpgradeHelper.isSmelterUpgrade(getStackInSlot(slot))) count++;
+        }
+        return count;
     }
 
     private int count(UpgradeType type, int ignoredSlot) {

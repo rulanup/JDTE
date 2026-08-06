@@ -55,7 +55,7 @@ public final class MachineOutputManager {
             return new OutputRange(LargeGreenhouseBE.OUTPUT_START_SLOT, greenhouse.getActiveOutputSlots());
         }
         if (machine instanceof MineralExtractorBE extractor) {
-            return new OutputRange(MineralExtractorBE.OUTPUT_START_SLOT, extractor.getActiveOutputSlots());
+            return new OutputRange(extractor.outputStartSlot(), extractor.getActiveOutputSlots());
         }
         return null;
     }

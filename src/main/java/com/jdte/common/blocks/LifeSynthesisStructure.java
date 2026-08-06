@@ -77,9 +77,13 @@ public final class LifeSynthesisStructure {
                             .setValue(LifeSynthesisPartBlock.DEPTH, LifeSynthesisPartBlock.DepthPart.fromOffset(depth))
                             .setValue(LifeSynthesisPartBlock.LAYER, LifeSynthesisPartBlock.LayerPart.fromOffset(y));
                     if (!level.setBlock(pos, state, 3)) {
-                        for (BlockPos rollback : placed) level.removeBlock(rollback, false);
+                        for (BlockPos rollback : placed) {
+                            level.removeBlock(rollback, false);
+                            level.invalidateCapabilities(rollback);
+                        }
                         return false;
                     }
+                    level.invalidateCapabilities(pos);
                     placed.add(pos);
                 }
             }
@@ -122,6 +126,7 @@ public final class LifeSynthesisStructure {
                     if (state.is(JDTEBlocks.LIFE_SYNTHESIS_PART.get())
                             && controllerPosition(pos, state).equals(controller)) {
                         level.removeBlock(pos, false);
+                        level.invalidateCapabilities(pos);
                     }
                 }
             }

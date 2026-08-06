@@ -109,6 +109,8 @@ public class JDTEBlockEntities {
             "life_breeder", () -> BlockEntityType.Builder.of(LifeBreederBE::new, JDTEBlocks.LIFE_BREEDER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MineralExtractorBE>> MINERAL_EXTRACTOR = BLOCK_ENTITIES.register(
             "mineral_extractor", () -> BlockEntityType.Builder.of(MineralExtractorBE::new, JDTEBlocks.MINERAL_EXTRACTOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LargeMineralExtractorBE>> LARGE_MINERAL_EXTRACTOR = BLOCK_ENTITIES.register(
+            "large_mineral_extractor", () -> BlockEntityType.Builder.of(LargeMineralExtractorBE::new, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get()).build(null));
 
     // Life Extractor
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedLifeExtractorBE>> ADVANCED_LIFE_EXTRACTOR = BLOCK_ENTITIES.register(

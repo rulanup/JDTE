@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["CMC", "MVM", "CMC"],
+  "key": {
+    "C": { "item": "justdirethings:celestigem" },
+    "M": { "item": "jdte:mineral_extractor" },
+    "V": { "item": "jdte:life_synthesis_vat" }
+  },
+  "result": { "id": "jdte:large_mineral_extractor", "count": 1 }
+}

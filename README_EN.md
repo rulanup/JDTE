@@ -63,7 +63,8 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Infusion Machine | Processes gel, item, and dynamic spawn-egg infusion recipes; with Productive Bees, one Egg, 64 B of Life Fluid, and 1,000,000 FE create a Life Fluid Bee |
 | Advanced Potion Brewer | Ordered six-step brewing with recipe locking, water and Time Fluid, auto I/O, a separate external Blaze Powder input toggle, and JEI brewing chains |
 | Loot Fabricator | Uses spawn egg templates, Life Fluid, Time Fluid, and FE to manufacture mob loot |
-| Mineral Extractor | Produces ore blocks in weighted batches from its local biome or a Mineral Survey; supports Experience/Time Fluid, filtering, paged outputs, auto I/O, and 1024x overclocking |
+| Mineral Extractor | Produces weighted ore batches from its local biome or a Mineral Survey; supports Experience/Time Fluid, smelting, filtering, paged outputs, auto I/O, and adjustable operation up to 64x |
+| Large Mineral Extractor | A 3×3×2 multiblock with its controller at the front-center of the bottom layer; merges up to four Mineral Surveys, has four times the standard extractor's base throughput, and exposes capabilities and auto I/O only through outer structure parts |
 
 ### Automatic I/O
 

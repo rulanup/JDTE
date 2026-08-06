@@ -4,15 +4,18 @@ import com.jdte.JDTE;
 import com.jdte.client.entityrenders.TimeAcceleratorEffectRenderer;
 import com.jdte.client.renderers.AdvancedEnergyTransmitterBER;
 import com.jdte.client.renderers.AdvancedItemCollectorBER;
+import com.jdte.client.renderers.MineralExtractorBER;
 import com.jdte.client.renderers.TimeAcceleratorBER;
 import com.jdte.client.screens.*;
 import com.jdte.common.items.FactoryPackageItem;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEEntities;
 import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,6 +23,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 @EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class JDTEClientSetup {
@@ -86,6 +90,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.BIO_FACTORY.get(), BioFactoryScreen::new);
         event.register(JDTEMenus.LIFE_BREEDER.get(), LifeBreederScreen::new);
         event.register(JDTEMenus.MINERAL_EXTRACTOR.get(), MineralExtractorScreen::new);
+        event.register(JDTEMenus.LARGE_MINERAL_EXTRACTOR.get(), MineralExtractorScreen::new);
         event.register(JDTEMenus.LIFE_SYNTHESIS_VAT.get(), LifeSynthesisScreen::new);
 
         // Fluid Receivers
@@ -111,6 +116,11 @@ public class JDTEClientSetup {
 
         // Advanced Energy Transmitter
         event.register(JDTEMenus.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener((ResourceManagerReloadListener) GuiUpgradeLayoutConfig::reload);
     }
 
     @SubscribeEvent
@@ -168,6 +178,8 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.GREENHOUSE.get(), com.jdte.client.renderers.GreenhouseBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.LARGE_GREENHOUSE.get(), com.jdte.client.renderers.LargeGreenhouseBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.BIO_FACTORY.get(), com.jdte.client.renderers.BioFactoryBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.MINERAL_EXTRACTOR.get(), MineralExtractorBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.LARGE_MINERAL_EXTRACTOR.get(), MineralExtractorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.LIFE_BREEDER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.LIFE_SYNTHESIS_VAT.get(), com.jdte.client.renderers.LifeSynthesisVatBER::new);
 

@@ -17,6 +17,19 @@ class MineralProductionEngineTest {
     private static final MineralEntry GOLD = entry("gold_ore", 1L);
 
     @Test
+    void mergesDuplicateSurveyMineralsWithSaturatingWeights() {
+        List<MineralEntry> merged = MineralProductionEngine.mergeWeightedEntries(List.of(
+                entry("copper_ore", 3L),
+                entry("iron_ore", 2L),
+                entry("copper_ore", 7L),
+                entry("iron_ore", Long.MAX_VALUE)));
+
+        assertEquals(2, merged.size());
+        assertEquals(10L, merged.get(0).weight());
+        assertEquals(Long.MAX_VALUE, merged.get(1).weight());
+    }
+
+    @Test
     void distributesWholeBatchWithoutLosingCycles() {
         MineralProductionEngine.Batch batch = MineralProductionEngine.distribute(
                 List.of(COPPER, IRON, GOLD), 1_024L, 1_024L, 0, RandomSource.create(7L));
@@ -60,11 +73,70 @@ class MineralProductionEngineTest {
     }
 
     @Test
+    void appliesBlacklistAndAllowlistSemantics() {
+        assertTrue(MineralProductionEngine.allowsListedCandidate(false, false, false));
+        assertTrue(MineralProductionEngine.allowsListedCandidate(false, true, false));
+        org.junit.jupiter.api.Assertions.assertFalse(
+                MineralProductionEngine.allowsListedCandidate(false, true, true));
+        assertTrue(MineralProductionEngine.allowsListedCandidate(true, true, true));
+        org.junit.jupiter.api.Assertions.assertFalse(
+                MineralProductionEngine.allowsListedCandidate(true, true, false));
+    }
+
+    @Test
+    void scalesCachedRecipeOutputsWithoutOverflow() {
+        assertEquals(2L, MineralProductionEngine.scaleOutput(1L, 2));
+        assertEquals(128L, MineralProductionEngine.scaleOutput(64L, 2));
+        assertEquals(Long.MAX_VALUE, MineralProductionEngine.scaleOutput(Long.MAX_VALUE, 2));
+        assertEquals(0L, MineralProductionEngine.scaleOutput(64L, 0));
+    }
+
+    @Test
     void accumulatesVirtualWorkWithOverflowAndQueueCaps() {
         assertEquals(1_024L, MineralProductionEngine.accumulateWork(0L, 1L, 1_024L, 8_192L));
         assertEquals(8_192L, MineralProductionEngine.accumulateWork(8_000L, 10L, 1_024L, 8_192L));
         assertEquals(Long.MAX_VALUE, MineralProductionEngine.accumulateWork(
                 Long.MAX_VALUE - 1L, Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE));
+    }
+
+    @Test
+    void scalesEverySelectedMultiplierFromTheNewSixtyFourTimesBaseline() {
+        MineralProductionEngine.WorkAllocation oneX = MineralProductionEngine.workForTick(1, 64L, true);
+        assertEquals(64L, oneX.baseWork());
+        assertEquals(0L, oneX.acceleratedWork());
+        assertEquals(64L, oneX.totalWork());
+
+        MineralProductionEngine.WorkAllocation thirtyTwoX = MineralProductionEngine.workForTick(32, 64L, true);
+        assertEquals(64L, thirtyTwoX.baseWork());
+        assertEquals(1_984L, thirtyTwoX.acceleratedWork());
+        assertEquals(2_048L, thirtyTwoX.totalWork());
+
+        MineralProductionEngine.WorkAllocation unavailable = MineralProductionEngine.workForTick(32, 64L, false);
+        assertEquals(64L, unavailable.totalWork());
+    }
+
+    @Test
+    void settlesAsSoonAsAProductionCycleIsReady() {
+        assertTrue(MineralProductionEngine.shouldSettle(0L, 32L, 20L, 1, 20));
+        assertTrue(MineralProductionEngine.shouldSettle(10L, 10L, 20L, 1, 20));
+        assertTrue(MineralProductionEngine.shouldSettle(1L, 0L, 20L, 20, 20));
+        org.junit.jupiter.api.Assertions.assertFalse(
+                MineralProductionEngine.shouldSettle(1L, 0L, 20L, 1, 20));
+    }
+
+    @Test
+    void allocatesOnlySettledCyclesAndPreservesUnsettledBacklog() {
+        MineralProductionEngine.CycleAllocation baseOnly = MineralProductionEngine.allocateCycles(100L, 200L, 64L);
+        assertEquals(64L, baseOnly.baseCycles());
+        assertEquals(0L, baseOnly.acceleratedCycles());
+        assertEquals(36L, 100L - baseOnly.baseCycles());
+        assertEquals(200L, 200L - baseOnly.acceleratedCycles());
+
+        MineralProductionEngine.CycleAllocation mixed = MineralProductionEngine.allocateCycles(20L, 100L, 64L);
+        assertEquals(20L, mixed.baseCycles());
+        assertEquals(44L, mixed.acceleratedCycles());
+        assertEquals(64L, mixed.totalCycles());
+        assertEquals(56L, 100L - mixed.acceleratedCycles());
     }
 
     @Test

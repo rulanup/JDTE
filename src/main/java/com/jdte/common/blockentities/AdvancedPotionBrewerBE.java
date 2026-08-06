@@ -865,9 +865,6 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     private void syncFluidCapacity(JDTEFluidTank tank, int capacity) {
         if (tank instanceof FluidTankAccessor accessor) {
             accessor.jdte$setCapacity(capacity);
-            if (tank.getFluidAmount() > capacity) {
-                tank.getFluid().setAmount(capacity);
-            }
         }
     }
 

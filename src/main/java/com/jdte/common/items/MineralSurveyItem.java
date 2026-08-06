@@ -70,7 +70,7 @@ public final class MineralSurveyItem extends Item {
         }
         MineralSurveyIndex.Profile profile = MineralSurveyIndex.profile(level, biome);
         if (profile.entries().isEmpty()) {
-            player.displayClientMessage(Component.translatable("message.jdte.mineral_survey.empty", biomeId), true);
+            player.displayClientMessage(Component.translatable("message.jdte.mineral_survey.empty", biomeId.toString()), true);
             return;
         }
 
@@ -78,7 +78,7 @@ public final class MineralSurveyItem extends Item {
                 profile.version(), biomeId, level.dimension().location(), profile.entries());
         stack.set(JDTEDataComponents.MINERAL_SURVEY.get(), recorded);
         player.displayClientMessage(Component.translatable(
-                "message.jdte.mineral_survey.recorded", biomeId, recorded.entries().size()), true);
+                "message.jdte.mineral_survey.recorded", biomeId.toString(), recorded.entries().size()), true);
     }
 
     @Override
@@ -96,7 +96,7 @@ public final class MineralSurveyItem extends Item {
             return;
         }
 
-        lines.add(Component.translatable("tooltip.jdte.mineral_survey.source", survey.biomeId())
+        lines.add(Component.translatable("tooltip.jdte.mineral_survey.source", survey.biomeId().toString())
                 .withStyle(ChatFormatting.AQUA));
         long totalWeight = survey.totalWeight();
         survey.entries().stream().limit(TOOLTIP_ENTRY_LIMIT).forEach(entry -> lines.add(

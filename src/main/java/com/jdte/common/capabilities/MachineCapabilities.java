@@ -24,6 +24,7 @@ import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blocks.LargeGreenhousePartBlock;
+import com.jdte.common.blocks.LargeMineralExtractorPartBlock;
 import com.jdte.common.blocks.LifeSynthesisPartBlock;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
@@ -111,6 +112,20 @@ public final class MachineCapabilities {
                     ? part.getController(level, pos, state).getCombinedFluidHandler() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> LIFE_SYNTHESIS_PART_ITEMS =
             (level, pos, state, be, side) -> state.getBlock() instanceof LifeSynthesisPartBlock part
+                    && part.getController(level, pos, state) != null
+                    ? part.getController(level, pos, state).getAutomationItemHandler() : null;
+
+    /** 大型矿物提取机部件：将自动化能力转发到控制器。 */
+    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> LARGE_MINERAL_EXTRACTOR_PART_ENERGY =
+            (level, pos, state, be, side) -> state.getBlock() instanceof LargeMineralExtractorPartBlock part
+                    && part.getController(level, pos, state) != null
+                    ? part.getController(level, pos, state).getEnergyStorage() : null;
+    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LARGE_MINERAL_EXTRACTOR_PART_FLUID =
+            (level, pos, state, be, side) -> state.getBlock() instanceof LargeMineralExtractorPartBlock part
+                    && part.getController(level, pos, state) != null
+                    ? part.getController(level, pos, state).getCombinedFluidHandler() : null;
+    private static final IBlockCapabilityProvider<IItemHandler, Direction> LARGE_MINERAL_EXTRACTOR_PART_ITEMS =
+            (level, pos, state, be, side) -> state.getBlock() instanceof LargeMineralExtractorPartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getAutomationItemHandler() : null;
 
@@ -249,6 +264,10 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.LIFE_BREEDER, energy(POWERED_ENERGY), fluid(LIFE_BREEDER_FLUID), items(LIFE_BREEDER_ITEMS)),
             machine(JDTEBlocks.LOOT_FABRICATOR, energy(POWERED_ENERGY), fluid(LOOT_FABRICATOR_FLUID), items(LOOT_FABRICATOR_ITEMS)),
             machine(JDTEBlocks.MINERAL_EXTRACTOR, energy(POWERED_ENERGY), fluid(MINERAL_EXTRACTOR_FLUID), items(MINERAL_EXTRACTOR_ITEMS)),
+            machine(JDTEBlocks.LARGE_MINERAL_EXTRACTOR, energy(POWERED_ENERGY),
+                    fluid(MINERAL_EXTRACTOR_FLUID), items(MINERAL_EXTRACTOR_ITEMS)),
+            machine(JDTEBlocks.LARGE_MINERAL_EXTRACTOR_PART, energy(LARGE_MINERAL_EXTRACTOR_PART_ENERGY),
+                    fluid(LARGE_MINERAL_EXTRACTOR_PART_FLUID), items(LARGE_MINERAL_EXTRACTOR_PART_ITEMS)),
             machine(JDTEBlocks.ADVANCED_POTION_BREWER, energy(POWERED_ENERGY), fluid(POTION_BREWER_FLUID), items(POTION_BREWER_ITEMS)),
 
             // --- Advanced Energy Transmitter ---

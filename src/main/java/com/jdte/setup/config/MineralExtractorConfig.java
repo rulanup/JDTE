@@ -40,9 +40,9 @@ public final class MineralExtractorConfig {
         defaultMultiplier = builder.translation("config.jdte.jdte.mineralExtractor.defaultMultiplier")
                 .defineInRange("defaultMultiplier", 1, 1, 1024);
         maxMultiplier = builder.translation("config.jdte.jdte.mineralExtractor.maxMultiplier")
-                .defineInRange("maxMultiplier", 32, 1, 1024);
+                .defineInRange("maxMultiplier", 32, 1, 32);
         overclockMaxMultiplier = builder.translation("config.jdte.jdte.mineralExtractor.overclockMaxMultiplier")
-                .defineInRange("overclockMaxMultiplier", 1024, 1, 1024);
+                .defineInRange("overclockMaxMultiplier", 64, 1, 64);
         maxCyclesPerSettlement = builder.translation("config.jdte.jdte.mineralExtractor.maxCyclesPerSettlement")
                 .defineInRange("maxCyclesPerSettlement", 65_536, 1, 10_000_000);
         maxPendingWork = builder.translation("config.jdte.jdte.mineralExtractor.maxPendingWork")

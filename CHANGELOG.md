@@ -4,13 +4,18 @@
 
 #### v0.5.7 (Current)
 
-- **New**: Added Mineral Surveys and the Mineral Extractor with reload-cached biome ore profiles, normalized estimated weights, datapack overrides, Experience/Time Fluid, filtering, paged outputs, auto I/O, and coalesced 1024x production.
+- **New**: Added Mineral Surveys and the Mineral Extractor with reload-cached biome ore profiles, normalized estimated weights, datapack overrides, Experience/Time Fluid, smelting, filtering, paged outputs, auto I/O, and coalesced production up to 64x.
+- **New**: Added the 3×3×2 Large Mineral Extractor with four merged Mineral Survey slots and four times the standard machine's base throughput. Its 17 stateless structure parts provide O(1) controller routing, while capabilities and auto I/O are restricted to the structure's outer boundary.
 - **Architecture**: Standard ore placement is analyzed through public codecs without reflection; machine ticks only query the server index, and custom features can be declared through `jdte/mineral_sources` datapack entries.
 - **Safety**: Production simulates complete output batches before charging resources, while stale surveys stop until recorded again.
 - **New**: Added the Advanced Energy Transmitter with eight upgrade slots, configurable 3D FE delivery, filtering, player binding, and JDT-style rendering and controls.
 - **Performance**: Added bounded incremental target scans, persistent capability caching, fair round-robin demand batching, and overclock-scaled throughput without additional scans or target attempts.
 - **Compatibility**: Added public-API Applied Flux ME energy extraction, cross-dimensional charging for bound players' vanilla and Curios equipment, and Jade network/player status.
-- **GUI**: JEI and EMI now avoid JDTE machine extension panels, and Advanced Energy Transmitter status text is smaller and repositioned.
+- **GUI/Models**: JEI and EMI now avoid JDTE extension panels; Advanced Energy Transmitter status text was refined; Mineral Survey and both extractor interfaces were redesigned; and the Large Mineral Extractor now uses an open industrial drilling-platform model with a complete inventory/GuideME preview.
+- **Fixed**: Time Wand acceleration no longer leaves temporary Mineral Extractor work running on later normal ticks.
+- **Fixed**: Large multiblock controllers and parts now expose and invalidate item, fluid, and energy capabilities correctly; bucket interaction also works through their parts and on the Crystal Incubator.
+- **Fixed**: Fluid-capacity reductions preserve over-capacity contents until consumed, and container/Clicker transfers return any amount not accepted by the destination.
+- **Fixed**: Client-only loot and spawn-egg sync handlers no longer risk loading client classes on dedicated servers.
 
 #### v0.5.6
 
@@ -163,13 +168,18 @@
 
 #### v0.5.7(当前)
 
-- **新增**：加入矿物清单与矿物提取机。群系矿物配置在数据包重载时缓存，支持归一化估算权重、数据包覆盖、经验/时间双流体、过滤、分页输出、自动 I/O 和合并式 1024x 生产。
+- **新增**：加入矿物清单与矿物提取机。群系矿物配置在数据包重载时缓存，支持归一化估算权重、数据包覆盖、经验/时间双流体、烧炼、过滤、分页输出、自动 I/O 和最高 64x 的合并式生产。
+- **新增**：加入 3×3×2 大型矿物提取机，提供 4 个合并权重的矿物清单槽，基础产能为普通矿机 4 倍。17 个无状态结构部件以 O(1) 方式定位控制器，能力与自动 I/O 仅通过结构外边界提供。
 - **架构**：标准矿石放置仅通过公开 Codec 分析，不使用反射；机器 Tick 只查询服务器索引，自定义 Feature 可通过 `jdte/mineral_sources` 数据包条目声明。
 - **安全**：生产前模拟完整输出批次，成功后才扣除资源；过期清单会停机，重新记录后方可继续。
 - **新增**：加入高级能量传输器，提供 8 个升级槽，支持可配置三维 FE 输送、过滤、玩家绑定及 JDT 风格的渲染和操作。
 - **性能**：采用有界增量目标扫描、能力缓存、公平轮询和批量需求处理；超频仅提高传输预算，不增加扫描或目标尝试次数。
 - **兼容**：加入可选的 Applied Flux ME 网络取电、绑定玩家跨维度原版与 Curios 装备充电，以及 Jade 网络和玩家状态显示。
-- **GUI**：JEI 和 EMI 现在会避让 JDTE 机器扩展面板，并缩小和调整高级能量传输器状态文字。
+- **界面/模型**：JEI 与 EMI 现在会避让 JDTE 扩展面板；优化高级能量传输器状态文字；重做矿物清单及两种矿机界面；大型矿物提取机改用开放式工业钻探平台模型，并提供完整的物品栏/GuideME 整机预览。
+- **修复**：时间手杖的临时加速工作不再残留到矿物提取机后续正常 Tick。
+- **修复**：大型多方块控制器与部件现在会正确提供并刷新物品、流体和能量能力；其结构部件及水晶培育机也支持流体桶交互。
+- **修复**：流体容量降低时保留超出容量的已有流体，容器与点击器流体转移会回填目标未接收的余量。
+- **修复**：战利品与刷怪蛋客户端同步处理不再导致专用服务器加载客户端类。
 
 #### v0.5.6
 

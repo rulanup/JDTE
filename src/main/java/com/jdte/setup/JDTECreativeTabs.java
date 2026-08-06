@@ -84,6 +84,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.BIO_FACTORY.get());
                 output.accept(JDTEItems.LIFE_BREEDER.get());
                 output.accept(JDTEItems.MINERAL_EXTRACTOR.get());
+                output.accept(JDTEItems.LARGE_MINERAL_EXTRACTOR.get());
 
                 // Fluid Receivers
                 output.accept(JDTEItems.BASIC_FLUID_RECEIVER.get());

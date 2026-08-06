@@ -607,7 +607,6 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
     private static void setTankCapacity(JDTEFluidTank tank, int capacity) {
         if (tank instanceof com.jdte.mixin.FluidTankAccessor accessor) {
             accessor.jdte$setCapacity(capacity);
-            if (tank.getFluidAmount() > capacity) tank.getFluid().setAmount(capacity);
         }
     }
 

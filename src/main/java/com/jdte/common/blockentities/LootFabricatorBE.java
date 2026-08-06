@@ -401,7 +401,6 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     private void syncTankCapacity(JDTEFluidTank tank, int capacity) {
         if (tank instanceof FluidTankAccessor accessor) {
             accessor.jdte$setCapacity(capacity);
-            if (tank.getFluidAmount() > capacity) tank.getFluid().setAmount(capacity);
         }
     }
 

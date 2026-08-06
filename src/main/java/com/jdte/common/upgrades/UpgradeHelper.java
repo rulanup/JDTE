@@ -56,7 +56,20 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgrade(ItemStack stack) {
-        return stack.getItem() instanceof UpgradeCardItem;
+        return stack.getItem() instanceof UpgradeCardItem || isSmelterUpgrade(stack);
+    }
+
+    public static boolean isSmelterUpgrade(ItemStack stack) {
+        return stack.is(com.direwolf20.justdirethings.setup.Registration.UPGRADE_SMELTER.get());
+    }
+
+    public static boolean hasSmelterUpgrade(BaseMachineBE machine) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return false;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (isSmelterUpgrade(handler.getStackInSlot(slot))) return true;
+        }
+        return false;
     }
 
     public static boolean isUpgrade(ItemStack stack, UpgradeType type) {
@@ -302,9 +315,6 @@ public class UpgradeHelper {
             int capacity = fluidMachine.getMaxMB();
             if (tank instanceof FluidTankAccessor accessor) {
                 accessor.jdte$setCapacity(capacity);
-                if (tank.getFluidAmount() > capacity) {
-                    tank.getFluid().setAmount(capacity);
-                }
             }
         }
 
@@ -317,9 +327,6 @@ public class UpgradeHelper {
         int capacity = Math.max(UpgradeItemStackHandler.BASE_CLICKER_FLUID_CAPACITY, getClickerFluidCapacity(machine));
         if (tank instanceof FluidTankAccessor accessor) {
             accessor.jdte$setCapacity(capacity);
-            if (tank.getFluidAmount() > capacity) {
-                tank.getFluid().setAmount(capacity);
-            }
         }
     }
 
@@ -351,8 +358,17 @@ public class UpgradeHelper {
         }
 
         FluidStack extracted = tank.drain(insertAmount, IFluidHandler.FluidAction.EXECUTE);
-        if (!extracted.isEmpty()) {
-            itemFluidHandler.fill(extracted, IFluidHandler.FluidAction.EXECUTE);
+        if (extracted.isEmpty()) {
+            return;
+        }
+
+        int filled = itemFluidHandler.fill(extracted, IFluidHandler.FluidAction.EXECUTE);
+        if (filled < extracted.getAmount()) {
+            FluidStack remainder = extracted.copy();
+            remainder.setAmount(extracted.getAmount() - Math.max(0, filled));
+            tank.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
+        }
+        if (filled > 0) {
             itemHandler.setStackInSlot(0, itemFluidHandler.getContainer());
             machine.setChanged();
         }

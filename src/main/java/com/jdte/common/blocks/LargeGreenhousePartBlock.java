@@ -67,7 +67,8 @@ public class LargeGreenhousePartBlock extends Block {
         BlockPos controllerPos = getControllerPos(pos, state);
         BlockState controllerState = level.getBlockState(controllerPos);
         if (!controllerState.is(JDTEBlocks.LARGE_GREENHOUSE.get())) return ItemInteractionResult.FAIL;
-        return FluidContainerTransfer.useItemOn(stack, controllerState, level, controllerPos, player, hand, hit);
+        return FluidContainerTransfer.useItemOn(
+                stack, level, pos, controllerPos, player, hand, hit);
     }
 
     @Override

@@ -646,9 +646,6 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         int capacity = getMaxMB();
         if (outputFluidTank instanceof FluidTankAccessor accessor) {
             accessor.jdte$setCapacity(capacity);
-            if (outputFluidTank.getFluidAmount() > capacity) {
-                outputFluidTank.getFluid().setAmount(capacity);
-            }
         }
     }
 

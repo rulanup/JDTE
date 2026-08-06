@@ -27,10 +27,11 @@ GUIDE_ALIASES = {
     "extended_sensor": "extended-machines",
     "extended_fluid_collector": "extended-machines",
     "extended_fluid_placer": "extended-machines",
+    "large_mineral_extractor": "mineral-extractor",
 }
 
 # Internal structure blocks are registered for world state, not as standalone machines.
-NON_GUIDE_BLOCKS = {"large_greenhouse_part", "life_synthesis_part"}
+NON_GUIDE_BLOCKS = {"large_greenhouse_part", "life_synthesis_part", "large_mineral_extractor_part"}
 
 TIER_PREFIXES = ("basic_", "advanced_", "extended_")
 
