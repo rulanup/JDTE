@@ -25,9 +25,11 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.LOOTING_UPGRADE.get());
                 output.accept(JDTEItems.SHARPNESS_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
-                output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
-                output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
-                output.accept(JDTEItems.FACTORY_PACKAGE.get());
+        output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
+        output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
+        output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
+        output.accept(JDTEItems.BIG_FLUID_TANK.get());
+        output.accept(JDTEItems.FACTORY_PACKAGE.get());
                 output.accept(JDTEItems.MINERAL_SURVEY.get());
 
                 // Time Accelerators

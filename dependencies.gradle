@@ -112,7 +112,7 @@ dependencies {
     localRuntime "curse.maven:apothic-enchanting-1063926:8107222"
     localRuntime "curse.maven:apothic-spawners-986583:7492121"
     localRuntime "curse.maven:apotheosis-313970:8182695"
-    localRuntime "curse.maven:enchantment-descriptions-250419:8240827"
+    localRuntime "curse.maven:enchantment-descriptions-250419:7039849"
     localRuntime "curse.maven:hostile-neural-networks-552574:8321864"
 
     // AE2 ecosystem (from WCWT)

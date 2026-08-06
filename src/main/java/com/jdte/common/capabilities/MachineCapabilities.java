@@ -208,8 +208,8 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.CRYSTAL_INCUBATOR, energy(POWERED_ENERGY), fluid(TIME_ACCELERATOR_TANK), items(MACHINE_ITEMS)),
 
             // --- 时间定格器 ---
-            machine(JDTEBlocks.TIME_FREEZER, fluid(FLUID_MACHINE_TANK)),
-            machine(JDTEBlocks.EXTENDED_TIME_FREEZER, fluid(FLUID_MACHINE_TANK)),
+            machine(JDTEBlocks.TIME_FREEZER, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),
+            machine(JDTEBlocks.EXTENDED_TIME_FREEZER, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),
 
             // --- 胶水激活器 ---
             machine(JDTEBlocks.BASIC_GLUE_ACTIVATOR, items(MACHINE_ITEMS)),

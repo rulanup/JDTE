@@ -13,6 +13,8 @@ import com.jdte.common.network.data.PotionBrewerRecipeLockPayload;
 import com.jdte.common.network.data.PotionBrewerRecipeLockSyncPayload;
 import com.jdte.common.network.data.PotionBrewerFuelInputPayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
+import com.jdte.common.network.data.TimeFreezerPayload;
+import com.jdte.common.network.data.UltimatePortalGunPayload;
 import com.jdte.common.network.data.WrenchAreaAdjustPayload;
 import com.jdte.common.network.data.WrenchAreaAdjustResultPayload;
 import com.jdte.common.network.data.WrenchAreaSelectionPayload;
@@ -50,6 +52,8 @@ import com.jdte.common.network.handler.LifeExtractorPacket;
 import com.jdte.common.network.handler.PotionBrewerRecipeLockPacket;
 import com.jdte.common.network.handler.PotionBrewerFuelInputPacket;
 import com.jdte.common.network.handler.TimeAcceleratorPacket;
+import com.jdte.common.network.handler.TimeFreezerPacket;
+import com.jdte.common.network.handler.UltimatePortalGunPacket;
 import com.jdte.common.network.handler.WrenchAreaAdjustPacket;
 import com.jdte.common.network.handler.WrenchAreaAdjustResultPacket;
 import com.jdte.common.network.handler.WrenchAreaSelectionPacket;
@@ -69,6 +73,8 @@ public class JDTEPacketHandler {
                 AdvancedEnergyTransmitterBindingPayload.STREAM_CODEC,
                 AdvancedEnergyTransmitterBindingPacket::handle);
         registrar.playToServer(TimeAcceleratorPayload.TYPE, TimeAcceleratorPayload.STREAM_CODEC, TimeAcceleratorPacket.get()::handle);
+        registrar.playToServer(TimeFreezerPayload.TYPE, TimeFreezerPayload.STREAM_CODEC, TimeFreezerPacket.get()::handle);
+        registrar.playToServer(UltimatePortalGunPayload.TYPE, UltimatePortalGunPayload.STREAM_CODEC, UltimatePortalGunPacket.get()::handle);
         registrar.playToServer(GelGeneratorPayload.TYPE, GelGeneratorPayload.STREAM_CODEC, GelGeneratorPacket.get()::handle);
         registrar.playToServer(LifeExtractorPayload.TYPE, LifeExtractorPayload.STREAM_CODEC, LifeExtractorPacket.get()::handle);
         registrar.playToServer(BioCrusherPayload.TYPE, BioCrusherPayload.STREAM_CODEC, BioCrusherPacket.get()::handle);

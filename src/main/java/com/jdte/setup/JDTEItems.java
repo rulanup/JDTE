@@ -2,6 +2,7 @@ package com.jdte.setup;
 
 import com.jdte.JDTE;
 import com.jdte.common.items.BossEssenceItem;
+import com.jdte.common.items.BigFluidTankItem;
 import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.FactoryPackageItem;
@@ -10,6 +11,7 @@ import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.MineralSurveyItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
+import com.jdte.common.items.UltimatePortalGunItem;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -37,6 +39,8 @@ public class JDTEItems {
     public static final DeferredHolder<Item, ExtendedUpgradeItem> EXTENDED_UPGRADE = ITEMS.register("extended_upgrade", ExtendedUpgradeItem::new);
     public static final DeferredHolder<Item, EclipseAlloyWrenchItem> ECLIPSEALLOY_WRENCH = ITEMS.register("eclipsealloy_wrench", EclipseAlloyWrenchItem::new);
     public static final DeferredHolder<Item, Item> TIME_FLUID_CATALYST = ITEMS.register("time_fluid_catalyst", () -> new Item(new Item.Properties()));
+    public static final DeferredHolder<Item, UltimatePortalGunItem> ULTIMATE_PORTAL_GUN = ITEMS.register("ultimate_portal_gun", UltimatePortalGunItem::new);
+    public static final DeferredHolder<Item, BigFluidTankItem> BIG_FLUID_TANK = ITEMS.register("big_fluid_tank", BigFluidTankItem::new);
     public static final DeferredHolder<Item, FactoryPackageItem> FACTORY_PACKAGE = ITEMS.register("factory_package", FactoryPackageItem::new);
     public static final DeferredHolder<Item, MineralSurveyItem> MINERAL_SURVEY = ITEMS.register("mineral_survey", MineralSurveyItem::new);
 

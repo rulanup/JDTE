@@ -33,6 +33,10 @@ public class JDTEClientSetup {
                 JDTEItems.FACTORY_PACKAGE.get(),
                 ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),
                 (stack, level, entity, seed) -> FactoryPackageItem.isFilled(stack) ? 1.0F : 0.0F));
+        event.enqueueWork(() -> ItemProperties.register(
+                JDTEItems.ULTIMATE_PORTAL_GUN.get(),
+                ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fullness"),
+                (stack, level, entity, seed) -> com.jdte.common.items.UltimatePortalGunItem.getFullness(stack)));
     }
 
     @SubscribeEvent

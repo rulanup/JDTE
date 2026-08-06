@@ -2,7 +2,15 @@
 
 ### English
 
-#### v0.5.7 (Current)
+#### v0.5.8 (Current)
+
+- **New**: Added the Time Freezer and Extended Time Freezer machines. They consume Time Fluid and FE to freeze the dimension's day/night cycle and (in the Overworld) the current weather. Two independent GUI toggles control time and weather freezing, redstone control is supported, the Creative upgrade waives all costs, and the permission-4 `/jdte timefreezer list` command reports every loaded machine with clickable teleport coordinates.
+- **New**: Added the Ultimate Portal Gun, an enhanced version of the JDT Advanced Portal Gun. It uses Portal Fluid with a 1000 B single large tank, unlimited teleport slots managed by a paginated radial menu (V key), slot editing with manual coordinates and dimension selection across the full server registry (including mod dimensions), per-slot fluid pricing (manual coordinates cost 10 B per block up to 500 B same-dimension and 1000 B cross-dimension; quick-added slots keep the original JDT distance rules), and a configurable teleport dimension blacklist.
+- **New**: Added the Big Fluid Tank with 1000 B capacity and the same behavior as the JDT Fluid Canister, plus a fourth fill mode (None / JDT / JDTE / All) for auto-filling inventory containers. A dedicated Curios "big_fluid_tank" slot is registered and auto-assigned to players.
+- **Changed**: Bumped NeoForge to 21.1.216; the Enchantment Descriptions dependency was pinned to a compatible build.
+- **Fixed**: Missing `justdirethings.fillmode.jdteonly` localization, JSON BOM corruption in the English language file, and a Crystal Incubator compile error on `ItemStack.is(TagKey)`.
+
+#### v0.5.7
 
 - **New**: Added Mineral Surveys and the Mineral Extractor with reload-cached biome ore profiles, normalized estimated weights, datapack overrides, Experience/Time Fluid, smelting, filtering, paged outputs, auto I/O, and coalesced production up to 64x.
 - **New**: Added the 3×3×2 Large Mineral Extractor with four merged Mineral Survey slots and four times the standard machine's base throughput. Its 17 stateless structure parts provide O(1) controller routing, while capabilities and auto I/O are restricted to the structure's outer boundary.
@@ -165,6 +173,14 @@
 ---
 
 ### 中文
+
+#### v0.5.8（当前）
+
+- **新增**：加入时间定格器与扩展时间定格器。消耗时间流体与 FE 定格所在维度的昼夜时间（主世界同时定格当前天气），界面提供两个独立开关分别控制时间与天气定格，支持红石控制，创造升级免除全部消耗；权限 4 的 `/jdte timefreezer list` 指令列出所有已加载机器并提供可点击传送坐标。
+- **新增**：加入顶级传送枪，为 JDT 高级传送枪的增强版。使用传送流体并配备 1000 B 单个大型储罐；传送槽位无上限，通过按 V 打开的分页轮盘管理；槽位编辑支持手动坐标与服务器注册表内全部维度（含模组维度）选择；按槽位计费（手动坐标槽同维度 10 B/米上限 500 B、跨维度 1000 B；快捷添加槽沿用 JDT 原距离规则）；并提供可配置的传送维度黑名单。
+- **新增**：加入大型流体储罐，容量 1000 B，操作逻辑与 JDT 原版流体罐一致，并新增第四档填充模式（关闭 / 仅 JDT / 仅 JDTE / 全部）自动填充背包容器；注册独立 Curios 饰品槽位 `big_fluid_tank` 并自动分配给玩家。
+- **变更**：NeoForge 升级到 21.1.216；附魔描述依赖固定为兼容版本。
+- **修复**：缺失的 `justdirethings.fillmode.jdteonly` 本地化、英文语言文件 BOM 损坏、水晶培育机 `ItemStack.is(TagKey)` 编译错误。
 
 #### v0.5.7(当前)
 

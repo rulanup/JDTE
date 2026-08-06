@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IGI",
+    "GFG",
+    "IGI"
+  ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "G": { "item": "minecraft:glass" },
+    "F": { "item": "jdte:time_fluid_catalyst" }
+  },
+  "result": { "id": "jdte:big_fluid_tank" }
+}

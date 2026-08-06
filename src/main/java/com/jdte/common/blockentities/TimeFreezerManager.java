@@ -18,7 +18,8 @@ import java.util.Set;
  *
  * <p>所有已加载的时间定格器在此注册；每 tick 由激活的定格器驱动全局冻结状态。
  * 冻结目标按维度记录：第一个激活的定格器记录当时的昼夜时间和（主世界）天气，
- * 之后所有激活的定格器都把世界状态拉回该目标，避免多台机器互相覆盖导致时间跳变。</p>
+ * 之后所有激活的定格器都把世界状态拉回该目标，避免多台机器互相覆盖导致时间跳变。
+ * 时间与天气两个冻结目标相互独立，可分别由机器上的两个开关控制。</p>
  */
 public final class TimeFreezerManager {
     private static final Set<TimeFreezerBE> REGISTERED = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -43,24 +44,41 @@ public final class TimeFreezerManager {
         }
     }
 
-    /** 由服务端 tickServer 调用：定格器已支付流体，需要保持世界冻结。 */
+    /** 由服务端 tickServer 调用：定格器已支付资源，需要保持世界冻结。 */
     public static void activate(TimeFreezerBE freezer, ServerLevel serverLevel) {
         ACTIVE.add(freezer);
         ResourceKey<Level> dimension = serverLevel.dimension();
-        if (!FROZEN_DAY_TIME.containsKey(dimension)) {
+        if (freezer.isTimeFreezeEnabled() && !FROZEN_DAY_TIME.containsKey(dimension)) {
             FROZEN_DAY_TIME.put(dimension, serverLevel.getDayTime());
         }
-        if (dimension == Level.OVERWORLD && !FROZEN_WEATHER.containsKey(dimension)) {
+        if (freezer.isWeatherFreezeEnabled() && dimension == Level.OVERWORLD
+                && !FROZEN_WEATHER.containsKey(dimension)) {
             FROZEN_WEATHER.put(dimension, FrozenWeather.capture(serverLevel));
         }
         apply(serverLevel);
     }
 
-    /** 由服务端 tickServer 调用：定格器因红石或流体不足停止工作。 */
+    /** 由服务端 tickServer 调用：定格器因开关、红石或资源不足停止工作。 */
     public static void deactivate(TimeFreezerBE freezer) {
         if (ACTIVE.remove(freezer)) {
             cleanupDimension(freezer.getLevel());
         }
+    }
+
+    /** 机器的天气开关变化时重新评估冻结目标（仍活跃时）。 */
+    public static void refreshActive(TimeFreezerBE freezer, ServerLevel serverLevel) {
+        if (!ACTIVE.contains(freezer)) {
+            return;
+        }
+        ResourceKey<Level> dimension = serverLevel.dimension();
+        if (freezer.isWeatherFreezeEnabled() && dimension == Level.OVERWORLD
+                && !FROZEN_WEATHER.containsKey(dimension)) {
+            FROZEN_WEATHER.put(dimension, FrozenWeather.capture(serverLevel));
+        }
+        if (!freezer.isWeatherFreezeEnabled() && dimension == Level.OVERWORLD) {
+            cleanupDimension(serverLevel);
+        }
+        apply(serverLevel);
     }
 
     public static boolean isActive(TimeFreezerBE freezer) {
@@ -109,10 +127,14 @@ public final class TimeFreezerManager {
             return;
         }
         ResourceKey<Level> dimension = level.dimension();
-        boolean anyActive = ACTIVE.stream()
-                .anyMatch(freezer -> freezer.getLevel() != null && freezer.getLevel().dimension() == dimension);
-        if (!anyActive) {
+        boolean anyTime = ACTIVE.stream().anyMatch(freezer -> freezer.getLevel() != null
+                && freezer.getLevel().dimension() == dimension && freezer.isTimeFreezeEnabled());
+        if (!anyTime) {
             FROZEN_DAY_TIME.remove(dimension);
+        }
+        boolean anyWeather = ACTIVE.stream().anyMatch(freezer -> freezer.getLevel() != null
+                && freezer.getLevel().dimension() == dimension && freezer.isWeatherFreezeEnabled());
+        if (!anyWeather) {
             FROZEN_WEATHER.remove(dimension);
         }
     }

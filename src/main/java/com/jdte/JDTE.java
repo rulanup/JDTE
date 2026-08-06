@@ -20,6 +20,14 @@ import com.jdte.common.blockentities.RangeBlockerManager;
 import com.jdte.common.blockentities.TimeFreezerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
+import com.jdte.common.items.UltimatePortalGunItem;
+import com.jdte.setup.JDTEItems;
+import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemstack;
+import com.direwolf20.justdirethings.setup.Registration;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySources;
 import com.jdte.common.minerals.MineralSourceReloadListener;
 import com.jdte.common.minerals.MineralSurveyIndex;
@@ -103,6 +111,7 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtEntity);
         NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
+        NeoForge.EVENT_BUS.addListener(com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration::onPlayerLoggedIn);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
         }
@@ -138,7 +147,30 @@ public class JDTE {
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         MachineCapabilities.register(event);
-        AdvancedEnergyTransmitterEnergySources.registerCapabilities(event);
+        event.registerItem(Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidHandlerItemStack(
+                        com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
+                        stack, JDTEConfig.COMMON.ultimatePortalGun.ultimatePortalGunFluidCapacity.get()) {
+                    @Override
+                    public boolean isFluidValid(int tank, FluidStack fluid) {
+                        return fluid.is(Registration.PORTAL_FLUID_TYPE.get());
+                    }
+
+                    @Override
+                    public boolean canFillFluidType(FluidStack fluid) {
+                        return fluid.is(Registration.PORTAL_FLUID_TYPE.get());
+                    }
+                },
+                JDTEItems.ULTIMATE_PORTAL_GUN.get());
+        event.registerItem(Capabilities.EnergyStorage.ITEM,
+                (stack, context) -> new EnergyStorageItemstack(
+                        JDTEConfig.COMMON.ultimatePortalGun.ultimatePortalGunEnergyCapacity.get(), stack),
+                JDTEItems.ULTIMATE_PORTAL_GUN.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidHandlerItemStack(
+                        com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
+                        stack, com.jdte.common.items.BigFluidTankItem.MAX_MB),
+                JDTEItems.BIG_FLUID_TANK.get());
     }
 
     public static ResourceLocation id(String path) {

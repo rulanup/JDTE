@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.5.7` |
+| Current version | `0.5.8` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.215+` |
 | Just Dire Things | `1.5.7+` |
@@ -19,6 +19,8 @@ Major features:
 - 13 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting, and Sharpness.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Time Freezer and Extended Time Freezer machines that consume Time Fluid to freeze a dimension's day/night cycle and weather, plus the permission-4 `/jdte timefreezer list` command for server operators.
+- Ultimate Portal Gun (`jdte:ultimate_portal_gun`): a JDT Advanced Portal Gun enhancement with a 1000 B single large Portal Fluid tank, unlimited teleport slots in a paginated radial menu (V key), manual coordinate editing with full server dimension selection, and per-slot fluid pricing.
+- Big Fluid Tank (`jdte:big_fluid_tank`): a 1000 B fluid tank with JDT Fluid Canister behavior, a fourth fill mode (None / JDT / JDTE / All), and a dedicated Curios `big_fluid_tank` slot.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
 - Advanced Item Collector with eight upgrade slots, event-driven pre-spawn collection, bounded existing-drop scans, and capacity-triggered direct ME insertion without item-flow particles.
@@ -406,6 +408,14 @@ Recommended order:
 | Recipe is unavailable | Invalid recipe path or JSON | Check `data/jdte/recipe/{name}.json` |
 
 ## Version History
+
+### v0.5.8
+
+- Time Freezer machines now consume FE alongside Time Fluid, and their GUI exposes two independent toggles (time freeze / weather freeze); the Creative upgrade waives both costs.
+- Added the Ultimate Portal Gun (`jdte:ultimate_portal_gun`): an enhanced JDT Advanced Portal Gun with a 1000 B single large Portal Fluid tank, unlimited teleport slots in a paginated radial menu (V key, pages auto-create/auto-recycle), manual coordinate editing with dimension selection across the full server registry, per-slot fluid pricing (manual slots: 10 B/block same-dimension capped at 500 B, 1000 B cross-dimension; quick-added slots keep JDT distance rules), and a configurable teleport dimension blacklist.
+- Added the Big Fluid Tank (`jdte:big_fluid_tank`): 1000 B capacity with JDT Fluid Canister behavior plus a fourth fill mode (None / JDT / JDTE / All), a dedicated Curios `big_fluid_tank` slot auto-assigned to players, and login fallback that ensures the slot exists on legacy saves.
+- Bumped NeoForge to 21.1.216; pinned Enchantment Descriptions to a compatible build.
+- Fixed the missing `justdirethings.fillmode.jdteonly` localization, an English language file BOM corruption, and a Crystal Incubator compile error on `ItemStack.is(TagKey)`.
 
 ### v0.5.6
 
