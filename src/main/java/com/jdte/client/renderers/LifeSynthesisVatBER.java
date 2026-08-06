@@ -21,8 +21,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
  * 生命合成舱纯客户端展示：观察窗进度液柱、中央培养基物品、养分输入流和生命流体输出流。
@@ -86,8 +86,7 @@ public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVat
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableCull();
         PoseStack.Pose pose = poseStack.last();
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         if (height > 0.0F) {
             double windowX = 0.5D + facing.getStepX() * OFFSET;
@@ -121,7 +120,7 @@ public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVat
                     Math.abs(right.getStepZ()) * 0.62D + 0.075D, LIFE_FLUID_COLOR);
         }
 
-        BufferUploader.drawWithShader(buffer.end());
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
     }
@@ -181,22 +180,15 @@ public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVat
         // 3x3x2 结构中心在控制器向后一格：光束从结构底面中心垂直向上
         poseStack.translate(-facing.getStepX(), 0, -facing.getStepZ());
         BeaconRenderer.renderBeaconBeam(poseStack, buffers, BeaconRenderer.BEAM_LOCATION, partialTick, 1.0F,
-                gameTime, 0, BEAM_HEIGHT, beaconColor(color), BEAM_RADIUS, BEAM_GLOW_RADIUS);
+                gameTime, 0, BEAM_HEIGHT, color, BEAM_RADIUS, BEAM_GLOW_RADIUS);
         poseStack.popPose();
     }
 
     private static void addVertex(BufferBuilder buffer, PoseStack.Pose pose, double x, double y, double z, int color) {
-        buffer.vertex(pose.pose(), (float) x, (float) y, (float) z).color(color).endVertex();
+        buffer.addVertex(pose.pose(), (float) x, (float) y, (float) z).setColor(color);
     }
 
-    private static float[] beaconColor(int color) {
-        return new float[]{
-                (color >> 16 & 255) / 255.0F,
-                (color >> 8 & 255) / 255.0F,
-                (color & 255) / 255.0F
-        };
-    }
-
+    @Override
     public AABB getRenderBoundingBox(LifeSynthesisVatBE vat) {
         BlockPos pos = vat.getBlockPos();
         return new AABB(pos).inflate(2.0D, 1.0D, 2.0D);

@@ -1,158 +1,171 @@
 package com.jdte.common.recipes;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.jdte.setup.JDTERecipes;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.inventory.CraftingContainer;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
-import java.util.function.ToIntFunction;
 
+/**
+ * 生命合成舱配方：若干培养基（物品）+ 养分流体 -> 生命流体。
+ * 同一输入槽只匹配一个物品槽，避免不同输入行重复扣减同一槽。
+ */
 public record LifeSynthesisRecipe(List<InputSlot> inputs, List<FluidStack> fluidInputs,
                                   FluidStack output, int processTicks, int energy,
-                                  String tier, ResourceLocation id) implements Recipe<CraftingContainer> {
-    public FluidStack nutrient() { return fluidInputs.isEmpty() ? FluidStack.EMPTY : fluidInputs.get(0); }
+                                  String tier) implements Recipe<CraftingInput> {
+
+    /** 当前实现只支持单养分罐，取第一种养分流体。 */
+    public FluidStack nutrient() {
+        return fluidInputs.isEmpty() ? FluidStack.EMPTY : fluidInputs.getFirst();
+    }
 
     public boolean matchesSlots(List<ItemStack> slots) {
-        return matchesStrict(inputs, slots,
-                (input, stack) -> input.ingredient().test(stack), InputSlot::count, ItemStack::getCount);
-    }
-
-    public boolean consumeStrict(List<ItemStack> slots) {
-        return consumeStrict(inputs, slots,
-                (input, stack) -> input.ingredient().test(stack), InputSlot::count, ItemStack::getCount,
-                (stack, amount) -> stack.shrink(amount));
-    }
-
-    static <R, S> boolean matchesStrict(List<R> requirements, List<S> slots,
-                                        BiPredicate<R, S> matches, ToIntFunction<R> requiredCount,
-                                        ToIntFunction<S> slotCount) {
-        return allocateStrict(requirements, slots, matches, requiredCount, slotCount) != null;
-    }
-
-    static <R, S> boolean consumeStrict(List<R> requirements, List<S> slots,
-                                        BiPredicate<R, S> matches, ToIntFunction<R> requiredCount,
-                                        ToIntFunction<S> slotCount, BiConsumer<S, Integer> consume) {
-        int[] allocations = allocateStrict(requirements, slots, matches, requiredCount, slotCount);
-        if (allocations == null) {
-            return false;
-        }
-        for (int index = 0; index < allocations.length; index++) {
-            if (allocations[index] > 0) {
-                consume.accept(slots.get(index), allocations[index]);
+        boolean[] used = new boolean[slots.size()];
+        for (InputSlot slot : inputs) {
+            int needed = slot.count();
+            for (int i = 0; i < slots.size() && needed > 0; i++) {
+                if (!used[i] && slot.ingredient().test(slots.get(i))) {
+                    used[i] = true;
+                    needed -= Math.min(needed, slots.get(i).getCount());
+                }
             }
+            if (needed > 0) return false;
         }
         return true;
     }
 
-    private static <R, S> int[] allocateStrict(List<R> requirements, List<S> slots,
-                                                 BiPredicate<R, S> matches, ToIntFunction<R> requiredCount,
-                                                 ToIntFunction<S> slotCount) {
+    /**
+     * 严格匹配并扣减一份配方所需培养基。
+     * 所有输入行都满足数量时才实际扣减；任一不足则整体放弃，不产生部分扣减。
+     */
+    public boolean consumeStrict(List<ItemStack> slots) {
         boolean[] used = new boolean[slots.size()];
-        int[] allocations = new int[slots.size()];
-        for (R requirement : requirements) {
-            int needed = Math.max(0, requiredCount.applyAsInt(requirement));
-            for (int index = 0; index < slots.size() && needed > 0; index++) {
-                S stack = slots.get(index);
-                if (used[index] || !matches.test(requirement, stack)) {
-                    continue;
-                }
-                used[index] = true;
-                int amount = Math.min(needed, Math.max(0, slotCount.applyAsInt(stack)));
-                allocations[index] = amount;
-                needed -= amount;
+        int[] take = new int[slots.size()];
+        for (InputSlot slot : inputs) {
+            int needed = slot.count();
+            for (int i = 0; i < slots.size() && needed > 0; i++) {
+                if (used[i] || !slot.ingredient().test(slots.get(i))) continue;
+                used[i] = true;
+                int t = Math.min(needed, slots.get(i).getCount());
+                take[i] = t;
+                needed -= t;
             }
-            if (needed > 0) {
-                return null;
-            }
+            if (needed > 0) return false;
         }
-        return allocations;
+        for (int i = 0; i < take.length; i++) {
+            if (take[i] > 0) slots.get(i).shrink(take[i]);
+        }
+        return true;
     }
 
-    @Override public boolean matches(CraftingContainer input, Level level) { return false; }
-    @Override public ItemStack assemble(CraftingContainer input, RegistryAccess registryAccess) { return ItemStack.EMPTY; }
-    @Override public boolean canCraftInDimensions(int width, int height) { return false; }
-    @Override public ItemStack getResultItem(RegistryAccess registryAccess) { return ItemStack.EMPTY; }
-    @Override public ResourceLocation getId() { return id; }
-    @Override public boolean isSpecial() { return true; }
-    @Override public RecipeSerializer<?> getSerializer() { return JDTERecipes.LIFE_SYNTHESIS_RECIPE_SERIALIZER.get(); }
-    @Override public RecipeType<?> getType() { return JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get(); }
+    @Override
+    public boolean matches(CraftingInput input, Level level) {
+        return false;
+    }
+
+    @Override
+    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean canCraftInDimensions(int width, int height) {
+        return false;
+    }
+
+    @Override
+    public ItemStack getResultItem(HolderLookup.Provider provider) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
+    @Override
+    public RecipeSerializer<?> getSerializer() {
+        return JDTERecipes.LIFE_SYNTHESIS_RECIPE_SERIALIZER.get();
+    }
+
+    @Override
+    public RecipeType<?> getType() {
+        return JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get();
+    }
 
     public record InputSlot(Ingredient ingredient, int count) {
-        static InputSlot fromJson(JsonObject json) {
-            return new InputSlot(Ingredient.fromJson(json.get("ingredient")), GsonHelper.getAsInt(json, "count"));
-        }
-        static InputSlot fromNetwork(FriendlyByteBuf buffer) {
-            return new InputSlot(Ingredient.fromNetwork(buffer), buffer.readVarInt());
-        }
-        void toNetwork(FriendlyByteBuf buffer) {
-            ingredient.toNetwork(buffer);
-            buffer.writeVarInt(count);
-        }
+        public static final Codec<InputSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(InputSlot::ingredient),
+                net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("count").forGetter(InputSlot::count)
+        ).apply(instance, InputSlot::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, InputSlot> STREAM_CODEC = StreamCodec.composite(
+                Ingredient.CONTENTS_STREAM_CODEC, InputSlot::ingredient,
+                ByteBufCodecs.VAR_INT, InputSlot::count,
+                InputSlot::new);
     }
 
     public static final class Serializer implements RecipeSerializer<LifeSynthesisRecipe> {
+        private static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> FLUID_STACK_CODEC = StreamCodec.of(
+                (buf, stack) -> {
+                    ByteBufCodecs.holderRegistry(Registries.FLUID).encode(buf, stack.getFluid().builtInRegistryHolder());
+                    ByteBufCodecs.INT.encode(buf, stack.getAmount());
+                },
+                buf -> new FluidStack(ByteBufCodecs.holderRegistry(Registries.FLUID).decode(buf).value(),
+                        ByteBufCodecs.INT.decode(buf)));
+
+        private static final MapCodec<LifeSynthesisRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                InputSlot.CODEC.listOf().fieldOf("inputs").forGetter(LifeSynthesisRecipe::inputs),
+                FluidStack.CODEC.listOf().fieldOf("fluid_inputs").forGetter(LifeSynthesisRecipe::fluidInputs),
+                FluidStack.CODEC.fieldOf("output").forGetter(LifeSynthesisRecipe::output),
+                net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("process_ticks").forGetter(LifeSynthesisRecipe::processTicks),
+                net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("energy").forGetter(LifeSynthesisRecipe::energy),
+                net.minecraft.util.ExtraCodecs.NON_EMPTY_STRING.fieldOf("tier").forGetter(LifeSynthesisRecipe::tier)
+        ).apply(instance, LifeSynthesisRecipe::new));
+
         @Override
-        public LifeSynthesisRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-            List<InputSlot> inputs = new ArrayList<>();
-            for (var value : GsonHelper.getAsJsonArray(json, "inputs")) inputs.add(InputSlot.fromJson(value.getAsJsonObject()));
-            List<FluidStack> fluidInputs = fluidList(GsonHelper.getAsJsonArray(json, "fluid_inputs"));
-            return new LifeSynthesisRecipe(List.copyOf(inputs), List.copyOf(fluidInputs),
-                    InfusionRecipe.Serializer.fluidStack(GsonHelper.getAsJsonObject(json, "output")),
-                    GsonHelper.getAsInt(json, "process_ticks"), GsonHelper.getAsInt(json, "energy"),
-                    GsonHelper.getAsString(json, "tier"), recipeId);
+        public MapCodec<LifeSynthesisRecipe> codec() {
+            return CODEC;
         }
 
         @Override
-        public LifeSynthesisRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
-            int inputCount = buffer.readVarInt();
-            List<InputSlot> inputs = new ArrayList<>(inputCount);
-            for (int index = 0; index < inputCount; index++) inputs.add(InputSlot.fromNetwork(buffer));
-            int fluidCount = buffer.readVarInt();
-            List<FluidStack> fluids = new ArrayList<>(fluidCount);
-            for (int index = 0; index < fluidCount; index++) fluids.add(readFluid(buffer));
-            return new LifeSynthesisRecipe(List.copyOf(inputs), List.copyOf(fluids), readFluid(buffer),
-                    buffer.readVarInt(), buffer.readVarInt(), buffer.readUtf(), recipeId);
-        }
+        public StreamCodec<RegistryFriendlyByteBuf, LifeSynthesisRecipe> streamCodec() {
+            return new StreamCodec<>() {
+                @Override
+                public LifeSynthesisRecipe decode(RegistryFriendlyByteBuf buffer) {
+                    return new LifeSynthesisRecipe(
+                            InputSlot.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer),
+                            FLUID_STACK_CODEC.apply(ByteBufCodecs.list()).decode(buffer),
+                            FLUID_STACK_CODEC.decode(buffer),
+                            ByteBufCodecs.VAR_INT.decode(buffer),
+                            ByteBufCodecs.VAR_INT.decode(buffer),
+                            ByteBufCodecs.STRING_UTF8.decode(buffer));
+                }
 
-        @Override
-        public void toNetwork(FriendlyByteBuf buffer, LifeSynthesisRecipe recipe) {
-            buffer.writeVarInt(recipe.inputs.size());
-            recipe.inputs.forEach(input -> input.toNetwork(buffer));
-            buffer.writeVarInt(recipe.fluidInputs.size());
-            recipe.fluidInputs.forEach(fluid -> writeFluid(buffer, fluid));
-            writeFluid(buffer, recipe.output);
-            buffer.writeVarInt(recipe.processTicks);
-            buffer.writeVarInt(recipe.energy);
-            buffer.writeUtf(recipe.tier);
-        }
-
-        private static List<FluidStack> fluidList(JsonArray json) {
-            List<FluidStack> fluids = new ArrayList<>(json.size());
-            json.forEach(value -> fluids.add(InfusionRecipe.Serializer.fluidStack(value.getAsJsonObject())));
-            return fluids;
-        }
-        private static FluidStack readFluid(FriendlyByteBuf buffer) {
-            return new FluidStack(BuiltInRegistries.FLUID.get(buffer.readResourceLocation()), buffer.readVarInt());
-        }
-        private static void writeFluid(FriendlyByteBuf buffer, FluidStack fluid) {
-            buffer.writeResourceLocation(BuiltInRegistries.FLUID.getKey(fluid.getFluid()));
-            buffer.writeVarInt(fluid.getAmount());
+                @Override
+                public void encode(RegistryFriendlyByteBuf buffer, LifeSynthesisRecipe recipe) {
+                    InputSlot.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.inputs());
+                    FLUID_STACK_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.fluidInputs());
+                    FLUID_STACK_CODEC.encode(buffer, recipe.output());
+                    ByteBufCodecs.VAR_INT.encode(buffer, recipe.processTicks());
+                    ByteBufCodecs.VAR_INT.encode(buffer, recipe.energy());
+                    ByteBufCodecs.STRING_UTF8.encode(buffer, recipe.tier());
+                }
+            };
         }
     }
 }

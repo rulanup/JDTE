@@ -73,7 +73,7 @@ public class TimeAcceleratorEffectRenderer extends EntityRenderer<TimeAccelerato
     private void renderBarFace(PoseStack matrixStack, MultiBufferSource buffer, float xStart, float yStart, float zStart, float barWidth, float barHeight, float r, float g, float b, float a, int pPackedLight, Quaternionf rotation) {
         matrixStack.pushPose();
         matrixStack.mulPose(rotation);
-        RenderHelpers.renderBoxSolid(matrixStack.last().pose(), buffer, new AABB(xStart, yStart, zStart, xStart + barWidth, yStart + barHeight, zStart), r, g, b, a);
+        RenderHelpers.renderBoxSolid(matrixStack, matrixStack.last().pose(), buffer, new AABB(xStart, yStart, zStart, xStart + barWidth, yStart + barHeight, zStart), r, g, b, a);
         matrixStack.popPose();
     }
 

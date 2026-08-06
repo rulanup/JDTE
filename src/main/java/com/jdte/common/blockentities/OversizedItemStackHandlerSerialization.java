@@ -1,10 +1,11 @@
 package com.jdte.common.blockentities;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 /**
  * Persists handlers that intentionally allow counts above Minecraft's ItemStack codec limit.
@@ -17,7 +18,7 @@ final class OversizedItemStackHandlerSerialization {
     private OversizedItemStackHandlerSerialization() {
     }
 
-    static CompoundTag serialize(ItemStackHandler handler) {
+    static CompoundTag serialize(ItemStackHandler handler, HolderLookup.Provider provider) {
         CompoundTag result = new CompoundTag();
         ListTag items = new ListTag();
         for (int slot = 0; slot < handler.getSlots(); slot++) {
@@ -30,7 +31,7 @@ final class OversizedItemStackHandlerSerialization {
                     : stack;
             CompoundTag prefix = new CompoundTag();
             prefix.putInt("Slot", slot);
-            Tag encodedTag = encodedStack.save(prefix);
+            Tag encodedTag = encodedStack.save(provider, prefix);
             if (!(encodedTag instanceof CompoundTag itemTag)) continue;
             if (realCount > MAX_CODEC_COUNT) itemTag.putInt(REAL_COUNT_TAG, realCount);
             items.add(itemTag);
@@ -40,8 +41,8 @@ final class OversizedItemStackHandlerSerialization {
         return result;
     }
 
-    static void deserialize(ItemStackHandler handler, CompoundTag tag) {
-        handler.deserializeNBT(tag);
+    static void deserialize(ItemStackHandler handler, HolderLookup.Provider provider, CompoundTag tag) {
+        handler.deserializeNBT(provider, tag);
         ListTag items = tag.getList("Items", Tag.TAG_COMPOUND);
         for (int index = 0; index < items.size(); index++) {
             CompoundTag itemTag = items.getCompound(index);

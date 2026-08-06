@@ -1,27 +1,27 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class FactoryPackerConfig {
-    public final ForgeConfigSpec.IntValue factoryPackerEnergyCapacity;
-    public final ForgeConfigSpec.DoubleValue factoryPackerBaseRadius;
-    public final ForgeConfigSpec.IntValue factoryPackerEnergyPerBlock;
-    public final ForgeConfigSpec.IntValue factoryPackerBlocksPerTick;
-    public final ForgeConfigSpec.IntValue factoryPackerSourceChangeRetries;
-    public final ForgeConfigSpec.IntValue factoryPackerMaxAxis;
-    public final ForgeConfigSpec.IntValue factoryPackerMaxVolume;
-    public final ForgeConfigSpec.IntValue factoryPackerMaxCompressedBytes;
-    public final ForgeConfigSpec.IntValue factoryPackerMaxUncompressedBytes;
-    public final ForgeConfigSpec.IntValue factoryPackerPreviewMaxBlocks;
-    public final ForgeConfigSpec.IntValue factoryPackerMaxEntities;
-    public final ForgeConfigSpec.IntValue factoryPackerEnergyPerEntity;
-    public final ForgeConfigSpec.BooleanValue factoryPackerMoveEntities;
-    public final ForgeConfigSpec.BooleanValue factoryPackerMoveScheduledTicks;
-    public final ForgeConfigSpec.BooleanValue factoryPackerRemapInternalLinks;
-    public final ForgeConfigSpec.BooleanValue factoryPackerUseModMoveStrategies;
-    public final ForgeConfigSpec.BooleanValue factoryPackerChatNotifications;
+    public final ModConfigSpec.IntValue factoryPackerEnergyCapacity;
+    public final ModConfigSpec.DoubleValue factoryPackerBaseRadius;
+    public final ModConfigSpec.IntValue factoryPackerEnergyPerBlock;
+    public final ModConfigSpec.IntValue factoryPackerBlocksPerTick;
+    public final ModConfigSpec.IntValue factoryPackerSourceChangeRetries;
+    public final ModConfigSpec.IntValue factoryPackerMaxAxis;
+    public final ModConfigSpec.IntValue factoryPackerMaxVolume;
+    public final ModConfigSpec.IntValue factoryPackerMaxCompressedBytes;
+    public final ModConfigSpec.IntValue factoryPackerMaxUncompressedBytes;
+    public final ModConfigSpec.IntValue factoryPackerPreviewMaxBlocks;
+    public final ModConfigSpec.IntValue factoryPackerMaxEntities;
+    public final ModConfigSpec.IntValue factoryPackerEnergyPerEntity;
+    public final ModConfigSpec.BooleanValue factoryPackerMoveEntities;
+    public final ModConfigSpec.BooleanValue factoryPackerMoveScheduledTicks;
+    public final ModConfigSpec.BooleanValue factoryPackerRemapInternalLinks;
+    public final ModConfigSpec.BooleanValue factoryPackerUseModMoveStrategies;
+    public final ModConfigSpec.BooleanValue factoryPackerChatNotifications;
 
-    public FactoryPackerConfig(ForgeConfigSpec.Builder builder) {
+    public FactoryPackerConfig(ModConfigSpec.Builder builder) {
         builder.comment("Factory Packer Settings")
                 .translation("config.jdte.jdte.factoryPacker")
                 .push("factoryPacker");

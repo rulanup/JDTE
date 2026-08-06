@@ -7,7 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -24,7 +24,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class LargeGreenhouseBlock extends JDTEMachineBlock {
+public class LargeGreenhouseBlock extends BaseMachineBlock {
     public LargeGreenhouseBlock() {
         super(Properties.of().sound(SoundType.METAL).strength(4.0F).noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));
@@ -48,9 +48,9 @@ public class LargeGreenhouseBlock extends JDTEMachineBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        ItemStack stack = player.getItemInHand(hand);
-        return useWithFluidContainer(stack, state, level, pos, player, hand, hit);
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                              Player player, InteractionHand hand, BlockHitResult hit) {
+        return FluidContainerTransfer.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class LargeGreenhouseBlock extends JDTEMachineBlock {
 
     @Override
     public void openMenu(Player player, BlockPos pos) {
-        openScreen(player,new SimpleMenuProvider(
+        player.openMenu(new SimpleMenuProvider(
                 (windowId, inventory, ignored) -> new LargeGreenhouseContainer(windowId, inventory, pos),
                 Component.translatable("block.jdte.large_greenhouse")), buffer -> buffer.writeBlockPos(pos));
     }

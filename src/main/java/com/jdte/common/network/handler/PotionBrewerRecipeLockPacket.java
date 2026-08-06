@@ -1,14 +1,13 @@
 package com.jdte.common.network.handler;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.network.data.PotionBrewerRecipeLockPayload;
 import com.jdte.common.network.data.PotionBrewerRecipeLockSyncPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.PacketDistributor;
-import com.jdte.common.network.PacketContext;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class PotionBrewerRecipeLockPacket {
     private static final PotionBrewerRecipeLockPacket INSTANCE = new PotionBrewerRecipeLockPacket();
@@ -17,7 +16,7 @@ public class PotionBrewerRecipeLockPacket {
         return INSTANCE;
     }
 
-    public void handleServer(PotionBrewerRecipeLockPayload payload, PacketContext context) {
+    public void handleServer(PotionBrewerRecipeLockPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             AbstractContainerMenu container = context.player().containerMenu;
             if (!(container instanceof BaseMachineContainer machineContainer) || !(machineContainer.baseMachineBE instanceof AdvancedPotionBrewerBE brewer)) {
@@ -30,7 +29,7 @@ public class PotionBrewerRecipeLockPacket {
                 brewer.setRecipeLocked(payload.locked());
             }
             if (context.player() instanceof ServerPlayer serverPlayer) {
-                JDTEPacketHandler.sendToPlayer(serverPlayer, new PotionBrewerRecipeLockSyncPayload(
+                PacketDistributor.sendToPlayer(serverPlayer, new PotionBrewerRecipeLockSyncPayload(
                         brewer.getBlockPos(),
                         brewer.isRecipeLocked(),
                         brewer.copyLockedRecipeTemplates()));
@@ -38,7 +37,7 @@ public class PotionBrewerRecipeLockPacket {
         });
     }
 
-    public void handleClient(PotionBrewerRecipeLockSyncPayload payload, PacketContext context) {
+    public void handleClient(PotionBrewerRecipeLockSyncPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> com.jdte.client.PotionBrewerRecipeLockClientCache.set(
                 payload.blockPos(),
                 payload.locked(),

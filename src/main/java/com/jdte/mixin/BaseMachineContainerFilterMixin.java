@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = BaseMachineContainer.class, remap = false)
+@Mixin(BaseMachineContainer.class)
 public abstract class BaseMachineContainerFilterMixin implements FilterPageHolder {
     @Shadow public int FILTER_SLOTS;
     @Shadow public BaseMachineBE baseMachineBE;
@@ -35,7 +35,7 @@ public abstract class BaseMachineContainerFilterMixin implements FilterPageHolde
         this.jdte$filterPage = page;
     }
 
-    @Inject(remap = false, method = "addFilterSlots()V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "addFilterSlots()V", at = @At("HEAD"), cancellable = true)
     private void jdte$addExtraFilterSlots(CallbackInfo ci) {
         if (baseMachineBE == null || filterHandler == null) return;
 

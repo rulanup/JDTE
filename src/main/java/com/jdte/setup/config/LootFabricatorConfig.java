@@ -1,13 +1,13 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class LootFabricatorConfig {
-    public final ForgeConfigSpec.IntValue lootFabricatorLifeFluidCost;
-    public final ForgeConfigSpec.IntValue lootFabricatorBaseTimeFluidCost;
-    public final ForgeConfigSpec.IntValue lootFabricatorLootingFluidCostIncreasePercent;
+    public final ModConfigSpec.IntValue lootFabricatorLifeFluidCost;
+    public final ModConfigSpec.IntValue lootFabricatorBaseTimeFluidCost;
+    public final ModConfigSpec.IntValue lootFabricatorLootingFluidCostIncreasePercent;
 
-    public LootFabricatorConfig(ForgeConfigSpec.Builder builder) {
+    public LootFabricatorConfig(ModConfigSpec.Builder builder) {
         builder.comment("Loot Fabricator Settings").translation("config.jdte.jdte.lootFabricator").push("lootFabricator");
         lootFabricatorLifeFluidCost = builder
                 .comment("Life Fluid consumed per successful loot fabrication operation (mB)")

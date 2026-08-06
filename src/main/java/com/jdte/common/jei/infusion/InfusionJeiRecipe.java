@@ -14,16 +14,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import com.jdte.setup.JDTEFluids;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,7 +47,8 @@ public record InfusionJeiRecipe(
 
         RecipeManager recipeManager = getRecipeManager();
         if (recipeManager != null) {
-            for (InfusionRecipe recipe : recipeManager.getAllRecipesFor(JDTERecipes.INFUSION_RECIPE_TYPE.get())) {
+            for (RecipeHolder<InfusionRecipe> holder : recipeManager.getAllRecipesFor(JDTERecipes.INFUSION_RECIPE_TYPE.get())) {
+                InfusionRecipe recipe = holder.value();
                 addRecipe(recipes, seen, recipe.getInput(), recipe.getFluidInput(), recipe.getOutput(), recipe.getEnergyCost());
             }
         }
@@ -103,14 +105,14 @@ public record InfusionJeiRecipe(
 
     private static boolean hasFluidItemCapability(ItemStack input) {
         ItemStack container = input.copy();
-        IFluidHandlerItem handler = container.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        IFluidHandlerItem handler = container.getCapability(Capabilities.FluidHandler.ITEM);
         return handler != null && handler.getTanks() > 0;
     }
 
     private static InfusionJeiRecipe createFluidContainerFillRecipe(ItemStack input, Fluid fluid) {
         ItemStack container = single(input);
         ItemStack originalContainer = container.copy();
-        IFluidHandlerItem handler = container.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        IFluidHandlerItem handler = container.getCapability(Capabilities.FluidHandler.ITEM);
         if (handler == null || handler.getTanks() <= 0) {
             return null;
         }
@@ -128,7 +130,7 @@ public record InfusionJeiRecipe(
         }
 
         ItemStack result = single(handler.getContainer());
-        if (result.isEmpty() || ItemStack.isSameItemSameTags(originalContainer, result)) {
+        if (result.isEmpty() || ItemStack.isSameItemSameComponents(originalContainer, result)) {
             return null;
         }
 
@@ -141,7 +143,7 @@ public record InfusionJeiRecipe(
     }
 
     private static void addVanillaBottleRecipes(List<InfusionJeiRecipe> recipes, Set<String> seen) {
-        ItemStack output = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER);
+        ItemStack output = PotionContents.createItemStack(Items.POTION, Potions.WATER);
         output.setCount(1);
         addRecipe(recipes, seen,
                 new ItemStack(Items.GLASS_BOTTLE),
@@ -171,7 +173,7 @@ public record InfusionJeiRecipe(
         recipeIds.forEach((dropId, eggId) -> {
             Item drop = BuiltInRegistries.ITEM.get(dropId);
             Item egg = BuiltInRegistries.ITEM.get(eggId);
-            ItemStack input = new ItemStack(drop, drop.getMaxStackSize());
+            ItemStack input = new ItemStack(drop, drop.getDefaultMaxStackSize());
             addRecipe(recipes, seen,
                     input,
                     new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), MobLootSpawnEggHelper.LIFE_FLUID_COST),
@@ -217,7 +219,7 @@ public record InfusionJeiRecipe(
     }
 
     private static String stackKey(ItemStack stack) {
-        return BuiltInRegistries.ITEM.getKey(stack.getItem()) + "@" + stack.getCount() + "@" + stack.getTag();
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()) + "@" + stack.getCount() + "@" + stack.getComponents();
     }
 
     private static String fluidKey(FluidStack stack) {

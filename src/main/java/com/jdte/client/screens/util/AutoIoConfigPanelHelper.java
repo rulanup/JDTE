@@ -33,7 +33,7 @@ public final class AutoIoConfigPanelHelper {
 
     public static void renderPanel(GuiGraphics guiGraphics, ResourceLocation background, int panelX, int panelY,
                                    int inputMask, int outputMask) {
-        GuiSpriteCompat.blitSprite(guiGraphics, background, panelX, panelY, PANEL_SIZE, PANEL_SIZE);
+        guiGraphics.blitSprite(background, panelX, panelY, PANEL_SIZE, PANEL_SIZE);
 
         drawSide(guiGraphics, panelX, panelY, inputMask, outputMask, SIDE_NORTH);
         drawSide(guiGraphics, panelX, panelY, inputMask, outputMask, SIDE_WEST);

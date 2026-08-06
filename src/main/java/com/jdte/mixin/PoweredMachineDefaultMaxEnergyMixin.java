@@ -12,7 +12,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(value = {BlockBreakerT2BE.class, BlockPlacerT2BE.class, BlockSwapperT2BE.class, ClickerT2BE.class, DropperT2BE.class, FluidCollectorT2BE.class, FluidPlacerT2BE.class, SensorT2BE.class}, remap = false)
+@Mixin({BlockBreakerT2BE.class, BlockPlacerT2BE.class, BlockSwapperT2BE.class, ClickerT2BE.class, DropperT2BE.class, FluidCollectorT2BE.class, FluidPlacerT2BE.class, SensorT2BE.class})
 public abstract class PoweredMachineDefaultMaxEnergyMixin {
     public int getMaxEnergy() {
         return UpgradeHelper.adjustEnergyCapacity((BaseMachineBE) (Object) this, 100000);

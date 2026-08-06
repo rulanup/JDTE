@@ -18,13 +18,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class FluidStabilizerBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, BaseFilterMachine {
@@ -91,7 +92,7 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
         if (!(inputState.getBlock() instanceof LiquidBlock liquidBlock) || !inputState.getFluidState().isSource()) {
             return false;
         }
-        if (!isStackValidFilter(new ItemStack(liquidBlock))) {
+        if (!isStackValidFilter(liquidBlock)) {
             return false;
         }
 
@@ -126,9 +127,9 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
         if (level == null) {
             return null;
         }
-        for (FluidDropRecipe recipe : level.getRecipeManager().getAllRecipesFor(Registration.FLUID_DROP_RECIPE_TYPE.get())) {
-            if (recipe.matches(inputState, catalystStack)) {
-                return recipe;
+        for (RecipeHolder<?> recipe : level.getRecipeManager().getAllRecipesFor(Registration.FLUID_DROP_RECIPE_TYPE.get())) {
+            if (recipe.value() instanceof FluidDropRecipe fluidDropRecipe && fluidDropRecipe.matches(inputState, catalystStack)) {
+                return fluidDropRecipe;
             }
         }
         return null;
@@ -141,8 +142,8 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
         if (level == null) {
             return true;
         }
-        for (FluidDropRecipe recipe : level.getRecipeManager().getAllRecipesFor(Registration.FLUID_DROP_RECIPE_TYPE.get())) {
-            if (stack.is(recipe.getCatalyst())) {
+        for (RecipeHolder<?> recipe : level.getRecipeManager().getAllRecipesFor(Registration.FLUID_DROP_RECIPE_TYPE.get())) {
+            if (recipe.value() instanceof FluidDropRecipe fluidDropRecipe && stack.is(fluidDropRecipe.getCatalyst())) {
                 return true;
             }
         }
@@ -164,7 +165,7 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return getData(Registration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -188,16 +189,16 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("inventory", itemHandler.serializeNBT());
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("inventory", itemHandler.serializeNBT(provider));
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(tag.getCompound("inventory"));
+            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
         }
     }
 }

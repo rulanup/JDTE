@@ -1,27 +1,27 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class GreenhouseConfig {
-    public final ForgeConfigSpec.IntValue greenhouseFluidCapacity;
-    public final ForgeConfigSpec.IntValue greenhouseEnergyCapacity;
-    public final ForgeConfigSpec.IntValue greenhouseBaseMultiplier;
-    public final ForgeConfigSpec.IntValue greenhouseDefaultSpeedMultiplier;
-    public final ForgeConfigSpec.IntValue greenhouseMaxSpeedMultiplier;
-    public final ForgeConfigSpec.IntValue greenhouseOverclockMaxSpeedMultiplier;
-    public final ForgeConfigSpec.IntValue greenhouseFluidCostDivisor;
-    public final ForgeConfigSpec.IntValue greenhouseSettlementInterval;
-    public final ForgeConfigSpec.IntValue greenhouseDefaultGrowthWork;
-    public final ForgeConfigSpec.IntValue greenhouseEnergyPerHarvestV2;
-    public final ForgeConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
-    public final ForgeConfigSpec.IntValue greenhouseGenericFluidCost;
-    public final ForgeConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
-    public final ForgeConfigSpec.LongValue greenhouseMaxPendingWork;
-    public final ForgeConfigSpec.IntValue greenhouseEventOutputItemBudget;
-    public final ForgeConfigSpec.IntValue greenhouseEventOutputTypeBudget;
-    public final ForgeConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
+    public final ModConfigSpec.IntValue greenhouseFluidCapacity;
+    public final ModConfigSpec.IntValue greenhouseEnergyCapacity;
+    public final ModConfigSpec.IntValue greenhouseBaseMultiplier;
+    public final ModConfigSpec.IntValue greenhouseDefaultSpeedMultiplier;
+    public final ModConfigSpec.IntValue greenhouseMaxSpeedMultiplier;
+    public final ModConfigSpec.IntValue greenhouseOverclockMaxSpeedMultiplier;
+    public final ModConfigSpec.IntValue greenhouseFluidCostDivisor;
+    public final ModConfigSpec.IntValue greenhouseSettlementInterval;
+    public final ModConfigSpec.IntValue greenhouseDefaultGrowthWork;
+    public final ModConfigSpec.IntValue greenhouseEnergyPerHarvestV2;
+    public final ModConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
+    public final ModConfigSpec.IntValue greenhouseGenericFluidCost;
+    public final ModConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
+    public final ModConfigSpec.LongValue greenhouseMaxPendingWork;
+    public final ModConfigSpec.IntValue greenhouseEventOutputItemBudget;
+    public final ModConfigSpec.IntValue greenhouseEventOutputTypeBudget;
+    public final ModConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
 
-    public GreenhouseConfig(ForgeConfigSpec.Builder builder) {
+    public GreenhouseConfig(ModConfigSpec.Builder builder) {
         builder.comment("Greenhouse Settings")
                 .translation("config.jdte.jdte.greenhouse")
                 .push("greenhouse");

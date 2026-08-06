@@ -1,21 +1,21 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class RangeBlockerConfig {
-    public final ForgeConfigSpec.IntValue rangeBlockerEnergyCapacity;
-    public final ForgeConfigSpec.IntValue rangeBlockerContainmentEnergyPerTick;
-    public final ForgeConfigSpec.IntValue rangeBlockerDemagnetizationEnergyPerTick;
-    public final ForgeConfigSpec.IntValue rangeBlockerSilenceEnergyPerTick;
-    public final ForgeConfigSpec.BooleanValue rangeBlockerProtectNamed;
-    public final ForgeConfigSpec.BooleanValue rangeBlockerProtectTamed;
-    public final ForgeConfigSpec.BooleanValue rangeBlockerProtectBosses;
-    public final ForgeConfigSpec.BooleanValue rangeBlockerMekanismIntegration;
-    public final ForgeConfigSpec.BooleanValue rangeBlockerContainProjectiles;
-    public final ForgeConfigSpec.BooleanValue rangeBlockerContainOwnerlessProjectiles;
-    public final ForgeConfigSpec.BooleanValue rangeBlockerContainProjectileExplosions;
+    public final ModConfigSpec.IntValue rangeBlockerEnergyCapacity;
+    public final ModConfigSpec.IntValue rangeBlockerContainmentEnergyPerTick;
+    public final ModConfigSpec.IntValue rangeBlockerDemagnetizationEnergyPerTick;
+    public final ModConfigSpec.IntValue rangeBlockerSilenceEnergyPerTick;
+    public final ModConfigSpec.BooleanValue rangeBlockerProtectNamed;
+    public final ModConfigSpec.BooleanValue rangeBlockerProtectTamed;
+    public final ModConfigSpec.BooleanValue rangeBlockerProtectBosses;
+    public final ModConfigSpec.BooleanValue rangeBlockerMekanismIntegration;
+    public final ModConfigSpec.BooleanValue rangeBlockerContainProjectiles;
+    public final ModConfigSpec.BooleanValue rangeBlockerContainOwnerlessProjectiles;
+    public final ModConfigSpec.BooleanValue rangeBlockerContainProjectileExplosions;
 
-    public RangeBlockerConfig(ForgeConfigSpec.Builder builder) {
+    public RangeBlockerConfig(ModConfigSpec.Builder builder) {
         builder.comment("Range Blocker Settings")
                 .translation("config.jdte.jdte.rangeBlocker")
                 .push("rangeBlocker");

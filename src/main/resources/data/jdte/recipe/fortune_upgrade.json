@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LEL",
+    "EIE",
+    "LEL"
+  ],
+  "key": {
+    "E": { "item": "minecraft:emerald" },
+    "I": { "item": "justdirethings:upgrade_instabreak" },
+    "L": { "item": "minecraft:lapis_lazuli" }
+  },
+  "result": {
+    "count": 1,
+    "id": "jdte:fortune_upgrade"
+  }
+}

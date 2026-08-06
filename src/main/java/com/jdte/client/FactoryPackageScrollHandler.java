@@ -1,12 +1,11 @@
 package com.jdte.client;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.items.FactoryPackageItem;
 import com.jdte.common.network.data.FactoryPackageRotatePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public final class FactoryPackageScrollHandler {
     private FactoryPackageScrollHandler() {}
@@ -20,10 +19,10 @@ public final class FactoryPackageScrollHandler {
         ItemStack held = FactoryPackageItem.isFilled(minecraft.player.getMainHandItem())
                 ? minecraft.player.getMainHandItem() : minecraft.player.getOffhandItem();
         if (!FactoryPackageItem.isFilled(held)) return;
-        int delta = event.getScrollDelta() > 0 ? 1 : event.getScrollDelta() < 0 ? -1 : 0;
+        int delta = event.getScrollDeltaY() > 0 ? 1 : event.getScrollDeltaY() < 0 ? -1 : 0;
         if (delta == 0) return;
         FactoryPackageItem.rotate(held, delta);
-        JDTEPacketHandler.CHANNEL.sendToServer(new FactoryPackageRotatePayload(delta));
+        PacketDistributor.sendToServer(new FactoryPackageRotatePayload(delta));
         event.setCanceled(true);
     }
 }

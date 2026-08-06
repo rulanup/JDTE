@@ -6,7 +6,7 @@ import com.jdte.common.containers.BioFactoryContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class BioFactoryBlock extends JDTEMachineBlock {
+public class BioFactoryBlock extends BaseMachineBlock {
     public static final BooleanProperty CONNECT_NORTH = BooleanProperty.create("connect_north");
     public static final BooleanProperty CONNECT_EAST = BooleanProperty.create("connect_east");
     public static final BooleanProperty CONNECT_SOUTH = BooleanProperty.create("connect_south");
@@ -45,7 +45,7 @@ public class BioFactoryBlock extends JDTEMachineBlock {
         builder.add(CONNECT_NORTH, CONNECT_EAST, CONNECT_SOUTH, CONNECT_WEST);
     }
 
-    @Override public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+    @Override protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
                                                LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         BooleanProperty property = connectionProperty(direction);
         return property == null ? state : state.setValue(property, neighborState.is(this));
@@ -72,13 +72,13 @@ public class BioFactoryBlock extends JDTEMachineBlock {
         };
     }
 
-    @Override public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        ItemStack stack = player.getItemInHand(hand);
-        return useWithFluidContainer(stack, state, level, pos, player, hand, hit);
+    @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                                        Player player, InteractionHand hand, BlockHitResult hit) {
+        return FluidContainerTransfer.useItemOn(stack, state, level, pos, player, hand, hit);
     }
     @Nullable @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new BioFactoryBE(pos, state); }
     @Override public void openMenu(Player player, BlockPos pos) {
-        openScreen(player,new SimpleMenuProvider((id, inventory, ignored) -> new BioFactoryContainer(id, inventory, pos),
+        player.openMenu(new SimpleMenuProvider((id, inventory, ignored) -> new BioFactoryContainer(id, inventory, pos),
                 Component.translatable("block.jdte.bio_factory")), buffer -> buffer.writeBlockPos(pos));
     }
     @Override public boolean isValidBE(BlockEntity blockEntity) { return blockEntity instanceof BioFactoryBE; }

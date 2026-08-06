@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
 import java.util.Comparator;
 import java.util.List;
@@ -47,7 +47,7 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
 
     @Override
     public MachineEnergyStorage getEnergyStorage() {
-        return com.jdte.setup.JDTEAttachments.energy(this);
+        return getData(Registration.ENERGYSTORAGE_MACHINES);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return getData(Registration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
             return false;
         BlockState blockState = level.getBlockState(blockPos);
         if ((blockState.getBlock() instanceof LiquidBlock liquidBlock))
-            return isStackValidFilter(new ItemStack(liquidBlock));
+            return isStackValidFilter(liquidBlock);
         ItemStack blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), level, blockPos, fakePlayer);
         return isStackValidFilter(blockItemStack);
     }
@@ -130,6 +130,6 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
     public boolean isValidEntity(Entity entity) {
         if (!super.isValidEntity(entity))
             return false;
-        return com.jdte.common.utils.EntityFilterHelper.matches(this, entity);
+        return isEntityValidFilter(entity, this.level);
     }
 }

@@ -6,8 +6,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.BlockEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
 public final class FactoryPermissionProbe {
     private static final ThreadLocal<Boolean> PERMISSION_PROBE = ThreadLocal.withInitial(() -> false);
@@ -31,7 +31,7 @@ public final class FactoryPermissionProbe {
         boolean wasShiftKeyDown = owner.isShiftKeyDown();
         owner.setShiftKeyDown(true);
         try {
-            return MinecraftForge.EVENT_BUS.post(breakEvent);
+            return NeoForge.EVENT_BUS.post(breakEvent).isCanceled();
         } finally {
             owner.setShiftKeyDown(wasShiftKeyDown);
             PERMISSION_PROBE.remove();

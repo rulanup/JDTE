@@ -4,7 +4,7 @@ import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachin
 import com.jdte.common.containers.FilterPageHolder;
 import com.jdte.common.network.data.FilterPagePayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import com.jdte.common.network.PacketContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class FilterPagePacket {
     private static final FilterPagePacket INSTANCE = new FilterPagePacket();
@@ -13,7 +13,7 @@ public class FilterPagePacket {
         return INSTANCE;
     }
 
-    public void handle(FilterPagePayload payload, PacketContext context) {
+    public void handle(FilterPagePayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             AbstractContainerMenu container = context.player().containerMenu;
             if (container instanceof FilterPageHolder holder) {

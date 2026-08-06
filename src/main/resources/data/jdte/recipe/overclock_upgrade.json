@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "justdirethings:blazegold_ingot"
+    },
+    "C": {
+      "item": "minecraft:clock"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "T": {
+      "item": "justdirethings:time_crystal"
+    }
+  },
+  "pattern": [
+    "RTR",
+    "TCT",
+    "RBR"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:overclock_upgrade"
+  }
+}

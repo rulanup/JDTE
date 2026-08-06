@@ -36,12 +36,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -275,7 +275,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
                 if (!canPayBreeding(cooldown)) return changed;
                 Villager child = parentA.getBreedOffspring(level, parentB);
                 BabyEntitySpawnEvent event = new BabyEntitySpawnEvent(parentA, parentB, child);
-                if (MinecraftForge.EVENT_BUS.post(event) || !(event.getChild() instanceof Villager baby)) continue;
+                if (NeoForge.EVENT_BUS.post(event).isCanceled() || !(event.getChild() instanceof Villager baby)) continue;
                 if (!payBreeding(cooldown)) return changed;
                 consumeVillagerFood();
                 parentA.setAge(cooldown);
@@ -326,8 +326,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         int fingerprint = filterData.allowlist ? 1 : 0;
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             ItemStack stack = handler.getStackInSlot(slot);
-            fingerprint = 31 * fingerprint + 31 * System.identityHashCode(stack.getItem())
-                    + (stack.hasTag() ? stack.getTag().hashCode() : 0);
+            fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(stack);
         }
         if (fingerprint == filterFingerprint && cachedFilterAllowlist == filterData.allowlist) return;
         filterFingerprint = fingerprint;
@@ -335,7 +334,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         cachedFilterTypes.clear();
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             ItemStack stack = handler.getStackInSlot(slot);
-            if (stack.getItem() instanceof SpawnEggItem egg) cachedFilterTypes.add(egg.getType(stack.getTag()));
+            if (stack.getItem() instanceof SpawnEggItem egg) cachedFilterTypes.add(egg.getType(stack));
         }
     }
 
@@ -415,9 +414,9 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         return remainder;
     }
 
-    public int getMultiplier() { return isClientSide() ? syncedMultiplier : net.minecraft.util.Mth.clamp(multiplier, 1, getMaxSelectableMultiplier()); }
+    public int getMultiplier() { return isClientSide() ? syncedMultiplier : Math.clamp(multiplier, 1, getMaxSelectableMultiplier()); }
     public void setMultiplier(int value) {
-        multiplier = net.minecraft.util.Mth.clamp(value, 1, getMaxSelectableMultiplier());
+        multiplier = Math.clamp(value, 1, getMaxSelectableMultiplier());
         setChanged();
         markDirtyClient();
     }
@@ -440,7 +439,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
+    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energyStorage; }
@@ -452,20 +451,20 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     @Override public int getMaxMB() { return UpgradeHelper.adjustFluidCapacity(this, JDTEConfig.COMMON.lifeBreederFluidCapacity.get()); }
     @Override public boolean canRun() { return true; }
 
-    @Override public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("inventory", itemHandler.serializeNBT());
-        tag.put("fluid", fluidTank.serializeNBT());
+    @Override public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("inventory", itemHandler.serializeNBT(provider));
+        tag.put("fluid", fluidTank.serializeNBT(provider));
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("mode", mode.ordinal());
         tag.putInt("multiplier", multiplier);
         tag.putInt("cycleTicker", cycleTicker);
     }
 
-    @Override public void load(CompoundTag tag) {
-        super.load(tag);
-        if (tag.contains("inventory")) itemHandler.deserializeNBT(tag.getCompound("inventory"));
-        if (tag.contains("fluid")) fluidTank.deserializeNBT(tag.getCompound("fluid"));
+    @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        if (tag.contains("inventory")) itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
+        if (tag.contains("fluid")) fluidTank.deserializeNBT(provider, tag.getCompound("fluid"));
         if (tag.contains("energy")) energyStorage.setEnergy(tag.getInt("energy"));
         mode = Mode.values()[Math.floorMod(tag.getInt("mode"), Mode.values().length)];
         multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")

@@ -27,13 +27,13 @@ import com.jdte.mixin.EnergyStorageAccessor;
 import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEAttachments;
 import com.jdte.setup.JDTEConfig;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class UpgradeHelper {
     public static int getFilterSlotsPerUpgrade() {
@@ -48,9 +48,9 @@ public class UpgradeHelper {
             return factory.getUpgradeHandler();
         }
         if (machine instanceof com.jdte.common.blockentities.ExtendedUpgradeMachine) {
-            return JDTEAttachments.extendedUpgrades(machine);
+            return machine.getData(JDTEAttachments.EXTENDED_UPGRADE_HANDLER);
         }
-        return JDTEAttachments.upgrades(machine);
+        return machine.getData(JDTEAttachments.UPGRADE_HANDLER);
     }
 
     public static boolean isUpgrade(ItemStack stack) {
@@ -260,7 +260,7 @@ public class UpgradeHelper {
     }
 
     public static JDTEFluidTank getClickerFluidTank(BaseMachineBE machine) {
-        return JDTEAttachments.clickerFluidTank(machine);
+        return machine.getData(JDTEAttachments.CLICKER_FLUID_TANK);
     }
 
     public static int getClickerFluidCapacity(BaseMachineBE machine) {
@@ -327,7 +327,7 @@ public class UpgradeHelper {
             return;
         }
 
-        IFluidHandlerItem itemFluidHandler = itemStack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        IFluidHandlerItem itemFluidHandler = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
         if (itemFluidHandler == null) {
             return;
         }

@@ -18,18 +18,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.AmethystClusterBlock;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BuddingAmethystBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,6 @@ import java.util.List;
 public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpgradeMachine, PoweredMachineBE {
     private static final double AE2_GROWTH_ACCELERATOR_INTERVAL_TICKS = 10.0D;
     private static final double REGULAR_GROWTH_REFERENCE_MULTIPLIER = 8.0D;
-    private static final int DEFAULT_SCAN_RADIUS = 1;
     public static final int OUTPUT_SLOTS = 9;
     private final ItemStackHandler outputHandler = new ItemStackHandler(OUTPUT_SLOTS) {
         @Override
@@ -66,37 +65,10 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
     public CrystalIncubatorBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.CRYSTAL_INCUBATOR.get(), pos, state);
-        applyDefaultScanArea();
         MACHINE_SLOTS = OUTPUT_SLOTS;
         multiplier = JDTEConfig.COMMON.crystalIncubatorMaxMultiplier.get();
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
-    }
-
-    /**
-     * A crystal mother can grow from any exposed face. Unlike a normal time
-     * accelerator, the incubator therefore starts with a one-block shell
-     * around itself instead of a single facing target. Players can still
-     * replace this with the normal area controls.
-     */
-    private void applyDefaultScanArea() {
-        areaAffectingData.xRadius = DEFAULT_SCAN_RADIUS;
-        areaAffectingData.yRadius = DEFAULT_SCAN_RADIUS;
-        areaAffectingData.zRadius = DEFAULT_SCAN_RADIUS;
-        areaAffectingData.xOffset = 0;
-        areaAffectingData.yOffset = 0;
-        areaAffectingData.zOffset = 0;
-        areaAffectingData.area = null;
-    }
-
-    private boolean hasLegacyDirectionalDefaultArea() {
-        Direction facing = getBlockState().getValue(BlockStateProperties.FACING);
-        return areaAffectingData.xRadius == 0.0D
-                && areaAffectingData.yRadius == 0.0D
-                && areaAffectingData.zRadius == 0.0D
-                && areaAffectingData.xOffset == facing.getStepX()
-                && areaAffectingData.yOffset == facing.getStepY()
-                && areaAffectingData.zOffset == facing.getStepZ();
     }
 
     @Override
@@ -147,7 +119,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
     @Override
     protected double getFluidCostPerTick(int multiplier) {
-        return Math.max(0.0D, multiplier * Config.TIME_WAND_FLUID_COST.get()
+        return Math.max(0.0D, multiplier * Config.TIMEWAND_FLUID_COST.get()
                 * JDTEConfig.COMMON.crystalIncubatorFluidCostMultiplier.get() / 600.0D);
     }
 
@@ -179,7 +151,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
     @Override
     protected int getEnergyCost(int multiplier) {
-        double cost = multiplier * (double) Config.TIME_WAND_FE_COST.get()
+        double cost = multiplier * (double) Config.TIMEWAND_RF_COST.get()
                 * JDTEConfig.COMMON.crystalIncubatorEnergyCostMultiplier.get();
         return (int) Math.min(Integer.MAX_VALUE, Math.max(0.0D, Math.ceil(cost)));
     }
@@ -204,7 +176,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
     private void updateBuddingCache(ServerLevel serverLevel) {
         cacheAge++;
-        if (scanVolume >= 0 && scanIndex >= scanVolume && !buddingPositions.isEmpty()
+        if (scanVolume >= 0 && scanIndex >= scanVolume
                 && cacheAge < JDTEConfig.COMMON.crystalIncubatorCacheRefreshInterval.get()) {
             return;
         }
@@ -241,7 +213,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             if (isDynaBudding(blockEntity)) {
                 buddingPositions.add(pos.immutable());
                 dynaBuddingPositions.add(pos.immutable());
-            } else if (isRegularBuddingState(state)) {
+            } else if (state.is(JDTETags.CRYSTAL_INCUBATOR_BUDDING_BLOCKS)) {
                 buddingPositions.add(pos.immutable());
                 regularBuddingPositions.add(pos.immutable());
             }
@@ -283,7 +255,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
                 continue;
             }
             BlockState state = serverLevel.getBlockState(pos);
-            if (isRegularBuddingState(state)) {
+            if (state.is(JDTETags.CRYSTAL_INCUBATOR_BUDDING_BLOCKS) && state.isRandomlyTicking()) {
                 activeRegularMothers++;
             }
         }
@@ -300,8 +272,8 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
                     continue;
                 }
                 BlockState state = serverLevel.getBlockState(pos);
-                if (isRegularBuddingState(state)) {
-                    randomTickBudding(serverLevel, pos, state);
+                if (state.is(JDTETags.CRYSTAL_INCUBATOR_BUDDING_BLOCKS) && state.isRandomlyTicking()) {
+                    state.randomTick(serverLevel, pos, serverLevel.random);
                     pendingRandomTicks -= 1.0D;
                     processed = true;
                     break;
@@ -330,7 +302,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             for (Direction direction : Direction.values()) {
                 BlockPos crystalPos = motherPos.relative(direction);
                 BlockState crystalState = serverLevel.getBlockState(crystalPos);
-                if (isHarvestableCrystalState(crystalState)
+                if (crystalState.is(JDTETags.CRYSTAL_INCUBATOR_HARVESTABLE_CRYSTALS)
                         || isDynaMatureCrystal(mother, crystalState)) {
                     if (harvestCrystal(serverLevel, crystalPos, crystalState)) {
                         budget--;
@@ -371,10 +343,14 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
         ItemStack tool = new ItemStack(Items.DIAMOND_PICKAXE);
         boolean precision = UpgradeHelper.countUpgrades(this, UpgradeType.PRECISION) > 0;
         int fortune = precision ? 0 : UpgradeHelper.countUpgrades(this, UpgradeType.FORTUNE);
-        if (precision) {
-            tool.enchant(Enchantments.SILK_TOUCH, 1);
-        } else if (fortune > 0) {
-            tool.enchant(Enchantments.BLOCK_FORTUNE, fortune);
+        if (precision || fortune > 0) {
+            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+            if (precision) {
+                enchantments.set(serverLevel.registryAccess().holderOrThrow(Enchantments.SILK_TOUCH), 1);
+            } else {
+                enchantments.set(serverLevel.registryAccess().holderOrThrow(Enchantments.FORTUNE), fortune);
+            }
+            EnchantmentHelper.setEnchantments(tool, enchantments.toImmutable());
         }
         return tool;
     }
@@ -387,30 +363,6 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     private boolean isDynaMatureCrystal(BlockEntity budding, BlockState state) {
         return ModList.get().isLoaded("justdynathings")
                 && JustDynaThingsCrystalIntegration.isMatureCrystal(budding, state);
-    }
-
-    /**
-     * Forge 1.20.1 does not guarantee that every compatible budding block is
-     * present in the shared tag at runtime. Keep the vanilla and JDT class
-     * checks as a fallback, while still allowing pack-defined tag entries.
-     */
-    private static boolean isRegularBuddingState(BlockState state) {
-        return state.is(Blocks.BUDDING_AMETHYST)
-                || state.getBlock() instanceof BuddingAmethystBlock
-                || state.is(JDTETags.AE2_GROWTH_ACCELERATABLE)
-                || state.is(JDTETags.CRYSTAL_INCUBATOR_BUDDING_BLOCKS);
-    }
-
-    private static void randomTickBudding(ServerLevel serverLevel, BlockPos pos, BlockState state) {
-        // Match AE2's Growth Accelerator: invoke the target's random tick
-        // directly once it is accepted by the growth tag.
-        state.randomTick(serverLevel, pos, serverLevel.random);
-    }
-
-    private static boolean isHarvestableCrystalState(BlockState state) {
-        return state.is(Blocks.AMETHYST_CLUSTER)
-                || state.getBlock() instanceof AmethystClusterBlock
-                || state.is(JDTETags.CRYSTAL_INCUBATOR_HARVESTABLE_CRYSTALS);
     }
 
     private int normalizeCursor(int cursor) {
@@ -445,9 +397,9 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("inventory", outputHandler.serializeNBT());
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("inventory", outputHandler.serializeNBT(provider));
         tag.putDouble("pendingRandomTicks", pendingRandomTicks);
         tag.putInt("multiplier", multiplier);
         tag.putInt("energy", energyStorage.getEnergyStored());
@@ -455,10 +407,10 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         if (tag.contains("inventory")) {
-            outputHandler.deserializeNBT(tag.getCompound("inventory"));
+            outputHandler.deserializeNBT(provider, tag.getCompound("inventory"));
         }
         pendingRandomTicks = tag.getDouble("pendingRandomTicks");
         multiplier = tag.contains("multiplier")
@@ -468,9 +420,6 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             energyStorage.setEnergy(tag.getInt("energy"));
         }
         loadAreaSettings(tag);
-        if (hasLegacyDirectionalDefaultArea()) {
-            applyDefaultScanArea();
-        }
         scanIndex = scanVolume;
     }
 }

@@ -2,7 +2,7 @@ package com.jdte.common.factory;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public final class FactoryEntityMoveSupport {
     private FactoryEntityMoveSupport() {}

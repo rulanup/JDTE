@@ -30,7 +30,6 @@ import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.LifeBreederBE;
-import com.jdte.common.capabilities.ForgeCapabilityHelper;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEAttachments;
 import com.jdte.setup.JDTEConfig;
@@ -40,12 +39,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,7 +96,7 @@ public final class AutoIoTransferHelper {
             return;
         }
 
-        AutoIoConfigData data = JDTEAttachments.autoIo(machine);
+        AutoIoConfigData data = machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get());
         if (!data.beginRealServerTick(serverLevel.getGameTime())) {
             return;
         }
@@ -145,7 +144,7 @@ public final class AutoIoTransferHelper {
         if (!(machine.getLevel() instanceof ServerLevel level) || sourceSlots.length == 0) {
             return new EventOutputResult(false, false);
         }
-        AutoIoConfigData data = JDTEAttachments.autoIo(machine);
+        AutoIoConfigData data = machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get());
         int outputMask = data.getOutputMask();
         if (outputMask == 0 || OverclockDirectTransferHelper.isEnabled(machine)) {
             return new EventOutputResult(false, false);
@@ -191,7 +190,7 @@ public final class AutoIoTransferHelper {
                 && (blockEntity == null || !blockEntity.isRemoved())) {
             return cached.handler();
         }
-        IItemHandler handler = ForgeCapabilityHelper.get(level, key.pos(), ForgeCapabilities.ITEM_HANDLER, key.side());
+        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, key.pos(), key.side());
         if (handler == null) cache.remove(key);
         else cache.put(key, new CachedItemEndpoint(state, blockEntity, handler));
         return handler;
@@ -245,28 +244,28 @@ public final class AutoIoTransferHelper {
                                             boolean outputEnabled, ItemStackHandler internalItems) {
         boolean moved = false;
         if (outputEnabled && internalItems != null && routes.hasItemOutputs()) {
-            IItemHandler externalItems = ForgeCapabilityHelper.get(level, neighborPos, ForgeCapabilities.ITEM_HANDLER, neighborSide);
+            IItemHandler externalItems = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, neighborSide);
             if (externalItems != null) {
                 moved |= pushItems(internalItems, routes.itemOutputs(), externalItems,
                         JDTEConfig.COMMON.autoIoItemTransferRate.get());
             }
         }
         if (outputEnabled && routes.fluidOutput() != null) {
-            IFluidHandler externalFluid = ForgeCapabilityHelper.get(level, neighborPos, ForgeCapabilities.FLUID_HANDLER, neighborSide);
+            IFluidHandler externalFluid = level.getCapability(Capabilities.FluidHandler.BLOCK, neighborPos, neighborSide);
             if (externalFluid != null) {
                 moved |= pushFluid(routes.fluidOutput(), externalFluid,
                         JDTEConfig.COMMON.autoIoFluidTransferRate.get());
             }
         }
         if (inputEnabled && internalItems != null && routes.hasItemInputs()) {
-            IItemHandler externalItems = ForgeCapabilityHelper.get(level, neighborPos, ForgeCapabilities.ITEM_HANDLER, neighborSide);
+            IItemHandler externalItems = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, neighborSide);
             if (externalItems != null) {
                 moved |= pullItems(externalItems, internalItems, routes.itemInputs(),
                         JDTEConfig.COMMON.autoIoItemTransferRate.get());
             }
         }
         if (inputEnabled && routes.fluidInput() != null) {
-            IFluidHandler externalFluid = ForgeCapabilityHelper.get(level, neighborPos, ForgeCapabilities.FLUID_HANDLER, neighborSide);
+            IFluidHandler externalFluid = level.getCapability(Capabilities.FluidHandler.BLOCK, neighborPos, neighborSide);
             if (externalFluid != null) {
                 moved |= pullFluid(externalFluid, routes.fluidInput(),
                         JDTEConfig.COMMON.autoIoFluidTransferRate.get());
@@ -567,7 +566,7 @@ public final class AutoIoTransferHelper {
             handler.setStackInSlot(slot, stack.copy());
             return;
         }
-        if (ItemStack.isSameItemSameTags(current, stack)) {
+        if (ItemStack.isSameItemSameComponents(current, stack)) {
             ItemStack merged = current.copy();
             merged.grow(stack.getCount());
             handler.setStackInSlot(slot, merged);

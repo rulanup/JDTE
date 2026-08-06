@@ -1,11 +1,11 @@
 package com.jdte.common.items;
 
-import net.minecraft.world.level.Level;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +14,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class FactoryPackageItem extends Item {
 
     public static Optional<UUID> getPackageId(ItemStack stack) {
         if (!isFactoryPackage(stack)) return Optional.empty();
-        CompoundTag tag = getTag(stack);
+        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         return tag.hasUUID(PACKAGE_ID) ? Optional.of(tag.getUUID(PACKAGE_ID)) : Optional.empty();
     }
 
@@ -62,7 +63,7 @@ public class FactoryPackageItem extends Item {
         tag.putInt(SIZE_Z, size.getZ());
         tag.putInt(BLOCK_COUNT, blockCount);
         tag.putInt(ENTITY_COUNT, entityCount);
-        stack.setTag(tag);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         return stack;
     }
 
@@ -87,38 +88,34 @@ public class FactoryPackageItem extends Item {
     public static void rotate(ItemStack stack, int delta) {
         CompoundTag tag = getTag(stack);
         tag.putInt(ROTATION, Math.floorMod(tag.getInt(ROTATION) + delta, 4));
-        stack.setTag(tag);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
     public static Optional<PlacementTarget> getPlacementTarget(ItemStack stack) {
         if (!isFilled(stack)) return Optional.empty();
         CompoundTag tag = getTag(stack);
         if (!tag.contains(TARGET_POS) || !tag.contains(TARGET_DIMENSION)) return Optional.empty();
-        try {
-            return Optional.of(new PlacementTarget(BlockPos.of(tag.getLong(TARGET_POS)),
-                    new ResourceLocation(tag.getString(TARGET_DIMENSION))));
-        } catch (IllegalArgumentException ignored) {
-            return Optional.empty();
-        }
+        ResourceLocation dimension = ResourceLocation.tryParse(tag.getString(TARGET_DIMENSION));
+        return dimension == null ? Optional.empty()
+                : Optional.of(new PlacementTarget(BlockPos.of(tag.getLong(TARGET_POS)), dimension));
     }
 
     public static void setPlacementTarget(ItemStack stack, BlockPos origin, ResourceLocation dimension) {
         CompoundTag tag = getTag(stack);
         tag.putLong(TARGET_POS, origin.asLong());
         tag.putString(TARGET_DIMENSION, dimension.toString());
-        stack.setTag(tag);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
     public static void clearPlacementTarget(ItemStack stack) {
         CompoundTag tag = getTag(stack);
         tag.remove(TARGET_POS);
         tag.remove(TARGET_DIMENSION);
-        stack.setTag(tag);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
     private static CompoundTag getTag(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag == null ? new CompoundTag() : tag.copy();
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
     }
 
     @Override
@@ -162,9 +159,9 @@ public class FactoryPackageItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> lines,
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines,
                                 TooltipFlag tooltipFlag) {
-        CompoundTag tag = getTag(stack);
+        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         if (!tag.hasUUID(PACKAGE_ID)) {
             lines.add(Component.translatable("tooltip.jdte.factory_package.empty")
                     .withStyle(ChatFormatting.GRAY));

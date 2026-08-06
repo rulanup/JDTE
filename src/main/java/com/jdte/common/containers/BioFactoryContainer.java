@@ -14,8 +14,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class BioFactoryContainer extends BaseMachineContainer implements FilterPageHolder {
     public static final int SPECIMEN_X = 15;
@@ -73,7 +73,7 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
     public int getOutputPage() { return outputPage; }
     public int getMaxOutputPage() { return Math.max(0, (getData(2, BioFactoryBE.BASE_OUTPUT_SLOTS) - 1) / BioFactoryBE.BASE_OUTPUT_SLOTS); }
     public void setOutputPage(int page) {
-        int clamped = net.minecraft.util.Mth.clamp(page, 0, getMaxOutputPage());
+        int clamped = Math.clamp(page, 0, getMaxOutputPage());
         if (outputPage != clamped) {
             outputPage = clamped;
             broadcastChanges();
@@ -115,7 +115,7 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
             Slot target = slots.get(index);
             if (target.mayPlace(stack) && target.hasItem()) {
                 ItemStack existing = target.getItem();
-                if (ItemStack.isSameItemSameTags(stack, existing)) {
+                if (ItemStack.isSameItemSameComponents(stack, existing)) {
                     int max = Math.min(target.getMaxStackSize(stack), stack.getMaxStackSize());
                     int transferable = Math.min(stack.getCount(), max - existing.getCount());
                     if (transferable > 0) {
@@ -162,7 +162,7 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
         @Override public ItemStack getItem() { return active() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY; }
         @Override public boolean hasItem() { return !getItem().isEmpty(); }
         @Override public void set(ItemStack stack) {
-            if (active()) ((net.minecraftforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
+            if (active()) ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
         }
         @Override public void initialize(ItemStack stack) { set(stack); }
         @Override public ItemStack remove(int amount) { return active() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY; }

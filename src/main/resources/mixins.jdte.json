@@ -1,9 +1,10 @@
 {
   "required": true,
   "package": "com.jdte.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractContainerMenuInvoker",
+    "AbstractContainerScreenMixin",
     "BaseMachineBEMixin",
     "BaseMachineBlockMixin",
     "BaseMachineContainerMixin",
@@ -14,7 +15,6 @@
     "ClickerFluidMixin",
     "AreaAffectingBEMixin",
     "EnergyCostMixin",
-    "EntityTickMixin",
     "EnergyTransmitterParticleMixin",
     "EnergyStorageAccessor",
     "FilterBasicHandlerAccessor",
@@ -32,11 +32,9 @@
     "TickSpeedPacketMixin"
   ],
   "client": [
-    "AbstractContainerScreenMixin",
     "ScreenMixin",
     "BaseMachineScreenAccessor",
     "BaseMachineScreenMixin",
-    "DropperT2ScreenMixin",
     "BlockEntityRenderDispatcherMixin",
     "SlotAccessor",
     "EntityRenderDispatcherMixin",

@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = EnergyTransmitterBE.class, remap = false)
+@Mixin(EnergyTransmitterBE.class)
 public abstract class EnergyTransmitterParticleMixin {
-    @Inject(remap = false, method = "doParticles", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "doParticles", at = @At("HEAD"), cancellable = true)
     private void jdte$suppressEnergyTransferParticles(BlockPos source, BlockPos target, CallbackInfo ci) {
         EnergyTransmitterBE transmitter = (EnergyTransmitterBE) (Object) this;
         if (transmitter.getLevel() != null

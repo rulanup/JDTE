@@ -35,6 +35,7 @@ public final class DraconicEvolutionIntegration {
         if (!(entity instanceof GuardianCrystalEntity crystal) || crystal.isRemoved()) {
             return false;
         }
+
         crystal.setInvulnerable(false);
         crystal.setShieldPower(0.0F);
         crystal.hurt(playerDamage, Float.MAX_VALUE);
@@ -45,10 +46,12 @@ public final class DraconicEvolutionIntegration {
         if (!(entity instanceof DraconicGuardianEntity guardian)) {
             return false;
         }
+
         GuardianFightManager fightManager = guardian.getFightManager();
         if (fightManager == null) {
             return false;
         }
+
         for (GuardianCrystalEntity crystal : fightManager.getCrystals()) {
             if (destroyGuardianCrystal(crystal, playerDamage)) {
                 return true;
@@ -58,15 +61,14 @@ public final class DraconicEvolutionIntegration {
     }
 
     public static void attackGuardian(LivingEntity entity, DamageSource playerDamage) {
-        if (!(entity instanceof DraconicGuardianEntity guardian)) {
-            return;
-        }
-        guardian.setShieldPower(0.0F);
-        guardian.setHealth(Math.min(guardian.getHealth(), 1.0F));
-        guardian.attackEntityPartFrom(guardian.dragonPartHead, playerDamage, Float.MAX_VALUE);
-        if (!guardian.isDeadOrDying()) {
-            guardian.setHealth(0.0F);
-            guardian.die(playerDamage);
+        if (entity instanceof DraconicGuardianEntity guardian) {
+            guardian.setShieldPower(0.0F);
+            guardian.setHealth(Math.min(guardian.getHealth(), 1.0F));
+            guardian.attackEntityPartFrom(guardian.dragonPartHead, playerDamage, Float.MAX_VALUE);
+            if (!guardian.isDeadOrDying()) {
+                guardian.setHealth(0.0F);
+                guardian.die(playerDamage);
+            }
         }
     }
 
@@ -82,16 +84,14 @@ public final class DraconicEvolutionIntegration {
         }
     }
 
-    public static void addLootFabricatorPreviewDrops(EntityType<?> entityType,
-                                                     Map<ResourceLocation, LootDropInfo> drops) {
+    public static void addLootFabricatorPreviewDrops(EntityType<?> entityType, Map<ResourceLocation, LootDropInfo> drops) {
         if (entityType == EntityType.ENDER_DRAGON) {
             addPreviewDrop(drops, BuiltInRegistries.ITEM.getKey(DEContent.DRAGON_HEART.get()), 1, 1);
         }
         if (entityType == EntityType.ENDER_DRAGON || entityType == DEContent.ENTITY_DRACONIC_GUARDIAN.get()) {
             int[] dustRange = dragonDustCountRange();
             if (dustRange[1] > 0) {
-                addPreviewDrop(drops, BuiltInRegistries.ITEM.getKey(DEContent.DUST_DRACONIUM.get()),
-                        dustRange[0], dustRange[1]);
+                addPreviewDrop(drops, BuiltInRegistries.ITEM.getKey(DEContent.DUST_DRACONIUM.get()), dustRange[0], dustRange[1]);
             }
         }
     }
@@ -110,12 +110,10 @@ public final class DraconicEvolutionIntegration {
         return new int[]{min, max};
     }
 
-    private static void addPreviewDrop(Map<ResourceLocation, LootDropInfo> drops,
-                                       ResourceLocation itemId, int minCount, int maxCount) {
+    private static void addPreviewDrop(Map<ResourceLocation, LootDropInfo> drops, ResourceLocation itemId, int minCount, int maxCount) {
         drops.merge(itemId, new LootDropInfo(itemId, minCount, maxCount, ""), (left, right) ->
                 new LootDropInfo(itemId, Math.min(left.minCount(), right.minCount()),
-                        Math.max(left.maxCount(), right.maxCount()),
-                        mergeChance(left.chanceLabel(), right.chanceLabel())));
+                        Math.max(left.maxCount(), right.maxCount()), mergeChance(left.chanceLabel(), right.chanceLabel())));
     }
 
     private static String mergeChance(String left, String right) {

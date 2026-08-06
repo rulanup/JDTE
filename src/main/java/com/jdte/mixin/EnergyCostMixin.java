@@ -19,9 +19,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = {BlockBreakerT2BE.class, BlockPlacerT2BE.class, BlockSwapperT2BE.class, ClickerT2BE.class, DropperT2BE.class, EnergyTransmitterBE.class, FluidCollectorT2BE.class, FluidPlacerT2BE.class, GeneratorFluidT1BE.class, GeneratorT1BE.class, ParadoxMachineBE.class, SensorT2BE.class}, remap = false)
+@Mixin({BlockBreakerT2BE.class, BlockPlacerT2BE.class, BlockSwapperT2BE.class, ClickerT2BE.class, DropperT2BE.class, EnergyTransmitterBE.class, FluidCollectorT2BE.class, FluidPlacerT2BE.class, GeneratorFluidT1BE.class, GeneratorT1BE.class, ParadoxMachineBE.class, SensorT2BE.class})
 public abstract class EnergyCostMixin {
-    @Inject(remap = false, method = "getStandardEnergyCost", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getStandardEnergyCost", at = @At("RETURN"), cancellable = true)
     private void jdte$adjustEnergyCost(CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(UpgradeHelper.adjustEnergyCost((BaseMachineBE) (Object) this, cir.getReturnValue()));
     }

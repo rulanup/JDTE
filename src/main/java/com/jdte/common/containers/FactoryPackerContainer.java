@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class FactoryPackerContainer extends BaseMachineContainer {
     public FactoryPackerContainer(int id, Inventory inventory, FriendlyByteBuf data) {
@@ -71,7 +71,7 @@ public class FactoryPackerContainer extends BaseMachineContainer {
             Slot target = slots.get(index);
             if (target.mayPlace(stack) && target.hasItem()) {
                 ItemStack existing = target.getItem();
-                if (ItemStack.isSameItemSameTags(stack, existing)) {
+                if (ItemStack.isSameItemSameComponents(stack, existing)) {
                     int max = Math.min(target.getMaxStackSize(stack), stack.getMaxStackSize());
                     int transferable = Math.min(stack.getCount(), max - existing.getCount());
                     if (transferable > 0) {

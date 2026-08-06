@@ -1,6 +1,5 @@
 package com.jdte.common.blockentities;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
@@ -29,7 +28,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, FilterableBE,
         RedstoneControlledBE, PoweredMachineBE, ExtendedUpgradeMachine {
@@ -56,7 +55,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
+    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energy; }
@@ -171,9 +170,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
         int fingerprint = 1;
         FilterBasicHandler handler = getFilterHandler();
         for (int slot = 0; slot < handler.getSlots(); slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
-            fingerprint = 31 * fingerprint + 31 * System.identityHashCode(stack.getItem())
-                    + (stack.hasTag() ? stack.getTag().hashCode() : 0);
+            fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(handler.getStackInSlot(slot));
         }
         if (fingerprint != filterFingerprint) {
             filterFingerprint = fingerprint;
@@ -194,7 +191,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     private void syncClientState() {
         if (!(level instanceof ServerLevel serverLevel)) return;
         AABB area = getAABB(getBlockPos());
-        JDTEPacketHandler.sendToTrackingChunk(serverLevel, new ChunkPos(getBlockPos()),
+        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(getBlockPos()),
                 new RangeBlockerSyncPayload(getBlockPos(), mode.ordinal(), target.ordinal(), blacklist, fieldActive,
                         area.minX, area.minY, area.minZ, area.maxX, area.maxY, area.maxZ));
     }
@@ -207,14 +204,16 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
         syncClientState();
     }
 
+    @Override
     public void handleRotate(Direction oldDirection, Direction newDirection) {
+        AreaAffectingBE.super.handleRotate(oldDirection, newDirection);
         RangeBlockerManager.refresh(this);
         syncClientState();
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         tag.putInt("rangeBlockerMode", mode.ordinal());
         tag.putInt("rangeBlockerTarget", target.ordinal());
         tag.putBoolean("rangeBlockerBlacklist", blacklist);
@@ -223,8 +222,8 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         mode = Mode.values()[Math.floorMod(tag.getInt("rangeBlockerMode"), Mode.values().length)];
         target = tag.contains("rangeBlockerTarget")
                 ? EntitySuppressorBE.Target.values()[Math.floorMod(

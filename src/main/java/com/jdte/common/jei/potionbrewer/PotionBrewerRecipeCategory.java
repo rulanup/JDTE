@@ -144,11 +144,11 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
 
     private void drawPanel(GuiGraphics guiGraphics) {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
+        guiGraphics.blitSprite(JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
     }
 
     private void drawSlot(GuiGraphics guiGraphics, int x, int y) {
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, SLOT_SPRITE, x, y, SLOT_SIZE, SLOT_SIZE);
+        guiGraphics.blitSprite(SLOT_SPRITE, x, y, SLOT_SIZE, SLOT_SIZE);
     }
 
     private void drawBrewingBackground(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
@@ -209,7 +209,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
 
     private void drawFuelBar(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
         int fuelWidth = 1 + (int) ((System.currentTimeMillis() / 90) % FUEL_BAR_WIDTH);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, FUEL_LENGTH_SPRITE,
+        guiGraphics.blitSprite(FUEL_LENGTH_SPRITE,
                 FUEL_BAR_WIDTH,
                 FUEL_BAR_HEIGHT,
                 0,
@@ -223,7 +223,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
     private void drawBubbles(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
         int bubbleHeight = BUBBLE_LENGTHS[(int) ((System.currentTimeMillis() / 180) % BUBBLE_LENGTHS.length)];
         if (bubbleHeight > 0) {
-            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, BUBBLES_SPRITE,
+            guiGraphics.blitSprite(BUBBLES_SPRITE,
                     BUBBLES_WIDTH,
                     BUBBLES_HEIGHT,
                     0,
@@ -237,7 +237,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
 
     private void drawBrewProgress(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
         int progressHeight = 1 + (int) ((System.currentTimeMillis() / 35) % BREW_PROGRESS_HEIGHT);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, BREW_PROGRESS_SPRITE,
+        guiGraphics.blitSprite(BREW_PROGRESS_SPRITE,
                 BREW_PROGRESS_WIDTH,
                 BREW_PROGRESS_HEIGHT,
                 0,
@@ -254,7 +254,8 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
         int fillHeight = 1 + (int) ((System.currentTimeMillis() / 35) % 70);
 
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitPowerBar(guiGraphics, JDT_POWER_BAR, x, y, fillHeight);
+        guiGraphics.blit(JDT_POWER_BAR, x, y, 0, 0, 18, 72, 36, 72);
+        guiGraphics.blit(JDT_POWER_BAR, x + 1, y + 70 - fillHeight, 19, 70 - fillHeight, 16, fillHeight, 36, 72);
 
         if (mouseX >= x && mouseX < x + 18 && mouseY >= y && mouseY < y + 72) {
             guiGraphics.renderTooltip(Minecraft.getInstance().font,

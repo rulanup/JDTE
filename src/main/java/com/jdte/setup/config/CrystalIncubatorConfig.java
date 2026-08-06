@@ -1,23 +1,23 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class CrystalIncubatorConfig {
-    public final ForgeConfigSpec.IntValue crystalIncubatorFluidCapacity;
-    public final ForgeConfigSpec.IntValue crystalIncubatorEnergyCapacity;
-    public final ForgeConfigSpec.DoubleValue crystalIncubatorEnergyCostMultiplier;
-    public final ForgeConfigSpec.IntValue crystalIncubatorMaxMultiplier;
-    public final ForgeConfigSpec.IntValue crystalIncubatorOverclockMultiplier;
-    public final ForgeConfigSpec.DoubleValue crystalIncubatorFluidCostMultiplier;
-    public final ForgeConfigSpec.DoubleValue crystalIncubatorRegularGrowthAcceleratorsAt8x;
-    public final ForgeConfigSpec.IntValue crystalIncubatorScanBatchSize;
-    public final ForgeConfigSpec.IntValue crystalIncubatorCacheRefreshInterval;
-    public final ForgeConfigSpec.IntValue crystalIncubatorMotherBatchSize;
-    public final ForgeConfigSpec.IntValue crystalIncubatorGrowthOperationsPerTick;
-    public final ForgeConfigSpec.IntValue crystalIncubatorHarvestOperationsPerTick;
-    public final ForgeConfigSpec.IntValue crystalIncubatorDynaGrowthAttempts;
+    public final ModConfigSpec.IntValue crystalIncubatorFluidCapacity;
+    public final ModConfigSpec.IntValue crystalIncubatorEnergyCapacity;
+    public final ModConfigSpec.DoubleValue crystalIncubatorEnergyCostMultiplier;
+    public final ModConfigSpec.IntValue crystalIncubatorMaxMultiplier;
+    public final ModConfigSpec.IntValue crystalIncubatorOverclockMultiplier;
+    public final ModConfigSpec.DoubleValue crystalIncubatorFluidCostMultiplier;
+    public final ModConfigSpec.DoubleValue crystalIncubatorRegularGrowthAcceleratorsAt8x;
+    public final ModConfigSpec.IntValue crystalIncubatorScanBatchSize;
+    public final ModConfigSpec.IntValue crystalIncubatorCacheRefreshInterval;
+    public final ModConfigSpec.IntValue crystalIncubatorMotherBatchSize;
+    public final ModConfigSpec.IntValue crystalIncubatorGrowthOperationsPerTick;
+    public final ModConfigSpec.IntValue crystalIncubatorHarvestOperationsPerTick;
+    public final ModConfigSpec.IntValue crystalIncubatorDynaGrowthAttempts;
 
-    public CrystalIncubatorConfig(ForgeConfigSpec.Builder builder) {
+    public CrystalIncubatorConfig(ModConfigSpec.Builder builder) {
         builder.comment("Crystal Incubator Settings")
                 .translation("config.jdte.jdte.crystalIncubator")
                 .push("crystalIncubator");

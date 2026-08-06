@@ -12,7 +12,6 @@ public final class JDTETags {
     public static final TagKey<EntityType<?>> BIO_CRUSHER_FORCE_KILL_BLACKLIST = entityTypeTag("bio_crusher_force_kill_blacklist");
     public static final TagKey<Block> CRYSTAL_INCUBATOR_BUDDING_BLOCKS = blockTag("crystal_incubator_budding_blocks");
     public static final TagKey<Block> CRYSTAL_INCUBATOR_HARVESTABLE_CRYSTALS = blockTag("crystal_incubator_harvestable_crystals");
-    public static final TagKey<Block> AE2_GROWTH_ACCELERATABLE = blockTag("ae2", "growth_acceleratable");
 
     private JDTETags() {
     }
@@ -23,9 +22,5 @@ public final class JDTETags {
 
     private static TagKey<Block> blockTag(String path) {
         return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(JDTE.MODID, path));
-    }
-
-    private static TagKey<Block> blockTag(String namespace, String path) {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(namespace, path));
     }
 }

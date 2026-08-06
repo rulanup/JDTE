@@ -1,26 +1,26 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class TimeAcceleratorConfig {
-    public final ForgeConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
-    public final ForgeConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
-    public final ForgeConfigSpec.IntValue basicTimeAcceleratorDefaultMultiplier;
-    public final ForgeConfigSpec.IntValue basicTimeAcceleratorOverclockMultiplier;
-    public final ForgeConfigSpec.IntValue advancedTimeAcceleratorEnergyCapacity;
-    public final ForgeConfigSpec.IntValue advancedTimeAcceleratorMaxMultiplier;
-    public final ForgeConfigSpec.IntValue advancedTimeAcceleratorOverclockMultiplier;
-    public final ForgeConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
-    public final ForgeConfigSpec.IntValue extendedTimeAcceleratorMaxMultiplier;
-    public final ForgeConfigSpec.IntValue extendedTimeAcceleratorOverclockMultiplier;
-    public final ForgeConfigSpec.IntValue timeAcceleratorMaxExecutionsPerTick;
-    public final ForgeConfigSpec.IntValue timeAcceleratorMaxScannedBlocksPerTick;
-    public final ForgeConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
-    public final ForgeConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
-    public final ForgeConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
-    public final ForgeConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
+    public final ModConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
+    public final ModConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
+    public final ModConfigSpec.IntValue basicTimeAcceleratorDefaultMultiplier;
+    public final ModConfigSpec.IntValue basicTimeAcceleratorOverclockMultiplier;
+    public final ModConfigSpec.IntValue advancedTimeAcceleratorEnergyCapacity;
+    public final ModConfigSpec.IntValue advancedTimeAcceleratorMaxMultiplier;
+    public final ModConfigSpec.IntValue advancedTimeAcceleratorOverclockMultiplier;
+    public final ModConfigSpec.IntValue advancedTimeAcceleratorDefaultMultiplier;
+    public final ModConfigSpec.IntValue extendedTimeAcceleratorMaxMultiplier;
+    public final ModConfigSpec.IntValue extendedTimeAcceleratorOverclockMultiplier;
+    public final ModConfigSpec.IntValue timeAcceleratorMaxExecutionsPerTick;
+    public final ModConfigSpec.IntValue timeAcceleratorMaxScannedBlocksPerTick;
+    public final ModConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
+    public final ModConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
+    public final ModConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
+    public final ModConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
 
-    public TimeAcceleratorConfig(ForgeConfigSpec.Builder builder) {
+    public TimeAcceleratorConfig(ModConfigSpec.Builder builder) {
         builder.comment("Time Accelerator Settings").translation("config.jdte.jdte.timeAccelerator").push("timeAccelerator");
         timeAcceleratorBaseFluidCapacity = builder
                 .comment("Base fluid capacity for time accelerators (mB)")

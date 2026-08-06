@@ -1,209 +1,219 @@
-buildscript {
-    repositories {
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.spongepowered:mixingradle:0.7.+'
-    }
-}
-
 plugins {
     id 'java-library'
     id 'eclipse'
     id 'idea'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+    id 'net.neoforged.moddev' version '2.0.137'
 }
 
-apply plugin: 'org.spongepowered.mixin'
+import org.gradle.api.Action
+import org.gradle.api.file.FileCopyDetails
 
-mixin {
-    add sourceSets.main, 'mixins.jdte.refmap.json'
-    config 'mixins.jdte.json'
+class ExpandPropertiesAction implements Action<FileCopyDetails>, Serializable {
+    private final Map<String, ?> properties
+
+    ExpandPropertiesAction(Map<String, ?> properties) {
+        this.properties = new LinkedHashMap<>(properties)
+    }
+
+    @Override
+    void execute(FileCopyDetails details) {
+        details.expand(properties)
+    }
 }
 
 version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = "[Forge] ${mod_id}"
+    archivesName = mod_id
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion = JavaLanguageVersion.of(21)
     }
     withSourcesJar()
 }
 
 configurations {
-    jdteClientRuntime {
-        canBeConsumed = false
-        canBeResolved = true
+    productiveBeesEmbedded
+    localRuntime {
+        exclude group: "curse.maven", module: "ae2-jei-integration-1074338"
+        exclude group: "curse.maven", module: "imblocker-483760"
+        exclude group: "curse.maven", module: "just-enough-characters-250702"
+    }
+    clientLocalRuntime
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+sourceSets {
+    clientRuntime {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += output + compileClasspath + sourceSets.main.runtimeClasspath + configurations.clientLocalRuntime
     }
 }
 
-def mixinBootstrapResources = tasks.register('mixinBootstrapResources', Jar) {
-    archiveBaseName = "${mod_id}-mixin-bootstrap"
-    archiveVersion = ''
-    destinationDirectory = layout.buildDirectory.dir('generated/mixin-bootstrap')
-    dependsOn(tasks.named('compileJava'))
+neoForge {
+    version = project.neo_version
 
-    from('src/main/resources') {
-        include 'mixins.jdte.json'
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+            gameDirectory = file("runs/${name}")
+        }
+
+        client {
+            client()
+            programArguments.addAll '--username', 'JDTEDev'
+            sourceSet = sourceSets.clientRuntime
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+
+    unitTest {
+        enable()
+        testedMod = mods."${mod_id}"
     }
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url = 'https://maven.minecraftforge.net' }
+    maven { url = 'https://maven.neoforged.net/releases' }
+    maven { url = 'https://maven.parchmentmc.org' }
     maven { url = 'https://maven.blamejared.com' }
-    maven { url = 'https://maven.createmod.net' }
-    maven { url = 'https://maven.architectury.dev/' }
-    maven { url = 'https://modmaven.dev/' }
-    maven { url = 'https://maven.theillusivec4.top/' }
-    maven { url = 'https://maven.ftb.dev/releases' }
-    maven { url = 'https://api.modrinth.com/maven' }
-    maven { url = 'https://thedarkcolour.github.io/KotlinForForge/' }
-    maven { url = 'https://www.cursemaven.com' }
-}
-
-minecraft {
-    mappings channel: 'official', version: minecraft_version
-
-    // Mixin resolves command-line configs from the JVM classpath before Forge
-    // exposes the exploded mod source set to FML.
-    copyIdeResources = true
-
-    runs {
-        configureEach {
-            workingDirectory project.file("runs/${name}")
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.disableRefMap', 'true'
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+    }
+    maven {
+        name = "CreateMod Maven"
+        url = "https://maven.createmod.net"
+    }
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+    maven {
+        name = "FTB Mods"
+        url = "https://maven.ftb.dev/releases"
+        content {
+            includeGroup "dev.ftb.mods"
+        }
+    }
+    maven {
+        name = "Shedaniel Maven"
+        url = "https://maven.shedaniel.me/"
+        content {
+            includeGroup "dev.architectury"
+        }
+    }
+    maven {
+        name = "Curios Maven"
+        url = "https://maven.theillusivec4.top/"
+        content {
+            includeGroup "top.theillusivec4.curios"
+        }
+    }
+    maven {
+        name = "Kotlin for Forge"
+        url = "https://thedarkcolour.github.io/KotlinForForge/"
+        content {
+            includeGroup "thedarkcolour"
+        }
+    }
+    maven {
+        name = "DevOS Snapshots"
+        url = "https://mvn.devos.one/snapshots/"
+        content {
+            includeGroup "com.tterrag.registrate"
+        }
+    }
+    maven {
+        name = "SquidDev Maven"
+        url = "https://maven.squiddev.cc"
+        content {
+            includeGroup "cc.tweaked"
+        }
+    }
+    maven {
+        name = "Jared's Maven"
+        url = "https://maven.blamejared.com/"
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = "https://cursemaven.com"
             }
         }
-
-        client {
-            property 'forge.enabledGameTestNamespaces', project.mod_id
-            args '--username', 'JDTEDev'
+        filter {
+            includeGroup "curse.maven"
         }
-        server {
-            args '--nogui'
+    }
+    maven {
+        url = uri("https://modmaven.dev/")
+        content {
+            includeGroup "appeng"
+            includeGroup "org.appliedenergistics"
+            includeGroup "de.mari_023"
+        }
+    }
+    maven {
+        name = "Modrinth Maven"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
         }
     }
 }
 
+apply from: "$rootDir/dependencies.gradle"
+
+def extractedProductiveLib = layout.buildDirectory.file("generated/productiveLib/productivelib.jar")
+def extractProductiveLib = tasks.register("extractProductiveLib", Sync) {
+    from({ zipTree(configurations.productiveBeesEmbedded.singleFile) })
+    include("META-INF/jarjar/productivelib-*.jar")
+    eachFile { details ->
+        details.relativePath = new RelativePath(true, "productivelib.jar")
+    }
+    includeEmptyDirs = false
+    into(layout.buildDirectory.dir("generated/productiveLib"))
+}
+
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-
-    compileOnly fg.deobf("curse.maven:just-dire-things-forge-${jdt_project_id}:${jdt_curse_file}")
-    runtimeOnly fg.deobf("curse.maven:just-dire-things-forge-${jdt_project_id}:${jdt_curse_file}")
-
-    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
-    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
-    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
-
-    // Compile against optional mod APIs; exact Forge releases are used at runtime below.
-    compileOnly fg.deobf("maven.modrinth:guideme:${guideme_version}")
-    compileOnly fg.deobf("curse.maven:jade-324717:${jade_file}")
-    compileOnly fg.deobf("curse.maven:productivebees-377897:${productivebees_file}")
-    compileOnly fg.deobf("curse.maven:mystical-agriculture-246640:${mystical_agriculture_file}")
-    compileOnly fg.deobf("curse.maven:botany-pots-353928:${botany_pots_file}")
-    compileOnly fg.deobf("curse.maven:bookshelf-228525:${bookshelf_file}")
-    compileOnly fg.deobf("curse.maven:brandons-core-231382:${brandons_core_file}")
-    compileOnly fg.deobf("curse.maven:draconic-evolution-223565:${draconic_evolution_file}")
-    compileOnly fg.deobf("curse.maven:ftb-ultimine-forge-386134:${ftb_ultimine_file}")
-    compileOnly fg.deobf("curse.maven:create-328085:${create_file}")
-    compileOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")
-    compileOnly fg.deobf("me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}")
-    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
-    compileOnly fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
-    compileOnly fg.deobf("dev.ftb.mods:ftb-library-forge:${ftb_library_version}")
-    compileOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
-    compileOnly fg.deobf("de.mari_023:ae2wtlib:${ae2wtlib_version}")
-
-    // Server-safe development runtime mods.
-    runtimeOnly fg.deobf("curse.maven:jade-324717:${jade_file}")
-    runtimeOnly fg.deobf("curse.maven:create-328085:${create_file}")
-    runtimeOnly fg.deobf("me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}")
-    runtimeOnly fg.deobf("thedarkcolour:kotlinforforge:${kotlinforforge_version}")
-    runtimeOnly fg.deobf("de.mari_023:ae2wtlib:${ae2wtlib_version}")
-    // The development client uses official Minecraft names, so GuideME must
-    // be remapped just like AE2 before it is placed on the runtime classpath.
-    runtimeOnly fg.deobf("maven.modrinth:guideme:${guideme_version}")
-
-    runtimeOnly fg.deobf("curse.maven:spark-361579:${spark_file}")
-    runtimeOnly fg.deobf("maven.modrinth:modernfix:${modernfix_version}")
-    runtimeOnly fg.deobf("curse.maven:curios-309927:${curios_curse_file}")
-    runtimeOnly fg.deobf("curse.maven:geckolib-388172:${geckolib_file}")
-    runtimeOnly fg.deobf("curse.maven:cloth-config-348521:${cloth_config_file}")
-    runtimeOnly fg.deobf("curse.maven:bookshelf-228525:${bookshelf_file}")
-    runtimeOnly fg.deobf("curse.maven:polymorph-388800:${polymorph_file}")
-    runtimeOnly fg.deobf("curse.maven:architectury-api-419699:${architectury_file}")
-    runtimeOnly fg.deobf("curse.maven:ftb-library-forge-404465:${ftb_library_file}")
-    runtimeOnly fg.deobf("curse.maven:mekanism-268560:${mekanism_file}")
-
-    runtimeOnly fg.deobf("curse.maven:brandons-core-231382:${brandons_core_file}")
-    runtimeOnly fg.deobf("curse.maven:codechicken-lib-1-8-242818:${codechicken_lib_file}")
-    runtimeOnly fg.deobf("curse.maven:draconic-evolution-223565:${draconic_evolution_file}")
-    runtimeOnly fg.deobf("curse.maven:productivebees-377897:${productivebees_file}")
-    runtimeOnly fg.deobf("curse.maven:allthecompressed-514045:${allthecompressed_file}")
-    runtimeOnly fg.deobf("curse.maven:sophisticated-core-618298:${sophisticated_core_file}")
-    runtimeOnly fg.deobf("curse.maven:sophisticated-storage-619320:${sophisticated_storage_file}")
-    runtimeOnly fg.deobf("curse.maven:ftb-ultimine-forge-386134:${ftb_ultimine_file}")
-    runtimeOnly fg.deobf("curse.maven:cucumber-272335:${cucumber_file}")
-    runtimeOnly fg.deobf("curse.maven:mystical-agriculture-246640:${mystical_agriculture_file}")
-    runtimeOnly fg.deobf("curse.maven:mystical-agradditions-256247:${mystical_agradditions_file}")
-    runtimeOnly fg.deobf("curse.maven:botany-pots-353928:${botany_pots_file}")
-
-    runtimeOnly fg.deobf("curse.maven:applied-energistics-2-223794:${ae2_file}")
-    runtimeOnly fg.deobf("curse.maven:advancedae-1084104:${advancedae_file}")
-    runtimeOnly fg.deobf("curse.maven:ex-pattern-provider-892005:${extendedae_file}")
-    // ExtendedAE Plus 1.4.18 embeds Configuration 2.2.1 without Forge
-    // mappings, which crashes when the integrated server sends config data.
-    runtimeOnly fg.deobf("curse.maven:applied-energistics-2-wireless-terminals-459929:${ae2wt_terminals_file}")
-    runtimeOnly fg.deobf("curse.maven:applied-flux-965012:${applied_flux_file}")
-    runtimeOnly fg.deobf("curse.maven:applied-create-1474758:${applied_create_file}")
-    runtimeOnly fg.deobf("curse.maven:mega-cells-622112:${mega_cells_file}")
-    runtimeOnly fg.deobf("curse.maven:applied-mekanistics-574300:${applied_mekanistics_file}")
-    runtimeOnly fg.deobf("curse.maven:merequester-688367:${merequester_file}")
-
-    // These mods are deliberately absent: Apothic Spawners and Just Dyna Things have no Forge 1.20.1 build.
-
-    // Client-only development helpers must never be added to the dedicated-server runtime.
-    jdteClientRuntime fg.deobf("curse.maven:glodium-957920:${glodium_file}")
-//    jdteClientRuntime fg.deobf("curse.maven:modern-ui-352491:${modern_ui_file}")
-    jdteClientRuntime fg.deobf("curse.maven:mouse-tweaks-60089:${mouse_tweaks_file}")
-    // Configured 2.2.3 pulls Configuration 2.2.1, whose network code is
-    // not remapped for this Forge 1.20.1 development runtime.
-    jdteClientRuntime fg.deobf("curse.maven:searchables-858542:${searchables_file}")
-    jdteClientRuntime fg.deobf("curse.maven:controlling-250398:${controlling_file}")
-    // IME Blocker file 8167842 targets a different GameRenderer mapping and
-    // fails during Mixin application on Forge 1.20.1.
-    jdteClientRuntime fg.deobf("curse.maven:just-enough-characters-250702:${jech_file}")
-
+    implementation "net.neoforged:neoforge:${neo_version}"
+    compileOnly files(extractedProductiveLib).builtBy(extractProductiveLib)
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly "curse.maven:just-dire-things-1002348:7463040"
 }
 
 tasks.named('test', Test).configure {
     useJUnitPlatform()
 }
 
-tasks.named('processResources', ProcessResources).configure {
-    def replaceProperties = [
+tasks.named("processResources", ProcessResources).configure {
+    var replaceProperties = [
             minecraft_version: minecraft_version,
             minecraft_version_range: minecraft_version_range,
-            forge_version: forge_version,
-            forge_version_range: forge_version_range,
+            neo_version: neo_version,
+            neo_version_range: neo_version_range,
             loader_version_range: loader_version_range,
             mod_id: mod_id,
             mod_name: mod_name,
@@ -211,24 +221,22 @@ tasks.named('processResources', ProcessResources).configure {
             mod_version: mod_version,
             mod_authors: mod_authors,
             mod_description: mod_description,
-            jdt_mod_version: jdt_mod_version
+            jdt_mod_version: jdt_mod_version,
     ]
-    inputs.properties(replaceProperties)
-    filesMatching(['META-INF/mods.toml']) {
-        expand(replaceProperties)
-    }
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml'], new ExpandPropertiesAction(replaceProperties))
 }
 
-tasks.named('jar', Jar).configure {
+tasks.named("jar", Jar).configure {
     manifest {
         attributes([
-                'Specification-Title': mod_id,
-                'Specification-Vendor': mod_authors,
-                'Specification-Version': '1',
-                'Implementation-Title': project.name,
-                'Implementation-Version': project.version,
-                'Implementation-Vendor': mod_authors,
-                'MixinConfigs': 'mixins.jdte.json'
+                "Specification-Title"   : mod_id,
+                "Specification-Vendor"  : mod_authors,
+                "Specification-Version" : "1",
+                "Implementation-Title"  : project.name,
+                "Implementation-Version": project.version,
+                "Implementation-Vendor" : mod_authors
         ])
     }
 }
@@ -237,18 +245,9 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
-tasks.withType(JavaExec).configureEach {
-    if (name.startsWith('run')) {
-        dependsOn(mixinBootstrapResources)
-        classpath += files(sourceSets.main.output.classesDirs, sourceSets.main.output.resourcesDir)
-    }
-
-    if (name == 'runClient') {
-        classpath += configurations.jdteClientRuntime
-    }
-}
-
-tasks.withType(net.minecraftforge.gradle.common.util.runs.MinecraftRunTask).configureEach {
-    // Mixin resolves command-line configs from Forge's legacy class path.
-    minecraftArtifacts.from(mixinBootstrapResources)
+tasks.register('validateDocs', Exec) {
+    group = 'verification'
+    description = 'Validate lang keys, block registrations, and GuideME pages are consistent.'
+    workingDir = rootDir
+    commandLine 'python', 'scripts/validate_docs.py'
 }

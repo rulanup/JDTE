@@ -38,7 +38,7 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
 
     private static java.util.Optional<DisplayDrop> toDisplayDrop(LootDropInfo drop) {
         return BuiltInRegistries.ITEM.getOptional(drop.itemId()).map(item -> {
-            ItemStack stack = new ItemStack(item, net.minecraft.util.Mth.clamp(drop.maxCount(), 1, item.getMaxStackSize()));
+            ItemStack stack = new ItemStack(item, Math.clamp(drop.maxCount(), 1, item.getDefaultMaxStackSize()));
             return new DisplayDrop(stack, drop.minCount(), drop.maxCount(), drop.chanceLabel());
         });
     }

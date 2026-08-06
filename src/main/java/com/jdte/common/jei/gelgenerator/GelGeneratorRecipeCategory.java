@@ -124,7 +124,7 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
 
     private void drawPanel(GuiGraphics guiGraphics) {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
+        guiGraphics.blitSprite(JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
     }
 
     private void drawSlotBorders(GuiGraphics guiGraphics, GelGeneratorJeiRecipe recipe) {
@@ -147,7 +147,7 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
     }
 
     private void drawSlot(GuiGraphics guiGraphics, int machineX, int machineY) {
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, SLOT_SPRITE, slotX(machineX), slotY(machineY), SLOT_SIZE, SLOT_SIZE);
+        guiGraphics.blitSprite(SLOT_SPRITE, slotX(machineX), slotY(machineY), SLOT_SIZE, SLOT_SIZE);
     }
 
     private void drawProgressArrow(GuiGraphics guiGraphics, GelGeneratorJeiRecipe recipe) {
@@ -170,7 +170,8 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
         int fillHeight = 1 + (int) ((System.currentTimeMillis() / 35) % 70);
 
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitPowerBar(guiGraphics, JDT_POWER_BAR, x, y, fillHeight);
+        guiGraphics.blit(JDT_POWER_BAR, x, y, 0, 0, 18, 72, 36, 72);
+        guiGraphics.blit(JDT_POWER_BAR, x + 1, y + 70 - fillHeight, 19, 70 - fillHeight, 16, fillHeight, 36, 72);
 
         if (mouseX >= x && mouseX < x + 18 && mouseY >= y && mouseY < y + 72) {
             guiGraphics.renderTooltip(Minecraft.getInstance().font,

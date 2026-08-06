@@ -110,9 +110,9 @@ public class AdvancedItemCollectorBER extends AreaAffectingBER {
     private static void renderFace(Matrix4f pose, VertexConsumer vertices,
                                    float x1, float x2, float y1, float y2,
                                    float z1, float z2, float z3, float z4) {
-        vertices.vertex(pose, x1, y1, z1).endVertex();
-        vertices.vertex(pose, x2, y1, z2).endVertex();
-        vertices.vertex(pose, x2, y2, z3).endVertex();
-        vertices.vertex(pose, x1, y2, z4).endVertex();
+        vertices.addVertex(pose, x1, y1, z1);
+        vertices.addVertex(pose, x2, y1, z2);
+        vertices.addVertex(pose, x2, y2, z3);
+        vertices.addVertex(pose, x1, y2, z4);
     }
 }

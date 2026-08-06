@@ -22,17 +22,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMachineBE, RedstoneControlledBE {
     public static final int INPUT_SLOT = 0;
@@ -183,7 +184,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
 
     protected InfusionProcess findSpawnEggProcess(ItemStack input, FluidStack fluid) {
         if (!(level instanceof ServerLevel serverLevel)
-                || !fluid.getFluid().isSame(JDTEFluids.LIFE_FLUID_SOURCE.get())
+                || !fluid.is(JDTEFluids.LIFE_FLUID_SOURCE.get())
                 || fluid.getAmount() < MobLootSpawnEggHelper.LIFE_FLUID_COST) {
             return null;
         }
@@ -201,9 +202,9 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
 
     protected InfusionRecipe findRecipe(ItemStack input, FluidStack fluid) {
         if (level == null) return null;
-        for (InfusionRecipe recipe : level.getRecipeManager().getAllRecipesFor(JDTERecipes.INFUSION_RECIPE_TYPE.get())) {
-            if (recipe.matches(input, fluid)) {
-                return recipe;
+        for (RecipeHolder<InfusionRecipe> holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.INFUSION_RECIPE_TYPE.get())) {
+            if (holder.value().matches(input, fluid)) {
+                return holder.value();
             }
         }
         return null;
@@ -225,7 +226,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
         ItemStack container = input.copy();
         container.setCount(1);
         ItemStack originalContainer = container.copy();
-        IFluidHandlerItem itemHandler = container.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        IFluidHandlerItem itemHandler = container.getCapability(Capabilities.FluidHandler.ITEM);
         if (itemHandler == null || itemHandler.getTanks() <= 0) {
             return null;
         }
@@ -244,7 +245,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
         }
 
         ItemStack result = itemHandler.getContainer();
-        if (result.isEmpty() || ItemStack.isSameItemSameTags(originalContainer, result)) {
+        if (result.isEmpty() || ItemStack.isSameItemSameComponents(originalContainer, result)) {
             return null;
         }
         result.setCount(1);
@@ -257,8 +258,8 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
         }
 
         ItemStack result;
-        if (fluid.getFluid() == Fluids.WATER) {
-            result = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER);
+        if (fluid.is(Fluids.WATER)) {
+            result = PotionContents.createItemStack(Items.POTION, Potions.WATER);
         } else if (InfusionFluidHelper.isHoneyFluid(fluid)) {
             result = new ItemStack(Items.HONEY_BOTTLE);
         } else {
@@ -271,7 +272,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
     protected boolean canOutput(ItemStack result) {
         ItemStack output = itemHandler.getStackInSlot(OUTPUT_SLOT);
         if (output.isEmpty()) return true;
-        if (!ItemStack.isSameItemSameTags(output, result)) return false;
+        if (!ItemStack.isSameItemSameComponents(output, result)) return false;
         return output.getCount() + result.getCount() <= output.getMaxStackSize();
     }
 
@@ -315,21 +316,21 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("inventory", itemHandler.serializeNBT());
-        tag.put("fluidTank", fluidTank.serializeNBT());
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("inventory", itemHandler.serializeNBT(provider));
+        tag.put("fluidTank", fluidTank.serializeNBT(provider));
         tag.putInt("progress", progress);
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(tag.getCompound("inventory"));
+            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
         }
         if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
+            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
         }
         if (tag.contains("progress")) {
             progress = tag.getInt("progress");

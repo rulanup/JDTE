@@ -1,6 +1,5 @@
 package com.jdte.common.network.handler;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.client.AutoIoConfigClientCache;
@@ -9,8 +8,8 @@ import com.jdte.common.network.data.AutoIoConfigPayload;
 import com.jdte.common.network.data.AutoIoConfigSyncPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.PacketDistributor;
-import com.jdte.common.network.PacketContext;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class AutoIoConfigPacket {
     private static final AutoIoConfigPacket INSTANCE = new AutoIoConfigPacket();
@@ -19,7 +18,7 @@ public class AutoIoConfigPacket {
         return INSTANCE;
     }
 
-    public void handleServer(AutoIoConfigPayload payload, PacketContext context) {
+    public void handleServer(AutoIoConfigPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             AbstractContainerMenu container = context.player().containerMenu;
             if (!(container instanceof BaseMachineContainer machineContainer)) {
@@ -36,7 +35,7 @@ public class AutoIoConfigPacket {
                 AutoIoConfigHelper.setMasks(machine, payload.inputMask(), payload.outputMask());
             }
             if (context.player() instanceof ServerPlayer serverPlayer) {
-                JDTEPacketHandler.sendToPlayer(serverPlayer, new AutoIoConfigSyncPayload(
+                PacketDistributor.sendToPlayer(serverPlayer, new AutoIoConfigSyncPayload(
                         machine.getBlockPos(),
                         AutoIoConfigHelper.getInputMask(machine),
                         AutoIoConfigHelper.getOutputMask(machine)));
@@ -44,7 +43,7 @@ public class AutoIoConfigPacket {
         });
     }
 
-    public void handleClient(AutoIoConfigSyncPayload payload, PacketContext context) {
+    public void handleClient(AutoIoConfigSyncPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> AutoIoConfigClientCache.setMasks(
                 payload.blockPos(), payload.inputMask(), payload.outputMask()));
     }

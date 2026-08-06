@@ -1,6 +1,5 @@
 package com.jdte.client.screens;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
@@ -30,9 +29,9 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 
@@ -78,10 +77,10 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
     private void renderMachineSlots(GuiGraphics graphics) {
         for (int i = 0; i < 1 + BioFactoryBE.INPUT_SLOTS + BioFactoryBE.BASE_OUTPUT_SLOTS; i++) {
             Slot slot = container.slots.get(i);
-            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, ResourceLocation.withDefaultNamespace("container/slot"),
+            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
-        Slot specimen = container.slots.get(0);
+        Slot specimen = container.slots.getFirst();
         if (!specimen.hasItem()) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.28F);
             graphics.renderFakeItem(new ItemStack(Items.BEE_SPAWN_EGG),
@@ -103,7 +102,7 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
     }
 
     private void drawArrow(GuiGraphics graphics, int x, int y, int width, int color) {
-        int clampedWidth = net.minecraft.util.Mth.clamp(width, 0, 24);
+        int clampedWidth = Math.clamp(width, 0, 24);
         if (clampedWidth <= 0) return;
         int bodyWidth = Math.min(16, clampedWidth);
         if (bodyWidth > 0) graphics.fill(x, y + 5, x + bodyWidth, y + 10, color);
@@ -123,7 +122,7 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         int x = getGuiLeft() + relativeX;
         int y = getGuiTop() + TANK_Y;
         graphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
-        int height = net.minecraft.util.Mth.clamp((int) ((long) amount * 70L / Math.max(1, factoryContainer.getFluidCapacity())), 0, 70);
+        int height = Math.clamp((int) ((long) amount * 70L / Math.max(1, factoryContainer.getFluidCapacity())), 0, 70);
         if (height > 0 && !stack.isEmpty()) renderFluid(graphics, stack, x + 1, y + 71, 16, height);
         graphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
     }
@@ -137,13 +136,12 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         RenderSystem.setShaderColor((tint >> 16 & 255) / 255.0F, (tint >> 8 & 255) / 255.0F,
                 (tint & 255) / 255.0F, (tint >>> 24) / 255.0F);
         PoseStack pose = graphics.pose();
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        buffer.vertex(pose.last().pose(), x, bottom, 0).uv(sprite.getU0(), sprite.getV1()).endVertex();
-        buffer.vertex(pose.last().pose(), x + width, bottom, 0).uv(sprite.getU1(), sprite.getV1()).endVertex();
-        buffer.vertex(pose.last().pose(), x + width, bottom - height, 0).uv(sprite.getU1(), sprite.getV0()).endVertex();
-        buffer.vertex(pose.last().pose(), x, bottom - height, 0).uv(sprite.getU0(), sprite.getV0()).endVertex();
-        BufferUploader.drawWithShader(buffer.end());
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        buffer.addVertex(pose.last().pose(), x, bottom, 0).setUv(sprite.getU0(), sprite.getV1());
+        buffer.addVertex(pose.last().pose(), x + width, bottom, 0).setUv(sprite.getU1(), sprite.getV1());
+        buffer.addVertex(pose.last().pose(), x + width, bottom - height, 0).setUv(sprite.getU1(), sprite.getV0());
+        buffer.addVertex(pose.last().pose(), x, bottom - height, 0).setUv(sprite.getU0(), sprite.getV0());
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
         RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
@@ -158,7 +156,7 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         multiplierButton = new NumberButton(getGuiLeft() + 42, getGuiTop() + 38,
                 24, 12, factoryContainer.getMultiplier(), 1, factoryContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.bio_factory.multiplier"), button ->
-                JDTEPacketHandler.CHANNEL.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
+                PacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
         addRenderableWidget(multiplierButton);
     }
     @Override protected void containerTick() {
@@ -176,7 +174,7 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
             else if (MiscTools.inBounds(getGuiLeft() + 105, getGuiTop() + 53, 12, 12, mouseX, mouseY)) page++;
             else return super.mouseClicked(mouseX, mouseY, button);
             factoryContainer.setOutputPage(page);
-            JDTEPacketHandler.CHANNEL.sendToServer(new FilterPagePayload(factoryContainer.getOutputPage()));
+            PacketDistributor.sendToServer(new FilterPagePayload(factoryContainer.getOutputPage()));
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;
         }

@@ -1,0 +1,12 @@
+{
+  "type": "jdte:bio_factory",
+  "specimen": { "item": "minecraft:bee_spawn_egg" },
+  "inputs": [
+    { "ingredient": { "tag": "minecraft:bee_food" } }
+  ],
+  "outputs": [
+    { "item": { "id": "minecraft:honeycomb", "count": 1 } }
+  ],
+  "process_ticks": 600,
+  "energy": 1000
+}

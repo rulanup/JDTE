@@ -1,12 +1,12 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class GeneratorUpgradeConfig {
-    public final ForgeConfigSpec.IntValue generatorUpgradeEnergyMultiplier;
-    public final ForgeConfigSpec.IntValue generatorUpgradeFluidCost;
+    public final ModConfigSpec.IntValue generatorUpgradeEnergyMultiplier;
+    public final ModConfigSpec.IntValue generatorUpgradeFluidCost;
 
-    public GeneratorUpgradeConfig(ForgeConfigSpec.Builder builder) {
+    public GeneratorUpgradeConfig(ModConfigSpec.Builder builder) {
         builder.comment("Generator Upgrade Settings").translation("config.jdte.jdte.generatorUpgrade").push("generatorUpgrade");
         generatorUpgradeEnergyMultiplier = builder
                 .comment("Generator upgrade energy output multiplier")

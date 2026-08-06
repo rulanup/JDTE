@@ -31,9 +31,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public abstract class LifeExtractorBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, FluidMachineBE {
     public static final int MODE_HOSTILE = 0;
@@ -62,7 +62,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         areaAffectingData.xRadius = BASE_RADIUS;
         areaAffectingData.yRadius = BASE_RADIUS;
         areaAffectingData.zRadius = BASE_RADIUS;
-        fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.getFluid().isSame(JDTEFluids.LIFE_FLUID_SOURCE.get()));
+        fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.is(JDTEFluids.LIFE_FLUID_SOURCE.get()));
         fluidContainerData = new FluidContainerData(this);
         lifeExtractorData = new ContainerData() {
             @Override
@@ -229,7 +229,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         if (entity.isSpectator()) return false;
 
         if (hasFilterUpgrade) {
-            return com.jdte.common.utils.EntityFilterHelper.matches(this, entity);
+            return isEntityValidFilter(entity, level);
         }
 
         return switch (mode) {
@@ -257,7 +257,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     }
 
     public void setMode(int mode) {
-        this.mode = net.minecraft.util.Mth.clamp(mode, MODE_HOSTILE, MODE_ALL);
+        this.mode = Math.clamp(mode, MODE_HOSTILE, MODE_ALL);
         setChanged();
     }
 
@@ -287,7 +287,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return getData(Registration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -306,9 +306,9 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("fluidTank", fluidTank.serializeNBT());
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("fluidTank", fluidTank.serializeNBT(provider));
         tag.putInt("mode", mode);
         tag.putInt("tickCounter", tickCounter);
         tag.putDouble("pendingLifeFluid", pendingLifeFluid);
@@ -316,10 +316,10 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
+            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
         }
         if (tag.contains("mode")) {
             mode = tag.getInt("mode");

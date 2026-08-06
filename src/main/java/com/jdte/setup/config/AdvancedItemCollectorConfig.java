@@ -1,16 +1,16 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class AdvancedItemCollectorConfig {
-    public final ForgeConfigSpec.BooleanValue advancedItemCollectorPreDrainEnabled;
-    public final ForgeConfigSpec.IntValue advancedItemCollectorPreDrainThreshold;
-    public final ForgeConfigSpec.BooleanValue advancedItemCollectorMeDirectTransferEnabled;
-    public final ForgeConfigSpec.BooleanValue advancedItemCollectorExistingItemScanEnabled;
-    public final ForgeConfigSpec.IntValue advancedItemCollectorExistingItemScanInterval;
-    public final ForgeConfigSpec.IntValue advancedItemCollectorExistingItemScanLimit;
+    public final ModConfigSpec.BooleanValue advancedItemCollectorPreDrainEnabled;
+    public final ModConfigSpec.IntValue advancedItemCollectorPreDrainThreshold;
+    public final ModConfigSpec.BooleanValue advancedItemCollectorMeDirectTransferEnabled;
+    public final ModConfigSpec.BooleanValue advancedItemCollectorExistingItemScanEnabled;
+    public final ModConfigSpec.IntValue advancedItemCollectorExistingItemScanInterval;
+    public final ModConfigSpec.IntValue advancedItemCollectorExistingItemScanLimit;
 
-    public AdvancedItemCollectorConfig(ForgeConfigSpec.Builder builder) {
+    public AdvancedItemCollectorConfig(ModConfigSpec.Builder builder) {
         builder.comment("Advanced Item Collector Settings")
                 .translation("config.jdte.jdte.advancedItemCollector")
                 .push("advancedItemCollector");

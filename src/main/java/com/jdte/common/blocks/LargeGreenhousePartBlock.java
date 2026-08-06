@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -51,15 +51,10 @@ public class LargeGreenhousePartBlock extends Block {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        ItemStack stack = player.getItemInHand(hand);
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
+                                               Player player, BlockHitResult hit) {
         BlockPos controllerPos = getControllerPos(pos, state);
-        BlockState controllerState = level.getBlockState(controllerPos);
-        if (!controllerState.is(JDTEBlocks.LARGE_GREENHOUSE.get())) return InteractionResult.FAIL;
-        InteractionResult result = FluidContainerTransfer.useItemOn(stack, controllerState, level, controllerPos, player, hand, hit);
-        if (result != InteractionResult.PASS) {
-            return result;
-        }
+        if (!(level.getBlockEntity(controllerPos) instanceof LargeGreenhouseBE)) return InteractionResult.FAIL;
         if (!level.isClientSide()) {
             ((LargeGreenhouseBlock) JDTEBlocks.LARGE_GREENHOUSE.get()).openMenu(player, controllerPos);
         }
@@ -67,7 +62,16 @@ public class LargeGreenhousePartBlock extends Block {
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                              Player player, InteractionHand hand, BlockHitResult hit) {
+        BlockPos controllerPos = getControllerPos(pos, state);
+        BlockState controllerState = level.getBlockState(controllerPos);
+        if (!controllerState.is(JDTEBlocks.LARGE_GREENHOUSE.get())) return ItemInteractionResult.FAIL;
+        return FluidContainerTransfer.useItemOn(stack, controllerState, level, controllerPos, player, hand, hit);
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!isMoving && !state.is(newState.getBlock())) {
             LargeGreenhouseStructure.removeFromPart(level, pos, state, true);
         }

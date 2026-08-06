@@ -32,8 +32,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public abstract class TimeAcceleratorBE extends BaseMachineBE implements RedstoneControlledBE, AreaAffectingBE, FluidMachineBE, FilterableBE, TimeAcceleratorMachine, BaseFilterMachine {
     public final FluidContainerData fluidContainerData;
@@ -113,7 +113,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
 
     protected boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState) {
         if (blockState.getBlock() instanceof LiquidBlock liquidBlock) {
-            return isStackValidFilter(new ItemStack(liquidBlock));
+            return isStackValidFilter(liquidBlock);
         }
         ItemStack blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), serverLevel, blockPos, getFakePlayer(serverLevel));
         return isStackValidFilter(blockItemStack);
@@ -191,7 +191,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
 
     protected double getFluidCostPerTick(int multiplier) {
         double costPerTimeWandUse = multiplier
-                * Config.TIME_WAND_FLUID_COST.get()
+                * Config.TIMEWAND_FLUID_COST.get()
                 * JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier.get()
                 * getTierFluidCostMultiplier();
         return Math.max(0.0D, costPerTimeWandUse / 600.0D);
@@ -239,7 +239,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return getData(Registration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -253,17 +253,17 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("fluidTank", fluidTank.serializeNBT());
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("fluidTank", fluidTank.serializeNBT(provider));
         tag.putDouble("pendingFluidCost", pendingFluidCost);
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
+            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
         }
         if (tag.contains("pendingFluidCost")) {
             pendingFluidCost = tag.getDouble("pendingFluidCost");

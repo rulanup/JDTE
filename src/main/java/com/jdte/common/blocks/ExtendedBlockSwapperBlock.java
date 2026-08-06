@@ -13,12 +13,12 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class ExtendedBlockSwapperBlock extends JDTEMachineBlock {
+public class ExtendedBlockSwapperBlock extends BaseMachineBlock {
     public ExtendedBlockSwapperBlock() {
         super(Properties.of().sound(SoundType.METAL).strength(2.5f).isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Nullable @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new ExtendedBlockSwapperBE(pos, state); }
-    @Override public void openMenu(Player player, BlockPos blockPos) { openScreen(player,new SimpleMenuProvider((w, p, e) -> new ExtendedBlockSwapperContainer(w, p, blockPos), Component.translatable("block.jdte.extended_block_swapper")), buf -> buf.writeBlockPos(blockPos)); }
+    @Override public void openMenu(Player player, BlockPos blockPos) { player.openMenu(new SimpleMenuProvider((w, p, e) -> new ExtendedBlockSwapperContainer(w, p, blockPos), Component.translatable("block.jdte.extended_block_swapper")), buf -> buf.writeBlockPos(blockPos)); }
     @Override public boolean isValidBE(BlockEntity blockEntity) { return blockEntity instanceof ExtendedBlockSwapperBE; }
 }

@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = BaseMachineContainer.class, remap = false)
+@Mixin(BaseMachineContainer.class)
 public abstract class BaseMachineContainerMixin {
     @Shadow public int FILTER_SLOTS;
     @Shadow public int MACHINE_SLOTS;
@@ -33,7 +33,7 @@ public abstract class BaseMachineContainerMixin {
     @Unique
     public int jdte$UPGRADE_SLOTS = 0;
 
-    @Inject(remap = false, method = "<init>", at = @At("TAIL"))
+    @Inject(method = "<init>", at = @At("TAIL"))
     private void jdte$addUpgradeSlots(net.minecraft.world.inventory.MenuType<?> menuType, int windowId, Inventory playerInventory, BlockPos blockPos, CallbackInfo ci) {
         if (baseMachineBE == null) {
             return;
@@ -60,7 +60,7 @@ public abstract class BaseMachineContainerMixin {
         }
     }
 
-    @Inject(remap = false, method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
     private void jdte$quickMoveUpgrades(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
         if (baseMachineBE == null || index < 0) {
             return;
@@ -144,7 +144,7 @@ public abstract class BaseMachineContainerMixin {
             Slot slot = container.slots.get(i);
             if (slot.mayPlace(stack) && slot.hasItem()) {
                 ItemStack existing = slot.getItem();
-                if (ItemStack.isSameItemSameTags(stack, existing)) {
+                if (ItemStack.isSameItemSameComponents(stack, existing)) {
                     int combined = existing.getCount() + stack.getCount();
                     int max = Math.min(slot.getMaxStackSize(), stack.getMaxStackSize());
                     if (combined <= max) {

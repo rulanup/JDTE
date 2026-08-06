@@ -14,8 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -44,7 +44,7 @@ public record GelGeneratorJeiRecipe(
     }
 
     private static String stackKey(ItemStack stack) {
-        return stack.isEmpty() ? "empty" : BuiltInRegistries.ITEM.getKey(stack.getItem()) + "@" + stack.getTag();
+        return stack.isEmpty() ? "empty" : BuiltInRegistries.ITEM.getKey(stack.getItem()) + "@" + stack.getComponents();
     }
     public static List<GelGeneratorJeiRecipe> getRecipes() {
         Minecraft minecraft = Minecraft.getInstance();
@@ -57,11 +57,11 @@ public record GelGeneratorJeiRecipe(
 
         List<GelGeneratorJeiRecipe> recipes = new ArrayList<>();
 
-        for (GooSpreadRecipe recipe : recipeManager.getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get())) {
-            addBlockRecipe(recipes, recipe);
+        for (RecipeHolder<GooSpreadRecipe> recipe : recipeManager.getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get())) {
+            addBlockRecipe(recipes, recipe.value());
         }
-        for (GooSpreadRecipeTag recipe : recipeManager.getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE_TAG.get())) {
-            addTagRecipe(recipes, recipe);
+        for (RecipeHolder<GooSpreadRecipeTag> recipe : recipeManager.getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE_TAG.get())) {
+            addTagRecipe(recipes, recipe.value());
         }
 
         return recipes;
@@ -106,14 +106,11 @@ public record GelGeneratorJeiRecipe(
             return;
         }
 
-        List<ItemStack> inputs = new ArrayList<>();
-        for (Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(recipe.getInput())) {
-            ItemStack input = single(new ItemStack(holder.value().asItem()));
-            if (!input.isEmpty()) {
-                inputs.add(input);
-            }
-        }
-        inputs.sort(Comparator.comparing(GelGeneratorJeiRecipe::itemId));
+        List<ItemStack> inputs = recipe.getInput().getItems()
+                .map(GelGeneratorJeiRecipe::single)
+                .filter(stack -> !stack.isEmpty())
+                .sorted(Comparator.comparing(GelGeneratorJeiRecipe::itemId))
+                .toList();
         for (ItemStack input : inputs) {
             addRecipeForEachGelFood(recipes, recipe.getTierRequirement(),
                     input, output, Fluids.EMPTY, Fluids.EMPTY, 0);
@@ -181,8 +178,8 @@ public record GelGeneratorJeiRecipe(
     }
 
     private static Fluid getFluid(BlockState state) {
-        if (state.getBlock() instanceof LiquidBlock) {
-            return state.getFluidState().getType();
+        if (state.getBlock() instanceof LiquidBlock liquidBlock) {
+            return liquidBlock.fluid;
         }
         return Fluids.EMPTY;
     }

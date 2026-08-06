@@ -1,6 +1,5 @@
 package com.jdte.client.screens;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.JDTE;
@@ -13,7 +12,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class LifeExtractorScreen<T extends LifeExtractorContainer> extends BaseMachineScreen<T> {
     private static final ResourceLocation SCANNER_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/mobscanner.png");
@@ -75,7 +74,7 @@ public abstract class LifeExtractorScreen<T extends LifeExtractorContainer> exte
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && !hasFilterUpgrade() && isModeButtonClicked(mouseX, mouseY)) {
             localMode = (localMode + 1) % 3;
-            JDTEPacketHandler.CHANNEL.sendToServer(new LifeExtractorPayload(localMode));
+            PacketDistributor.sendToServer(new LifeExtractorPayload(localMode));
             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                     net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;

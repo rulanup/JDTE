@@ -17,8 +17,8 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +27,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -36,19 +38,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.fml.ModList;
 import com.jdte.mixin.FluidTankAccessor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE {
+    private static final ResourceLocation PRODUCTIVE_BEES_CONFIGURABLE_EGG =
+            ResourceLocation.fromNamespaceAndPath("productivebees", "spawn_egg_configurable_bee");
     public static final int INPUT_SLOTS = 4;
     public static final int OUTPUT_SLOTS = 64;
     public static final int BASE_OUTPUT_SLOTS = 16;
@@ -88,7 +92,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         tickSpeed = PROCESS_TIME;
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
-        lifeFluidTank = new JDTEFluidTank(BASE_FLUID_CAPACITY, fluid -> fluid.getFluid().isSame(JDTEFluids.LIFE_FLUID_SOURCE.get()));
+        lifeFluidTank = new JDTEFluidTank(BASE_FLUID_CAPACITY, fluid -> fluid.is(JDTEFluids.LIFE_FLUID_SOURCE.get()));
         timeFluidTank = new JDTEFluidTank(BASE_FLUID_CAPACITY, fluid -> fluid.getFluid() instanceof TimeFluid);
         itemHandler = new ItemStackHandler(MACHINE_SLOTS) {
             @Override public int getSlotLimit(int slot) { return slot < INPUT_SLOTS ? 1 : 64; }
@@ -109,8 +113,8 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
                 return 0;
             }
             @Override public FluidStack drain(FluidStack stack, FluidAction action) {
-                if (lifeFluidTank.getFluid().getFluid() == stack.getFluid()) return lifeFluidTank.drain(stack, action);
-                if (timeFluidTank.getFluid().getFluid() == stack.getFluid()) return timeFluidTank.drain(stack, action);
+                if (lifeFluidTank.getFluid().is(stack.getFluid())) return lifeFluidTank.drain(stack, action);
+                if (timeFluidTank.getFluid().is(stack.getFluid())) return timeFluidTank.drain(stack, action);
                 return FluidStack.EMPTY;
             }
             @Override public FluidStack drain(int amount, FluidAction action) {
@@ -232,23 +236,8 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
 
     private List<ItemStack> rollLoot(ServerLevel level, ItemStack eggStack) {
         SpawnEggItem egg = (SpawnEggItem) eggStack.getItem();
-        EntityType<?> entityType = getSpawnEggEntityType(egg, eggStack);
-        if (entityType == null) return List.of();
-        Entity entity;
-        try {
-            entity = entityType.create(level);
-        } catch (RuntimeException ignored) {
-            return List.of();
-        }
+        Entity entity = egg.getType(eggStack).create(level);
         if (!(entity instanceof LivingEntity living)) return List.of();
-        CompoundTag eggTag = eggStack.getTag();
-        if (eggTag != null && eggTag.contains("EntityTag", Tag.TAG_COMPOUND)) {
-            try {
-                living.load(eggTag.getCompound("EntityTag"));
-            } catch (RuntimeException ignored) {
-                // A malformed optional EntityTag must not prevent the base spawn egg from working.
-            }
-        }
         living.moveTo(getBlockPos().getCenter());
         FakePlayer player = getFakePlayer(level);
         ItemStack previous = player.getMainHandItem().copy();
@@ -259,21 +248,17 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
                     .withParameter(LootContextParams.THIS_ENTITY, living)
                     .withParameter(LootContextParams.ORIGIN, living.position())
                     .withParameter(LootContextParams.DAMAGE_SOURCE, damage)
-                    .withParameter(LootContextParams.KILLER_ENTITY, player)
-                    .withParameter(LootContextParams.DIRECT_KILLER_ENTITY, player)
+                    .withParameter(LootContextParams.ATTACKING_ENTITY, player)
+                    .withParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, player)
                     .withParameter(LootContextParams.LAST_DAMAGE_PLAYER, player)
                     .create(LootContextParamSets.ENTITY);
-            ResourceLocation lootTable = living.getLootTable();
-            List<ItemStack> drops = lootTable == null
-                    ? new ArrayList<>()
-                    : new ArrayList<>(level.getServer().getLootData().getLootTable(lootTable).getRandomItems(params));
+            List<ItemStack> drops = new ArrayList<>(level.getServer().reloadableRegistries()
+                    .getLootTable(living.getLootTable()).getRandomItems(params));
             if (ModList.get().isLoaded("draconicevolution")) {
                 DraconicEvolutionIntegration.addLootFabricatorDrops(living, level.random, drops);
             }
             addVanillaBossDrops(living, drops);
             return applyLootingBonus(level, drops);
-        } catch (RuntimeException ignored) {
-            return List.of();
         } finally {
             player.setItemInHand(InteractionHand.MAIN_HAND, previous);
         }
@@ -303,7 +288,9 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     private ItemStack createLootingWeapon(ServerLevel level) {
         ItemStack weapon = new ItemStack(Items.DIAMOND_SWORD);
         if (getLootingLevel() > 0) {
-            weapon.enchant(Enchantments.MOB_LOOTING, getLootingLevel());
+            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.LOOTING), getLootingLevel());
+            EnchantmentHelper.setEnchantments(weapon, enchantments.toImmutable());
         }
         return weapon;
     }
@@ -318,15 +305,8 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     }
 
     private static boolean isSupportedLootTemplate(ItemStack stack) {
-        return !stack.isEmpty() && stack.getItem() instanceof SpawnEggItem;
-    }
-
-    private static EntityType<?> getSpawnEggEntityType(SpawnEggItem egg, ItemStack stack) {
-        try {
-            return egg.getType(stack.getTag());
-        } catch (RuntimeException ignored) {
-            return null;
-        }
+        if (!(stack.getItem() instanceof SpawnEggItem)) return false;
+        return !BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(PRODUCTIVE_BEES_CONFIGURABLE_EGG);
     }
 
     private void resetProgress() {
@@ -358,7 +338,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         return Math.min(OUTPUT_SLOTS, Math.max(configured, occupied));
     }
     public int getLootingLevel() { return upgradeHandler.getLootingCount(); }
-    public int getProcessTime() { return net.minecraft.util.Mth.clamp(UpgradeHelper.getEffectiveTickSpeed(this, tickSpeed), 1, MAX_TICK_SPEED); }
+    public int getProcessTime() { return Math.clamp(UpgradeHelper.getEffectiveTickSpeed(this, tickSpeed), 1, MAX_TICK_SPEED); }
     public int getTimeFluidCost() { return getConfiguredBaseTimeFluidCost() * Math.max(1, PROCESS_TIME / getProcessTime()); }
     private int getEffectiveLifeFluidCost(ItemStack spawnEgg) { return applyLootingFluidCostIncrease(getLifeFluidCost(spawnEgg), getLootingLevel()); }
     private int getEffectiveTimeFluidCost(ItemStack spawnEgg) { return applyLootingFluidCostIncrease(safeMultiplyCost(getTimeFluidCost(), getBossCostMultiplier(spawnEgg)), getLootingLevel()); }
@@ -370,7 +350,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     public static int getMaxTimeFluidCost(ItemStack spawnEgg) { return safeMultiplyCost(getBaseTimeFluidCost(spawnEgg), PROCESS_TIME); }
     public static int getBossCostMultiplier(ItemStack spawnEgg) {
         if (!(spawnEgg.getItem() instanceof SpawnEggItem egg)) return 1;
-        EntityType<?> type = getSpawnEggEntityType(egg, spawnEgg);
+        EntityType<?> type = egg.getType(spawnEgg);
         if (type == EntityType.ENDER_DRAGON) return ENDER_DRAGON_COST_MULTIPLIER;
         if (type == EntityType.WITHER || type == EntityType.ELDER_GUARDIAN) return BOSS_COST_MULTIPLIER;
         return 1;
@@ -393,7 +373,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         if (value > Integer.MAX_VALUE / multiplier) return Integer.MAX_VALUE;
         return value * multiplier;
     }
-    private static int clampRawTickSpeed(int value) { return net.minecraft.util.Mth.clamp(value, 1, MAX_TICK_SPEED); }
+    private static int clampRawTickSpeed(int value) { return Math.clamp(value, 1, MAX_TICK_SPEED); }
     private int countCapacity(int ignored) { return UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY); }
 
     @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
@@ -425,23 +405,23 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         }
     }
 
-    @Override public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("inventory", itemHandler.serializeNBT());
-        tag.put("upgrades", upgradeHandler.serializeNBT());
-        tag.put("lifeFluid", lifeFluidTank.serializeNBT());
-        tag.put("timeFluid", timeFluidTank.serializeNBT());
+    @Override public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("inventory", itemHandler.serializeNBT(provider));
+        tag.put("upgrades", upgradeHandler.serializeNBT(provider));
+        tag.put("lifeFluid", lifeFluidTank.serializeNBT(provider));
+        tag.put("timeFluid", timeFluidTank.serializeNBT(provider));
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("progress", progress);
         tag.putInt("nextInputSlot", nextInputSlot);
     }
 
-    @Override public void load(CompoundTag tag) {
-        super.load(tag);
-        if (tag.contains("inventory")) itemHandler.deserializeNBT(tag.getCompound("inventory"));
-        if (tag.contains("upgrades")) upgradeHandler.deserializeNBT(tag.getCompound("upgrades"));
-        if (tag.contains("lifeFluid")) lifeFluidTank.deserializeNBT(tag.getCompound("lifeFluid"));
-        if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(tag.getCompound("timeFluid"));
+    @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        if (tag.contains("inventory")) itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
+        if (tag.contains("upgrades")) upgradeHandler.deserializeNBT(provider, tag.getCompound("upgrades"));
+        if (tag.contains("lifeFluid")) lifeFluidTank.deserializeNBT(provider, tag.getCompound("lifeFluid"));
+        if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(provider, tag.getCompound("timeFluid"));
         energyStorage.setEnergy(tag.getInt("energy"));
         progress = tag.getInt("progress");
         nextInputSlot = tag.getInt("nextInputSlot");

@@ -1,6 +1,5 @@
 package com.jdte.client.screens;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.GrayscaleButton;
@@ -34,10 +33,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,14 +161,14 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
                 getGuiTop() + config.getGelGenSpeedButtonY(),
                 tickSpeed, b -> {
                     tickSpeed = ((com.direwolf20.justdirethings.client.screens.widgets.NumberButton) b).getValue();
-                    com.direwolf20.justdirethings.common.network.PacketHandler.CHANNEL.sendToServer(new TickSpeedPayload(tickSpeed));
+                    PacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
                 }));
     }
 
     private void toggleAutoBalance() {
         autoBalanceLocal = !autoBalanceLocal;
         autoBalanceWidget.setTooltip(Tooltip.create(Component.translatable(autoBalanceLocal ? "jdte.screen.auto_balance.on" : "jdte.screen.auto_balance.off")));
-        JDTEPacketHandler.CHANNEL.sendToServer(new GelGeneratorPayload(autoBalanceLocal));
+        PacketDistributor.sendToServer(new GelGeneratorPayload(autoBalanceLocal));
     }
 
     private void renderGelFluidTanks(GuiGraphics guiGraphics) {
@@ -212,7 +211,7 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
         if (MiscTools.inBounds(inputX, inputY, 18, 72, mouseX, mouseY)) {
             FluidStack fluidStack = gelContainer.getFluidStack();
             guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
-                    Component.translatable("justdirethings.screen.fluid", fluidStack.getDisplayName(), MagicHelpers.withSuffix(gelContainer.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
+                    Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(gelContainer.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
             )), mouseX, mouseY);
             return;
         }
@@ -225,7 +224,7 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
 
         FluidStack fluidStack = gelContainer.getOutputFluidStack();
         guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
-                Component.translatable("justdirethings.screen.fluid", fluidStack.getDisplayName(), MagicHelpers.withSuffix(gelContainer.getOutputFluidAmount()), MagicHelpers.withSuffix(maxMb))
+                Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(gelContainer.getOutputFluidAmount()), MagicHelpers.withSuffix(maxMb))
         )), mouseX, mouseY);
     }
 
@@ -256,8 +255,7 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
         int textureHeight = fluidStillSprite.contents().height();
 
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder vertexBuffer = tesselator.getBuilder();
-        vertexBuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        BufferBuilder vertexBuffer = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
         int yOffset = 0;
         while (yOffset < height) {
@@ -270,21 +268,17 @@ public abstract class GelGeneratorScreen<T extends GelGeneratorContainer> extend
                 int drawWidth = Math.min(textureWidth, width - xOffset);
                 float uMaxAdjusted = uMin + (uMax - uMin) * ((float) drawWidth / textureWidth);
 
-                vertexBuffer.vertex(poseStack.last().pose(), startX + xOffset, drawY + drawHeight, zLevel)
-                        .uv(uMin, vMaxAdjusted).endVertex();
-                vertexBuffer.vertex(poseStack.last().pose(), startX + xOffset + drawWidth, drawY + drawHeight, zLevel)
-                        .uv(uMaxAdjusted, vMaxAdjusted).endVertex();
-                vertexBuffer.vertex(poseStack.last().pose(), startX + xOffset + drawWidth, drawY, zLevel)
-                        .uv(uMaxAdjusted, vMin).endVertex();
-                vertexBuffer.vertex(poseStack.last().pose(), startX + xOffset, drawY, zLevel)
-                        .uv(uMin, vMin).endVertex();
+                vertexBuffer.addVertex(poseStack.last().pose(), startX + xOffset, drawY + drawHeight, zLevel).setUv(uMin, vMaxAdjusted);
+                vertexBuffer.addVertex(poseStack.last().pose(), startX + xOffset + drawWidth, drawY + drawHeight, zLevel).setUv(uMaxAdjusted, vMaxAdjusted);
+                vertexBuffer.addVertex(poseStack.last().pose(), startX + xOffset + drawWidth, drawY, zLevel).setUv(uMaxAdjusted, vMin);
+                vertexBuffer.addVertex(poseStack.last().pose(), startX + xOffset, drawY, zLevel).setUv(uMin, vMin);
 
                 xOffset += drawWidth;
             }
             yOffset += drawHeight;
         }
 
-        BufferUploader.drawWithShader(vertexBuffer.end());
+        BufferUploader.drawWithShader(vertexBuffer.buildOrThrow());
         poseStack.popPose();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.applyModelViewMatrix();

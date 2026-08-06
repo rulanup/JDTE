@@ -66,14 +66,15 @@ public class GreenhouseRecipeCategory implements IRecipeCategory<GreenhouseJeiRe
 
     @Override
     public void draw(GreenhouseJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphics graphics, double mouseX, double mouseY) {
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, BACKGROUND, 0, 0, WIDTH, HEIGHT);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, SLOT, INPUT_X, INPUT_Y, 18, 18);
+        graphics.blitSprite(BACKGROUND, 0, 0, WIDTH, HEIGHT);
+        graphics.blitSprite(SLOT, INPUT_X, INPUT_Y, 18, 18);
         for (int i = 0; i < 16; i++) {
-            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, SLOT, OUTPUT_X + (i % 4) * 18, OUTPUT_Y + (i / 4) * 18, 18, 18);
+            graphics.blitSprite(SLOT, OUTPUT_X + (i % 4) * 18, OUTPUT_Y + (i / 4) * 18, 18, 18);
         }
         drawPlantProgress(graphics, 64, 31);
         int fill = 1 + (int) ((System.currentTimeMillis() / 35) % 70);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitPowerBar(graphics, POWER_BAR, ENERGY_X, FLUID_Y, fill);
+        graphics.blit(POWER_BAR, ENERGY_X, FLUID_Y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(POWER_BAR, ENERGY_X + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
         if (mouseX >= ENERGY_X && mouseX < ENERGY_X + 18 && mouseY >= FLUID_Y && mouseY < FLUID_Y + 72) {
             graphics.renderTooltip(Minecraft.getInstance().font,
                     Component.literal(recipe.energy() + " FE"), (int) mouseX, (int) mouseY);

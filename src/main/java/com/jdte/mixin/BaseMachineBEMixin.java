@@ -10,19 +10,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = BaseMachineBE.class, remap = false)
+@Mixin(BaseMachineBE.class)
 public abstract class BaseMachineBEMixin {
     @Shadow protected int tickSpeed;
     @Shadow protected int operationTicks;
 
-    @Inject(remap = false, method = "tickServer", at = @At("HEAD"))
+    @Inject(method = "tickServer", at = @At("HEAD"))
     private void jdte$syncUpgradeCapacities(CallbackInfo ci) {
         BaseMachineBE machine = (BaseMachineBE) (Object) this;
         UpgradeHelper.syncCapacities(machine);
         AutoIoTransferHelper.tick(machine);
     }
 
-    @Inject(remap = false, method = "handleTicks", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "handleTicks", at = @At("HEAD"), cancellable = true)
     private void jdte$handleEffectiveTicks(CallbackInfo ci) {
         int effectiveTickSpeed = UpgradeHelper.getEffectiveTickSpeed((BaseMachineBE) (Object) this, tickSpeed);
         if (operationTicks <= 0) {
@@ -32,7 +32,7 @@ public abstract class BaseMachineBEMixin {
         ci.cancel();
     }
 
-    @Inject(remap = false, method = "getTickSpeed", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getTickSpeed", at = @At("RETURN"), cancellable = true)
     private void jdte$getEffectiveTickSpeed(CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(UpgradeHelper.getEffectiveTickSpeed((BaseMachineBE) (Object) this, cir.getReturnValue()));
     }

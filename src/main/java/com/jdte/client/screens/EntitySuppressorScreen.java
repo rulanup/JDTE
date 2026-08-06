@@ -1,6 +1,5 @@
 package com.jdte.client.screens;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory.TextureLocalization;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
@@ -14,7 +13,7 @@ import com.jdte.common.network.data.EntitySuppressorPayload;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -122,6 +121,6 @@ public class EntitySuppressorScreen extends BaseMachineScreen<EntitySuppressorCo
         if (baseMachineBE instanceof EntitySuppressorBE suppressor) {
             suppressor.applyClientSettings(mode, target, blacklist);
         }
-        JDTEPacketHandler.CHANNEL.sendToServer(new EntitySuppressorPayload(mode, target, blacklist));
+        PacketDistributor.sendToServer(new EntitySuppressorPayload(mode, target, blacklist));
     }
 }

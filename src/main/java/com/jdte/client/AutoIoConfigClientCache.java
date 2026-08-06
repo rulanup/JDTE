@@ -1,12 +1,11 @@
 package com.jdte.client;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.autoioconfig.AutoIoConfigData;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
 import com.jdte.common.network.data.AutoIoConfigPayload;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +38,7 @@ public final class AutoIoConfigClientCache {
         if (machine == null) {
             return;
         }
-        JDTEPacketHandler.CHANNEL.sendToServer(new AutoIoConfigPayload(machine.getBlockPos(),
+        PacketDistributor.sendToServer(new AutoIoConfigPayload(machine.getBlockPos(),
                 AutoIoConfigData.DEFAULT_SIDE_MASK, AutoIoConfigData.DEFAULT_SIDE_MASK, true));
     }
 
@@ -49,7 +48,7 @@ public final class AutoIoConfigClientCache {
         }
         AutoIoConfigHelper.IoMasks masks = new AutoIoConfigHelper.IoMasks(inputMask, outputMask);
         setMasks(machine.getBlockPos(), masks.inputMask(), masks.outputMask());
-        JDTEPacketHandler.CHANNEL.sendToServer(new AutoIoConfigPayload(
+        PacketDistributor.sendToServer(new AutoIoConfigPayload(
                 machine.getBlockPos(), masks.inputMask(), masks.outputMask(), false));
     }
 

@@ -17,7 +17,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -74,17 +74,13 @@ public final class MobLootSpawnEggHelper {
         for (Item item : BuiltInRegistries.ITEM) {
             if (!(item instanceof SpawnEggItem spawnEgg)) continue;
             ItemStack eggStack = new ItemStack(spawnEgg);
-            EntityType<?> entityType = getSpawnEggEntityType(spawnEgg, eggStack);
-            if (entityType == null) continue;
             Map<ResourceLocation, LootDropInfo> possibleDrops = new HashMap<>();
-            ResourceLocation lootTable = entityType.getDefaultLootTable();
-            if (lootTable != null) {
-                collectLootTableDrops(resources, lootTable, possibleDrops, new HashSet<>(), "");
-            }
+            collectLootTableDrops(resources, spawnEgg.getType(eggStack).getDefaultLootTable().location(),
+                    possibleDrops, new HashSet<>(), "");
             if (ModList.get().isLoaded("draconicevolution")) {
-                DraconicEvolutionIntegration.addLootFabricatorPreviewDrops(entityType, possibleDrops);
+                DraconicEvolutionIntegration.addLootFabricatorPreviewDrops(spawnEgg.getType(eggStack), possibleDrops);
             }
-            addVanillaBossPreviewDrops(entityType, possibleDrops);
+            addVanillaBossPreviewDrops(spawnEgg.getType(eggStack), possibleDrops);
             List<LootDropInfo> drops = possibleDrops.values().stream()
                     .sorted(java.util.Comparator.comparing(drop -> drop.itemId().toString()))
                     .toList();
@@ -114,7 +110,7 @@ public final class MobLootSpawnEggHelper {
                                               Set<ResourceLocation> visitedTables, String inheritedChance) {
         if (!visitedTables.add(tableId)) return;
         ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(
-                tableId.getNamespace(), "loot_tables/" + tableId.getPath() + ".json");
+                tableId.getNamespace(), "loot_table/" + tableId.getPath() + ".json");
         resources.getResource(resourceId).ifPresent(resource -> {
             try (Reader reader = resource.openAsReader()) {
                 collectJsonDrops(resources, JsonParser.parseReader(reader), output, visitedTables, inheritedChance);
@@ -204,7 +200,7 @@ public final class MobLootSpawnEggHelper {
     }
 
     private static String formatChance(double chance) {
-        double percent = net.minecraft.util.Mth.clamp(chance, 0.0D, 1.0D) * 100.0D;
+        double percent = Math.clamp(chance, 0.0D, 1.0D) * 100.0D;
         return percent == Math.rint(percent) ? Integer.toString((int) percent) + "%" : String.format(java.util.Locale.ROOT, "%.2f%%", percent);
     }
 
@@ -223,18 +219,15 @@ public final class MobLootSpawnEggHelper {
             }
 
             ItemStack eggStack = new ItemStack(spawnEgg);
-            EntityType<?> entityType = getSpawnEggEntityType(spawnEgg, eggStack);
-            if (entityType == null || entityType == EntityType.WITHER
-                    || entityType == EntityType.ENDER_DRAGON
-                    || entityType == EntityType.ELDER_GUARDIAN) {
+            if (spawnEgg.getType(eggStack) == EntityType.WITHER
+                    || spawnEgg.getType(eggStack) == EntityType.ENDER_DRAGON
+                    || spawnEgg.getType(eggStack) == EntityType.ELDER_GUARDIAN) {
                 continue;
             }
             Set<Item> possibleDrops = new HashSet<>();
-            ResourceLocation lootTable = entityType.getDefaultLootTable();
-            if (lootTable == null) continue;
-            collectLootTableItems(resources, lootTable, possibleDrops, new HashSet<>());
+            collectLootTableItems(resources, spawnEgg.getType(eggStack).getDefaultLootTable().location(), possibleDrops, new HashSet<>());
             for (Item drop : possibleDrops) {
-                if (drop.getMaxStackSize() > 1) {
+                if (drop.getDefaultMaxStackSize() > 1) {
                     candidates.computeIfAbsent(drop, ignored -> new ArrayList<>()).add(eggStack.copy());
                 }
             }
@@ -243,18 +236,10 @@ public final class MobLootSpawnEggHelper {
         Map<Item, ItemStack> uniqueRecipes = new HashMap<>();
         candidates.forEach((drop, eggs) -> {
             if (eggs.size() == 1) {
-                uniqueRecipes.put(drop, eggs.get(0));
+                uniqueRecipes.put(drop, eggs.getFirst());
             }
         });
         return uniqueRecipes;
-    }
-
-    private static EntityType<?> getSpawnEggEntityType(SpawnEggItem spawnEgg, ItemStack stack) {
-        try {
-            return spawnEgg.getType(stack.getTag());
-        } catch (RuntimeException ignored) {
-            return null;
-        }
     }
 
     private static void collectLootTableItems(ResourceManager resources, ResourceLocation tableId,
@@ -264,7 +249,7 @@ public final class MobLootSpawnEggHelper {
         }
 
         ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(
-                tableId.getNamespace(), "loot_tables/" + tableId.getPath() + ".json");
+                tableId.getNamespace(), "loot_table/" + tableId.getPath() + ".json");
         resources.getResource(resourceId).ifPresent(resource -> {
             try (Reader reader = resource.openAsReader()) {
                 collectJsonItems(resources, JsonParser.parseReader(reader), output, visitedTables);

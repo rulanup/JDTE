@@ -5,7 +5,7 @@ import com.jdte.setup.JDTERecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,10 +25,11 @@ public record LifeSynthesisJeiRecipe(ResourceLocation id, String tier, List<JeiI
                 : minecraft.getConnection() != null ? minecraft.getConnection().getRecipeManager() : null;
         if (manager == null) return List.of();
         List<LifeSynthesisJeiRecipe> result = new ArrayList<>();
-        for (LifeSynthesisRecipe recipe : manager.getAllRecipesFor(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get())) {
+        for (var holder : manager.getAllRecipesFor(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get())) {
+            LifeSynthesisRecipe recipe = holder.value();
             List<JeiInput> inputs = recipe.inputs().stream()
                     .map(input -> new JeiInput(List.of(input.ingredient().getItems()), input.count())).toList();
-            result.add(new LifeSynthesisJeiRecipe(recipe.getId(), recipe.tier(), inputs,
+            result.add(new LifeSynthesisJeiRecipe(holder.id(), recipe.tier(), inputs,
                     recipe.nutrient(), recipe.output(), recipe.processTicks(), recipe.energy()));
         }
         result.sort(Comparator.comparing((LifeSynthesisJeiRecipe recipe) -> recipe.tier())

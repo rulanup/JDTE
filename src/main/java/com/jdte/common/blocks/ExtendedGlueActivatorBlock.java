@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class ExtendedGlueActivatorBlock extends JDTEMachineBlock {
+public class ExtendedGlueActivatorBlock extends BaseMachineBlock {
     public ExtendedGlueActivatorBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
@@ -30,7 +30,7 @@ public class ExtendedGlueActivatorBlock extends JDTEMachineBlock {
 
     @Override
     public void openMenu(Player player, BlockPos blockPos) {
-        openScreen(player,new SimpleMenuProvider(
+        player.openMenu(new SimpleMenuProvider(
                 (windowId, playerInventory, playerEntity) -> new ExtendedGlueActivatorContainer(windowId, playerInventory, blockPos), Component.translatable("block.jdte.extended_glue_activator")), (buf -> {
             buf.writeBlockPos(blockPos);
         }));

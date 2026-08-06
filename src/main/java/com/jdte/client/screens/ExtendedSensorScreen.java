@@ -22,11 +22,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,8 +34,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContainer> implements SensorScreenInterface {
-    private static final ResourceLocation JDT_BACKGROUND = ResourceLocation.fromNamespaceAndPath(
-            "justdirethings", "textures/gui/sprites/background.png");
     public int senseTarget;
     public boolean strongSignal;
     public boolean showBlockStates;
@@ -111,7 +108,7 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
     @Override
     public void saveSettings() {
         super.saveSettings();
-        com.direwolf20.justdirethings.common.network.PacketHandler.CHANNEL.sendToServer(new SensorPayload(senseTarget, strongSignal, senseAmount, equality));
+        PacketDistributor.sendToServer(new SensorPayload(senseTarget, strongSignal, senseAmount, equality));
     }
 
     @Override
@@ -157,7 +154,7 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
         for (int i = 0; i < container.FILTER_SLOTS; i++) {
             ItemStack stack = filterStack(i);
             ItemStack cachedStack = itemStackCache.get(i);
-            if (!ItemStack.isSameItemSameTags(stack, cachedStack)) {
+            if (!ItemStack.isSameItemSameComponents(stack, cachedStack)) {
                 clearStateProperties(i);
                 saveBlockStateData(i);
                 itemStackCache.put(i, stack);
@@ -171,7 +168,7 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
         CompoundTag tag = new CompoundTag();
         ListTag listTag = SensorT1BE.saveBlockStateProperty(props);
         tag.put("tagList", listTag);
-        com.direwolf20.justdirethings.common.network.PacketHandler.CHANNEL.sendToServer(new BlockStateFilterPayload(slot, tag));
+        PacketDistributor.sendToServer(new BlockStateFilterPayload(slot, tag));
     }
 
     @Override
@@ -179,7 +176,7 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
         super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
         validateItemStackCache();
         if (showBlockStates) {
-            com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, JDT_BACKGROUND, topSectionLeft - 100, topSectionTop, 100, topSectionHeight);
+            guiGraphics.blitSprite(SOCIALBACKGROUND, topSectionLeft - 100, topSectionTop, 100, topSectionHeight);
             if (blockStateSlot != -1 && !filterStack(blockStateSlot).equals(scrollPanel.getStateStack()))
                 refreshStateWindow();
         }

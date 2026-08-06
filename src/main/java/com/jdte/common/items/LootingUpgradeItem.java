@@ -1,6 +1,5 @@
 package com.jdte.common.items;
 
-import net.minecraft.world.level.Level;
 import com.jdte.common.upgrades.UpgradeCardInsertionHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -25,8 +24,8 @@ public class LootingUpgradeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.jdte.looting_upgrade").withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.jdte.max", MAX_LEVEL).withStyle(ChatFormatting.DARK_GRAY));
     }

@@ -1,6 +1,5 @@
 package com.jdte.client.screens;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory.TextureLocalization;
 import com.direwolf20.justdirethings.client.screens.widgets.GrayscaleButton;
@@ -12,7 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class FactoryPackerScreen extends BaseMachineScreen<FactoryPackerContaine
                 List.of(new TextureLocalization(
                         ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/positionswap.png"),
                         Component.translatable("screen.jdte.factory_packer.start"))), 0,
-                button -> JDTEPacketHandler.CHANNEL.sendToServer(new FactoryPackerStartPayload())));
+                button -> PacketDistributor.sendToServer(new FactoryPackerStartPayload())));
         updateButton();
     }
 
@@ -68,7 +67,7 @@ public class FactoryPackerScreen extends BaseMachineScreen<FactoryPackerContaine
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(graphics, partialTick, mouseX, mouseY);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(graphics, net.minecraft.resources.ResourceLocation.withDefaultNamespace("container/slot"),
+        graphics.blitSprite(net.minecraft.resources.ResourceLocation.withDefaultNamespace("container/slot"),
                 getGuiLeft() + 79, getGuiTop() + 17, 18, 18);
         int statusX = getGuiLeft() + 89;
         int statusY = getGuiTop() + 40;

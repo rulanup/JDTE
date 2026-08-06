@@ -4,7 +4,7 @@ import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachin
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.network.data.LifeExtractorPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import com.jdte.common.network.PacketContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class LifeExtractorPacket {
     private static final LifeExtractorPacket INSTANCE = new LifeExtractorPacket();
@@ -13,7 +13,7 @@ public class LifeExtractorPacket {
         return INSTANCE;
     }
 
-    public void handle(LifeExtractorPayload payload, PacketContext context) {
+    public void handle(LifeExtractorPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             AbstractContainerMenu container = context.player().containerMenu;
             if (container instanceof BaseMachineContainer machineContainer && machineContainer.baseMachineBE instanceof LifeExtractorBE extractor) {

@@ -1,6 +1,5 @@
 package com.jdte.client.screens;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
@@ -18,7 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends BaseMachineScreen<T> {
     private static final ResourceLocation SCANNER_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/mobscanner.png");
@@ -96,7 +95,7 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
         }
         if (button == 0 && !hasFilterUpgrade() && isModeButtonClicked(mouseX, mouseY)) {
             localMode = (localMode + 1) % 3;
-            JDTEPacketHandler.CHANNEL.sendToServer(new BioCrusherPayload(localMode));
+            PacketDistributor.sendToServer(new BioCrusherPayload(localMode));
             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                     net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;
@@ -187,12 +186,12 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
     private void changeOutputPage(int delta) {
         BioCrusherContainer bioCrusherContainer = bioCrusherContainer();
         int oldPage = bioCrusherContainer.getOutputPage();
-        int newPage = net.minecraft.util.Mth.clamp(oldPage + delta, 0, bioCrusherContainer.getMaxOutputPage());
+        int newPage = Math.clamp(oldPage + delta, 0, bioCrusherContainer.getMaxOutputPage());
         if (newPage == oldPage) {
             return;
         }
         bioCrusherContainer.setOutputPage(newPage);
-        JDTEPacketHandler.CHANNEL.sendToServer(new FilterPagePayload(newPage));
+        PacketDistributor.sendToServer(new FilterPagePayload(newPage));
         net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                 net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }

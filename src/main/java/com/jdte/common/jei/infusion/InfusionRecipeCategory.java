@@ -108,11 +108,11 @@ public class InfusionRecipeCategory implements IRecipeCategory<InfusionJeiRecipe
 
     private void drawPanel(GuiGraphics guiGraphics) {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
+        guiGraphics.blitSprite(JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
     }
 
     private void drawSlot(GuiGraphics guiGraphics, int x, int y) {
-        com.jdte.client.screens.util.GuiSpriteCompat.blitSprite(guiGraphics, SLOT_SPRITE, x, y, SLOT_SIZE, SLOT_SIZE);
+        guiGraphics.blitSprite(SLOT_SPRITE, x, y, SLOT_SIZE, SLOT_SIZE);
     }
 
     private void drawProgressArrow(GuiGraphics guiGraphics) {
@@ -129,8 +129,8 @@ public class InfusionRecipeCategory implements IRecipeCategory<InfusionJeiRecipe
         int fillHeight = 1 + (int) ((System.currentTimeMillis() / 35) % 70);
 
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        com.jdte.client.screens.util.GuiSpriteCompat.blitPowerBar(guiGraphics, JDT_POWER_BAR,
-                ENERGY_BAR_X, FLUID_BAR_Y, fillHeight);
+        guiGraphics.blit(JDT_POWER_BAR, ENERGY_BAR_X, FLUID_BAR_Y, 0, 0, 18, 72, 36, 72);
+        guiGraphics.blit(JDT_POWER_BAR, ENERGY_BAR_X + 1, FLUID_BAR_Y + 70 - fillHeight, 19, 70 - fillHeight, 16, fillHeight, 36, 72);
 
         if (mouseX >= ENERGY_BAR_X && mouseX < ENERGY_BAR_X + 18 && mouseY >= FLUID_BAR_Y && mouseY < FLUID_BAR_Y + 72) {
             guiGraphics.renderTooltip(Minecraft.getInstance().font,

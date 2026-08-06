@@ -6,7 +6,7 @@ import com.jdte.common.containers.ExtendedFluidCollectorContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,18 +18,17 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class ExtendedFluidCollectorBlock extends JDTEMachineBlock {
+public class ExtendedFluidCollectorBlock extends BaseMachineBlock {
     public ExtendedFluidCollectorBlock() {
         super(Properties.of().sound(SoundType.METAL).strength(2.5f).isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
-        ItemStack itemStack = player.getItemInHand(hand);
-        return useWithFluidContainer(itemStack, blockState, level, blockPos, player, hand, hit);
+    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return FluidContainerTransfer.useItemOn(itemStack, blockState, level, blockPos, player, hand, hit);
     }
 
     @Nullable @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new ExtendedFluidCollectorBE(pos, state); }
-    @Override public void openMenu(Player player, BlockPos blockPos) { openScreen(player,new SimpleMenuProvider((w, p, e) -> new ExtendedFluidCollectorContainer(w, p, blockPos), Component.translatable("block.jdte.extended_fluid_collector")), buf -> buf.writeBlockPos(blockPos)); }
+    @Override public void openMenu(Player player, BlockPos blockPos) { player.openMenu(new SimpleMenuProvider((w, p, e) -> new ExtendedFluidCollectorContainer(w, p, blockPos), Component.translatable("block.jdte.extended_fluid_collector")), buf -> buf.writeBlockPos(blockPos)); }
     @Override public boolean isValidBE(BlockEntity blockEntity) { return blockEntity instanceof ExtendedFluidCollectorBE; }
 }

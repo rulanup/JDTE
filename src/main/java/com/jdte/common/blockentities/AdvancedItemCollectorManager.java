@@ -12,13 +12,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,10 +84,10 @@ public final class AdvancedItemCollectorManager {
     }
 
     private static IItemHandlerModifiable findModifiableItemHandler(ServerLevel level, BlockPos pos) {
-        IItemHandler unsided = com.jdte.common.capabilities.ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.ITEM_HANDLER, null);
+        IItemHandler unsided = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
         if (unsided instanceof IItemHandlerModifiable modifiable) return modifiable;
         for (Direction direction : Direction.values()) {
-            IItemHandler sided = com.jdte.common.capabilities.ForgeCapabilityHelper.get(level, pos, ForgeCapabilities.ITEM_HANDLER, direction);
+            IItemHandler sided = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction);
             if (sided instanceof IItemHandlerModifiable modifiable) return modifiable;
         }
         return null;
@@ -173,10 +173,7 @@ public final class AdvancedItemCollectorManager {
         if (remainder.getCount() != originalCount) itemEntity.setItem(remainder);
     }
 
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) {
-            return;
-        }
+    public static void onServerTick(ServerTickEvent.Post event) {
         for (Map.Entry<ServerLevel, LevelState> entry : LEVELS.entrySet()) {
             if (entry.getKey().getServer() == event.getServer()) {
                 entry.getValue().flush(entry.getKey());

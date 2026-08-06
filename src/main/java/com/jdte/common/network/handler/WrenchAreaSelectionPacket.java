@@ -13,7 +13,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import com.jdte.common.network.PacketContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class WrenchAreaSelectionPacket {
     private static final WrenchAreaSelectionPacket INSTANCE = new WrenchAreaSelectionPacket();
@@ -22,7 +22,7 @@ public class WrenchAreaSelectionPacket {
         return INSTANCE;
     }
 
-    public void handleServer(WrenchAreaSelectionPayload payload, PacketContext context) {
+    public void handleServer(WrenchAreaSelectionPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (!(context.player() instanceof ServerPlayer player)) {
                 return;

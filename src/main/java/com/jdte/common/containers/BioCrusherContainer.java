@@ -11,8 +11,8 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 import javax.annotation.Nullable;
 
@@ -118,7 +118,7 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
             Slot slot = slots.get(i);
             if (slot.hasItem() && slot.mayPlace(stack)) {
                 ItemStack existing = slot.getItem();
-                if (ItemStack.isSameItemSameTags(stack, existing)) {
+                if (ItemStack.isSameItemSameComponents(stack, existing)) {
                     int maxSize = Math.min(slot.getMaxStackSize(existing), existing.getMaxStackSize());
                     int movable = Math.min(stack.getCount(), maxSize - existing.getCount());
                     if (movable > 0) {
@@ -179,7 +179,7 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
     }
 
     public void setOutputPage(int outputPage) {
-        this.outputPage = net.minecraft.util.Mth.clamp(outputPage, 0, getMaxOutputPage());
+        this.outputPage = Math.clamp(outputPage, 0, getMaxOutputPage());
     }
 
     @Override
@@ -243,7 +243,7 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
             if (!isActiveSlot()) {
                 return;
             }
-            ((net.minecraftforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
+            ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
             setChanged();
         }
 

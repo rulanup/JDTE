@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": { "item": "justdirethings:time_crystal" },
+    "I": { "item": "jdte:extended_item_receiver" },
+    "R": { "item": "jdte:range_upgrade" },
+    "T": { "item": "jdte:time_fluid_catalyst" }
+  },
+  "pattern": [
+    " C ",
+    "RIR",
+    " T "
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:crystal_incubator"
+  }
+}

@@ -1,17 +1,17 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class UpgradesConfig {
-    public final ForgeConfigSpec.IntValue filterSlotsPerUpgrade;
-    public final ForgeConfigSpec.DoubleValue underclockEnergyMultiplier;
-    public final ForgeConfigSpec.IntValue overclockEnergyMultiplier;
-    public final ForgeConfigSpec.IntValue underclockTickSpeed;
-    public final ForgeConfigSpec.IntValue overclockTickSpeed;
-    public final ForgeConfigSpec.DoubleValue baseAreaRadius;
-    public final ForgeConfigSpec.IntValue baseAreaOffset;
+    public final ModConfigSpec.IntValue filterSlotsPerUpgrade;
+    public final ModConfigSpec.DoubleValue underclockEnergyMultiplier;
+    public final ModConfigSpec.IntValue overclockEnergyMultiplier;
+    public final ModConfigSpec.IntValue underclockTickSpeed;
+    public final ModConfigSpec.IntValue overclockTickSpeed;
+    public final ModConfigSpec.DoubleValue baseAreaRadius;
+    public final ModConfigSpec.IntValue baseAreaOffset;
 
-    public UpgradesConfig(ForgeConfigSpec.Builder builder) {
+    public UpgradesConfig(ModConfigSpec.Builder builder) {
         builder.comment("Upgrade System Settings").translation("config.jdte.jdte.upgrades").push("upgrades");
         filterSlotsPerUpgrade = builder
                 .comment("Number of extra filter slots per filter upgrade card")

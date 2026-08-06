@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class BasicItemSenderBlock extends JDTEMachineBlock {
+public class BasicItemSenderBlock extends BaseMachineBlock {
     public BasicItemSenderBlock() {
         super(Properties.of()
                 .sound(SoundType.METAL)
@@ -30,7 +30,7 @@ public class BasicItemSenderBlock extends JDTEMachineBlock {
 
     @Override
     public void openMenu(Player player, BlockPos blockPos) {
-        openScreen(player,new SimpleMenuProvider(
+        player.openMenu(new SimpleMenuProvider(
                 (windowId, playerInventory, playerEntity) -> new BasicItemSenderContainer(windowId, playerInventory, blockPos), Component.translatable("block.jdte.basic_item_sender")), (buf -> {
             buf.writeBlockPos(blockPos);
         }));

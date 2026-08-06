@@ -4,7 +4,7 @@ import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachin
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.network.data.GelGeneratorPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import com.jdte.common.network.PacketContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class GelGeneratorPacket {
     private static final GelGeneratorPacket INSTANCE = new GelGeneratorPacket();
@@ -13,7 +13,7 @@ public class GelGeneratorPacket {
         return INSTANCE;
     }
 
-    public void handle(GelGeneratorPayload payload, PacketContext context) {
+    public void handle(GelGeneratorPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             AbstractContainerMenu container = context.player().containerMenu;
             if (container instanceof BaseMachineContainer machineContainer && machineContainer.baseMachineBE instanceof GelGeneratorBE gelGenerator) {

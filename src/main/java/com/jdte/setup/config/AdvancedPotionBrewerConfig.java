@@ -1,11 +1,11 @@
 package com.jdte.setup.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class AdvancedPotionBrewerConfig {
-    public final ForgeConfigSpec.BooleanValue potionBrewerRejectPatternProviderFuelInput;
+    public final ModConfigSpec.BooleanValue potionBrewerRejectPatternProviderFuelInput;
 
-    public AdvancedPotionBrewerConfig(ForgeConfigSpec.Builder builder) {
+    public AdvancedPotionBrewerConfig(ModConfigSpec.Builder builder) {
         builder.comment("Advanced Potion Brewer Settings")
                 .translation("config.jdte.jdte.advancedPotionBrewer")
                 .push("advancedPotionBrewer");

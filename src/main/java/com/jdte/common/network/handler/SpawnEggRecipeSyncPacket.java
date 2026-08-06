@@ -1,13 +1,13 @@
 package com.jdte.common.network.handler;
 
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
-import com.jdte.common.network.PacketContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public final class SpawnEggRecipeSyncPacket {
     private SpawnEggRecipeSyncPacket() {
     }
 
-    public static void handle(SpawnEggRecipeSyncPayload payload, PacketContext context) {
+    public static void handle(SpawnEggRecipeSyncPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> com.jdte.client.SpawnEggRecipeClientCache.set(payload.recipes()));
     }
 }

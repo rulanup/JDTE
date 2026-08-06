@@ -38,7 +38,9 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -48,14 +50,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,7 +92,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         areaAffectingData.xRadius = JDTEConfig.COMMON.bioCrusherBaseRadius.get();
         areaAffectingData.yRadius = JDTEConfig.COMMON.bioCrusherBaseRadius.get();
         areaAffectingData.zRadius = JDTEConfig.COMMON.bioCrusherBaseRadius.get();
-        fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.getFluid() == Registration.XP_FLUID_SOURCE.get());
+        fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.is(Registration.XP_FLUID_SOURCE.get()));
         fluidContainerData = new FluidContainerData(this);
 
         itemHandler = createOutputHandler(createsOutputInventory() ? getMaxOutputSlotCount() : 0);
@@ -160,7 +162,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         }
         int configuredSlots = BASE_OUTPUT_SLOT_COUNT
                 + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * getOutputSlotsPerCapacityUpgrade();
-        return net.minecraft.util.Mth.clamp(Math.max(configuredSlots, getOccupiedOutputSlotCount()), BASE_OUTPUT_SLOT_COUNT, getMaxOutputSlotCount());
+        return Math.clamp(Math.max(configuredSlots, getOccupiedOutputSlotCount()), BASE_OUTPUT_SLOT_COUNT, getMaxOutputSlotCount());
     }
 
     private int getOccupiedOutputSlotCount() {
@@ -422,7 +424,9 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         int lootingLevel = getLootingLevel();
         if (lootingLevel <= 0) return weapon;
 
-        weapon.enchant(Enchantments.MOB_LOOTING, lootingLevel);
+        ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+        enchantments.set(serverLevel.registryAccess().holderOrThrow(Enchantments.LOOTING), lootingLevel);
+        EnchantmentHelper.setEnchantments(weapon, enchantments.toImmutable());
         return weapon;
     }
 
@@ -443,20 +447,20 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         Collection<ItemEntity> drops = new ArrayList<>();
         try {
             net.minecraft.world.level.storage.loot.LootTable lootTable = serverLevel.getServer()
-                    .getLootData().getLootTable(entity.getLootTable());
+                    .reloadableRegistries().getLootTable(entity.getLootTable());
             net.minecraft.world.level.storage.loot.LootParams params = new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
                     .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, entity)
                     .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, entity.position())
                     .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DAMAGE_SOURCE, source)
-                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.KILLER_ENTITY, source.getEntity())
-                    .withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DIRECT_KILLER_ENTITY, source.getDirectEntity())
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ATTACKING_ENTITY, source.getEntity())
+                    .withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DIRECT_ATTACKING_ENTITY, source.getDirectEntity())
                     .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.LAST_DAMAGE_PLAYER, (Player) source.getEntity())
                     .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY);
 
             for (ItemStack stack : lootTable.getRandomItems(params)) {
                 drops.add(new ItemEntity(serverLevel, entity.getX(), entity.getY(), entity.getZ(), stack));
             }
-            if (ForgeHooks.onLivingDrops(entity, source, drops, getLootingLevel(), true)) {
+            if (CommonHooks.onLivingDrops(entity, source, drops, true)) {
                 drops.clear();
             }
         } catch (RuntimeException ignored) {
@@ -538,7 +542,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
                 if (existing.isEmpty()) {
                     itemHandler.setStackInSlot(i, stack.copy());
                     return;
-                } else if (ItemStack.isSameItemSameTags(existing, stack) && existing.getCount() + stack.getCount() <= existing.getMaxStackSize()) {
+                } else if (ItemStack.isSameItemSameComponents(existing, stack) && existing.getCount() + stack.getCount() <= existing.getMaxStackSize()) {
                     existing.grow(stack.getCount());
                     itemHandler.setStackInSlot(i, existing);
                     return;
@@ -622,21 +626,15 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         if (livingEntity instanceof Mob mob) {
             boolean vanillaFinalizeSpawn = spawnData.getEntityToSpawn().size() == 1
                     && spawnData.getEntityToSpawn().contains("id", net.minecraft.nbt.Tag.TAG_STRING);
-            var finalizeSpawn = ForgeEventFactory.onFinalizeSpawnSpawner(
+            EventHooks.finalizeMobSpawnSpawner(
                     mob,
                     serverLevel,
                     serverLevel.getCurrentDifficultyAt(spawnerPos),
+                    MobSpawnType.SPAWNER,
                     null,
-                    spawnData.getEntityToSpawn(),
-                    spawner);
-            if (finalizeSpawn != null && vanillaFinalizeSpawn) {
-                mob.finalizeSpawn(
-                        serverLevel,
-                        finalizeSpawn.getDifficulty(),
-                        finalizeSpawn.getSpawnType(),
-                        finalizeSpawn.getSpawnData(),
-                        finalizeSpawn.getSpawnTag());
-            }
+                    spawner,
+                    vanillaFinalizeSpawn);
+            spawnData.getEquipment().ifPresent(mob::equip);
         }
 
         FakePlayer fakePlayer = getFakePlayer(serverLevel);
@@ -689,7 +687,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     }
 
     public void setMode(int mode) {
-        this.mode = net.minecraft.util.Mth.clamp(mode, MODE_HOSTILE, MODE_ALL);
+        this.mode = Math.clamp(mode, MODE_HOSTILE, MODE_ALL);
         setChanged();
     }
 
@@ -728,35 +726,35 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         if (hasOutputInventory()) {
-            tag.put("inventory", itemHandler.serializeNBT());
+            tag.put("inventory", itemHandler.serializeNBT(provider));
         }
-        tag.put("fluidTank", fluidTank.serializeNBT());
-        tag.put("lootingHandler", lootingHandler.serializeNBT());
-        tag.put("sharpnessHandler", sharpnessHandler.serializeNBT());
+        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+        tag.put("lootingHandler", lootingHandler.serializeNBT(provider));
+        tag.put("sharpnessHandler", sharpnessHandler.serializeNBT(provider));
         tag.putInt("mode", mode);
         tag.putInt("tickCounter", tickCounter);
         saveAreaSettings(tag);
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         if (hasOutputInventory() && tag.contains("inventory")) {
-            itemHandler.deserializeNBT(tag.getCompound("inventory"));
+            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
             ensureOutputHandlerSize();
         }
         if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
+            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
         }
         if (tag.contains("lootingHandler")) {
-            lootingHandler.deserializeNBT(tag.getCompound("lootingHandler"));
+            lootingHandler.deserializeNBT(provider, tag.getCompound("lootingHandler"));
             compactDedicatedUpgradeHandler(lootingHandler, JDTEConfig.COMMON.maxLootingUpgrades.get());
         }
         if (tag.contains("sharpnessHandler")) {
-            sharpnessHandler.deserializeNBT(tag.getCompound("sharpnessHandler"));
+            sharpnessHandler.deserializeNBT(provider, tag.getCompound("sharpnessHandler"));
             compactDedicatedUpgradeHandler(sharpnessHandler, JDTEConfig.COMMON.maxSharpnessUpgrades.get());
         }
         if (tag.contains("mode")) {

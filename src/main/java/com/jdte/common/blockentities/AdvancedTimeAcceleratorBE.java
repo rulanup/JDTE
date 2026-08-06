@@ -98,7 +98,7 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
 
     @Override
     protected int getEnergyCost(int multiplier) {
-        return Math.max(1, multiplier * Config.TIME_WAND_FE_COST.get());
+        return Math.max(1, multiplier * Config.TIMEWAND_RF_COST.get());
     }
 
     @Override
@@ -107,15 +107,15 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("multiplier", multiplier);
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         if (tag.contains("energy")) {
             energyStorage.setEnergy(tag.getInt("energy"));
         }

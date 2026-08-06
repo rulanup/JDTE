@@ -13,7 +13,7 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class ItemReceiverScreenBase<T extends ItemReceiverContainerBase> extends BaseMachineScreen<T> {
     private static final Component ITEM_SLOT_TOOLTIP = Component.translatable("jdte.slot.item_storage");
@@ -156,7 +156,7 @@ public abstract class ItemReceiverScreenBase<T extends ItemReceiverContainerBase
                 leftPos + speedButtonX(config),
                 topSectionTop + speedButtonY(config), tickSpeed, b -> {
             tickSpeed = ((com.direwolf20.justdirethings.client.screens.widgets.NumberButton) b).getValue();
-            com.direwolf20.justdirethings.common.network.PacketHandler.CHANNEL.sendToServer(new TickSpeedPayload(tickSpeed));
+            PacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
         }));
     }
 

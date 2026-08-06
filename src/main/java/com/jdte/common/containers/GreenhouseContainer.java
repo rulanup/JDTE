@@ -14,9 +14,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class GreenhouseContainer extends BaseMachineContainer implements FilterPageHolder {
     private int outputPage;
@@ -68,7 +68,7 @@ public class GreenhouseContainer extends BaseMachineContainer implements FilterP
     }
     public int getMaxOutputPage() { return Math.max(0, (getActiveOutputSlots() - 1) / getOutputSlotsPerPage()); }
     public void setOutputPage(int page) {
-        int clamped = net.minecraft.util.Mth.clamp(page, 0, getMaxOutputPage());
+        int clamped = Math.clamp(page, 0, getMaxOutputPage());
         if (outputPage == clamped) return;
         outputPage = clamped;
         broadcastChanges();
@@ -122,7 +122,7 @@ public class GreenhouseContainer extends BaseMachineContainer implements FilterP
             Slot target = slots.get(index);
             if (target.mayPlace(stack) && target.hasItem()) {
                 ItemStack existing = target.getItem();
-                if (ItemStack.isSameItemSameTags(stack, existing)) {
+                if (ItemStack.isSameItemSameComponents(stack, existing)) {
                     int max = Math.min(target.getMaxStackSize(stack), stack.getMaxStackSize());
                     int transferable = Math.min(stack.getCount(), max - existing.getCount());
                     if (transferable > 0) {

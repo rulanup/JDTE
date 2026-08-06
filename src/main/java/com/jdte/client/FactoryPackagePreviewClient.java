@@ -1,6 +1,5 @@
 package com.jdte.client;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.client.renderers.AreaPreviewRenderBatch;
 import com.jdte.client.renderers.AreaPreviewRenderBatch.BlueprintBlock;
 import com.jdte.common.items.FactoryPackageItem;
@@ -19,9 +18,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -60,7 +59,7 @@ public final class FactoryPackagePreviewClient {
         Preview preview = getPreview(Minecraft.getInstance());
         if (preview == null) return;
         BlockPos max = preview.origin().offset(preview.rotatedSize()).offset(-1, -1, -1);
-        AreaPreviewRenderBatch.enqueueOffset(new AABB(preview.origin(), max.offset(1, 1, 1)));
+        AreaPreviewRenderBatch.enqueueOffset(AABB.encapsulatingFullBlocks(preview.origin(), max));
         if (!preview.blocks().isEmpty()) {
             AreaPreviewRenderBatch.enqueueBlueprint(preview.origin(), preview.blocks());
         }
@@ -111,7 +110,7 @@ public final class FactoryPackagePreviewClient {
         if (id.equals(requestedId) && now < nextRequestTime) return;
         requestedId = id;
         nextRequestTime = now + 2000L;
-        JDTEPacketHandler.CHANNEL.sendToServer(new FactoryPackagePreviewRequestPayload(id));
+        PacketDistributor.sendToServer(new FactoryPackagePreviewRequestPayload(id));
     }
 
     private static ItemStack heldPackage(Player player) {

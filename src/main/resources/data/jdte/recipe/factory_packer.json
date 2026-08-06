@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["EPE", "RBR", "EPE"],
+  "key": {
+    "E": { "item": "justdirethings:eclipsealloy_ingot" },
+    "P": { "item": "minecraft:piston" },
+    "R": { "item": "minecraft:redstone_block" },
+    "B": { "item": "justdirethings:blockswappert2" }
+  },
+  "result": { "id": "jdte:factory_packer", "count": 1 }
+}

@@ -31,18 +31,18 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.tags.InstrumentTags;
-import net.minecraft.world.item.SuspiciousStewItem;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.block.SuspiciousEffectHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,9 +66,9 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private final PoweredMachineContainerData poweredData = new PoweredMachineContainerData(this);
     private final RedstoneControlData redstoneData = new RedstoneControlData();
     private final BioFactoryUpgradeItemStackHandler upgradeHandler = new BioFactoryUpgradeItemStackHandler(this);
-    private final JDTEFluidTank lifeFluidTank = createTank(stack -> stack.getFluid().isSame(JDTEFluids.LIFE_FLUID_SOURCE.get()), false);
+    private final JDTEFluidTank lifeFluidTank = createTank(stack -> stack.is(JDTEFluids.LIFE_FLUID_SOURCE.get()), false);
     private final JDTEFluidTank timeFluidTank = createTank(stack -> stack.getFluid() instanceof TimeFluid, false);
-    private final JDTEFluidTank processFluidTank = createTank(stack -> !stack.getFluid().isSame(JDTEFluids.LIFE_FLUID_SOURCE.get())
+    private final JDTEFluidTank processFluidTank = createTank(stack -> !stack.is(JDTEFluids.LIFE_FLUID_SOURCE.get())
             && !(stack.getFluid() instanceof TimeFluid), false);
     private final JDTEFluidTank productFluidTank = createTank(stack -> true, false);
     private final ItemStackHandler itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
@@ -218,7 +218,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         ItemStack specimen = itemHandler.getStackInSlot(SPECIMEN_SLOT);
         List<ItemStack> inputs = getInputStacks();
         Fluid fluid = processFluidTank.getFluid().getFluid();
-        if (cacheResolved && ItemStack.isSameItemSameTags(specimen, cachedSpecimen)
+        if (cacheResolved && ItemStack.isSameItemSameComponents(specimen, cachedSpecimen)
                 && inputsMatchCache(inputs) && fluid == cachedProcessFluid) {
             return cachedRecipe != null || cachedBee != null;
         }
@@ -229,6 +229,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         cacheResolved = true;
         if (level == null || specimen.isEmpty()) return false;
         cachedRecipe = level.getRecipeManager().getAllRecipesFor(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get()).stream()
+                .map(holder -> holder.value())
                 .filter(recipe -> {
                     int[] assignment = recipe.findMatchingSlots(specimen, inputs);
                     if (assignment == null) return false;
@@ -256,7 +257,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private boolean hasRecipeProcessFluid(BioFactoryRecipe recipe) {
         if (recipe.processFluid().isEmpty() || recipe.processFluidAmount() <= 0) return true;
         Fluid expected = BuiltInRegistries.FLUID.get(recipe.processFluid().get());
-        return !processFluidTank.isEmpty() && processFluidTank.getFluid().getFluid().isSame(expected)
+        return !processFluidTank.isEmpty() && processFluidTank.getFluid().is(expected)
                 && processFluidTank.getFluidAmount() >= recipe.processFluidAmount();
     }
 
@@ -329,7 +330,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
             for (ItemStack input : getInputStacks()) {
                 SuspiciousEffectHolder holder = SuspiciousEffectHolder.tryGet(input.getItem());
                 if (holder != null) {
-                    SuspiciousStewItem.saveMobEffect(stack, holder.getSuspiciousEffect(), holder.getEffectDuration());
+                    stack.set(DataComponents.SUSPICIOUS_STEW_EFFECTS, holder.getSuspiciousEffects());
                     break;
                 }
             }
@@ -338,7 +339,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         } else if (stack.is(Items.WHITE_WOOL)) {
             for (ItemStack input : getInputStacks()) {
                 if (input.getItem() instanceof DyeItem dye) {
-                    var item = BuiltInRegistries.ITEM.get(new ResourceLocation(
+                    var item = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(
                             "minecraft", dye.getDyeColor().getName() + "_wool"));
                     return new ItemStack(item, stack.getCount());
                 }
@@ -399,7 +400,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         boolean overclocked = creative || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0;
         int selectedMultiplier = overclocked
                 ? JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get()
-                : net.minecraft.util.Mth.clamp(multiplier, 1, JDTEConfig.COMMON.bioFactoryMaxSpeedMultiplier.get());
+                : Math.clamp(multiplier, 1, JDTEConfig.COMMON.bioFactoryMaxSpeedMultiplier.get());
         int acceleratedMultiplier = creative || timeFluidTank.getFluidAmount() >= getEffectiveTimeFluidCost()
                 ? selectedMultiplier
                 : 1;
@@ -423,11 +424,11 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     public int getMultiplier() {
-        return net.minecraft.util.Mth.clamp(multiplier, 1, getMaxSelectableMultiplier());
+        return Math.clamp(multiplier, 1, getMaxSelectableMultiplier());
     }
 
     public void setMultiplier(int multiplier) {
-        int clamped = net.minecraft.util.Mth.clamp(multiplier, 1, getMaxSelectableMultiplier());
+        int clamped = Math.clamp(multiplier, 1, getMaxSelectableMultiplier());
         if (this.multiplier != clamped) {
             this.multiplier = clamped;
             setChanged();
@@ -499,7 +500,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private boolean inputsMatchCache(List<ItemStack> inputs) {
         for (int i = 0; i < INPUT_SLOTS; i++) {
-            if (!ItemStack.isSameItemSameTags(inputs.get(i), cachedInputs[i])
+            if (!ItemStack.isSameItemSameComponents(inputs.get(i), cachedInputs[i])
                     || inputs.get(i).getCount() != cachedInputs[i].getCount()) return false;
         }
         return true;
@@ -579,23 +580,23 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private boolean isClientSide() { return level != null && level.isClientSide; }
 
-    @Override public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("inventory", itemHandler.serializeNBT());
-        tag.put("upgrades", upgradeHandler.serializeNBT());
-        tag.put("lifeFluid", lifeFluidTank.serializeNBT());
-        tag.put("timeFluid", timeFluidTank.serializeNBT());
-        tag.put("processFluid", processFluidTank.serializeNBT());
-        tag.put("productFluid", productFluidTank.serializeNBT());
+    @Override public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("inventory", itemHandler.serializeNBT(provider));
+        tag.put("upgrades", upgradeHandler.serializeNBT(provider));
+        tag.put("lifeFluid", lifeFluidTank.serializeNBT(provider));
+        tag.put("timeFluid", timeFluidTank.serializeNBT(provider));
+        tag.put("processFluid", processFluidTank.serializeNBT(provider));
+        tag.put("productFluid", productFluidTank.serializeNBT(provider));
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("progress", progress);
         tag.putInt("multiplier", getMultiplier());
     }
 
-    @Override public void load(CompoundTag tag) {
-        super.load(tag);
+    @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(tag.getCompound("inventory"));
+            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
             if (itemHandler.getSlots() < TOTAL_SLOTS) {
                 List<ItemStack> existing = new ArrayList<>(itemHandler.getSlots());
                 for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
@@ -605,11 +606,11 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 for (int slot = 0; slot < existing.size(); slot++) itemHandler.setStackInSlot(slot, existing.get(slot));
             }
         }
-        if (tag.contains("upgrades")) upgradeHandler.deserializeNBT(tag.getCompound("upgrades"));
-        if (tag.contains("lifeFluid")) lifeFluidTank.deserializeNBT(tag.getCompound("lifeFluid"));
-        if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(tag.getCompound("timeFluid"));
-        if (tag.contains("processFluid")) processFluidTank.deserializeNBT(tag.getCompound("processFluid"));
-        if (tag.contains("productFluid")) productFluidTank.deserializeNBT(tag.getCompound("productFluid"));
+        if (tag.contains("upgrades")) upgradeHandler.deserializeNBT(provider, tag.getCompound("upgrades"));
+        if (tag.contains("lifeFluid")) lifeFluidTank.deserializeNBT(provider, tag.getCompound("lifeFluid"));
+        if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(provider, tag.getCompound("timeFluid"));
+        if (tag.contains("processFluid")) processFluidTank.deserializeNBT(provider, tag.getCompound("processFluid"));
+        if (tag.contains("productFluid")) productFluidTank.deserializeNBT(provider, tag.getCompound("productFluid"));
         energyStorage.setEnergy(tag.getInt("energy"));
         progress = tag.getInt("progress");
         multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")

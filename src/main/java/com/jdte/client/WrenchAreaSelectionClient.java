@@ -1,6 +1,5 @@
 package com.jdte.client;
 
-import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.client.renderers.AreaPreviewRenderBatch;
@@ -19,11 +18,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public final class WrenchAreaSelectionClient {
     private static BlockPos firstCorner;
@@ -88,7 +87,7 @@ public final class WrenchAreaSelectionClient {
         }
 
         if (minecraft.level.getBlockEntity(clickedPos) instanceof AreaAffectingBE) {
-            JDTEPacketHandler.CHANNEL.sendToServer(new WrenchAreaSelectionPayload(clickedPos, firstCorner, secondCorner));
+            PacketDistributor.sendToServer(new WrenchAreaSelectionPayload(clickedPos, firstCorner, secondCorner));
             return;
         }
 
@@ -117,12 +116,12 @@ public final class WrenchAreaSelectionClient {
             return;
         }
 
-        int delta = event.getScrollDelta() > 0.0D ? 1 : event.getScrollDelta() < 0.0D ? -1 : 0;
+        int delta = event.getScrollDeltaY() > 0.0D ? 1 : event.getScrollDeltaY() < 0.0D ? -1 : 0;
         if (delta == 0) return;
 
         BlockPos min = min(firstCorner, secondCorner);
         BlockPos max = max(firstCorner, secondCorner);
-        AABB area = selectionArea(min, max);
+        AABB area = AABB.encapsulatingFullBlocks(min, max);
         Vec3 camera = minecraft.gameRenderer.getMainCamera().getPosition();
         Direction face = findLookedAtFace(area, camera, player.getLookAngle(), 75.0D);
         if (face == null) return;
@@ -152,16 +151,13 @@ public final class WrenchAreaSelectionClient {
         }
 
         BlockPos previewCorner = getPreviewCorner(minecraft);
-        AABB area = selectionArea(firstCorner, previewCorner);
+        AABB area = AABB.encapsulatingFullBlocks(firstCorner, previewCorner);
         Direction selectedFace = secondCorner == null ? null : findLookedAtFace(area,
                 minecraft.gameRenderer.getMainCamera().getPosition(), minecraft.player.getLookAngle(), 75.0D);
         AreaPreviewRenderBatch.enqueueMain(area, selectedFace);
     }
 
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) {
-            return;
-        }
+    public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (!minecraft.options.keyAttack.isDown()) {
             attackHandled = false;
@@ -209,17 +205,6 @@ public final class WrenchAreaSelectionClient {
                 Math.abs(first.getY() - second.getY()) + 1,
                 Math.abs(first.getZ() - second.getZ()) + 1
         };
-    }
-
-    /**
-     * Builds the same inclusive block selection regardless of which corner was clicked first.
-     * AABB's constructor normalizes its lower and upper coordinates, but expanding the raw
-     * second corner before construction loses the upper block when that corner is smaller.
-     */
-    private static AABB selectionArea(BlockPos first, BlockPos second) {
-        BlockPos lower = min(first, second);
-        BlockPos upper = max(first, second);
-        return new AABB(lower, upper.offset(1, 1, 1));
     }
 
     private static Direction findLookedAtFace(AABB area, Vec3 origin, Vec3 direction, double reach) {

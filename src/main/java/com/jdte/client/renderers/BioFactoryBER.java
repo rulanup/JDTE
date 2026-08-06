@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 import java.util.WeakHashMap;
 
@@ -28,7 +28,7 @@ public class BioFactoryBER implements BlockEntityRenderer<BioFactoryBE> {
         ItemStack specimen = factory.getMachineHandler().getStackInSlot(BioFactoryBE.SPECIMEN_SLOT);
         if (specimen.isEmpty() || factory.getLevel() == null) return;
         DisplayCache current = cache.get(factory);
-        if (current == null || !ItemStack.isSameItemSameTags(current.specimen, specimen)) {
+        if (current == null || !ItemStack.isSameItemSameComponents(current.specimen, specimen)) {
             Entity entity = createDisplayEntity(factory, specimen);
             current = new DisplayCache(specimen.copy(), entity);
             cache.put(factory, current);
@@ -48,7 +48,7 @@ public class BioFactoryBER implements BlockEntityRenderer<BioFactoryBE> {
 
     private Entity createDisplayEntity(BioFactoryBE factory, ItemStack specimen) {
         try {
-            if (specimen.getItem() instanceof SpawnEggItem egg) return egg.getType(specimen.getTag()).create(factory.getLevel());
+            if (specimen.getItem() instanceof SpawnEggItem egg) return egg.getType(specimen).create(factory.getLevel());
             if (ModList.get().isLoaded("productivebees")) {
                 return ProductiveBeesBioFactoryIntegration.createBee(specimen, factory.getLevel());
             }
