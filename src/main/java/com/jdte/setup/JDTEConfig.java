@@ -17,6 +17,8 @@ import com.jdte.setup.config.LootFabricatorConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
 import com.jdte.setup.config.TimeAcceleratorConfig;
+import com.jdte.setup.config.TimeFreezerConfig;
+import com.jdte.setup.config.UltimatePortalGunConfig;
 import com.jdte.setup.config.UpgradeItemsConfig;
 import com.jdte.setup.config.UpgradesConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -35,6 +37,8 @@ public class JDTEConfig {
     public static class Common {
         public final UpgradesConfig upgrades;
         public final TimeAcceleratorConfig timeAccelerator;
+        public final TimeFreezerConfig timeFreezer;
+        public final UltimatePortalGunConfig ultimatePortalGun;
         public final BioCrusherConfig bioCrusher;
         public final LifeExtractorConfig lifeExtractor;
         public final LootFabricatorConfig lootFabricator;
@@ -267,6 +271,8 @@ public class JDTEConfig {
 
             upgrades = new UpgradesConfig(builder);
             timeAccelerator = new TimeAcceleratorConfig(builder);
+            timeFreezer = new TimeFreezerConfig(builder);
+            ultimatePortalGun = new UltimatePortalGunConfig(builder);
             bioCrusher = new BioCrusherConfig(builder);
             lifeExtractor = new LifeExtractorConfig(builder);
             lootFabricator = new LootFabricatorConfig(builder);

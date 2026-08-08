@@ -13,6 +13,8 @@ public class JDTEBlocks {
     public static final RegistryObject<BasicTimeAcceleratorBlock> BASIC_TIME_ACCELERATOR = BLOCKS.register("basic_time_accelerator", BasicTimeAcceleratorBlock::new);
     public static final RegistryObject<AdvancedTimeAcceleratorBlock> ADVANCED_TIME_ACCELERATOR = BLOCKS.register("advanced_time_accelerator", AdvancedTimeAcceleratorBlock::new);
     public static final RegistryObject<ExtendedTimeAcceleratorBlock> EXTENDED_TIME_ACCELERATOR = BLOCKS.register("extended_time_accelerator", ExtendedTimeAcceleratorBlock::new);
+    public static final RegistryObject<TimeFreezerBlock> TIME_FREEZER = BLOCKS.register("time_freezer", TimeFreezerBlock::new);
+    public static final RegistryObject<ExtendedTimeFreezerBlock> EXTENDED_TIME_FREEZER = BLOCKS.register("extended_time_freezer", ExtendedTimeFreezerBlock::new);
     public static final RegistryObject<ExtendedClickerBlock> EXTENDED_CLICKER = BLOCKS.register("extended_clicker", ExtendedClickerBlock::new);
     public static final RegistryObject<ExtendedBlockBreakerBlock> EXTENDED_BLOCK_BREAKER = BLOCKS.register("extended_block_breaker", ExtendedBlockBreakerBlock::new);
     public static final RegistryObject<ExtendedBlockPlacerBlock> EXTENDED_BLOCK_PLACER = BLOCKS.register("extended_block_placer", ExtendedBlockPlacerBlock::new);

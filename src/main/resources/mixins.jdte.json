@@ -36,7 +36,6 @@
     "ScreenMixin",
     "BaseMachineScreenAccessor",
     "BaseMachineScreenMixin",
-    "DropperT2ScreenMixin",
     "BlockEntityRenderDispatcherMixin",
     "SlotAccessor",
     "EntityRenderDispatcherMixin",

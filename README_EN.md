@@ -2,9 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.6`
+Current version: `0.5.8-forge-1.20.1`
 
 [中文 README](README.md)
+
+### 0.5.8 additions
+
+- Time Freezer and Extended Time Freezer can independently freeze the day/night cycle and weather while consuming Time Fluid and FE.
+- Ultimate Portal Gun stores 1000 B of portal fluid, supports unlimited paged destinations, current-position shortcuts, and manually edited coordinates.
+- Big Fluid Tank stores 1000 B, supports None/JDT-only/JDTE-only/All automatic fill modes, and can be equipped in the dedicated Curios slot.
 
 ## Main Features
 

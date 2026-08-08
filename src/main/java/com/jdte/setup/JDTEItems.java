@@ -2,6 +2,7 @@ package com.jdte.setup;
 
 import com.jdte.JDTE;
 import com.jdte.common.items.BossEssenceItem;
+import com.jdte.common.items.BigFluidTankItem;
 import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.FactoryPackageItem;
@@ -9,6 +10,7 @@ import com.jdte.common.items.LifeAppleItem;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
+import com.jdte.common.items.UltimatePortalGunItem;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -38,6 +40,12 @@ public class JDTEItems {
     public static final RegistryObject<EclipseAlloyWrenchItem> ECLIPSEALLOY_WRENCH = ITEMS.register("eclipsealloy_wrench", EclipseAlloyWrenchItem::new);
     public static final RegistryObject<Item> TIME_FLUID_CATALYST = ITEMS.register("time_fluid_catalyst", () -> new Item(new Item.Properties()));
     public static final RegistryObject<FactoryPackageItem> FACTORY_PACKAGE = ITEMS.register("factory_package", FactoryPackageItem::new);
+    public static final RegistryObject<BlockItem> TIME_FREEZER = ITEMS.register("time_freezer", () -> new BlockItem(JDTEBlocks.TIME_FREEZER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> EXTENDED_TIME_FREEZER = ITEMS.register("extended_time_freezer", () -> new BlockItem(JDTEBlocks.EXTENDED_TIME_FREEZER.get(), new Item.Properties()));
+    public static final RegistryObject<UltimatePortalGunItem> ULTIMATE_PORTAL_GUN = ITEMS.register(
+            "ultimate_portal_gun", UltimatePortalGunItem::new);
+    public static final RegistryObject<BigFluidTankItem> BIG_FLUID_TANK = ITEMS.register(
+            "big_fluid_tank", BigFluidTankItem::new);
 
     public static final RegistryObject<BlockItem> BASIC_TIME_ACCELERATOR = ITEMS.register("basic_time_accelerator", () -> new BlockItem(JDTEBlocks.BASIC_TIME_ACCELERATOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> ADVANCED_TIME_ACCELERATOR = ITEMS.register("advanced_time_accelerator", () -> new BlockItem(JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(), new Item.Properties()));
