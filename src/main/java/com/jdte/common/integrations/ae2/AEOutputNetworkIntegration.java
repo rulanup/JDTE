@@ -76,7 +76,7 @@ final class AEOutputNetworkIntegration {
             ItemStack snapshot = itemSource.handler().getStackInSlot(itemSource.slot()).copy();
             if (snapshot.isEmpty()) continue;
             AEItemKey key = AEItemKey.of(snapshot);
-            if (key != null) sources.add(new HandlerSource(itemSource, snapshot, key));
+            if (key != null) sources.add(new HandlerSource(itemSource, key));
         }
         if (sources.isEmpty()) return AEOutputNetwork.ItemTransferResult.empty();
 
@@ -125,51 +125,13 @@ final class AEOutputNetworkIntegration {
         return blockEntity instanceof IWirelessAccessPoint accessPoint ? accessPoint : null;
     }
 
-    private static final class HandlerSource implements AEItemBatchTransfer.Source<AEItemKey> {
+    private static final class HandlerSource extends ItemStackBatchSource<AEItemKey> {
         private final AEOutputNetwork.ItemSource source;
-        private final ItemStack snapshot;
-        private final AEItemKey key;
 
-        private HandlerSource(AEOutputNetwork.ItemSource source, ItemStack snapshot, AEItemKey key) {
+        private HandlerSource(AEOutputNetwork.ItemSource source, AEItemKey key) {
+            super(source.handler(), source.slot(), key,
+                    stack -> !stack.isEmpty() && key.equals(AEItemKey.of(stack)));
             this.source = source;
-            this.snapshot = snapshot;
-            this.key = key;
-        }
-
-        @Override public AEItemKey key() {
-            return key;
-        }
-
-        @Override public long available() {
-            ItemStack visible = source.handler().getStackInSlot(source.slot());
-            return sameKey(visible) ? visible.getCount() : 0L;
-        }
-
-        @Override public long extract(long amount, boolean simulate) {
-            if (amount <= 0L) return 0L;
-            ItemStack visible = source.handler().getStackInSlot(source.slot());
-            if (!sameKey(visible)) return 0L;
-            int requested = (int) Math.min(Integer.MAX_VALUE, amount);
-            ItemStack extracted = source.handler().extractItem(source.slot(), requested, simulate);
-            return sameKey(extracted) ? extracted.getCount() : 0L;
-        }
-
-        @Override public long restore(long amount) {
-            long remaining = Math.max(0L, amount);
-            long restored = 0L;
-            while (remaining > 0L) {
-                int count = (int) Math.min(Integer.MAX_VALUE, remaining);
-                ItemStack remainder = source.handler().insertItem(source.slot(), snapshot.copyWithCount(count), false);
-                int inserted = count - Math.max(0, remainder.getCount());
-                restored += inserted;
-                remaining -= inserted;
-                if (inserted < count) break;
-            }
-            return restored;
-        }
-
-        private boolean sameKey(ItemStack stack) {
-            return !stack.isEmpty() && key.equals(AEItemKey.of(stack));
         }
     }
 }

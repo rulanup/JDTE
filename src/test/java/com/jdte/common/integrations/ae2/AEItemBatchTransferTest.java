@@ -15,6 +15,7 @@ class AEItemBatchTransferTest {
         test.extractsOnlySimulatedAcceptedAmount();
         test.restoresCommitShortfallToSourcesInReverseOrder();
         test.keepsDifferentKeysInSeparateBatches();
+        ItemStackBatchSourceTest.main(args);
     }
 
     @Test
