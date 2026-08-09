@@ -14,9 +14,11 @@ import com.jdte.common.commands.JDTECommands;
 import com.jdte.common.blockentities.AdvancedItemCollectorManager;
 import com.jdte.common.blockentities.EntitySuppressorManager;
 import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
+import com.jdte.common.blockentities.TimeFreezerManager;
 import com.jdte.common.blockentities.GreenhouseOutputManager;
 import com.jdte.common.blockentities.RangeBlockerManager;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
+import com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.jdte.common.utils.BioCrusherDropCapture;
 import com.jdte.common.utils.MobLootSpawnEggHelper;
@@ -76,6 +78,8 @@ public class JDTE {
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
+        MinecraftForge.EVENT_BUS.addListener(TimeFreezerManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(TimeFreezerManager::onServerStopped);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, GreenhouseOutputManager::onServerTickPost);
         MinecraftForge.EVENT_BUS.addListener(GreenhouseOutputManager::onLevelUnload);
         MinecraftForge.EVENT_BUS.addListener(GreenhouseOutputManager::onServerStopped);
@@ -90,6 +94,9 @@ public class JDTE {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtPosition);
         MinecraftForge.EVENT_BUS.addListener(RangeBlockerManager::onLevelUnload);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
+        if (ModList.get().isLoaded("curios")) {
+            MinecraftForge.EVENT_BUS.addListener(BigFluidTankCuriosIntegration::onPlayerLoggedIn);
+        }
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> com.jdte.client.JDTEClientMod::new);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();

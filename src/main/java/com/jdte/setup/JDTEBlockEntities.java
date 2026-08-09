@@ -16,6 +16,10 @@ public class JDTEBlockEntities {
             "advanced_time_accelerator", () -> BlockEntityType.Builder.of(AdvancedTimeAcceleratorBE::new, JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedTimeAcceleratorBE>> EXTENDED_TIME_ACCELERATOR = BLOCK_ENTITIES.register(
             "extended_time_accelerator", () -> BlockEntityType.Builder.of(ExtendedTimeAcceleratorBE::new, JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TimeFreezerBE>> TIME_FREEZER = BLOCK_ENTITIES.register(
+            "time_freezer", () -> BlockEntityType.Builder.of(TimeFreezerBE::new, JDTEBlocks.TIME_FREEZER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedTimeFreezerBE>> EXTENDED_TIME_FREEZER = BLOCK_ENTITIES.register(
+            "extended_time_freezer", () -> BlockEntityType.Builder.of(ExtendedTimeFreezerBE::new, JDTEBlocks.EXTENDED_TIME_FREEZER.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedClickerBE>> EXTENDED_CLICKER = BLOCK_ENTITIES.register(
             "extended_clicker", () -> BlockEntityType.Builder.of(ExtendedClickerBE::new, JDTEBlocks.EXTENDED_CLICKER.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedBlockBreakerBE>> EXTENDED_BLOCK_BREAKER = BLOCK_ENTITIES.register(

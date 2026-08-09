@@ -6,6 +6,7 @@ import com.jdte.client.renderers.AdvancedItemCollectorBER;
 import com.jdte.client.renderers.TimeAcceleratorBER;
 import com.jdte.client.screens.*;
 import com.jdte.common.items.FactoryPackageItem;
+import com.jdte.common.items.UltimatePortalGunItem;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEEntities;
 import com.jdte.setup.JDTEItems;
@@ -28,6 +29,9 @@ public class JDTEClientSetup {
                 JDTEItems.FACTORY_PACKAGE.get(),
                 ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),
                 (stack, level, entity, seed) -> FactoryPackageItem.isFilled(stack) ? 1.0F : 0.0F));
+        event.enqueueWork(() -> ItemProperties.register(
+                JDTEItems.ULTIMATE_PORTAL_GUN.get(), JDTE.id("fullness"),
+                (stack, level, entity, seed) -> UltimatePortalGunItem.getFullness(stack)));
         event.enqueueWork(JDTEClientSetup::registerScreens);
     }
 
@@ -36,6 +40,8 @@ public class JDTEClientSetup {
         MenuScreens.register(JDTEMenus.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorScreen::new);
         MenuScreens.register(JDTEMenus.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorScreen::new);
         MenuScreens.register(JDTEMenus.EXTENDED_TIME_ACCELERATOR.get(), ExtendedTimeAcceleratorScreen::new);
+        MenuScreens.register(JDTEMenus.TIME_FREEZER.get(), TimeFreezerScreen::new);
+        MenuScreens.register(JDTEMenus.EXTENDED_TIME_FREEZER.get(), ExtendedTimeFreezerScreen::new);
 
         // Extended Machines
         MenuScreens.register(JDTEMenus.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.screens.ClickerT2Screen::new);

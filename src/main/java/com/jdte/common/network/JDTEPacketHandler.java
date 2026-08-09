@@ -23,6 +23,8 @@ import com.jdte.common.network.data.RangeBlockerPayload;
 import com.jdte.common.network.data.RangeBlockerSyncPayload;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
+import com.jdte.common.network.data.TimeFreezerPayload;
+import com.jdte.common.network.data.UltimatePortalGunPayload;
 import com.jdte.common.network.data.WrenchAreaAdjustPayload;
 import com.jdte.common.network.data.WrenchAreaAdjustResultPayload;
 import com.jdte.common.network.data.WrenchAreaSelectionPayload;
@@ -46,6 +48,8 @@ import com.jdte.common.network.handler.RangeBlockerPacket;
 import com.jdte.common.network.handler.RangeBlockerSyncPacket;
 import com.jdte.common.network.handler.SpawnEggRecipeSyncPacket;
 import com.jdte.common.network.handler.TimeAcceleratorPacket;
+import com.jdte.common.network.handler.TimeFreezerPacket;
+import com.jdte.common.network.handler.UltimatePortalGunPacket;
 import com.jdte.common.network.handler.WrenchAreaAdjustPacket;
 import com.jdte.common.network.handler.WrenchAreaAdjustResultPacket;
 import com.jdte.common.network.handler.WrenchAreaSelectionPacket;
@@ -78,6 +82,10 @@ public final class JDTEPacketHandler {
     public static void registerNetworking(FMLCommonSetupEvent event) {
         registerServer(TimeAcceleratorPayload.class, TimeAcceleratorPayload::encode, TimeAcceleratorPayload::decode,
                 TimeAcceleratorPacket.get()::handle);
+        registerServer(TimeFreezerPayload.class, TimeFreezerPayload::encode, TimeFreezerPayload::decode,
+                TimeFreezerPacket::handle);
+        registerServer(UltimatePortalGunPayload.class, UltimatePortalGunPayload::encode,
+                UltimatePortalGunPayload::decode, UltimatePortalGunPacket::handle);
         registerServer(GelGeneratorPayload.class, GelGeneratorPayload::encode, GelGeneratorPayload::decode,
                 GelGeneratorPacket.get()::handle);
         registerServer(LifeExtractorPayload.class, LifeExtractorPayload::encode, LifeExtractorPayload::decode,

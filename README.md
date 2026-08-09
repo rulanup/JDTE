@@ -2,9 +2,15 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.5.6`
+当前版本：`0.5.8-forge-1.20.1`
 
 [English README](README_EN.md)
+
+### 0.5.8 新增
+
+- 时间冻结器和扩展时间冻结器支持独立冻结昼夜时间与天气，并消耗时间流体和 FE。
+- 顶级传送枪容量为 1000 B，支持无限分页传送槽、当前位置快捷方式和手动坐标编辑。
+- 大型流体储罐容量为 1000 B，支持关闭、仅 JDT、仅 JDTE、全部四种自动填充模式，并可装备到 Curios 专用槽位。
 
 ## 主要功能
 

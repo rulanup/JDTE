@@ -1,5 +1,12 @@
 # Changelog
 
+#### v0.5.8-forge-1.20.1
+
+- **New**: Added Time Freezer FE support and independent time/weather freeze switches.
+- **New**: Added the Ultimate Portal Gun with 1000 B capacity, unlimited paged destinations, manual coordinate editing, and server-side dimension validation.
+- **New**: Added the Big Fluid Tank with a 1000 B capacity, four automatic fill modes, and optional Curios equipment support.
+- **Port**: Synchronized the upstream 0.5.8 content for the Forge 1.20.1 branch.
+
 ### English
 
 #### v0.5.6 (Current)

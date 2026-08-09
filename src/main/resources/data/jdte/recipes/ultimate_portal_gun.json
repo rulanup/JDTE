@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [" P ", "PGP", " E "],
+  "key": {
+    "P": { "item": "minecraft:ender_pearl" },
+    "G": { "item": "justdirethings:portal_gun_v2" },
+    "E": { "item": "jdte:time_fluid_catalyst" }
+  },
+  "result": { "item": "jdte:ultimate_portal_gun", "count": 1 }
+}

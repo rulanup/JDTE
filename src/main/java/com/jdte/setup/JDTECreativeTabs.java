@@ -28,6 +28,10 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
                 output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
                 output.accept(JDTEItems.FACTORY_PACKAGE.get());
+                output.accept(JDTEItems.TIME_FREEZER.get());
+                output.accept(JDTEItems.EXTENDED_TIME_FREEZER.get());
+                output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
+                output.accept(JDTEItems.BIG_FLUID_TANK.get());
 
                 // Time Accelerators
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());
