@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class AEOutputManager {
-    private static final int MAX_MATRIX_TARGET_ATTEMPTS = 16;
     private static final int MAX_BACKOFF = 20;
     private static final int FLUID_TRANSFER_BUDGET = 64_000;
     private static final Map<BaseMachineBE, State> MACHINES =
@@ -86,23 +85,16 @@ public final class AEOutputManager {
 
         var greenhouses = controller.getGreenhouses();
         if (greenhouses.isEmpty()) return;
-        boolean moved = false;
-        int start = Math.floorMod(state.targetCursor, greenhouses.size());
-        int attempts = Math.min(greenhouses.size(), MAX_MATRIX_TARGET_ATTEMPTS);
-        int processed = 0;
-        for (int offset = 0; offset < attempts; offset++) {
-            processed++;
-            var blockEntity = level.getBlockEntity(greenhouses.get((start + offset) % greenhouses.size()));
+        List<AEOutputNetwork.ItemSource> sources = new ArrayList<>();
+        for (var greenhousePos : greenhouses) {
+            var blockEntity = level.getBlockEntity(greenhousePos);
             if (!(blockEntity instanceof BaseMachineBE machine)) continue;
             AutoIoTransferHelper.AEOutputRoutes routes = AutoIoTransferHelper.getAEOutputRoutes(machine);
-            if (flushItems(level, upgrade, machine, routes.itemSlots()) > 0L) {
-                machine.setChanged();
-                moved = true;
-                break;
-            }
+            collectItemSources(machine, routes.itemSlots(), sources);
         }
-        state.targetCursor = (start + Math.max(1, processed)) % greenhouses.size();
-        if (moved) {
+        AEOutputNetwork.ItemTransferResult result = AEOutputNetwork.transferItems(level, upgrade, sources);
+        for (BaseMachineBE changed : result.changedMachines()) changed.setChanged();
+        if (result.moved() > 0L) {
             state.failureBackoff = 0;
             state.nextAttemptTick = level.getGameTime() + 1L;
             controller.setChanged();
@@ -183,6 +175,5 @@ public final class AEOutputManager {
     }
 
     public static final class MatrixState extends State {
-        private int targetCursor;
     }
 }
