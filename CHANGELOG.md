@@ -15,7 +15,12 @@
 - **Fixed**: Time Wand acceleration no longer leaves temporary Mineral Extractor work running on later normal ticks.
 - **Fixed**: Large multiblock controllers and parts now expose and invalidate item, fluid, and energy capabilities correctly; bucket interaction also works through their parts and on the Crystal Incubator.
 - **Fixed**: Fluid-capacity reductions preserve over-capacity contents until consumed, and container/Clicker transfers return any amount not accepted by the destination.
-- **Fixed**: Client-only loot and spawn-egg sync handlers no longer risk loading client classes on dedicated servers.
+- **Fixed**: Common network handlers for loot, spawn-egg, wrench-area, auto-I/O, potion-lock, and factory-preview sync no longer load client-only classes on dedicated servers.
+- **Fixed/Balance**: Large Greenhouse input lanes now contribute independent production budgets; Loot Fabricator Life and Time Fluid costs are one fifth of their previous values; Bio Crushers preserve special death drops such as Nether Stars; and the Life Fluid Bee infusion recipe now fits machine energy capacity.
+- **Fixed**: Capacity upgrades no longer make machine energy or fluid bars disappear; large menu values now use overflow-safe rendering and 32-bit synchronization.
+- **Performance**: Mineral Extractors now coalesce repeated same-tick accelerator calls and reuse one output snapshot and fitting plan per settlement, avoiding repeated inventory scans at high acceleration rates.
+- **Changed**: Capacity Upgrade output-slot stack limits are doubled for both Mineral Extractors and both Greenhouses: 64 without upgrades, then 2048/4096/8192 with one/two/three upgrades, including oversized-stack persistence.
+- **Fixed**: Productive Bees flowering fluids in the Bio Factory are now reusable catalysts instead of being drained every cycle; built-in Bio Factory process fluids remain consumable.
 
 #### v0.5.6
 
@@ -179,7 +184,12 @@
 - **修复**：时间手杖的临时加速工作不再残留到矿物提取机后续正常 Tick。
 - **修复**：大型多方块控制器与部件现在会正确提供并刷新物品、流体和能量能力；其结构部件及水晶培育机也支持流体桶交互。
 - **修复**：流体容量降低时保留超出容量的已有流体，容器与点击器流体转移会回填目标未接收的余量。
-- **修复**：战利品与刷怪蛋客户端同步处理不再导致专用服务器加载客户端类。
+- **修复**：战利品、刷怪蛋、扳手范围、自动 I/O、炼药配方锁定和工厂预览同步等共通网络处理器已隔离客户端专用类，不再导致专用服务器加载客户端类。
+- **修复/平衡**：大型温室各输入生产线现在拥有独立生产预算；战利品制造机的生命流体与时间流体消耗降为原来的五分之一；生物粉碎机会保留下界之星等特殊死亡掉落；生命流体蜜蜂灌注配方能耗调整至机器可容纳范围。
+- **修复**：容量升级不再导致机器能量条或流体条消失；大数值菜单数据现采用防溢出渲染与 32 位同步。
+- **性能**：矿物提取机会合并同一游戏 Tick 内的重复加速调用，并在每次结算中复用输出快照和最大可容纳方案，避免高倍率加速反复扫描物品栏。
+- **更改**：两种矿物提取机和两种温室的容量升级输出堆叠上限均翻倍；无升级为 64，1/2/3 张容量升级分别为 2048/4096/8192，并支持超大堆叠存档。
+- **修复**：生物工厂中的资源蜜蜂开花流体现在作为可复用催化剂，不再每周期扣除；内置生物工厂配方的工艺流体仍会正常消耗。
 
 #### v0.5.6
 

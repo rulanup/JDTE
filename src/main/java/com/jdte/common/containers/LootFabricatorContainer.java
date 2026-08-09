@@ -2,6 +2,7 @@ package com.jdte.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.LootFabricatorBE;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEMenus;
@@ -42,11 +43,14 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
         }
     }
 
-    public int getProgress() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(0) : 0; }
-    public int getProgressMax() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(1) : LootFabricatorBE.PROCESS_TIME; }
-    public int getLifeFluidAmount() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(3) : 0; }
-    public int getTimeFluidAmount() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(4) : 0; }
-    public int getFluidCapacity() { return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(5) : LootFabricatorBE.BASE_FLUID_CAPACITY; }
+    public int getProgress() { return getData(0, 0); }
+    public int getProgressMax() { return getData(1, LootFabricatorBE.PROCESS_TIME); }
+    public int getLifeFluidAmount() { return ContainerDataEncoding.combine16(getData(3, 0), getData(6, 0)); }
+    public int getTimeFluidAmount() { return ContainerDataEncoding.combine16(getData(4, 0), getData(7, 0)); }
+    public int getFluidCapacity() { return ContainerDataEncoding.combine16(getData(5, LootFabricatorBE.BASE_FLUID_CAPACITY), getData(8, 0)); }
+    private int getData(int index, int fallback) {
+        return baseMachineBE instanceof LootFabricatorBE machine ? machine.getMachineData().get(index) : fallback;
+    }
     public int getOutputPage() { return outputPage; }
     public int getOutputSlotsPerPage() {
         var layout = GuiUpgradeLayoutConfig.getInstance();

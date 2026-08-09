@@ -12,6 +12,7 @@ import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.LootFabricatorUpgradeItemStackHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEFluids;
@@ -60,7 +61,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     public static final int UPGRADE_SLOTS = 8;
     public static final int BASE_ENERGY_CAPACITY = 500_000;
     public static final int BASE_FLUID_CAPACITY = 64_000;
-    public static final int DEFAULT_LIFE_FLUID_COST = 100;
+    public static final int DEFAULT_LIFE_FLUID_COST = 20;
     public static final int DEFAULT_BASE_TIME_FLUID_COST = 1;
     public static final int ENERGY_COST = 5_000;
     public static final int PROCESS_TIME = 20;
@@ -80,6 +81,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     private final IItemHandler automationItemHandler;
     private int progress;
     private int nextInputSlot;
+    private int timeFluidCreditUnits;
     private int syncedProcessTime = PROCESS_TIME;
     private int syncedActiveOutputSlots = BASE_OUTPUT_SLOTS;
     private int syncedLifeFluid;
@@ -141,9 +143,12 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
                     case 0 -> progress;
                     case 1 -> isClientSide() ? syncedProcessTime : getProcessTime();
                     case 2 -> isClientSide() ? syncedActiveOutputSlots : getActiveOutputSlots();
-                    case 3 -> isClientSide() ? syncedLifeFluid : lifeFluidTank.getFluidAmount();
-                    case 4 -> isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount();
-                    case 5 -> isClientSide() ? syncedFluidCapacity : getMaxFluidCapacity();
+                    case 3 -> ContainerDataEncoding.low16(isClientSide() ? syncedLifeFluid : lifeFluidTank.getFluidAmount());
+                    case 4 -> ContainerDataEncoding.low16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
+                    case 5 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidCapacity : getMaxFluidCapacity());
+                    case 6 -> ContainerDataEncoding.high16(isClientSide() ? syncedLifeFluid : lifeFluidTank.getFluidAmount());
+                    case 7 -> ContainerDataEncoding.high16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
+                    case 8 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxFluidCapacity());
                     default -> 0;
                 };
             }
@@ -152,13 +157,16 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
                     case 0 -> progress = value;
                     case 1 -> syncedProcessTime = value;
                     case 2 -> syncedActiveOutputSlots = value;
-                    case 3 -> syncedLifeFluid = value;
-                    case 4 -> syncedTimeFluid = value;
-                    case 5 -> syncedFluidCapacity = value;
+                    case 3 -> syncedLifeFluid = ContainerDataEncoding.withLow16(syncedLifeFluid, value);
+                    case 4 -> syncedTimeFluid = ContainerDataEncoding.withLow16(syncedTimeFluid, value);
+                    case 5 -> syncedFluidCapacity = ContainerDataEncoding.withLow16(syncedFluidCapacity, value);
+                    case 6 -> syncedLifeFluid = ContainerDataEncoding.withHigh16(syncedLifeFluid, value);
+                    case 7 -> syncedTimeFluid = ContainerDataEncoding.withHigh16(syncedTimeFluid, value);
+                    case 8 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
                     default -> { }
                 }
             }
-            @Override public int getCount() { return 6; }
+            @Override public int getCount() { return 9; }
         };
     }
 
@@ -185,13 +193,15 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
                 .map(slot -> itemHandler.getStackInSlot(slot))
                 .mapToInt(this::getEffectiveLifeFluidCost)
                 .reduce(0, LootFabricatorBE::safeAddCost);
-        int timeFluidCost = inputSlots.stream()
+        int timeFluidCostUnits = inputSlots.stream()
                 .map(slot -> itemHandler.getStackInSlot(slot))
-                .mapToInt(this::getEffectiveTimeFluidCost)
+                .mapToInt(this::getEffectiveTimeFluidCostUnits)
                 .reduce(0, LootFabricatorBE::safeAddCost);
+        LootFabricatorFluidCost.Settlement requiredTimeFluid =
+                LootFabricatorFluidCost.settle(timeFluidCostUnits, timeFluidCreditUnits);
         if (processCount == 0
                 || lifeFluidTank.getFluidAmount() < lifeFluidCost
-                || timeFluidTank.getFluidAmount() < timeFluidCost
+                || timeFluidTank.getFluidAmount() < requiredTimeFluid.drainMb()
                 || !hasEnoughPower(energyCost * processCount)) {
             resetProgress();
             return;
@@ -205,7 +215,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         List<ItemStack> allDrops = new ArrayList<>();
         int successfulProcesses = 0;
         int successfulLifeFluidCost = 0;
-        int successfulTimeFluidCost = 0;
+        int successfulTimeFluidCostUnits = 0;
         for (int inputSlot : inputSlots) {
             ItemStack spawnEgg = itemHandler.getStackInSlot(inputSlot);
             List<ItemStack> drops = rollLoot(serverLevel, spawnEgg).stream()
@@ -215,7 +225,8 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             allDrops.addAll(drops);
             successfulProcesses++;
             successfulLifeFluidCost = safeAddCost(successfulLifeFluidCost, getEffectiveLifeFluidCost(spawnEgg));
-            successfulTimeFluidCost = safeAddCost(successfulTimeFluidCost, getEffectiveTimeFluidCost(spawnEgg));
+            successfulTimeFluidCostUnits = safeAddCost(
+                    successfulTimeFluidCostUnits, getEffectiveTimeFluidCostUnits(spawnEgg));
         }
         if (successfulProcesses == 0 || allDrops.isEmpty()) {
             resetProgress();
@@ -227,7 +238,10 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         }
         allDrops.forEach(this::insertOutput);
         lifeFluidTank.drain(successfulLifeFluidCost, IFluidHandler.FluidAction.EXECUTE);
-        timeFluidTank.drain(successfulTimeFluidCost, IFluidHandler.FluidAction.EXECUTE);
+        LootFabricatorFluidCost.Settlement timeFluidSettlement = LootFabricatorFluidCost.settle(
+                successfulTimeFluidCostUnits, timeFluidCreditUnits);
+        timeFluidTank.drain(timeFluidSettlement.drainMb(), IFluidHandler.FluidAction.EXECUTE);
+        timeFluidCreditUnits = timeFluidSettlement.remainingCreditUnits();
         extractEnergy(energyCost * successfulProcesses, false);
         nextInputSlot = (inputSlots.get(inputSlots.size() - 1) + 1) % INPUT_SLOTS;
         progress = 0;
@@ -339,15 +353,21 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     }
     public int getLootingLevel() { return upgradeHandler.getLootingCount(); }
     public int getProcessTime() { return Math.clamp(UpgradeHelper.getEffectiveTickSpeed(this, tickSpeed), 1, MAX_TICK_SPEED); }
-    public int getTimeFluidCost() { return getConfiguredBaseTimeFluidCost() * Math.max(1, PROCESS_TIME / getProcessTime()); }
+    private int getTimeFluidCostUnits() { return getConfiguredBaseTimeFluidCost() * Math.max(1, PROCESS_TIME / getProcessTime()); }
     private int getEffectiveLifeFluidCost(ItemStack spawnEgg) { return applyLootingFluidCostIncrease(getLifeFluidCost(spawnEgg), getLootingLevel()); }
-    private int getEffectiveTimeFluidCost(ItemStack spawnEgg) { return applyLootingFluidCostIncrease(safeMultiplyCost(getTimeFluidCost(), getBossCostMultiplier(spawnEgg)), getLootingLevel()); }
+    private int getEffectiveTimeFluidCostUnits(ItemStack spawnEgg) { return applyLootingFluidCostIncrease(safeMultiplyCost(getTimeFluidCostUnits(), getBossCostMultiplier(spawnEgg)), getLootingLevel()); }
     public static int getConfiguredLifeFluidCost() { return Math.max(1, JDTEConfig.COMMON.lootFabricatorLifeFluidCost.get()); }
     public static int getConfiguredBaseTimeFluidCost() { return Math.max(1, JDTEConfig.COMMON.lootFabricatorBaseTimeFluidCost.get()); }
     public static int getConfiguredLootingFluidCostIncreasePercent() { return Math.max(0, JDTEConfig.COMMON.lootFabricatorLootingFluidCostIncreasePercent.get()); }
     public static int getLifeFluidCost(ItemStack spawnEgg) { return safeMultiplyCost(getConfiguredLifeFluidCost(), getBossCostMultiplier(spawnEgg)); }
-    public static int getBaseTimeFluidCost(ItemStack spawnEgg) { return safeMultiplyCost(getConfiguredBaseTimeFluidCost(), getBossCostMultiplier(spawnEgg)); }
-    public static int getMaxTimeFluidCost(ItemStack spawnEgg) { return safeMultiplyCost(getBaseTimeFluidCost(spawnEgg), PROCESS_TIME); }
+    public static int getBaseTimeFluidCostUnits(ItemStack spawnEgg) { return safeMultiplyCost(getConfiguredBaseTimeFluidCost(), getBossCostMultiplier(spawnEgg)); }
+    public static int getMaxTimeFluidCostUnits(ItemStack spawnEgg) { return safeMultiplyCost(getBaseTimeFluidCostUnits(spawnEgg), PROCESS_TIME); }
+    public static int getTimeFluidDisplayAmount(int costUnits) {
+        return LootFabricatorFluidCost.displayAmount(costUnits);
+    }
+    public static String formatTimeFluidCost(int costUnits) {
+        return LootFabricatorFluidCost.format(costUnits);
+    }
     public static int getBossCostMultiplier(ItemStack spawnEgg) {
         if (!(spawnEgg.getItem() instanceof SpawnEggItem egg)) return 1;
         EntityType<?> type = egg.getType(spawnEgg);
@@ -413,6 +433,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("progress", progress);
         tag.putInt("nextInputSlot", nextInputSlot);
+        tag.putInt("timeFluidCreditUnits", timeFluidCreditUnits);
     }
 
     @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
@@ -424,6 +445,8 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         energyStorage.setEnergy(tag.getInt("energy"));
         progress = tag.getInt("progress");
         nextInputSlot = tag.getInt("nextInputSlot");
+        timeFluidCreditUnits = Math.clamp(
+                tag.getInt("timeFluidCreditUnits"), 0, LootFabricatorFluidCost.UNITS_PER_MB - 1);
         if (!tag.contains("tickspeed") && tag.contains("tickSpeed")) tickSpeed = tag.getInt("tickSpeed");
         tickSpeed = clampRawTickSpeed(tickSpeed);
     }

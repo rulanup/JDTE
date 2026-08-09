@@ -9,6 +9,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControl
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import com.jdte.common.recipes.GreenhouseCropResolver;
 import com.jdte.common.upgrades.JDTEFluidTank;
@@ -51,7 +52,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     public static final int BASE_OUTPUT_SLOTS = 16;
     public static final int OUTPUT_SLOTS_PER_CAPACITY = 16;
     public static final int BASE_OUTPUT_STACK_LIMIT = 64;
-    public static final int FIRST_CAPACITY_STACK_LIMIT = 1024;
+    public static final int FIRST_CAPACITY_STACK_LIMIT = 2048;
     public static final int UPGRADE_SLOTS = 8;
     public static final int TOTAL_SLOTS = INPUT_SLOTS + OUTPUT_SLOTS;
     private static final int LEGACY_TOTAL_SLOTS = 10;
@@ -144,10 +145,12 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
                         JDTEConfig.COMMON.greenhouseSettlementInterval.get());
                 case 1 -> isClientSide() ? syncedProgressMax : JDTEConfig.COMMON.greenhouseSettlementInterval.get();
                 case 2 -> isClientSide() ? syncedActiveOutputSlots : getActiveOutputSlots();
-                case 3 -> isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount();
-                case 4 -> isClientSide() ? syncedFluidCapacity : getMaxMB();
-                case 5 -> isClientSide() ? syncedMultiplier : getMultiplier();
-                case 6 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
+                case 3 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount());
+                case 4 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount());
+                case 5 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 6 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 7 -> isClientSide() ? syncedMultiplier : getMultiplier();
+                case 8 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
                 default -> 0;
             };
         }
@@ -158,15 +161,17 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
                 case 0 -> syncedProgress = value;
                 case 1 -> syncedProgressMax = value;
                 case 2 -> syncedActiveOutputSlots = value;
-                case 3 -> syncedFluidAmount = value;
-                case 4 -> syncedFluidCapacity = value;
-                case 5 -> syncedMultiplier = value;
-                case 6 -> syncedMaxMultiplier = value;
+                case 3 -> syncedFluidAmount = ContainerDataEncoding.withLow16(syncedFluidAmount, value);
+                case 4 -> syncedFluidAmount = ContainerDataEncoding.withHigh16(syncedFluidAmount, value);
+                case 5 -> syncedFluidCapacity = ContainerDataEncoding.withLow16(syncedFluidCapacity, value);
+                case 6 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
+                case 7 -> syncedMultiplier = value;
+                case 8 -> syncedMaxMultiplier = value;
                 default -> { }
             }
         }
 
-        @Override public int getCount() { return 7; }
+        @Override public int getCount() { return 9; }
     };
 
     private int settlementTicker;

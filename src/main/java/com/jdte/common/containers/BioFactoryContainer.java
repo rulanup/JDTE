@@ -5,6 +5,7 @@ import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.upgrades.BioFactoryUpgradeItemStackHandler;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.core.BlockPos;
@@ -48,11 +49,11 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
     public BioFactoryBE getFactory() { return (BioFactoryBE) baseMachineBE; }
     public int getProgress() { return getData(0, 0); }
     public int getProcessTicks() { return getData(1, 600); }
-    public int getLifeFluid() { return getData(3, 0); }
-    public int getTimeFluid() { return getData(4, 0); }
-    public int getProcessFluid() { return getData(5, 0); }
-    public int getProductFluid() { return getData(6, 0); }
-    public int getFluidCapacity() { return getData(7, 1); }
+    public int getLifeFluid() { return ContainerDataEncoding.combine16(getData(3, 0), getData(11, 0)); }
+    public int getTimeFluid() { return ContainerDataEncoding.combine16(getData(4, 0), getData(12, 0)); }
+    public int getProcessFluid() { return ContainerDataEncoding.combine16(getData(5, 0), getData(13, 0)); }
+    public int getProductFluid() { return ContainerDataEncoding.combine16(getData(6, 0), getData(14, 0)); }
+    public int getFluidCapacity() { return ContainerDataEncoding.combine16(getData(7, 1), getData(15, 0)); }
     public double getProductivityMultiplier() { return getData(8, 100) / 100.0D; }
     public int getMultiplier() { return getData(9, 1); }
     public int getMaxMultiplier() { return getData(10, 32); }

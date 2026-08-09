@@ -3,6 +3,7 @@ package com.jdte.common.containers;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEItems;
@@ -67,9 +68,9 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
     public int getProgress() { return data(0, 0); }
     public int getProgressMax() { return data(1, 20); }
     public int getActiveOutputSlots() { return data(2, MineralExtractorBE.BASE_OUTPUT_SLOTS); }
-    public int getExperienceFluid() { return data(3, 0); }
-    public int getTimeFluid() { return data(4, 0); }
-    public int getFluidCapacity() { return data(5, 1); }
+    public int getExperienceFluid() { return ContainerDataEncoding.combine16(data(3, 0), data(12, 0)); }
+    public int getTimeFluid() { return ContainerDataEncoding.combine16(data(4, 0), data(13, 0)); }
+    public int getFluidCapacity() { return ContainerDataEncoding.combine16(data(5, 1), data(14, 0)); }
     public int getMultiplier() { return data(6, 1); }
     public int getMaxMultiplier() { return data(7, 32); }
     public int getStateId() { return data(8, 0); }
@@ -175,6 +176,12 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
         @Override public void initialize(ItemStack stack) { set(stack); }
         @Override public ItemStack remove(int amount) {
             return active() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY;
+        }
+        @Override public int getMaxStackSize() {
+            return active() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
+        }
+        @Override public int getMaxStackSize(ItemStack stack) {
+            return active() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
         }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
         @Override public boolean mayPickup(Player player) { return active() && !getItem().isEmpty(); }

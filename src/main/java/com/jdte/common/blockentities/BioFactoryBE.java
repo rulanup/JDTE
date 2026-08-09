@@ -13,6 +13,7 @@ import com.jdte.common.upgrades.BioFactoryUpgradeItemStackHandler;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
@@ -126,16 +127,22 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         @Override public int get(int index) {
             return switch (index) {
                 case 0 -> progress;
-                case 1 -> getCurrentProcessTicks();
-                case 2 -> getActiveOutputSlots();
-                case 3 -> lifeFluidTank.getFluidAmount();
-                case 4 -> timeFluidTank.getFluidAmount();
-                case 5 -> processFluidTank.getFluidAmount();
-                case 6 -> productFluidTank.getFluidAmount();
-                case 7 -> getMaxFluidCapacity();
-                case 8 -> (int) Math.min(Integer.MAX_VALUE, Math.round(getProductivityMultiplier() * 100.0D));
+                case 1 -> isClientSide() ? syncedProcessTicks : getCurrentProcessTicks();
+                case 2 -> isClientSide() ? syncedOutputSlots : getActiveOutputSlots();
+                case 3 -> ContainerDataEncoding.low16(isClientSide() ? syncedLifeFluid : lifeFluidTank.getFluidAmount());
+                case 4 -> ContainerDataEncoding.low16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
+                case 5 -> ContainerDataEncoding.low16(isClientSide() ? syncedProcessFluid : processFluidTank.getFluidAmount());
+                case 6 -> ContainerDataEncoding.low16(isClientSide() ? syncedProductFluid : productFluidTank.getFluidAmount());
+                case 7 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidCapacity : getMaxFluidCapacity());
+                case 8 -> isClientSide() ? syncedProductivity
+                        : (int) Math.min(Integer.MAX_VALUE, Math.round(getProductivityMultiplier() * 100.0D));
                 case 9 -> isClientSide() ? syncedMultiplier : getMultiplier();
                 case 10 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
+                case 11 -> ContainerDataEncoding.high16(isClientSide() ? syncedLifeFluid : lifeFluidTank.getFluidAmount());
+                case 12 -> ContainerDataEncoding.high16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
+                case 13 -> ContainerDataEncoding.high16(isClientSide() ? syncedProcessFluid : processFluidTank.getFluidAmount());
+                case 14 -> ContainerDataEncoding.high16(isClientSide() ? syncedProductFluid : productFluidTank.getFluidAmount());
+                case 15 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxFluidCapacity());
                 default -> 0;
             };
         }
@@ -144,18 +151,23 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 case 0 -> progress = value;
                 case 1 -> syncedProcessTicks = value;
                 case 2 -> syncedOutputSlots = value;
-                case 3 -> syncedLifeFluid = value;
-                case 4 -> syncedTimeFluid = value;
-                case 5 -> syncedProcessFluid = value;
-                case 6 -> syncedProductFluid = value;
-                case 7 -> syncedFluidCapacity = value;
+                case 3 -> syncedLifeFluid = ContainerDataEncoding.withLow16(syncedLifeFluid, value);
+                case 4 -> syncedTimeFluid = ContainerDataEncoding.withLow16(syncedTimeFluid, value);
+                case 5 -> syncedProcessFluid = ContainerDataEncoding.withLow16(syncedProcessFluid, value);
+                case 6 -> syncedProductFluid = ContainerDataEncoding.withLow16(syncedProductFluid, value);
+                case 7 -> syncedFluidCapacity = ContainerDataEncoding.withLow16(syncedFluidCapacity, value);
                 case 8 -> syncedProductivity = value;
                 case 9 -> syncedMultiplier = value;
                 case 10 -> syncedMaxMultiplier = value;
+                case 11 -> syncedLifeFluid = ContainerDataEncoding.withHigh16(syncedLifeFluid, value);
+                case 12 -> syncedTimeFluid = ContainerDataEncoding.withHigh16(syncedTimeFluid, value);
+                case 13 -> syncedProcessFluid = ContainerDataEncoding.withHigh16(syncedProcessFluid, value);
+                case 14 -> syncedProductFluid = ContainerDataEncoding.withHigh16(syncedProductFluid, value);
+                case 15 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
                 default -> { }
             }
         }
-        @Override public int getCount() { return 11; }
+        @Override public int getCount() { return 16; }
     };
 
     private int progress;
@@ -177,6 +189,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private final ItemStack[] cachedInputs = new ItemStack[INPUT_SLOTS];
     private int[] cachedRecipeInputSlots;
     private Fluid cachedProcessFluid;
+    private int cachedProcessFluidAmount;
     private ItemStack cachedBeeFood = ItemStack.EMPTY;
     private boolean cachedBeeUsesItemFood;
     private boolean cacheResolved;
@@ -219,13 +232,15 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         List<ItemStack> inputs = getInputStacks();
         Fluid fluid = processFluidTank.getFluid().getFluid();
         if (cacheResolved && ItemStack.isSameItemSameComponents(specimen, cachedSpecimen)
-                && inputsMatchCache(inputs) && fluid == cachedProcessFluid) {
+                && inputsMatchCache(inputs) && fluid == cachedProcessFluid
+                && processFluidTank.getFluidAmount() == cachedProcessFluidAmount) {
             return cachedRecipe != null || cachedBee != null;
         }
         clearRecipeCache();
         cachedSpecimen = specimen.copy();
         for (int i = 0; i < INPUT_SLOTS; i++) cachedInputs[i] = inputs.get(i).copy();
         cachedProcessFluid = fluid;
+        cachedProcessFluidAmount = processFluidTank.getFluidAmount();
         cacheResolved = true;
         if (level == null || specimen.isEmpty()) return false;
         cachedRecipe = level.getRecipeManager().getAllRecipesFor(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get()).stream()
@@ -248,7 +263,9 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 .filter(stack -> ProductiveBeesBioFactoryIntegration.isValidFood(cachedBee, stack, ItemStack.EMPTY))
                 .findFirst().map(ItemStack::copy).orElse(ItemStack.EMPTY);
         cachedBeeUsesItemFood = !cachedBeeFood.isEmpty();
-        if (!cachedBeeUsesItemFood && !ProductiveBeesBioFactoryIntegration.isValidFood(cachedBee, ItemStack.EMPTY, bucket)) {
+        if (!cachedBeeUsesItemFood && (!ProductiveBeesBioFactoryIntegration.isValidFood(
+                cachedBee, ItemStack.EMPTY, bucket)
+                || processFluidTank.getFluidAmount() < getRequiredBeeFlowerFluidAmount())) {
             cachedBee = null;
         }
         return cachedBee != null;
@@ -358,9 +375,11 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     private int getProcessFluidCost() {
-        if (cachedRecipe != null) return Math.max(0, cachedRecipe.processFluidAmount());
-        return cachedBee != null && !cachedBeeUsesItemFood
-                ? JDTEConfig.COMMON.bioFactoryProcessFluidPerCycle.get() : 0;
+        return cachedRecipe == null ? 0 : Math.max(0, cachedRecipe.processFluidAmount());
+    }
+
+    private int getRequiredBeeFlowerFluidAmount() {
+        return JDTEConfig.COMMON.bioFactoryProcessFluidPerCycle.get();
     }
 
     private boolean canFit(List<ItemStack> outputs) {
@@ -488,6 +507,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         Arrays.fill(cachedInputs, ItemStack.EMPTY);
         cachedRecipeInputSlots = null;
         cachedProcessFluid = null;
+        cachedProcessFluidAmount = 0;
         cachedBeeFood = ItemStack.EMPTY;
         cachedBeeUsesItemFood = false;
     }

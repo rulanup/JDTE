@@ -11,6 +11,7 @@ import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.blocks.LargeGreenhouseBlock;
 import com.jdte.common.blocks.LargeGreenhouseStructure;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import com.jdte.common.recipes.GreenhouseCropResolver;
 import com.jdte.common.upgrades.JDTEFluidTank;
@@ -54,7 +55,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     public static final int BASE_OUTPUT_SLOTS = 16;
     public static final int OUTPUT_SLOTS_PER_CAPACITY = 16;
     public static final int BASE_OUTPUT_STACK_LIMIT = 64;
-    public static final int FIRST_CAPACITY_STACK_LIMIT = 1024;
+    public static final int FIRST_CAPACITY_STACK_LIMIT = 2048;
     public static final int UPGRADE_SLOTS = 8;
     public static final int TOTAL_SLOTS = INPUT_SLOTS + OUTPUT_SLOTS;
     private static final int LEGACY_INPUT_SLOTS = 9;
@@ -152,10 +153,12 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                         JDTEConfig.COMMON.greenhouseSettlementInterval.get());
                 case 1 -> isClientSide() ? syncedProgressMax : JDTEConfig.COMMON.greenhouseSettlementInterval.get();
                 case 2 -> isClientSide() ? syncedActiveOutputSlots : getActiveOutputSlots();
-                case 3 -> isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount();
-                case 4 -> isClientSide() ? syncedFluidCapacity : getMaxMB();
-                case 5 -> isClientSide() ? syncedMultiplier : getMultiplier();
-                case 6 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
+                case 3 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount());
+                case 4 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount());
+                case 5 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 6 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 7 -> isClientSide() ? syncedMultiplier : getMultiplier();
+                case 8 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
                 default -> 0;
             };
         }
@@ -166,15 +169,17 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                 case 0 -> syncedProgress = value;
                 case 1 -> syncedProgressMax = value;
                 case 2 -> syncedActiveOutputSlots = value;
-                case 3 -> syncedFluidAmount = value;
-                case 4 -> syncedFluidCapacity = value;
-                case 5 -> syncedMultiplier = value;
-                case 6 -> syncedMaxMultiplier = value;
+                case 3 -> syncedFluidAmount = ContainerDataEncoding.withLow16(syncedFluidAmount, value);
+                case 4 -> syncedFluidAmount = ContainerDataEncoding.withHigh16(syncedFluidAmount, value);
+                case 5 -> syncedFluidCapacity = ContainerDataEncoding.withLow16(syncedFluidCapacity, value);
+                case 6 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
+                case 7 -> syncedMultiplier = value;
+                case 8 -> syncedMaxMultiplier = value;
                 default -> { }
             }
         }
 
-        @Override public int getCount() { return 7; }
+        @Override public int getCount() { return 9; }
     };
 
     private int settlementTicker;
@@ -246,19 +251,18 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             setActiveMask(0);
             return;
         }
-        settleProduction(definitions, defined, elapsed, completedSettlements);
+        settleProduction(definitions, elapsed, completedSettlements);
     }
 
-    private void settleProduction(GreenhouseCropDefinition[] definitions, int defined, int elapsedTicks,
+    private void settleProduction(GreenhouseCropDefinition[] definitions, int elapsedTicks,
                                   int completedSettlements) {
-        // 结构倍率必须同时放大结算预算，否则 9 倍工作积累只是更快触顶，
-        // 每结算总产出与普通温室完全相同。
+        // 每个输入槽都是独立生产线；结构倍率同时放大每条生产线的结算预算，
+        // 避免多个有效槽位共享固定总预算而无法叠加产量。
         int maxHarvests = saturatingMultiply(
                 saturatingMultiply(JDTEConfig.COMMON.greenhouseMaxHarvestsPerSettlementV2.get(),
                         STRUCTURE_WORK_MULTIPLIER), completedSettlements);
         ProductionSettings settings = currentProductionSettings();
         int newActiveMask = 0;
-        int visitedDefined = 0;
         int[] dynamicHarvestBudget = {JDTEConfig.COMMON.greenhouseDynamicHarvestCallsPerTick.get()};
 
         beginOutputChangeBatch();
@@ -268,8 +272,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                 int slot = (nextInputSlot + offset) % INPUT_SLOTS;
                 GreenhouseCropDefinition definition = definitions[slot];
                 if (definition == null) continue;
-                int budget = GreenhouseProductionEngine.budgetForIndex(maxHarvests, defined, visitedDefined++);
-                settleSlot(slot, definition, elapsedTicks, budget, STRUCTURE_WORK_MULTIPLIER,
+                settleSlot(slot, definition, elapsedTicks, maxHarvests, STRUCTURE_WORK_MULTIPLIER,
                         settings, List.of(this), dynamicHarvestBudget, capacityLedger);
                 if (hasResourcesForOne(slot, definition, settings, List.of(this)) && hasOutputSpace(definition)) {
                     newActiveMask |= 1 << slot;

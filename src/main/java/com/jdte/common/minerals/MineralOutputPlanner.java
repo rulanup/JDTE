@@ -15,19 +15,26 @@ public final class MineralOutputPlanner {
     }
 
     public static long findMaxFitting(long requested, LongFunction<Plan> planFactory) {
+        return findLargestFitting(requested, planFactory).cycles();
+    }
+
+    public static FittingPlan findLargestFitting(long requested, LongFunction<Plan> planFactory) {
         long low = 1L;
         long high = Math.max(0L, requested);
         long best = 0L;
+        Plan bestPlan = new Plan(false, List.of());
         while (low <= high) {
             long candidate = low + (high - low) / 2L;
-            if (planFactory.apply(candidate).fits()) {
+            Plan candidatePlan = planFactory.apply(candidate);
+            if (candidatePlan.fits()) {
                 best = candidate;
+                bestPlan = candidatePlan;
                 low = candidate + 1L;
             } else {
                 high = candidate - 1L;
             }
         }
-        return best;
+        return new FittingPlan(best, bestPlan);
     }
 
     public static Plan plan(List<SlotState> currentSlots, Map<ResourceLocation, Long> amounts,
@@ -76,6 +83,9 @@ public final class MineralOutputPlanner {
         public boolean isEmpty() {
             return itemId == null || count == 0;
         }
+    }
+
+    public record FittingPlan(long cycles, Plan plan) {
     }
 
     public record Plan(boolean fits, List<SlotState> slots) {

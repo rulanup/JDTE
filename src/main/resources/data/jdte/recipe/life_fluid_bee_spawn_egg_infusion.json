@@ -19,7 +19,7 @@
       }
     }
   },
-  "energy": 1000000,
+  "energy": 100000,
   "neoforge:conditions": [
     {
       "type": "neoforge:mod_loaded",

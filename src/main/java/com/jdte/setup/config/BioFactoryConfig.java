@@ -45,7 +45,8 @@ public class BioFactoryConfig {
                 .defineInRange("lifeFluidPerCycle", 100, 0, Integer.MAX_VALUE);
         bioFactoryLifeYieldMultiplier = builder.translation("config.jdte.jdte.bioFactory.lifeYieldMultiplier")
                 .defineInRange("lifeYieldMultiplier", 2.0D, 1.0D, 64.0D);
-        bioFactoryProcessFluidPerCycle = builder.translation("config.jdte.jdte.bioFactory.processFluidPerCycle")
+        bioFactoryProcessFluidPerCycle = builder.comment("Minimum flowering fluid required for Productive Bees; the fluid is a reusable catalyst and is not consumed")
+                .translation("config.jdte.jdte.bioFactory.processFluidPerCycle")
                 .defineInRange("processFluidPerCycle", 100, 0, Integer.MAX_VALUE);
         bioFactoryExternalTimeFluidCostMultiplier = builder
                 .translation("config.jdte.jdte.bioFactory.externalTimeFluidCostMultiplier")

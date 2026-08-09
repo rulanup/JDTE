@@ -83,10 +83,16 @@ public class BioFactoryRecipeCategory implements IRecipeCategory<BioFactoryJeiRe
                 .setFluidRenderer(Math.max(1, recipe.timeFluidAmount()), false, 16, 70)
                 .addFluidStack(Registration.TIME_FLUID_SOURCE.get(), recipe.timeFluidAmount());
         if (recipe.processFluid().isPresent()) {
-            builder.addSlot(RecipeIngredientRole.INPUT, PROCESS_FLUID_X + 1, FLUID_Y + 1)
+            var processSlot = builder.addSlot(recipe.processFluidConsumed()
+                            ? RecipeIngredientRole.INPUT : RecipeIngredientRole.CATALYST,
+                    PROCESS_FLUID_X + 1, FLUID_Y + 1)
                     .setBackground(fluidBackground, -1, -1).setOverlay(fluidOverlay, -1, -1).setFluidRenderer(
                             Math.max(1, recipe.processFluidAmount()), false, 16, 70)
                     .addFluidStack(BuiltInRegistries.FLUID.get(recipe.processFluid().get()), recipe.processFluidAmount());
+            if (!recipe.processFluidConsumed()) {
+                processSlot.addRichTooltipCallback((view, tooltip) -> tooltip.add(
+                        Component.translatable("jei.jdte.not_consumed").withStyle(ChatFormatting.GRAY)));
+            }
         }
         if (recipe.outputFluid().isPresent()) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, PRODUCT_FLUID_X + 1, FLUID_Y + 1)

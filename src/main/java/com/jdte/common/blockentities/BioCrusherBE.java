@@ -360,9 +360,8 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
                         return false;
                     }
 
-                    createForcedDrops(serverLevel, entity, playerDamage);
                     entity.setHealth(0.0F);
-                    entity.remove(Entity.RemovalReason.KILLED);
+                    entity.die(playerDamage);
                 }
                 BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, entity, fakePlayer);
                 return entity.isDeadOrDying() || entity.isRemoved();

@@ -1,6 +1,7 @@
 package com.jdte.client.screens;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
+import com.jdte.client.screens.util.MachineBarMath;
 import com.jdte.common.containers.LootFabricatorContainer;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import net.minecraft.client.gui.GuiGraphics;
@@ -102,7 +103,7 @@ public class LootFabricatorScreen extends BaseMachineScreen<LootFabricatorContai
 
     private void renderFluidTank(GuiGraphics graphics, int x, int y, FluidStack stack, int amount) {
         graphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
-        int height = Math.min(70, (amount * 70) / Math.max(1, lootContainer.getFluidCapacity()));
+        int height = MachineBarMath.scaleClamped(amount, lootContainer.getFluidCapacity(), 70);
         if (height > 0) renderFluidStack(graphics, stack, x + 1, y + 71, 16, height);
         graphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
     }

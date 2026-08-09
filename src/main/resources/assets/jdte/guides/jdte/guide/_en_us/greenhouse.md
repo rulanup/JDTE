@@ -27,7 +27,7 @@ The Greenhouse retains crops, flowers, or saplings as reusable templates and con
 | Per harvest | 10 FE; recipe Time Fluid divided by 100 and rounded up, minimum 1 mB |
 | Template stacks | Up to half the item's stack limit uses 1x fluid; larger stacks use 2x |
 | Outputs | 16 slots by default; each Capacity Upgrade adds 16, up to 64 |
-| Slot limit | 64 by default; 1024/2048/4096 with one/two/three Capacity Upgrades |
+| Slot limit | 64 by default; 2048/4096/8192 with one/two/three Capacity Upgrades |
 
 Production pauses safely when outputs are blocked. Horizontally adjacent Greenhouses connect visually but keep separate inventories and upgrades.
 

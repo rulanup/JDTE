@@ -16,6 +16,7 @@ import java.util.Optional;
 public record BioFactoryJeiRecipe(ResourceLocation id, List<ItemStack> specimens, List<JeiInput> inputs,
                                   List<JeiOutput> outputs,
                                   Optional<ResourceLocation> processFluid, int processFluidAmount,
+                                  boolean processFluidConsumed,
                                   Optional<ResourceLocation> outputFluid, int outputFluidAmount,
                                   int lifeFluidAmount, int timeFluidAmount,
                                   int processTicks, int energy) {
@@ -33,7 +34,8 @@ public record BioFactoryJeiRecipe(ResourceLocation id, List<ItemStack> specimens
                     .map(input -> new JeiInput(List.of(input.ingredient().getItems()), input.count())).toList();
             result.add(new BioFactoryJeiRecipe(holder.id(), List.of(recipe.specimen().getItems()),
                     inputs, outputs, recipe.processFluid(),
-                    recipe.processFluidAmount(), recipe.outputFluid(), recipe.outputFluidAmount(),
+                    recipe.processFluidAmount(), recipe.processFluid().isPresent() && recipe.processFluidAmount() > 0,
+                    recipe.outputFluid(), recipe.outputFluidAmount(),
                     com.jdte.setup.JDTEConfig.COMMON.bioFactoryLifeFluidPerCycle.get(),
                     com.jdte.setup.JDTEConfig.COMMON.bioFactoryTimeFluidPerCycle.get(),
                     recipe.processTicks(), recipe.energy()));
@@ -48,6 +50,7 @@ public record BioFactoryJeiRecipe(ResourceLocation id, List<ItemStack> specimens
                 result.add(new BioFactoryJeiRecipe(recipe.id(), List.of(recipe.specimen()), inputs, outputs,
                         recipe.processFluid(), recipe.processFluid().isPresent()
                                 ? com.jdte.setup.JDTEConfig.COMMON.bioFactoryProcessFluidPerCycle.get() : 0,
+                        false,
                         Optional.empty(), 0,
                         multiplyCost(com.jdte.setup.JDTEConfig.COMMON.bioFactoryLifeFluidPerCycle.get(),
                                 com.jdte.setup.JDTEConfig.COMMON.bioFactoryExternalLifeFluidCostMultiplier.get()),
