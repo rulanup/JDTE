@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The Glue Activator automates JDT glue-related operations, automatically activating and processing glue blocks.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Requires FE | |---------|--------------|-------------| | Basic Glue Activator | 4 | No | | Advanced Glue Activator | 4 | Yes | | Extended Glue Activator | 8 | Yes |$(br2)$(bold)Features$()$(br2)$(li)Automatically detects and activates glue blocks within range$(li)Supports redstone control, Range Upgrade, and Filter Upgrade$(li)Advanced and Extended versions support Overclock, Underclock, and Capacity Upgrades$(br2)$(bold)Crafting$()$(br2)$(bold)Basic Glue Activator$()"
+      "text": "The Glue Activator automates JDT glue-related operations, automatically activating and processing glue blocks.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrade Slots | Requires FE$()$(br)Basic Glue Activator | 4 | No$(br)Advanced Glue Activator | 4 | Yes$(br)Extended Glue Activator | 8 | Yes$(br2)$(bold)Features$()$(br2)$(li)Automatically detects and activates glue blocks within range$(li)Supports redstone control, Range Upgrade, and Filter Upgrade$(li)Advanced and Extended versions support Overclock, Underclock, and Capacity Upgrades$(br2)$(bold)Crafting$()$(br2)$(bold)Basic Glue Activator$()"
     },
     {
       "type": "patchouli:spotlight",

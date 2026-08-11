@@ -15,7 +15,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "| T2 Machine | Converts To | |------------|-------------| | Clicker T2 | Extended Clicker | | Block Breaker T2 | Extended Block Breaker | | Block Placer T2 | Extended Block Placer | | Block Swapper T2 | Extended Block Swapper | | Dropper T2 | Extended Dropper | | Sensor T2 | Extended Sensor | | Fluid Collector T2 | Extended Fluid Collector | | Fluid Placer T2 | Extended Fluid Placer | | Advanced Time Accelerator | Extended Time Accelerator |"
+      "text": "$(bold)T2 Machine | Converts To$()$(br)Clicker T2 | Extended Clicker$(br)Block Breaker T2 | Extended Block Breaker$(br)Block Placer T2 | Extended Block Placer$(br)Block Swapper T2 | Extended Block Swapper$(br)Dropper T2 | Extended Dropper$(br)Sensor T2 | Extended Sensor$(br)Fluid Collector T2 | Extended Fluid Collector$(br)Fluid Placer T2 | Extended Fluid Placer$(br)Advanced Time Accelerator | Extended Time Accelerator"
     },
     {
       "type": "patchouli:crafting",

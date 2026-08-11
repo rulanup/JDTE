@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(bold)扩展高级机器$()$(br2)扩展高级机器拥有 8 个升级槽，其他功能与原版 T2 机器相同。$(br2)可以通过合成获得，也可以使用 <ItemImage id=\"jdte:extended_upgrade\" scale=\"1\" /> 扩展升级 (extended-upgrade.md) 直接将 T2 机器转换。"
+      "text": "$(bold)扩展高级机器$()$(br2)扩展高级机器拥有 8 个升级槽，其他功能与原版 T2 机器相同。$(br2)可以通过合成获得，也可以使用 $(thing)jdte:extended_upgrade$() $(l:jdte:extended-upgrade)扩展升级$(/l) 直接将 T2 机器转换。"
     },
     {
       "type": "patchouli:spotlight",

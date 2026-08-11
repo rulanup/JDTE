@@ -11,7 +11,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The Mineral Extractor produces ore blocks from normalized estimated weights derived from a biome's standard ore world-generation settings. It only queries the server mineral index built during data-pack loading; it does not scan chunks or generate new ones.$(br2)$(bold)Mineral Surveys$()$(br2)1. Hold a blank Mineral Survey and right-click in a target biome to record its mineral distribution. 2. Right-click a recorded survey to inspect minerals, estimated probabilities, heights, vein sizes, and recognition confidence. 3. Insert it into the left machine slot to use its recorded biome. Without a recorded survey, the machine uses its current biome."
+      "text": "The Mineral Extractor produces ore blocks from normalized estimated weights derived from a biome's standard ore world-generation settings. It only queries the server mineral index built during data-pack loading; it does not scan chunks or generate new ones.$(br2)$(bold)Mineral Surveys$()$(br2)1. Hold a blank Mineral Survey and right-click in a target biome to record its mineral distribution.$(br)2. Right-click a recorded survey to inspect minerals, estimated probabilities, heights, vein sizes, and recognition confidence.$(br)3. Insert it into the left machine slot to use its recorded biome. Without a recorded survey, the machine uses its current biome."
     },
     {
       "type": "patchouli:text",
@@ -36,11 +36,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "| Property | Default behavior | |----------|------------------| | Base processing | 1x uses the former 64x throughput as its baseline: 64 work is added each tick, and each 20 work completes and immediately settles one batch | | Energy | 5,000 FE per batch; 10,000 FE per batch with JDT's Smelter Upgrade installed | | Smelting | Accepts at most one JDT Smelter Upgrade; ores with furnace recipes become their smelted results, while ores without recipes remain unchanged | | Experience Fluid | 25 mB per batch raises that batch's yield by 100%; remaining batches retain normal yield | | Time Fluid | 5 mB per accelerated batch; the base 1x batch is free | | Speed | 1x equals the former 64x"
+      "text": "$(bold)Property | Default behavior$()$(br)Base processing | 1x uses the former 64x throughput as its baseline: 64 work is added each tick, and each 20 work completes and immediately settles one batch$(br)Energy | 5,000 FE per batch; 10,000 FE per batch with JDT's Smelter Upgrade installed$(br)Smelting | Accepts at most one JDT Smelter Upgrade; ores with furnace recipes become their smelted results, while ores without recipes remain unchanged$(br)Experience Fluid | 25 mB per batch raises that batch's yield by 100%; remaining batches retain normal yield$(br)Time Fluid | 5 mB per accelerated batch; the base 1x batch is free$(br)Speed | 1x equals the former 64x throughput; adjustable up to 32x"
     },
     {
       "type": "patchouli:text",
-      "text": "throughput; adjustable up to 32x without Overclock and 64x with Overclock or Creative | | Outputs | 16 slots by default; each Capacity Upgrade adds 16, up to 64 | | Per-slot limit | 64, then 2048/4096/8192 with one/two/three Capacity Upgrades |$(br2)The machine settles as much queued work as the current output space can hold and preserves the remainder. Completely full outputs, insufficient energy, no candidates, or stale surveys do not charge resources or spill items. High multipliers use weighted batch settlement whose cost scales with mineral types instead of executing each production cycle separately.$(br2)$(bold)Filtering and Automation$()"
+      "text": "without Overclock and 64x with Overclock or Creative$(br)Outputs | 16 slots by default; each Capacity Upgrade adds 16, up to 64$(br)Per-slot limit | 64, then 2048/4096/8192 with one/two/three Capacity Upgrades$(br2)The machine settles as much queued work as the current output space can hold and preserves the remainder. Completely full outputs, insufficient energy, no candidates, or stale surveys do not charge resources or spill items. High multipliers use weighted batch settlement whose cost scales with mineral types instead of executing each production cycle separately.$(br2)$(bold)Filtering and Automation$()"
     },
     {
       "type": "patchouli:text",

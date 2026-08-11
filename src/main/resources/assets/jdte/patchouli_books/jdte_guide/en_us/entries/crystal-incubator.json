@@ -15,7 +15,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "| Property | Behavior | |----------|----------| | Rate | Adjustable 1-512x; fixed at 1024x with Overclock or Creative | | Base resources | Uses JDT Time Wand-equivalent Time Fluid and FE costs with configurable multipliers | | Output | Nine product slots; clusters remain intact when all drops cannot fit | | Auto I/O | Accepts Time Fluid and exports products through configured sides | | Scanning | Builds the budding cache in batches and visits only six neighboring positions |"
+      "text": "$(bold)Property | Behavior$()$(br)Rate | Adjustable 1-512x; fixed at 1024x with Overclock or Creative$(br)Base resources | Uses JDT Time Wand-equivalent Time Fluid and FE costs with configurable multipliers$(br)Output | Nine product slots; clusters remain intact when all drops cannot fit$(br)Auto I/O | Accepts Time Fluid and exports products through configured sides$(br)Scanning | Builds the budding cache in batches and visits only six neighboring positions"
     },
     {
       "type": "patchouli:text",
@@ -23,7 +23,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Growth stops without Time Fluid or FE. Creative follows the standard rule and removes the Incubator's own resource costs. For Just Dyna Things Echoing Budding, the Incubator reserves its current-tick operating cost and transfers the exact missing standard FE and Time Fluid into the target. The budding block still applies its own post-growth costs and configured probabilities.$(br2)$(bold)Harvest Upgrades$()$(br2)| Upgrade | Limit | Harvest behavior | |---------|------:|------------------| | Fortune | 8 | Applies the matching vanilla Fortune level to the simulated harvesting tool | | Precision | 1 | Applies vanilla Silk Touch and lets the target loot table choose the drop |"
+      "text": "Growth stops without Time Fluid or FE. Creative follows the standard rule and removes the Incubator's own resource costs. For Just Dyna Things Echoing Budding, the Incubator reserves its current-tick operating cost and transfers the exact missing standard FE and Time Fluid into the target. The budding block still applies its own post-growth costs and configured probabilities.$(br2)$(bold)Harvest Upgrades$()$(br2)$(bold)Upgrade | Limit | Harvest behavior$()$(br)Fortune | 8 | Applies the matching vanilla Fortune level to the simulated harvesting tool$(br)Precision | 1 | Applies vanilla Silk Touch and lets the target loot table choose the drop"
     },
     {
       "type": "patchouli:text",

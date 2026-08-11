@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The Item Receiver receives items from target containers within its configured range.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Receive Amount | Requires FE | |---------|--------------|----------------|-------------| | Basic Item Receiver | 4 | 64 | No | | Advanced Item Receiver | 4 | 64 | Yes | | Extended Item Receiver | 8 | 64 | Yes |$(br2)$(bold)Features$()"
+      "text": "The Item Receiver receives items from target containers within its configured range.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrade Slots | Receive Amount | Requires FE$()$(br)Basic Item Receiver | 4 | 64 | No$(br)Advanced Item Receiver | 4 | 64 | Yes$(br)Extended Item Receiver | 8 | 64 | Yes$(br2)$(bold)Features$()"
     },
     {
       "type": "patchouli:text",

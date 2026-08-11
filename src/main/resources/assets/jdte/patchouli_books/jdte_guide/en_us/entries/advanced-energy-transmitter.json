@@ -11,15 +11,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The Advanced Energy Transmitter supplies every FE receiver in its configured area and provides eight standard upgrade slots."
+      "text": "The Advanced Energy Transmitter supplies every FE receiver in its configured area and provides eight standard upgrade slots.$(br2)$(bold)Property | Default behavior$()$(br)Internal capacity | 2,000,000,000 FE$(br)Initial area | One block above the transmitter (zero X/Y/Z radius and Y offset 1)$(br)Target refresh | Wait 20 ticks after a scan completes before starting the next one$(br)Scan budget | Inspect 512 block positions per server tick$(br)Target budget | Attempt at most 512 cached targets per operation$(br)Base transfer budget | 268,435,456 FE per operation; 8x while overclocked, capped by the integer limit$(br)Supported upgrades | Range, Filter, Capacity, Overclock, and Creative"
     },
     {
       "type": "patchouli:text",
-      "text": "| Property | Default behavior | |----------|------------------| | Internal capacity | 2,000,000,000 FE | | Initial area | One block above the transmitter (zero X/Y/Z radius and Y offset 1) | | Target refresh | Wait 20 ticks after a scan completes before starting the next one | | Scan budget | Inspect 512 block positions per server tick | | Target budget | Attempt at most 512 cached targets per operation | | Base transfer budget | 268,435,456 FE per operation; 8x while overclocked, capped by the integer limit | | Supported upgrades | Range, Filter, Capacity, Overclock, and Creative |$(br2)$(bold)Operation$()"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Target discovery and energy delivery are separate stages. The area is scanned in fixed-size batches while the previous complete target cache remains active. A newly discovered target list replaces the old list only after the scan finishes. Enlarging the area therefore cannot cause a full-area scan in one tick, and refreshing does not interrupt delivery to existing targets."
+      "text": "$(bold)Operation$()$(br2)Target discovery and energy delivery are separate stages. The area is scanned in fixed-size batches while the previous complete target cache remains active. A newly discovered target list replaces the old list only after the scan finishes. Enlarging the area therefore cannot cause a full-area scan in one tick, and refreshing does not interrupt delivery to existing targets."
     },
     {
       "type": "patchouli:text",

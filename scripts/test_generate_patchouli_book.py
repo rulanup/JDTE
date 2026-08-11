@@ -126,6 +126,19 @@ class GuideDocumentParserTest(unittest.TestCase):
         with self.assertRaisesRegex(GenerationError, "unclosed fenced code block"):
             parse_guide_document(source, "greenhouse.md")
 
+    def test_ordered_lists_and_tables_are_parsed_structurally(self):
+        source = SAMPLE_MARKDOWN.replace(
+            "Produces **crops** from `templates`.",
+            "1. First step\n2. Second step\n\n| Name | Value |\n|---|---|\n| Speed | 4x |",
+        )
+
+        doc = parse_guide_document(source, "greenhouse.md")
+
+        ordered = next(block for block in doc.blocks if block.kind == "ordered_list")
+        table = next(block for block in doc.blocks if block.kind == "table")
+        self.assertEqual(("First step", "Second step"), ordered.items)
+        self.assertEqual(("Name | Value", "Speed | 4x"), table.items)
+
 
 class PatchouliRendererTest(unittest.TestCase):
     def setUp(self):
@@ -138,10 +151,35 @@ class PatchouliRendererTest(unittest.TestCase):
         )
         self.assertEqual(
             "Use $(bold)fast mode$(), $(italic)carefully$(), with "
-            "$(thing)jdte:greenhouse$() and the guide "
-            "(https://example.invalid/guide).",
+            "$(thing)jdte:greenhouse$() and "
+            "$(l:https://example.invalid/guide)the guide$(/l).",
             rendered,
         )
+
+    def test_internal_links_and_inline_images_do_not_leak_guideme_markup(self):
+        rendered = render_inline(
+            'Use <ItemImage id="jdte:extended_upgrade" scale="1" /> '
+            "[Extended Upgrade](extended-upgrade.md)."
+        )
+
+        self.assertEqual(
+            "Use $(thing)jdte:extended_upgrade$() "
+            "$(l:jdte:extended-upgrade)Extended Upgrade$(/l).",
+            rendered,
+        )
+
+    def test_ordered_lists_and_tables_keep_their_layout(self):
+        source = SAMPLE_MARKDOWN.replace(
+            "Produces **crops** from `templates`.",
+            "1. First step\n2. Second step\n\n| Name | Value |\n|---|---|\n| Speed | 4x |",
+        )
+        document = parse_guide_document(source, "greenhouse.md")
+
+        entry = render_entry(document, "greenhouses_resources", recipe_index={})
+
+        rendered = str(entry["pages"])
+        self.assertIn("1. First step$(br)2. Second step", rendered)
+        self.assertIn("$(bold)Name | Value$()$(br)Speed | 4x", rendered)
 
     def test_index_body_becomes_the_patchouli_landing_text(self):
         landing = render_landing(self.document)
@@ -264,6 +302,7 @@ class PatchouliBookGenerationTest(unittest.TestCase):
         for path, content in self.generated.items():
             with self.subTest(path=path):
                 self.assertIsInstance(json.loads(content), dict)
+                self.assertNotRegex(content, r"<(?:ItemImage|BlockImage|RecipeFor|SubPages)")
 
     def test_generated_text_pages_respect_the_readability_limit(self):
         for path, content in self.generated.items():

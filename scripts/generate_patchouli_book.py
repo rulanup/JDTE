@@ -27,6 +27,12 @@ BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 ITALIC_RE = re.compile(r"(?<!\*)\*([^*]+?)\*(?!\*)")
 CODE_RE = re.compile(r"`([^`]+?)`")
 LINK_RE = re.compile(r"\[([^]]+)]\(([^)]+)\)")
+INLINE_IMAGE_RE = re.compile(
+    r'<(?:ItemImage|BlockImage)\s+id="([a-z0-9_.-]+:[a-z0-9_./-]+)"(?:\s+scale="[^"]+")?\s*/>'
+)
+ORDERED_LIST_RE = re.compile(r"^(\d+)\.\s+(.+)$")
+TABLE_ROW_RE = re.compile(r"^\|.*\|$")
+TABLE_SEPARATOR_CELL_RE = re.compile(r"^:?-{3,}:?$")
 TEXT_PAGE_LIMIT = 700
 BOOK_ID = "jdte_guide"
 BOOK_NAME_KEY = "item.jdte.patchouli_guide.name"
@@ -207,6 +213,8 @@ def _is_block_start(line: str) -> bool:
         HEADING_RE.fullmatch(stripped)
         or stripped.startswith("```")
         or stripped.startswith("- ")
+        or ORDERED_LIST_RE.fullmatch(stripped)
+        or TABLE_ROW_RE.fullmatch(stripped)
         or stripped == "<ItemGrid>"
         or IMAGE_RE.fullmatch(stripped)
         or RECIPE_RE.fullmatch(stripped)
@@ -287,6 +295,30 @@ def _parse_blocks(lines: list[str], filename: str) -> tuple[GuideBlock, ...]:
             blocks.append(GuideBlock("list", items=tuple(items)))
             continue
 
+        ordered = ORDERED_LIST_RE.fullmatch(stripped)
+        if ordered:
+            items: list[str] = []
+            while index < len(lines):
+                ordered_line = ORDERED_LIST_RE.fullmatch(lines[index].strip())
+                if not ordered_line:
+                    break
+                items.append(ordered_line.group(2).strip())
+                index += 1
+            blocks.append(GuideBlock("ordered_list", items=tuple(items)))
+            continue
+
+        if TABLE_ROW_RE.fullmatch(stripped):
+            rows: list[str] = []
+            while index < len(lines) and TABLE_ROW_RE.fullmatch(lines[index].strip()):
+                cells = [cell.strip() for cell in lines[index].strip().strip("|").split("|")]
+                if not all(TABLE_SEPARATOR_CELL_RE.fullmatch(cell) for cell in cells):
+                    rows.append(" | ".join(cells))
+                index += 1
+            if not rows:
+                raise GenerationError(f"{filename}: table has no content rows")
+            blocks.append(GuideBlock("table", items=tuple(rows)))
+            continue
+
         if COMPONENT_LINE_RE.fullmatch(stripped):
             component = stripped.removeprefix("</").removeprefix("<").split()[0].rstrip("/>")
             raise GenerationError(f"{filename}: unsupported GuideME component {component}")
@@ -317,7 +349,17 @@ def parse_guide_document(markdown: str, filename: str) -> GuideDocument:
 
 def render_inline(text: str) -> str:
     """Convert the supported inline Markdown subset to Patchouli markup."""
-    text = LINK_RE.sub(lambda match: f"{match.group(1)} ({match.group(2)})", text)
+    text = INLINE_IMAGE_RE.sub(lambda match: f"$(thing){match.group(1)}$()", text)
+
+    def replace_link(match: re.Match[str]) -> str:
+        label, target = match.groups()
+        if target.endswith(".md"):
+            target = f"jdte:{Path(target).stem}"
+        if RESOURCE_ID_RE.fullmatch(target) or target.startswith(("https://", "http://")):
+            return f"$(l:{target}){label}$(/l)"
+        return f"{label} ({target})"
+
+    text = LINK_RE.sub(replace_link, text)
     text = BOLD_RE.sub(lambda match: f"$(bold){match.group(1)}$()", text)
     text = ITALIC_RE.sub(lambda match: f"$(italic){match.group(1)}$()", text)
     return CODE_RE.sub(lambda match: f"$(thing){match.group(1)}$()", text)
@@ -332,6 +374,15 @@ def _text_fragment(block: GuideBlock, document_title: str) -> str:
         return render_inline(block.text)
     if block.kind == "list":
         return "".join(f"$(li){render_inline(item)}" for item in block.items)
+    if block.kind == "ordered_list":
+        return "$(br)".join(
+            f"{index}. {render_inline(item)}" for index, item in enumerate(block.items, 1)
+        )
+    if block.kind == "table":
+        return "$(br)".join(
+            f"$(bold){render_inline(row)}$()" if index == 0 else render_inline(row)
+            for index, row in enumerate(block.items)
+        )
     if block.kind == "code":
         return f"$(thing){block.text.replace(chr(10), '$(br)')}$()"
     raise GenerationError(f"cannot render {block.kind!r} as text")
@@ -345,7 +396,7 @@ def render_landing(document: GuideDocument) -> str:
     fragments = [
         _text_fragment(block, document.title)
         for block in document.blocks
-        if block.kind in {"heading", "paragraph", "list", "code"}
+        if block.kind in {"heading", "paragraph", "list", "ordered_list", "table", "code"}
     ]
     landing = "$(br2)".join(fragment for fragment in fragments if fragment)
     if not landing:
@@ -359,6 +410,7 @@ def _split_long_text(fragment: str) -> list[str]:
     while len(remaining) > TEXT_PAGE_LIMIT:
         candidates = [
             (remaining.rfind("$(br2)", 1, TEXT_PAGE_LIMIT + 1), "br2"),
+            (remaining.rfind("$(br)", 1, TEXT_PAGE_LIMIT + 1), "br"),
             (remaining.rfind("$(li)", 1, TEXT_PAGE_LIMIT + 1), "li"),
             (remaining.rfind(". ", 1, TEXT_PAGE_LIMIT + 1), "sentence"),
             (remaining.rfind(" ", 1, TEXT_PAGE_LIMIT + 1), "space"),
@@ -375,6 +427,8 @@ def _split_long_text(fragment: str) -> list[str]:
         pieces.append(piece)
         if boundary == "br2":
             remaining = remaining[split_at + len("$(br2)") :].lstrip()
+        elif boundary == "br":
+            remaining = remaining[split_at + len("$(br)") :].lstrip()
         elif boundary == "li":
             remaining = remaining[split_at:]
         else:
@@ -415,7 +469,7 @@ def render_entry(
                 flush_text()
 
     for block in document.blocks:
-        if block.kind in {"heading", "paragraph", "list", "code"}:
+        if block.kind in {"heading", "paragraph", "list", "ordered_list", "table", "code"}:
             append_text(_text_fragment(block, document.title))
             continue
         if block.kind in {"item_image", "block_image"}:

@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The Gel Generator consumes input items to produce gel-related results, supporting fluid and energy capabilities.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Energy Capacity | Fluid Capacity | |---------|--------------|-----------------|----------------| | Advanced Gel Generator | 4 | 100,000 FE | 4,000 mB | | Extended Gel Generator | 8 | 200,000 FE | 4,000 mB |$(br2)$(bold)Features$()"
+      "text": "The Gel Generator consumes input items to produce gel-related results, supporting fluid and energy capabilities.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrade Slots | Energy Capacity | Fluid Capacity$()$(br)Advanced Gel Generator | 4 | 100,000 FE | 4,000 mB$(br)Extended Gel Generator | 8 | 200,000 FE | 4,000 mB$(br2)$(bold)Features$()"
     },
     {
       "type": "patchouli:text",

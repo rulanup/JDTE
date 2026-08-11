@@ -11,7 +11,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The Loot Fabricator uses spawn eggs as reusable entity templates. It consumes Life Fluid, Time Fluid, and energy, then rolls the entity's currently loaded vanilla or modded loot table. Spawn eggs are not consumed and each of the four input slots holds at most one egg.$(br2)| Property | Base value | |----------|------------| | Template slots | Four spawn egg slots processed in parallel | | Output slots | 16; each Capacity Upgrade unlocks another 16 | | Cost per share | 20 mB Life Fluid, 5,000 FE, and 0.2 mB Time Fluid on average | | Boss multiplier | Wither/Elder Guardian 10x, Ender Dragon 100x |"
+      "text": "The Loot Fabricator uses spawn eggs as reusable entity templates. It consumes Life Fluid, Time Fluid, and energy, then rolls the entity's currently loaded vanilla or modded loot table. Spawn eggs are not consumed and each of the four input slots holds at most one egg.$(br2)$(bold)Property | Base value$()$(br)Template slots | Four spawn egg slots processed in parallel$(br)Output slots | 16; each Capacity Upgrade unlocks another 16$(br)Cost per share | 20 mB Life Fluid, 5,000 FE, and 0.2 mB Time Fluid on average$(br)Boss multiplier | Wither/Elder Guardian 10x, Ender Dragon 100x"
     },
     {
       "type": "patchouli:text",

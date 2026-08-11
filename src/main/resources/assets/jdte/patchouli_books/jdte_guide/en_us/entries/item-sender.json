@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The Item Sender sends items to target containers within its configured range.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Send Amount | Requires FE | |---------|--------------|-------------|-------------| | Basic Item Sender | 4 | 64 | No | | Advanced Item Sender | 4 | 64 | Yes | | Extended Item Sender | 8 | 64 | Yes |$(br2)$(bold)Features$()"
+      "text": "The Item Sender sends items to target containers within its configured range.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrade Slots | Send Amount | Requires FE$()$(br)Basic Item Sender | 4 | 64 | No$(br)Advanced Item Sender | 4 | 64 | Yes$(br)Extended Item Sender | 8 | 64 | Yes$(br2)$(bold)Features$()"
     },
     {
       "type": "patchouli:text",

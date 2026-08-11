@@ -33,7 +33,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Acquisition$()$(br2)To obtain BOSS essences:$(br2)1. Build a Bio Crusher (Advanced or Extended) 2. Place it near a BOSS mob 3. The Bio Crusher will kill the BOSS and generate the corresponding essence$(br2)Note: The Bio Crusher must be powerful enough to kill BOSS mobs. It is recommended to use the Sharpness Upgrade to increase damage.$(br2)$(bold)Crafting Uses$()$(br2)BOSS essences can be used to craft advanced items and machines, serving as important late-game materials."
+      "text": "$(bold)Acquisition$()$(br2)To obtain BOSS essences:$(br2)1. Build a Bio Crusher (Advanced or Extended)$(br)2. Place it near a BOSS mob$(br)3. The Bio Crusher will kill the BOSS and generate the corresponding essence$(br2)Note: The Bio Crusher must be powerful enough to kill BOSS mobs. It is recommended to use the Sharpness Upgrade to increase damage.$(br2)$(bold)Crafting Uses$()$(br2)BOSS essences can be used to craft advanced items and machines, serving as important late-game materials."
     },
     {
       "type": "patchouli:text",

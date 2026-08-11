@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The Fluid Sender sends internal fluids to target containers within its configured range. It does not place fluid source blocks in the world.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Send Amount | Requires FE | |---------|--------------|-------------|-------------| | Basic Fluid Sender | 4 | All available fluid | No | | Advanced Fluid Sender | 4 | All available fluid | Yes | | Extended Fluid Sender | 8 | All available fluid | Yes |$(br2)$(bold)Features$()"
+      "text": "The Fluid Sender sends internal fluids to target containers within its configured range. It does not place fluid source blocks in the world.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrade Slots | Send Amount | Requires FE$()$(br)Basic Fluid Sender | 4 | All available fluid | No$(br)Advanced Fluid Sender | 4 | All available fluid | Yes$(br)Extended Fluid Sender | 8 | All available fluid | Yes$(br2)$(bold)Features$()"
     },
     {
       "type": "patchouli:text",

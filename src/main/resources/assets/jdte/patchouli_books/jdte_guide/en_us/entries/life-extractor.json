@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Advanced and Extended Life Extractors cannot be destroyed by explosions, but can still be mined normally by players.$(br2)The Life Extractor kills mobs within its configured range and produces Life Fluid based on their current remaining health. Unlike the Bio Crusher, the Life Extractor does not produce drops — it converts the mob's life force directly into fluid.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Energy Capacity | Fluid Capacity | |---------|---------------|-----------------|----------------| | Advanced Life Extractor | 4 | 100,000 FE | 16,000 mB | | Extended Life Extractor | 8 | 200,000 FE | 16,000 mB |$(br2)$(bold)Features$()$(br2)$(bold)Life Fluid Generation$()"
+      "text": "Advanced and Extended Life Extractors cannot be destroyed by explosions, but can still be mined normally by players.$(br2)The Life Extractor kills mobs within its configured range and produces Life Fluid based on their current remaining health. Unlike the Bio Crusher, the Life Extractor does not produce drops — it converts the mob's life force directly into fluid.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrade Slots | Energy Capacity | Fluid Capacity$()$(br)Advanced Life Extractor | 4 | 100,000 FE | 16,000 mB$(br)Extended Life Extractor | 8 | 200,000 FE | 16,000 mB$(br2)$(bold)Features$()$(br2)$(bold)Life Fluid Generation$()"
     },
     {
       "type": "patchouli:text",
@@ -14,7 +14,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "or loot events$(li)Fractional output from entity health and upgrade multipliers accumulates in the machine until it reaches 1 mB$(br2)$(bold)Low-Lag Batch Processing$()$(br2)| Machine / Mode | Scan Interval | Maximum Batch | Theoretical Throughput | |----------------|---------------|---------------|------------------------| | Advanced Normal | 20 ticks | 4 | 4 entities/s | | Extended Normal | 20 ticks | 8 | 8 entities/s | | Advanced Overclock/Creative | 5 ticks | 8 | 32 entities/s | | Extended Overclock/Creative | 5 ticks | 16 | 64 entities/s |"
+      "text": "or loot events$(li)Fractional output from entity health and upgrade multipliers accumulates in the machine until it reaches 1 mB$(br2)$(bold)Low-Lag Batch Processing$()$(br2)$(bold)Machine / Mode | Scan Interval | Maximum Batch | Theoretical Throughput$()$(br)Advanced Normal | 20 ticks | 4 | 4 entities/s$(br)Extended Normal | 20 ticks | 8 | 8 entities/s$(br)Advanced Overclock/Creative | 5 ticks | 8 | 32 entities/s$(br)Extended Overclock/Creative | 5 ticks | 16 | 64 entities/s"
     },
     {
       "type": "patchouli:text",
@@ -22,7 +22,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)Base radius: 5 blocks (X/Y/Z each)$(li)Adjustable via the GUI$(li)Range Upgrade increases the configurable maximum$(li)Energy cost scales with the configured range$(br2)$(bold)Upgrade Effects$()$(br2)| Upgrade | Effect | |---------|--------| | Overclock | Processes a mob batch every 5 ticks, with 10% fluid loss | | Underclock | Fluid yield increased to 1.5x | | Creative | Uses the overclock batch rate, with no fluid loss or energy cost | | Range | Increases configurable range maximum | | Filter | Enables filter slots to select target entities by type | | Capacity | Increases FE and fluid capacity |$(br2)$(bold)Energy$()"
+      "text": "$(li)Base radius: 5 blocks (X/Y/Z each)$(li)Adjustable via the GUI$(li)Range Upgrade increases the configurable maximum$(li)Energy cost scales with the configured range$(br2)$(bold)Upgrade Effects$()$(br2)$(bold)Upgrade | Effect$()$(br)Overclock | Processes a mob batch every 5 ticks, with 10% fluid loss$(br)Underclock | Fluid yield increased to 1.5x$(br)Creative | Uses the overclock batch rate, with no fluid loss or energy cost$(br)Range | Increases configurable range maximum$(br)Filter | Enables filter slots to select target entities by type$(br)Capacity | Increases FE and fluid capacity$(br2)$(bold)Energy$()"
     },
     {
       "type": "patchouli:text",

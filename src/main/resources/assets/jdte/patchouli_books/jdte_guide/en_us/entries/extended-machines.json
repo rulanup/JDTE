@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(bold)Extended Advanced Machines$()$(br2)Extended advanced machines have 8 upgrade slots, with other functionality identical to the original T2 machines.$(br2)They can be obtained through crafting or by using <ItemImage id=\"jdte:extended_upgrade\" scale=\"1\" /> Extended Upgrade (extended-upgrade.md) to directly convert T2 machines."
+      "text": "$(bold)Extended Advanced Machines$()$(br2)Extended advanced machines have 8 upgrade slots, with other functionality identical to the original T2 machines.$(br2)They can be obtained through crafting or by using $(thing)jdte:extended_upgrade$() $(l:jdte:extended-upgrade)Extended Upgrade$(/l) to directly convert T2 machines."
     },
     {
       "type": "patchouli:spotlight",

@@ -11,11 +11,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The Life Breeder breeds animals or Villagers in its configured area and directly advances baby growth and adult breeding cooldowns. It uses each creature's native breeding path, never copies parent NBT, and does not repeat complete entity AI ticks.$(br2)$(bold)Quick Start$()$(br2)1. Configure the work area and mode. 2. Put breeding food for creatures in the area into the 2x2 input. 3. Supply FE and Life Fluid, then select a $(thing)1-32x$() speed. 4. Existing item entities such as eggs are collected into the 4x2 output. Items that do not fit remain in the world.$(br2)$(bold)Modes$()"
+      "text": "The Life Breeder breeds animals or Villagers in its configured area and directly advances baby growth and adult breeding cooldowns. It uses each creature's native breeding path, never copies parent NBT, and does not repeat complete entity AI ticks.$(br2)$(bold)Quick Start$()$(br2)1. Configure the work area and mode.$(br)2. Put breeding food for creatures in the area into the 2x2 input.$(br)3. Supply FE and Life Fluid, then select a $(thing)1-32x$() speed.$(br)4. Existing item entities such as eggs are collected into the 4x2 output. Items that do not fit remain in the world.$(br2)$(bold)Modes$()"
     },
     {
       "type": "patchouli:text",
-      "text": "| Mode | Behavior | |------|----------| | Breeding and Growth | Pairs creatures while advancing babies and adult cooldowns | | Breeding Only | Breeds only adults that can currently mate | | Growth Only | Advances growth and cooldowns without consuming feed to breed |$(br2)A Villager pair needs 24 food points, such as six Bread or 24 Carrots, Potatoes, or Beetroot; mixed food works. No additional empty bed is required.$(br2)$(bold)Costs and Upgrades$()"
+      "text": "$(bold)Mode | Behavior$()$(br)Breeding and Growth | Pairs creatures while advancing babies and adult cooldowns$(br)Breeding Only | Breeds only adults that can currently mate$(br)Growth Only | Advances growth and cooldowns without consuming feed to breed$(br2)A Villager pair needs 24 food points, such as six Bread or 24 Carrots, Potatoes, or Beetroot; mixed food works. No additional empty bed is required.$(br2)$(bold)Costs and Upgrades$()"
     },
     {
       "type": "patchouli:text",

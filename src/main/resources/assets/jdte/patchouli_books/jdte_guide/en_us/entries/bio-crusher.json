@@ -6,11 +6,11 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Advanced and Extended Bio Crushers cannot be destroyed by explosions, but can still be mined normally by players.$(br2)hhe Bio Crusher attacks mobs in its configured range with a FakePlayer, captures mod-adjusted final drops and actual experience, and converts that experience into JDh Experience Fluid.$(br2)$(bold)Variants$()$(br2)| Machine | Standard Upgrade Slots | Dedicated Upgrade Slots | Drop Destination | |---------|----------------------|------------------------|------------------| | Advanced Bio Crusher | 4 | 2 | Drops at the killed mob's position | | Extended Bio Crusher | 8 | 2 | Uses dynamic paged output slots first, then spills above the machine when full |"
+      "text": "Advanced and Extended Bio Crushers cannot be destroyed by explosions, but can still be mined normally by players.$(br2)hhe Bio Crusher attacks mobs in its configured range with a FakePlayer, captures mod-adjusted final drops and actual experience, and converts that experience into JDh Experience Fluid.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Standard Upgrade Slots | Dedicated Upgrade Slots | Drop Destination$()$(br)Advanced Bio Crusher | 4 | 2 | Drops at the killed mob's position$(br)Extended Bio Crusher | 8 | 2 | Uses dynamic paged output slots first, then spills above the machine when full$(br2)$(bold)Features$()$(br2)$(bold)Kills and Drops$()"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Features$()$(br2)$(bold)Kills and Drops$()$(br2)$(li)Attacks with a cached FakePlayer and a Looting-enchanted weapon, preserving player-kill conditions and mod death events$(li)Captures final drops after other mods finish modifying them, including loot tables, equipment, and mod-added drops$(li)Force-kills surviving targets by default when Sharpness damage is insufficient, allowing protected bosses to be processed$(li)Drops, Experience Fluid, and energy cost are settled only after a successful kill$(br2)$(bold)Experience Fluid$()"
+      "text": "$(li)Attacks with a cached FakePlayer and a Looting-enchanted weapon, preserving player-kill conditions and mod death events$(li)Captures final drops after other mods finish modifying them, including loot tables, equipment, and mod-added drops$(li)Force-kills surviving targets by default when Sharpness damage is insufficient, allowing protected bosses to be processed$(li)Drops, Experience Fluid, and energy cost are settled only after a successful kill$(br2)$(bold)Experience Fluid$()"
     },
     {
       "type": "patchouli:text",

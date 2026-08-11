@@ -11,11 +11,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The Bio Factory uses a reusable spawn egg or Productive Bees cage as a specimen and converts materials, fluids, and FE into biological products. The displayed creature is client-only; no real entity is spawned or ticked.$(br2)$(bold)Quick Start$()$(br2)1. Put a spawn egg or filled bee cage in the specimen slot. 2. Follow JEI and place food, flowering inputs, or consumed materials in the three unordered material slots. 3. Supply FE. Life Fluid raises yield, Time Fluid enables speed control, and culture fluid serves fluid-flowering recipes. 4. Extract item products and product fluid through their separate outputs.$(br2)$(bold)Slots and Resources$()"
+      "text": "The Bio Factory uses a reusable spawn egg or Productive Bees cage as a specimen and converts materials, fluids, and FE into biological products. The displayed creature is client-only; no real entity is spawned or ticked.$(br2)$(bold)Quick Start$()$(br2)1. Put a spawn egg or filled bee cage in the specimen slot.$(br)2. Follow JEI and place food, flowering inputs, or consumed materials in the three unordered material slots.$(br)3. Supply FE. Life Fluid raises yield, Time Fluid enables speed control, and culture fluid serves fluid-flowering recipes.$(br)4. Extract item products and product fluid through their separate outputs.$(br2)$(bold)Slots and Resources$()"
     },
     {
       "type": "patchouli:text",
-      "text": "| Area | Purpose | |------|---------| | One specimen slot | Reusable spawn egg or bee cage | | Three material slots | Unordered; each recipe decides whether an input is consumed | | Eight output slots | Each Capacity Upgrade adds eight, up to 32 | | Life Fluid | Doubles cycle yield by default when sufficient | | Time Fluid | Enables $(thing)1-32x$(); Overclock or Creative uses 64x | | Culture fluid | Built-in fluid recipes consume it by recipe amount; Productive Bees flowering fluid is a reusable catalyst and is not consumed |"
+      "text": "$(bold)Area | Purpose$()$(br)One specimen slot | Reusable spawn egg or bee cage$(br)Three material slots | Unordered; each recipe decides whether an input is consumed$(br)Eight output slots | Each Capacity Upgrade adds eight, up to 32$(br)Life Fluid | Doubles cycle yield by default when sufficient$(br)Time Fluid | Enables $(thing)1-32x$(); Overclock or Creative uses 64x$(br)Culture fluid | Built-in fluid recipes consume it by recipe amount; Productive Bees flowering fluid is a reusable catalyst and is not consumed"
     },
     {
       "type": "patchouli:text",
