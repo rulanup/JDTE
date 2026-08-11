@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "active=false": { "model": "jdte:block/dimensional_collapse_solar_panel" },
+    "active=true": { "model": "jdte:block/dimensional_collapse_solar_panel" }
+  }
+}

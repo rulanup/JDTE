@@ -20,6 +20,7 @@ import com.jdte.common.containers.BioFactoryContainer;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
 import com.jdte.common.containers.GreenhouseContainer;
+import com.jdte.common.containers.CreativeGreenhouseContainer;
 import com.jdte.common.containers.LootFabricatorContainer;
 import com.jdte.common.containers.LargeGreenhouseContainer;
 import com.jdte.common.network.data.FilterPagePayload;
@@ -255,7 +256,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique
     private void jdte$clampFilterPage() {
         if (container instanceof BioCrusherContainer || container instanceof LootFabricatorContainer
-                || container instanceof GreenhouseContainer || container instanceof BioFactoryContainer
+                || container instanceof GreenhouseContainer || container instanceof CreativeGreenhouseContainer
+                || container instanceof BioFactoryContainer
                 || container instanceof LargeGreenhouseContainer) return;
         if (!(container instanceof FilterPageHolder holder)) return;
         if (!jdte$hasFilterUpgrades()) {

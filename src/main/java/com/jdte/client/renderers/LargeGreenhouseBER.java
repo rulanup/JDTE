@@ -21,6 +21,8 @@ public class LargeGreenhouseBER implements BlockEntityRenderer<LargeGreenhouseBE
     @Override
     public void render(LargeGreenhouseBE greenhouse, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffers, int packedLight, int packedOverlay) {
+        if (greenhouse.getLevel() != null && !com.jdte.common.greenhouse.GreenhouseMatrixRenderRegistry.shouldRender(
+                greenhouse.getLevel(), greenhouse.getBlockPos())) return;
         Direction facing = greenhouse.getBlockState().getValue(BlockStateProperties.FACING);
         if (!facing.getAxis().isHorizontal()) facing = Direction.NORTH;
         Direction right = facing.getClockWise();

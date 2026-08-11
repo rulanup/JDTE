@@ -83,7 +83,7 @@ public class TimeAcceleratorConfig {
                 .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorRandomRefreshInterval")
                 .defineInRange("timeAcceleratorRandomRefreshInterval", 20, 1, 1200);
         timeAcceleratorAE2Enabled = builder
-                .comment("Allow Time Accelerators to invoke AE2 IGridTickable services")
+                .comment("Allow Time Accelerators with an AE Acceleration Upgrade to invoke AE2 IGridTickable services")
                 .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorAE2Enabled")
                 .define("timeAcceleratorAE2Enabled", true);
         builder.pop();

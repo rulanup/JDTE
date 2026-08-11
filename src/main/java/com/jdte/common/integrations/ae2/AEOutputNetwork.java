@@ -34,6 +34,12 @@ public final class AEOutputNetwork {
         return AEOutputNetworkIntegration.transferItems(level, upgrade, sources);
     }
 
+    public static ItemTransferResult transferInfiniteItems(ServerLevel level, ItemStack upgrade,
+                                                            List<ItemStack> prototypes) {
+        if (!AVAILABLE || prototypes.isEmpty()) return ItemTransferResult.empty();
+        return AEOutputNetworkIntegration.transferInfiniteItems(level, upgrade, prototypes);
+    }
+
     public static int insertFluid(ServerLevel level, ItemStack upgrade, FluidStack stack, boolean simulate) {
         return AVAILABLE ? AEOutputNetworkIntegration.insertFluid(level, upgrade, stack, simulate) : 0;
     }

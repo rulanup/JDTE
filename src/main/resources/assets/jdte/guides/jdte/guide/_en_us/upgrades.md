@@ -15,6 +15,10 @@ item_ids:
   - jdte:creative_upgrade
   - jdte:fortune_upgrade
   - jdte:precision_upgrade
+  - jdte:ae_acceleration_upgrade
+  - jdte:ae_output_upgrade
+  - jdte:essence_conversion_upgrade
+  - jdte:seed_conversion_upgrade
   - jdte:looting_upgrade
   - jdte:sharpness_upgrade
 ---
@@ -114,6 +118,38 @@ Used by Gel Generators and Crystal Incubators. Gel Generators apply vanilla Fort
 Crystal Incubator only. It applies vanilla Silk Touch to the simulated harvesting tool and lets the target block's own loot table determine the precise drop, preserving compatibility with mods that follow vanilla loot behavior. Limited to one and incompatible with Fortune.
 
 <RecipeFor id="jdte:precision_upgrade" />
+
+## AE Acceleration Upgrade
+
+<ItemImage id="jdte:ae_acceleration_upgrade" scale="2" />
+
+Basic, Advanced, and Extended Time Accelerators only. Allows the accelerator containing this card to accelerate supported AE2 devices through AE2's public `IGridTickable` service. Limited to one per machine; when accelerators overlap, only those containing this card contribute acceleration to AE2 devices.
+
+<RecipeFor id="jdte:ae_acceleration_upgrade" />
+
+## AE Output Upgrade
+
+Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a machine with item or fluid product outputs to return those products directly to the linked AE network. The access point must remain loaded, online, and have a channel. If the network is unavailable or full, unaccepted products safely remain in the machine.
+
+Machines without a product-output use, such as Clickers, Placers, Droppers, and Senders, reject this upgrade. The limit is one per machine. A Greenhouse Matrix Controller can also use it to return products from every managed Greenhouse.
+
+<RecipeFor id="jdte:ae_output_upgrade" />
+
+## Essence Conversion Upgrade
+
+<ItemImage id="jdte:essence_conversion_upgrade" scale="2" />
+
+Greenhouse and Large Greenhouse only. For each harvested essence, the machine checks every crafting-table recipe that uses it. Conversion occurs only when exactly one such recipe exists and every non-empty ingredient in that recipe is that essence. The original ingredient and result counts are preserved; an incomplete recipe batch remains as essence and combines with later harvests. Essences with multiple recipes or recipes that need another ingredient remain unchanged.
+
+<RecipeFor id="jdte:essence_conversion_upgrade" />
+
+## Seed-to-Essence Upgrade
+
+<ItemImage id="jdte:seed_conversion_upgrade" scale="2" />
+
+Greenhouse and Large Greenhouse only. When harvesting a Mystical Agriculture crop, seed drops matching the planted template are replaced 1:1 with that crop's essence. If an Essence Conversion Upgrade is also installed, the added essence continues through its unique-recipe check and is converted to the final product when eligible. Other byproducts remain unchanged.
+
+<RecipeFor id="jdte:seed_conversion_upgrade" />
 
 ## Looting Upgrade
 

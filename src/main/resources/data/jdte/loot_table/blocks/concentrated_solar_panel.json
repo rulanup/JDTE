@@ -1,0 +1,4 @@
+{
+  "type": "minecraft:block",
+  "pools": [{ "rolls": 1, "entries": [{ "type": "minecraft:item", "name": "jdte:concentrated_solar_panel" }], "conditions": [{ "condition": "minecraft:survives_explosion" }] }]
+}

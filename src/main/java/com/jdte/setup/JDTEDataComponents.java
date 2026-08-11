@@ -23,6 +23,13 @@ public final class JDTEDataComponents {
                     .cacheEncoding()
                     .build());
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TIME_MULTITOOL_SPEED_MODE =
+            DATA_COMPONENTS.register("time_multitool_speed_mode", () -> DataComponentType.<Integer>builder()
+                    .persistent(Codec.INT)
+                    .networkSynchronized(ByteBufCodecs.VAR_INT)
+                    .cacheEncoding()
+                    .build());
+
     /** 顶级传送枪手动坐标槽位标记（与收藏列表索引对齐；true = 手动坐标，传送固定消耗 10 B）。 */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<Boolean>>> ULTIMATE_PORTAL_GUN_MANUAL_SLOTS =
             DATA_COMPONENTS.register("ultimate_portal_gun_manual_slots",

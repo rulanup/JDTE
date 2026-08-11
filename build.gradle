@@ -270,5 +270,9 @@ tasks.register('validateDocs', Exec) {
     group = 'verification'
     description = 'Validate lang keys, block registrations, and GuideME pages are consistent.'
     workingDir = rootDir
-    commandLine 'python', 'scripts/validate_docs.py'
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        commandLine 'py', '-3', 'scripts/validate_docs.py'
+    } else {
+        commandLine 'python3', 'scripts/validate_docs.py'
+    }
 }

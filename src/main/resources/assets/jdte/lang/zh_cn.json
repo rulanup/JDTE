@@ -1,4 +1,7 @@
 {
+  "block.jdte.creative_greenhouse": "创造温室大棚",
+  "jdte.screen.creative_greenhouse.infinite": "逻辑数量：%s",
+  "jdte.screen.creative_greenhouse.overflow": "产物类型超过 %s 种上限",
   "itemGroup.jdte": "JDT 附属",
   "item.jdte.capacity_upgrade": "容量升级",
   "item.jdte.overclock_upgrade": "超频升级",
@@ -11,6 +14,10 @@
   "item.jdte.creative_upgrade": "创造升级",
   "item.jdte.fortune_upgrade": "时运升级",
   "item.jdte.precision_upgrade": "精准升级",
+  "item.jdte.ae_acceleration_upgrade": "AE 加速升级",
+  "item.jdte.ae_output_upgrade": "AE 输出升级",
+  "item.jdte.essence_conversion_upgrade": "精华转化升级",
+  "item.jdte.seed_conversion_upgrade": "种子转化升级",
   "item.jdte.extended_upgrade": "扩展升级",
   "item.jdte.eclipsealloy_wrench": "蚀空合金扳手",
   "item.jdte.time_fluid_catalyst": "时间流体催化剂",
@@ -64,6 +71,12 @@
   "tooltip.jdte.creative": "机器无需消耗 FE 即可工作。时间加速器无需消耗时间流体。自带超频效果。",
   "tooltip.jdte.fortune": "温室每张平均产出 +10%；其他支持机器时运 +1。",
   "tooltip.jdte.precision": "仅限水晶培育机。通过原版精准采集战利品逻辑回收水晶；不能与时运同时安装。",
+  "tooltip.jdte.ae_acceleration": "仅限三档时间加速器。允许该机器加速 AE2 中提供 IGridTickable 服务的设备。",
+  "tooltip.jdte.ae_output": "先在无线访问点 UI 中绑定，再安装到具有物品或流体产物的机器中，将产物直接回传至该 AE 网络。",
+  "tooltip.jdte.ae_output.linked": "已绑定 AE 网络",
+  "tooltip.jdte.ae_output.unlinked": "未绑定——请放入无线访问点 UI",
+  "tooltip.jdte.essence_conversion": "仅限温室。精华只有一个且仅消耗该精华的合成配方时，自动按配方比例将收获的精华转化为产物。",
+  "tooltip.jdte.seed_conversion": "仅限温室。将收获中与当前种植模板相同的神秘农业种子按数量转化为对应精华。",
   "tooltip.jdte.extended_upgrade": "右键点击 JDT 高级机器，将其升级为扩展版本（8个升级槽）。",
   "tooltip.jdte.max": "每台机器最多：%s",
   "tooltip.jdte.large_greenhouse.io": "底层基座任意面均可输入种子/时间流体/能量，产物先进入内部库存再由管道或自动 I/O 输出。批量生产只消耗普通温室等量收获所需时间流体的 1/9。",
@@ -73,6 +86,24 @@
   "config.jade.plugin_jdte.mineral_extractor_status": "矿物提取机状态",
   "jade.jdte.mineral_extractor.speed": "提取倍率：%sx / %sx",
   "jade.jdte.energy": "能量：%s / %s FE",
+  "config.jade.plugin_jdte.greenhouse_matrix_status": "温室矩阵状态",
+  "jade.jdte.greenhouse_matrix.port": "端口类型：%s",
+  "jade.jdte.greenhouse_matrix.port.item_input": "物品输入",
+  "jade.jdte.greenhouse_matrix.port.item_output": "物品输出",
+  "jade.jdte.greenhouse_matrix.port.fluid_input": "时间流体输入",
+  "jade.jdte.greenhouse_matrix.port.energy_input": "能量输入",
+  "jade.jdte.greenhouse_matrix.linked": "已连接矩阵控制器",
+  "jade.jdte.greenhouse_matrix.unlinked": "未连接矩阵控制器",
+  "jade.jdte.greenhouse_matrix.formed": "结构已形成 · 管理 %s 台温室",
+  "jade.jdte.greenhouse_matrix.invalid": "结构无效：%s",
+  "jade.jdte.greenhouse_matrix.size": "结构尺寸：%s × %s × %s",
+  "jade.jdte.greenhouse_matrix.operation.on": "内部温室：运行",
+  "jade.jdte.greenhouse_matrix.operation.off": "内部温室：已暂停",
+  "jade.jdte.greenhouse_matrix.auto_io.on": "自动 I/O：开启",
+  "jade.jdte.greenhouse_matrix.auto_io.off": "自动 I/O：关闭",
+  "jade.jdte.greenhouse_matrix.render.on": "内部作物渲染：开启",
+  "jade.jdte.greenhouse_matrix.render.off": "内部作物渲染：关闭",
+  "jade.jdte.greenhouse_matrix.enhancements": "增强  速度:%s  效率:%s  种子:%s  精华:%s",
   "item.jdte.guide": "JDT Extras 指南",
   "item.jdte.guide.tooltip": "JDT Extras 指南",
   "jdte.panel.upgrade": "升级",
@@ -232,7 +263,7 @@
   "config.jdte.jdte.timeAccelerator.timeAcceleratorRandomRefreshInterval": "随机刻目标刷新间隔",
   "config.jdte.jdte.timeAccelerator.timeAcceleratorRandomRefreshInterval.desc": "刷新随机刻方块目标缓存的间隔 tick 数",
   "config.jdte.jdte.timeAccelerator.timeAcceleratorAE2Enabled": "AE2 加速",
-  "config.jdte.jdte.timeAccelerator.timeAcceleratorAE2Enabled.desc": "允许时间加速器加速 AE2 IGridTickable 设备",
+  "config.jdte.jdte.timeAccelerator.timeAcceleratorAE2Enabled.desc": "允许已安装 AE 加速升级的时间加速器加速 AE2 IGridTickable 设备",
   "config.jdte.jdte.bioCrusher": "生物粉碎机设置",
   "config.jdte.jdte.bioCrusher.bioCrusherFluidCapacity": "流体容量",
   "config.jdte.jdte.bioCrusher.bioCrusherFluidCapacity.desc": "生物粉碎机基础流体容量（mB）",
@@ -818,5 +849,73 @@
   "config.jdte.jdte.ultimatePortalGun.energyCost": "每次传送耗能",
   "config.jdte.jdte.ultimatePortalGun.energyCost.desc": "每次传送消耗的 FE",
   "config.jdte.jdte.ultimatePortalGun.teleportDimensionBlacklist": "传送维度黑名单",
-  "config.jdte.jdte.ultimatePortalGun.teleportDimensionBlacklist.desc": "从传送维度选择列表中隐藏的维度（资源位置 ID）"
+  "config.jdte.jdte.ultimatePortalGun.teleportDimensionBlacklist.desc": "从传送维度选择列表中隐藏的维度（资源位置 ID）",
+  "block.jdte.greenhouse_matrix_controller": "温室矩阵控制器",
+  "block.jdte.greenhouse_matrix_casing": "温室矩阵外壳",
+  "block.jdte.greenhouse_matrix_item_input": "温室矩阵物品输入端口",
+  "block.jdte.greenhouse_matrix_item_output": "温室矩阵物品输出端口",
+  "block.jdte.greenhouse_matrix_fluid_input": "温室矩阵时间流体输入端口",
+  "block.jdte.greenhouse_matrix_energy_input": "温室矩阵能量输入端口",
+  "block.jdte.greenhouse_matrix_speed": "温室矩阵速度增强",
+  "block.jdte.greenhouse_matrix_efficiency": "温室矩阵效率增强",
+  "block.jdte.greenhouse_matrix_seed": "温室矩阵种子增强",
+  "block.jdte.greenhouse_matrix_essence": "温室矩阵精华增强",
+  "block.jdte.greenhouse_matrix_auto_crafting": "温室矩阵自动合成增强",
+  "jdte.screen.greenhouse_matrix.enabled": "统一启用/关闭",
+  "jdte.screen.greenhouse_matrix.render": "内部作物渲染",
+  "jdte.screen.greenhouse_matrix.auto_io.on": "自动 I/O：开",
+  "jdte.screen.greenhouse_matrix.auto_io.off": "自动 I/O：关",
+  "jdte.screen.greenhouse_matrix.formed": "结构已形成",
+  "jdte.screen.greenhouse_matrix.invalid": "结构无效",
+  "jdte.screen.greenhouse_matrix.size": "尺寸：%s × %s × %s",
+  "jdte.screen.greenhouse_matrix.greenhouses": "管理温室：%s",
+  "jdte.screen.greenhouse_matrix.speed": "速度增强：%s（每个 +25%%，最高 +300%%）",
+  "jdte.screen.greenhouse_matrix.efficiency": "效率增强：%s（每个 -10%%，最高 -80%%）",
+  "jdte.screen.greenhouse_matrix.conversions": "种子/精华增强：%s / %s"
+  ,"jdte.screen.greenhouse_matrix.error.0": "等待结构校验"
+  ,"jdte.screen.greenhouse_matrix.error.1": "结构必须且只能有一个控制器"
+  ,"jdte.screen.greenhouse_matrix.error.2": "三个方向的尺寸都必须为 5～18 格"
+  ,"jdte.screen.greenhouse_matrix.error.3": "部分结构区块尚未加载"
+  ,"jdte.screen.greenhouse_matrix.error.4": "外壳未完全封闭"
+  ,"jdte.screen.greenhouse_matrix.error.5": "内部含有不支持的方块"
+  ,"jdte.screen.greenhouse_matrix.error.6": "内部至少需要一台温室"
+  ,"jdte.screen.greenhouse_matrix.error.7": "四种端口各至少需要一个"
+  ,"jdte.screen.greenhouse_matrix.error.8": "自动合成增强不能与种子合成增强同时安装"
+  ,"jdte.screen.greenhouse_matrix.pattern_page": "合成样板 %s/%s"
+  ,"jdte.screen.greenhouse_matrix.invalid_pattern": "无效样板：只支持经过真实配方校验的单一物品输入合成样板"
+  ,"item.jdte.greenhouse_matrix_quick_install_upgrade": "温室矩阵快速安装升级"
+  ,"tooltip.jdte.greenhouse_matrix_quick_install_upgrade": "解锁控制器的可堆叠全局升级队列，并把实际升级卡安装到受管理的温室中。"
+  ,"jdte.screen.greenhouse_matrix.global_upgrades": "全局（%s）"
+  ,"jdte.screen.greenhouse_matrix.controller_upgrade": "控制器"
+  ,"jdte.screen.greenhouse_matrix.upgrades_queued": "待安装升级卡：%s"
+  ,"jdte.screen.greenhouse_matrix.quick_install_required": "需要安装快速安装升级"
+  ,"jade.jdte.greenhouse_matrix.quick_install.on": "快速安装：开启 · 队列中有 %s 张升级卡"
+  ,"jade.jdte.greenhouse_matrix.quick_install.off": "快速安装：未安装"
+  ,"jdte.screen.greenhouse_matrix.simulation": "模拟组：%s · 缓冲：%s 类 / %s 个"
+  ,"jade.jdte.greenhouse_matrix.simulation": "集中模拟：%s 组 · 缓冲 %s 类 / %s 个"
+  ,"item.jdte.time_multitool": "多功能时间工具"
+  ,"message.jdte.time_multitool.speed": "挖掘速度：%s 倍"
+  ,"tooltip.jdte.time_multitool.speed": "当前挖掘速度：%s 倍"
+  ,"tooltip.jdte.time_multitool.fluid": "时间流体：%s / %s mB"
+  ,"tooltip.jdte.time_multitool.controls": "潜行右击空气切换速度；潜行右击方块打开 JDT 设置"
+  ,"block.jdte.concentrated_solar_panel": "聚能太阳能板"
+  ,"block.jdte.singularity_solar_panel": "奇点太阳能板"
+  ,"block.jdte.stellar_fusion_solar_panel": "恒星聚变太阳能板"
+  ,"block.jdte.dimensional_collapse_solar_panel": "维度坍缩太阳能板"
+  ,"block.jdte.creative_solar_panel": "创造太阳能板"
+  ,"jade.jdte.solar_panel.base_generation": "基础发电：%s FE/t"
+  ,"jade.jdte.solar_panel.generation": "当前发电：%s FE/t"
+  ,"jade.jdte.solar_panel.storage": "能源：%s / %s FE"
+  ,"jade.jdte.solar_panel.infinite": "发电：9.22E18 FE/t（无限）"
+  ,"jade.jdte.solar_panel.inactive": "未发电：%s"
+  ,"jade.jdte.solar_panel.reason.no_sun": "夜晚或天空被遮挡"
+  ,"config.jdte.jdte.solarPanel": "分级太阳能板设置"
+  ,"config.jdte.jdte.solarPanel.concentratedGeneration": "聚能太阳能板发电量"
+  ,"config.jdte.jdte.solarPanel.concentratedCapacity": "聚能太阳能板容量"
+  ,"config.jdte.jdte.solarPanel.singularityGeneration": "奇点太阳能板发电量"
+  ,"config.jdte.jdte.solarPanel.singularityCapacity": "奇点太阳能板容量"
+  ,"config.jdte.jdte.solarPanel.stellarFusionGeneration": "恒星聚变太阳能板发电量"
+  ,"config.jdte.jdte.solarPanel.stellarFusionCapacity": "恒星聚变太阳能板容量"
+  ,"config.jdte.jdte.solarPanel.dimensionalCollapseGeneration": "维度坍缩太阳能板发电量"
+  ,"config.jdte.jdte.solarPanel.dimensionalCollapseCapacity": "维度坍缩太阳能板容量"
 }

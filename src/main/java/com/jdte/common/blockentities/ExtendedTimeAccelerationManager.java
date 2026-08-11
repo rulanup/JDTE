@@ -3,6 +3,7 @@ package com.jdte.common.blockentities;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.entities.TimeAcceleratorEffectEntity;
 import com.jdte.common.integrations.ae2.ExtendedTimeAcceleratorAE2Integration;
+import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -132,15 +133,17 @@ public final class ExtendedTimeAccelerationManager {
         private final int multiplier;
         private final int fluidCost;
         private final int energyCost;
+        private final boolean ae2AccelerationEnabled;
         private final Set<TargetKey> targets = new LinkedHashSet<>();
 
         private AcceleratorContext(TimeAcceleratorBE accelerator, AABB area, int multiplier,
-                                   int fluidCost, int energyCost) {
+                                   int fluidCost, int energyCost, boolean ae2AccelerationEnabled) {
             this.accelerator = accelerator;
             this.area = area;
             this.multiplier = multiplier;
             this.fluidCost = fluidCost;
             this.energyCost = energyCost;
+            this.ae2AccelerationEnabled = ae2AccelerationEnabled;
         }
 
         private boolean contains(BlockPos pos) {
@@ -243,7 +246,15 @@ public final class ExtendedTimeAccelerationManager {
             }
             Set<TimeAcceleratorBE> active = Collections.newSetFromMap(new IdentityHashMap<>());
             active.addAll(submitted);
-            retainActiveContributors(active);
+            Set<TimeAcceleratorBE> ae2Active = Collections.newSetFromMap(new IdentityHashMap<>());
+            if (isAE2AccelerationConfigured()) {
+                for (TimeAcceleratorBE accelerator : submitted) {
+                    if (UpgradeHelper.hasAEAccelerationUpgrade(accelerator)) {
+                        ae2Active.add(accelerator);
+                    }
+                }
+            }
+            retainActiveContributors(active, ae2Active);
             randomTargets.keySet().removeIf(accelerator -> !active.contains(accelerator));
             if (submitted.isEmpty()) {
                 return;
@@ -263,7 +274,10 @@ public final class ExtendedTimeAccelerationManager {
                 }
 
                 AABB area = accelerator.getAABB(accelerator.getBlockPos());
-                AcceleratorContext context = new AcceleratorContext(accelerator, area, multiplier, fluidCost, energyCost);
+                boolean ae2AccelerationEnabled = isAE2AccelerationConfigured()
+                        && UpgradeHelper.hasAEAccelerationUpgrade(accelerator);
+                AcceleratorContext context = new AcceleratorContext(
+                        accelerator, area, multiplier, fluidCost, energyCost, ae2AccelerationEnabled);
                 contexts.add(context);
                 int minChunkX = SectionPos.blockToSectionCoord(Mth.floor(area.minX));
                 int maxChunkX = SectionPos.blockToSectionCoord(Mth.ceil(area.maxX) - 1);
@@ -299,12 +313,14 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
-        private void retainActiveContributors(Set<TimeAcceleratorBE> active) {
+        private void retainActiveContributors(Set<TimeAcceleratorBE> active,
+                                              Set<TimeAcceleratorBE> ae2Active) {
             boolean removed = false;
             var iterator = pending.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<TargetKey, PendingTarget> entry = iterator.next();
-                entry.getValue().retainContributors(active);
+                Set<TimeAcceleratorBE> allowed = entry.getKey().kind() == TargetKind.AE2_GRID ? ae2Active : active;
+                entry.getValue().retainContributors(allowed);
                 if (entry.getValue().virtualTicks <= 0) {
                     iterator.remove();
                     removed = true;
@@ -329,14 +345,21 @@ public final class ExtendedTimeAccelerationManager {
                     if (blockEntity instanceof TimeAcceleratorMachine || blockEntity.isRemoved()) {
                         continue;
                     }
-                    TargetKind kind = getBlockEntityTargetKind(level, pos, blockEntity);
-                    if (kind == null) {
+                    boolean ae2Target = isAE2Target(level, pos, blockEntity);
+                    boolean blockEntityTarget = isBlockEntityTarget(level, blockEntity);
+                    if (!ae2Target && !blockEntityTarget) {
                         continue;
                     }
                     BlockState state = blockEntity.getBlockState();
                     for (AcceleratorContext context : entry.getValue()) {
                         if (context.contains(pos) && context.accelerator.isBlockValidFilter(level, pos, state)) {
-                            context.targets.add(new TargetKey(pos, kind));
+                            if (ae2Target) {
+                                if (context.ae2AccelerationEnabled) {
+                                    context.targets.add(new TargetKey(pos, TargetKind.AE2_GRID));
+                                }
+                            } else if (blockEntityTarget) {
+                                context.targets.add(new TargetKey(pos, TargetKind.BLOCK_ENTITY));
+                            }
                         }
                     }
                 }
@@ -398,19 +421,17 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
-        @SuppressWarnings("unchecked")
-        private TargetKind getBlockEntityTargetKind(ServerLevel level, BlockPos pos, BlockEntity blockEntity) {
+        private boolean isAE2Target(ServerLevel level, BlockPos pos, BlockEntity blockEntity) {
             BlockState state = blockEntity.getBlockState();
-            if (AE2_LOADED && JDTEConfig.COMMON.timeAcceleratorAE2Enabled.get()
-                    && !state.is(JDT_TICK_SPEED_DENY)
-                    && ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos)) {
-                return TargetKind.AE2_GRID;
-            }
+            return isAE2AccelerationConfigured() && !state.is(JDT_TICK_SPEED_DENY)
+                    && ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos);
+        }
+
+        @SuppressWarnings("unchecked")
+        private boolean isBlockEntityTarget(ServerLevel level, BlockEntity blockEntity) {
+            BlockState state = blockEntity.getBlockState();
             BlockEntityTicker<BlockEntity> ticker = state.getTicker(level, (BlockEntityType<BlockEntity>) blockEntity.getType());
-            if (ticker != null && MiscTools.isValidTickAccelBlock(level, state, blockEntity)) {
-                return TargetKind.BLOCK_ENTITY;
-            }
-            return null;
+            return ticker != null && MiscTools.isValidTickAccelBlock(level, state, blockEntity);
         }
 
         private boolean canAccept(TargetKey target, long maxPending) {
@@ -538,5 +559,9 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
+    }
+
+    private static boolean isAE2AccelerationConfigured() {
+        return AE2_LOADED && JDTEConfig.COMMON.timeAcceleratorAE2Enabled.get();
     }
 }

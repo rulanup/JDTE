@@ -56,6 +56,8 @@ def registered_blocks():
 def guide_family(block_name):
     if block_name in GUIDE_ALIASES:
         return GUIDE_ALIASES[block_name]
+    if block_name.startswith("greenhouse_matrix_"):
+        return "greenhouse-matrix"
     name = block_name
     for prefix in TIER_PREFIXES:
         if name.startswith(prefix):

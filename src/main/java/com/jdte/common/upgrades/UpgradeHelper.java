@@ -12,9 +12,12 @@ import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.jdte.common.blockentities.AdvancedItemCollectorBE;
 import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
+import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
+import com.jdte.common.blockentities.BasicTimeAcceleratorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
+import com.jdte.common.blockentities.CreativeGreenhouseBE;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.BioFactoryBE;
@@ -25,6 +28,7 @@ import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
+import com.jdte.common.autoioconfig.AutoIoTransferHelper;
 import com.jdte.mixin.EnergyStorageAccessor;
 import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEAttachments;
@@ -77,6 +81,12 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if (machine instanceof CreativeGreenhouseBE) {
+            return CreativeGreenhouseBE.isSupportedUpgrade(type);
+        }
+        if (type == UpgradeType.AE_OUTPUT) {
+            return AutoIoTransferHelper.supportsAEOutput(machine);
+        }
         if (machine instanceof MineralExtractorBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.FILTER
@@ -85,7 +95,8 @@ public class UpgradeHelper {
         if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
-                    || type == UpgradeType.FORTUNE;
+                    || type == UpgradeType.FORTUNE || type == UpgradeType.ESSENCE_CONVERSION
+                    || type == UpgradeType.SEED_CONVERSION;
         }
         if (machine instanceof LifeSynthesisVatBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
@@ -123,6 +134,11 @@ public class UpgradeHelper {
             case FILTER -> machine instanceof FilterableBE;
             case FORTUNE -> machine instanceof GelGeneratorBE || machine instanceof CrystalIncubatorBE;
             case PRECISION -> machine instanceof CrystalIncubatorBE;
+            case AE_ACCELERATION -> machine instanceof BasicTimeAcceleratorBE
+                    || machine instanceof AdvancedTimeAcceleratorBE;
+            case AE_OUTPUT -> AutoIoTransferHelper.supportsAEOutput(machine);
+            case ESSENCE_CONVERSION -> machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
+            case SEED_CONVERSION -> machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
             default -> true;
         };
     }
@@ -142,7 +158,8 @@ public class UpgradeHelper {
     }
 
     public static int getMaxUpgrades(BaseMachineBE machine, UpgradeType type) {
-        if ((machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+        if ((machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE
+                || machine instanceof CreativeGreenhouseBE)
                 && type == UpgradeType.FORTUNE) {
             return 3;
         }
@@ -265,6 +282,34 @@ public class UpgradeHelper {
 
     public static boolean hasCreativeUpgrade(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.CREATIVE) > 0;
+    }
+
+    public static boolean hasAEAccelerationUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.AE_ACCELERATION) > 0;
+    }
+
+    public static boolean hasAEOutputUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.AE_OUTPUT) > 0;
+    }
+
+    public static ItemStack getAEOutputUpgrade(BaseMachineBE machine) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return ItemStack.EMPTY;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack stack = handler.getStackInSlot(slot);
+            if (isUpgrade(stack, UpgradeType.AE_OUTPUT)) return stack;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public static boolean hasEssenceConversionUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ESSENCE_CONVERSION) > 0
+                || com.jdte.common.greenhouse.GreenhouseMatrixRuntime.hasEssenceConversion(machine);
+    }
+
+    public static boolean hasSeedConversionUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.SEED_CONVERSION) > 0
+                || com.jdte.common.greenhouse.GreenhouseMatrixRuntime.hasSeedConversion(machine);
     }
 
     public static double getMaxAreaRadius(BaseMachineBE machine) {

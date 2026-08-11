@@ -93,6 +93,30 @@ final class AEOutputNetworkIntegration {
                 result.unrestored());
     }
 
+    static AEOutputNetwork.ItemTransferResult transferInfiniteItems(ServerLevel origin, ItemStack upgrade,
+                                                                     List<ItemStack> prototypes) {
+        IWirelessAccessPoint accessPoint = accessPoint(origin, upgrade);
+        if (accessPoint == null || !accessPoint.isActive()) return AEOutputNetwork.ItemTransferResult.empty();
+        IGrid grid = accessPoint.getGrid();
+        if (grid == null) return AEOutputNetwork.ItemTransferResult.empty();
+        MEStorage storage = grid.getStorageService().getInventory();
+        IActionSource actionSource = IActionSource.ofMachine(accessPoint);
+
+        List<InfiniteItemBatchSource<AEItemKey>> sources = new ArrayList<>(prototypes.size());
+        for (ItemStack prototype : prototypes) {
+            if (prototype == null || prototype.isEmpty()) continue;
+            AEItemKey key = AEItemKey.of(prototype);
+            if (key != null) sources.add(new InfiniteItemBatchSource<>(key));
+        }
+        if (sources.isEmpty()) return AEOutputNetwork.ItemTransferResult.empty();
+
+        AEItemBatchTransfer.Result<InfiniteItemBatchSource<AEItemKey>> result =
+                AEItemBatchTransfer.transfer(sources,
+                        (key, amount, simulate) -> storage.insert(key, amount,
+                                simulate ? Actionable.SIMULATE : Actionable.MODULATE, actionSource));
+        return new AEOutputNetwork.ItemTransferResult(result.moved(), Set.of(), result.unrestored());
+    }
+
     static int insertFluid(ServerLevel origin, ItemStack upgrade, FluidStack stack, boolean simulate) {
         if (stack.isEmpty()) return 0;
         AEFluidKey key = AEFluidKey.of(stack);

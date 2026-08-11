@@ -19,6 +19,8 @@ public class GreenhouseBER implements BlockEntityRenderer<GreenhouseBE> {
     @Override
     public void render(GreenhouseBE greenhouse, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffers, int packedLight, int packedOverlay) {
+        if (greenhouse.getLevel() != null && !com.jdte.common.greenhouse.GreenhouseMatrixRenderRegistry.shouldRender(
+                greenhouse.getLevel(), greenhouse.getBlockPos())) return;
         for (int slot = 0; slot < GreenhouseBE.INPUT_SLOTS; slot++) {
             BlockState crop = greenhouse.getDisplayCropState(slot);
             if (crop == null) {

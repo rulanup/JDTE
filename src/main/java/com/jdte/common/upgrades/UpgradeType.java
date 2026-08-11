@@ -11,7 +11,11 @@ public enum UpgradeType {
     FILTER("filter", 2),
     CREATIVE("creative", 1),
     FORTUNE("fortune", 8),
-    PRECISION("precision", 1);
+    PRECISION("precision", 1),
+    AE_ACCELERATION("ae_acceleration", 1),
+    AE_OUTPUT("ae_output", 1),
+    ESSENCE_CONVERSION("essence_conversion", 1),
+    SEED_CONVERSION("seed_conversion", 1);
 
     private final String serializedName;
     private final int maxPerMachine;

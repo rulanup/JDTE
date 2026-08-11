@@ -32,8 +32,10 @@ import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
+import com.jdte.common.blockentities.CreativeGreenhouseBE;
 import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.greenhouse.GreenhouseMatrixRuntime;
 import com.jdte.setup.JDTEAttachments;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
@@ -91,6 +93,23 @@ public final class AutoIoTransferHelper {
         return routes.hasItemOutputs() || routes.fluidOutput() != null;
     }
 
+    public static AEOutputRoutes getAEOutputRoutes(BaseMachineBE machine) {
+        if (machine == null || machine instanceof ItemReceiverBE || machine instanceof FluidReceiverBE) {
+            return AEOutputRoutes.EMPTY;
+        }
+        IoRoutes routes = getRoutes(machine);
+        return new AEOutputRoutes(routes.itemOutputs().clone(), routes.fluidOutput());
+    }
+
+    public static boolean supportsAEOutput(BaseMachineBE machine) {
+        // The card can be installed before any seed template has populated the live catalog.
+        if (machine instanceof CreativeGreenhouseBE) {
+            return true;
+        }
+        AEOutputRoutes routes = getAEOutputRoutes(machine);
+        return routes.itemSlots().length > 0 || routes.fluidOutput() != null;
+    }
+
     public static void tick(BaseMachineBE machine) {
         if (machine == null || !(machine.getLevel() instanceof ServerLevel serverLevel)) {
             return;
@@ -105,7 +124,8 @@ public final class AutoIoTransferHelper {
         }
         int inputMask = data.getInputMask();
         int outputMask = data.getOutputMask();
-        boolean eventDrivenOutput = machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE
+        if (UpgradeHelper.hasAEOutputUpgrade(machine) || GreenhouseMatrixRuntime.hasAEOutput(machine)) outputMask = 0;
+        boolean eventDrivenOutput = machine instanceof GreenhouseBE || machine instanceof CreativeGreenhouseBE || machine instanceof LargeGreenhouseBE
                 || machine instanceof MineralExtractorBE;
         int periodicOutputMask = eventDrivenOutput ? 0 : outputMask;
         if (inputMask == 0 && periodicOutputMask == 0) {
@@ -149,6 +169,9 @@ public final class AutoIoTransferHelper {
             return new EventOutputResult(false, false);
         }
         AutoIoConfigData data = machine.getData(JDTEAttachments.AUTO_IO_CONFIG.get());
+        if (UpgradeHelper.hasAEOutputUpgrade(machine) || GreenhouseMatrixRuntime.hasAEOutput(machine)) {
+            return new EventOutputResult(false, true);
+        }
         int outputMask = data.getOutputMask();
         if (outputMask == 0 || OverclockDirectTransferHelper.isEnabled(machine)) {
             return new EventOutputResult(false, false);
@@ -169,10 +192,16 @@ public final class AutoIoTransferHelper {
                 if (!visited.add(key)) continue;
                 IItemHandler target = resolveCachedItemEndpoint(level, key, endpointCache);
                 if (target != null) {
-                    moved |= pushGroupedOversizedItems(machine.getMachineHandler(), sourceSlots, target,
-                            JDTEConfig.COMMON.greenhouseEventOutputItemBudget.get(),
-                            JDTEConfig.COMMON.greenhouseEventOutputTypeBudget.get(),
-                            level.getGameTime() + key.hashCode());
+                    if (machine instanceof CreativeGreenhouseBE creativeGreenhouse) {
+                        moved |= pushCreativeGreenhouseItems(creativeGreenhouse, sourceSlots, target,
+                                JDTEConfig.COMMON.greenhouseEventOutputTypeBudget.get(),
+                                level.getGameTime() + key.hashCode());
+                    } else {
+                        moved |= pushGroupedOversizedItems(machine.getMachineHandler(), sourceSlots, target,
+                                JDTEConfig.COMMON.greenhouseEventOutputItemBudget.get(),
+                                JDTEConfig.COMMON.greenhouseEventOutputTypeBudget.get(),
+                                level.getGameTime() + key.hashCode());
+                    }
                 }
             }
         }
@@ -201,6 +230,10 @@ public final class AutoIoTransferHelper {
     }
 
     public record EventOutputResult(boolean moved, boolean outputEnabled) {
+    }
+
+    public record AEOutputRoutes(int[] itemSlots, IFluidHandler fluidOutput) {
+        private static final AEOutputRoutes EMPTY = new AEOutputRoutes(NO_SLOTS, null);
     }
 
     private record EndpointKey(BlockPos pos, Direction side) {
@@ -365,6 +398,10 @@ public final class AutoIoTransferHelper {
             fluidOutput = crusher.getFluidTank();
         } else if (machine instanceof LifeExtractorBE extractor) {
             fluidOutput = extractor.getFluidTank();
+        } else if (machine instanceof CreativeGreenhouseBE greenhouse) {
+            itemInputs = boundedSlots(handler, range(0, CreativeGreenhouseBE.INPUT_SLOTS));
+            itemOutputs = boundedSlots(handler, range(CreativeGreenhouseBE.OUTPUT_START_SLOT,
+                    greenhouse.getDistinctOutputTypes()));
         } else if (machine instanceof GreenhouseBE greenhouse) {
             itemInputs = boundedSlots(handler, range(0, GreenhouseBE.INPUT_SLOTS));
             itemOutputs = boundedSlots(handler, range(GreenhouseBE.OUTPUT_START_SLOT, greenhouse.getActiveOutputSlots()));
@@ -527,6 +564,28 @@ public final class AutoIoTransferHelper {
             consumeAcceptedItems(source, group, accepted);
             remainingItemBudget -= accepted;
             moved = true;
+        }
+        return moved;
+    }
+
+    /**
+     * Offers one maximum-width integer batch for each selected creative catalog type. The receiver
+     * remains authoritative about its capacity, and the source is intentionally never consumed.
+     */
+    private static boolean pushCreativeGreenhouseItems(CreativeGreenhouseBE source, int[] sourceSlots,
+                                                        IItemHandler target, int typeBudget, long rotationSeed) {
+        if (sourceSlots.length == 0 || typeBudget <= 0) return false;
+        int start = (int) Math.floorMod(rotationSeed, sourceSlots.length);
+        int remainingTypes = typeBudget;
+        boolean moved = false;
+        for (int offset = 0; offset < sourceSlots.length && remainingTypes-- > 0; offset++) {
+            int absoluteSlot = sourceSlots[(start + offset) % sourceSlots.length];
+            int catalogSlot = absoluteSlot - CreativeGreenhouseBE.OUTPUT_START_SLOT;
+            ItemStack offered = source.getOutputCatalog().itemView()
+                    .extractItem(catalogSlot, Integer.MAX_VALUE, true);
+            if (offered.isEmpty()) continue;
+            ItemStack remainder = ItemHandlerHelper.insertItemStacked(target, offered, false);
+            if (remainder.getCount() < offered.getCount()) moved = true;
         }
         return moved;
     }

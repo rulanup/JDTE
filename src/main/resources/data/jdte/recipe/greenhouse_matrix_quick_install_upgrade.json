@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "EHE",
+    "XUX",
+    "EHE"
+  ],
+  "key": {
+    "E": { "item": "justdirethings:eclipsealloy_ingot" },
+    "H": { "item": "minecraft:hopper" },
+    "U": { "item": "jdte:extended_upgrade" },
+    "X": { "item": "jdte:greenhouse_matrix_casing" }
+  },
+  "result": {
+    "id": "jdte:greenhouse_matrix_quick_install_upgrade",
+    "count": 1
+  }
+}

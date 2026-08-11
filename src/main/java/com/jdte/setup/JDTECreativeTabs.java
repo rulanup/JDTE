@@ -22,6 +22,7 @@ public class JDTECreativeTabs {
             .displayItems((parameters, output) -> {
                 // Upgrade cards
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_QUICK_INSTALL_UPGRADE.get());
                 output.accept(JDTEItems.LOOTING_UPGRADE.get());
                 output.accept(JDTEItems.SHARPNESS_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
@@ -29,6 +30,7 @@ public class JDTECreativeTabs {
         output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
         output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
         output.accept(JDTEItems.BIG_FLUID_TANK.get());
+        output.accept(JDTEItems.TIME_MULTITOOL.get());
         output.accept(JDTEItems.FACTORY_PACKAGE.get());
                 output.accept(JDTEItems.MINERAL_SURVEY.get());
 
@@ -85,7 +87,19 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_ITEM_RECEIVER.get());
                 output.accept(JDTEItems.CRYSTAL_INCUBATOR.get());
                 output.accept(JDTEItems.GREENHOUSE.get());
+                output.accept(JDTEItems.CREATIVE_GREENHOUSE.get());
                 output.accept(JDTEItems.LARGE_GREENHOUSE.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_CONTROLLER.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_CASING.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_ITEM_INPUT.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_ITEM_OUTPUT.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_FLUID_INPUT.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_ENERGY_INPUT.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_SPEED.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_EFFICIENCY.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_SEED.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_ESSENCE.get());
+                output.accept(JDTEItems.GREENHOUSE_MATRIX_AUTO_CRAFTING.get());
                 output.accept(JDTEItems.LIFE_SYNTHESIS_VAT.get());
                 output.accept(JDTEItems.BIO_FACTORY.get());
                 output.accept(JDTEItems.LIFE_BREEDER.get());
@@ -115,6 +129,13 @@ public class JDTECreativeTabs {
 
                 // Advanced Energy Transmitter
                 output.accept(JDTEItems.ADVANCED_ENERGY_TRANSMITTER.get());
+
+                // Tiered Solar Panels
+                output.accept(JDTEItems.CONCENTRATED_SOLAR_PANEL.get());
+                output.accept(JDTEItems.SINGULARITY_SOLAR_PANEL.get());
+                output.accept(JDTEItems.STELLAR_FUSION_SOLAR_PANEL.get());
+                output.accept(JDTEItems.DIMENSIONAL_COLLAPSE_SOLAR_PANEL.get());
+                output.accept(JDTEItems.CREATIVE_SOLAR_PANEL.get());
 
                 // Boss Essences
                 output.accept(JDTEItems.WITHER_ESSENCE.get());

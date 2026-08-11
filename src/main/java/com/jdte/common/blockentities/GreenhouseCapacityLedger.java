@@ -18,12 +18,23 @@ final class GreenhouseCapacityLedger {
     }
 
     static GreenhouseCapacityLedger capture(IItemHandler handler) {
+        return capture(handler, ItemStack.EMPTY);
+    }
+
+    static GreenhouseCapacityLedger captureWithout(IItemHandler handler, ItemStack excluded) {
+        return capture(handler, excluded);
+    }
+
+    private static GreenhouseCapacityLedger capture(IItemHandler handler, ItemStack excluded) {
         int slots = handler.getSlots();
         ItemStack[] types = new ItemStack[slots];
         int[] counts = new int[slots];
         int[] limits = new int[slots];
         for (int slot = 0; slot < slots; slot++) {
             ItemStack stack = handler.getStackInSlot(slot);
+            if (!excluded.isEmpty() && ItemStack.isSameItemSameComponents(stack, excluded)) {
+                stack = ItemStack.EMPTY;
+            }
             types[slot] = stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
             counts[slot] = stack.getCount();
             limits[slot] = handler.getSlotLimit(slot);

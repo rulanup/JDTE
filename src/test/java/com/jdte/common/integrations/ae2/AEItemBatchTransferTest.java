@@ -15,6 +15,7 @@ class AEItemBatchTransferTest {
         test.extractsOnlySimulatedAcceptedAmount();
         test.restoresCommitShortfallToSourcesInReverseOrder();
         test.keepsDifferentKeysInSeparateBatches();
+        test.transfersLongMaxFromAnInexhaustibleSourceWithoutDepletion();
         ItemStackBatchSourceTest.main(args);
     }
 
@@ -79,6 +80,21 @@ class AEItemBatchTransferTest {
         assertEquals(3_000_000L, result.moved());
         assertEquals(List.of(2_100_000L, 900_000L), sink.simulatedAmounts);
         assertEquals(List.of(2_100_000L, 900_000L), sink.committedAmounts);
+    }
+
+    @Test
+    void transfersLongMaxFromAnInexhaustibleSourceWithoutDepletion() {
+        InfiniteItemBatchSource<String> source = new InfiniteItemBatchSource<>("wheat");
+        RecordingSink sink = new RecordingSink(Long.MAX_VALUE, Long.MAX_VALUE);
+
+        AEItemBatchTransfer.Result<InfiniteItemBatchSource<String>> result =
+                AEItemBatchTransfer.transfer(List.of(source), sink);
+
+        assertEquals(Long.MAX_VALUE, result.moved());
+        assertEquals(Long.MAX_VALUE, source.available());
+        assertEquals(List.of(Long.MAX_VALUE), sink.simulatedAmounts);
+        assertEquals(List.of(Long.MAX_VALUE), sink.committedAmounts);
+        assertEquals(0L, result.unrestored());
     }
 
     private static final class FakeSource implements AEItemBatchTransfer.Source<String> {

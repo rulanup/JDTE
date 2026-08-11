@@ -92,7 +92,9 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.EXTENDED_ITEM_RECEIVER.get(), DefaultExtendedItemReceiverScreen::new);
         event.register(JDTEMenus.CRYSTAL_INCUBATOR.get(), CrystalIncubatorScreen::new);
         event.register(JDTEMenus.GREENHOUSE.get(), GreenhouseScreen::new);
+        event.register(JDTEMenus.CREATIVE_GREENHOUSE.get(), CreativeGreenhouseScreen::new);
         event.register(JDTEMenus.LARGE_GREENHOUSE.get(), LargeGreenhouseScreen::new);
+        event.register(JDTEMenus.GREENHOUSE_MATRIX.get(), GreenhouseMatrixScreen::new);
         event.register(JDTEMenus.BIO_FACTORY.get(), BioFactoryScreen::new);
         event.register(JDTEMenus.LIFE_BREEDER.get(), LifeBreederScreen::new);
         event.register(JDTEMenus.MINERAL_EXTRACTOR.get(), MineralExtractorScreen::new);
