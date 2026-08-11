@@ -38,11 +38,15 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)$(thing)jdte.bioCrusher.respectDamageRestrictions$() defaults to $(thing)false$(), so targets surviving the FakePlayer attack are force-killed$(li)$(thing)jdte.bioCrusher.allowDestroyChaosGuardianCrystals$() defaults to $(thing)false$() and controls automatic outer-crystal destruction$(li)$(thing)jdte.bioCrusher.allowInstantKillChaosGuardian$() defaults to $(thing)false$() and controls the FakePlayer-attributed guardian instant kill$(li)Set it to $(thing)true$() to respect entity or server FakePlayer/damage restrictions; failed kills do not consume operation energy$(li)$(thing)#jdte:bio_crusher_blacklist$() completely excludes entity types and contains armor stands by default$(li)$(thing)#jdte:bio_crusher_force_kill_blacklist$() allows normal attacks but prevents forced killing$(li)Modpacks can extend both entity-type tags with data packs without code changes"
+      "text": "$(li)$(thing)jdte.bioCrusher.respectDamageRestrictions$() defaults to $(thing)false$(), so targets surviving the FakePlayer attack are force-killed$(li)$(thing)jdte.bioCrusher.allowDestroyChaosGuardianCrystals$() defaults to $(thing)false$() and controls automatic outer-crystal destruction$(li)$(thing)jdte.bioCrusher.allowInstantKillChaosGuardian$() defaults to $(thing)false$() and controls the FakePlayer-attributed guardian instant kill$(li)Set it to $(thing)true$() to respect entity or server FakePlayer/damage restrictions; failed kills do not consume operation energy$(li)$(thing)#jdte:bio_crusher_blacklist$() completely excludes entity types and contains armor stands by default"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Modes$()$(br2)hhe Bio Crusher supports 3 modes:$(br2)$(li)$(bold)Hostile$(): Only attacks hostile mobs (default)$(li)$(bold)Passive$(): Only attacks passive mobs$(li)$(bold)All$(): Attacks all mobs$(br2)Players, spectators, and blacklisted entities are never targeted.$(br2)$(bold)Energy$()$(br2)$(li)Base energy consumption: 300 FE per successful operation, scaled by configured area$(li)Advanced Bio Crusher: 100,000 FE capacity$(li)Extended Bio Crusher: 200,000 FE capacity$(br2)$(bold)Crafting$()$(br2)$(bold)Advanced Bio Crusher$()"
+      "text": "$(li)$(thing)#jdte:bio_crusher_force_kill_blacklist$() allows normal attacks but prevents forced killing$(li)Modpacks can extend both entity-type tags with data packs without code changes$(br2)$(bold)Modes$()$(br2)hhe Bio Crusher supports 3 modes:$(br2)$(li)$(bold)Hostile$(): Only attacks hostile mobs (default)$(li)$(bold)Passive$(): Only attacks passive mobs$(li)$(bold)All$(): Attacks all mobs$(br2)Players, spectators, and blacklisted entities are never targeted.$(br2)$(bold)Energy$()$(br2)$(li)Base energy consumption: 300 FE per successful operation, scaled by configured area$(li)Advanced Bio Crusher: 100,000 FE capacity$(li)Extended Bio Crusher: 200,000 FE capacity$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Bio Crusher$()"
     },
     {
       "type": "patchouli:spotlight",
@@ -72,7 +76,7 @@
     }
   ],
   "extra_recipe_mappings": {
-    "jdte:advanced_bio_crusher": 10,
-    "jdte:extended_bio_crusher": 13
+    "jdte:advanced_bio_crusher": 11,
+    "jdte:extended_bio_crusher": 14
   }
 }

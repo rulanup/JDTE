@@ -7,6 +7,7 @@ import unittest
 
 from generate_patchouli_book import (
     GenerationError,
+    TEXT_PAGE_LIMIT,
     build_generated_files,
     check_generated_book,
     parse_guide_document,
@@ -166,6 +167,19 @@ class PatchouliRendererTest(unittest.TestCase):
         self.assertGreaterEqual(spotlight_items.count("jdte:greenhouse"), 2)
         self.assertIn("jdte:seed_conversion_upgrade", spotlight_items)
 
+    def test_single_long_paragraph_is_split_into_readable_pages(self):
+        source = SAMPLE_MARKDOWN.replace(
+            "Produces **crops** from `templates`.",
+            " ".join(["long-paragraph-content"] * 100),
+        )
+        document = parse_guide_document(source, "greenhouse.md")
+
+        entry = render_entry(document, "greenhouses_resources", recipe_index={})
+
+        text_pages = [page["text"] for page in entry["pages"] if page["type"] == "patchouli:text"]
+        self.assertGreater(len(text_pages), 1)
+        self.assertTrue(all(len(text) <= TEXT_PAGE_LIMIT for text in text_pages))
+
 
 class PatchouliBookGenerationTest(unittest.TestCase):
     @classmethod
@@ -210,6 +224,19 @@ class PatchouliBookGenerationTest(unittest.TestCase):
         for path, content in self.generated.items():
             with self.subTest(path=path):
                 self.assertIsInstance(json.loads(content), dict)
+
+    def test_generated_text_pages_respect_the_readability_limit(self):
+        for path, content in self.generated.items():
+            resource = json.loads(content)
+            for page in resource.get("pages", []):
+                if page.get("type") == "patchouli:text":
+                    with self.subTest(path=path):
+                        self.assertLessEqual(len(page["text"]), TEXT_PAGE_LIMIT)
+                        styled_starts = sum(
+                            page["text"].count(marker)
+                            for marker in ("$(bold)", "$(italic)", "$(thing)")
+                        )
+                        self.assertEqual(styled_starts, page["text"].count("$()"))
 
     def test_generation_is_deterministic(self):
         self.assertEqual(self.generated, build_generated_files(self.root))

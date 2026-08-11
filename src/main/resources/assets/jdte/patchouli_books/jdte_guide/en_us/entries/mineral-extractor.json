@@ -28,19 +28,19 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)It provides four Mineral Survey slots and merges candidates from every inserted survey. Weights for the same mineral are added together across surveys.$(li)The machine uses its local biome only when all four survey slots are empty. Any inserted stale survey stops the entire machine.$(li)Base work accumulation is four times that of the standard Mineral Extractor; multiplier, resource, filtering, smelting, and paged-output rules are otherwise shared.$(li)FE, fluid, and item capabilities are available from the controller and every structure part; auto I/O still operates only across the outer boundary.$(li)Breaking the controller or any structure part dismantles the whole machine and returns one Large Mineral Extractor."
+      "text": "$(li)It provides four Mineral Survey slots and merges candidates from every inserted survey. Weights for the same mineral are added together across surveys.$(li)The machine uses its local biome only when all four survey slots are empty. Any inserted stale survey stops the entire machine.$(li)Base work accumulation is four times that of the standard Mineral Extractor; multiplier, resource, filtering, smelting, and paged-output rules are otherwise shared.$(li)FE, fluid, and item capabilities are available from the controller and every structure part; auto I/O still operates only across the outer boundary.$(li)Breaking the controller or any structure part dismantles the whole machine and"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Production and Resources$()"
+      "text": "returns one Large Mineral Extractor.$(br2)$(bold)Production and Resources$()"
     },
     {
       "type": "patchouli:text",
-      "text": "| Property | Default behavior | |----------|------------------| | Base processing | 1x uses the former 64x throughput as its baseline: 64 work is added each tick, and each 20 work completes and immediately settles one batch | | Energy | 5,000 FE per batch; 10,000 FE per batch with JDT's Smelter Upgrade installed | | Smelting | Accepts at most one JDT Smelter Upgrade; ores with furnace recipes become their smelted results, while ores without recipes remain unchanged | | Experience Fluid | 25 mB per batch raises that batch's yield by 100%; remaining batches retain normal yield | | Time Fluid | 5 mB per accelerated batch; the base 1x batch is free | | Speed | 1x equals the former 64x throughput; adjustable up to 32x without Overclock and 64x with Overclock or Creative | | Outputs | 16 slots by default; each Capacity Upgrade adds 16, up to 64 | | Per-slot limit | 64, then 2048/4096/8192 with one/two/three Capacity Upgrades |"
+      "text": "| Property | Default behavior | |----------|------------------| | Base processing | 1x uses the former 64x throughput as its baseline: 64 work is added each tick, and each 20 work completes and immediately settles one batch | | Energy | 5,000 FE per batch; 10,000 FE per batch with JDT's Smelter Upgrade installed | | Smelting | Accepts at most one JDT Smelter Upgrade; ores with furnace recipes become their smelted results, while ores without recipes remain unchanged | | Experience Fluid | 25 mB per batch raises that batch's yield by 100%; remaining batches retain normal yield | | Time Fluid | 5 mB per accelerated batch; the base 1x batch is free | | Speed | 1x equals the former 64x"
     },
     {
       "type": "patchouli:text",
-      "text": "The machine settles as much queued work as the current output space can hold and preserves the remainder. Completely full outputs, insufficient energy, no candidates, or stale surveys do not charge resources or spill items. High multipliers use weighted batch settlement whose cost scales with mineral types instead of executing each production cycle separately.$(br2)$(bold)Filtering and Automation$()"
+      "text": "throughput; adjustable up to 32x without Overclock and 64x with Overclock or Creative | | Outputs | 16 slots by default; each Capacity Upgrade adds 16, up to 64 | | Per-slot limit | 64, then 2048/4096/8192 with one/two/three Capacity Upgrades |$(br2)The machine settles as much queued work as the current output space can hold and preserves the remainder. Completely full outputs, insufficient energy, no candidates, or stale surveys do not charge resources or spill items. High multipliers use weighted batch settlement whose cost scales with mineral types instead of executing each production cycle separately.$(br2)$(bold)Filtering and Automation$()"
     },
     {
       "type": "patchouli:text",

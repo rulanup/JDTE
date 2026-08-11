@@ -324,6 +324,37 @@ def _spotlight_page(item_id: str) -> dict[str, object]:
     return {"type": "patchouli:spotlight", "item": item_id, "text": ""}
 
 
+def _split_long_text(fragment: str) -> list[str]:
+    pieces: list[str] = []
+    remaining = fragment
+    while len(remaining) > TEXT_PAGE_LIMIT:
+        candidates = [
+            (remaining.rfind("$(br2)", 1, TEXT_PAGE_LIMIT + 1), "br2"),
+            (remaining.rfind("$(li)", 1, TEXT_PAGE_LIMIT + 1), "li"),
+            (remaining.rfind(". ", 1, TEXT_PAGE_LIMIT + 1), "sentence"),
+            (remaining.rfind(" ", 1, TEXT_PAGE_LIMIT + 1), "space"),
+        ]
+        split_at, boundary = max(candidates)
+        if split_at <= 0:
+            split_at, boundary = TEXT_PAGE_LIMIT, "hard"
+        if boundary == "sentence":
+            split_at += 1
+        piece = remaining[:split_at].rstrip()
+        if not piece:
+            split_at, boundary = TEXT_PAGE_LIMIT, "hard"
+            piece = remaining[:split_at]
+        pieces.append(piece)
+        if boundary == "br2":
+            remaining = remaining[split_at + len("$(br2)") :].lstrip()
+        elif boundary == "li":
+            remaining = remaining[split_at:]
+        else:
+            remaining = remaining[split_at:].lstrip()
+    if remaining:
+        pieces.append(remaining)
+    return pieces
+
+
 def render_entry(
     document: GuideDocument,
     category: str,
@@ -343,12 +374,16 @@ def render_entry(
         nonlocal pending_text
         if not fragment:
             return
-        combined = fragment if not pending_text else f"{pending_text}$(br2){fragment}"
-        if pending_text and len(combined) > TEXT_PAGE_LIMIT:
-            flush_text()
-            pending_text = fragment
-        else:
-            pending_text = combined
+        fragments = _split_long_text(fragment)
+        for index, piece in enumerate(fragments):
+            combined = piece if not pending_text else f"{pending_text}$(br2){piece}"
+            if pending_text and len(combined) > TEXT_PAGE_LIMIT:
+                flush_text()
+                pending_text = piece
+            else:
+                pending_text = combined
+            if index < len(fragments) - 1:
+                flush_text()
 
     for block in document.blocks:
         if block.kind in {"heading", "paragraph", "list"}:

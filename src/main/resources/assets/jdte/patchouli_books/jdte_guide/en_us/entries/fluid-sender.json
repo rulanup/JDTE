@@ -10,11 +10,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)Sends fluids from the internal tank to fluid containers within range$(li)Distributes transfers across in-range containers in round-robin order so the nearest or front target cannot monopolize output$(li)Supports redstone control, Range Upgrade, and Filter Upgrade$(li)Unlimited batching is enabled by default and moves all available tank contents per operation; it can be disabled to use normal/overclock batch limits$(li)With an Overclock or Creative Upgrade and Auto Input enabled, fluid moves directly from Auto Input containers to ranged targets without using internal tank capacity$(li)Speed controls and Underclock adjust the operation interval, while Capacity Upgrades increase internal tank capacity"
+      "text": "$(li)Sends fluids from the internal tank to fluid containers within range$(li)Distributes transfers across in-range containers in round-robin order so the nearest or front target cannot monopolize output$(li)Supports redstone control, Range Upgrade, and Filter Upgrade$(li)Unlimited batching is enabled by default and moves all available tank contents per operation; it can be disabled to use normal/overclock batch limits$(li)With an Overclock or Creative Upgrade and Auto Input enabled, fluid moves directly from Auto Input containers to ranged targets without using internal tank capacity$(li)Speed controls and Underclock adjust the operation interval, while Capacity Upgrades increase internal"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Crafting$()$(br2)$(bold)Basic Fluid Sender$()"
+      "text": "tank capacity$(br2)$(bold)Crafting$()$(br2)$(bold)Basic Fluid Sender$()"
     },
     {
       "type": "patchouli:spotlight",
