@@ -178,9 +178,17 @@ public final class GreenhouseEssenceConversionHelper {
 
     private static void extractAll(IItemHandler handler, ItemStack template) {
         for (int slot = 0; slot < handler.getSlots(); slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
-            if (ItemStack.isSameItemSameComponents(stack, template)) {
-                handler.extractItem(slot, stack.getCount(), false);
+            while (true) {
+                ItemStack before = handler.getStackInSlot(slot);
+                if (!ItemStack.isSameItemSameComponents(before, template)) break;
+
+                int beforeCount = before.getCount();
+                ItemStack extracted = handler.extractItem(slot, beforeCount, false);
+                ItemStack after = handler.getStackInSlot(slot);
+                if (extracted.isEmpty()
+                        || ItemStack.isSameItemSameComponents(after, template) && after.getCount() >= beforeCount) {
+                    break;
+                }
             }
         }
     }
