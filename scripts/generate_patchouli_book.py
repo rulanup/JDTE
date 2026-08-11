@@ -29,6 +29,8 @@ CODE_RE = re.compile(r"`([^`]+?)`")
 LINK_RE = re.compile(r"\[([^]]+)]\(([^)]+)\)")
 TEXT_PAGE_LIMIT = 700
 BOOK_ID = "jdte_guide"
+BOOK_NAME_KEY = "item.jdte.patchouli_guide.name"
+BOOK_LANDING_KEY = "item.jdte.patchouli_guide.landing"
 LANGUAGE_DIRECTORIES = {"zh_cn": "", "en_us": "_en_us"}
 
 
@@ -324,6 +326,18 @@ def _spotlight_page(item_id: str) -> dict[str, object]:
     return {"type": "patchouli:spotlight", "item": item_id, "text": ""}
 
 
+def render_landing(document: GuideDocument) -> str:
+    fragments = [
+        _text_fragment(block, document.title)
+        for block in document.blocks
+        if block.kind in {"heading", "paragraph", "list"}
+    ]
+    landing = "$(br2)".join(fragment for fragment in fragments if fragment)
+    if not landing:
+        raise GenerationError(f"{document.slug}: landing page has no text")
+    return landing
+
+
 def _split_long_text(fragment: str) -> list[str]:
     pieces: list[str] = []
     remaining = fragment
@@ -506,8 +520,8 @@ def build_generated_files(root: Path) -> dict[Path, str]:
     generated: dict[Path, str] = {
         book_path: _json_text(
             {
-                "name": "item.jdte.patchouli_guide.name",
-                "landing_text": "item.jdte.patchouli_guide.landing",
+                "name": BOOK_NAME_KEY,
+                "landing_text": BOOK_LANDING_KEY,
                 "version": _mod_version(root),
                 "subtitle": "JDT Extras",
                 "model": "jdte:capacity_upgrade",
@@ -560,6 +574,16 @@ def check_generated_book(root: Path) -> list[str]:
             errors.append(f"stale generated Patchouli resource: {path.relative_to(root)}")
     for path in sorted(_existing_generated_json(root) - set(expected)):
         errors.append(f"unexpected generated Patchouli resource: {path.relative_to(root)}")
+    for language in LANGUAGE_DIRECTORIES:
+        lang_path = root / f"src/main/resources/assets/jdte/lang/{language}.json"
+        lang = json.loads(lang_path.read_text(encoding="utf-8"))
+        if not lang.get(BOOK_NAME_KEY):
+            errors.append(f"missing Patchouli book name translation: {language}:{BOOK_NAME_KEY}")
+        expected_landing = render_landing(_read_documents(root, language)["index"])
+        if lang.get(BOOK_LANDING_KEY) != expected_landing:
+            errors.append(
+                f"stale Patchouli landing translation: {language}:{BOOK_LANDING_KEY}"
+            )
     return errors
 
 

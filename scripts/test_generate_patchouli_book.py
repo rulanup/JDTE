@@ -13,6 +13,7 @@ from generate_patchouli_book import (
     parse_guide_document,
     render_entry,
     render_inline,
+    render_landing,
     write_generated_book,
 )
 
@@ -115,13 +116,19 @@ class PatchouliRendererTest(unittest.TestCase):
             "Use **fast mode**, *carefully*, with `jdte:greenhouse` and "
             "[the guide](https://example.invalid/guide)."
         )
-
         self.assertEqual(
             "Use $(bold)fast mode$(), $(italic)carefully$(), with "
             "$(thing)jdte:greenhouse$() and the guide "
             "(https://example.invalid/guide).",
             rendered,
         )
+
+    def test_index_body_becomes_the_patchouli_landing_text(self):
+        landing = render_landing(self.document)
+
+        self.assertIn("Produces $(bold)crops$()", landing)
+        self.assertIn("$(bold)Inputs$()", landing)
+        self.assertNotIn("# Greenhouse", landing)
 
     def test_render_entry_preserves_text_spotlights_and_recipes(self):
         entry = render_entry(
@@ -264,6 +271,7 @@ class PatchouliBookGenerationTest(unittest.TestCase):
             shutil.copy2(self.root / "gradle.properties", temporary_root / "gradle.properties")
             for relative_directory in (
                 "src/main/resources/assets/jdte/guides",
+                "src/main/resources/assets/jdte/lang",
                 "src/main/resources/data/jdte/recipe",
             ):
                 shutil.copytree(
