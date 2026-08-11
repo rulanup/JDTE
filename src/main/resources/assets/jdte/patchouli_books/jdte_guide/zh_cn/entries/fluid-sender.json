@@ -1,0 +1,56 @@
+{
+  "name": "流体发送器",
+  "icon": "jdte:advanced_fluid_sender",
+  "category": "jdte:logistics_automation",
+  "sortnum": 1000,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "流体发送器可以将内部流体发送到配置范围内的目标容器，不会在世界中放置流体源方块。$(br2)$(bold)变体$()$(br2)| 机器 | 升级槽 | 每次发送量 | 需要 FE | |------|--------|-----------|---------| | 初级流体发送器 | 4 | 全部可用流体 | 否 | | 高级流体发送器 | 4 | 全部可用流体 | 是 | | 扩展流体发送器 | 8 | 全部可用流体 | 是 |$(br2)$(bold)功能$()$(br2)$(li)将内部储罐中的流体发送到范围内的流体容器$(li)在同一范围内按轮询顺序分配流体，避免靠近机器或位于正面的容器长期独占传输$(li)支持红石控制、范围升级、过滤升级$(li)默认启用无限批量，每次操作发送储罐中全部可用流体；可在配置中关闭并改用普通/超频批量限制$(li)安装超频或创造升级并开启自动输入后，可将自动输入侧容器中的流体直接发送到范围目标，不受内部储罐容量限制$(li)速度按钮和降频升级控制执行间隔，容量升级提高内部储罐容量$(br2)$(bold)合成$()$(br2)$(bold)初级流体发送器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:basic_fluid_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:basic_fluid_sender"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)高级流体发送器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_fluid_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_fluid_sender"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展流体发送器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "高级流体发送器的扩展版本，拥有 8 个升级槽。可通过扩展升级右键高级流体发送器获得。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_sender"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:basic_fluid_sender": 1,
+    "jdte:advanced_fluid_sender": 4,
+    "jdte:extended_fluid_sender": 7
+  }
+}

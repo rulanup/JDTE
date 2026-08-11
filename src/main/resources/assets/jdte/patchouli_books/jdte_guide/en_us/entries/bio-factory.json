@@ -1,0 +1,40 @@
+{
+  "name": "Bio Factory",
+  "icon": "jdte:bio_factory",
+  "category": "jdte:biology_life",
+  "sortnum": 2000,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:bio_factory",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Bio Factory uses a reusable spawn egg or Productive Bees cage as a specimen and converts materials, fluids, and FE into biological products. The displayed creature is client-only; no real entity is spawned or ticked.$(br2)$(bold)Quick Start$()$(br2)1. Put a spawn egg or filled bee cage in the specimen slot. 2. Follow JEI and place food, flowering inputs, or consumed materials in the three unordered material slots. 3. Supply FE. Life Fluid raises yield, Time Fluid enables speed control, and culture fluid serves fluid-flowering recipes. 4. Extract item products and product fluid through their separate outputs.$(br2)$(bold)Slots and Resources$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "| Area | Purpose | |------|---------| | One specimen slot | Reusable spawn egg or bee cage | | Three material slots | Unordered; each recipe decides whether an input is consumed | | Eight output slots | Each Capacity Upgrade adds eight, up to 32 | | Life Fluid | Doubles cycle yield by default when sufficient | | Time Fluid | Enables $(thing)1-32x$(); Overclock or Creative uses 64x | | Culture fluid | Built-in fluid recipes consume it by recipe amount; Productive Bees flowering fluid is a reusable catalyst and is not consumed |"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The machine has a fixed 5x base work rate without increasing cycle costs. FE, fluids, and consumed materials are charged only when every product fits. It still runs at base yield and speed without Life or Time Fluid.$(br2)$(bold)Recipe Compatibility$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Built-in recipes cover common animal products, all wool colors, Honeycomb, Snowballs, Froglights, Goat Horns, Suspicious Stew, Cat gifts, Panda Slimeballs, and more.$(li)Modpacks can add $(thing)jdte:bio_factory$() recipes with up to three unordered inputs. $(thing)count: 0$() is reusable; a positive count is consumed.$(li)Productive Bees specimens use the loaded Advanced Beehive products, exact flowering item or fluid, environmental conditions, and Productivity gene.$(li)Alpha, Beta, Gamma, and Omega Productivity Upgrades share a four-card limit; Omega can produce comb blocks.$(li)JDTE's Life Fluid Bee flowers on an Advanced or Extended Life Extractor, and its comb centrifuges into Life Fluid plus Wax."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "JEI displays exact inputs, chance products, fluids, FE, and processing time.$(br2)$(bold)Upgrades and Automation$()$(br2)$(li)Supports Capacity, Fluid, Overclock, Creative, and recipe-specific dedicated upgrades.$(li)Built-in JDTE recipes accept up to four Looting Upgrades; dynamic Productive Bees recipes do not use Looting.$(li)Creative includes Overclock and removes machine resource costs.$(li)Auto I/O keeps all three input fluids separate from product fluid so input pipes cannot drain fluid products.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:bio_factory"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:bio_factory": 0
+  }
+}

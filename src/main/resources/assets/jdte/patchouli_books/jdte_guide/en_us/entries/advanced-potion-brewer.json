@@ -1,0 +1,60 @@
+{
+  "name": "Advanced Potion Brewer",
+  "icon": "jdte:advanced_potion_brewer",
+  "category": "jdte:control_special",
+  "sortnum": 1600,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_potion_brewer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Advanced Potion Brewer is an automated version of the vanilla brewing stand. It uses the current $(thing)PotionBrewing$() registry directly for bottle inputs, brewing ingredients, and potion conversions, so brewing recipes added by other mods can be detected automatically.$(br2)$(bold)Role$()$(br2)$(li)Designed for batch brewing multi-step potions.$(li)Can automatically fill glass bottles with water.$(li)Can consume Time Fluid to brew faster, falling back to vanilla speed when Time Fluid is missing.$(li)Supports auto input/output, with products extracted only from the three output slots.$(br2)$(bold)Layout$()$(br2)$(bold)Item Slots$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Bottle input slots: 3 slots, each capped to 1 glass bottle or potion.$(li)Ingredient slots: 6 slots, representing brewing steps 1-6 in order.$(li)Blaze powder slot: 1 slot, accepts blaze powder only.$(li)Product output slots: 3 slots, each capped to 1 final potion.$(br2)Ingredient order:$(br2)1. The vanilla-style ingredient slot is step 1. 2. The 5 top horizontal ingredient slots are steps 2-6 from left to right.$(br2)$(bold)Fluid Tanks$()$(br2)$(li)Left water tank: accepts water.$(li)Right Time Fluid tank: accepts JDT Time Fluid.$(br2)The water tank can automatically fill glass bottles in the bottle input slots into water bottles, consuming 250 mB water per bottle."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Controls$()$(br2)$(li)Speed button: sets the tick duration for each ingredient step.$(li)Redstone button: controls whether the machine obeys redstone.$(li)Input lock button: locks the current non-empty ingredient slots to their captured items.$(li)Auto I/O button: configures which world directions the machine uses for automatic input/output.$(br2)$(bold)Brewing Flow$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "1. Place glass bottles or potions in the three bottle input slots. 2. Place blaze powder in the blaze powder slot. 3. Place ingredients in order across ingredient steps 1-6. 4. The machine checks ingredients starting from step 1. 5. Empty ingredient slots are skipped; ingredients that do not apply to the current potion are skipped. 6. Valid ingredients continue transforming the intermediate potions in the bottle slots. 7. After all usable ingredients have been checked, final potions move to the three output slots on the right.$(br2)$(bold)Input Lock$()$(br2)Input lock records the items currently present in non-empty ingredient slots. While locked:"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Captured ingredient slots only accept their captured item.$(li)Empty locked ingredient slots show a dim ghost item.$(li)Hovering a locked ingredient slot shows the locked item name.$(li)Bottle slots, output slots, and the blaze powder slot are not locked.$(br2)This is useful for fixed brewing chains, such as \"water bottle -> awkward potion -> upgraded potion -> extended potion\".$(br2)$(bold)Automation$()$(br2)$(bold)Item Automation$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Auto input recognizes bottle slots, the blaze powder slot, and ingredient slots.$(li)Blaze powder is inserted into the blaze powder slot before ingredient slots.$(li)Auto output extracts only from the three product output slots. It will not extract bottles, ingredients, or blaze powder.$(br2)$(bold)Fluid Automation$()$(br2)$(li)The water tank can receive water automatically.$(li)The Time Fluid tank can receive Time Fluid automatically.$(li)Both tanks also support right-click fluid container transfer.$(br2)$(bold)Speed And Time Fluid$()$(br2)$(bold)Vanilla Speed Relation$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A vanilla brewing stand takes 400 ticks per ingredient step. The Advanced Potion Brewer speed button is the tick duration for each ingredient step:$(br2)$(li)$(thing)1$(): fastest setting.$(li)$(thing)400$(): vanilla speed.$(li)Above $(thing)400$(): treated as vanilla speed.$(br2)Time Fluid is charged only for ticks saved relative to vanilla speed. Without enough Time Fluid, the machine falls back to vanilla 400-tick speed.$(br2)$(bold)Cost Derivation$()$(br2)The cost is derived from a JDT Time Wand accelerating a vanilla brewing stand:"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)A 256x JDT Time Wand effect lasts 600 ticks.$(li)256x adds 256 extra block-entity ticks per tick.$(li)Total extra ticks: 600 × 256 = 153,600.$(li)One vanilla brewing step takes 400 ticks.$(li)153,600 extra ticks are equivalent to 384 full brewing steps.$(br2)Other Time Wand rates have the same efficiency:"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "| Time Wand rate | Extra ticks in 30 seconds | Theoretical full brewing steps | Time Fluid cost | |----------------|---------------------------|--------------------------------|-----------------| | 2x | 1,200 | 3 | 2 × JDT Time Wand fluid cost | | 4x | 2,400 | 6 | 4 × JDT Time Wand fluid cost | | 8x | 4,800 | 12 | 8 × JDT Time Wand fluid cost | | 16x | 9,600 | 24 | 16 × JDT Time Wand fluid cost | | 32x | 19,200 | 48 | 32 × JDT Time Wand fluid cost | | 64x | 38,400 | 96 | 64 × JDT Time Wand fluid cost | | 128x | 76,800 | 192 | 128 × JDT Time Wand fluid cost | | 256x | 153,600 | 384 | 256 × JDT Time Wand fluid cost |$(br2)Therefore each full 400-tick brewing step costs:"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)JDT Time Wand fluid cost × 2 ÷ 3$()$(br2)The machine then charges only for ticks saved by the current speed:$(br2)$(thing)cost = full 400-tick cost × saved ticks ÷ 400$()$(br2)At $(thing)1 tick$(), it charges the full saved-step cost, equivalent to:$(br2)$(thing)256 × JDT Time Wand fluid cost ÷ 384$()$(br2)$(bold)Upgrade Effects$()$(br2)| Upgrade | Effect | |---------|--------| | Creative | Removes FE and Time Fluid cost | | Capacity | Increases FE and fluid capacity | | Fluid | Increases fluid capacity only |$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_potion_brewer"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_potion_brewer": 0
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "控制与特殊机器",
+  "description": "实体控制、范围限制和药水酿造。",
+  "icon": "jdte:entity_suppressor",
+  "sortnum": 60
+}

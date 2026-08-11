@@ -1,0 +1,64 @@
+{
+  "name": "Fluid Sender",
+  "icon": "jdte:advanced_fluid_sender",
+  "category": "jdte:logistics_automation",
+  "sortnum": 1000,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Fluid Sender sends internal fluids to target containers within its configured range. It does not place fluid source blocks in the world.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Send Amount | Requires FE | |---------|--------------|-------------|-------------| | Basic Fluid Sender | 4 | All available fluid | No | | Advanced Fluid Sender | 4 | All available fluid | Yes | | Extended Fluid Sender | 8 | All available fluid | Yes |$(br2)$(bold)Features$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Sends fluids from the internal tank to fluid containers within range$(li)Distributes transfers across in-range containers in round-robin order so the nearest or front target cannot monopolize output$(li)Supports redstone control, Range Upgrade, and Filter Upgrade$(li)Unlimited batching is enabled by default and moves all available tank contents per operation; it can be disabled to use normal/overclock batch limits$(li)With an Overclock or Creative Upgrade and Auto Input enabled, fluid moves directly from Auto Input containers to ranged targets without using internal tank capacity$(li)Speed controls and Underclock adjust the operation interval, while Capacity Upgrades increase internal tank capacity"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Crafting$()$(br2)$(bold)Basic Fluid Sender$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:basic_fluid_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:basic_fluid_sender"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Fluid Sender$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_fluid_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_fluid_sender"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Fluid Sender$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An extended version of the Advanced Fluid Sender with 8 upgrade slots. Obtained by right-clicking an Advanced Fluid Sender with an Extended Upgrade."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_sender"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:basic_fluid_sender": 3,
+    "jdte:advanced_fluid_sender": 6,
+    "jdte:extended_fluid_sender": 9
+  }
+}

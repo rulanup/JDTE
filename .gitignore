@@ -24,6 +24,7 @@ Thumbs.db
 .worktrees/
 CLAUDE.md
 bin/
+__pycache__/
 
 # Eclipse
 .eclipse/

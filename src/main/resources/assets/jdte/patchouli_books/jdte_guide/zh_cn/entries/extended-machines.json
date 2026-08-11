@@ -1,0 +1,139 @@
+{
+  "name": "扩展机器",
+  "icon": "jdte:extended_clicker",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 300,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展高级机器$()$(br2)扩展高级机器拥有 8 个升级槽，其他功能与原版 T2 机器相同。$(br2)可以通过合成获得，也可以使用 <ItemImage id=\"jdte:extended_upgrade\" scale=\"1\" /> 扩展升级 (extended-upgrade.md) 直接将 T2 机器转换。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_clicker",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_block_breaker",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_block_placer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_block_swapper",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_dropper",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_sensor",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_collector",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_placer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_time_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展点击器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_clicker"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展方块破坏器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_block_breaker"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展方块放置器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_block_placer"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展方块交换器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_block_swapper"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展投掷器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_dropper"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展传感器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_sensor"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展流体收集器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_collector"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展流体放置器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_placer"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展时间加速器$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_time_accelerator"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:extended_clicker": 1,
+    "jdte:extended_block_breaker": 2,
+    "jdte:extended_block_placer": 3,
+    "jdte:extended_block_swapper": 4,
+    "jdte:extended_dropper": 5,
+    "jdte:extended_sensor": 6,
+    "jdte:extended_fluid_collector": 7,
+    "jdte:extended_fluid_placer": 8
+  }
+}

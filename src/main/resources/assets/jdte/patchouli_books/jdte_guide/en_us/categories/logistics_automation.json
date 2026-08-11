@@ -1,0 +1,6 @@
+{
+  "name": "Logistics & Automation",
+  "description": "Item, fluid, and factory automation devices.",
+  "icon": "jdte:advanced_item_collector",
+  "sortnum": 30
+}

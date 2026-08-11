@@ -1,0 +1,307 @@
+{
+  "name": "Upgrade Cards",
+  "icon": "jdte:capacity_upgrade",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 100,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Sneak-right-click a JDT or JDTE machine while holding Upgrade Cards to fill available upgrade slots until the type limit, slot capacity, or held stack is exhausted. Looting and Sharpness Upgrades are inserted into dedicated slots on supported machines. Machine compatibility, per-type limits, and Overclock/Underclock conflicts are still enforced. When FTB Ultimine is installed, hold its activation key while sneak-right-clicking to fill each eligible machine in the current selection in order.$(br2)Upgrade cards can be installed into JDT machines to enhance their functionality.$(br2)$(bold)Capacity Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:capacity_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Doubles the machine's FE capacity and fluid capacity. Stacks up to 3 times."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:capacity_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Overclock Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:overclock_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Forces the machine to run at 1 tick intervals and perform two operations per tick. Energy consumption becomes 3x."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:overclock_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Underclock Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:underclock_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Forces the machine to run at 40 tick intervals. Energy consumption is reduced by 80%."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:underclock_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Fluid Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:fluid_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Doubles only the machine's fluid capacity. Stacks up to 3 times."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:fluid_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Fluid Storage Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:fluid_storage_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Adds an internal fluid tank to the Clicker."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:fluid_storage_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Generator Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:generator_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Consumes double fuel to output triple power."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:generator_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Range Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:range_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Doubles the machine's configurable area limit. Stacks up to 2 times."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:range_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Filter Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:filter_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Adds extra filter slots to the machine. Each upgrade adds one row (9 slots). Stacks up to 2 times.$(br2)$(bold)Limited to:$() Machines with filter slots (e.g., Clicker T2, Sensor T2, etc.)"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:filter_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Creative Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:creative_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Waives FE consumption; time accelerators waive time fluid consumption; includes overclock effect."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:creative_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Fortune Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:fortune_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Used by Gel Generators and Crystal Incubators. Gel Generators apply vanilla Fortune scaling to supported products; Crystal Incubators enchant their simulated harvesting tool with the installed Fortune level. Incubators accept up to eight and cannot combine Fortune with Precision."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:fortune_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Precision Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:precision_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Crystal Incubator only. It applies vanilla Silk Touch to the simulated harvesting tool and lets the target block's own loot table determine the precise drop, preserving compatibility with mods that follow vanilla loot behavior. Limited to one and incompatible with Fortune."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:precision_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)AE Acceleration Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ae_acceleration_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Basic, Advanced, and Extended Time Accelerators only. Allows the accelerator containing this card to accelerate supported AE2 devices through AE2's public $(thing)IGridTickable$() service. Limited to one per machine; when accelerators overlap, only those containing this card contribute acceleration to AE2 devices."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ae_acceleration_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)AE Output Upgrade$()$(br2)Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a machine with item or fluid product outputs to return those products directly to the linked AE network. The access point must remain loaded, online, and have a channel. If the network is unavailable or full, unaccepted products safely remain in the machine.$(br2)Machines without a product-output use, such as Clickers, Placers, Droppers, and Senders, reject this upgrade. The limit is one per machine. A Greenhouse Matrix Controller can also use it to return products from every managed Greenhouse."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ae_output_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Essence Conversion Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:essence_conversion_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Greenhouse and Large Greenhouse only. For each harvested essence, the machine checks every crafting-table recipe that uses it. Conversion occurs only when exactly one such recipe exists and every non-empty ingredient in that recipe is that essence. The original ingredient and result counts are preserved; an incomplete recipe batch remains as essence and combines with later harvests. Essences with multiple recipes or recipes that need another ingredient remain unchanged."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:essence_conversion_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Seed-to-Essence Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:seed_conversion_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Greenhouse and Large Greenhouse only. When harvesting a Mystical Agriculture crop, seed drops matching the planted template are replaced 1:1 with that crop's essence. If an Essence Conversion Upgrade is also installed, the added essence continues through its unique-recipe check and is converted to the final product when eligible. Other byproducts remain unchanged."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:seed_conversion_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Looting Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:looting_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Exclusive to the Bio Crusher. Increases extra drop chance. Max level 6, with 50% chance per level for +1 drop."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:looting_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Sharpness Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:sharpness_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Exclusive to the Bio Crusher. Increases attack damage. Each upgrade adds 5 damage, max 6, for up to 35 damage."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:sharpness_upgrade"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:capacity_upgrade": 1,
+    "jdte:overclock_upgrade": 5,
+    "jdte:underclock_upgrade": 9,
+    "jdte:fluid_upgrade": 13,
+    "jdte:fluid_storage_upgrade": 17,
+    "jdte:generator_upgrade": 21,
+    "jdte:range_upgrade": 25,
+    "jdte:filter_upgrade": 29,
+    "jdte:creative_upgrade": 33,
+    "jdte:fortune_upgrade": 37,
+    "jdte:precision_upgrade": 41,
+    "jdte:ae_acceleration_upgrade": 45,
+    "jdte:ae_output_upgrade": 0,
+    "jdte:essence_conversion_upgrade": 51,
+    "jdte:seed_conversion_upgrade": 55,
+    "jdte:looting_upgrade": 59,
+    "jdte:sharpness_upgrade": 63
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "流体稳定器",
+  "icon": "jdte:advanced_fluid_stabilizer",
+  "category": "jdte:logistics_automation",
+  "sortnum": 1300,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "流体稳定器会扫描配置范围内的源流体方块，并按催化剂槽内物品匹配 JDT 的 FluidDrop 配方。$(br2)$(li)每次运行最多转换 1 个源流体方块。$(li)每次成功转换消耗 1 个催化剂。$(li)创造升级可免除 FE 和催化剂消耗。$(li)过滤槽使用流体桶作为过滤物品。$(li)支持红石控制、范围升级、过滤升级、超频、降频和容量升级。$(br2)例如放入 JDT 的多态催化剂时，源水可转换为多态流体；放入 JDTE 的时间流体催化剂时，源水可转换为时间流体。$(br2)$(bold)初级流体稳定器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:basic_fluid_stabilizer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "无需 FE，仅消耗催化剂。运行间隔较长（40 tick）。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:basic_fluid_stabilizer"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)高级流体稳定器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_fluid_stabilizer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "需要 FE 和催化剂。运行间隔 20 tick，FE 消耗随配置范围增加。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_fluid_stabilizer"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展流体稳定器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_stabilizer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "高级流体稳定器的扩展版本，拥有 8 个升级槽。可通过扩展升级右键高级流体稳定器获得。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_stabilizer"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:basic_fluid_stabilizer": 1,
+    "jdte:advanced_fluid_stabilizer": 5,
+    "jdte:extended_fluid_stabilizer": 9,
+    "jdte:time_fluid_catalyst": 0
+  }
+}

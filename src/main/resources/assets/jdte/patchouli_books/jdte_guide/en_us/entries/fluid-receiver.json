@@ -1,0 +1,60 @@
+{
+  "name": "Fluid Receiver",
+  "icon": "jdte:advanced_fluid_receiver",
+  "category": "jdte:logistics_automation",
+  "sortnum": 1200,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Fluid Receiver receives fluids from target containers within its configured range.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Receive Amount | Requires FE | |---------|--------------|----------------|-------------| | Basic Fluid Receiver | 4 | 20,000 mB | No | | Advanced Fluid Receiver | 4 | 20,000 mB | Yes | | Extended Fluid Receiver | 8 | 20,000 mB | Yes |$(br2)$(bold)Features$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Receives fluids from fluid containers within range into the internal tank$(li)Supports redstone control, Range Upgrade, and Filter Upgrade$(li)With an Overclock or Creative Upgrade and Auto Output enabled, fluid moves directly from ranged sources to Auto Output containers without using internal tank capacity$(li)Speed controls and Underclock adjust the operation interval; normal and overclock batches are configurable$(br2)$(bold)Crafting$()$(br2)$(bold)Basic Fluid Receiver$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:basic_fluid_receiver",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:basic_fluid_receiver"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Fluid Receiver$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_fluid_receiver",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_fluid_receiver"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Fluid Receiver$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_receiver",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An extended version of the Advanced Fluid Receiver with 8 upgrade slots. Obtained by right-clicking an Advanced Fluid Receiver with an Extended Upgrade."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_receiver"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:basic_fluid_receiver": 2,
+    "jdte:advanced_fluid_receiver": 5,
+    "jdte:extended_fluid_receiver": 8
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "name": "Extended Machines",
+  "icon": "jdte:extended_clicker",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 300,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Advanced Machines$()$(br2)Extended advanced machines have 8 upgrade slots, with other functionality identical to the original T2 machines.$(br2)They can be obtained through crafting or by using <ItemImage id=\"jdte:extended_upgrade\" scale=\"1\" /> Extended Upgrade (extended-upgrade.md) to directly convert T2 machines."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_clicker",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_block_breaker",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_block_placer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_block_swapper",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_dropper",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_sensor",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_collector",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_placer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_time_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Clicker$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_clicker"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Block Breaker$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_block_breaker"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Block Placer$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_block_placer"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Block Swapper$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_block_swapper"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Dropper$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_dropper"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Sensor$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_sensor"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Fluid Collector$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_collector"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Fluid Placer$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_placer"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Time Accelerator$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_time_accelerator"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:extended_clicker": 1,
+    "jdte:extended_block_breaker": 2,
+    "jdte:extended_block_placer": 3,
+    "jdte:extended_block_swapper": 4,
+    "jdte:extended_dropper": 5,
+    "jdte:extended_sensor": 6,
+    "jdte:extended_fluid_collector": 7,
+    "jdte:extended_fluid_placer": 8
+  }
+}

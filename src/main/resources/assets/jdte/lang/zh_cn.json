@@ -918,4 +918,6 @@
   ,"config.jdte.jdte.solarPanel.stellarFusionCapacity": "恒星聚变太阳能板容量"
   ,"config.jdte.jdte.solarPanel.dimensionalCollapseGeneration": "维度坍缩太阳能板发电量"
   ,"config.jdte.jdte.solarPanel.dimensionalCollapseCapacity": "维度坍缩太阳能板容量"
+  ,"item.jdte.patchouli_guide.name": "JDT Extras 指南"
+  ,"item.jdte.patchouli_guide.landing": "JDT Extras 是 Just Dire Things 的扩展模组。本书完整介绍升级、工具、时间与能源设备、自动化机器、温室、资源生产和生命科技。"
 }

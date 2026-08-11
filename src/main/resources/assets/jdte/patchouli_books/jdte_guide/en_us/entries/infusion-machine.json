@@ -1,0 +1,75 @@
+{
+  "name": "Infusion Machine",
+  "icon": "jdte:advanced_infusion_machine",
+  "category": "jdte:biology_life",
+  "sortnum": 1500,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Infusion Machine consumes items and fluids to produce new items according to infusion recipes. It is the primary consumer of Life Fluid, combining ordinary items with Life Fluid to create special products.$(br2)$(bold)Variants$()$(br2)| Machine | Upgrade Slots | Energy Capacity | Fluid Capacity | |---------|---------------|-----------------|----------------| | Advanced Infusion Machine | 4 | 50,000 FE | 8,000 mB | | Extended Infusion Machine | 8 | 100,000 FE | 8,000 mB |$(br2)$(bold)Features$()$(br2)$(bold)Workflow$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "1. Place the input item in the left input slot 2. Inject fluid (e.g. Life Fluid) into the internal tank 3. The machine automatically matches an infusion recipe and starts processing 4. The result appears in the right output slot when complete$(br2)$(bold)Slots$()$(br2)$(li)Input slot: 1, for the item to be infused$(li)Output slot: 1, for the infusion product$(br2)$(bold)Processing Parameters$()$(br2)$(li)Processing time: 20 ticks (1 second)$(li)Base energy cost: 500 FE per operation$(li)Accepts any fluid type; the recipe determines the required fluid$(br2)$(bold)Example Infusion Recipe$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "| Input | Fluid | Output | Energy | |-------|-------|--------|--------| | Apple | Life Fluid 1000 mB | Life Apple | 500 FE | | Egg (with Productive Bees) | Life Fluid 64,000 mB | Life Fluid Bee Spawn Egg | 100,000 FE | | Wither Essence | Life Fluid 64,000 mB | Wither Spawn Egg | 100,000 FE | | Ender Dragon Essence | Life Fluid 64,000 mB | Ender Dragon Spawn Egg | 100,000 FE | | Elder Guardian Essence | Life Fluid 64,000 mB | Elder Guardian Spawn Egg | 100,000 FE |$(br2)$(bold)Life Apple Progression$()$(br2)Life Apples immediately heal 20 health and permanently strengthen the player with no consumption cap. Progress survives death, relogging, and dimension changes."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "| Condition | Maximum Health | Armor | Armor Toughness | |-----------|----------------|-------|-----------------| | Each apple | +0.01% | +0.01 | +0.01 | | Every 10 | — | Extra +0.05 | Extra +0.05 | | Every 50 | Extra +0.1% | — | — | | Every 100 | Extra +0.2% | — | — | | Every 1000 | Extra +100% | — | — |$(br2)All milestones repeat at every multiple, so 2000 apples grant the 1000-apple reward twice."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "| Example | Maximum Health | Armor | Toughness | Life Fluid | Energy | |---------|----------------|-------|-----------|------------|--------| | 1000 apples | +114% | +15 | +15 | 1000 B | 500,000 FE | | At least +10 armor (670) | Formula result | +10.05 | +10.05 | 670 B | 335,000 FE | | At least +100 armor (6670) | Formula result | +100.05 | +100.05 | 6670 B | 3,335,000 FE |$(br2)$(bold)Universal Spawn Egg Infusion$()$(br2)The machine automatically discovers registered spawn eggs and entity loot tables from Minecraft and other mods. Infusing one full stack of a stackable mob drop with 64,000 mB (64 B) of Life Fluid and 100,000 FE creates the matching mob's spawn egg."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)The input count is the item's own maximum stack size, usually 64$(li)A recipe is available only when the drop uniquely identifies one spawn egg; shared drops are not guessed$(li)The tank must hold at least 64,000 mB, requiring at least three combined Capacity or Fluid Upgrade doublings$(li)Overclock, Underclock, and Creative Upgrades still modify or remove the 100,000 FE base cost$(li)JEI lists recipes discovered from the current resource packs, data packs, and loaded mods$(br2)$(bold)Life Fluid Bee$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "With Productive Bees installed, infusing one Egg with 64,000 mB of Life Fluid and 100,000 FE creates a non-self-breeding Life Fluid Bee Spawn Egg. The bee uses an Advanced or Extended Life Extractor as its flowering block and produces Life Fluid Honeycombs in Productive Bees hives or the Bio Factory. Centrifuging each comb yields 250 mB of Life Fluid and Wax. Configurable Productive Bees spawn eggs have no entity loot and are rejected by the Loot Fabricator.$(br2)$(bold)Upgrade Effects$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "| Upgrade | Effect | |---------|--------| | Overclock | Locks to 1 tick operation, 3x energy cost | | Underclock | Locks to 40 tick operation, 20% energy cost | | Creative | No energy cost, includes overclock effect | | Capacity | Increases FE and fluid capacity | | Fluid | Increases fluid capacity only |$(br2)$(bold)Crafting$()$(br2)$(bold)Advanced Infusion Machine$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_infusion_machine",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_infusion_machine"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Infusion Machine$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_infusion_machine",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An extended version of the Advanced Infusion Machine with 8 upgrade slots. Obtained by right-clicking an Advanced Infusion Machine with an Extended Upgrade."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_infusion_machine"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_infusion_machine": 8,
+    "jdte:extended_infusion_machine": 11,
+    "jdte:life_apple": 0,
+    "jdte:wither_spawn_egg": 0,
+    "jdte:ender_dragon_spawn_egg": 0,
+    "productivebees:spawn_egg_configurable_bee": 0,
+    "productivebees:configurable_honeycomb": 0
+  }
+}

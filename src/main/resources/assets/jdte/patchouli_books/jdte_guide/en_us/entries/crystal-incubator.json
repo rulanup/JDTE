@@ -1,0 +1,40 @@
+{
+  "name": "Crystal Incubator",
+  "icon": "jdte:crystal_incubator",
+  "category": "jdte:greenhouses_resources",
+  "sortnum": 1800,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:crystal_incubator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Crystal Incubator finds budding blocks inside its configured area, consumes Time Fluid and FE to accelerate their growth, and automatically collects mature clusters into nine internal output slots.$(br2)$(bold)Operating Parameters$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "| Property | Behavior | |----------|----------| | Rate | Adjustable 1-512x; fixed at 1024x with Overclock or Creative | | Base resources | Uses JDT Time Wand-equivalent Time Fluid and FE costs with configurable multipliers | | Output | Nine product slots; clusters remain intact when all drops cannot fit | | Auto I/O | Accepts Time Fluid and exports products through configured sides | | Scanning | Builds the budding cache in batches and visits only six neighboring positions |"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Ordinary budding blocks use AE2 Growth Accelerator-style random ticking: each equivalent accelerator calls the budding block's own $(thing)randomTick()$() once every 10 ticks. By default, the 8x setting equals six AE2 Growth Accelerators and other rates scale proportionally. Calls accrue evenly and remain bounded by the per-tick operation budget to avoid concentrated work at high rates over large areas."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Growth stops without Time Fluid or FE. Creative follows the standard rule and removes the Incubator's own resource costs. For Just Dyna Things Echoing Budding, the Incubator reserves its current-tick operating cost and transfers the exact missing standard FE and Time Fluid into the target. The budding block still applies its own post-growth costs and configured probabilities.$(br2)$(bold)Harvest Upgrades$()$(br2)| Upgrade | Limit | Harvest behavior | |---------|------:|------------------| | Fortune | 8 | Applies the matching vanilla Fortune level to the simulated harvesting tool | | Precision | 1 | Applies vanilla Silk Touch and lets the target loot table choose the drop |"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Fortune and Precision cannot be installed together.$(br2)$(bold)Compatibility$()$(br2)$(li)Common $(thing)c:budding_blocks$() and $(thing)c:clusters$() tags cover vanilla, JDT, AE2, Data Energistics, AE2 add-ons, and Just Dyna Things Echoing Budding.$(li)Modpacks can add custom budding and mature blocks to $(thing)jdte:crystal_incubator_budding_blocks$() and $(thing)jdte:crystal_incubator_harvestable_crystals$().$(br2)Batched range scans and a budding-block cache limit server work to the six neighbors of known budding blocks. Clusters are left intact when all drops cannot fit.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:crystal_incubator"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:crystal_incubator": 0
+  }
+}

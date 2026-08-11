@@ -1,0 +1,48 @@
+{
+  "name": "BOSS Essences",
+  "icon": "jdte:wither_essence",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 600,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "BOSS essences are unique items obtained by killing BOSS mobs with a Bio Crusher.$(br2)$(bold)Essence Types$()$(br2)$(bold)Wither Essence$()$(br2)Has a 5% base chance to drop when a Wither is killed by a Bio Crusher. Looting Upgrades can increase the amount after a successful roll, but do not increase the 5% trigger chance."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:wither_essence",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Ender Dragon Essence$()$(br2)Has a 10% base chance to drop when an Ender Dragon is killed by a Bio Crusher. Looting Upgrades can increase the amount after a successful roll, but do not increase the 10% trigger chance."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ender_dragon_essence",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Elder Guardian Essence$()$(br2)Obtained when a Bio Crusher kills an Elder Guardian. Looting Upgrades may increase the essence amount."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:elder_guardian_essence",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Acquisition$()$(br2)To obtain BOSS essences:$(br2)1. Build a Bio Crusher (Advanced or Extended) 2. Place it near a BOSS mob 3. The Bio Crusher will kill the BOSS and generate the corresponding essence$(br2)Note: The Bio Crusher must be powerful enough to kill BOSS mobs. It is recommended to use the Sharpness Upgrade to increase damage.$(br2)$(bold)Crafting Uses$()$(br2)BOSS essences can be used to craft advanced items and machines, serving as important late-game materials."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Wither Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create a Wither Spawn Egg$(li)Ender Dragon Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create an Ender Dragon Spawn Egg$(li)Elder Guardian Essence: Infuse with 64,000 mB of Life Fluid and 100,000 FE to create an Elder Guardian Spawn Egg"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:wither_essence": 1,
+    "jdte:ender_dragon_essence": 3,
+    "jdte:elder_guardian_essence": 5
+  }
+}

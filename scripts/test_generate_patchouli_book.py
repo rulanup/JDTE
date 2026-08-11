@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import json
+from pathlib import Path
 import unittest
 
 from generate_patchouli_book import (
     GenerationError,
+    build_generated_files,
     parse_guide_document,
     render_entry,
     render_inline,
@@ -158,6 +161,54 @@ class PatchouliRendererTest(unittest.TestCase):
         ]
         self.assertGreaterEqual(spotlight_items.count("jdte:greenhouse"), 2)
         self.assertIn("jdte:seed_conversion_upgrade", spotlight_items)
+
+
+class PatchouliBookGenerationTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.root = Path(__file__).resolve().parents[1]
+        cls.generated = build_generated_files(cls.root)
+
+    def test_generates_book_categories_and_every_localized_entry(self):
+        relative_paths = {path.relative_to(self.root).as_posix() for path in self.generated}
+
+        self.assertIn(
+            "src/main/resources/data/jdte/patchouli_books/jdte_guide/book.json",
+            relative_paths,
+        )
+        self.assertEqual(77, len(relative_paths))
+        for language in ("zh_cn", "en_us"):
+            prefix = (
+                "src/main/resources/assets/jdte/patchouli_books/"
+                f"jdte_guide/{language}"
+            )
+            self.assertEqual(
+                6,
+                sum(path.startswith(f"{prefix}/categories/") for path in relative_paths),
+            )
+            self.assertEqual(
+                32,
+                sum(path.startswith(f"{prefix}/entries/") for path in relative_paths),
+            )
+
+    def test_languages_have_identical_category_and_entry_paths(self):
+        def localized_paths(language):
+            marker = f"/jdte_guide/{language}/"
+            return {
+                path.as_posix().split(marker, 1)[1]
+                for path in self.generated
+                if marker in path.as_posix()
+            }
+
+        self.assertEqual(localized_paths("zh_cn"), localized_paths("en_us"))
+
+    def test_every_generated_resource_is_valid_json(self):
+        for path, content in self.generated.items():
+            with self.subTest(path=path):
+                self.assertIsInstance(json.loads(content), dict)
+
+    def test_generation_is_deterministic(self):
+        self.assertEqual(self.generated, build_generated_files(self.root))
 
 
 if __name__ == "__main__":

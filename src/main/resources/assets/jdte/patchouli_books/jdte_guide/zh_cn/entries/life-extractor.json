@@ -1,0 +1,51 @@
+{
+  "name": "生命提取器",
+  "icon": "jdte:advanced_life_extractor",
+  "category": "jdte:biology_life",
+  "sortnum": 1400,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "高级和扩展生命提取器不会被爆炸破坏，但仍可由玩家正常挖掘拆除。$(br2)生命提取器可以杀死配置范围内的生物，并根据其当前剩余生命值产生生命流体。与生物粉碎机不同，生命提取器不产生掉落物，而是将生物的生命力直接转化为流体。$(br2)$(bold)变体$()$(br2)| 机器 | 升级槽 | 能量容量 | 流体容量 | |------|--------|----------|----------| | 高级生命提取器 | 4 | 100,000 FE | 16,000 mB | | 扩展生命提取器 | 8 | 200,000 FE | 16,000 mB |$(br2)$(bold)功能$()$(br2)$(bold)生命流体生成$()$(br2)$(li)杀死配置范围内的生物$(li)根据生物当前剩余生命值产生生命流体：默认最终产量为每点生命值 0.5 mB$(li)服务端配置 $(thing)jdte.lifeExtractor.fluidPerHealth$() 控制基础产量（默认 0.1 mB），机器统一应用 5 倍产量倍率$(li)前 100 点生命值沿用完整产率；之后每个 100 点生命值区间的单位产率默认降低 10%，并在上一档基础上继续递减$(li)边际损耗可通过 $(thing)jdte.lifeExtractor.highHealthLossPercent$() 调整。分段计算避免跨过档位时总产量突然降低$(li)目标会被直接移除，不触发普通死亡掉落、经验或战利品事件$(li)实体小数生命值和升级倍率产生的小数流体会在机器内累计，达到 1 mB 后写入储罐"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)低卡顿批处理$()$(br2)| 机器/模式 | 扫描间隔 | 每批最多处理 | 理论吞吐量 | |-----------|----------|--------------|------------| | 高级普通 | 20 tick | 4 | 4 个/秒 | | 扩展普通 | 20 tick | 8 | 8 个/秒 | | 高级超频/创造 | 5 tick | 8 | 32 个/秒 | | 扩展超频/创造 | 5 tick | 16 | 64 个/秒 |$(br2)机器通过一次范围扫描批量处理多个目标来提速，超频扫描频率限制为每秒 4 次，避免每 tick 扫描大范围造成额外卡顿。降频使用普通批次数量，但扫描间隔为 40 tick。$(br2)$(li)流体存储在内部储罐中，可用桶取出$(br2)$(bold)模式$()$(br2)生命提取器支持 3 种模式：$(br2)$(li)$(bold)敌对$()：只攻击敌对生物（默认）$(li)$(bold)友好$()：只攻击友好生物$(li)$(bold)全部$()：攻击所有生物$(br2)安装过滤升级后，将忽略模式设置，改为使用过滤槽配置目标实体。$(br2)$(bold)范围$()$(br2)$(li)基础半径：5 格（X/Y/Z 各方向）$(li)可通过 GUI 调整范围$(li)安装范围升级可扩大可配置上限$(li)能量消耗随范围增大而增加$(br2)$(bold)升级效果$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "| 升级 | 效果 | |------|------| | 超频 | 每 5 tick 批量处理生物，但有 10% 流体损耗 | | 降频 | 流体产量提升至 1.5 倍 | | 创造 | 使用超频批处理速度，无损耗，免能耗 | | 范围 | 扩大可配置范围上限 | | 过滤 | 启用过滤槽，按实体类型筛选目标 | | 容量 | 提升 FE 和流体容量 |$(br2)$(bold)能量$()$(br2)$(li)基础能量消耗：300 FE × 范围缩放系数$(li)高级生命提取器：100,000 FE 容量$(li)扩展生命提取器：200,000 FE 容量$(br2)$(bold)合成$()$(br2)$(bold)高级生命提取器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_life_extractor",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_life_extractor"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展生命提取器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_life_extractor",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "高级生命提取器的扩展版本，拥有 8 个升级槽。可通过扩展升级右键高级生命提取器获得。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_life_extractor"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_life_extractor": 3,
+    "jdte:extended_life_extractor": 6,
+    "jdte:life_fluid_bucket": 0
+  }
+}

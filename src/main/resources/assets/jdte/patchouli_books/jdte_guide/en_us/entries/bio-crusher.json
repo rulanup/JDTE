@@ -1,0 +1,78 @@
+{
+  "name": "Bio Crusher",
+  "icon": "jdte:advanced_bio_crusher",
+  "category": "jdte:biology_life",
+  "sortnum": 500,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Advanced and Extended Bio Crushers cannot be destroyed by explosions, but can still be mined normally by players.$(br2)hhe Bio Crusher attacks mobs in its configured range with a FakePlayer, captures mod-adjusted final drops and actual experience, and converts that experience into JDh Experience Fluid.$(br2)$(bold)Variants$()$(br2)| Machine | Standard Upgrade Slots | Dedicated Upgrade Slots | Drop Destination | |---------|----------------------|------------------------|------------------| | Advanced Bio Crusher | 4 | 2 | Drops at the killed mob's position | | Extended Bio Crusher | 8 | 2 | Uses dynamic paged output slots first, then spills above the machine when full |"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Features$()$(br2)$(bold)Kills and Drops$()$(br2)$(li)Attacks with a cached FakePlayer and a Looting-enchanted weapon, preserving player-kill conditions and mod death events$(li)Captures final drops after other mods finish modifying them, including loot tables, equipment, and mod-added drops$(li)Force-kills surviving targets by default when Sharpness damage is insufficient, allowing protected bosses to be processed$(li)Drops, Experience Fluid, and energy cost are settled only after a successful kill$(br2)$(bold)Experience Fluid$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Uses the final actual experience reward after NeoForge and mod event adjustments$(li)Formula: $(thing)Experience Fluid = final XP × experienceFluidPerPoint$()$(li)$(thing)experienceFluidPerPoint$() defaults to $(thing)1.0$(), so the default conversion is $(thing)1 XP = 1 mB$()$(li)Experience is converted directly without spawning additional experience orbs$(li)Fluid is stored in the internal tank$(br2)$(bold)Dedicated Upgrade Slots$()$(br2)hhe Bio Crusher has 2 dedicated upgrade slots supporting:$(br2)$(bold)Looting Upgrade$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Max level: 6$(li)Each level performs one independent bonus-drop roll$(li)A successful roll copies the complete final drop set after mod adjustments$(li)hhe default chance is 50% per level and can be changed with $(thing)lootingExtraDropChance$()$(br2)$(bold)Sharpness Upgrade$()$(br2)$(li)Max quantity: 6$(li)Base damage: 5 points$(li)Each upgrade adds 5 damage points$(li)Max damage: 35 points$(br2)$(bold)Spawner Integration$()$(br2)Placing a Bio Crusher directly above a monster spawner will:"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)hake over a spawn cycle before entities are added to the world$(li)Load complete $(thing)SpawnData$(), run spawner finalization and equipment setup, then simulate a player kill$(li)Preserve SpawnPotentials, spawn count, and spawn delay behavior$(li)Cancel the spawn cycle only after successful processing; without power or on failure, the spawner continues normally$(li)Drop Advanced-tier output at the spawner position while the Extended tier still uses its output inventory first"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Vanilla and Apothic Spawners are supported. Apothic compatibility reads modified spawn count, initial health, silent, no-AI, youthful, burning, and echoing stats; Echoing bonus drops and XP are included in the final result.$(br2)$(bold)Draconic Evolution Chaos Guardian Compatibility$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)This compatibility is controlled by two independent server settings, both disabled by default$(li)Enabling $(thing)allowDestroyChaosGuardianCrystals$() destroys one outer crystal per operation when targeting the guardian and also makes nearby outer crystals hostile targets$(li)Enabling $(thing)allowInstantKillChaosGuardian$() clears the remaining shield and performs a lethal FakePlayer-attributed head attack$(li)If the current fight phase rejects the instant-kill attack, the same FakePlayer damage source triggers death without raw entity removal$(li)Draconic Evolution's native death phase clears the boss bar, creates the Dragon Heart and experience, and unlocks the central Chaos Crystal"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Dragon Heart and delayed experience are spawned in the arena by Draconic Evolution and are not moved into the Extended Bio Crusher inventory by the synchronous drop capture.$(br2)$(bold)Safety and Server Configuration$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(thing)jdte.bioCrusher.respectDamageRestrictions$() defaults to $(thing)false$(), so targets surviving the FakePlayer attack are force-killed$(li)$(thing)jdte.bioCrusher.allowDestroyChaosGuardianCrystals$() defaults to $(thing)false$() and controls automatic outer-crystal destruction$(li)$(thing)jdte.bioCrusher.allowInstantKillChaosGuardian$() defaults to $(thing)false$() and controls the FakePlayer-attributed guardian instant kill$(li)Set it to $(thing)true$() to respect entity or server FakePlayer/damage restrictions; failed kills do not consume operation energy$(li)$(thing)#jdte:bio_crusher_blacklist$() completely excludes entity types and contains armor stands by default$(li)$(thing)#jdte:bio_crusher_force_kill_blacklist$() allows normal attacks but prevents forced killing$(li)Modpacks can extend both entity-type tags with data packs without code changes"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Modes$()$(br2)hhe Bio Crusher supports 3 modes:$(br2)$(li)$(bold)Hostile$(): Only attacks hostile mobs (default)$(li)$(bold)Passive$(): Only attacks passive mobs$(li)$(bold)All$(): Attacks all mobs$(br2)Players, spectators, and blacklisted entities are never targeted.$(br2)$(bold)Energy$()$(br2)$(li)Base energy consumption: 300 FE per successful operation, scaled by configured area$(li)Advanced Bio Crusher: 100,000 FE capacity$(li)Extended Bio Crusher: 200,000 FE capacity$(br2)$(bold)Crafting$()$(br2)$(bold)Advanced Bio Crusher$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_bio_crusher",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_bio_crusher"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Bio Crusher$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_bio_crusher",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An extended version of the Advanced Bio Crusher with 8 upgrade slots. Obtained by right-clicking an Advanced Bio Crusher with an Extended Upgrade.$(br2)Output inventory:$(br2)$(li)Starts with 18 output slots$(li)Each Capacity Upgrade opens 9 more output slots by default, with a server-side multiplier of 2 for 18 output slots per upgrade$(li)With the default 3-upgrade limit, the maximum is 72 output slots$(li)The GUI shows 9 output slots per page, and the page count expands with the opened capacity$(li)Removing Capacity Upgrades keeps already occupied high slots accessible instead of deleting their contents"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_bio_crusher"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_bio_crusher": 10,
+    "jdte:extended_bio_crusher": 13
+  }
+}

@@ -3,9 +3,12 @@
 
 from __future__ import annotations
 
+import argparse
+import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterable
 
 
 RESOURCE_ID_RE = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
@@ -25,6 +28,95 @@ ITALIC_RE = re.compile(r"(?<!\*)\*([^*]+?)\*(?!\*)")
 CODE_RE = re.compile(r"`([^`]+?)`")
 LINK_RE = re.compile(r"\[([^]]+)]\(([^)]+)\)")
 TEXT_PAGE_LIMIT = 700
+BOOK_ID = "jdte_guide"
+LANGUAGE_DIRECTORIES = {"zh_cn": "", "en_us": "_en_us"}
+
+
+@dataclass(frozen=True)
+class CategoryDefinition:
+    slug: str
+    icon: str
+    sortnum: int
+    entries: tuple[str, ...]
+    names: dict[str, str]
+    descriptions: dict[str, str]
+
+
+CATEGORIES = (
+    CategoryDefinition(
+        "upgrades_tools",
+        "jdte:capacity_upgrade",
+        10,
+        ("upgrades", "extended-upgrade", "extended-machines", "eclipsealloy-wrench", "boss-essences"),
+        {"zh_cn": "升级与工具", "en_us": "Upgrades & Tools"},
+        {
+            "zh_cn": "升级卡、扩展机器、扳手与特殊材料。",
+            "en_us": "Upgrade cards, extended machines, the wrench, and special materials.",
+        },
+    ),
+    CategoryDefinition(
+        "time_energy",
+        "jdte:advanced_time_accelerator",
+        20,
+        ("time-accelerator", "time-freezer", "advanced-energy-transmitter"),
+        {"zh_cn": "时间与能源", "en_us": "Time & Energy"},
+        {
+            "zh_cn": "时间流体、时间控制和能源传输。",
+            "en_us": "Time Fluid, time control, and energy transmission.",
+        },
+    ),
+    CategoryDefinition(
+        "logistics_automation",
+        "jdte:advanced_item_collector",
+        30,
+        (
+            "advanced-item-collector", "item-sender", "item-receiver", "fluid-sender",
+            "fluid-receiver", "fluid-stabilizer", "glue-activator", "gel-generator",
+            "factory-packer",
+        ),
+        {"zh_cn": "物流与自动化", "en_us": "Logistics & Automation"},
+        {
+            "zh_cn": "物品、流体和工厂自动化设备。",
+            "en_us": "Item, fluid, and factory automation devices.",
+        },
+    ),
+    CategoryDefinition(
+        "greenhouses_resources",
+        "jdte:greenhouse",
+        40,
+        ("crystal-incubator", "greenhouse", "large-greenhouse", "greenhouse-matrix", "mineral-extractor"),
+        {"zh_cn": "温室与资源", "en_us": "Greenhouses & Resources"},
+        {
+            "zh_cn": "作物、晶体和矿物资源生产。",
+            "en_us": "Crop, crystal, and mineral resource production.",
+        },
+    ),
+    CategoryDefinition(
+        "biology_life",
+        "jdte:bio_factory",
+        50,
+        (
+            "bio-crusher", "bio-factory", "life-breeder", "life-extractor",
+            "life-synthesis-vat", "infusion-machine", "loot-fabricator",
+        ),
+        {"zh_cn": "生物与生命", "en_us": "Biology & Life"},
+        {
+            "zh_cn": "生物加工、生命流体和战利品生产。",
+            "en_us": "Biological processing, Life Fluid, and loot production.",
+        },
+    ),
+    CategoryDefinition(
+        "control_special",
+        "jdte:entity_suppressor",
+        60,
+        ("entity-suppressor", "range-blocker", "advanced-potion-brewer"),
+        {"zh_cn": "控制与特殊机器", "en_us": "Control & Special Machines"},
+        {
+            "zh_cn": "实体控制、范围限制和药水酿造。",
+            "en_us": "Entity control, range restriction, and potion brewing.",
+        },
+    ),
+)
 
 
 class GenerationError(ValueError):
@@ -303,3 +395,163 @@ def render_entry(
         "pages": pages,
         "extra_recipe_mappings": mappings,
     }
+
+
+def _json_text(data: dict[str, object]) -> str:
+    return json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+
+
+def _mod_version(root: Path) -> str:
+    properties = (root / "gradle.properties").read_text(encoding="utf-8")
+    for line in properties.splitlines():
+        if line.startswith("mod_version="):
+            return line.split("=", 1)[1].strip()
+    raise GenerationError("gradle.properties: missing mod_version")
+
+
+def _recipe_index(root: Path) -> dict[str, str]:
+    recipe_root = root / "src/main/resources/data/jdte/recipe"
+    return {
+        resource_id: resource_id
+        for recipe_path in recipe_root.rglob("*.json")
+        for resource_id in [
+            "jdte:" + recipe_path.relative_to(recipe_root).with_suffix("").as_posix()
+        ]
+    }
+
+
+def _category_by_entry() -> dict[str, CategoryDefinition]:
+    result: dict[str, CategoryDefinition] = {}
+    for category in CATEGORIES:
+        for entry in category.entries:
+            if entry in result:
+                raise GenerationError(f"entry {entry!r} belongs to multiple categories")
+            result[entry] = category
+    return result
+
+
+def _read_documents(root: Path, language: str) -> dict[str, GuideDocument]:
+    guide_root = root / "src/main/resources/assets/jdte/guides/jdte/guide"
+    language_directory = LANGUAGE_DIRECTORIES[language]
+    source_root = guide_root / language_directory if language_directory else guide_root
+    documents = {
+        path.stem: parse_guide_document(path.read_text(encoding="utf-8"), str(path))
+        for path in sorted(source_root.glob("*.md"))
+    }
+    if "index" not in documents:
+        raise GenerationError(f"{language}: missing index.md")
+    return documents
+
+
+def build_generated_files(root: Path) -> dict[Path, str]:
+    """Build every checked-in Patchouli JSON resource in memory."""
+    root = root.resolve()
+    asset_root = root / f"src/main/resources/assets/jdte/patchouli_books/{BOOK_ID}"
+    book_path = root / f"src/main/resources/data/jdte/patchouli_books/{BOOK_ID}/book.json"
+    category_by_entry = _category_by_entry()
+    recipe_index = _recipe_index(root)
+    documents_by_language = {
+        language: _read_documents(root, language) for language in LANGUAGE_DIRECTORIES
+    }
+    expected_entries = set(category_by_entry)
+    localized_entry_sets = {
+        language: set(documents) - {"index"}
+        for language, documents in documents_by_language.items()
+    }
+    for language, actual_entries in localized_entry_sets.items():
+        missing = sorted(expected_entries - actual_entries)
+        extra = sorted(actual_entries - expected_entries)
+        if missing or extra:
+            raise GenerationError(
+                f"{language}: category mapping mismatch; missing={missing}, extra={extra}"
+            )
+    if len(set(map(frozenset, localized_entry_sets.values()))) != 1:
+        raise GenerationError("localized GuideME entry sets do not match")
+
+    generated: dict[Path, str] = {
+        book_path: _json_text(
+            {
+                "name": "item.jdte.patchouli_guide.name",
+                "landing_text": "item.jdte.patchouli_guide.landing",
+                "version": _mod_version(root),
+                "subtitle": "JDT Extras",
+                "model": "jdte:capacity_upgrade",
+                "creative_tab": "jdte:jdte",
+                "use_resource_pack": True,
+                "text_overflow_mode": "resize",
+                "show_progress": False,
+                "pause_game": False,
+            }
+        )
+    }
+    for language, documents in documents_by_language.items():
+        localized_root = asset_root / language
+        for category in CATEGORIES:
+            generated[localized_root / "categories" / f"{category.slug}.json"] = _json_text(
+                {
+                    "name": category.names[language],
+                    "description": category.descriptions[language],
+                    "icon": category.icon,
+                    "sortnum": category.sortnum,
+                }
+            )
+        for slug in sorted(expected_entries):
+            category = category_by_entry[slug]
+            generated[localized_root / "entries" / f"{slug}.json"] = _json_text(
+                render_entry(documents[slug], category.slug, recipe_index)
+            )
+    return generated
+
+
+def _existing_generated_json(root: Path) -> set[Path]:
+    asset_root = root / f"src/main/resources/assets/jdte/patchouli_books/{BOOK_ID}"
+    book_root = root / f"src/main/resources/data/jdte/patchouli_books/{BOOK_ID}"
+    return {
+        path.resolve()
+        for generated_root in (asset_root, book_root)
+        if generated_root.exists()
+        for path in generated_root.rglob("*.json")
+    }
+
+
+def check_generated_book(root: Path) -> list[str]:
+    root = root.resolve()
+    expected = build_generated_files(root)
+    errors: list[str] = []
+    for path, content in expected.items():
+        if not path.is_file():
+            errors.append(f"missing generated Patchouli resource: {path.relative_to(root)}")
+        elif path.read_text(encoding="utf-8") != content:
+            errors.append(f"stale generated Patchouli resource: {path.relative_to(root)}")
+    for path in sorted(_existing_generated_json(root) - set(expected)):
+        errors.append(f"unexpected generated Patchouli resource: {path.relative_to(root)}")
+    return errors
+
+
+def write_generated_book(root: Path) -> None:
+    root = root.resolve()
+    generated = build_generated_files(root)
+    for stale_path in _existing_generated_json(root) - set(generated):
+        stale_path.unlink()
+    for path, content in generated.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8", newline="\n")
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="fail if generated files drift")
+    args = parser.parse_args(argv)
+    root = Path(__file__).resolve().parents[1]
+    if args.check:
+        errors = check_generated_book(root)
+        for error in errors:
+            print(error)
+        return 1 if errors else 0
+    write_generated_book(root)
+    print(f"Generated {len(build_generated_files(root))} Patchouli resources.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
