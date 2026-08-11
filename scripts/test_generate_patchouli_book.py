@@ -272,7 +272,7 @@ class PatchouliBookGenerationTest(unittest.TestCase):
             "src/main/resources/data/jdte/patchouli_books/jdte_guide/book.json",
             relative_paths,
         )
-        self.assertEqual(77, len(relative_paths))
+        self.assertEqual(87, len(relative_paths))
         for language in ("zh_cn", "en_us"):
             prefix = (
                 "src/main/resources/assets/jdte/patchouli_books/"
@@ -283,9 +283,27 @@ class PatchouliBookGenerationTest(unittest.TestCase):
                 sum(path.startswith(f"{prefix}/categories/") for path in relative_paths),
             )
             self.assertEqual(
-                32,
+                37,
                 sum(path.startswith(f"{prefix}/entries/") for path in relative_paths),
             )
+
+    def test_new_entries_use_expected_categories(self):
+        expected_categories = {
+            "ultimate-portal-gun": "upgrades_tools",
+            "big-fluid-tank": "upgrades_tools",
+            "time-multitool": "upgrades_tools",
+            "solar-panels": "time_energy",
+            "creative-greenhouse": "greenhouses_resources",
+        }
+
+        for language in ("zh_cn", "en_us"):
+            for slug, category in expected_categories.items():
+                path = self.root / (
+                    "src/main/resources/assets/jdte/patchouli_books/"
+                    f"jdte_guide/{language}/entries/{slug}.json"
+                )
+                entry = json.loads(self.generated[path])
+                self.assertEqual(f"jdte:{category}", entry["category"])
 
     def test_languages_have_identical_category_and_entry_paths(self):
         def localized_paths(language):

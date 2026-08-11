@@ -55,7 +55,10 @@ CATEGORIES = (
         "upgrades_tools",
         "jdte:capacity_upgrade",
         10,
-        ("upgrades", "extended-upgrade", "extended-machines", "eclipsealloy-wrench", "boss-essences"),
+        (
+            "upgrades", "extended-upgrade", "extended-machines", "eclipsealloy-wrench", "boss-essences",
+            "ultimate-portal-gun", "big-fluid-tank", "time-multitool",
+        ),
         {"zh_cn": "升级与工具", "en_us": "Upgrades & Tools"},
         {
             "zh_cn": "升级卡、扩展机器、扳手与特殊材料。",
@@ -66,7 +69,7 @@ CATEGORIES = (
         "time_energy",
         "jdte:advanced_time_accelerator",
         20,
-        ("time-accelerator", "time-freezer", "advanced-energy-transmitter"),
+        ("time-accelerator", "time-freezer", "advanced-energy-transmitter", "solar-panels"),
         {"zh_cn": "时间与能源", "en_us": "Time & Energy"},
         {
             "zh_cn": "时间流体、时间控制和能源传输。",
@@ -92,7 +95,10 @@ CATEGORIES = (
         "greenhouses_resources",
         "jdte:greenhouse",
         40,
-        ("crystal-incubator", "greenhouse", "large-greenhouse", "greenhouse-matrix", "mineral-extractor"),
+        (
+            "crystal-incubator", "greenhouse", "large-greenhouse", "creative-greenhouse",
+            "greenhouse-matrix", "mineral-extractor",
+        ),
         {"zh_cn": "温室与资源", "en_us": "Greenhouses & Resources"},
         {
             "zh_cn": "作物、晶体和矿物资源生产。",

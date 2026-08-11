@@ -6,11 +6,34 @@ navigation:
 item_ids:
   - jdte:greenhouse_matrix_controller
   - jdte:greenhouse_matrix_quick_install_upgrade
+  - jdte:greenhouse_matrix_casing
+  - jdte:greenhouse_matrix_item_input
+  - jdte:greenhouse_matrix_item_output
+  - jdte:greenhouse_matrix_fluid_input
+  - jdte:greenhouse_matrix_energy_input
+  - jdte:greenhouse_matrix_speed
+  - jdte:greenhouse_matrix_efficiency
+  - jdte:greenhouse_matrix_seed
+  - jdte:greenhouse_matrix_essence
+  - jdte:greenhouse_matrix_auto_crafting
 ---
 
 # Greenhouse Matrix
 
 <ItemImage id="jdte:greenhouse_matrix_controller" scale="2" />
+
+<ItemGrid>
+  <ItemIcon id="jdte:greenhouse_matrix_casing" />
+  <ItemIcon id="jdte:greenhouse_matrix_item_input" />
+  <ItemIcon id="jdte:greenhouse_matrix_item_output" />
+  <ItemIcon id="jdte:greenhouse_matrix_fluid_input" />
+  <ItemIcon id="jdte:greenhouse_matrix_energy_input" />
+  <ItemIcon id="jdte:greenhouse_matrix_speed" />
+  <ItemIcon id="jdte:greenhouse_matrix_efficiency" />
+  <ItemIcon id="jdte:greenhouse_matrix_seed" />
+  <ItemIcon id="jdte:greenhouse_matrix_essence" />
+  <ItemIcon id="jdte:greenhouse_matrix_auto_crafting" />
+</ItemGrid>
 
 The Greenhouse Matrix is a variable closed cuboid, **5–18 blocks** along each axis. All six outer faces must consist entirely of Matrix Casings, exactly one controller, and at least one of every port type.
 
@@ -44,6 +67,21 @@ Real loot tables and dynamic crops use a bounded number of representative sample
 - Seed: grants the Seed-to-Essence effect to every managed Greenhouse.
 - Essence: grants Essence Conversion; essences with multiple crafting recipes remain unchanged.
 
+## Auto-Crafting Enhancer
+
+An Auto-Crafting Enhancer stores **16 encoded AE crafting patterns**. Each enhancer becomes one page in the controller screen. With several enhancers in the structure, pages use a stable block-position order and can be selected with the previous and next buttons. Patterns remain inside the enhancer itself and are all dropped when that block is removed.
+
+Only AE **crafting patterns** are accepted; processing patterns are not. A pattern must also satisfy every rule below so the server can prove that the represented craft is legitimate:
+
+- The 3×3 crafting grid may contain only one identical input item and component set.
+- The recipe must not leave buckets, bottles, or any other remaining items.
+- The pattern's claimed primary output must exactly match the item, components, and count produced when the server assembles the recipe again.
+- A slot whose input, output, or recipe cannot be resolved is marked invalid in the screen and does not participate in production.
+
+During settlement, the Matrix removes the recipe's real input count from its central long-count buffer and inserts the real output count. Outputs created by that settlement are not recursively crafted again in the same settlement. A modified pattern therefore cannot turn one Essence into 999 products.
+
+**The Seed Enhancer conflicts with the Auto-Crafting Enhancer.** If both are present, structure validation reports `conflicting_crafting_enhancements` and the Matrix remains invalid until one type is removed.
+
 ## Global Upgrade Installation
 
 Like a normal machine, the controller has eight upgrade slots and no extra dedicated slot. The controller-only **Greenhouse Matrix Quick Install Upgrade** can occupy any of those eight slots. Once installed, it unlocks eight additional global slots that accept stacked upgrade cards. Cards placed there are transferred one at a time into the real eight-slot upgrade inventories of managed Greenhouses and Large Greenhouses; they are not virtual effects.
@@ -53,3 +91,12 @@ The controller distributes cards round-robin and respects each Greenhouse's norm
 <RecipeFor id="jdte:greenhouse_matrix_quick_install_upgrade" />
 <RecipeFor id="jdte:greenhouse_matrix_controller" />
 <RecipeFor id="jdte:greenhouse_matrix_casing" />
+<RecipeFor id="jdte:greenhouse_matrix_item_input" />
+<RecipeFor id="jdte:greenhouse_matrix_item_output" />
+<RecipeFor id="jdte:greenhouse_matrix_fluid_input" />
+<RecipeFor id="jdte:greenhouse_matrix_energy_input" />
+<RecipeFor id="jdte:greenhouse_matrix_speed" />
+<RecipeFor id="jdte:greenhouse_matrix_efficiency" />
+<RecipeFor id="jdte:greenhouse_matrix_seed" />
+<RecipeFor id="jdte:greenhouse_matrix_essence" />
+<RecipeFor id="jdte:greenhouse_matrix_auto_crafting" />

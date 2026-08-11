@@ -1,0 +1,28 @@
+{
+  "name": "Big Fluid Tank",
+  "icon": "jdte:big_fluid_tank",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 660,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:big_fluid_tank",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Big Fluid Tank is a 1000 B version of JDT's Fluid Canister. It stores one fluid up to $(bold)1,000,000 mB$(), works while held, and can also be equipped in the dedicated Curios $(thing)big_fluid_tank$() slot.$(br2)$(bold)World interaction$()$(br2)$(li)Normal right-click on a fluid source: collect 1000 mB first; if collection is impossible, try placing the stored fluid.$(li)Sneak-right-click a block: directly try to place 1000 mB.$(li)Sneak-right-click air: cycle the automatic filling mode.$(br2)The tank can only contain one fluid type at a time and respects vanilla placement, container, and dimension rules.$(br2)$(bold)Automatic filling modes$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "While the tank is in the player's inventory or Curios slot, it can feed its fluid into other compatible fluid items. Each inventory check transfers at most 100 mB to one item.$(br2)$(li)$(bold)None$(): do not fill items automatically.$(li)$(bold)JDT$(): fill Just Dire Things items only.$(li)$(bold)JDTE$(): fill JDT Extras items only.$(li)$(bold)All$(): fill every item with a compatible fluid capability.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:big_fluid_tank"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:big_fluid_tank": 0
+  }
+}

@@ -6,19 +6,30 @@ Checks:
 2. Every block registered in JDTEBlocks.java has a block.jdte.<name> lang key.
 3. GuideME root pages (zh) and _en_us/ pages have matching filenames.
 4. Every registered machine maps to a GuideME page (family-normalized).
-5. Checked-in Patchouli resources exactly match their GuideME sources.
+5. Every statically registered JDTE item appears in GuideME item_ids.
+6. Checked-in Patchouli resources exactly match their GuideME sources.
 """
 import json
 import re
 import sys
 from pathlib import Path
 
-from generate_patchouli_book import check_generated_book
+from generate_patchouli_book import check_generated_book, parse_guide_document
 
 ROOT = Path(__file__).resolve().parent.parent
 LANG_DIR = ROOT / "src/main/resources/assets/jdte/lang"
 GUIDE_DIR = ROOT / "src/main/resources/assets/jdte/guides/jdte/guide"
 BLOCKS_JAVA = ROOT / "src/main/java/com/jdte/setup/JDTEBlocks.java"
+ITEMS_JAVA = ROOT / "src/main/java/com/jdte/setup/JDTEItems.java"
+
+ITEM_DECLARATION = re.compile(
+    r"public\s+static\s+final\s+DeferredHolder<Item,"
+)
+ITEM_REGISTRATION = re.compile(
+    r"public\s+static\s+final\s+DeferredHolder<Item,.*?>\s+[A-Z0-9_]+\s*=\s*"
+    r'(?:ITEMS\.register|blockItem)\s*\(\s*"([a-z0-9_]+)"',
+    re.DOTALL,
+)
 
 # Machines documented on a shared page instead of a family page of their own.
 GUIDE_ALIASES = {
@@ -54,6 +65,33 @@ def load_lang(name):
 def registered_blocks():
     text = BLOCKS_JAVA.read_text(encoding="utf-8")
     return re.findall(r'register\("([a-z0-9_]+)"', text)
+
+
+def registered_items_from_source(source):
+    declaration_count = len(ITEM_DECLARATION.findall(source))
+    item_ids = ITEM_REGISTRATION.findall(source)
+    if len(item_ids) != declaration_count or len(set(item_ids)) != len(item_ids):
+        raise ValueError(
+            "unrecognized item registration or duplicate item id in JDTEItems.java"
+        )
+    return set(item_ids)
+
+
+def guide_item_ids(guide_dir):
+    item_ids = set()
+    for path in sorted(guide_dir.glob("*.md")):
+        document = parse_guide_document(path.read_text(encoding="utf-8"), path.name)
+        item_ids.update(
+            item.removeprefix("jdte:")
+            for item in document.item_ids
+            if item.startswith("jdte:")
+        )
+    return item_ids
+
+
+def undocumented_registered_items(items_java, guide_dir):
+    registered = registered_items_from_source(items_java.read_text(encoding="utf-8"))
+    return sorted(registered - guide_item_ids(guide_dir))
 
 
 def guide_family(block_name):
@@ -103,6 +141,14 @@ def main():
         full = block.replace("_", "-")
         if f"{family}.md" not in zh_pages and f"{full}.md" not in zh_pages:
             errors.append(f"no guide page for machine '{block}' (expected {family}.md or {full}.md)")
+
+    try:
+        missing_item_docs = undocumented_registered_items(ITEMS_JAVA, GUIDE_DIR)
+    except ValueError as exception:
+        errors.append(str(exception))
+    else:
+        for item_id in missing_item_docs:
+            errors.append(f"undocumented registered item: jdte:{item_id}")
 
     errors.extend(check_generated_book(ROOT))
 

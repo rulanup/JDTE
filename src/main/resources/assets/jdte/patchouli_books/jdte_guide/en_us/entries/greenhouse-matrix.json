@@ -10,6 +10,56 @@
       "text": ""
     },
     {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_casing",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_item_input",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_item_output",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_fluid_input",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_energy_input",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_speed",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_efficiency",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_seed",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_essence",
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:greenhouse_matrix_auto_crafting",
+      "text": ""
+    },
+    {
       "type": "patchouli:text",
       "text": "The Greenhouse Matrix is a variable closed cuboid, $(bold)5–18 blocks$() along each axis. All six outer faces must consist entirely of Matrix Casings, exactly one controller, and at least one of every port type.$(br2)Matrix Casings connect to neighboring casings, controllers, and ports in all six directions. Internal glass seams disappear while metal frames remain around the outer edges of each continuous glass surface."
     },
@@ -35,11 +85,19 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Global Upgrade Installation$()$(br2)Like a normal machine, the controller has eight upgrade slots and no extra dedicated slot. The controller-only $(bold)Greenhouse Matrix Quick Install Upgrade$() can occupy any of those eight slots. Once installed, it unlocks eight additional global slots that accept stacked upgrade cards. Cards placed there are transferred one at a time into the real eight-slot upgrade inventories of managed Greenhouses and Large Greenhouses; they are not virtual effects."
+      "text": "$(bold)Auto-Crafting Enhancer$()$(br2)An Auto-Crafting Enhancer stores $(bold)16 encoded AE crafting patterns$(). Each enhancer becomes one page in the controller screen. With several enhancers in the structure, pages use a stable block-position order and can be selected with the previous and next buttons. Patterns remain inside the enhancer itself and are all dropped when that block is removed.$(br2)Only AE $(bold)crafting patterns$() are accepted; processing patterns are not. A pattern must also satisfy every rule below so the server can prove that the represented craft is legitimate:"
     },
     {
       "type": "patchouli:text",
-      "text": "The controller distributes cards round-robin and respects each Greenhouse's normal limits and conflicts. Cards that currently cannot be installed remain queued. The Quick Install Upgrade cannot be removed until the queue is empty."
+      "text": "$(li)The 3×3 crafting grid may contain only one identical input item and component set.$(li)The recipe must not leave buckets, bottles, or any other remaining items.$(li)The pattern's claimed primary output must exactly match the item, components, and count produced when the server assembles the recipe again.$(li)A slot whose input, output, or recipe cannot be resolved is marked invalid in the screen and does not participate in production."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "During settlement, the Matrix removes the recipe's real input count from its central long-count buffer and inserts the real output count. Outputs created by that settlement are not recursively crafted again in the same settlement. A modified pattern therefore cannot turn one Essence into 999 products.$(br2)$(bold)The Seed Enhancer conflicts with the Auto-Crafting Enhancer.$() If both are present, structure validation reports $(thing)conflicting_crafting_enhancements$() and the Matrix remains invalid until one type is removed.$(br2)$(bold)Global Upgrade Installation$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Like a normal machine, the controller has eight upgrade slots and no extra dedicated slot. The controller-only $(bold)Greenhouse Matrix Quick Install Upgrade$() can occupy any of those eight slots. Once installed, it unlocks eight additional global slots that accept stacked upgrade cards. Cards placed there are transferred one at a time into the real eight-slot upgrade inventories of managed Greenhouses and Large Greenhouses; they are not virtual effects.$(br2)The controller distributes cards round-robin and respects each Greenhouse's normal limits and conflicts. Cards that currently cannot be installed remain queued. The Quick Install Upgrade cannot be removed until the queue is empty."
     },
     {
       "type": "patchouli:crafting",
@@ -52,10 +110,56 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:greenhouse_matrix_casing"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_item_input"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_item_output"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_fluid_input"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_energy_input"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_speed"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_efficiency"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_seed"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_essence"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:greenhouse_matrix_auto_crafting"
     }
   ],
   "extra_recipe_mappings": {
     "jdte:greenhouse_matrix_controller": 0,
-    "jdte:greenhouse_matrix_quick_install_upgrade": 0
+    "jdte:greenhouse_matrix_quick_install_upgrade": 0,
+    "jdte:greenhouse_matrix_casing": 1,
+    "jdte:greenhouse_matrix_item_input": 2,
+    "jdte:greenhouse_matrix_item_output": 3,
+    "jdte:greenhouse_matrix_fluid_input": 4,
+    "jdte:greenhouse_matrix_energy_input": 5,
+    "jdte:greenhouse_matrix_speed": 6,
+    "jdte:greenhouse_matrix_efficiency": 7,
+    "jdte:greenhouse_matrix_seed": 8,
+    "jdte:greenhouse_matrix_essence": 9,
+    "jdte:greenhouse_matrix_auto_crafting": 10
   }
 }

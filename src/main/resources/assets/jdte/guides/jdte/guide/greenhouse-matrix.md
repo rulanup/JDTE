@@ -6,11 +6,34 @@ navigation:
 item_ids:
   - jdte:greenhouse_matrix_controller
   - jdte:greenhouse_matrix_quick_install_upgrade
+  - jdte:greenhouse_matrix_casing
+  - jdte:greenhouse_matrix_item_input
+  - jdte:greenhouse_matrix_item_output
+  - jdte:greenhouse_matrix_fluid_input
+  - jdte:greenhouse_matrix_energy_input
+  - jdte:greenhouse_matrix_speed
+  - jdte:greenhouse_matrix_efficiency
+  - jdte:greenhouse_matrix_seed
+  - jdte:greenhouse_matrix_essence
+  - jdte:greenhouse_matrix_auto_crafting
 ---
 
 # 温室矩阵
 
 <ItemImage id="jdte:greenhouse_matrix_controller" scale="2" />
+
+<ItemGrid>
+  <ItemIcon id="jdte:greenhouse_matrix_casing" />
+  <ItemIcon id="jdte:greenhouse_matrix_item_input" />
+  <ItemIcon id="jdte:greenhouse_matrix_item_output" />
+  <ItemIcon id="jdte:greenhouse_matrix_fluid_input" />
+  <ItemIcon id="jdte:greenhouse_matrix_energy_input" />
+  <ItemIcon id="jdte:greenhouse_matrix_speed" />
+  <ItemIcon id="jdte:greenhouse_matrix_efficiency" />
+  <ItemIcon id="jdte:greenhouse_matrix_seed" />
+  <ItemIcon id="jdte:greenhouse_matrix_essence" />
+  <ItemIcon id="jdte:greenhouse_matrix_auto_crafting" />
+</ItemGrid>
 
 温室矩阵是可变尺寸的封闭长方体多方块结构，三个方向均可为 **5～18 格**。六个外表面必须完全由矩阵外壳、控制器或端口组成，并且只能有一个控制器。四种端口各至少需要一个。
 
@@ -44,6 +67,21 @@ FE 与时间流体仍实际保存在内部温室中，由所有已加载成员�
 - 种子增强：等同于内部每台温室安装种子转精华升级。
 - 精华增强：等同于内部每台温室安装精华转化升级；存在多个合成表时仍不转化。
 
+## 自动合成增强
+
+自动合成增强方块可以保存 **16 张 AE 编码合成样板**。每个增强方块对应控制器界面中的一页；结构内安装多个增强时，页面按方块坐标稳定排序，可以用左右按钮翻页。样板实际保存在增强方块中，拆除方块时会全部掉出，不会留在控制器里。
+
+这里只接受 AE **合成样板**，不接受处理样板。为了让矩阵只执行服务端能够证明合法的合成，样板还必须满足全部条件：
+
+- 3×3 合成格中只能出现一种完全相同的输入物品与数据组件。
+- 配方不能留下桶、瓶或其他剩余物品。
+- 样板声明的主输出必须与服务端重新执行配方得到的物品、数据组件和数量完全一致。
+- 输入、输出或配方无法解析时，该槽会在界面中标记为无效并且不参与生产。
+
+矩阵结算时按配方的真实输入数量从中央长数量缓冲扣除原料，再按真实输出数量写回产物；同一次结算不会把刚合成的输出继续递归合成。这样不能通过篡改样板把 1 个精华伪造成 999 个产物。
+
+**种子增强与自动合成增强冲突。** 两种方块同时存在时，结构校验会以 `conflicting_crafting_enhancements` 判定矩阵无效；拆除其中一种后才能重新成型。
+
 ## 全局升级安装
 
 控制器与普通机器一样有 8 个升级槽，没有额外的专属槽位。**温室矩阵快速安装升级** 只能用于控制器，可放入这 8 个槽中的任意一个；安装后会解锁另外 8 个可堆叠的全局升级槽。放入全局槽的升级卡会被逐张转移到内部普通温室和大型温室的真实 8 槽升级栏中，而不是提供虚拟效果。
@@ -53,3 +91,12 @@ FE 与时间流体仍实际保存在内部温室中，由所有已加载成员�
 <RecipeFor id="jdte:greenhouse_matrix_quick_install_upgrade" />
 <RecipeFor id="jdte:greenhouse_matrix_controller" />
 <RecipeFor id="jdte:greenhouse_matrix_casing" />
+<RecipeFor id="jdte:greenhouse_matrix_item_input" />
+<RecipeFor id="jdte:greenhouse_matrix_item_output" />
+<RecipeFor id="jdte:greenhouse_matrix_fluid_input" />
+<RecipeFor id="jdte:greenhouse_matrix_energy_input" />
+<RecipeFor id="jdte:greenhouse_matrix_speed" />
+<RecipeFor id="jdte:greenhouse_matrix_efficiency" />
+<RecipeFor id="jdte:greenhouse_matrix_seed" />
+<RecipeFor id="jdte:greenhouse_matrix_essence" />
+<RecipeFor id="jdte:greenhouse_matrix_auto_crafting" />
