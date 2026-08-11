@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 import json
 from pathlib import Path
+import shutil
+import tempfile
 import unittest
 
 from generate_patchouli_book import (
     GenerationError,
     build_generated_files,
+    check_generated_book,
     parse_guide_document,
     render_entry,
     render_inline,
+    write_generated_book,
 )
 
 
@@ -226,6 +230,35 @@ class PatchouliBookGenerationTest(unittest.TestCase):
             "jdte:jdte_guide",
             recipe["result"]["components"]["patchouli:book"],
         )
+
+    def test_check_mode_reports_source_changes_as_stale_generated_entries(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            shutil.copy2(self.root / "gradle.properties", temporary_root / "gradle.properties")
+            for relative_directory in (
+                "src/main/resources/assets/jdte/guides",
+                "src/main/resources/data/jdte/recipe",
+            ):
+                shutil.copytree(
+                    self.root / relative_directory,
+                    temporary_root / relative_directory,
+                )
+            write_generated_book(temporary_root)
+            source = (
+                temporary_root
+                / "src/main/resources/assets/jdte/guides/jdte/guide/greenhouse.md"
+            )
+            source.write_text(
+                source.read_text(encoding="utf-8") + "\n生成漂移测试。\n",
+                encoding="utf-8",
+            )
+
+            errors = check_generated_book(temporary_root)
+
+            self.assertTrue(
+                any("stale generated Patchouli resource" in error for error in errors),
+                errors,
+            )
 
 
 if __name__ == "__main__":

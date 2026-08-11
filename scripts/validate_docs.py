@@ -6,11 +6,14 @@ Checks:
 2. Every block registered in JDTEBlocks.java has a block.jdte.<name> lang key.
 3. GuideME root pages (zh) and _en_us/ pages have matching filenames.
 4. Every registered machine maps to a GuideME page (family-normalized).
+5. Checked-in Patchouli resources exactly match their GuideME sources.
 """
 import json
 import re
 import sys
 from pathlib import Path
+
+from generate_patchouli_book import check_generated_book
 
 ROOT = Path(__file__).resolve().parent.parent
 LANG_DIR = ROOT / "src/main/resources/assets/jdte/lang"
@@ -100,6 +103,8 @@ def main():
         full = block.replace("_", "-")
         if f"{family}.md" not in zh_pages and f"{full}.md" not in zh_pages:
             errors.append(f"no guide page for machine '{block}' (expected {family}.md or {full}.md)")
+
+    errors.extend(check_generated_book(ROOT))
 
     if errors:
         fail(errors)
