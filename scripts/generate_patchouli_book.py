@@ -20,6 +20,11 @@ ITEM_ICON_RE = re.compile(
     r'^<ItemIcon\s+id="([a-z0-9_.-]+:[a-z0-9_./-]+)"\s*/>$'
 )
 COMPONENT_LINE_RE = re.compile(r"^</?[A-Z][A-Za-z0-9]*(?:\s+[^>]*)?/?>$")
+BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
+ITALIC_RE = re.compile(r"(?<!\*)\*([^*]+?)\*(?!\*)")
+CODE_RE = re.compile(r"`([^`]+?)`")
+LINK_RE = re.compile(r"\[([^]]+)]\(([^)]+)\)")
+TEXT_PAGE_LIMIT = 700
 
 
 class GenerationError(ValueError):
@@ -201,3 +206,100 @@ def parse_guide_document(markdown: str, filename: str) -> GuideDocument:
         item_ids=item_ids,
         blocks=_parse_blocks(body_lines, filename),
     )
+
+
+def render_inline(text: str) -> str:
+    """Convert the supported inline Markdown subset to Patchouli markup."""
+    text = LINK_RE.sub(lambda match: f"{match.group(1)} ({match.group(2)})", text)
+    text = BOLD_RE.sub(lambda match: f"$(bold){match.group(1)}$()", text)
+    text = ITALIC_RE.sub(lambda match: f"$(italic){match.group(1)}$()", text)
+    return CODE_RE.sub(lambda match: f"$(thing){match.group(1)}$()", text)
+
+
+def _text_fragment(block: GuideBlock, document_title: str) -> str:
+    if block.kind == "heading":
+        if block.level == 1 and block.text.strip() == document_title.strip():
+            return ""
+        return f"$(bold){render_inline(block.text)}$()"
+    if block.kind == "paragraph":
+        return render_inline(block.text)
+    if block.kind == "list":
+        return "".join(f"$(li){render_inline(item)}" for item in block.items)
+    raise GenerationError(f"cannot render {block.kind!r} as text")
+
+
+def _spotlight_page(item_id: str) -> dict[str, object]:
+    return {"type": "patchouli:spotlight", "item": item_id, "text": ""}
+
+
+def render_entry(
+    document: GuideDocument,
+    category: str,
+    recipe_index: dict[str, str],
+) -> dict[str, object]:
+    """Render a parsed GuideME document as one localized Patchouli entry."""
+    pages: list[dict[str, object]] = []
+    pending_text = ""
+
+    def flush_text() -> None:
+        nonlocal pending_text
+        if pending_text:
+            pages.append({"type": "patchouli:text", "text": pending_text})
+            pending_text = ""
+
+    def append_text(fragment: str) -> None:
+        nonlocal pending_text
+        if not fragment:
+            return
+        combined = fragment if not pending_text else f"{pending_text}$(br2){fragment}"
+        if pending_text and len(combined) > TEXT_PAGE_LIMIT:
+            flush_text()
+            pending_text = fragment
+        else:
+            pending_text = combined
+
+    for block in document.blocks:
+        if block.kind in {"heading", "paragraph", "list"}:
+            append_text(_text_fragment(block, document.title))
+            continue
+        if block.kind in {"item_image", "block_image"}:
+            flush_text()
+            pages.append(_spotlight_page(block.item_id))
+            continue
+        if block.kind == "item_grid":
+            flush_text()
+            pages.extend(_spotlight_page(item_id) for item_id in block.items)
+            continue
+        if block.kind == "recipe":
+            flush_text()
+            recipe_id = recipe_index.get(block.item_id)
+            if recipe_id:
+                pages.append({"type": "patchouli:crafting", "recipe": recipe_id})
+            else:
+                pages.append(_spotlight_page(block.item_id))
+            continue
+        if block.kind == "subpages":
+            continue
+        raise GenerationError(f"{document.slug}: unsupported block kind {block.kind!r}")
+    flush_text()
+
+    if not pages:
+        pages.append({"type": "patchouli:text", "text": document.title})
+
+    mappings: dict[str, int] = {}
+    for item_id in document.item_ids:
+        mapped_page = 0
+        for page_index, page in enumerate(pages):
+            if page.get("item") == item_id:
+                mapped_page = page_index
+                break
+        mappings[item_id] = mapped_page
+
+    return {
+        "name": document.title,
+        "icon": document.icon,
+        "category": f"jdte:{category}",
+        "sortnum": int(round(document.position * 100)),
+        "pages": pages,
+        "extra_recipe_mappings": mappings,
+    }
