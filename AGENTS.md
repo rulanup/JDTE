@@ -22,7 +22,7 @@ Major features:
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
 - Advanced Item Collector with eight upgrade slots, event-driven pre-spawn collection, bounded existing-drop scans, and capacity-triggered direct ME insertion without item-flow particles.
-- Advanced Energy Transmitter with eight upgrade slots, configurable 3D FE distribution, batched target discovery, a persistent capability cache, bounded round-robin demand planning, overclock-scaled transfer budgets, public-API Applied Flux ME energy extraction without storage scans, Jade status reporting, and UUID-bound cross-dimensional charging for vanilla and Curios-equipped player items.
+- Advanced Energy Transmitter with eight upgrade slots, configurable 3D FE distribution, batched target discovery, a persistent capability cache, bounded round-robin demand planning, overclock-scaled transfer budgets, coalesced Time Wand virtual ticks, public-API Draconic Evolution Fusion Injector charging, public-API Applied Flux ME energy extraction without storage scans, Jade status reporting, and UUID-bound cross-dimensional charging for vanilla and Curios-equipped player items.
 - Entity Suppressor with entity-tick suppression, entity spawn/join blocking, entity and block entity rendering suppression, client particle suppression, and six entity target modes.
 - Range Blocker with six-target event-driven containment, projectile boundary protection, player-magnet suppression, and public-event positional sound suppression.
 - Crystal Incubator with generic budding-block discovery, Time Fluid growth acceleration, Fortune harvesting, and batched area caching.

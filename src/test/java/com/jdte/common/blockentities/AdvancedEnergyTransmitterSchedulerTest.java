@@ -84,6 +84,8 @@ class AdvancedEnergyTransmitterSchedulerTest {
         assertEquals(0L, AdvancedEnergyTransmitterScheduler.saturatingMultiply(-1L, 8));
         assertEquals(2_147_483_648L,
                 AdvancedEnergyTransmitterScheduler.saturatingMultiply(268_435_456L, 8));
+        assertEquals(34_359_738_368L,
+                AdvancedEnergyTransmitterScheduler.saturatingMultiply(268_435_456L, 128L));
         assertEquals(Long.MAX_VALUE,
                 AdvancedEnergyTransmitterScheduler.saturatingMultiply(Long.MAX_VALUE, 2));
         assertEquals(0, AdvancedEnergyTransmitterScheduler.clampToInt(-1L));

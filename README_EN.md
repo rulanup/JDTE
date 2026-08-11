@@ -43,7 +43,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Machine | Purpose |
 |---|---|
 | Advanced Item Collector | Inserts drops into its facing inventory before they enter the world; supports oversized-stack pre-transfer, AE2 `ME_STORAGE`, and ExtendedAE interfaces |
-| Advanced Energy Transmitter | Fairly supplies every FE receiver in a configurable 3D area; fixed-budget demand batching raises overclocked throughput without more scans, AE2 plus Applied Flux enables direct ME-cable access to FE stored on energy disks, and an optional player binding prioritizes FE equipment in the online player's hotbar, hands, armor, and Curios slots across dimensions |
+| Advanced Energy Transmitter | Fairly supplies every FE receiver in a configurable 3D area; fixed-budget demand batching raises overclocked throughput without more scans, Time Wand virtual ticks are coalesced into one batched transfer, and Draconic Evolution Fusion Injectors use the public `IFusionInjector` API for bounded direct charging; AE2 plus Applied Flux enables direct ME-cable access to FE stored on energy disks, and an optional player binding prioritizes FE equipment in the online player's hotbar, hands, armor, and Curios slots across dimensions |
 | Entity Suppressor | Suppresses entity updates, prevents entity spawning, disables entity rendering, disables block entity rendering, or disables particles |
 | Range Blocker | Contains mobs inside an area or prevents player magnets from attracting items within it |
 | Glue Activator | Automates JDT glue operations |
