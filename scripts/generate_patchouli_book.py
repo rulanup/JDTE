@@ -205,6 +205,7 @@ def _is_block_start(line: str) -> bool:
     stripped = line.strip()
     return bool(
         HEADING_RE.fullmatch(stripped)
+        or stripped.startswith("```")
         or stripped.startswith("- ")
         or stripped == "<ItemGrid>"
         or IMAGE_RE.fullmatch(stripped)
@@ -220,6 +221,18 @@ def _parse_blocks(lines: list[str], filename: str) -> tuple[GuideBlock, ...]:
     while index < len(lines):
         stripped = lines[index].strip()
         if not stripped:
+            index += 1
+            continue
+
+        if stripped.startswith("```"):
+            code_lines: list[str] = []
+            index += 1
+            while index < len(lines) and lines[index].strip() != "```":
+                code_lines.append(lines[index].rstrip())
+                index += 1
+            if index >= len(lines):
+                raise GenerationError(f"{filename}: unclosed fenced code block")
+            blocks.append(GuideBlock("code", text="\n".join(code_lines)))
             index += 1
             continue
 
@@ -319,6 +332,8 @@ def _text_fragment(block: GuideBlock, document_title: str) -> str:
         return render_inline(block.text)
     if block.kind == "list":
         return "".join(f"$(li){render_inline(item)}" for item in block.items)
+    if block.kind == "code":
+        return f"$(thing){block.text.replace(chr(10), '$(br)')}$()"
     raise GenerationError(f"cannot render {block.kind!r} as text")
 
 
@@ -330,7 +345,7 @@ def render_landing(document: GuideDocument) -> str:
     fragments = [
         _text_fragment(block, document.title)
         for block in document.blocks
-        if block.kind in {"heading", "paragraph", "list"}
+        if block.kind in {"heading", "paragraph", "list", "code"}
     ]
     landing = "$(br2)".join(fragment for fragment in fragments if fragment)
     if not landing:
@@ -400,7 +415,7 @@ def render_entry(
                 flush_text()
 
     for block in document.blocks:
-        if block.kind in {"heading", "paragraph", "list"}:
+        if block.kind in {"heading", "paragraph", "list", "code"}:
             append_text(_text_fragment(block, document.title))
             continue
         if block.kind in {"item_image", "block_image"}:

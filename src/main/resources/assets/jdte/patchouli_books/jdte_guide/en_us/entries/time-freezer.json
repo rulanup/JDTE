@@ -19,7 +19,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "the Creative upgrade waives the fluid cost.$(br2)$(bold)Usage$()$(br2)$(li)Feed Time Fluid through pipes or buckets (only Time Fluid is accepted).$(li)Multiple Time Freezers can run at once and share a single freeze target, so they never fight each other; every dimension has its own independent frozen time.$(li)Breaking the machine keeps its fluid (block entity data).$(br2)$(bold)Admin Command$()$(br2)Server operators (permission level 4) can run:$(br2)``$(thing) /jdte timefreezer list $()``"
+      "text": "the Creative upgrade waives the fluid cost.$(br2)$(bold)Usage$()$(br2)$(li)Feed Time Fluid through pipes or buckets (only Time Fluid is accepted).$(li)Multiple Time Freezers can run at once and share a single freeze target, so they never fight each other; every dimension has its own independent frozen time.$(li)Breaking the machine keeps its fluid (block entity data).$(br2)$(bold)Admin Command$()$(br2)Server operators (permission level 4) can run:$(br2)$(thing)/jdte timefreezer list$()"
     },
     {
       "type": "patchouli:text",

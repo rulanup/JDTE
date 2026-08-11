@@ -106,6 +106,26 @@ class GuideDocumentParserTest(unittest.TestCase):
         paragraph = next(block for block in doc.blocks if block.kind == "paragraph")
         self.assertEqual("Files live under data/<namespace>/recipe.", paragraph.text)
 
+    def test_fenced_code_block_is_parsed_without_its_markers(self):
+        source = SAMPLE_MARKDOWN.replace(
+            "Produces **crops** from `templates`.",
+            "Run:\n\n```\n/jdte timefreezer list\n```",
+        )
+
+        doc = parse_guide_document(source, "greenhouse.md")
+
+        code = next(block for block in doc.blocks if block.kind == "code")
+        self.assertEqual("/jdte timefreezer list", code.text)
+
+    def test_unclosed_fenced_code_block_is_rejected(self):
+        source = SAMPLE_MARKDOWN.replace(
+            "Produces **crops** from `templates`.",
+            "```\n/jdte timefreezer list",
+        )
+
+        with self.assertRaisesRegex(GenerationError, "unclosed fenced code block"):
+            parse_guide_document(source, "greenhouse.md")
+
 
 class PatchouliRendererTest(unittest.TestCase):
     def setUp(self):
@@ -129,6 +149,19 @@ class PatchouliRendererTest(unittest.TestCase):
         self.assertIn("Produces $(bold)crops$()", landing)
         self.assertIn("$(bold)Inputs$()", landing)
         self.assertNotIn("# Greenhouse", landing)
+
+    def test_fenced_code_renders_as_patchouli_styled_text(self):
+        source = SAMPLE_MARKDOWN.replace(
+            "Produces **crops** from `templates`.",
+            "```\n/jdte timefreezer list\n```",
+        )
+        document = parse_guide_document(source, "greenhouse.md")
+
+        entry = render_entry(document, "greenhouses_resources", recipe_index={})
+
+        rendered = str(entry["pages"])
+        self.assertIn("$(thing)/jdte timefreezer list$()", rendered)
+        self.assertNotIn("```", rendered)
 
     def test_render_entry_preserves_text_spotlights_and_recipes(self):
         entry = render_entry(
