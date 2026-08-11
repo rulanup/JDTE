@@ -21,6 +21,7 @@ Thumbs.db
 .claude/
 .qoder/
 .node_modules/
+.worktrees/
 CLAUDE.md
 bin/
 
