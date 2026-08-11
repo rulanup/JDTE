@@ -210,6 +210,23 @@ class PatchouliBookGenerationTest(unittest.TestCase):
     def test_generation_is_deterministic(self):
         self.assertEqual(self.generated, build_generated_files(self.root))
 
+    def test_book_recipe_is_patchouli_conditional_and_binds_book_component(self):
+        recipe_path = (
+            self.root / "src/main/resources/data/jdte/recipe/jdte_guide.json"
+        )
+        recipe = json.loads(recipe_path.read_text(encoding="utf-8"))
+
+        self.assertEqual("minecraft:crafting_shapeless", recipe["type"])
+        self.assertEqual(
+            {"type": "neoforge:mod_loaded", "modid": "patchouli"},
+            recipe["neoforge:conditions"][0],
+        )
+        self.assertEqual("patchouli:guide_book", recipe["result"]["id"])
+        self.assertEqual(
+            "jdte:jdte_guide",
+            recipe["result"]["components"]["patchouli:book"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
