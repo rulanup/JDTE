@@ -9,6 +9,7 @@ import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.client.PotionBrewerRecipeLockClientCache;
+import com.jdte.client.screens.util.MachineBarMath;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.containers.AdvancedPotionBrewerContainer;
@@ -267,7 +268,7 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
     private void renderFluidTank(GuiGraphics guiGraphics, int x, int y, FluidStack fluidStack, int amount, int capacity) {
         guiGraphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
 
-        int fluidHeight = Math.min(FLUID_INNER_HEIGHT, (amount * FLUID_INNER_HEIGHT) / capacity);
+        int fluidHeight = MachineBarMath.scaleClamped(amount, capacity, FLUID_INNER_HEIGHT);
         if (fluidHeight > 0) {
             renderFluidStack(guiGraphics, fluidStack, x + 1, y + 71, 16, fluidHeight);
         }

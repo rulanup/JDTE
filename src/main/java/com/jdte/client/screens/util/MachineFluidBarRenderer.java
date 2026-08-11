@@ -26,11 +26,9 @@ public final class MachineFluidBarRenderer {
 
     public static void renderBar(GuiGraphics guiGraphics, FluidStack fluidStack, int fluidAmount, int maxMb, int x, int y) {
         guiGraphics.blit(FLUID_BAR, x, y, 0, 0, 18, 72, 36, 72);
-        if (maxMb > 0) {
-            int remaining = (fluidAmount * 70) / maxMb;
-            if (remaining > 0) {
-                renderFluid(guiGraphics, fluidStack, x + 1, y + 72 - 1, 16, remaining);
-            }
+        int remaining = MachineBarMath.scaleClamped(fluidAmount, maxMb, 70);
+        if (remaining > 0) {
+            renderFluid(guiGraphics, fluidStack, x + 1, y + 72 - 1, 16, remaining);
         }
         guiGraphics.blit(FLUID_BAR, x, y, 18, 0, 18, 72, 36, 72);
     }

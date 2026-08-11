@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,6 +26,22 @@ class MineralOutputPlannerTest {
                 candidate -> MineralOutputPlanner.plan(slots, Map.of(IRON, candidate), Map.of(IRON, 64)));
 
         assertEquals(1_024L, cycles);
+    }
+
+    @Test
+    void reusesTheLargestFittingPlanWithoutAnExtraPlanningPass() {
+        List<MineralOutputPlanner.SlotState> slots = emptySlots(16, 64);
+        AtomicInteger planningPasses = new AtomicInteger();
+
+        MineralOutputPlanner.FittingPlan fitting = MineralOutputPlanner.findLargestFitting(65_536L, candidate -> {
+            planningPasses.incrementAndGet();
+            return MineralOutputPlanner.plan(slots, Map.of(IRON, candidate), Map.of(IRON, 64));
+        });
+
+        assertEquals(1_024L, fitting.cycles());
+        assertTrue(fitting.plan().fits());
+        assertEquals(1_024L, fitting.plan().slots().stream().mapToLong(MineralOutputPlanner.SlotState::count).sum());
+        assertTrue(planningPasses.get() <= 17);
     }
 
     @Test
@@ -67,6 +84,34 @@ class MineralOutputPlannerTest {
                 .map(MineralOutputPlanner.SlotState::count).toList());
         assertFalse(MineralOutputPlanner.plan(
                 slots, Map.of(LIMITED, 49L), Map.of(LIMITED, 16)).fits());
+    }
+
+    @Test
+    void supportsCapacityUpgradeStackLimitsBeyondVanillaItemLimits() {
+        List<MineralOutputPlanner.SlotState> slots = List.of(
+                new MineralOutputPlanner.SlotState(IRON, 900, 1_024),
+                MineralOutputPlanner.SlotState.empty(1_024));
+
+        MineralOutputPlanner.Plan plan = MineralOutputPlanner.plan(
+                slots, Map.of(IRON, 1_100L), Map.of(IRON, 1_024));
+
+        assertTrue(plan.fits());
+        assertEquals(1_024, plan.slots().get(0).count());
+        assertEquals(976, plan.slots().get(1).count());
+    }
+
+    @Test
+    void preservesExistingOversizedStackAfterCapacityReduction() {
+        List<MineralOutputPlanner.SlotState> slots = List.of(
+                new MineralOutputPlanner.SlotState(IRON, 2_048, 2_048),
+                MineralOutputPlanner.SlotState.empty(1_024));
+
+        MineralOutputPlanner.Plan plan = MineralOutputPlanner.plan(
+                slots, Map.of(IRON, 500L), Map.of(IRON, 1_024));
+
+        assertTrue(plan.fits());
+        assertEquals(2_048, plan.slots().get(0).count());
+        assertEquals(500, plan.slots().get(1).count());
     }
 
     @Test

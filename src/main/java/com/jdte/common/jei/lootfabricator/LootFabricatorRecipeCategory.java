@@ -57,8 +57,9 @@ public class LootFabricatorRecipeCategory implements IRecipeCategory<LootFabrica
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, LootFabricatorJeiRecipe recipe, IFocusGroup focuses) {
         int lifeFluidCost = LootFabricatorBE.getLifeFluidCost(recipe.spawnEgg());
-        int baseTimeFluidCost = LootFabricatorBE.getBaseTimeFluidCost(recipe.spawnEgg());
-        int maxTimeFluidCost = LootFabricatorBE.getMaxTimeFluidCost(recipe.spawnEgg());
+        int baseTimeFluidCostUnits = LootFabricatorBE.getBaseTimeFluidCostUnits(recipe.spawnEgg());
+        int maxTimeFluidCostUnits = LootFabricatorBE.getMaxTimeFluidCostUnits(recipe.spawnEgg());
+        int maxTimeFluidDisplayAmount = LootFabricatorBE.getTimeFluidDisplayAmount(maxTimeFluidCostUnits);
         builder.addSlot(RecipeIngredientRole.CATALYST, INPUT_X + 1, INPUT_Y + 1)
                 .addItemStack(recipe.spawnEgg())
                 .addRichTooltipCallback((view, tooltip) -> tooltip.add(
@@ -69,13 +70,14 @@ public class LootFabricatorRecipeCategory implements IRecipeCategory<LootFabrica
                 .addFluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), lifeFluidCost);
         builder.addSlot(RecipeIngredientRole.INPUT, FLUID_TIME_X + 1, INPUT_Y + 1)
                 .setBackground(fluidBackground, -1, -1).setOverlay(fluidOverlay, -1, -1)
-                .setFluidRenderer(maxTimeFluidCost, false, 16, 70)
-                .addFluidStack(Registration.TIME_FLUID_SOURCE.get(), maxTimeFluidCost)
+                .setFluidRenderer(maxTimeFluidDisplayAmount, false, 16, 70)
+                .addFluidStack(Registration.TIME_FLUID_SOURCE.get(), maxTimeFluidDisplayAmount)
                 .addRichTooltipCallback((view, tooltip) -> {
                     tooltip.clear();
                     tooltip.add(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 1).getHoverName());
                     tooltip.add(Component.translatable("jei.jdte.loot_fabricator.time_fluid_range",
-                            baseTimeFluidCost, maxTimeFluidCost).withStyle(ChatFormatting.GRAY));
+                            LootFabricatorBE.formatTimeFluidCost(baseTimeFluidCostUnits),
+                            LootFabricatorBE.formatTimeFluidCost(maxTimeFluidCostUnits)).withStyle(ChatFormatting.GRAY));
                 });
         for (int i = 0; i < recipe.possibleDrops().size(); i++) {
             LootFabricatorJeiRecipe.DisplayDrop drop = recipe.possibleDrops().get(i);

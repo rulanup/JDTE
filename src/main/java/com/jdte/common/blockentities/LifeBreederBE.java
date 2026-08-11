@@ -14,6 +14,7 @@ import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
@@ -101,22 +102,26 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     private final ContainerData breederData = new ContainerData() {
         @Override public int get(int index) {
             return switch (index) {
-                case 0 -> isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount();
-                case 1 -> isClientSide() ? syncedFluidCapacity : getMaxMB();
-                case 2 -> isClientSide() ? syncedMultiplier : getMultiplier();
-                case 3 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
-                case 4 -> isClientSide() ? syncedMode : mode.ordinal();
+                case 0 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount());
+                case 1 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount());
+                case 2 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 3 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 4 -> isClientSide() ? syncedMultiplier : getMultiplier();
+                case 5 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
+                case 6 -> isClientSide() ? syncedMode : mode.ordinal();
                 default -> 0;
             };
         }
         @Override public void set(int index, int value) {
-            if (index == 0) syncedFluidAmount = value;
-            else if (index == 1) syncedFluidCapacity = value;
-            else if (index == 2) syncedMultiplier = value;
-            else if (index == 3) syncedMaxMultiplier = value;
-            else if (index == 4) syncedMode = value;
+            if (index == 0) syncedFluidAmount = ContainerDataEncoding.withLow16(syncedFluidAmount, value);
+            else if (index == 1) syncedFluidAmount = ContainerDataEncoding.withHigh16(syncedFluidAmount, value);
+            else if (index == 2) syncedFluidCapacity = ContainerDataEncoding.withLow16(syncedFluidCapacity, value);
+            else if (index == 3) syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
+            else if (index == 4) syncedMultiplier = value;
+            else if (index == 5) syncedMaxMultiplier = value;
+            else if (index == 6) syncedMode = value;
         }
-        @Override public int getCount() { return 5; }
+        @Override public int getCount() { return 7; }
     };
 
     private Mode mode = Mode.BREED_AND_GROW;

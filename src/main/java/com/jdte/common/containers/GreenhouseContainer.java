@@ -1,6 +1,7 @@
 package com.jdte.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.items.UpgradeCardItem;
@@ -52,10 +53,10 @@ public class GreenhouseContainer extends BaseMachineContainer implements FilterP
     public int getProgress() { return getMachineData(0, 0); }
     public int getProgressMax() { return getMachineData(1, 1); }
     public int getActiveOutputSlots() { return getMachineData(2, GreenhouseBE.BASE_OUTPUT_SLOTS); }
-    public int getFluidAmount() { return getMachineData(3, 0); }
-    public int getFluidCapacity() { return getMachineData(4, 1); }
-    public int getMultiplier() { return getMachineData(5, 0); }
-    public int getMaxMultiplier() { return getMachineData(6, 32); }
+    public int getFluidAmount() { return ContainerDataEncoding.combine16(getMachineData(3, 0), getMachineData(4, 0)); }
+    public int getFluidCapacity() { return ContainerDataEncoding.combine16(getMachineData(5, 1), getMachineData(6, 0)); }
+    public int getMultiplier() { return getMachineData(7, 0); }
+    public int getMaxMultiplier() { return getMachineData(8, 32); }
     public GreenhouseBE getGreenhouse() { return (GreenhouseBE) baseMachineBE; }
     private int getMachineData(int index, int fallback) {
         return baseMachineBE instanceof GreenhouseBE greenhouse ? greenhouse.getGreenhouseData().get(index) : fallback;

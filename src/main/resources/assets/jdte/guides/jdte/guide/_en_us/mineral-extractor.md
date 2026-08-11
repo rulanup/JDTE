@@ -46,6 +46,7 @@ The Large Mineral Extractor places as one 3×3×2 structure whose controller is 
 | Time Fluid | 5 mB per accelerated batch; the base 1x batch is free |
 | Speed | 1x equals the former 64x throughput; adjustable up to 32x without Overclock and 64x with Overclock or Creative |
 | Outputs | 16 slots by default; each Capacity Upgrade adds 16, up to 64 |
+| Per-slot limit | 64, then 2048/4096/8192 with one/two/three Capacity Upgrades |
 
 The machine settles as much queued work as the current output space can hold and preserves the remainder. Completely full outputs, insufficient energy, no candidates, or stale surveys do not charge resources or spill items. High multipliers use weighted batch settlement whose cost scales with mineral types instead of executing each production cycle separately.
 

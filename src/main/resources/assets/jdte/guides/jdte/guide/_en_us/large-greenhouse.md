@@ -28,7 +28,7 @@ The Large Greenhouse is a single-placement **3×3×2** machine. It provides nine
 | Base cost | 10 FE per harvest; Time Fluid depends on the plant recipe |
 | Large-structure bonus | Each lane runs at 9x production speed; batched Time Fluid cost is divided by nine |
 | Output inventory | 16 slots by default; +16 per Capacity Upgrade, up to 64 |
-| Per-slot limit | 64, then 1024/2048/4096 with one/two/three Capacity Upgrades |
+| Per-slot limit | 64, then 2048/4096/8192 with one/two/three Capacity Upgrades |
 | Fortune | Up to three cards; each adds 10% long-run average output |
 
 Every batch costs at least 1 mB, so very small or slow batches may not receive the full ninefold fluid efficiency. Removing a Capacity Upgrade never deletes an oversized stack, but the slot cannot accept more until it falls below its current limit.

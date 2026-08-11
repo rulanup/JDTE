@@ -13,6 +13,7 @@ import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.jdte.common.integrations.DraconicFusionEnergyIntegration;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySource;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySources;
 import com.jdte.common.upgrades.UpgradeHelper;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
@@ -47,7 +49,10 @@ import java.util.UUID;
 
 public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         implements PoweredMachineBE, RedstoneControlledBE, AreaAffectingBE,
-                   FilterableBE, ExtendedUpgradeMachine {
+                   FilterableBE, ExtendedUpgradeMachine, CoalescedAcceleratedMachine {
+
+    private static final boolean DRACONIC_EVOLUTION_LOADED =
+            ModList.get().isLoaded("draconicevolution");
 
     private record EnergyTarget(BlockPos pos, Direction side,
                                 BlockCapabilityCache<IEnergyStorage, Direction> cache) {
@@ -59,12 +64,15 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     private static final class PlannedTransfer {
         private EnergyTarget target;
         private IEnergyStorage receiver;
-        private int demand;
+        private long demand;
+        private boolean draconicInjector;
 
-        private void set(EnergyTarget target, IEnergyStorage receiver, int demand) {
+        private void set(EnergyTarget target, IEnergyStorage receiver, long demand,
+                         boolean draconicInjector) {
             this.target = target;
             this.receiver = receiver;
             this.demand = demand;
+            this.draconicInjector = draconicInjector;
         }
     }
 
@@ -117,6 +125,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     private int scanSizeY;
     private int scanSizeZ;
     private int settingsFingerprint = Integer.MIN_VALUE;
+    private int acceleratedTicks;
 
     private int syncedTargetCount;
     private int syncedScanProgress;
@@ -194,6 +203,26 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks <= 0) {
+            return;
+        }
+        acceleratedTicks = (int) Math.min(Integer.MAX_VALUE,
+                (long) acceleratedTicks + ticks);
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = acceleratedTicks;
+        acceleratedTicks = 0;
+        if (ticks <= 0 || !(level instanceof ServerLevel serverLevel)
+                || !isActiveRedstone() || !canRun()) {
+            return;
+        }
+        providePower(serverLevel, ticks + 1L);
+    }
+
+    @Override
     public int getStandardEnergyCost() {
         return 0;
     }
@@ -254,7 +283,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             return;
         }
         providePlayerPower();
-        providePower(serverLevel);
+        providePower(serverLevel, 1L);
     }
 
     @Override
@@ -472,14 +501,20 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
         Direction preferredSide = sideFacingTransmitter(pos);
         ReceivingCapability receiving = findReceivingCapability(serverLevel, pos, preferredSide);
-        if (receiving == null
-                || pendingReceiverIdentities.put(receiving.receiver(), Boolean.TRUE) != null) {
+        boolean draconicInjector = DRACONIC_EVOLUTION_LOADED
+                && DraconicFusionEnergyIntegration.isFusionInjector(blockEntity);
+        if (!draconicInjector && receiving == null) {
+            return;
+        }
+        if (!draconicInjector && pendingReceiverIdentities.put(receiving.receiver(), Boolean.TRUE) != null) {
             return;
         }
         BlockPos immutablePos = pos.immutable();
+        Direction capabilitySide = receiving != null
+                ? receiving.side() : preferredSide != null ? preferredSide : Direction.UP;
         BlockCapabilityCache<IEnergyStorage, Direction> cache = BlockCapabilityCache.create(
-                Capabilities.EnergyStorage.BLOCK, serverLevel, immutablePos, receiving.side());
-        pendingTargets.put(immutablePos, new EnergyTarget(immutablePos, receiving.side(), cache));
+                Capabilities.EnergyStorage.BLOCK, serverLevel, immutablePos, capabilitySide);
+        pendingTargets.put(immutablePos, new EnergyTarget(immutablePos, capabilitySide, cache));
     }
 
     private boolean isEnergyInputSourcePosition(BlockPos pos) {
@@ -599,11 +634,12 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
                 networkEnergyReserve, amount - fromInternal);
     }
 
-    private void providePower(ServerLevel serverLevel) {
+    private void providePower(ServerLevel serverLevel, long operationMultiplier) {
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
-        int transferBudget = effectiveBudget(
-                JDTEConfig.COMMON.advancedEnergyTransmitterTransferBudgetPerTick.get());
-        if (transferBudget <= 0 || targets.isEmpty()) {
+        long transferBudget = effectiveBudget(
+                JDTEConfig.COMMON.advancedEnergyTransmitterTransferBudgetPerTick.get(),
+                operationMultiplier);
+        if (transferBudget <= 0L || targets.isEmpty()) {
             returnNetworkEnergyReserve();
             lastAttemptedTargets = 0;
             lastTransferred = 0;
@@ -624,9 +660,12 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             EnergyTarget target = targets.get(AdvancedEnergyTransmitterScheduler.targetIndex(
                     startIndex, attempted, targetCount));
             attempted++;
+            BlockEntity blockEntity = serverLevel.getBlockEntity(target.pos());
+            boolean draconicInjector = DRACONIC_EVOLUTION_LOADED
+                && DraconicFusionEnergyIntegration.isFusionInjector(blockEntity);
             IEnergyStorage receiver = target.cache().getCapability();
-            if (receiver == null || !receiver.canReceive()
-                    || transferReceiverIdentities.put(receiver, Boolean.TRUE) != null) {
+            if (!draconicInjector && (receiver == null || !receiver.canReceive()
+                    || transferReceiverIdentities.put(receiver, Boolean.TRUE) != null)) {
                 continue;
             }
 
@@ -634,11 +673,15 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             int perTargetLimit = JDTEConfig.COMMON.advancedEnergyTransmitterMaxTransferPerTarget.get();
             int offered = perTargetLimit <= 0
                     ? remainingBudget : Math.min(remainingBudget, perTargetLimit);
-            int demand = receiver.receiveEnergy(offered, true);
-            if (demand <= 0) {
+            long demand = draconicInjector
+                    ? DraconicFusionEnergyIntegration.scaledDemand(
+                            blockEntity, Long.MAX_VALUE, operationMultiplier,
+                            transferBudget - plannedTotal)
+                    : receiver.receiveEnergy(offered, true);
+            if (demand <= 0L) {
                 continue;
             }
-            transferPlan.get(plannedCount++).set(target, receiver, demand);
+            transferPlan.get(plannedCount++).set(target, receiver, demand, draconicInjector);
             plannedTotal = AdvancedEnergyTransmitterScheduler.saturatingAdd(plannedTotal, demand);
         }
 
@@ -653,7 +696,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
         long reserveBefore = networkEnergyReserve;
         if (!creative) {
-            prepareEnergyBatch(plannedTotal);
+            prepareEnergyBatch(plannedTotal, operationMultiplier);
         }
         long available = creative
                 ? plannedTotal
@@ -667,10 +710,14 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             if (available <= 0L) {
                 break;
             }
-            int offered = (int) Math.min(available, planned.demand);
-            int accepted = Math.min(offered, Math.max(0,
-                    planned.receiver.receiveEnergy(offered, false)));
-            if (accepted <= 0) {
+            long offered = Math.min(available, planned.demand);
+            long accepted = planned.draconicInjector
+                    ? DraconicFusionEnergyIntegration.receive(
+                            serverLevel.getBlockEntity(planned.target.pos()), offered)
+                    : planned.receiver.receiveEnergy(
+                            AdvancedEnergyTransmitterScheduler.clampToInt(offered), false);
+            accepted = Math.min(offered, Math.max(0L, accepted));
+            if (accepted <= 0L) {
                 continue;
             }
             if (!creative) {
@@ -696,15 +743,20 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         }
     }
 
-    private int effectiveBudget(int configuredBudget) {
-        int multiplier = UpgradeHelper.hasOverclock(this)
-                ? JDTEConfig.COMMON.advancedEnergyTransmitterOverclockTransferMultiplier.get()
-                : 1;
-        return AdvancedEnergyTransmitterScheduler.clampToInt(
-                AdvancedEnergyTransmitterScheduler.saturatingMultiply(configuredBudget, multiplier));
+    private long effectiveBudget(long configuredBudget) {
+        return effectiveBudget(configuredBudget, 1L);
     }
 
-    private void prepareEnergyBatch(long plannedDemand) {
+    private long effectiveBudget(long configuredBudget, long operationMultiplier) {
+        int upgradeMultiplier = UpgradeHelper.hasOverclock(this)
+                ? JDTEConfig.COMMON.advancedEnergyTransmitterOverclockTransferMultiplier.get()
+                : 1;
+        long multiplier = AdvancedEnergyTransmitterScheduler.saturatingMultiply(
+                operationMultiplier, upgradeMultiplier);
+        return AdvancedEnergyTransmitterScheduler.saturatingMultiply(configuredBudget, multiplier);
+    }
+
+    private void prepareEnergyBatch(long plannedDemand, long operationMultiplier) {
         long available = AdvancedEnergyTransmitterScheduler.saturatingAdd(
                 energyStorage.getEnergyStored(), networkEnergyReserve);
         long missing = Math.max(0L, plannedDemand - available);
@@ -716,8 +768,9 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         available = AdvancedEnergyTransmitterScheduler.saturatingAdd(
                 energyStorage.getEnergyStored(), networkEnergyReserve);
         missing = Math.max(0L, plannedDemand - available);
-        int meLimit = effectiveBudget(
-                JDTEConfig.COMMON.advancedEnergyTransmitterMeExtractionLimitPerTick.get());
+        long meLimit = effectiveBudget(
+                JDTEConfig.COMMON.advancedEnergyTransmitterMeExtractionLimitPerTick.get(),
+                operationMultiplier);
         long request = Math.min(missing, meLimit);
         if (request <= 0L) {
             return;

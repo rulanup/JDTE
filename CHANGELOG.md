@@ -2,7 +2,11 @@
 
 ### English
 
-#### v0.5.8 (Current)
+#### v0.5.9-alpha1 (Current)
+
+- **Merged**: Integrated the latest `lhy/v0.5.7` machine-scaling, balance, high-capacity UI synchronization, dedicated-server safety, and accelerator performance fixes.
+
+#### v0.5.8
 
 - **New**: Added the Time Freezer and Extended Time Freezer machines. They consume Time Fluid and FE to freeze the dimension's day/night cycle and (in the Overworld) the current weather. Two independent GUI toggles control time and weather freezing, redstone control is supported, the Creative upgrade waives all costs, and the permission-4 `/jdte timefreezer list` command reports every loaded machine with clickable teleport coordinates.
 - **New**: Added the Ultimate Portal Gun, an enhanced version of the JDT Advanced Portal Gun. It uses Portal Fluid with a 1000 B single large tank, unlimited teleport slots managed by a paginated radial menu (V key), slot editing with manual coordinates and dimension selection across the full server registry (including mod dimensions), per-slot fluid pricing (manual coordinates cost 10 B per block up to 500 B same-dimension and 1000 B cross-dimension; quick-added slots keep the original JDT distance rules), and a configurable teleport dimension blacklist.
@@ -174,7 +178,11 @@
 
 ### 中文
 
-#### v0.5.8（当前）
+#### v0.5.9-alpha1（当前）
+
+- **合并**：整合 `lhy/v0.5.7` 分支最新的机器数值缩放、平衡性、大容量界面同步、专用服务器安全与高倍率加速性能修复。
+
+#### v0.5.8
 
 - **新增**：加入时间定格器与扩展时间定格器。消耗时间流体与 FE 定格所在维度的昼夜时间（主世界同时定格当前天气），界面提供两个独立开关分别控制时间与天气定格，支持红石控制，创造升级免除全部消耗；权限 4 的 `/jdte timefreezer list` 指令列出所有已加载机器并提供可点击传送坐标。
 - **新增**：加入顶级传送枪，为 JDT 高级传送枪的增强版。使用传送流体并配备 1000 B 单个大型储罐；传送槽位无上限，通过按 V 打开的分页轮盘管理；槽位编辑支持手动坐标与服务器注册表内全部维度（含模组维度）选择；按槽位计费（手动坐标槽同维度 10 B/米上限 500 B、跨维度 1000 B；快捷添加槽沿用 JDT 原距离规则）；并提供可配置的传送维度黑名单。

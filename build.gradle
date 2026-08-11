@@ -54,7 +54,9 @@ sourceSets {
 }
 
 neoForge {
-    version = project.neo_version
+    // Development runs and compilation use the newer local NeoForge version.
+    // The published compatibility range remains controlled by neo_version_range.
+    version = project.neo_version_dev
 
     parchment {
         mappingsVersion = project.parchment_mappings_version

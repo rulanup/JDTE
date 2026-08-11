@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.5.8`
+当前版本：`0.5.9-alpha1`
 
 [English README](README_EN.md)
 
