@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+from pathlib import Path
+import tempfile
 import unittest
 
 from validate_docs import (
     GUIDE_DIR,
     ITEMS_JAVA,
+    mismatched_localized_item_ids,
     registered_items_from_source,
     undocumented_registered_items,
 )
@@ -36,6 +39,36 @@ class RegisteredItemsTest(unittest.TestCase):
             [],
             undocumented_registered_items(ITEMS_JAVA, GUIDE_DIR),
         )
+
+    def test_reports_localized_item_id_mismatch(self):
+        template = """---
+navigation:
+  title: {title}
+  icon: "jdte:machine"
+  position: 1
+item_ids:
+  - jdte:{item_id}
+---
+
+# {title}
+"""
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            guide_dir = Path(temporary_directory)
+            english_dir = guide_dir / "_en_us"
+            english_dir.mkdir()
+            (guide_dir / "machine.md").write_text(
+                template.format(title="机器", item_id="machine"),
+                encoding="utf-8",
+            )
+            (english_dir / "machine.md").write_text(
+                template.format(title="Machine", item_id="different_machine"),
+                encoding="utf-8",
+            )
+
+            self.assertEqual(
+                ["machine.md"],
+                mismatched_localized_item_ids(guide_dir),
+            )
 
 
 if __name__ == "__main__":

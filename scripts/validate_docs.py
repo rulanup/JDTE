@@ -89,6 +89,24 @@ def guide_item_ids(guide_dir):
     return item_ids
 
 
+def mismatched_localized_item_ids(guide_dir):
+    english_dir = guide_dir / "_en_us"
+    mismatches = []
+    for chinese_path in sorted(guide_dir.glob("*.md")):
+        english_path = english_dir / chinese_path.name
+        if not english_path.is_file():
+            continue
+        chinese = parse_guide_document(
+            chinese_path.read_text(encoding="utf-8"), chinese_path.name
+        )
+        english = parse_guide_document(
+            english_path.read_text(encoding="utf-8"), f"_en_us/{english_path.name}"
+        )
+        if chinese.item_ids != english.item_ids:
+            mismatches.append(chinese_path.name)
+    return mismatches
+
+
 def undocumented_registered_items(items_java, guide_dir):
     registered = registered_items_from_source(items_java.read_text(encoding="utf-8"))
     return sorted(registered - guide_item_ids(guide_dir))
@@ -133,6 +151,8 @@ def main():
         errors.append(f"guide page missing English translation: _en_us/{page}")
     for page in sorted(en_pages - zh_pages):
         errors.append(f"guide page missing Chinese original: {page}")
+    for page in mismatched_localized_item_ids(GUIDE_DIR):
+        errors.append(f"localized guide item_ids differ: {page}")
 
     for block in blocks:
         if block in NON_GUIDE_BLOCKS:
