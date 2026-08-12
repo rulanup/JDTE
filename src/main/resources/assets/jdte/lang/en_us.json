@@ -919,5 +919,5 @@
   ,"config.jdte.jdte.solarPanel.dimensionalCollapseGeneration": "Dimensional Collapse Generation"
   ,"config.jdte.jdte.solarPanel.dimensionalCollapseCapacity": "Dimensional Collapse Capacity"
   ,"item.jdte.patchouli_guide.name": "JDT Extras Guide"
-  ,"item.jdte.patchouli_guide.landing": "JDT Extras is an extension mod for Just Dire Things, adding an upgrade system, time accelerators, extended machines, and additional automation machines for JDT machines.$(br2)Current version: $(thing)0.5.9-alpha1$()"
+  ,"item.jdte.patchouli_guide.landing": "JDT Extras is an extension mod for Just Dire Things, adding an upgrade system, time accelerators, extended machines, and additional automation machines for JDT machines.$(br2)Current version: $(thing)0.5.9-alpha2$()"
 }

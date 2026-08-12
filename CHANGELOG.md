@@ -2,7 +2,16 @@
 
 ### English
 
-#### v0.5.9-alpha1 (Current)
+#### v0.5.9-alpha2 (Current)
+
+- **Documentation**: Added a complete optional Patchouli edition of the bilingual GuideME manual, generated from the canonical GuideME pages with 37 localized entries across six categories.
+- **Documentation**: Added full GuideME and Patchouli coverage for the Ultimate Portal Gun, Big Fluid Tank, Time Multitool, all five Solar Panel tiers, Creative Greenhouse, and every Greenhouse Matrix component and enhancer.
+- **Validation**: Added build-time checks that require every statically registered JDTE item to map to a GuideME page, keep Chinese and English item mappings identical, and keep generated Patchouli resources synchronized.
+- **Fixed**: Greenhouse Essence Conversion now drains oversized source stacks correctly instead of leaving excess input behind.
+- **Fixed**: GuideME-to-Patchouli conversion now preserves structured Markdown, long paragraphs, landing text, and fenced command examples.
+- **Known limitation**: Some newly added items do not yet have their final textures because the artist has not finished the remaining artwork.
+
+#### v0.5.9-alpha1
 
 - **Merged**: Integrated the latest `lhy/v0.5.7` machine-scaling, balance, high-capacity UI synchronization, dedicated-server safety, and accelerator performance fixes.
 - **Known limitation**: Some newly added items do not yet have their final textures because the artist has not finished the remaining artwork.
@@ -182,7 +191,16 @@
 
 ### 中文
 
-#### v0.5.9-alpha1（当前）
+#### v0.5.9-alpha2（当前）
+
+- **文档**：加入完整的可选 Patchouli 双语手册版本，以 GuideME 页面为唯一来源生成，每种语言包含 6 个分类与 37 个条目。
+- **文档**：补齐顶级传送枪、大型流体储罐、时间多功能工具、五级太阳能板、创造温室大棚及全部温室矩阵部件和增强的 GuideME/Patchouli 说明。
+- **校验**：构建时检查全部 JDTE 静态注册物品均能映射到 GuideME 页面、中英文物品映射一致，并确保生成的 Patchouli 资源没有漂移。
+- **修复**：温室精华转换现在能正确排空超大来源堆栈，不再残留超出普通堆叠上限的输入。
+- **修复**：GuideME 转换到 Patchouli 时会保留结构化 Markdown、长段落、首页文本和围栏命令示例。
+- **已知情况**：部分新增物品尚无最终贴图，因为画师还未完成剩余美术资源。
+
+#### v0.5.9-alpha1
 
 - **合并**：整合 `lhy/v0.5.7` 分支最新的机器数值缩放、平衡性、大容量界面同步、专用服务器安全与高倍率加速性能修复。
 - **已知情况**：部分新增物品尚无最终贴图，因为画师还未完成剩余美术资源。
