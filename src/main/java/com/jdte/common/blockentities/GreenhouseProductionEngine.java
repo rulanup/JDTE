@@ -34,6 +34,19 @@ public final class GreenhouseProductionEngine {
         return Math.max(1, safeBudget / safeActiveSlots + (activeIndex < safeBudget % safeActiveSlots ? 1 : 0));
     }
 
+    public static GroupWorkWindow accumulateGroup(long storedWork, long elapsedTicks,
+                                                   long workPerTickPerUnit, int units,
+                                                   int growthWork, long harvestBudget,
+                                                   long maxPendingWork) {
+        int safeGrowthWork = Math.max(1, growthWork);
+        long addedWork = saturatingMultiply(Math.max(0L, elapsedTicks), Math.max(0L, workPerTickPerUnit));
+        addedWork = saturatingMultiply(addedWork, Math.max(0, units));
+        long available = saturatingAdd(Math.max(0L, storedWork), addedWork);
+        available = Math.min(available, Math.max(0L, maxPendingWork));
+        long requested = Math.min(available / safeGrowthWork, Math.max(0L, harvestBudget));
+        return new GroupWorkWindow(available, requested, safeGrowthWork);
+    }
+
     private static long saturatingAdd(long left, long right) {
         if (right > Long.MAX_VALUE - left) return Long.MAX_VALUE;
         return left + right;
@@ -53,6 +66,13 @@ public final class GreenhouseProductionEngine {
 
         public long stalledWork() {
             return Math.min(availableWork, growthWorkPerHarvest);
+        }
+    }
+
+    public record GroupWorkWindow(long availableWork, long requestedHarvests, int growthWorkPerHarvest) {
+        public long remainingAfter(long completedHarvests) {
+            long consumed = saturatingMultiply(Math.max(0L, completedHarvests), growthWorkPerHarvest);
+            return Math.max(0L, availableWork - Math.min(availableWork, consumed));
         }
     }
 }

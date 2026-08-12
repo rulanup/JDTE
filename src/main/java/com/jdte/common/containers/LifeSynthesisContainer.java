@@ -3,6 +3,7 @@ package com.jdte.common.containers;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.items.UpgradeCardItem;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEMenus;
@@ -40,11 +41,11 @@ public class LifeSynthesisContainer extends BaseMachineContainer {
 
     public int getProgress() { return getMachineData(0, 0); }
     public int getProgressMax() { return getMachineData(1, 1); }
-    public int getNutrientFluid() { return getMachineData(2, 0); }
-    public int getTimeFluid() { return getMachineData(3, 0); }
-    public int getLifeFluid() { return getMachineData(4, 0); }
-    public int getFluidCapacity() { return getMachineData(5, 1); }
-    public int getPendingLifeFluid() { return getMachineData(6, 0); }
+    public int getNutrientFluid() { return ContainerDataEncoding.combine16(getMachineData(2, 0), getMachineData(11, 0)); }
+    public int getTimeFluid() { return ContainerDataEncoding.combine16(getMachineData(3, 0), getMachineData(12, 0)); }
+    public int getLifeFluid() { return ContainerDataEncoding.combine16(getMachineData(4, 0), getMachineData(13, 0)); }
+    public int getFluidCapacity() { return ContainerDataEncoding.combine16(getMachineData(5, 1), getMachineData(14, 0)); }
+    public int getPendingLifeFluid() { return ContainerDataEncoding.combine16(getMachineData(6, 0), getMachineData(15, 0)); }
     public int getTierCode() { return getMachineData(7, 0); }
     public int getMultiplier() { return getMachineData(8, 1); }
     public int getMaxMultiplier() { return getMachineData(9, 32); }

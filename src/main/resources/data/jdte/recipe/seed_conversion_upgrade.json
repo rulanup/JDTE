@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PEP",
+    "ELE",
+    "PEP"
+  ],
+  "key": {
+    "E": { "item": "mysticalagriculture:inferium_essence" },
+    "L": { "item": "justdirethings:upgrade_lawnmower" },
+    "P": { "item": "mysticalagriculture:prosperity_seed_base" }
+  },
+  "result": {
+    "count": 1,
+    "id": "jdte:seed_conversion_upgrade"
+  },
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "顶级传送枪",
+  "icon": "jdte:ultimate_portal_gun",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 650,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_portal_gun",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "顶级传送枪继承了 JDT 高级传送枪的传送弹、能量消耗和普通传送点规则，并把流体容量与传送点管理扩展到适合长期使用的规模。$(br2)$(bold)储罐与消耗$()$(br2)枪内只有一个 $(bold)1000 B（1,000,000 mB）传送流体储罐$()。对着传送流体源右键可以拾取流体；发射传送弹还会消耗 JDT 配置中规定的 FE。任一资源不足时都不会生成传送弹。$(br2)从世界位置直接保存的普通传送点继续使用 JDT 的距离和跨维度价格规则。手动编辑的坐标槽使用固定规则：$(br2)$(li)同维度：每格 1 B，单次最多 500 B。$(li)跨维度：固定消耗 1000 B，因此必须装满储罐。$(br2)$(bold)传送点菜单$()$(br2)手持顶级传送枪按 $(bold)V$() 打开分页径向菜单。每页有 12 个槽位，可以继续添加新页面，所以传送点没有固定数量上限。$(br2)菜单可以选择传送点、保存当前位置、清空槽位，也可以手动输入 X/Y/Z 坐标并从服务端当前可用的维度列表中选择目标维度。普通左键/右键与潜行操作仍沿用 JDT 传送枪的传送门操作方式。$(br2)$(bold)合成$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_portal_gun"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:ultimate_portal_gun": 0
+  }
+}

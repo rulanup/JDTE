@@ -12,9 +12,9 @@ public class LootFabricatorConfig {
         lootFabricatorLifeFluidCost = builder
                 .comment("Life Fluid consumed per successful loot fabrication operation (mB)")
                 .translation("config.jdte.jdte.lootFabricator.lifeFluidCost")
-                .defineInRange("lifeFluidCost", 100, 1, 1_000_000);
+                .defineInRange("lifeFluidCostV2", 20, 1, 1_000_000);
         lootFabricatorBaseTimeFluidCost = builder
-                .comment("Base Time Fluid consumed per successful loot fabrication operation (mB). Faster machine speeds multiply this integer cost.")
+                .comment("Base Time Fluid cost per successful operation in fifths of one mB. Faster machine speeds multiply this cost; fractional costs carry across operations without loss.")
                 .translation("config.jdte.jdte.lootFabricator.baseTimeFluidCost")
                 .defineInRange("baseTimeFluidCost", 1, 1, 1_000_000);
         lootFabricatorLootingFluidCostIncreasePercent = builder

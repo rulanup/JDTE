@@ -32,6 +32,8 @@ import com.jdte.common.network.data.FactoryPackagePreviewRequestPayload;
 import com.jdte.common.network.data.FactoryPackagePreviewChunkPayload;
 import com.jdte.common.network.data.LifeBreederModePayload;
 import com.jdte.common.network.data.LifeSynthesisRunningPayload;
+import com.jdte.common.network.data.GreenhouseMatrixControlPayload;
+import com.jdte.common.network.data.GreenhouseMatrixPatternPagePayload;
 import com.jdte.common.network.handler.AdvancedEnergyTransmitterPacket;
 import com.jdte.common.network.handler.AdvancedEnergyTransmitterBindingPacket;
 import com.jdte.common.network.handler.EntitySuppressorPacket;
@@ -44,6 +46,8 @@ import com.jdte.common.network.handler.FactoryPackagePreviewRequestPacket;
 import com.jdte.common.network.handler.FactoryPackagePreviewChunkPacket;
 import com.jdte.common.network.handler.LifeBreederModePacket;
 import com.jdte.common.network.handler.LifeSynthesisRunningPacket;
+import com.jdte.common.network.handler.GreenhouseMatrixControlPacket;
+import com.jdte.common.network.handler.GreenhouseMatrixPatternPagePacket;
 import com.jdte.common.network.handler.AutoIoConfigPacket;
 import com.jdte.common.network.handler.BioCrusherPacket;
 import com.jdte.common.network.handler.FilterPagePacket;
@@ -107,5 +111,9 @@ public class JDTEPacketHandler {
                 LifeBreederModePacket::handle);
         registrar.playToClient(LifeSynthesisRunningPayload.TYPE, LifeSynthesisRunningPayload.STREAM_CODEC,
                 LifeSynthesisRunningPacket::handle);
+        registrar.playToServer(GreenhouseMatrixControlPayload.TYPE, GreenhouseMatrixControlPayload.STREAM_CODEC,
+                GreenhouseMatrixControlPacket::handle);
+        registrar.playToServer(GreenhouseMatrixPatternPagePayload.TYPE,
+                GreenhouseMatrixPatternPagePayload.STREAM_CODEC, GreenhouseMatrixPatternPagePacket::handle);
     }
 }

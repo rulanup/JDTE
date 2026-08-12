@@ -21,8 +21,10 @@ Thumbs.db
 .claude/
 .qoder/
 .node_modules/
+.worktrees/
 CLAUDE.md
 bin/
+__pycache__/
 
 # Eclipse
 .eclipse/

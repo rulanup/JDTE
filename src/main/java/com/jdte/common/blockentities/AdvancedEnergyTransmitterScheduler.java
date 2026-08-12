@@ -42,6 +42,13 @@ final class AdvancedEnergyTransmitterScheduler {
         return result < 0L || result < current ? Long.MAX_VALUE : result;
     }
 
+    static long saturatingMultiply(long value, long multiplier) {
+        if (value <= 0L || multiplier <= 0L) {
+            return 0L;
+        }
+        return value > Long.MAX_VALUE / multiplier ? Long.MAX_VALUE : value * multiplier;
+    }
+
     static long saturatingMultiply(long value, int multiplier) {
         if (value <= 0L || multiplier <= 0) {
             return 0L;

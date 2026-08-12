@@ -16,11 +16,13 @@ import com.jdte.common.blockentities.AdvancedItemCollectorManager;
 import com.jdte.common.blockentities.EntitySuppressorManager;
 import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
 import com.jdte.common.blockentities.MachineOutputManager;
+import com.jdte.common.blockentities.AEOutputManager;
 import com.jdte.common.blockentities.RangeBlockerManager;
 import com.jdte.common.blockentities.TimeFreezerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.items.UltimatePortalGunItem;
+import com.jdte.common.items.TimeMultitoolMiningEvents;
 import com.jdte.setup.JDTEItems;
 import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemstack;
 import com.direwolf20.justdirethings.setup.Registration;
@@ -29,6 +31,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySources;
+import com.jdte.common.integrations.ae2.AEOutputNetwork;
 import com.jdte.common.minerals.MineralSourceReloadListener;
 import com.jdte.common.minerals.MineralSurveyIndex;
 import com.jdte.common.network.JDTEPacketHandler;
@@ -52,6 +55,7 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 @Mod(JDTE.MODID)
 public class JDTE {
@@ -75,9 +79,11 @@ public class JDTE {
         JDTERecipes.RECIPE_TYPES.register(modEventBus);
         JDTERecipes.RECIPE_SERIALIZERS.register(modEventBus);
         modEventBus.addListener(this::registerCapabilities);
+        modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
         NeoForge.EVENT_BUS.addListener(JDTECommands::register);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, TimeMultitoolMiningEvents::onBreakSpeed);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
         NeoForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
         NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
@@ -91,7 +97,10 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AEOutputManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, MachineOutputManager::onServerTickPost);
+        NeoForge.EVENT_BUS.addListener(AEOutputManager::onLevelUnload);
+        NeoForge.EVENT_BUS.addListener(AEOutputManager::onServerStopped);
         NeoForge.EVENT_BUS.addListener(MachineOutputManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(MachineOutputManager::onServerStopped);
         NeoForge.EVENT_BUS.addListener(TimeFreezerManager::onLevelUnload);
@@ -171,6 +180,29 @@ public class JDTE {
                         com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
                         stack, com.jdte.common.items.BigFluidTankItem.MAX_MB),
                 JDTEItems.BIG_FLUID_TANK.get());
+        event.registerItem(Capabilities.EnergyStorage.ITEM,
+                (stack, context) -> new EnergyStorageItemstack(
+                        com.jdte.common.items.TimeMultitoolItem.MAX_ENERGY, stack),
+                JDTEItems.TIME_MULTITOOL.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidHandlerItemStack(
+                        com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
+                        stack, com.jdte.common.items.TimeMultitoolItem.MAX_TIME_FLUID) {
+                    @Override
+                    public boolean isFluidValid(int tank, FluidStack fluid) {
+                        return fluid.is(Registration.TIME_FLUID_TYPE.get());
+                    }
+
+                    @Override
+                    public boolean canFillFluidType(FluidStack fluid) {
+                        return fluid.is(Registration.TIME_FLUID_TYPE.get());
+                    }
+                },
+                JDTEItems.TIME_MULTITOOL.get());
+    }
+
+    private void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(AEOutputNetwork::registerLinkable);
     }
 
     public static ResourceLocation id(String path) {

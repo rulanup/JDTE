@@ -2,8 +2,16 @@
 
 ### English
 
-#### v0.5.8 (Current)
+#### v0.5.9-alpha1 (Current)
 
+- **Merged**: Integrated the latest `lhy/v0.5.7` machine-scaling, balance, high-capacity UI synchronization, dedicated-server safety, and accelerator performance fixes.
+- **Known limitation**: Some newly added items do not yet have their final textures because the artist has not finished the remaining artwork.
+
+#### v0.5.8
+
+- **New**: Added the powered Time Multitool, combining pickaxe, shovel, axe, and hoe actions with the full JDT Eclipse Alloy Paxel upgrade set. It stores 500,000 FE and 1000 B of Time Fluid and offers 1x/2x/4x/16x/256x/1024x mining modes; accelerated modes consume their multiplier in mB for each successfully broken block and fall back to 1x when fluid is insufficient.
+- **Performance**: Formed Greenhouse Matrices now suspend per-machine production and merge identical planting lanes into bounded controller-side simulation groups. Products enter a persistent long-count central buffer used by item output, Auto I/O, and direct AE uploads; member FE and Time Fluid remain one pooled physical resource source.
+- **New**: Added the AE Acceleration Upgrade. Each Basic, Advanced, or Extended Time Accelerator accepts at most one; only accelerators containing the card contribute to AE2 `IGridTickable` devices, and removing it clears that accelerator's retained AE2 work.
 - **New**: Added the Time Freezer and Extended Time Freezer machines. They consume Time Fluid and FE to freeze the dimension's day/night cycle and (in the Overworld) the current weather. Two independent GUI toggles control time and weather freezing, redstone control is supported, the Creative upgrade waives all costs, and the permission-4 `/jdte timefreezer list` command reports every loaded machine with clickable teleport coordinates.
 - **New**: Added the Ultimate Portal Gun, an enhanced version of the JDT Advanced Portal Gun. It uses Portal Fluid with a 1000 B single large tank, unlimited teleport slots managed by a paginated radial menu (V key), slot editing with manual coordinates and dimension selection across the full server registry (including mod dimensions), per-slot fluid pricing (manual coordinates cost 10 B per block up to 500 B same-dimension and 1000 B cross-dimension; quick-added slots keep the original JDT distance rules), and a configurable teleport dimension blacklist.
 - **New**: Added the Big Fluid Tank with 1000 B capacity and the same behavior as the JDT Fluid Canister, plus a fourth fill mode (None / JDT / JDTE / All) for auto-filling inventory containers. A dedicated Curios "big_fluid_tank" slot is registered and auto-assigned to players.
@@ -174,8 +182,15 @@
 
 ### 中文
 
-#### v0.5.8（当前）
+#### v0.5.9-alpha1（当前）
 
+- **合并**：整合 `lhy/v0.5.7` 分支最新的机器数值缩放、平衡性、大容量界面同步、专用服务器安全与高倍率加速性能修复。
+- **已知情况**：部分新增物品尚无最终贴图，因为画师还未完成剩余美术资源。
+
+#### v0.5.8
+
+- **新增**：加入需要 FE 运行的多功能时间工具，自动兼具镐、铲、斧和锄的交互，并支持蚀空合金组合工具的全部 JDT 升级。内部可存储 500,000 FE 和 1000 B 时间流体，提供 1/2/4/16/256/1024 倍挖掘档位；加速档每成功破坏一个方块消耗与倍率相同的 mB，流体不足时整次降为 1 倍且不部分扣液。
+- **新增**：加入 AE 加速升级。初级、高级和扩展高级时间加速器每台最多安装 1 张；只有安装此卡的加速器会向 AE2 `IGridTickable` 设备贡献倍率，取出卡片会清除该机器保留的 AE2 加速工作。
 - **新增**：加入时间定格器与扩展时间定格器。消耗时间流体与 FE 定格所在维度的昼夜时间（主世界同时定格当前天气），界面提供两个独立开关分别控制时间与天气定格，支持红石控制，创造升级免除全部消耗；权限 4 的 `/jdte timefreezer list` 指令列出所有已加载机器并提供可点击传送坐标。
 - **新增**：加入顶级传送枪，为 JDT 高级传送枪的增强版。使用传送流体并配备 1000 B 单个大型储罐；传送槽位无上限，通过按 V 打开的分页轮盘管理；槽位编辑支持手动坐标与服务器注册表内全部维度（含模组维度）选择；按槽位计费（手动坐标槽同维度 10 B/米上限 500 B、跨维度 1000 B；快捷添加槽沿用 JDT 原距离规则）；并提供可配置的传送维度黑名单。
 - **新增**：加入大型流体储罐，容量 1000 B，操作逻辑与 JDT 原版流体罐一致，并新增第四档填充模式（关闭 / 仅 JDT / 仅 JDTE / 全部）自动填充背包容器；注册独立 Curios 饰品槽位 `big_fluid_tank` 并自动分配给玩家。

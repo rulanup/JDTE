@@ -15,6 +15,10 @@ item_ids:
   - jdte:creative_upgrade
   - jdte:fortune_upgrade
   - jdte:precision_upgrade
+  - jdte:ae_acceleration_upgrade
+  - jdte:ae_output_upgrade
+  - jdte:essence_conversion_upgrade
+  - jdte:seed_conversion_upgrade
   - jdte:looting_upgrade
   - jdte:sharpness_upgrade
 ---
@@ -114,6 +118,38 @@ item_ids:
 水晶培育机专用。自动采收时向模拟工具附加原版精准采集，由目标方块自身的战利品表决定产物，适合兼容遵循原版精准采集规则的模组晶体。最多安装 1 个，且不能与时运升级同时安装。
 
 <RecipeFor id="jdte:precision_upgrade" />
+
+## AE 加速升级
+
+<ItemImage id="jdte:ae_acceleration_upgrade" scale="2" />
+
+仅限初级、高级和扩展高级时间加速器。允许安装此卡的时间加速器通过 AE2 公开的 `IGridTickable` 服务加速支持的 AE2 设备。每台机器最多安装 1 张；重叠范围内只有安装此卡的加速器会向 AE2 设备贡献倍率。
+
+<RecipeFor id="jdte:ae_acceleration_upgrade" />
+
+## AE 输出升级
+
+先将升级卡放入 AE2 无线访问点界面的绑定输入槽，并从输出槽取回已绑定的卡。随后把它安装到具有物品或流体产物槽的机器中，产物会优先直接回传到绑定的 AE 网络。无线访问点必须已加载、在线且有频道；网络容量不足或离线时，未能写入的产物会安全保留在机器中。
+
+点击器、放置器、投掷器、发送器等没有产物输出用途的机器不能安装此升级。每台机器最多安装 1 张。温室矩阵控制器也支持此升级，并会回传所有受管理温室的产物。
+
+<RecipeFor id="jdte:ae_output_upgrade" />
+
+## 精华转化升级
+
+<ItemImage id="jdte:essence_conversion_upgrade" scale="2" />
+
+仅限普通温室和大型温室。安装后，机器会查找每种收获精华参与的工作台合成配方：只有该精华恰好只有一个配方，并且配方的所有非空材料槽都只使用该精华时，才会按原配方的消耗与产出数量自动转化。数量不足一个配方的精华会暂时保持原样，并与后续收获继续合并；精华存在多个配方或配方还需要其他材料时不会转化。
+
+<RecipeFor id="jdte:essence_conversion_upgrade" />
+
+## 种子转化升级
+
+<ItemImage id="jdte:seed_conversion_upgrade" scale="2" />
+
+仅限普通温室和大型温室。收获神秘农业作物时，与当前种植模板相同的种子掉落不再直接输出，而是按数量 1:1 替换为该作物的精华。若同时安装精华转化升级，这些精华会继续参与唯一配方判定，并在满足条件时按配方比例转化为最终产物。其他副产物保持不变。
+
+<RecipeFor id="jdte:seed_conversion_upgrade" />
 
 ## 抢夺升级
 

@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","category":"building","pattern":["EGE","G G","EGE"],"key":{"E":{"item":"justdirethings:eclipsealloy_ingot"},"G":{"item":"minecraft:glass"}},"result":{"id":"jdte:greenhouse_matrix_casing","count":8}}

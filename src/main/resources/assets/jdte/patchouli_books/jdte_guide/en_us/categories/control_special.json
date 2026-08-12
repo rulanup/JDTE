@@ -1,0 +1,6 @@
+{
+  "name": "Control & Special Machines",
+  "description": "Entity control, range restriction, and potion brewing.",
+  "icon": "jdte:entity_suppressor",
+  "sortnum": 60
+}

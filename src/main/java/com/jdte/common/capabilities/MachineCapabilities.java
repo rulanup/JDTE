@@ -15,6 +15,9 @@ import com.jdte.common.blockentities.FluidReceiverBE;
 import com.jdte.common.blockentities.FluidSenderBE;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
+import com.jdte.common.blockentities.CreativeGreenhouseBE;
+import com.jdte.common.blockentities.GreenhouseMatrixControllerBE;
+import com.jdte.common.blockentities.GreenhouseMatrixPortBE;
 import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.LifeBreederBE;
@@ -23,12 +26,16 @@ import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
+import com.jdte.common.blockentities.SolarPanelBE;
 import com.jdte.common.blocks.LargeGreenhousePartBlock;
 import com.jdte.common.blocks.LargeMineralExtractorPartBlock;
 import com.jdte.common.blocks.LifeSynthesisPartBlock;
+import com.jdte.common.blocks.GreenhouseMatrixPortBlock;
+import com.jdte.common.greenhouse.GreenhouseMatrixPortType;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.BlockCapability;
@@ -68,6 +75,9 @@ public final class MachineCapabilities {
     /** 所有实现 {@code PoweredMachineBE} 的机器的能量存储。 */
     private static final IBlockCapabilityProvider<IEnergyStorage, Direction> POWERED_ENERGY =
             (level, pos, state, be, side) -> be instanceof PoweredMachineBE powered ? powered.getEnergyStorage() : null;
+
+    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> SOLAR_PANEL_ENERGY =
+            (level, pos, state, be, side) -> be instanceof SolarPanelBE solar ? solar.getEnergyStorage() : null;
 
     /** 与 JDT 原版传输器一致，只允许朝向面上的相邻设备向传输器输入 FE。 */
     private static final IBlockCapabilityProvider<IEnergyStorage, Direction> TRANSMITTER_INPUT_ENERGY =
@@ -163,10 +173,38 @@ public final class MachineCapabilities {
             (level, pos, state, be, side) -> be instanceof GreenhouseBE greenhouse ? greenhouse.getFluidTank() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> GREENHOUSE_ITEMS =
             (level, pos, state, be, side) -> be instanceof GreenhouseBE greenhouse ? greenhouse.getAutomationItemHandler() : null;
+    private static final IBlockCapabilityProvider<IItemHandler, Direction> CREATIVE_GREENHOUSE_ITEMS =
+            (level, pos, state, be, side) -> be instanceof CreativeGreenhouseBE greenhouse
+                    ? greenhouse.getAutomationItemHandler() : null;
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> LARGE_GREENHOUSE_FLUID =
             (level, pos, state, be, side) -> be instanceof LargeGreenhouseBE greenhouse ? greenhouse.getFluidTank() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> LARGE_GREENHOUSE_ITEMS =
             (level, pos, state, be, side) -> be instanceof LargeGreenhouseBE greenhouse ? greenhouse.getAutomationItemHandler() : null;
+    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> GREENHOUSE_MATRIX_PORT_ENERGY =
+            (level, pos, state, be, side) -> be instanceof GreenhouseMatrixPortBE port
+                    && state.getBlock() instanceof GreenhouseMatrixPortBlock block
+                    && block.portType() == GreenhouseMatrixPortType.ENERGY_INPUT && port.controller() != null
+                    ? port.controller().getEnergyHandler() : null;
+    private static final IBlockCapabilityProvider<IFluidHandler, Direction> GREENHOUSE_MATRIX_PORT_FLUID =
+            (level, pos, state, be, side) -> be instanceof GreenhouseMatrixPortBE port
+                    && state.getBlock() instanceof GreenhouseMatrixPortBlock block
+                    && block.portType() == GreenhouseMatrixPortType.FLUID_INPUT && port.controller() != null
+                    ? port.controller().getFluidHandler() : null;
+    private static final IBlockCapabilityProvider<IItemHandler, Direction> GREENHOUSE_MATRIX_PORT_ITEMS =
+            MachineCapabilities::getGreenhouseMatrixPortItems;
+
+    private static IItemHandler getGreenhouseMatrixPortItems(net.minecraft.world.level.Level level, BlockPos pos,
+                                                               net.minecraft.world.level.block.state.BlockState state,
+                                                               net.minecraft.world.level.block.entity.BlockEntity be,
+                                                               Direction side) {
+        if (!(be instanceof GreenhouseMatrixPortBE port)
+                || !(state.getBlock() instanceof GreenhouseMatrixPortBlock block)) return null;
+        GreenhouseMatrixControllerBE controller = port.controller();
+        IItemHandler handler = controller == null ? null
+                : block.portType() == GreenhouseMatrixPortType.ITEM_INPUT ? controller.getInputHandler()
+                : block.portType() == GreenhouseMatrixPortType.ITEM_OUTPUT ? controller.getOutputHandler() : null;
+        return handler;
+    }
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> BIO_FACTORY_FLUID =
             (level, pos, state, be, side) -> be instanceof BioFactoryBE factory ? factory.getCombinedFluidHandler() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> BIO_FACTORY_ITEMS =
@@ -258,9 +296,14 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.RANGE_BLOCKER, energy(POWERED_ENERGY)),
             machine(JDTEBlocks.FACTORY_PACKER, energy(POWERED_ENERGY), items(FACTORY_PACKER_ITEMS)),
             machine(JDTEBlocks.GREENHOUSE, energy(POWERED_ENERGY), fluid(GREENHOUSE_FLUID), items(GREENHOUSE_ITEMS)),
+            machine(JDTEBlocks.CREATIVE_GREENHOUSE, items(CREATIVE_GREENHOUSE_ITEMS)),
             machine(JDTEBlocks.LARGE_GREENHOUSE, energy(POWERED_ENERGY), fluid(LARGE_GREENHOUSE_FLUID), items(LARGE_GREENHOUSE_ITEMS)),
             machine(JDTEBlocks.LARGE_GREENHOUSE_PART, energy(LARGE_GREENHOUSE_PART_ENERGY),
                     fluid(LARGE_GREENHOUSE_PART_FLUID), items(LARGE_GREENHOUSE_PART_ITEMS)),
+            machine(JDTEBlocks.GREENHOUSE_MATRIX_ITEM_INPUT, items(GREENHOUSE_MATRIX_PORT_ITEMS)),
+            machine(JDTEBlocks.GREENHOUSE_MATRIX_ITEM_OUTPUT, items(GREENHOUSE_MATRIX_PORT_ITEMS)),
+            machine(JDTEBlocks.GREENHOUSE_MATRIX_FLUID_INPUT, fluid(GREENHOUSE_MATRIX_PORT_FLUID)),
+            machine(JDTEBlocks.GREENHOUSE_MATRIX_ENERGY_INPUT, energy(GREENHOUSE_MATRIX_PORT_ENERGY)),
             machine(JDTEBlocks.LIFE_SYNTHESIS_VAT, energy(POWERED_ENERGY), fluid(LIFE_SYNTHESIS_FLUID), items(LIFE_SYNTHESIS_ITEMS)),
             machine(JDTEBlocks.LIFE_SYNTHESIS_PART, energy(LIFE_SYNTHESIS_PART_ENERGY),
                     fluid(LIFE_SYNTHESIS_PART_FLUID), items(LIFE_SYNTHESIS_PART_ITEMS)),
@@ -275,7 +318,14 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.ADVANCED_POTION_BREWER, energy(POWERED_ENERGY), fluid(POTION_BREWER_FLUID), items(POTION_BREWER_ITEMS)),
 
             // --- Advanced Energy Transmitter ---
-            machine(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER, energy(TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS))
+            machine(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER, energy(TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS)),
+
+            // --- Tiered Solar Panels ---
+            machine(JDTEBlocks.CONCENTRATED_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
+            machine(JDTEBlocks.SINGULARITY_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
+            machine(JDTEBlocks.STELLAR_FUSION_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
+            machine(JDTEBlocks.DIMENSIONAL_COLLAPSE_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
+            machine(JDTEBlocks.CREATIVE_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY))
     );
 
     /** 跨越 jdte 自身机器表的注册（如 Clicker 流体同时作用于 JDT 的 Clicker T1/T2）。 */

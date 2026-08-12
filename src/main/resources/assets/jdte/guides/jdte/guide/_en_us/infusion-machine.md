@@ -49,7 +49,7 @@ The Infusion Machine consumes items and fluids to produce new items according to
 | Input | Fluid | Output | Energy |
 |-------|-------|--------|--------|
 | Apple | Life Fluid 1000 mB | Life Apple | 500 FE |
-| Egg (with Productive Bees) | Life Fluid 64,000 mB | Life Fluid Bee Spawn Egg | 1,000,000 FE |
+| Egg (with Productive Bees) | Life Fluid 64,000 mB | Life Fluid Bee Spawn Egg | 100,000 FE |
 | Wither Essence | Life Fluid 64,000 mB | Wither Spawn Egg | 100,000 FE |
 | Ender Dragon Essence | Life Fluid 64,000 mB | Ender Dragon Spawn Egg | 100,000 FE |
 | Elder Guardian Essence | Life Fluid 64,000 mB | Elder Guardian Spawn Egg | 100,000 FE |
@@ -86,7 +86,7 @@ The machine automatically discovers registered spawn eggs and entity loot tables
 
 ### Life Fluid Bee
 
-With Productive Bees installed, infusing one Egg with 64,000 mB of Life Fluid and 1,000,000 FE creates a non-self-breeding Life Fluid Bee Spawn Egg. The bee uses an Advanced or Extended Life Extractor as its flowering block and produces Life Fluid Honeycombs in Productive Bees hives or the Bio Factory. Centrifuging each comb yields 250 mB of Life Fluid and Wax. Configurable Productive Bees spawn eggs have no entity loot and are rejected by the Loot Fabricator.
+With Productive Bees installed, infusing one Egg with 64,000 mB of Life Fluid and 100,000 FE creates a non-self-breeding Life Fluid Bee Spawn Egg. The bee uses an Advanced or Extended Life Extractor as its flowering block and produces Life Fluid Honeycombs in Productive Bees hives or the Bio Factory. Centrifuging each comb yields 250 mB of Life Fluid and Wax. Configurable Productive Bees spawn eggs have no entity loot and are rejected by the Loot Fabricator.
 
 ### Upgrade Effects
 

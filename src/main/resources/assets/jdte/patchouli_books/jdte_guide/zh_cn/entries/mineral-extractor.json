@@ -1,0 +1,59 @@
+{
+  "name": "矿物提取机",
+  "icon": "jdte:mineral_extractor",
+  "category": "jdte:greenhouses_resources",
+  "sortnum": 3000,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:mineral_extractor",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "矿物提取机根据群系的标准矿石世界生成配置，按归一化估算权重直接生产矿石方块。机器只查询服务器在数据包加载时构建的矿物索引，不扫描区块，也不会生成新区块。$(br2)$(bold)矿物清单$()$(br2)1. 手持空白矿物清单，在目标群系中右键记录矿物分布。$(br)2. 右键已记录清单可查看矿物、估算概率、高度、矿脉规模和识别可信度。$(br)3. 将清单放入机器左侧槽位后，机器使用清单群系；未放入已记录清单时，使用机器当前位置的群系。$(br2)数据包重载改变矿物索引后，旧清单会标记为过期并停止生产。请在目标群系重新记录，避免配置变化后继续使用旧权重。$(br2)$(bold)大型矿物提取机$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:large_mineral_extractor",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "大型矿物提取机一次放置形成 3×3×2 结构，控制器位于正面中央底层。放置前必须保证全部 18 格均已加载、处于世界边界内且除控制器位置外都可替换。$(br2)$(li)提供 4 个矿物清单槽，并合并所有清单中的候选矿物；同一矿物在多张清单中的权重会累加。$(li)只有 4 个清单槽全空时才使用机器所在地群系；任意已插入清单过期都会使整机停机。$(li)基础工作量为普通矿物提取机的 4 倍，倍率、资源公式、过滤、烧炼与分页输出规则保持一致。$(li)FE、流体和物品能力可从控制器或任意结构部件访问；自动 I/O 仍只访问结构外边界。$(li)拆除控制器或任意结构部件都会拆除整机，并只返还一个大型矿物提取机。$(br2)$(bold)生产与资源$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)项目 | 默认行为$()$(br)基础处理 | 1x 以原 64x 产能为基准：每 Tick 累计 64 工作量，每 20 工作量完成 1 批并立即结算$(br)能量 | 每批 5,000 FE；安装 JDT 原版烧炼升级后为每批 10,000 FE$(br)烧炼 | 最多安装 1 张 JDT 原版烧炼升级；有熔炉配方的矿石直接输出烧炼结果，无配方时保留原矿石$(br)经验流体 | 每批 25 mB，使该批产率提高 100%；不足时其余批次保持普通产率$(br)时间流体 | 仅加速批次消耗，每批 5 mB；基础 1x 批次不消耗$(br)速度 | 1x 等于旧 64x 产能；无超频升级可调至 32x，安装超频或创造升级后可调至 64x$(br)输出 | 基础 16 格；每张容量升级增加 16 格，最多 64 格$(br)单槽上限 | 无升级 64；安装 1/2/3 张容量升级后为 2048/4096/8192$(br2)机器按当前输出容量部分结算，未能装入的积压工作会保留。输出完全没有空间、能量不足、无候选矿物或清单过期时不会扣除本次资源，也不会丢出物品。高倍率工作使用批量权重结算，耗时随矿物种类数增长，而不是逐批执行生产循环。$(br2)$(bold)过滤与自动化$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)支持容量、流体、过滤、超频、创造升级，以及最多 1 张 JDT 原版烧炼升级。$(li)烧炼结果在矿物来源、过滤条件或升级状态变化时统一缓存；生产结算不会逐批查询配方。$(li)黑白名单匹配最终矿石方块；过滤后会重新归一化剩余矿物权重。$(li)自动 I/O 和管道可输入矿物清单、经验流体、时间流体和 FE，并从分页输出槽提取产物。$(li)自定义世界生成 Feature 无法自动识别时，整合包可通过 $(thing)data/<namespace>/jdte/mineral_sources/*.json$() 提供矿物来源覆盖。$(br2)$(bold)合成$()$(br2)$(bold)矿物清单$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:mineral_survey"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)矿物提取机$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:mineral_extractor"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)大型矿物提取机$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:large_mineral_extractor"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:mineral_extractor": 0,
+    "jdte:large_mineral_extractor": 2,
+    "jdte:mineral_survey": 0
+  }
+}

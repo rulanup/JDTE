@@ -2,10 +2,11 @@ package com.jdte.common.network.handler;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
-import com.jdte.client.AutoIoConfigClientCache;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
 import com.jdte.common.network.data.AutoIoConfigPayload;
 import com.jdte.common.network.data.AutoIoConfigSyncPayload;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -44,7 +45,15 @@ public class AutoIoConfigPacket {
     }
 
     public void handleClient(AutoIoConfigSyncPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> AutoIoConfigClientCache.setMasks(
-                payload.blockPos(), payload.inputMask(), payload.outputMask()));
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            ClientHandler.handle(payload, context);
+        }
+    }
+
+    private static final class ClientHandler {
+        private static void handle(AutoIoConfigSyncPayload payload, IPayloadContext context) {
+            context.enqueueWork(() -> com.jdte.client.AutoIoConfigClientCache.setMasks(
+                    payload.blockPos(), payload.inputMask(), payload.outputMask()));
+        }
     }
 }

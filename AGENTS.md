@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.5.8` |
+| Current version | `0.5.9-alpha1` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.215+` |
 | Just Dire Things | `1.5.7+` |
@@ -16,11 +16,12 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 
 Major features:
 
-- 13 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting, and Sharpness.
+- 14 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, AE Acceleration, Looting, and Sharpness.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Time Freezer and Extended Time Freezer machines that consume Time Fluid to freeze a dimension's day/night cycle and weather, plus the permission-4 `/jdte timefreezer list` command for server operators.
 - Ultimate Portal Gun (`jdte:ultimate_portal_gun`): a JDT Advanced Portal Gun enhancement with a 1000 B single large Portal Fluid tank, unlimited teleport slots in a paginated radial menu (V key), manual coordinate editing with full server dimension selection, and per-slot fluid pricing.
 - Big Fluid Tank (`jdte:big_fluid_tank`): a 1000 B fluid tank with JDT Fluid Canister behavior, a fourth fill mode (None / JDT / JDTE / All), and a dedicated Curios `big_fluid_tank` slot.
+- Time Multitool (`jdte:time_multitool`): a 500,000 FE powered Eclipse Alloy Paxel derivative with pickaxe, shovel, axe, and hoe actions, JDT tool upgrades, a 1000 B Time Fluid tank, and 1x/2x/4x/16x/256x/1024x per-block mining modes.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
 - Advanced Item Collector with eight upgrade slots, event-driven pre-spawn collection, bounded existing-drop scans, and capacity-triggered direct ME insertion without item-flow particles.
@@ -158,6 +159,7 @@ Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItem
 | `CREATIVE` | `creative` | 1 | Removes FE cost, removes Time Fluid cost for accelerators, and includes overclock behavior |
 | `FORTUNE` | `fortune` | 8 | Gel Generator, Crystal Incubator, and Greenhouse; Greenhouse uses a machine-specific limit of 3 |
 | `PRECISION` | `precision` | 1 | Crystal Incubator only; applies vanilla Silk Touch loot behavior and conflicts with Fortune |
+| `AE_ACCELERATION` | `ae_acceleration` | 1 | Basic, Advanced, and Extended Time Accelerators only; enables AE2 `IGridTickable` acceleration |
 
 Fortune and Precision are standard `UpgradeType` values restricted to supported production machines; they conflict on the Crystal Incubator like vanilla Fortune and Silk Touch. Looting and Sharpness are dedicated upgrade items and are not members of `UpgradeType`. Bio Crushers accept up to six of each in dedicated slots. The Loot Fabricator uses `LootFabricatorUpgradeItemStackHandler` to allow up to three Looting Upgrades alongside eight standard slots.
 
@@ -202,7 +204,7 @@ Core behavior:
 
 Advanced defaults include `BASE_ENERGY_CAPACITY = 200000`, `MAX_MULTIPLIER = 64`, and `OVERCLOCK_MULTIPLIER = 128`. FE cost derives from `Config.TIMEWAND_RF_COST`; fluid cost derives from `Config.TIMEWAND_FLUID_COST` and `JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier`, then applies fixed Basic/Advanced/Extended tier factors of 1x/2x/5x. The base fluid multiplier can be changed with `/jdte timeaccelerator fluidCostMultiplier <value>`.
 
-All three tiers use the shared `ExtendedTimeAccelerationManager`. Active accelerators submit work to a server-post-tick scheduler that discovers loaded block entities through chunk maps, sums overlapping multipliers without discarding contributions, rotates bounded target batches under fixed per-tick execution and scan budgets, and retains paid virtual ticks while their contributing accelerators remain active. High server MSPT no longer pauses acceleration; excess work remains queued instead. Random-ticking targets use a periodically refreshed cache. Optional AE2 support resolves public in-world grid nodes and invokes their `IGridTickable` services without reflection or mixins. `TimeAcceleratorBE.accelerateArea()` remains as the fallback/reference implementation.
+All three tiers use the shared `ExtendedTimeAccelerationManager`. Active accelerators submit work to a server-post-tick scheduler that discovers loaded block entities through chunk maps, sums overlapping multipliers without discarding contributions, rotates bounded target batches under fixed per-tick execution and scan budgets, and retains paid virtual ticks while their contributing accelerators remain active. High server MSPT no longer pauses acceleration; excess work remains queued instead. Random-ticking targets use a periodically refreshed cache. With one AE Acceleration Upgrade installed, optional AE2 support resolves public in-world grid nodes and invokes their `IGridTickable` services without reflection or mixins; removing the card prunes only that accelerator's retained AE2 contributions. `TimeAcceleratorBE.accelerateArea()` remains as the fallback/reference implementation.
 
 ## Extended Machines
 

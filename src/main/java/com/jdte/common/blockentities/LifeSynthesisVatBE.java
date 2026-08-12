@@ -16,6 +16,7 @@ import com.jdte.common.recipes.RecipeCacheSignal;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEFluids;
@@ -122,17 +123,22 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> cultureWork;
-                case 1 -> cachedRecipe == null ? 1 : cachedRecipe.processTicks();
-                case 2 -> nutrientTank.getFluidAmount();
-                case 3 -> timeFluidTank.getFluidAmount();
-                case 4 -> lifeFluidTank.getFluidAmount();
-                case 5 -> getMaxMB();
-                case 6 -> pendingLifeFluid;
-                case 7 -> cachedRecipe == null ? 0 : tierCode(cachedRecipe.tier());
+                case 0 -> isClientSide() ? syncedCultureWork : cultureWork;
+                case 1 -> isClientSide() ? syncedProcessTicks : cachedRecipe == null ? 1 : cachedRecipe.processTicks();
+                case 2 -> ContainerDataEncoding.low16(isClientSide() ? syncedNutrientFluid : nutrientTank.getFluidAmount());
+                case 3 -> ContainerDataEncoding.low16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
+                case 4 -> ContainerDataEncoding.low16(isClientSide() ? syncedLifeFluid : lifeFluidTank.getFluidAmount());
+                case 5 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 6 -> ContainerDataEncoding.low16(isClientSide() ? syncedPendingLifeFluid : pendingLifeFluid);
+                case 7 -> isClientSide() ? syncedTierCode : cachedRecipe == null ? 0 : tierCode(cachedRecipe.tier());
                 case 8 -> isClientSide() ? syncedMultiplier : getMultiplier();
                 case 9 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
-                case 10 -> cachedRecipe == null ? -1 : recipeListIndex;
+                case 10 -> isClientSide() ? syncedRecipeIndex : cachedRecipe == null ? -1 : recipeListIndex;
+                case 11 -> ContainerDataEncoding.high16(isClientSide() ? syncedNutrientFluid : nutrientTank.getFluidAmount());
+                case 12 -> ContainerDataEncoding.high16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
+                case 13 -> ContainerDataEncoding.high16(isClientSide() ? syncedLifeFluid : lifeFluidTank.getFluidAmount());
+                case 14 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 15 -> ContainerDataEncoding.high16(isClientSide() ? syncedPendingLifeFluid : pendingLifeFluid);
                 default -> 0;
             };
         }
@@ -142,20 +148,25 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             switch (index) {
                 case 0 -> syncedCultureWork = value;
                 case 1 -> syncedProcessTicks = value;
-                case 2 -> syncedNutrientFluid = value;
-                case 3 -> syncedTimeFluid = value;
-                case 4 -> syncedLifeFluid = value;
-                case 5 -> syncedFluidCapacity = value;
-                case 6 -> syncedPendingLifeFluid = value;
+                case 2 -> syncedNutrientFluid = ContainerDataEncoding.withLow16(syncedNutrientFluid, value);
+                case 3 -> syncedTimeFluid = ContainerDataEncoding.withLow16(syncedTimeFluid, value);
+                case 4 -> syncedLifeFluid = ContainerDataEncoding.withLow16(syncedLifeFluid, value);
+                case 5 -> syncedFluidCapacity = ContainerDataEncoding.withLow16(syncedFluidCapacity, value);
+                case 6 -> syncedPendingLifeFluid = ContainerDataEncoding.withLow16(syncedPendingLifeFluid, value);
                 case 7 -> syncedTierCode = value;
                 case 8 -> syncedMultiplier = value;
                 case 9 -> syncedMaxMultiplier = value;
                 case 10 -> syncedRecipeIndex = value;
+                case 11 -> syncedNutrientFluid = ContainerDataEncoding.withHigh16(syncedNutrientFluid, value);
+                case 12 -> syncedTimeFluid = ContainerDataEncoding.withHigh16(syncedTimeFluid, value);
+                case 13 -> syncedLifeFluid = ContainerDataEncoding.withHigh16(syncedLifeFluid, value);
+                case 14 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
+                case 15 -> syncedPendingLifeFluid = ContainerDataEncoding.withHigh16(syncedPendingLifeFluid, value);
                 default -> { }
             }
         }
 
-        @Override public int getCount() { return 11; }
+        @Override public int getCount() { return 16; }
     };
 
     private int settlementTicker;

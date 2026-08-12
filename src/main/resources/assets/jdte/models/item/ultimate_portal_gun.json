@@ -1,6 +1,10 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": { "layer0": "jdte:item/ultimate_portal_gun_0" },
+  "parent": "justdirethings:item/portalgun_v2_0",
+  "textures": {
+    "particle": "jdte:item/ultimate_portal_gun/base",
+    "base": "jdte:item/ultimate_portal_gun/base",
+    "animation": "justdirethings:item/portalgun/animation"
+  },
   "overrides": [
     { "predicate": { "jdte:fullness": 1 }, "model": "jdte:item/ultimate_portal_gun_33" },
     { "predicate": { "jdte:fullness": 2 }, "model": "jdte:item/ultimate_portal_gun_66" },

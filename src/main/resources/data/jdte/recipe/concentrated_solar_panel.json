@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["AAA", "ABA", "AAA"],
+  "key": {
+    "A": { "item": "justdynathings:eclipse_alloy_solar_panel" },
+    "B": { "item": "jdte:overclock_upgrade" }
+  },
+  "result": { "id": "jdte:concentrated_solar_panel", "count": 1 },
+  "neoforge:conditions": [{ "type": "neoforge:mod_loaded", "modid": "justdynathings" }]
+}

@@ -17,7 +17,7 @@ The Loot Fabricator uses spawn eggs as reusable entity templates. It consumes Li
 |----------|------------|
 | Template slots | Four spawn egg slots processed in parallel |
 | Output slots | 16; each Capacity Upgrade unlocks another 16 |
-| Cost per share | 100 mB Life Fluid, 5,000 FE, and at least 1 mB Time Fluid |
+| Cost per share | 20 mB Life Fluid, 5,000 FE, and 0.2 mB Time Fluid on average |
 | Boss multiplier | Wither/Elder Guardian 10x, Ender Dragon 100x |
 
 It starts with 16 output slots. Each Capacity Upgrade unlocks another 16-slot page, up to four pages. Its standard eight-slot upgrade area has one four-slot column on each side and accepts Capacity, Overclock, Underclock, Fluid, Creative, and up to three Looting Upgrades.
@@ -26,7 +26,7 @@ Looting Upgrades affect fabrication results like they do for Bio Crushers: each 
 
 All four spawn-egg inputs run in parallel on the same progress bar. When multiple eggs are present, the machine first checks that Life Fluid, Time Fluid, and FE can cover every participating input slot. On completion, each successful loot output consumes one full cost share, so two successful eggs consume 2x fluid and FE, and four consume 4x.
 
-By default, each successful output share costs 100 mB of Life Fluid, 5,000 FE, and at least 1 mB of Time Fluid. Reducing the processing time below 20 ticks with the speed button increases Time Fluid consumption proportionally, reaching 20 mB per share at one tick. The Life Fluid cost and base Time Fluid cost are both integer server-config values. If a loot-table roll produces no items, that share does not consume fluid or FE; if every roll is empty, the machine resets progress.
+By default, each successful output share costs 20 mB of Life Fluid, 5,000 FE, and 0.2 mB of Time Fluid on average. Reducing the processing time below 20 ticks with the speed button increases Time Fluid consumption proportionally, reaching 4 mB per share at one tick. Sub-mB Time Fluid costs carry across fabrication batches and settle exactly instead of being rounded up. Life Fluid is configured in mB, while each base Time Fluid config unit represents 0.2 mB. If a loot-table roll produces no items, that share does not consume fluid or FE; if every roll is empty, the machine resets progress.
 
 Boss spawn eggs have higher fluid costs: Wither and Elder Guardian eggs consume 10x Life Fluid and Time Fluid, while Ender Dragon eggs consume 100x Life Fluid and Time Fluid. Wither eggs fabricate the Wither's core loot, including the Nether Star.
 

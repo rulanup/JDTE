@@ -2,6 +2,7 @@ package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
+import com.jdte.common.blockentities.AEOutputManager;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -80,7 +81,13 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
                 machine.getLevel().invalidateCapabilities(machine.getBlockPos());
             }
             machine.markDirtyClient();
+            AEOutputManager.refresh(machine);
         }
+    }
+
+    @Override
+    protected void onLoad() {
+        if (machine != null) AEOutputManager.refresh(machine);
     }
 
     private int countSmelter(int ignoredSlot) {

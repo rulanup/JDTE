@@ -18,6 +18,7 @@ import com.jdte.setup.config.LootFabricatorConfig;
 import com.jdte.setup.config.MineralExtractorConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
+import com.jdte.setup.config.SolarPanelConfig;
 import com.jdte.setup.config.TimeAcceleratorConfig;
 import com.jdte.setup.config.TimeFreezerConfig;
 import com.jdte.setup.config.UltimatePortalGunConfig;
@@ -60,6 +61,7 @@ public class JDTEConfig {
         public final GeneratorUpgradeConfig generatorUpgrade;
         public final UpgradeItemsConfig upgradeItems;
         public final AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
+        public final SolarPanelConfig solarPanel;
 
         // Upgrade System
         public final ModConfigSpec.IntValue filterSlotsPerUpgrade;
@@ -217,6 +219,9 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue greenhouseEventOutputItemBudget;
         public final ModConfigSpec.IntValue greenhouseEventOutputTypeBudget;
         public final ModConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
+        public final ModConfigSpec.IntValue greenhouseMatrixProfileScanBudget;
+        public final ModConfigSpec.IntValue greenhouseMatrixDynamicSamplesPerGroup;
+        public final ModConfigSpec.IntValue greenhouseMatrixAEOutputTypeBudget;
 
         // Bio Factory
         public final ModConfigSpec.IntValue bioFactoryFluidCapacity;
@@ -312,6 +317,7 @@ public class JDTEConfig {
             generatorUpgrade = new GeneratorUpgradeConfig(builder);
             upgradeItems = new UpgradeItemsConfig(builder);
             advancedEnergyTransmitter = new AdvancedEnergyTransmitterConfig(builder);
+            solarPanel = new SolarPanelConfig(builder);
 
             builder.pop();
 
@@ -458,6 +464,9 @@ public class JDTEConfig {
             this.greenhouseEventOutputItemBudget = greenhouse.greenhouseEventOutputItemBudget;
             this.greenhouseEventOutputTypeBudget = greenhouse.greenhouseEventOutputTypeBudget;
             this.greenhouseDynamicHarvestCallsPerTick = greenhouse.greenhouseDynamicHarvestCallsPerTick;
+            this.greenhouseMatrixProfileScanBudget = greenhouse.greenhouseMatrixProfileScanBudget;
+            this.greenhouseMatrixDynamicSamplesPerGroup = greenhouse.greenhouseMatrixDynamicSamplesPerGroup;
+            this.greenhouseMatrixAEOutputTypeBudget = greenhouse.greenhouseMatrixAEOutputTypeBudget;
 
             this.bioFactoryFluidCapacity = bioFactory.bioFactoryFluidCapacity;
             this.bioFactoryEnergyCapacity = bioFactory.bioFactoryEnergyCapacity;

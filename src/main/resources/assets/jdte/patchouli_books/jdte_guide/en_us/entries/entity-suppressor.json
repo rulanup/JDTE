@@ -1,0 +1,36 @@
+{
+  "name": "Entity Suppressor",
+  "icon": "jdte:entity_suppressor",
+  "category": "jdte:control_special",
+  "sortnum": 1600,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:entity_suppressor",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Entity Suppressor uses an Advanced Sensor-style interface and eight upgrade slots to control entities, dynamic block entity rendering, or particles in its configured area through event-driven indexes.$(br2)$(bold)Modes$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(bold)Suppress Entities$() cancels matching entity ticks, stopping AI, movement, projectiles, and entity timers.$(li)$(bold)Prevent Entity Spawns$() rejects matching entities during spawn checks or before they join the level.$(li)$(bold)Disable Particles$() rejects particles on the client before they enter the particle engine.$(li)$(bold)Disable Entity Rendering$() skips rendering matching entities in the area without changing their ticks, collisions, or server behavior.$(li)$(bold)Disable Block Entity Rendering$() skips dynamic block entity renderers in the area for mods using the standard dispatcher while leaving ordinary baked block models visible."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Entity modes support hostile mobs, passive mobs, all living entities, selected entity types, non-living entities, and all entity types. Put spawn eggs in filter slots to select entity types and choose allowlist or blacklist behavior. Particles and block entities have no entity type, so the target and list controls are unavailable in those two modes.$(br2)Players and entities in vehicle/passenger relationships are always protected. Named, tamed, and boss entities are protected by default and can be configured. The machine supports Range, Filter, Capacity, and Creative Upgrades."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Suppress Entities freezes matching ticks on both logical sides and prevents frozen item entities from being picked up. Prevent Entity Spawns can also remove already existing matches every 20 ticks through the $(thing)removeExistingEntities$() option, which is disabled by default.$(br2)Rendering modes reduce client rendering cost only; they do not stop server-side entity, block entity, or mod-network updates. Disabling block entity rendering suppresses the complete dynamic renderer, so chests, sign text, or machines whose full model is dynamic may look incomplete. Entity Suppressors themselves always remain rendered.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:entity_suppressor"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:entity_suppressor": 0
+  }
+}

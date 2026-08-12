@@ -48,7 +48,7 @@ An extended version of the Advanced Time Accelerator with 8 upgrade slots. Obtai
 - Uses five times the Basic tier's Time Fluid cost rate
 - Supports 8 upgrade slots for more upgrade cards
 
-All three tiers use the same managed scheduler. Overlapping accelerators fully add their multipliers, loaded block entities are discovered once per chunk, and unfinished paid virtual ticks continue while their contributing accelerators remain active. Fixed per-tick execution and scan budgets replace the MSPT cutoff, so high server MSPT no longer stops acceleration and excess work remains queued. The scheduler can also accelerate AE2 devices that expose the standard `IGridTickable` service.
+All three tiers use the same managed scheduler. Overlapping accelerators fully add their multipliers, loaded block entities are discovered once per chunk, and unfinished paid virtual ticks continue while their contributing accelerators remain active. Fixed per-tick execution and scan budgets replace the MSPT cutoff, so high server MSPT no longer stops acceleration and excess work remains queued. With an AE Acceleration Upgrade installed, that accelerator can also accelerate AE2 devices exposing the standard `IGridTickable` service. Removing the card immediately removes that accelerator's pending AE2 work.
 
 <RecipeFor id="jdte:extended_time_accelerator" />
 

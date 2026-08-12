@@ -1,0 +1,33 @@
+{
+  "name": "Time Freezer",
+  "icon": "jdte:time_freezer",
+  "category": "jdte:time_energy",
+  "sortnum": 250,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:time_freezer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Time Freezer consumes Time Fluid to freeze the day/night cycle and weather of its dimension. It is the automation device server administrators use to take control of the world's clock.$(br2)$(bold)Features$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(bold)Freeze time$(): While active, the dimension's day time is pinned to the moment it was activated; the sun and moon stop moving.$(li)$(bold)Freeze weather$(): When active in the Overworld, the current weather state (clear/rain/thunder) is pinned and can no longer change naturally.$(li)$(bold)Time Fluid cost$(): Consumes 100 mB of Time Fluid per tick (configurable). Freezing stops automatically once the tank runs dry.$(li)$(bold)Redstone control$(): Supports Ignored, Low, High, and Pulse modes; defaults to Ignored (always active).$(li)$(bold)Upgrade slots$(): The Time Freezer has 4 standard upgrade slots; the Extended Time Freezer has 8. Capacity and Fluid upgrades enlarge the tank;"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "the Creative upgrade waives the fluid cost.$(br2)$(bold)Usage$()$(br2)$(li)Feed Time Fluid through pipes or buckets (only Time Fluid is accepted).$(li)Multiple Time Freezers can run at once and share a single freeze target, so they never fight each other; every dimension has its own independent frozen time.$(li)Breaking the machine keeps its fluid (block entity data).$(br2)$(bold)Admin Command$()$(br2)Server operators (permission level 4) can run:$(br2)$(thing)/jdte timefreezer list$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "This lists every loaded Time Freezer on the server: dimension, coordinates, whether it is currently freezing, and its remaining Time Fluid. The coordinates are clickable to teleport, which makes forgotten machines easy to track down.$(br2)The Extended Time Freezer is crafted in place by right-clicking a Time Freezer with an Extended Upgrade, gaining 8 upgrade slots."
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:time_freezer": 0,
+    "jdte:extended_time_freezer": 0
+  }
+}

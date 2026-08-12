@@ -2,6 +2,7 @@ package com.jdte.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.LifeBreederBE;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEMenus;
@@ -39,11 +40,11 @@ public class LifeBreederContainer extends BaseMachineContainer {
     }
 
     public LifeBreederBE getBreeder() { return (LifeBreederBE) baseMachineBE; }
-    public int getFluidAmount() { return data(0, 0); }
-    public int getFluidCapacity() { return data(1, 1); }
-    public int getMultiplier() { return data(2, 1); }
-    public int getMaxMultiplier() { return data(3, 32); }
-    public int getMode() { return data(4, 0); }
+    public int getFluidAmount() { return ContainerDataEncoding.combine16(data(0, 0), data(1, 0)); }
+    public int getFluidCapacity() { return ContainerDataEncoding.combine16(data(2, 1), data(3, 0)); }
+    public int getMultiplier() { return data(4, 1); }
+    public int getMaxMultiplier() { return data(5, 32); }
+    public int getMode() { return data(6, 0); }
     private int data(int index, int fallback) {
         return baseMachineBE instanceof LifeBreederBE breeder ? breeder.getBreederData().get(index) : fallback;
     }

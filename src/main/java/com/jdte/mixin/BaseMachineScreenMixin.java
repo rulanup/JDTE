@@ -2,6 +2,7 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
@@ -10,6 +11,7 @@ import com.jdte.client.MachineScreenAreaProvider;
 import com.jdte.client.UpgradePopupDragHandler;
 import com.jdte.client.screens.util.AutoIoConfigPanelHelper;
 import com.jdte.client.screens.util.FilterPageWidgetHelper;
+import com.jdte.client.screens.util.MachineEnergyBarRenderer;
 import com.jdte.client.screens.util.MachineFluidBarRenderer;
 import com.jdte.client.screens.util.UpgradeSlotLayoutHelper;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
@@ -18,6 +20,7 @@ import com.jdte.common.containers.BioFactoryContainer;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
 import com.jdte.common.containers.GreenhouseContainer;
+import com.jdte.common.containers.CreativeGreenhouseContainer;
 import com.jdte.common.containers.LootFabricatorContainer;
 import com.jdte.common.containers.LargeGreenhouseContainer;
 import com.jdte.common.network.data.FilterPagePayload;
@@ -60,6 +63,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Shadow protected int extraWidth;
     @Shadow protected int extraHeight;
     @Shadow protected ResourceLocation SOCIALBACKGROUND;
+    @Shadow protected abstract int getEnergyBarOffset();
 
     @Unique private static final ResourceLocation JDTE_IO_CONFIG = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/hammer3.png");
     @Unique private int jdte$filterPressed = 0;
@@ -252,7 +256,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique
     private void jdte$clampFilterPage() {
         if (container instanceof BioCrusherContainer || container instanceof LootFabricatorContainer
-                || container instanceof GreenhouseContainer || container instanceof BioFactoryContainer
+                || container instanceof GreenhouseContainer || container instanceof CreativeGreenhouseContainer
+                || container instanceof BioFactoryContainer
                 || container instanceof LargeGreenhouseContainer) return;
         if (!(container instanceof FilterPageHolder holder)) return;
         if (!jdte$hasFilterUpgrades()) {
@@ -391,6 +396,15 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Unique
     private int jdte$getClickerFluidBarOffset() {
         return 204;
+    }
+
+    @Inject(method = "renderBg", at = @At("TAIL"))
+    private void jdte$renderOverflowSafeEnergyBar(GuiGraphics guiGraphics, float partialTicks,
+                                                   int mouseX, int mouseY, CallbackInfo ci) {
+        if (!(baseMachineBE instanceof PoweredMachineBE poweredMachine)) return;
+        MachineEnergyBarRenderer.renderBar(
+                guiGraphics, container.getEnergy(), poweredMachine.getMaxEnergy(),
+                topSectionLeft + getEnergyBarOffset(), topSectionTop + 5);
     }
 
     @Inject(method = "renderBg", at = @At("TAIL"))

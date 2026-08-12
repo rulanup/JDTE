@@ -29,7 +29,7 @@ The Bio Factory uses a reusable spawn egg or Productive Bees cage as a specimen 
 | Eight output slots | Each Capacity Upgrade adds eight, up to 32 |
 | Life Fluid | Doubles cycle yield by default when sufficient |
 | Time Fluid | Enables `1-32x`; Overclock or Creative uses 64x |
-| Culture/product fluids | Culture fluid is an input; milk and other fluid products have a separate output |
+| Culture fluid | Built-in fluid recipes consume it by recipe amount; Productive Bees flowering fluid is a reusable catalyst and is not consumed |
 
 The machine has a fixed 5x base work rate without increasing cycle costs. FE, fluids, and consumed materials are charged only when every product fits. It still runs at base yield and speed without Life or Time Fluid.
 

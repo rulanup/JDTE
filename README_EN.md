@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.8`
+Current version: `0.5.9-alpha1`
 
 [中文 README](README.md)
 
@@ -25,6 +25,7 @@ Standard machines have four upgrade slots and extended machines have eight. Empt
 | Creative | Removes FE cost and includes overclock behavior | 1 |
 | Fortune | Adds one vanilla Fortune level per card in Gel Generators and Crystal Incubators; adds 10% average output per card in both Greenhouses | 8 (3 in Greenhouse) |
 | Precision | Crystal Incubator only; harvests through vanilla Silk Touch loot logic and conflicts with Fortune | 1 |
+| AE Acceleration | Time Accelerator tiers only; enables acceleration of AE2 `IGridTickable` devices | 1 |
 | Looting | Dedicated to Bio Crushers and the Loot Fabricator | 6 |
 | Sharpness | Bio Crusher only; adds five damage per card | 6 |
 
@@ -35,7 +36,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 - Basic Time Accelerator: 16x by default or 32x with Overclock/Creative; consumes JDT Time Fluid only.
 - Advanced Time Accelerator: adjustable from 1-64x or 128x with Overclock/Creative; consumes Time Fluid and FE at twice the Basic tier's Time Fluid rate.
 - Extended Time Accelerator: an eight-slot tier adjustable from 1-512x or 1024x with Overclock/Creative; consumes Time Fluid at five times the Basic tier's rate.
-- All three tiers share the managed scheduler. Overlapping multipliers fully stack while chunk target discovery, paid virtual-tick queues, and fixed per-tick execution and scan budgets reduce large-area and multi-machine overhead. Acceleration no longer stops when server MSPT is high, and AE2 `IGridTickable` devices remain supported.
+- All three tiers share the managed scheduler. Overlapping multipliers fully stack while chunk target discovery, paid virtual-tick queues, and fixed per-tick execution and scan budgets reduce large-area and multi-machine overhead. Acceleration no longer stops when server MSPT is high. Installing an AE Acceleration Upgrade lets that machine accelerate AE2 `IGridTickable` devices.
 - The Extended Upgrade converts JDT T2 Clickers, Block Breakers, Block Placers, Block Swappers, Droppers, Sensors, Fluid Collectors, and Fluid Placers into eight-slot variants while preserving machine data.
 
 ### Automation Machines
@@ -73,6 +74,13 @@ Machines with real item or fluid interfaces can configure each absolute world di
 `Disabled -> Auto Input/Output -> Auto Input (orange) -> Auto Output (blue) -> Disabled`
 
 Unsupported modes are skipped. Senders expose Auto Input only and Receivers expose Auto Output only. Auto I/O defaults to batches of 10,000 items or 1,000,000 mB. Senders and Receivers default to 64 items or 20,000 mB and gain higher throughput with an Overclock or Creative Upgrade.
+
+### Time Multitool
+
+- Automatically combines pickaxe, shovel, axe, and hoe behavior. Normal use tills soil, strips logs, flattens paths, or extinguishes campfires without switching tools.
+- Reuses the JDT Eclipse Alloy Paxel ability and upgrade system and stores 500,000 FE plus 1,000,000 mB of Time Fluid.
+- Sneak-use in air cycles 1x/2x/4x/16x/256x/1024x mining; sneak-use on a block opens the JDT tool settings.
+- 1x costs no Time Fluid. Faster modes consume 2/4/16/256/1024 mB per successfully broken block and fall back to 1x without partial draining when fluid is insufficient.
 
 ### Eclipse Alloy Wrench
 

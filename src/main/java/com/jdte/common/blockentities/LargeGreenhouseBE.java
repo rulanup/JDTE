@@ -11,8 +11,13 @@ import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.blocks.LargeGreenhouseBlock;
 import com.jdte.common.blocks.LargeGreenhouseStructure;
+import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import com.jdte.common.recipes.GreenhouseCropResolver;
+import com.jdte.common.greenhouse.GreenhouseMatrixMember;
+import com.jdte.common.greenhouse.GreenhouseMatrixMemberState;
+import com.jdte.common.greenhouse.GreenhouseMatrixProductionProfile;
+import com.jdte.common.greenhouse.GreenhouseMatrixRuntime;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
@@ -47,14 +52,14 @@ import java.util.List;
 import java.util.Objects;
 
 public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE, FluidMachineBE,
-        RedstoneControlledBE, ExtendedUpgradeMachine, CoalescedAcceleratedMachine {
+        RedstoneControlledBE, ExtendedUpgradeMachine, CoalescedAcceleratedMachine, GreenhouseMatrixMember {
     public static final int INPUT_SLOTS = 12;
     public static final int OUTPUT_START_SLOT = INPUT_SLOTS;
     public static final int OUTPUT_SLOTS = 64;
     public static final int BASE_OUTPUT_SLOTS = 16;
     public static final int OUTPUT_SLOTS_PER_CAPACITY = 16;
     public static final int BASE_OUTPUT_STACK_LIMIT = 64;
-    public static final int FIRST_CAPACITY_STACK_LIMIT = 1024;
+    public static final int FIRST_CAPACITY_STACK_LIMIT = 2048;
     public static final int UPGRADE_SLOTS = 8;
     public static final int TOTAL_SLOTS = INPUT_SLOTS + OUTPUT_SLOTS;
     private static final int LEGACY_INPUT_SLOTS = 9;
@@ -152,10 +157,12 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                         JDTEConfig.COMMON.greenhouseSettlementInterval.get());
                 case 1 -> isClientSide() ? syncedProgressMax : JDTEConfig.COMMON.greenhouseSettlementInterval.get();
                 case 2 -> isClientSide() ? syncedActiveOutputSlots : getActiveOutputSlots();
-                case 3 -> isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount();
-                case 4 -> isClientSide() ? syncedFluidCapacity : getMaxMB();
-                case 5 -> isClientSide() ? syncedMultiplier : getMultiplier();
-                case 6 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
+                case 3 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount());
+                case 4 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidAmount : fluidTank.getFluidAmount());
+                case 5 -> ContainerDataEncoding.low16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 6 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxMB());
+                case 7 -> isClientSide() ? syncedMultiplier : getMultiplier();
+                case 8 -> isClientSide() ? syncedMaxMultiplier : getMaxSelectableMultiplier();
                 default -> 0;
             };
         }
@@ -166,15 +173,17 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                 case 0 -> syncedProgress = value;
                 case 1 -> syncedProgressMax = value;
                 case 2 -> syncedActiveOutputSlots = value;
-                case 3 -> syncedFluidAmount = value;
-                case 4 -> syncedFluidCapacity = value;
-                case 5 -> syncedMultiplier = value;
-                case 6 -> syncedMaxMultiplier = value;
+                case 3 -> syncedFluidAmount = ContainerDataEncoding.withLow16(syncedFluidAmount, value);
+                case 4 -> syncedFluidAmount = ContainerDataEncoding.withHigh16(syncedFluidAmount, value);
+                case 5 -> syncedFluidCapacity = ContainerDataEncoding.withLow16(syncedFluidCapacity, value);
+                case 6 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
+                case 7 -> syncedMultiplier = value;
+                case 8 -> syncedMaxMultiplier = value;
                 default -> { }
             }
         }
 
-        @Override public int getCount() { return 7; }
+        @Override public int getCount() { return 9; }
     };
 
     private int settlementTicker;
@@ -196,6 +205,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     private int cachedOutputSlotLimit = BASE_OUTPUT_STACK_LIMIT;
     private int accumulatedAcceleratedTicks;
     private long lastSettlementGameTime = Long.MIN_VALUE;
+    private final GreenhouseMatrixMemberState matrixMemberState = new GreenhouseMatrixMemberState();
 
     public LargeGreenhouseBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.LARGE_GREENHOUSE.get(), pos, state);
@@ -207,25 +217,105 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     @Override
     public void tickServer() {
+        if (isMatrixManaged()) {
+            setActiveMask(0);
+            return;
+        }
         super.tickServer();
         if (level != null && level.getGameTime() % 20L == 0L) UpgradeHelper.syncCapacities(this);
+        if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel
+                && level.getGameTime() % 20L == 0L) {
+            GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
+        }
         advanceProductionTicks(1);
     }
 
     @Override
     public void accumulateAcceleratedTicks(int ticks) {
+        if (isMatrixManaged()) return;
         accumulatedAcceleratedTicks = saturatingAdd(accumulatedAcceleratedTicks, ticks);
     }
 
     @Override
     public void flushAcceleratedTicks() {
+        if (isMatrixManaged()) {
+            accumulatedAcceleratedTicks = 0;
+            return;
+        }
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks);
     }
 
+    @Override
+    public boolean claimMatrix(BlockPos controller) {
+        boolean claimed = matrixMemberState.claim(controller);
+        if (claimed) {
+            AEOutputManager.suspend(this);
+            accumulatedAcceleratedTicks = 0;
+            setActiveMask(0);
+        }
+        return claimed;
+    }
+
+    @Override public boolean releaseMatrix(BlockPos controller) {
+        boolean released = matrixMemberState.release(controller);
+        if (released && UpgradeHelper.hasAEOutputUpgrade(this)) AEOutputManager.refresh(this);
+        return released;
+    }
+    @Override public boolean isMatrixManaged() { return matrixMemberState.managed(); }
+
+    @Override
+    public List<GreenhouseMatrixProductionProfile> captureMatrixProfiles(ServerLevel serverLevel,
+                                                                         GreenhouseMatrixRuntime.Effects effects) {
+        if (!isActiveRedstone() || !canRun()) return List.of();
+        List<GreenhouseMatrixProductionProfile> profiles = new ArrayList<>();
+        long recipeGeneration = GreenhouseCropResolver.cacheGeneration();
+        boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
+        boolean overclocked = UpgradeHelper.hasOverclock(this);
+        int fortune = Math.min(3, UpgradeHelper.countUpgrades(this, UpgradeType.FORTUNE));
+        int energyCost = creative ? 0 : applyMatrixEfficiency(
+                JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get(), effects);
+        for (int slot = 0; slot < INPUT_SLOTS; slot++) {
+            ItemStack seed = getLocalSeed(slot);
+            GreenhouseCropDefinition definition = GreenhouseCropResolver.find(serverLevel, seed);
+            if (seed.isEmpty() || definition == null) continue;
+            int fullFluidCost = getEffectiveFluidPerHarvest(slot, definition);
+            int fluidCost = creative ? 0 : (fullFluidCost + FLUID_EFFICIENCY_MULTIPLIER - 1)
+                    / FLUID_EFFICIENCY_MULTIPLIER;
+            long work = GreenhouseMatrixProductionProfile.workPerTick(
+                    JDTEConfig.COMMON.greenhouseBaseMultiplier.get(), getMultiplier(), seed.getCount(),
+                    STRUCTURE_WORK_MULTIPLIER, effects == null ? 0 : effects.speedPercent());
+            profiles.add(new GreenhouseMatrixProductionProfile(
+                    GreenhouseMatrixProductionProfile.MachineKind.LARGE, seed, seed.getCount(),
+                    GreenhouseMatrixProductionProfile.definitionKey(definition), recipeGeneration,
+                    getMultiplier(), STRUCTURE_WORK_MULTIPLIER, fortune, creative, overclocked,
+                    energyCost, fluidCost, effects == null ? 0 : effects.speed(),
+                    effects == null ? 0 : effects.efficiency(),
+                    UpgradeHelper.hasSeedConversionUpgrade(this)
+                            || effects != null && effects.seedConversion() > 0,
+                    UpgradeHelper.hasEssenceConversionUpgrade(this)
+                            || effects != null && effects.essenceConversion() > 0,
+                    definition.growthWork(), work, definition, worldPosition));
+        }
+        return profiles;
+    }
+
+    @Override public IFluidHandler matrixFluidStorage() { return fluidTank; }
+    @Override public MachineEnergyStorage matrixEnergyStorage() { return energyStorage; }
+    @Override public long matrixOutputCapacity() { return (long) getActiveOutputSlots() * getOutputSlotLimit(); }
+
+    private static int applyMatrixEfficiency(int cost, GreenhouseMatrixRuntime.Effects effects) {
+        if (effects == null || !effects.enabled()) return cost;
+        return Math.max(cost > 0 ? 1 : 0, cost * (100 - effects.efficiencyPercent()) / 100);
+    }
+
     private void advanceProductionTicks(int ticks) {
         if (ticks <= 0) return;
+        if (com.jdte.common.greenhouse.GreenhouseMatrixRuntime.isDisabled(this)) {
+            setActiveMask(0);
+            return;
+        }
         if (!isActiveRedstone() || !canRun()) {
             setActiveMask(0);
             settlementTicker = 0;
@@ -246,19 +336,18 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             setActiveMask(0);
             return;
         }
-        settleProduction(definitions, defined, elapsed, completedSettlements);
+        settleProduction(definitions, elapsed, completedSettlements);
     }
 
-    private void settleProduction(GreenhouseCropDefinition[] definitions, int defined, int elapsedTicks,
+    private void settleProduction(GreenhouseCropDefinition[] definitions, int elapsedTicks,
                                   int completedSettlements) {
-        // 结构倍率必须同时放大结算预算，否则 9 倍工作积累只是更快触顶，
-        // 每结算总产出与普通温室完全相同。
+        // 每个输入槽都是独立生产线；结构倍率同时放大每条生产线的结算预算，
+        // 避免多个有效槽位共享固定总预算而无法叠加产量。
         int maxHarvests = saturatingMultiply(
                 saturatingMultiply(JDTEConfig.COMMON.greenhouseMaxHarvestsPerSettlementV2.get(),
                         STRUCTURE_WORK_MULTIPLIER), completedSettlements);
         ProductionSettings settings = currentProductionSettings();
         int newActiveMask = 0;
-        int visitedDefined = 0;
         int[] dynamicHarvestBudget = {JDTEConfig.COMMON.greenhouseDynamicHarvestCallsPerTick.get()};
 
         beginOutputChangeBatch();
@@ -268,8 +357,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                 int slot = (nextInputSlot + offset) % INPUT_SLOTS;
                 GreenhouseCropDefinition definition = definitions[slot];
                 if (definition == null) continue;
-                int budget = GreenhouseProductionEngine.budgetForIndex(maxHarvests, defined, visitedDefined++);
-                settleSlot(slot, definition, elapsedTicks, budget, STRUCTURE_WORK_MULTIPLIER,
+                settleSlot(slot, definition, elapsedTicks, maxHarvests, STRUCTURE_WORK_MULTIPLIER,
                         settings, List.of(this), dynamicHarvestBudget, capacityLedger);
                 if (hasResourcesForOne(slot, definition, settings, List.of(this)) && hasOutputSpace(definition)) {
                     newActiveMask |= 1 << slot;
@@ -277,6 +365,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             }
             nextInputSlot = (nextInputSlot + 1) % INPUT_SLOTS;
             setActiveMask(newActiveMask);
+            if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel) {
+                GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
+            }
         } finally {
             finishOutputChangeBatch();
         }
@@ -293,6 +384,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                 settings.multiplier(),
                 parallelPlants,
                 structureMultiplier);
+        addedWork = com.jdte.common.greenhouse.GreenhouseMatrixRuntime.applySpeed(this, addedWork);
         GreenhouseProductionEngine.WorkWindow work = GreenhouseProductionEngine.accumulate(
                 growthWork[slot], definition.growthWork(), harvestBudget, addedWork,
                 JDTEConfig.COMMON.greenhouseMaxPendingWork.get());
@@ -328,8 +420,8 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             return 0;
         }
 
-        int paidHarvests = generateAndStoreDrops(serverLevel, definition, candidate, settings.fortuneLevel(),
-                capacityLedger);
+        int paidHarvests = generateAndStoreDrops(serverLevel, getLocalSeed(slot), definition, candidate,
+                settings.fortuneLevel(), capacityLedger);
         if (paidHarvests <= 0) {
             growthWork[slot] = work.stalledWork();
             return 0;
@@ -422,7 +514,12 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     private boolean hasOutputSpace(GreenhouseCropDefinition definition) {
         if (definition.outputs().isEmpty()) return false;
         ItemStack primary = definition.outputs().getFirst();
-        return getInsertableCount(primary) >= primary.getCount();
+        if (getInsertableCount(primary) >= primary.getCount()) return true;
+        if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel) {
+            ItemStack converted = GreenhouseEssenceConversionHelper.getConversionResult(serverLevel, primary);
+            return !converted.isEmpty() && getInsertableCount(converted) >= converted.getCount();
+        }
+        return false;
     }
 
     private int getInsertableCount(ItemStack output) {
@@ -439,10 +536,13 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return capacity;
     }
 
-    private int generateAndStoreDrops(ServerLevel serverLevel, GreenhouseCropDefinition definition, int harvests,
+    private int generateAndStoreDrops(ServerLevel serverLevel, ItemStack plantedSeed,
+                                      GreenhouseCropDefinition definition, int harvests,
                                       int fortuneLevel, GreenhouseCapacityLedger capacityLedger) {
+        boolean convertEssence = UpgradeHelper.hasEssenceConversionUpgrade(this);
+        boolean convertSeeds = UpgradeHelper.hasSeedConversionUpgrade(this);
         int samples = definition.harvestGenerator() == null
-                ? Math.min(LOOT_SAMPLES_PER_SETTLEMENT, harvests)
+                ? (convertEssence ? 1 : Math.min(LOOT_SAMPLES_PER_SETTLEMENT, harvests))
                 : harvests;
         int baseGroup = harvests / samples;
         int extraGroups = harvests % samples;
@@ -451,10 +551,19 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         for (int sample = 0; sample < samples; sample++) {
             int groupHarvests = baseGroup + (sample < extraGroups ? 1 : 0);
             List<ItemStack> drops = generateSingleHarvest(serverLevel, definition, tool);
-            int fitted = fitRepetitions(capacityLedger, drops, groupHarvests, fortuneLevel);
+            if (convertSeeds && !definition.outputs().isEmpty()) {
+                drops = GreenhouseEssenceConversionHelper.replaceSeeds(
+                        drops, plantedSeed, definition.outputs().getFirst());
+            }
+            int fitted = fitRepetitions(serverLevel, capacityLedger, drops, groupHarvests, fortuneLevel,
+                    convertEssence);
             List<ItemStack> scaledDrops = GreenhouseFortuneHelper.scaleBatch(
                     drops, fitted, fortuneLevel, serverLevel.random);
-            if (fitted > 0 && insertScaledDrops(null, internalOutputHandler, scaledDrops, 1)) {
+            if (convertEssence) {
+                scaledDrops = GreenhouseEssenceConversionHelper.convert(serverLevel, scaledDrops);
+            }
+            if (fitted > 0 && capacityLedger.canFit(scaledDrops, 1)
+                    && insertScaledDrops(null, internalOutputHandler, scaledDrops, 1)) {
                 capacityLedger.reserve(scaledDrops, 1);
                 completed += fitted;
             }
@@ -496,13 +605,17 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return result.isEmpty() ? definition.outputs() : result;
     }
 
-    private int fitRepetitions(GreenhouseCapacityLedger capacityLedger, List<ItemStack> drops,
-                               int maximum, int fortuneLevel) {
+    private int fitRepetitions(ServerLevel serverLevel, GreenhouseCapacityLedger capacityLedger,
+                               List<ItemStack> drops, int maximum, int fortuneLevel,
+                               boolean convertEssence) {
         int low = 0;
         int high = maximum;
         while (low < high) {
             int middle = low + (high - low + 1) / 2;
             List<ItemStack> capacityBound = GreenhouseFortuneHelper.capacityBound(drops, middle, fortuneLevel);
+            if (convertEssence) {
+                capacityBound = GreenhouseEssenceConversionHelper.convert(serverLevel, capacityBound);
+            }
             if (capacityLedger.canFit(capacityBound, 1)) low = middle;
             else high = middle - 1;
         }
@@ -632,7 +745,8 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         int effectiveMultiplier = overclocked
                 ? JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get()
                 : Math.clamp(multiplier, 1, JDTEConfig.COMMON.greenhouseMaxSpeedMultiplier.get());
-        int energyPerHarvest = creative ? 0 : JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get();
+        int energyPerHarvest = creative ? 0 : com.jdte.common.greenhouse.GreenhouseMatrixRuntime.applyEfficiency(this,
+                JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get());
         int fortuneLevel = Math.min(3, UpgradeHelper.countUpgrades(this, UpgradeType.FORTUNE));
         return new ProductionSettings(effectiveMultiplier, creative, energyPerHarvest, fortuneLevel);
     }
@@ -666,8 +780,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         int reducedBase = Math.max(1, (definition.timeFluid()
                 + JDTEConfig.COMMON.greenhouseFluidCostDivisor.get() - 1)
                 / JDTEConfig.COMMON.greenhouseFluidCostDivisor.get());
-        return (int) Math.min(Integer.MAX_VALUE,
+        int cost = (int) Math.min(Integer.MAX_VALUE,
                 (long) reducedBase * getStackFluidMultiplier(getLocalSeed(slot)));
+        return com.jdte.common.greenhouse.GreenhouseMatrixRuntime.applyEfficiency(this, cost);
     }
     private int getStackFluidMultiplier(ItemStack stack) {
         int halfStack = Math.max(1, stack.getMaxStackSize() / 2);

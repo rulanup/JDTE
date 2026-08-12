@@ -6,16 +6,30 @@ Checks:
 2. Every block registered in JDTEBlocks.java has a block.jdte.<name> lang key.
 3. GuideME root pages (zh) and _en_us/ pages have matching filenames.
 4. Every registered machine maps to a GuideME page (family-normalized).
+5. Every statically registered JDTE item appears in GuideME item_ids.
+6. Checked-in Patchouli resources exactly match their GuideME sources.
 """
 import json
 import re
 import sys
 from pathlib import Path
 
+from generate_patchouli_book import check_generated_book, parse_guide_document
+
 ROOT = Path(__file__).resolve().parent.parent
 LANG_DIR = ROOT / "src/main/resources/assets/jdte/lang"
 GUIDE_DIR = ROOT / "src/main/resources/assets/jdte/guides/jdte/guide"
 BLOCKS_JAVA = ROOT / "src/main/java/com/jdte/setup/JDTEBlocks.java"
+ITEMS_JAVA = ROOT / "src/main/java/com/jdte/setup/JDTEItems.java"
+
+ITEM_DECLARATION = re.compile(
+    r"public\s+static\s+final\s+DeferredHolder<Item,"
+)
+ITEM_REGISTRATION = re.compile(
+    r"public\s+static\s+final\s+DeferredHolder<Item,.*?>\s+[A-Z0-9_]+\s*=\s*"
+    r'(?:ITEMS\.register|blockItem)\s*\(\s*"([a-z0-9_]+)"',
+    re.DOTALL,
+)
 
 # Machines documented on a shared page instead of a family page of their own.
 GUIDE_ALIASES = {
@@ -53,9 +67,56 @@ def registered_blocks():
     return re.findall(r'register\("([a-z0-9_]+)"', text)
 
 
+def registered_items_from_source(source):
+    declaration_count = len(ITEM_DECLARATION.findall(source))
+    item_ids = ITEM_REGISTRATION.findall(source)
+    if len(item_ids) != declaration_count or len(set(item_ids)) != len(item_ids):
+        raise ValueError(
+            "unrecognized item registration or duplicate item id in JDTEItems.java"
+        )
+    return set(item_ids)
+
+
+def guide_item_ids(guide_dir):
+    item_ids = set()
+    for path in sorted(guide_dir.glob("*.md")):
+        document = parse_guide_document(path.read_text(encoding="utf-8"), path.name)
+        item_ids.update(
+            item.removeprefix("jdte:")
+            for item in document.item_ids
+            if item.startswith("jdte:")
+        )
+    return item_ids
+
+
+def mismatched_localized_item_ids(guide_dir):
+    english_dir = guide_dir / "_en_us"
+    mismatches = []
+    for chinese_path in sorted(guide_dir.glob("*.md")):
+        english_path = english_dir / chinese_path.name
+        if not english_path.is_file():
+            continue
+        chinese = parse_guide_document(
+            chinese_path.read_text(encoding="utf-8"), chinese_path.name
+        )
+        english = parse_guide_document(
+            english_path.read_text(encoding="utf-8"), f"_en_us/{english_path.name}"
+        )
+        if chinese.item_ids != english.item_ids:
+            mismatches.append(chinese_path.name)
+    return mismatches
+
+
+def undocumented_registered_items(items_java, guide_dir):
+    registered = registered_items_from_source(items_java.read_text(encoding="utf-8"))
+    return sorted(registered - guide_item_ids(guide_dir))
+
+
 def guide_family(block_name):
     if block_name in GUIDE_ALIASES:
         return GUIDE_ALIASES[block_name]
+    if block_name.startswith("greenhouse_matrix_"):
+        return "greenhouse-matrix"
     name = block_name
     for prefix in TIER_PREFIXES:
         if name.startswith(prefix):
@@ -90,6 +151,8 @@ def main():
         errors.append(f"guide page missing English translation: _en_us/{page}")
     for page in sorted(en_pages - zh_pages):
         errors.append(f"guide page missing Chinese original: {page}")
+    for page in mismatched_localized_item_ids(GUIDE_DIR):
+        errors.append(f"localized guide item_ids differ: {page}")
 
     for block in blocks:
         if block in NON_GUIDE_BLOCKS:
@@ -98,6 +161,16 @@ def main():
         full = block.replace("_", "-")
         if f"{family}.md" not in zh_pages and f"{full}.md" not in zh_pages:
             errors.append(f"no guide page for machine '{block}' (expected {family}.md or {full}.md)")
+
+    try:
+        missing_item_docs = undocumented_registered_items(ITEMS_JAVA, GUIDE_DIR)
+    except ValueError as exception:
+        errors.append(str(exception))
+    else:
+        for item_id in missing_item_docs:
+            errors.append(f"undocumented registered item: jdte:{item_id}")
+
+    errors.extend(check_generated_book(ROOT))
 
     if errors:
         fail(errors)

@@ -9,6 +9,7 @@ dependencies {
 
     // Just Dire Things - via CurseMaven
     compileOnly "curse.maven:just-dire-things-1002348:7463040"
+    testCompileOnly "curse.maven:just-dire-things-1002348:7463040"
     localRuntime "curse.maven:just-dire-things-1002348:7463040"
 
     // ========================================
@@ -22,6 +23,8 @@ dependencies {
 
     // HUD / overlay mods
     compileOnly "maven.modrinth:jade:${jade_version}"
+    testCompileOnly "maven.modrinth:jade:${jade_version}"
+    testRuntimeOnly "maven.modrinth:jade:${jade_version}"
 
     // Major mods
     compileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
@@ -33,6 +36,7 @@ dependencies {
     compileOnly "mekanism:Mekanism:${mekanism_version}:generators"
     compileOnly "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    testRuntimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
     compileOnly "curse.maven:apothic-spawners-986583:7492121"
     compileOnly "curse.maven:brandons-core-231382:${brandons_core_file}"
     compileOnly "curse.maven:draconic-evolution-223565:${draconic_evolution_file}"

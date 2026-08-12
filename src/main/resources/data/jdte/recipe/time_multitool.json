@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "justdirethings:eclipsealloy_paxel"
+    },
+    {
+      "item": "jdte:big_fluid_tank"
+    },
+    {
+      "item": "jdte:time_fluid_catalyst"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:time_multitool"
+  }
+}

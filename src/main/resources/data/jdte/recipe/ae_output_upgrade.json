@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "ae2:wireless_receiver" },
+    { "item": "ae2:import_bus" },
+    { "item": "jdte:capacity_upgrade" }
+  ],
+  "result": {
+    "id": "jdte:ae_output_upgrade",
+    "count": 1
+  },
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "ae2"
+    }
+  ]
+}

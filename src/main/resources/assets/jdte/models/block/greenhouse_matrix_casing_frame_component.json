@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "frame": "minecraft:block/iron_block",
+    "particle": "minecraft:block/iron_block"
+  }
+}

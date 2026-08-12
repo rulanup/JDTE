@@ -1,0 +1,44 @@
+{
+  "name": "BOSS 精华",
+  "icon": "jdte:wither_essence",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 600,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "BOSS 精华是通过生物粉碎机击杀 BOSS 获得的独特物品。$(br2)$(bold)精华类型$()$(br2)$(bold)凋灵精华$()$(br2)使用生物粉碎机击杀凋灵时有 5% 基础概率获得。抢夺升级只会在成功掉落后增加精华数量，不提高 5% 触发概率。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:wither_essence",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)末影龙精华$()$(br2)使用生物粉碎机击杀末影龙时有 10% 基础概率获得。抢夺升级只会在成功掉落后增加精华数量，不提高 10% 触发概率。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ender_dragon_essence",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)远古守卫者精华$()$(br2)使用生物粉碎机击杀远古守卫者时获得。抢夺升级可能增加精华数量。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:elder_guardian_essence",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)获取方式$()$(br2)要获取 BOSS 精华：$(br2)1. 建造一台生物粉碎机（高级或扩展）$(br)2. 将其放置在 BOSS 生物附近$(br)3. 生物粉碎机将击杀 BOSS 并生成对应的精华$(br2)注意：生物粉碎机必须足够强大才能击杀 BOSS。建议使用锋利升级增加伤害。$(br2)$(bold)合成用途$()$(br2)BOSS 精华可用于合成高级物品和机器，是游戏后期的重要材料。$(br2)$(li)凋灵精华：在灌注机中消耗 64,000 mB 生命流体和 100,000 FE，可制作凋灵刷怪蛋$(li)末影龙精华：在灌注机中消耗 64,000 mB 生命流体和 100,000 FE，可制作末影龙刷怪蛋$(li)远古守卫者精华：在灌注机中消耗 64,000 mB 生命流体和 100,000 FE，可制作远古守卫者刷怪蛋"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:wither_essence": 1,
+    "jdte:ender_dragon_essence": 3,
+    "jdte:elder_guardian_essence": 5
+  }
+}

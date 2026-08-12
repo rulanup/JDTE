@@ -1,0 +1,60 @@
+{
+  "name": "Item Sender",
+  "icon": "jdte:advanced_item_sender",
+  "category": "jdte:logistics_automation",
+  "sortnum": 900,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Item Sender sends items to target containers within its configured range.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrade Slots | Send Amount | Requires FE$()$(br)Basic Item Sender | 4 | 64 | No$(br)Advanced Item Sender | 4 | 64 | Yes$(br)Extended Item Sender | 8 | 64 | Yes$(br2)$(bold)Features$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Sends items from internal storage to containers within range$(li)Supports redstone control, Range Upgrade, and Filter Upgrade$(li)With an Overclock or Creative Upgrade and Auto Input enabled, items move directly from Auto Input containers to ranged targets, up to 10,000 items per operation by default, without using internal slot capacity$(li)Speed controls and Underclock adjust the operation interval; batches are configurable$(br2)$(bold)Crafting$()$(br2)$(bold)Basic Item Sender$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:basic_item_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:basic_item_sender"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Item Sender$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_item_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_item_sender"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Item Sender$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_item_sender",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An extended version of the Advanced Item Sender with 8 upgrade slots. Obtained by right-clicking an Advanced Item Sender with an Extended Upgrade."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_item_sender"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:basic_item_sender": 2,
+    "jdte:advanced_item_sender": 5,
+    "jdte:extended_item_sender": 8
+  }
+}
