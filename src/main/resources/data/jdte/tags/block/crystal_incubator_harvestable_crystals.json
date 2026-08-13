@@ -9,5 +9,19 @@
       "id": "data_energistics:data_crystal_cluster",
       "required": false
     }
+  ],
+  "remove": [
+    {
+      "id": "neoecoae:small_energized_crystal_bud",
+      "required": false
+    },
+    {
+      "id": "neoecoae:medium_energized_crystal_bud",
+      "required": false
+    },
+    {
+      "id": "neoecoae:large_energized_crystal_bud",
+      "required": false
+    }
   ]
 }

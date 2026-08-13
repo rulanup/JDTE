@@ -530,7 +530,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     }
 
     private boolean isValidInputItem(ItemStack stack) {
-        if (stack.isEmpty() || isValidGel(stack) || !(stack.getItem() instanceof BlockItem)) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem)) {
             return false;
         }
         if (level == null) {

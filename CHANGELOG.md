@@ -2,7 +2,13 @@
 
 ### English
 
-#### v0.5.9-alpha2 (Current)
+#### v0.5.9-alpha3 (Current)
+
+- **Fixed**: Crystal Incubators no longer harvest Neo ECO AE Extension's small, medium, or large Energized Crystal buds imported through the broad `c:clusters` tag; only the fully grown Energized Crystal Cluster remains harvestable.
+- **Fixed**: Advanced and Extended Gel Generators now allow gel blocks in conversion input slots when a matching Goo Spread recipe exists, including recipes injected by KubeJS.
+- **Validation**: Added regression coverage for Neo ECO immature-crystal exclusions and dynamic Gel Generator inputs.
+
+#### v0.5.9-alpha2
 
 - **Documentation**: Added a complete optional Patchouli edition of the bilingual GuideME manual, generated from the canonical GuideME pages with 37 localized entries across six categories.
 - **Documentation**: Added full GuideME and Patchouli coverage for the Ultimate Portal Gun, Big Fluid Tank, Time Multitool, all five Solar Panel tiers, Creative Greenhouse, and every Greenhouse Matrix component and enhancer.
@@ -191,7 +197,11 @@
 
 ### 中文
 
-#### v0.5.9-alpha2（当前）
+#### v0.5.9-alpha3（当前）
+
+- See the English release notes above.
+
+#### v0.5.9-alpha2
 
 - **文档**：加入完整的可选 Patchouli 双语手册版本，以 GuideME 页面为唯一来源生成，每种语言包含 6 个分类与 37 个条目。
 - **文档**：补齐顶级传送枪、大型流体储罐、时间多功能工具、五级太阳能板、创造温室大棚及全部温室矩阵部件和增强的 GuideME/Patchouli 说明。
