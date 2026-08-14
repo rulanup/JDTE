@@ -136,6 +136,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 case 12 -> ContainerDataEncoding.high16(isClientSide() ? syncedExperienceFluid : experienceFluidTank.getFluidAmount());
                 case 13 -> ContainerDataEncoding.high16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
                 case 14 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxFluidCapacity());
+                case 15 -> isClientSide() ? syncedExperienceFluidType : encodedFluidType(experienceFluidTank.getFluid());
+                case 16 -> isClientSide() ? syncedTimeFluidType : encodedFluidType(timeFluidTank.getFluid());
                 default -> 0;
             };
         }
@@ -156,10 +158,12 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 case 12 -> syncedExperienceFluid = ContainerDataEncoding.withHigh16(syncedExperienceFluid, value);
                 case 13 -> syncedTimeFluid = ContainerDataEncoding.withHigh16(syncedTimeFluid, value);
                 case 14 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
+                case 15 -> syncedExperienceFluidType = value & 0xFFFF;
+                case 16 -> syncedTimeFluidType = value & 0xFFFF;
                 default -> { }
             }
         }
-        @Override public int getCount() { return 15; }
+        @Override public int getCount() { return 17; }
     };
 
     private List<MineralEntry> cachedEntries = List.of();
@@ -189,6 +193,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     private int syncedExperienceFluid;
     private int syncedTimeFluid;
     private int syncedFluidCapacity = 1;
+    private int syncedExperienceFluidType;
+    private int syncedTimeFluidType;
     private int syncedMultiplier = 1;
     private int syncedMaxMultiplier = 32;
     private int syncedState;
@@ -630,6 +636,12 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     public IFluidHandler getCombinedFluidHandler() { return combinedFluidHandler; }
     public IItemHandler getAutomationItemHandler() { return automationItemHandler; }
     public int getMaxFluidCapacity() { return UpgradeHelper.adjustFluidCapacity(this, JDTEConfig.COMMON.mineralExtractor.fluidCapacity.get()); }
+
+    private static int encodedFluidType(FluidStack stack) {
+        if (stack.isEmpty()) return 0;
+        int registryId = BuiltInRegistries.FLUID.getId(stack.getFluid());
+        return registryId >= 0 && registryId < 0xFFFF ? registryId + 1 : 0;
+    }
 
     private int progress() {
         long persistent = saturatingAdd(pendingBaseWork, pendingAcceleratedWork);

@@ -23,6 +23,14 @@ public final class MineralExtractorFluidRoles {
         this.accelerationFluid = Objects.requireNonNull(accelerationFluid, "accelerationFluid");
     }
 
+    public ResourceLocation fortuneFluid() {
+        return fortuneFluid;
+    }
+
+    public ResourceLocation accelerationFluid() {
+        return accelerationFluid;
+    }
+
     public Role roleOf(FluidStack fluid) {
         return fluid == null ? Role.NONE : roleOf(fluid.getFluid());
     }

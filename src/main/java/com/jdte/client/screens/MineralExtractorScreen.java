@@ -4,7 +4,6 @@ import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScree
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
-import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.client.screens.util.MachineFluidBarRenderer;
@@ -12,18 +11,22 @@ import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.containers.MineralExtractorContainer;
 import com.jdte.common.network.data.MineralExtractorOutputPagePayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
+import com.jdte.common.recipes.MineralExtractorResourceResolver;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEItems;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -144,14 +147,24 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
         int capacity = extractorContainer.getFluidCapacity();
         int experience = extractorContainer.getExperienceFluid();
         int time = extractorContainer.getTimeFluid();
+        var roles = MineralExtractorResourceResolver.resolve(
+                minecraft == null || minecraft.level == null ? null : minecraft.level.getRecipeManager());
+        Fluid experienceFluid = displayFluid(extractorContainer.getExperienceFluidType(),
+                BuiltInRegistries.FLUID.getOptional(roles.fortuneFluid()).orElse(Fluids.EMPTY));
+        Fluid timeFluid = displayFluid(extractorContainer.getTimeFluidType(),
+                BuiltInRegistries.FLUID.getOptional(roles.accelerationFluid()).orElse(Fluids.EMPTY));
         MachineFluidBarRenderer.renderBar(graphics,
-                new FluidStack(Registration.XP_FLUID_SOURCE.get(), Math.max(1, experience)), experience, capacity,
+                new FluidStack(experienceFluid, Math.max(1, experience)), experience, capacity,
                 getGuiLeft() + layout.getMineralExtractorExperienceFluidX(),
                 getGuiTop() + layout.getMineralExtractorExperienceFluidY());
         MachineFluidBarRenderer.renderBar(graphics,
-                new FluidStack(Registration.TIME_FLUID_SOURCE.get(), Math.max(1, time)), time, capacity,
+                new FluidStack(timeFluid, Math.max(1, time)), time, capacity,
                 getGuiLeft() + layout.getMineralExtractorTimeFluidX(),
                 getGuiTop() + layout.getMineralExtractorTimeFluidY());
+    }
+
+    static Fluid displayFluid(Fluid actual, Fluid configured) {
+        return actual == null || actual == Fluids.EMPTY ? configured : actual;
     }
 
     private void renderStatus(GuiGraphics graphics) {

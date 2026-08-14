@@ -10,12 +10,15 @@ import com.jdte.setup.JDTEItems;
 import com.jdte.mixin.AbstractContainerMenuInvoker;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
@@ -71,6 +74,8 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
     public int getExperienceFluid() { return ContainerDataEncoding.combine16(data(3, 0), data(12, 0)); }
     public int getTimeFluid() { return ContainerDataEncoding.combine16(data(4, 0), data(13, 0)); }
     public int getFluidCapacity() { return ContainerDataEncoding.combine16(data(5, 1), data(14, 0)); }
+    public Fluid getExperienceFluidType() { return decodeFluidType(data(15, 0)); }
+    public Fluid getTimeFluidType() { return decodeFluidType(data(16, 0)); }
     public int getMultiplier() { return data(6, 1); }
     public int getMaxMultiplier() { return data(7, 32); }
     public int getStateId() { return data(8, 0); }
@@ -97,6 +102,13 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
 
     private int data(int index, int fallback) {
         return baseMachineBE instanceof MineralExtractorBE extractor ? extractor.getMachineData().get(index) : fallback;
+    }
+
+    private static Fluid decodeFluidType(int encoded) {
+        int registryId = encoded - 1;
+        if (registryId < 0 || registryId >= BuiltInRegistries.FLUID.size()) return Fluids.EMPTY;
+        Fluid fluid = BuiltInRegistries.FLUID.byId(registryId);
+        return fluid == null ? Fluids.EMPTY : fluid;
     }
 
     @Override public boolean stillValid(Player player) {
