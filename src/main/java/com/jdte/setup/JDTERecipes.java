@@ -5,6 +5,7 @@ import com.jdte.common.recipes.InfusionRecipe;
 import com.jdte.common.recipes.GreenhouseRecipe;
 import com.jdte.common.recipes.BioFactoryRecipe;
 import com.jdte.common.recipes.LifeSynthesisRecipe;
+import com.jdte.common.recipes.MineralExtractorResourcesRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -40,4 +41,10 @@ public class JDTERecipes {
 
     public static final Supplier<LifeSynthesisRecipe.Serializer> LIFE_SYNTHESIS_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
             "life_synthesis", LifeSynthesisRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralExtractorResourcesRecipe>> MINERAL_EXTRACTOR_RESOURCES_RECIPE_TYPE = RECIPE_TYPES.register(
+            "mineral_extractor_resources", () -> RecipeType.simple(com.jdte.JDTE.id("mineral_extractor_resources")));
+
+    public static final Supplier<MineralExtractorResourcesRecipe.Serializer> MINERAL_EXTRACTOR_RESOURCES_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
+            "mineral_extractor_resources", MineralExtractorResourcesRecipe.Serializer::new);
 }

@@ -1,9 +1,12 @@
 package com.jdte.common.recipes;
 
 import com.jdte.setup.JDTERecipes;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,12 +18,17 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 import java.util.Optional;
 
 public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> outputs, ResourceLocation displayBlock,
                                Optional<ResourceLocation> harvestBlock, boolean useLootTable,
-                               int growthWork, int timeFluid) implements Recipe<CraftingInput> {
+                               int growthWork, ResourceLocation fluid, int timeFluid) implements Recipe<CraftingInput> {
+    public static final ResourceLocation DEFAULT_FLUID =
+            ResourceLocation.fromNamespaceAndPath("justdirethings", "time_fluid_source");
+
     public boolean matchesSeed(ItemStack stack) {
         return seed.test(stack);
     }
@@ -56,6 +64,8 @@ public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> output
     }
 
     public static final class Serializer implements RecipeSerializer<GreenhouseRecipe> {
+        private static final Codec<ResourceLocation> SOURCE_FLUID_ID_CODEC =
+                ResourceLocation.CODEC.validate(Serializer::validateSourceFluid);
         private static final MapCodec<GreenhouseRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 Ingredient.CODEC.fieldOf("seed").forGetter(GreenhouseRecipe::seed),
                 ItemStack.CODEC.listOf().fieldOf("outputs").forGetter(GreenhouseRecipe::outputs),
@@ -63,8 +73,23 @@ public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> output
                 ResourceLocation.CODEC.optionalFieldOf("harvest_block").forGetter(GreenhouseRecipe::harvestBlock),
                 com.mojang.serialization.Codec.BOOL.optionalFieldOf("use_loot_table", true).forGetter(GreenhouseRecipe::useLootTable),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("growth_work").forGetter(GreenhouseRecipe::growthWork),
+                SOURCE_FLUID_ID_CODEC.optionalFieldOf("fluid", DEFAULT_FLUID).forGetter(GreenhouseRecipe::fluid),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("time_fluid").forGetter(GreenhouseRecipe::timeFluid)
         ).apply(instance, GreenhouseRecipe::new));
+
+        private static DataResult<ResourceLocation> validateSourceFluid(ResourceLocation id) {
+            if (!BuiltInRegistries.FLUID.containsKey(id)) {
+                return DataResult.error(() -> "Unknown greenhouse recipe fluid: " + id);
+            }
+            Fluid fluid = BuiltInRegistries.FLUID.get(id);
+            if (fluid == Fluids.EMPTY) {
+                return DataResult.error(() -> "Greenhouse recipe fluid cannot be empty: " + id);
+            }
+            if (!fluid.defaultFluidState().isSource()) {
+                return DataResult.error(() -> "Greenhouse recipe fluid must be a source fluid: " + id);
+            }
+            return DataResult.success(id);
+        }
 
         @Override
         public MapCodec<GreenhouseRecipe> codec() {
@@ -83,6 +108,7 @@ public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> output
                             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buffer),
                             ByteBufCodecs.BOOL.decode(buffer),
                             ByteBufCodecs.VAR_INT.decode(buffer),
+                            ResourceLocation.STREAM_CODEC.decode(buffer),
                             ByteBufCodecs.VAR_INT.decode(buffer));
                 }
 
@@ -94,6 +120,7 @@ public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> output
                     ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).encode(buffer, recipe.harvestBlock());
                     ByteBufCodecs.BOOL.encode(buffer, recipe.useLootTable());
                     ByteBufCodecs.VAR_INT.encode(buffer, recipe.growthWork());
+                    ResourceLocation.STREAM_CODEC.encode(buffer, recipe.fluid());
                     ByteBufCodecs.VAR_INT.encode(buffer, recipe.timeFluid());
                 }
             };

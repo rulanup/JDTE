@@ -11,11 +11,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The Large Greenhouse is a single-placement $(bold)3×3×2$() machine. It provides nine independent production lanes, reuses every plant template, and consumes only Time Fluid and FE.$(br2)$(bold)Quick Start$()$(br2)1. Clear a complete 3×3×2 area and place the machine.$(br)2. Insert up to nine seeds, flowers, or saplings; template stack size represents parallel plants.$(br)3. Supply FE and Time Fluid, then select a speed from 1-32x.$(br)4. Attach pipes to any base-layer face or configure Auto I/O in the screen.$(br2)$(bold)Core Values$()"
+      "text": "The Large Greenhouse is a single-placement $(bold)3×3×2$() machine. It provides nine independent production lanes, reuses every plant template, and consumes each recipe's required fluid (Time Fluid by default) plus FE.$(br2)$(bold)Quick Start$()$(br2)1. Clear a complete 3×3×2 area and place the machine.$(br)2. Insert up to nine seeds, flowers, or saplings; template stack size represents parallel plants.$(br)3. Supply FE and the recipe's required fluid (Time Fluid by default), then select a speed from 1-32x.$(br)4. Attach pipes to any base-layer face or configure Auto I/O in the screen.$(br2)$(bold)Core Values$()"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Property | Value$()$(br)Speed | 1-32x; Overclock or Creative locks it to 64x$(br)Base cost | 10 FE per harvest; Time Fluid depends on the plant recipe$(br)Large-structure bonus | Each lane runs at 9x production speed; batched Time Fluid cost is divided by nine$(br)Output inventory | 16 slots by default; +16 per Capacity Upgrade, up to 64$(br)Per-slot limit | 64, then 2048/4096/8192 with one/two/three Capacity Upgrades$(br)Fortune | Up to three cards; each adds 10% long-run average output"
+      "text": "$(bold)Property | Value$()$(br)Speed | 1-32x; Overclock or Creative locks it to 64x$(br)Base cost | 10 FE per harvest; fluid depends on the plant recipe$(br)Large-structure bonus | Each lane runs at 9x production speed; batched recipe-fluid cost is divided by nine$(br)Output inventory | 16 slots by default; +16 per Capacity Upgrade, up to 64$(br)Per-slot limit | 64, then 2048/4096/8192 with one/two/three Capacity Upgrades$(br)Fortune | Up to three cards; each adds 10% long-run average output"
     },
     {
       "type": "patchouli:text",
@@ -23,7 +23,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)Includes common vanilla crops, saplings, flowers, and similar plants.$(li)Automatically discovers Mystical Agriculture, Mystical Agradditions, and Botany Pots crops.$(li)Generically recognizes mod crops with a mature age and preserves secondary mature-block drops.$(li)Modpacks can add $(thing)jdte:large_greenhouse$() data recipes.$(br2)JEI shows the template, base FE, Time Fluid, and preview outputs. Clicking the growing-bed progress area also opens the category.$(br2)$(bold)Automation and Acceleration$()"
+      "text": "$(li)Includes common vanilla crops, saplings, flowers, and similar plants.$(li)Automatically discovers Mystical Agriculture, Mystical Agradditions, and Botany Pots crops.$(li)Generically recognizes mod crops with a mature age and preserves secondary mature-block drops.$(li)Modpacks can add shared $(thing)jdte:greenhouse$() data recipes.$(br2)JEI shows the template, base FE, required recipe fluid, and preview outputs. Clicking the growing-bed progress area also opens the category.$(br2)$(bold)Automation and Acceleration$()"
     },
     {
       "type": "patchouli:text",
@@ -31,7 +31,15 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The controller occupies the front-center block of the bottom layer; the other 17 blocks are structure parts. Every base-layer face accepts templates, Time Fluid, and FE and exposes product extraction. Using any part opens the controller. Breaking any part removes the whole structure and returns exactly one Large Greenhouse item.$(br2)$(bold)Crafting$()"
+      "text": "The controller occupies the front-center block of the bottom layer; the other 17 blocks are structure parts. Every base-layer face accepts templates, recipe-required fluid (Time Fluid by default), and FE and exposes product extraction. Using any part opens the controller. Breaking any part removes the whole structure and returns exactly one Large Greenhouse item.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)KubeJS: Configured Fluids$()$(br2)Large Greenhouses use the shared $(thing)jdte:greenhouse$() recipe format. $(thing)fluid$() defaults to $(thing)justdirethings:time_fluid_source$() when omitted; $(thing)time_fluid$() is the amount consumed per harvest. The single tank does not mix fluids. After $(thing)/reload$(), old contents are still extractable but work only with a recipe whose required fluid still matches."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)KubeJS example$()$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.remove({ id: 'jdte:greenhouse/carrot' })$(br)  event.custom({ type: 'jdte:greenhouse', seed: { item: 'minecraft:carrot' }, outputs: [{ id: 'minecraft:carrot', count: 2 }], display_block: 'minecraft:carrots', growth_work: 20, fluid: 'minecraft:water', time_fluid: 100 }).id('jdte:greenhouse/carrot')$(br)})$()"
     },
     {
       "type": "patchouli:crafting",

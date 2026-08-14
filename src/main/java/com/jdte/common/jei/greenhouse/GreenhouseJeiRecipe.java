@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<ItemStack> outputs,
-                                  int timeFluid, int energy, int growthWork) {
+                                  ResourceLocation fluid, int timeFluid, int energy, int growthWork) {
     public static List<GreenhouseJeiRecipe> getRecipes() {
         Minecraft minecraft = Minecraft.getInstance();
         RecipeManager manager = minecraft.level != null ? minecraft.level.getRecipeManager()
@@ -39,7 +39,8 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
             GreenhouseRecipe recipe = holder.value();
             for (ItemStack stack : recipe.seed().getItems()) {
                 if (!stack.isEmpty() && seen.add(stack.getItem())) {
-                    result.add(create(holder.id(), stack, recipe.outputs(), recipe.timeFluid(), recipe.growthWork()));
+                    result.add(create(holder.id(), stack, recipe.outputs(), recipe.fluid(), recipe.timeFluid(),
+                            recipe.growthWork()));
                 }
             }
         }
@@ -50,7 +51,8 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
                 ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
                 result.add(create(ResourceLocation.fromNamespaceAndPath("jdte",
                                 "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath()),
-                        new ItemStack(item), definition.outputs(), definition.timeFluid(), definition.growthWork()));
+                        new ItemStack(item), definition.outputs(), definition.fluid(), definition.timeFluid(),
+                        definition.growthWork()));
             });
         }
 
@@ -62,7 +64,7 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
                 result.add(create(ResourceLocation.fromNamespaceAndPath("jdte",
                                 "jei/greenhouse/botanypots/" + recipeId.getNamespace() + "/"
                                         + recipeId.getPath() + "/" + seedId.getNamespace() + "/" + seedId.getPath()),
-                        crop.seed(), crop.definition().outputs(), crop.definition().timeFluid(),
+                        crop.seed(), crop.definition().outputs(), crop.definition().fluid(), crop.definition().timeFluid(),
                         crop.definition().growthWork()));
             }
         }
@@ -77,7 +79,7 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
             result.add(create(ResourceLocation.fromNamespaceAndPath("jdte",
                     "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath()),
-                    seed, definition.outputs(), definition.timeFluid(), definition.growthWork()));
+                    seed, definition.outputs(), definition.fluid(), definition.timeFluid(), definition.growthWork()));
         }
 
         result.sort(Comparator.comparing(recipe -> BuiltInRegistries.ITEM.getKey(recipe.seed().getItem()).toString()));
@@ -85,11 +87,11 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
     }
 
     private static GreenhouseJeiRecipe create(ResourceLocation id, ItemStack seed, List<ItemStack> outputs,
-                                               int rawFluid, int growthWork) {
+                                               ResourceLocation fluidType, int rawFluid, int growthWork) {
         int divisor = JDTEConfig.COMMON.greenhouseFluidCostDivisor.get();
         int fluid = Math.max(1, (rawFluid + divisor - 1) / divisor);
         return new GreenhouseJeiRecipe(id, seed.copyWithCount(1), outputs.stream().map(ItemStack::copy).toList(),
-                fluid, JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get(), growthWork);
+                fluidType, fluid, JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get(), growthWork);
     }
 
     private static boolean isPlant(BlockItem item) {
@@ -106,6 +108,7 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
         }
         ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(blockItem.getBlock());
         return new GreenhouseCropDefinition(List.of(seed.copyWithCount(1)), blockId, blockId, true,
-                JDTEConfig.COMMON.greenhouseDefaultGrowthWork.get(), JDTEConfig.COMMON.greenhouseGenericFluidCost.get());
+                JDTEConfig.COMMON.greenhouseDefaultGrowthWork.get(), GreenhouseRecipe.DEFAULT_FLUID,
+                JDTEConfig.COMMON.greenhouseGenericFluidCost.get());
     }
 }

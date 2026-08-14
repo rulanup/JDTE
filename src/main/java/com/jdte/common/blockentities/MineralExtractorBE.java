@@ -7,12 +7,12 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.common.items.interfaces.Helpers;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.minerals.MineralEntry;
+import com.jdte.common.minerals.MineralExtractorFluidRoles;
 import com.jdte.common.minerals.MineralProductionEngine;
 import com.jdte.common.minerals.MineralOutputPlanner;
 import com.jdte.common.minerals.MineralSurveyData;
@@ -20,6 +20,7 @@ import com.jdte.common.minerals.MineralSurveyIndex;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
+import com.jdte.common.recipes.MineralExtractorResourceResolver;
 import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEBlockEntities;
@@ -35,6 +36,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -47,6 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE,
         FilterableBE, BaseFilterMachine, ExtendedUpgradeMachine, CoalescedAcceleratedMachine {
@@ -77,10 +80,11 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     private final PoweredMachineContainerData poweredData = new PoweredMachineContainerData(this);
     private final RedstoneControlData redstoneData = new RedstoneControlData();
     private final FilterData filterData = new FilterData();
+    private Function<Level, MineralExtractorFluidRoles> fluidRolesResolver = MineralExtractorResourceResolver::resolve;
     private final JDTEFluidTank experienceFluidTank = new JDTEFluidTank(getMaxFluidCapacity(),
-            stack -> stack.is(Registration.XP_FLUID_SOURCE.get()));
+            this::matchesFortuneFluid);
     private final JDTEFluidTank timeFluidTank = new JDTEFluidTank(getMaxFluidCapacity(),
-            stack -> stack.getFluid() instanceof TimeFluid);
+            this::matchesAccelerationFluid);
     private final IFluidHandler combinedFluidHandler = new CombinedFluidHandler();
     private final ItemStackHandler itemHandler = new ItemStackHandler(totalSlots()) {
         @Override public int getSlotLimit(int slot) {
@@ -132,6 +136,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 case 12 -> ContainerDataEncoding.high16(isClientSide() ? syncedExperienceFluid : experienceFluidTank.getFluidAmount());
                 case 13 -> ContainerDataEncoding.high16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
                 case 14 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxFluidCapacity());
+                case 15 -> isClientSide() ? syncedExperienceFluidType : encodedFluidType(experienceFluidTank.getFluid());
+                case 16 -> isClientSide() ? syncedTimeFluidType : encodedFluidType(timeFluidTank.getFluid());
                 default -> 0;
             };
         }
@@ -152,10 +158,12 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 case 12 -> syncedExperienceFluid = ContainerDataEncoding.withHigh16(syncedExperienceFluid, value);
                 case 13 -> syncedTimeFluid = ContainerDataEncoding.withHigh16(syncedTimeFluid, value);
                 case 14 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
+                case 15 -> syncedExperienceFluidType = value & 0xFFFF;
+                case 16 -> syncedTimeFluidType = value & 0xFFFF;
                 default -> { }
             }
         }
-        @Override public int getCount() { return 15; }
+        @Override public int getCount() { return 17; }
     };
 
     private List<MineralEntry> cachedEntries = List.of();
@@ -185,6 +193,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     private int syncedExperienceFluid;
     private int syncedTimeFluid;
     private int syncedFluidCapacity = 1;
+    private int syncedExperienceFluidType;
+    private int syncedTimeFluidType;
     private int syncedMultiplier = 1;
     private int syncedMaxMultiplier = 32;
     private int syncedState;
@@ -319,7 +329,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         long paidBaseCycles = Math.min(baseCycles, requested);
         long wantedAcceleratedCycles = requested - paidBaseCycles;
         int timePerCycle = creative ? 0 : JDTEConfig.COMMON.mineralExtractor.timeFluidPerAcceleratedCycle.get();
-        long timeBudget = timePerCycle == 0 ? wantedAcceleratedCycles : timeFluidTank.getFluidAmount() / timePerCycle;
+        int usableAcceleration = usableAccelerationFluid();
+        long timeBudget = timePerCycle == 0 ? wantedAcceleratedCycles : usableAcceleration / timePerCycle;
         long paidAcceleratedCycles = Math.min(wantedAcceleratedCycles, timeBudget);
         long cycles = paidBaseCycles + paidAcceleratedCycles;
         if (cycles <= 0L) {
@@ -328,8 +339,9 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         }
 
         int experiencePerCycle = creative ? 0 : JDTEConfig.COMMON.mineralExtractor.experienceFluidPerCycle.get();
+        int usableFortune = usableFortuneFluid();
         long fortuneLimit = experiencePerCycle == 0 ? cycles
-                : Math.min(cycles, experienceFluidTank.getFluidAmount() / experiencePerCycle);
+                : Math.min(cycles, usableFortune / experiencePerCycle);
         int fortunePercent = fortuneLimit > 0L ? JDTEConfig.COMMON.mineralExtractor.fortuneBonusPercent.get() : 0;
         long distributionSeed = serverLevel.random.nextLong();
         Settlement settlement = findSettlement(cycles, fortuneLimit, fortunePercent, distributionSeed);
@@ -348,8 +360,12 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         commitOutput(settlement.outputPlan());
         if (!creative) {
             energyStorage.extractEnergy(safeCost(settledCycles, energyPerCycle), false);
-            timeFluidTank.drain(safeCost(settledAcceleratedCycles, timePerCycle), IFluidHandler.FluidAction.EXECUTE);
-            experienceFluidTank.drain(safeCost(settledFortuneCycles, experiencePerCycle), IFluidHandler.FluidAction.EXECUTE);
+            if (matchesAccelerationFluid(timeFluidTank.getFluid())) {
+                timeFluidTank.drain(safeCost(settledAcceleratedCycles, timePerCycle), IFluidHandler.FluidAction.EXECUTE);
+            }
+            if (matchesFortuneFluid(experienceFluidTank.getFluid())) {
+                experienceFluidTank.drain(safeCost(settledFortuneCycles, experiencePerCycle), IFluidHandler.FluidAction.EXECUTE);
+            }
         }
         consumeBaseWork(settledBaseCycles * processTicks);
         consumeAcceleratedWork(settledAcceleratedCycles * processTicks);
@@ -550,7 +566,27 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     private boolean canUseTimeFluid() {
         return UpgradeHelper.hasCreativeUpgrade(this)
                 || JDTEConfig.COMMON.mineralExtractor.timeFluidPerAcceleratedCycle.get() == 0
-                || timeFluidTank.getFluidAmount() > 0;
+                || usableAccelerationFluid() > 0;
+    }
+
+    void setFluidRolesResolver(Function<Level, MineralExtractorFluidRoles> resolver) {
+        fluidRolesResolver = Objects.requireNonNull(resolver, "resolver");
+    }
+
+    int usableFortuneFluid() {
+        return matchesFortuneFluid(experienceFluidTank.getFluid()) ? experienceFluidTank.getFluidAmount() : 0;
+    }
+
+    int usableAccelerationFluid() {
+        return matchesAccelerationFluid(timeFluidTank.getFluid()) ? timeFluidTank.getFluidAmount() : 0;
+    }
+
+    private boolean matchesFortuneFluid(FluidStack stack) {
+        return fluidRolesResolver.apply(level).matchesFortune(stack);
+    }
+
+    private boolean matchesAccelerationFluid(FluidStack stack) {
+        return fluidRolesResolver.apply(level).matchesAcceleration(stack);
     }
 
     public int surveySlotCount() { return SURVEY_SLOTS; }
@@ -600,6 +636,12 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     public IFluidHandler getCombinedFluidHandler() { return combinedFluidHandler; }
     public IItemHandler getAutomationItemHandler() { return automationItemHandler; }
     public int getMaxFluidCapacity() { return UpgradeHelper.adjustFluidCapacity(this, JDTEConfig.COMMON.mineralExtractor.fluidCapacity.get()); }
+
+    private static int encodedFluidType(FluidStack stack) {
+        if (stack.isEmpty()) return 0;
+        int registryId = BuiltInRegistries.FLUID.getId(stack.getFluid());
+        return registryId >= 0 && registryId < 0xFFFF ? registryId + 1 : 0;
+    }
 
     private int progress() {
         long persistent = saturatingAdd(pendingBaseWork, pendingAcceleratedWork);
@@ -675,16 +717,22 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         }
         @Override public int getTankCapacity(int tank) { return tank >= 0 && tank < 2 ? getMaxFluidCapacity() : 0; }
         @Override public boolean isFluidValid(int tank, FluidStack stack) {
-            return tank == 0 ? experienceFluidTank.isFluidValid(stack) : tank == 1 && timeFluidTank.isFluidValid(stack);
+            return tank == 0 ? matchesFortuneFluid(stack) : tank == 1 && matchesAccelerationFluid(stack);
         }
         @Override public int fill(FluidStack stack, FluidAction action) {
-            if (experienceFluidTank.isFluidValid(stack)) return experienceFluidTank.fill(stack, action);
-            if (timeFluidTank.isFluidValid(stack)) return timeFluidTank.fill(stack, action);
+            if (matchesFortuneFluid(stack)) return experienceFluidTank.fill(stack, action);
+            if (matchesAccelerationFluid(stack)) return timeFluidTank.fill(stack, action);
             return 0;
         }
         @Override public FluidStack drain(FluidStack stack, FluidAction action) {
-            if (experienceFluidTank.getFluid().is(stack.getFluid())) return experienceFluidTank.drain(stack, action);
-            if (timeFluidTank.getFluid().is(stack.getFluid())) return timeFluidTank.drain(stack, action);
+            FluidStack storedExperience = experienceFluidTank.getFluid();
+            if (FluidStack.isSameFluidSameComponents(storedExperience, stack)) {
+                return experienceFluidTank.drain(stack, action);
+            }
+            FluidStack storedTime = timeFluidTank.getFluid();
+            if (FluidStack.isSameFluidSameComponents(storedTime, stack)) {
+                return timeFluidTank.drain(stack, action);
+            }
             return FluidStack.EMPTY;
         }
         @Override public FluidStack drain(int amount, FluidAction action) {

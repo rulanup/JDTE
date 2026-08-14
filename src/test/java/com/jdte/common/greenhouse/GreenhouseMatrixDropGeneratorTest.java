@@ -1,6 +1,7 @@
 package com.jdte.common.greenhouse;
 
 import com.jdte.common.recipes.GreenhouseCropDefinition;
+import com.jdte.common.recipes.GreenhouseRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -19,7 +20,8 @@ class GreenhouseMatrixDropGeneratorTest {
         GreenhouseCropDefinition definition = new GreenhouseCropDefinition(
                 List.of(new ItemStack(Items.WHEAT)),
                 ResourceLocation.withDefaultNamespace("wheat"),
-                ResourceLocation.withDefaultNamespace("wheat"), false, 4_096, 10);
+                ResourceLocation.withDefaultNamespace("wheat"), false, 4_096,
+                GreenhouseRecipe.DEFAULT_FLUID, 10);
         GreenhouseMatrixProductionProfile profile = profile(definition, 2);
 
         GreenhouseMatrixDropGenerator.Result result = GreenhouseMatrixDropGenerator.generate(
@@ -29,13 +31,14 @@ class GreenhouseMatrixDropGeneratorTest {
         assertEquals(1, result.drops().size());
         assertTrue(result.drops().getFirst().stack().is(Items.WHEAT));
         assertEquals(12L, result.drops().getFirst().amount());
+        assertEquals(GreenhouseRecipe.DEFAULT_FLUID, profile.definition().fluid());
     }
 
     private static GreenhouseMatrixProductionProfile profile(GreenhouseCropDefinition definition, int fortune) {
         return new GreenhouseMatrixProductionProfile(
                 GreenhouseMatrixProductionProfile.MachineKind.NORMAL,
                 new ItemStack(Items.WHEAT_SEEDS), 1,
-                GreenhouseMatrixProductionProfile.definitionKey(definition), 1L,
+                GreenhouseMatrixProductionProfile.definitionKey(definition), definition.fluid(), 1L,
                 1, 1, fortune, false, false, 10, 1, 0, 0,
                 false, false, definition.growthWork(), 512L, definition, BlockPos.ZERO);
     }

@@ -7,13 +7,13 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
-import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.blocks.LargeGreenhouseBlock;
 import com.jdte.common.blocks.LargeGreenhouseStructure;
 import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import com.jdte.common.recipes.GreenhouseCropResolver;
+import com.jdte.common.greenhouse.GreenhouseFluidSettlement;
 import com.jdte.common.greenhouse.GreenhouseMatrixMember;
 import com.jdte.common.greenhouse.GreenhouseMatrixMemberState;
 import com.jdte.common.greenhouse.GreenhouseMatrixProductionProfile;
@@ -65,12 +65,13 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     private static final int LEGACY_INPUT_SLOTS = 9;
     private static final int LEGACY_TOTAL_SLOTS = LEGACY_INPUT_SLOTS + OUTPUT_SLOTS;
     public static final int STRUCTURE_WORK_MULTIPLIER = 9;
-    public static final int FLUID_EFFICIENCY_MULTIPLIER = 9;
+    public static final int FLUID_EFFICIENCY_MULTIPLIER =
+            GreenhouseFluidSettlement.LARGE_EFFICIENCY_MULTIPLIER;
     private static final int LOOT_SAMPLES_PER_SETTLEMENT = 4;
 
     private final MachineEnergyStorage energyStorage = new MachineEnergyStorage(getMaxEnergy());
     private final PoweredMachineContainerData poweredData = new PoweredMachineContainerData(this);
-    private final JDTEFluidTank fluidTank = new JDTEFluidTank(getMaxMB(), stack -> stack.getFluid() instanceof TimeFluid);
+    private final JDTEFluidTank fluidTank = new JDTEFluidTank(getMaxMB(), stack -> !stack.isEmpty());
     private final FluidContainerData fluidData = new FluidContainerData(this);
     private final RedstoneControlData redstoneData = new RedstoneControlData();
     private final ItemStack[] cachedSeeds = new ItemStack[INPUT_SLOTS];
@@ -288,7 +289,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                     STRUCTURE_WORK_MULTIPLIER, effects == null ? 0 : effects.speedPercent());
             profiles.add(new GreenhouseMatrixProductionProfile(
                     GreenhouseMatrixProductionProfile.MachineKind.LARGE, seed, seed.getCount(),
-                    GreenhouseMatrixProductionProfile.definitionKey(definition), recipeGeneration,
+                    GreenhouseMatrixProductionProfile.definitionKey(definition), definition.fluid(), recipeGeneration,
                     getMultiplier(), STRUCTURE_WORK_MULTIPLIER, fortune, creative, overclocked,
                     energyCost, fluidCost, effects == null ? 0 : effects.speed(),
                     effects == null ? 0 : effects.efficiency(),
@@ -352,13 +353,12 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
         beginOutputChangeBatch();
         try {
-            GreenhouseCapacityLedger capacityLedger = GreenhouseCapacityLedger.capture(internalOutputHandler);
             for (int offset = 0; offset < INPUT_SLOTS; offset++) {
                 int slot = (nextInputSlot + offset) % INPUT_SLOTS;
                 GreenhouseCropDefinition definition = definitions[slot];
                 if (definition == null) continue;
                 settleSlot(slot, definition, elapsedTicks, maxHarvests, STRUCTURE_WORK_MULTIPLIER,
-                        settings, List.of(this), dynamicHarvestBudget, capacityLedger);
+                        settings, List.of(this), dynamicHarvestBudget);
                 if (hasResourcesForOne(slot, definition, settings, List.of(this)) && hasOutputSpace(definition)) {
                     newActiveMask |= 1 << slot;
                 }
@@ -375,8 +375,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     private int settleSlot(int slot, GreenhouseCropDefinition definition, int elapsedTicks,
                            int harvestBudget, int structureMultiplier, ProductionSettings settings,
-                           List<LargeGreenhouseBE> resourceMembers, int[] randomBudget,
-                           GreenhouseCapacityLedger capacityLedger) {
+                           List<LargeGreenhouseBE> resourceMembers, int[] randomBudget) {
         int parallelPlants = Math.max(1, getLocalSeed(slot).getCount());
         long addedWork = GreenhouseProductionEngine.addedWork(
                 elapsedTicks,
@@ -398,16 +397,13 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             growthWork[slot] = work.stalledWork();
             return 0;
         }
-        int candidate;
-        if (settings.creative()) {
-            candidate = requested;
-        } else {
-            int energyCost = settings.energyPerHarvest();
-            int fluidCost = getEffectiveFluidPerHarvest(slot, definition);
-            int byFluid = getHarvestsSupportedByFluid(totalFluid(resourceMembers), fluidCost);
-            int byEnergy = energyCost == 0 ? requested : totalEnergy(resourceMembers) / energyCost;
-            candidate = Math.min(requested, Math.min(byFluid, byEnergy));
-        }
+        int energyCost = settings.energyPerHarvest();
+        int fluidCost = getEffectiveFluidPerHarvest(slot, definition);
+        int byFluid = supportedFluidHarvests(
+                resourceMembers, definition.fluid(), fluidCost, requested, settings.creative());
+        int byEnergy = settings.creative() || energyCost == 0
+                ? requested : totalEnergy(resourceMembers) / energyCost;
+        int candidate = Math.min(requested, Math.min(byFluid, byEnergy));
         if (definition.harvestGenerator() != null && randomBudget != null && randomBudget[0] <= 0) {
             growthWork[slot] = work.availableWork();
             return 0;
@@ -420,28 +416,31 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             return 0;
         }
 
-        int paidHarvests = generateAndStoreDrops(serverLevel, getLocalSeed(slot), definition, candidate,
-                settings.fortuneLevel(), capacityLedger);
+        HarvestPlan plan = planDrops(serverLevel, getLocalSeed(slot), definition, candidate,
+                settings.fortuneLevel(), GreenhouseCapacityLedger.capture(internalOutputHandler));
+        int paidHarvests = plan.harvests();
         if (paidHarvests <= 0) {
             growthWork[slot] = work.stalledWork();
             return 0;
         }
+        if (!tryDrainFluid(resourceMembers, definition.fluid(), fluidCost,
+                paidHarvests, settings.creative())) {
+            growthWork[slot] = work.availableWork();
+            return 0;
+        }
+        int totalEnergyCost = paidHarvests * settings.energyPerHarvest();
+        if (!settings.creative() && !tryDrainEnergy(resourceMembers, totalEnergyCost)) {
+            growthWork[slot] = work.availableWork();
+            return 0;
+        }
+        if (!insertScaledDrops(null, internalOutputHandler, plan.drops(), 1)) {
+            throw new IllegalStateException("Reserved Large Greenhouse output changed before commit");
+        }
         if (definition.harvestGenerator() != null && randomBudget != null) {
             randomBudget[0] = Math.max(0, randomBudget[0] - paidHarvests);
         }
-        if (!settings.creative()) {
-            drainFluid(resourceMembers, getFluidCostForHarvests(
-                    getEffectiveFluidPerHarvest(slot, definition), paidHarvests));
-            drainEnergy(resourceMembers, paidHarvests * settings.energyPerHarvest());
-        }
         growthWork[slot] = work.remainingAfter(paidHarvests);
         return paidHarvests;
-    }
-
-    private static int totalFluid(List<LargeGreenhouseBE> members) {
-        long total = 0L;
-        for (LargeGreenhouseBE member : members) total += member.fluidTank.getFluidAmount();
-        return (int) Math.min(Integer.MAX_VALUE, total);
     }
 
     private static int totalEnergy(List<LargeGreenhouseBE> members) {
@@ -450,35 +449,30 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return (int) Math.min(Integer.MAX_VALUE, total);
     }
 
-    private static void drainFluid(List<LargeGreenhouseBE> members, int amount) {
+    private static int supportedFluidHarvests(List<LargeGreenhouseBE> members,
+                                              ResourceLocation requiredFluid, int fluidPerHarvest,
+                                              int requestedHarvests, boolean creative) {
+        return GreenhouseFluidSettlement.largeSupportedHarvests(
+                fluidHandlers(members), requiredFluid, fluidPerHarvest, requestedHarvests, creative);
+    }
+
+    private static boolean tryDrainFluid(List<LargeGreenhouseBE> members, ResourceLocation requiredFluid,
+                                         int fluidPerHarvest, int paidHarvests, boolean creative) {
+        return GreenhouseFluidSettlement.largeTryPay(
+                fluidHandlers(members), requiredFluid, fluidPerHarvest, paidHarvests, creative);
+    }
+
+    private static List<IFluidHandler> fluidHandlers(List<LargeGreenhouseBE> members) {
+        return members.stream().map(member -> (IFluidHandler) member.fluidTank).toList();
+    }
+
+    private static boolean tryDrainEnergy(List<LargeGreenhouseBE> members, int amount) {
         int remaining = Math.max(0, amount);
         for (LargeGreenhouseBE member : members) {
-            if (remaining == 0) return;
-            remaining -= member.fluidTank.drain(remaining, IFluidHandler.FluidAction.EXECUTE).getAmount();
-        }
-    }
-
-    private static int getHarvestsSupportedByFluid(int availableFluid, int fluidPerHarvest) {
-        if (availableFluid <= 0) return 0;
-        long supported = (long) availableFluid * FLUID_EFFICIENCY_MULTIPLIER
-                / Math.max(1, fluidPerHarvest);
-        return (int) Math.min(Integer.MAX_VALUE, supported);
-    }
-
-    private static int getFluidCostForHarvests(int fluidPerHarvest, int harvests) {
-        if (harvests <= 0) return 0;
-        long baseCost = (long) Math.max(1, fluidPerHarvest) * harvests;
-        long discounted = (baseCost + FLUID_EFFICIENCY_MULTIPLIER - 1L)
-                / FLUID_EFFICIENCY_MULTIPLIER;
-        return (int) Math.min(Integer.MAX_VALUE, discounted);
-    }
-
-    private static void drainEnergy(List<LargeGreenhouseBE> members, int amount) {
-        int remaining = Math.max(0, amount);
-        for (LargeGreenhouseBE member : members) {
-            if (remaining == 0) return;
+            if (remaining == 0) return true;
             remaining -= member.energyStorage.extractEnergy(remaining, false);
         }
+        return remaining == 0;
     }
 
     private GreenhouseCropDefinition[] resolveDefinitions(int slots) {
@@ -503,12 +497,10 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     private boolean hasResourcesForOne(int slot, GreenhouseCropDefinition definition,
                                        ProductionSettings settings, List<LargeGreenhouseBE> resourceMembers) {
-        if (settings.creative()) {
-            return true;
-        }
-        return totalFluid(resourceMembers) >= getFluidCostForHarvests(
-                getEffectiveFluidPerHarvest(slot, definition), 1)
-                && totalEnergy(resourceMembers) >= settings.energyPerHarvest();
+        boolean creative = settings.creative();
+        return supportedFluidHarvests(resourceMembers, definition.fluid(),
+                getEffectiveFluidPerHarvest(slot, definition), 1, creative) > 0
+                && (creative || totalEnergy(resourceMembers) >= settings.energyPerHarvest());
     }
 
     private boolean hasOutputSpace(GreenhouseCropDefinition definition) {
@@ -536,9 +528,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return capacity;
     }
 
-    private int generateAndStoreDrops(ServerLevel serverLevel, ItemStack plantedSeed,
-                                      GreenhouseCropDefinition definition, int harvests,
-                                      int fortuneLevel, GreenhouseCapacityLedger capacityLedger) {
+    private HarvestPlan planDrops(ServerLevel serverLevel, ItemStack plantedSeed,
+                                  GreenhouseCropDefinition definition, int harvests,
+                                  int fortuneLevel, GreenhouseCapacityLedger capacityLedger) {
         boolean convertEssence = UpgradeHelper.hasEssenceConversionUpgrade(this);
         boolean convertSeeds = UpgradeHelper.hasSeedConversionUpgrade(this);
         int samples = definition.harvestGenerator() == null
@@ -547,6 +539,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         int baseGroup = harvests / samples;
         int extraGroups = harvests % samples;
         int completed = 0;
+        List<ItemStack> plannedDrops = new ArrayList<>();
         ItemStack tool = new ItemStack(Items.DIAMOND_HOE);
         for (int sample = 0; sample < samples; sample++) {
             int groupHarvests = baseGroup + (sample < extraGroups ? 1 : 0);
@@ -562,13 +555,20 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             if (convertEssence) {
                 scaledDrops = GreenhouseEssenceConversionHelper.convert(serverLevel, scaledDrops);
             }
-            if (fitted > 0 && capacityLedger.canFit(scaledDrops, 1)
-                    && insertScaledDrops(null, internalOutputHandler, scaledDrops, 1)) {
+            if (fitted > 0 && capacityLedger.canFit(scaledDrops, 1)) {
                 capacityLedger.reserve(scaledDrops, 1);
+                plannedDrops.addAll(scaledDrops);
                 completed += fitted;
             }
         }
-        return completed;
+        return new HarvestPlan(completed, plannedDrops);
+    }
+
+    private record HarvestPlan(int harvests, List<ItemStack> drops) {
+        private HarvestPlan {
+            harvests = Math.max(0, harvests);
+            drops = List.copyOf(drops);
+        }
     }
 
     private List<ItemStack> generateSingleHarvest(ServerLevel serverLevel, GreenhouseCropDefinition definition,

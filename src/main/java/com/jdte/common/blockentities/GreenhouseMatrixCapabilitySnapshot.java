@@ -163,35 +163,14 @@ final class GreenhouseMatrixCapabilitySnapshot {
         return received;
     }
 
-    long fluidStoredLong() {
-        long total = 0L;
-        for (IFluidHandler target : fluids) {
-            for (int tank = 0; tank < target.getTanks(); tank++) {
-                total = saturatingAdd(total, target.getFluidInTank(tank).getAmount());
-            }
-        }
-        return total;
+    GreenhouseMatrixFluidBudget fluidBudget() {
+        return GreenhouseMatrixFluidBudget.capture(fluids);
     }
 
     long energyStoredLong() {
         long total = 0L;
         for (IEnergyStorage target : energies) total = saturatingAdd(total, target.getEnergyStored());
         return total;
-    }
-
-    long drainFluid(long amount) {
-        long remaining = Math.max(0L, amount);
-        for (IFluidHandler target : fluids) {
-            while (remaining > 0L) {
-                int request = (int) Math.min(Integer.MAX_VALUE, remaining);
-                FluidStack drained = target.drain(request, IFluidHandler.FluidAction.EXECUTE);
-                if (drained.isEmpty()) break;
-                remaining -= drained.getAmount();
-                if (drained.getAmount() < request) break;
-            }
-            if (remaining == 0L) break;
-        }
-        return amount - remaining;
     }
 
     long extractEnergy(long amount) {
