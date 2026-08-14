@@ -8,7 +8,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
-import com.jdte.common.greenhouse.GreenhouseFluidPolicy;
+import com.jdte.common.greenhouse.GreenhouseFluidSettlement;
 import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import com.jdte.common.recipes.GreenhouseCropResolver;
@@ -388,16 +388,14 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
             growthWork[slot] = Math.min(availableWork, definition.growthWork());
             return;
         }
-        int candidate;
-        if (UpgradeHelper.hasCreativeUpgrade(this)) {
-            candidate = requested;
-        } else {
-            int energyCost = getEffectiveEnergyPerHarvest();
-            int byFluid = GreenhouseFluidPolicy.available(fluidTank.getFluid(), definition.fluid())
-                    / getEffectiveFluidPerHarvest(slot, definition);
-            int byEnergy = energyCost == 0 ? requested : energyStorage.getEnergyStored() / energyCost;
-            candidate = Math.min(requested, Math.min(byFluid, byEnergy));
-        }
+        boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
+        int energyCost = getEffectiveEnergyPerHarvest();
+        int byFluid = GreenhouseFluidSettlement.normalSupportedHarvests(
+                fluidTank, definition.fluid(), getEffectiveFluidPerHarvest(slot, definition),
+                requested, creative);
+        int byEnergy = creative || energyCost == 0
+                ? requested : energyStorage.getEnergyStored() / energyCost;
+        int candidate = Math.min(requested, Math.min(byFluid, byEnergy));
         if (candidate <= 0 || !(level instanceof ServerLevel serverLevel)) {
             growthWork[slot] = Math.min(availableWork, definition.growthWork());
             return;
@@ -419,11 +417,10 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         if (definition.harvestGenerator() != null) {
             dynamicHarvestBudget[0] = Math.max(0, dynamicHarvestBudget[0] - paidHarvests);
         }
-        if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-            if (GreenhouseFluidPolicy.matches(fluidTank.getFluid(), definition.fluid())) {
-                fluidTank.drain(paidHarvests * getEffectiveFluidPerHarvest(slot, definition),
-                        IFluidHandler.FluidAction.EXECUTE);
-            }
+        GreenhouseFluidSettlement.normalDrainPaidHarvests(
+                fluidTank, definition.fluid(), getEffectiveFluidPerHarvest(slot, definition),
+                paidHarvests, creative);
+        if (!creative) {
             energyStorage.extractEnergy(paidHarvests * getEffectiveEnergyPerHarvest(), false);
         }
         growthWork[slot] = Math.min(availableWork - (long) paidHarvests * definition.growthWork(), definition.growthWork());
@@ -461,12 +458,10 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     }
 
     private boolean hasResourcesForOne(int slot, GreenhouseCropDefinition definition) {
-        if (UpgradeHelper.hasCreativeUpgrade(this)) {
-            return true;
-        }
-        return GreenhouseFluidPolicy.canConsume(fluidTank.getFluid(), definition.fluid(),
-                getEffectiveFluidPerHarvest(slot, definition), false)
-                && energyStorage.getEnergyStored() >= getEffectiveEnergyPerHarvest();
+        boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
+        return GreenhouseFluidSettlement.normalSupportedHarvests(
+                fluidTank, definition.fluid(), getEffectiveFluidPerHarvest(slot, definition), 1, creative) > 0
+                && (creative || energyStorage.getEnergyStored() >= getEffectiveEnergyPerHarvest());
     }
 
     private boolean hasOutputSpace(GreenhouseCropDefinition definition) {
