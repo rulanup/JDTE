@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +15,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 /** Settings recipe that selects the mineral extractor's two distinct resource fluids. */
 public record MineralExtractorResourcesRecipe(
@@ -72,10 +75,32 @@ public record MineralExtractorResourcesRecipe(
 
         private static DataResult<MineralExtractorResourcesRecipe> validated(ResourceLocation fortuneFluid,
                                                                                ResourceLocation accelerationFluid) {
+            String fortuneError = sourceFluidError("fortune_fluid", fortuneFluid);
+            if (fortuneError != null) {
+                return DataResult.error(() -> fortuneError);
+            }
+            String accelerationError = sourceFluidError("acceleration_fluid", accelerationFluid);
+            if (accelerationError != null) {
+                return DataResult.error(() -> accelerationError);
+            }
             if (fortuneFluid.equals(accelerationFluid)) {
                 return DataResult.error(() -> "fortune_fluid and acceleration_fluid must differ");
             }
             return DataResult.success(new MineralExtractorResourcesRecipe(fortuneFluid, accelerationFluid));
+        }
+
+        private static String sourceFluidError(String field, ResourceLocation id) {
+            if (!BuiltInRegistries.FLUID.containsKey(id)) {
+                return "Unknown " + field + ": " + id;
+            }
+            Fluid fluid = BuiltInRegistries.FLUID.get(id);
+            if (fluid == Fluids.EMPTY) {
+                return field + " cannot be empty: " + id;
+            }
+            if (!fluid.defaultFluidState().isSource()) {
+                return field + " must reference a source fluid: " + id;
+            }
+            return null;
         }
 
         @Override

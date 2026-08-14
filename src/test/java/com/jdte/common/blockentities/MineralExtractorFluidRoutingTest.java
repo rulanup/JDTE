@@ -68,8 +68,9 @@ class MineralExtractorFluidRoutingTest {
         assertEquals(0, extractor.usableFortuneFluid());
         assertEquals(0, extractor.usableAccelerationFluid());
 
-        FluidStack drainedLava = fluids.drain(stack(Fluids.LAVA, 1_000), IFluidHandler.FluidAction.EXECUTE);
-        FluidStack drainedWater = fluids.drain(stack(Fluids.WATER, 1_000), IFluidHandler.FluidAction.EXECUTE);
+        FluidStack drainedLava = fluids.drain(
+                fluids.getFluidInTank(0).copyWithAmount(1_000), IFluidHandler.FluidAction.EXECUTE);
+        FluidStack drainedWater = fluids.drain(1_000, IFluidHandler.FluidAction.EXECUTE);
         assertTrue(FluidStack.isSameFluidSameComponents(namedLava, drainedLava));
         assertTrue(FluidStack.isSameFluidSameComponents(namedWater, drainedWater));
         assertEquals(1_000, drainedLava.getAmount());
@@ -79,6 +80,69 @@ class MineralExtractorFluidRoutingTest {
         assertEquals(Fluids.WATER, fluids.getFluidInTank(0).getFluid());
         assertEquals(1_000, fluids.fill(stack(Fluids.LAVA, 1_000), IFluidHandler.FluidAction.EXECUTE));
         assertEquals(Fluids.LAVA, fluids.getFluidInTank(1).getFluid());
+    }
+
+    @Test
+    void specifiedDrainRejectsSameFluidWithDifferentComponents() {
+        MineralExtractorBE extractor = extractor(new MineralExtractorFluidRoles(LAVA, WATER));
+        IFluidHandler fluids = extractor.getCombinedFluidHandler();
+        FluidStack stored = named(Fluids.LAVA, 1_000, "component-bearing fortune");
+        fluids.fill(stored, IFluidHandler.FluidAction.EXECUTE);
+
+        FluidStack drained = fluids.drain(stack(Fluids.LAVA, 250), IFluidHandler.FluidAction.EXECUTE);
+
+        assertTrue(drained.isEmpty());
+        assertEquals(1_000, fluids.getFluidInTank(0).getAmount());
+        assertTrue(FluidStack.isSameFluidSameComponents(stored, fluids.getFluidInTank(0)));
+    }
+
+    @Test
+    void specifiedDrainSimulationReturnsMatchingVariantWithoutMutation() {
+        MineralExtractorBE extractor = extractor(new MineralExtractorFluidRoles(LAVA, WATER));
+        IFluidHandler fluids = extractor.getCombinedFluidHandler();
+        FluidStack stored = named(Fluids.LAVA, 1_000, "simulated fortune");
+        fluids.fill(stored, IFluidHandler.FluidAction.EXECUTE);
+
+        FluidStack drained = fluids.drain(
+                stored.copyWithAmount(275), IFluidHandler.FluidAction.SIMULATE);
+
+        assertEquals(275, drained.getAmount());
+        assertTrue(FluidStack.isSameFluidSameComponents(stored, drained));
+        assertEquals(1_000, fluids.getFluidInTank(0).getAmount());
+        assertTrue(FluidStack.isSameFluidSameComponents(stored, fluids.getFluidInTank(0)));
+    }
+
+    @Test
+    void specifiedDrainExecuteRemovesTheExactRequestedAmount() {
+        MineralExtractorBE extractor = extractor(new MineralExtractorFluidRoles(LAVA, WATER));
+        IFluidHandler fluids = extractor.getCombinedFluidHandler();
+        FluidStack stored = named(Fluids.LAVA, 1_000, "executed fortune");
+        fluids.fill(stored, IFluidHandler.FluidAction.EXECUTE);
+
+        FluidStack drained = fluids.drain(
+                stored.copyWithAmount(275), IFluidHandler.FluidAction.EXECUTE);
+
+        assertEquals(275, drained.getAmount());
+        assertTrue(FluidStack.isSameFluidSameComponents(stored, drained));
+        assertEquals(725, fluids.getFluidInTank(0).getAmount());
+        assertTrue(FluidStack.isSameFluidSameComponents(stored, fluids.getFluidInTank(0)));
+    }
+
+    @Test
+    void untypedDrainCanRemoveAResidualComponentVariant() {
+        AtomicReference<MineralExtractorFluidRoles> roles = new AtomicReference<>(
+                new MineralExtractorFluidRoles(LAVA, WATER));
+        MineralExtractorBE extractor = extractor(roles);
+        IFluidHandler fluids = extractor.getCombinedFluidHandler();
+        FluidStack stored = named(Fluids.LAVA, 1_000, "former configured fluid");
+        fluids.fill(stored, IFluidHandler.FluidAction.EXECUTE);
+        roles.set(new MineralExtractorFluidRoles(WATER, LAVA));
+
+        FluidStack drained = fluids.drain(400, IFluidHandler.FluidAction.EXECUTE);
+
+        assertEquals(400, drained.getAmount());
+        assertTrue(FluidStack.isSameFluidSameComponents(stored, drained));
+        assertEquals(600, fluids.getFluidInTank(0).getAmount());
     }
 
     @Test

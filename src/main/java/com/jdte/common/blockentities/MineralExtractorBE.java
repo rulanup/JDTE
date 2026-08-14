@@ -726,12 +726,12 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         }
         @Override public FluidStack drain(FluidStack stack, FluidAction action) {
             FluidStack storedExperience = experienceFluidTank.getFluid();
-            if (storedExperience.is(stack.getFluid())) {
-                return experienceFluidTank.drain(storedExperience.copyWithAmount(stack.getAmount()), action);
+            if (FluidStack.isSameFluidSameComponents(storedExperience, stack)) {
+                return experienceFluidTank.drain(stack, action);
             }
             FluidStack storedTime = timeFluidTank.getFluid();
-            if (storedTime.is(stack.getFluid())) {
-                return timeFluidTank.drain(storedTime.copyWithAmount(stack.getAmount()), action);
+            if (FluidStack.isSameFluidSameComponents(storedTime, stack)) {
+                return timeFluidTank.drain(stack, action);
             }
             return FluidStack.EMPTY;
         }

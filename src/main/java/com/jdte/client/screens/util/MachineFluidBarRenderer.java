@@ -25,15 +25,29 @@ public final class MachineFluidBarRenderer {
     }
 
     public static void renderBar(GuiGraphics guiGraphics, FluidStack fluidStack, int fluidAmount, int maxMb, int x, int y) {
+        renderBar(guiGraphics, fluidStack, fluidAmount, maxMb, false, x, y);
+    }
+
+    public static void renderBar(GuiGraphics guiGraphics, FluidStack fluidStack, int fluidAmount, int maxMb,
+                                 boolean configuredGhost, int x, int y) {
         guiGraphics.blit(FLUID_BAR, x, y, 0, 0, 18, 72, 36, 72);
         int remaining = MachineBarMath.scaleClamped(fluidAmount, maxMb, 70);
         if (remaining > 0) {
             renderFluid(guiGraphics, fluidStack, x + 1, y + 72 - 1, 16, remaining);
+        } else if (configuredGhost && !fluidStack.isEmpty()) {
+            RenderSystem.enableBlend();
+            renderFluid(guiGraphics, fluidStack, x + 1, y + 44, 16, 16, 0.35F);
+            RenderSystem.disableBlend();
         }
         guiGraphics.blit(FLUID_BAR, x, y, 18, 0, 18, 72, 36, 72);
     }
 
     public static void renderFluid(GuiGraphics guiGraphics, FluidStack fluidStack, int startX, int startY, int width, int height) {
+        renderFluid(guiGraphics, fluidStack, startX, startY, width, height, 1.0F);
+    }
+
+    private static void renderFluid(GuiGraphics guiGraphics, FluidStack fluidStack, int startX, int startY,
+                                    int width, int height, float alpha) {
         if (fluidStack.isEmpty() || height <= 0) return;
 
         Fluid fluid = fluidStack.getFluid();
@@ -49,7 +63,7 @@ public final class MachineFluidBarRenderer {
 
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
-        RenderSystem.setShaderColor(red, green, blue, 1.0f);
+        RenderSystem.setShaderColor(red, green, blue, alpha);
 
         int zLevel = 0;
         float uMin = fluidStillSprite.getU0();

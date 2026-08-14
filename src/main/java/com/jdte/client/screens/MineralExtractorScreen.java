@@ -20,15 +20,16 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.List;
 
 public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorContainer> {
     private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
@@ -144,27 +145,46 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
 
     private void renderFluidBars(GuiGraphics graphics) {
         var layout = GuiUpgradeLayoutConfig.getInstance();
-        int capacity = extractorContainer.getFluidCapacity();
-        int experience = extractorContainer.getExperienceFluid();
-        int time = extractorContainer.getTimeFluid();
-        var roles = MineralExtractorResourceResolver.resolve(
-                minecraft == null || minecraft.level == null ? null : minecraft.level.getRecipeManager());
-        Fluid experienceFluid = displayFluid(extractorContainer.getExperienceFluidType(),
-                BuiltInRegistries.FLUID.getOptional(roles.fortuneFluid()).orElse(Fluids.EMPTY));
-        Fluid timeFluid = displayFluid(extractorContainer.getTimeFluidType(),
-                BuiltInRegistries.FLUID.getOptional(roles.accelerationFluid()).orElse(Fluids.EMPTY));
+        FluidDisplays displays = fluidDisplays();
+        MineralExtractorFluidDisplay experience = displays.experience();
+        MineralExtractorFluidDisplay acceleration = displays.acceleration();
         MachineFluidBarRenderer.renderBar(graphics,
-                new FluidStack(experienceFluid, Math.max(1, experience)), experience, capacity,
+                experience.renderedFluid(), experience.amount(), experience.capacity(), experience.configuredGhost(),
                 getGuiLeft() + layout.getMineralExtractorExperienceFluidX(),
                 getGuiTop() + layout.getMineralExtractorExperienceFluidY());
         MachineFluidBarRenderer.renderBar(graphics,
-                new FluidStack(timeFluid, Math.max(1, time)), time, capacity,
+                acceleration.renderedFluid(), acceleration.amount(), acceleration.capacity(), acceleration.configuredGhost(),
                 getGuiLeft() + layout.getMineralExtractorTimeFluidX(),
                 getGuiTop() + layout.getMineralExtractorTimeFluidY());
     }
 
-    static Fluid displayFluid(Fluid actual, Fluid configured) {
-        return actual == null || actual == Fluids.EMPTY ? configured : actual;
+    private FluidDisplays fluidDisplays() {
+        var roles = MineralExtractorResourceResolver.resolve(
+                minecraft == null || minecraft.level == null ? null : minecraft.level.getRecipeManager());
+        int capacity = extractorContainer.getFluidCapacity();
+        return new FluidDisplays(
+                MineralExtractorFluidDisplay.create(
+                        extractorContainer.getExperienceFluidType(),
+                        BuiltInRegistries.FLUID.getOptional(roles.fortuneFluid()).orElse(Fluids.EMPTY),
+                        extractorContainer.getExperienceFluid(), capacity),
+                MineralExtractorFluidDisplay.create(
+                        extractorContainer.getTimeFluidType(),
+                        BuiltInRegistries.FLUID.getOptional(roles.accelerationFluid()).orElse(Fluids.EMPTY),
+                        extractorContainer.getTimeFluid(), capacity));
+    }
+
+    static List<FormattedText> experienceTooltip(MineralExtractorFluidDisplay display, int fortunePercent) {
+        return List.of(
+                display.tooltipName(),
+                Component.translatable("jdte.screen.mineral_extractor.experience_fluid",
+                        display.amount(), display.capacity(), fortunePercent));
+    }
+
+    static List<FormattedText> accelerationTooltip(MineralExtractorFluidDisplay display) {
+        return List.of(
+                display.tooltipName(),
+                Component.translatable("jdte.screen.mineral_extractor.time_fluid",
+                        display.amount(), display.capacity()));
     }
 
     private void renderStatus(GuiGraphics graphics) {
@@ -240,13 +260,13 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
         Slot hoveredSurveySlot = hoveredEmptySurveySlot(mouseX, mouseY);
         if (MiscTools.inBounds(getGuiLeft() + layout.getMineralExtractorExperienceFluidX(),
                 getGuiTop() + layout.getMineralExtractorExperienceFluidY(), 18, 72, mouseX, mouseY)) {
-            graphics.renderTooltip(font, Component.translatable("jdte.screen.mineral_extractor.experience_fluid",
-                    extractorContainer.getExperienceFluid(), extractorContainer.getFluidCapacity(),
-                    extractorContainer.getFortunePercent()), mouseX, mouseY);
+            graphics.renderTooltip(font, Language.getInstance().getVisualOrder(
+                    experienceTooltip(fluidDisplays().experience(), extractorContainer.getFortunePercent())),
+                    mouseX, mouseY);
         } else if (MiscTools.inBounds(getGuiLeft() + layout.getMineralExtractorTimeFluidX(),
                 getGuiTop() + layout.getMineralExtractorTimeFluidY(), 18, 72, mouseX, mouseY)) {
-            graphics.renderTooltip(font, Component.translatable("jdte.screen.mineral_extractor.time_fluid",
-                    extractorContainer.getTimeFluid(), extractorContainer.getFluidCapacity()), mouseX, mouseY);
+            graphics.renderTooltip(font, Language.getInstance().getVisualOrder(
+                    accelerationTooltip(fluidDisplays().acceleration())), mouseX, mouseY);
         } else if (hoveredSurveySlot != null) {
             graphics.renderTooltip(font, Language.getInstance().getVisualOrder(java.util.List.of(
                     Component.translatable("jdte.screen.mineral_extractor.survey_slot.title"),
@@ -283,5 +303,9 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
 
     private int stateColor() {
         return extractorContainer.getStateId() == MineralExtractorBE.State.RUNNING.ordinal() ? 0x208020 : 0xA04030;
+    }
+
+    private record FluidDisplays(MineralExtractorFluidDisplay experience,
+                                 MineralExtractorFluidDisplay acceleration) {
     }
 }
