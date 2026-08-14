@@ -153,11 +153,14 @@ public final class GreenhouseMatrixSimulation {
                     warning.accept("Skipped invalid matrix simulation group " + index);
                     continue;
                 }
-                ResourceLocation fluid = saved.contains("fluid", Tag.TAG_STRING)
+                boolean hasFluid = saved.contains("fluid", Tag.TAG_STRING);
+                ResourceLocation fluid = hasFluid
                         ? ResourceLocation.parse(saved.getString("fluid"))
                         : GreenhouseRecipe.DEFAULT_FLUID;
+                String definitionKey = saved.getString("definitionKey");
+                if (!hasFluid) definitionKey = migrateLegacyDefinitionKey(definitionKey, fluid);
                 GreenhouseMatrixProductionProfile profile = new GreenhouseMatrixProductionProfile(
-                        kinds[kindIndex], seed, saved.getInt("templateCount"), saved.getString("definitionKey"), fluid,
+                        kinds[kindIndex], seed, saved.getInt("templateCount"), definitionKey, fluid,
                         GreenhouseCropResolver.cacheGeneration(), saved.getInt("selectedMultiplier"),
                         saved.getInt("structureMultiplier"), saved.getInt("fortuneLevel"),
                         saved.getBoolean("creative"), saved.getBoolean("overclocked"),
@@ -170,6 +173,15 @@ public final class GreenhouseMatrixSimulation {
                 warning.accept("Failed to decode matrix simulation group " + index + ": " + exception.getMessage());
             }
         }
+    }
+
+    private static String migrateLegacyDefinitionKey(String legacyKey, ResourceLocation fluid) {
+        int separator = -1;
+        for (int field = 0; field < 4; field++) {
+            separator = legacyKey.indexOf('|', separator + 1);
+            if (separator < 0) return legacyKey;
+        }
+        return legacyKey.substring(0, separator + 1) + fluid + '|' + legacyKey.substring(separator + 1);
     }
 
     private static long saturatingMultiply(long left, long right) {
