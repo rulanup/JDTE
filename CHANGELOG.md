@@ -2,7 +2,14 @@
 
 ### English
 
-#### v0.5.9-alpha3 (Current)
+#### v0.5.9-alpha4 (Current)
+
+- **Changed**: Greenhouse and Large Greenhouse recipes can now select their required source fluid through datapack recipe data; Greenhouse Matrix production tracks and settles each recipe's fluid independently.
+- **Changed**: Mineral Extractor and Large Mineral Extractor resource fluids are now selected by the `jdte:mineral_extractor_resources` recipe instead of hardcoded XP and Time Fluids, with dynamic tank routing and client labels.
+- **Compatibility**: Modpack authors can replace the default greenhouse and mineral extractor fluids without Java changes.
+- **Validation**: Added regression coverage for custom fluid routing, matrix resource pooling, recipe validation, legacy profile migration, and client fluid displays.
+
+#### v0.5.9-alpha3
 
 - **Fixed**: Crystal Incubators no longer harvest Neo ECO AE Extension's small, medium, or large Energized Crystal buds imported through the broad `c:clusters` tag; only the fully grown Energized Crystal Cluster remains harvestable.
 - **Fixed**: Advanced and Extended Gel Generators now allow gel blocks in conversion input slots when a matching Goo Spread recipe exists, including recipes injected by KubeJS.
@@ -197,7 +204,11 @@
 
 ### 中文
 
-#### v0.5.9-alpha3（当前）
+#### v0.5.9-alpha4（当前）
+
+- See the English release notes above.
+
+#### v0.5.9-alpha3
 
 - See the English release notes above.
 

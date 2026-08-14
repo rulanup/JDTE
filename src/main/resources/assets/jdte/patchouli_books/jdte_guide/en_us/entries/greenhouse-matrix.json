@@ -65,11 +65,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The interior accepts Greenhouses, Large Greenhouses (including their parts), Matrix Enhancers, and air. The controller validates every five seconds and whenever its management screen opens. The screen reports the structure and managed machines, pauses every internal Greenhouse together, and globally disables internal crop rendering.$(br2)$(bold)Ports$()$(br2)$(li)Item Input inserts only reusable plant templates.$(li)Item Output extracts from the controller's central long-count product buffer.$(li)Recipe Fluid Input distributes recipe-required fluids (Time Fluid by default).$(li)Energy Input distributes FE.$(br2)The controller exposes no automation capability; pipes must use the matching port."
+      "text": "The interior accepts Greenhouses, Large Greenhouses (including their parts), Matrix Enhancers, and air. The controller validates every five seconds and whenever its management screen opens. The screen reports the structure and managed machines, pauses every internal Greenhouse together, and globally disables internal crop rendering.$(br2)$(bold)Ports$()$(br2)$(li)Item Input inserts only reusable plant templates.$(li)Item Output extracts from the controller's central long-count product buffer.$(li)Recipe Fluid Input distributes recipe-required fluids (Time Fluid by default).$(li)Energy Input distributes FE."
     },
     {
       "type": "patchouli:text",
-      "text": "Auto I/O is enabled by default in the management screen. Each port actively interacts with inventories or storage directly against its exterior face: Item Input pulls plant templates, Item Output pushes products, and the fluid and energy inputs pull their respective resources. Pipes can still connect directly and work alongside Auto I/O.$(br2)$(bold)Central Simulation$()"
+      "text": "The controller exposes no automation capability; pipes must use the matching port.$(br2)Auto I/O is enabled by default in the management screen. Each port actively interacts with inventories or storage directly against its exterior face: Item Input pulls plant templates, Item Output pushes products, and the fluid and energy inputs pull their respective resources. Pipes can still connect directly and work alongside Auto I/O.$(br2)$(bold)Central Simulation$()"
     },
     {
       "type": "patchouli:text",
@@ -81,7 +81,15 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Real loot tables and dynamic crops use a bounded number of representative samples per group and scale the result to the group size. Seed and Essence conversions run before buffering. Paused matrices, unloaded members, and time while the game is closed do not receive catch-up production. Temporary structure invalidation does not clear buffered products.$(br2)$(bold)Block Enhancers$()$(br2)$(li)Speed: +25% work per block, capped at +300%.$(li)Efficiency: -10% FE and recipe-fluid cost per block, capped at -80%.$(li)Seed: grants the Seed-to-Essence effect to every managed Greenhouse.$(li)Essence: grants Essence Conversion; essences with multiple crafting recipes remain unchanged."
+      "text": "Real loot tables and dynamic crops use a bounded number of representative samples per group and scale the result to the group size. Seed and Essence conversions run before buffering. Paused matrices, unloaded members, and time while the game is closed do not receive catch-up production. Temporary structure invalidation does not clear buffered products.$(br2)$(bold)KubeJS: Configured Fluids$()$(br2)The Matrix runs the same $(thing)jdte:greenhouse$() recipes as its managed Greenhouses and Large Greenhouses. This recipe makes potatoes consume water:"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)ServerEvents.recipes(event => {$(br)  event.remove({ id: 'jdte:greenhouse/potato' })$(br)  event.custom({$(br)    type: 'jdte:greenhouse',$(br)    seed: { item: 'minecraft:potato' },$(br)    outputs: [{ id: 'minecraft:potato', count: 2 }],$(br)    display_block: 'minecraft:potatoes',$(br)    growth_work: 20,$(br)    fluid: 'minecraft:water',$(br)    time_fluid: 100$(br)  }).id('jdte:greenhouse/potato')$(br)})$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)fluid$() defaults to $(thing)justdirethings:time_fluid_source$() when omitted, while $(thing)time_fluid$() is the amount consumed per harvest. Each managed machine has a single tank and does not mix fluids; Matrix production drains only matching recipe fluid. After $(thing)/reload$(), old fluid remains extractable but powers only recipes that still match it.$(br2)$(bold)Block Enhancers$()$(br2)$(li)Speed: +25% work per block, capped at +300%.$(li)Efficiency: -10% FE and recipe-fluid cost per block, capped at -80%.$(li)Seed: grants the Seed-to-Essence effect to every managed Greenhouse.$(li)Essence: grants Essence Conversion; essences with multiple crafting recipes remain unchanged."
     },
     {
       "type": "patchouli:text",
@@ -98,14 +106,6 @@
     {
       "type": "patchouli:text",
       "text": "Like a normal machine, the controller has eight upgrade slots and no extra dedicated slot. The controller-only $(bold)Greenhouse Matrix Quick Install Upgrade$() can occupy any of those eight slots. Once installed, it unlocks eight additional global slots that accept stacked upgrade cards. Cards placed there are transferred one at a time into the real eight-slot upgrade inventories of managed Greenhouses and Large Greenhouses; they are not virtual effects.$(br2)The controller distributes cards round-robin and respects each Greenhouse's normal limits and conflicts. Cards that currently cannot be installed remain queued. The Quick Install Upgrade cannot be removed until the queue is empty."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(bold)KubeJS: Configured Fluids$()$(br2)The Matrix runs the same $(thing)jdte:greenhouse$() recipes as its managed Greenhouses. $(thing)fluid$() defaults to $(thing)justdirethings:time_fluid_source$(); $(thing)time_fluid$() is the amount per harvest. Each managed machine has one tank and does not mix fluids, and the Matrix drains only matching recipe fluid. After $(thing)/reload$(), old fluid is extractable but powers only matching recipes."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(bold)KubeJS example$()$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.remove({ id: 'jdte:greenhouse/potato' })$(br)  event.custom({ type: 'jdte:greenhouse', seed: { item: 'minecraft:potato' }, outputs: [{ id: 'minecraft:potato', count: 2 }], display_block: 'minecraft:potatoes', growth_work: 20, fluid: 'minecraft:water', time_fluid: 100 }).id('jdte:greenhouse/potato')$(br)})$()"
     },
     {
       "type": "patchouli:crafting",

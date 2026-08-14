@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.5.9-alpha3` |
+| Current version | `0.5.9-alpha4` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.215+` |
 | Just Dire Things | `1.5.7+` |

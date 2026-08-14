@@ -15,15 +15,15 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)内置常见原版农作物、下界疣、可可豆和树苗配方。$(li)Mystical Agriculture 与 Mystical Agradditions 通过公开 Crop Registry 自动兼容，并使用对应成熟作物掉落。$(li)直接读取当前加载的全部 Botany Pots 作物配方，包括孢子花以及模组或数据包添加的盆栽植物。$(li)其他带 $(thing)age$() 属性的作物，以及常见花朵、树苗和蘑菇会尝试通用识别。$(li)整合包可添加 $(thing)jdte:greenhouse$() 数据配方来明确指定模板、产物和流体成本。$(br2)JEI 会显示模板、基础消耗和预览产物。点击界面的苗床进度区域可直接打开该分类。$(br2)$(bold)升级与自动化$()$(br2)$(li)支持：容量、流体、时运、超频、创造升级。$(li)每张时运升级使最终平均产量增加 10%，最多 3 张。$(li)超频或创造升级将倍率固定为 64x；创造升级免除资源消耗。$(li)自动 I/O 支持模板与配方所需流体（默认时间流体）输入、产物输出；高倍率产物会在 Tick 末合并后直推相邻库存。$(br2)$(bold)合成$()"
+      "text": "$(li)内置常见原版农作物、下界疣、可可豆和树苗配方。$(li)Mystical Agriculture 与 Mystical Agradditions 通过公开 Crop Registry 自动兼容，并使用对应成熟作物掉落。$(li)直接读取当前加载的全部 Botany Pots 作物配方，包括孢子花以及模组或数据包添加的盆栽植物。$(li)其他带 $(thing)age$() 属性的作物，以及常见花朵、树苗和蘑菇会尝试通用识别。$(li)整合包可添加 $(thing)jdte:greenhouse$() 数据配方来明确指定模板、产物和流体成本。$(br2)JEI 会显示模板、基础消耗和预览产物。点击界面的苗床进度区域可直接打开该分类。$(br2)$(bold)KubeJS：可配置流体$()$(br2)使用 $(thing)jdte:greenhouse$() 配方替换植物配方；普通温室、大型温室和温室矩阵都使用这一格式。"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)KubeJS：可配置流体$()$(br2)使用 $(thing)jdte:greenhouse$() 配方替换植物配方；普通温室、大型温室和温室矩阵共用这一格式。$(thing)fluid$() 可省略，默认值为 $(thing)justdirethings:time_fluid_source$()；$(thing)time_fluid$() 仍是每次收获消耗的数量，不是流体 ID。普通温室的单储罐不会混装流体。$(thing)/reload$() 后旧流体仍可抽出，但只能驱动仍要求该流体的配方。"
+      "text": "$(thing)ServerEvents.recipes(event => {$(br)  event.remove({ id: 'jdte:greenhouse/wheat' })$(br)  event.custom({$(br)    type: 'jdte:greenhouse',$(br)    seed: { item: 'minecraft:wheat_seeds' },$(br)    outputs: [{ id: 'minecraft:wheat', count: 2 }],$(br)    display_block: 'minecraft:wheat',$(br)    growth_work: 20,$(br)    fluid: 'minecraft:water',$(br)    time_fluid: 100$(br)  }).id('jdte:greenhouse/wheat')$(br)})$()$(br2)$(thing)fluid$() 可省略，默认值为 $(thing)justdirethings:time_fluid_source$()。$(thing)time_fluid$() 仍表示每次收获消耗的数量，而不是流体 ID。普通温室只有一个储罐，因此不会混装流体；$(thing)/reload$() 后旧流体仍可抽出，但只能驱动仍要求该流体的配方。$(br2)$(bold)升级与自动化$()"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)KubeJS 示例$()$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.remove({ id: 'jdte:greenhouse/wheat' })$(br)  event.custom({ type: 'jdte:greenhouse', seed: { item: 'minecraft:wheat_seeds' }, outputs: [{ id: 'minecraft:wheat', count: 2 }], display_block: 'minecraft:wheat', growth_work: 20, fluid: 'minecraft:water', time_fluid: 100 }).id('jdte:greenhouse/wheat')$(br)})$()"
+      "text": "$(li)支持：容量、流体、时运、超频、创造升级。$(li)每张时运升级使最终平均产量增加 10%，最多 3 张。$(li)超频或创造升级将倍率固定为 64x；创造升级免除资源消耗。$(li)自动 I/O 支持模板与配方所需流体（默认时间流体）输入、产物输出；高倍率产物会在 Tick 末合并后直推相邻库存。$(br2)$(bold)合成$()"
     },
     {
       "type": "patchouli:crafting",

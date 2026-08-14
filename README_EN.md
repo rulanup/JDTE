@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.9-alpha3`
+Current version: `0.5.9-alpha4`
 
 [中文 README](README.md)
 

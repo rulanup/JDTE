@@ -1,7 +1,7 @@
 {
   "name": "item.jdte.patchouli_guide.name",
   "landing_text": "item.jdte.patchouli_guide.landing",
-  "version": "0.5.9-alpha3",
+  "version": "0.5.9-alpha4",
   "subtitle": "JDT Extras",
   "model": "jdte:capacity_upgrade",
   "creative_tab": "jdte:jdte",
