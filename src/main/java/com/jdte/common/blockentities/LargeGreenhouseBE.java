@@ -7,7 +7,6 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
-import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.blocks.LargeGreenhouseBlock;
 import com.jdte.common.blocks.LargeGreenhouseStructure;
@@ -18,6 +17,7 @@ import com.jdte.common.greenhouse.GreenhouseMatrixMember;
 import com.jdte.common.greenhouse.GreenhouseMatrixMemberState;
 import com.jdte.common.greenhouse.GreenhouseMatrixProductionProfile;
 import com.jdte.common.greenhouse.GreenhouseMatrixRuntime;
+import com.jdte.common.greenhouse.GreenhouseFluidPolicy;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
@@ -70,7 +70,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     private final MachineEnergyStorage energyStorage = new MachineEnergyStorage(getMaxEnergy());
     private final PoweredMachineContainerData poweredData = new PoweredMachineContainerData(this);
-    private final JDTEFluidTank fluidTank = new JDTEFluidTank(getMaxMB(), stack -> stack.getFluid() instanceof TimeFluid);
+    private final JDTEFluidTank fluidTank = new JDTEFluidTank(getMaxMB(), stack -> !stack.isEmpty());
     private final FluidContainerData fluidData = new FluidContainerData(this);
     private final RedstoneControlData redstoneData = new RedstoneControlData();
     private final ItemStack[] cachedSeeds = new ItemStack[INPUT_SLOTS];
@@ -404,7 +404,8 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         } else {
             int energyCost = settings.energyPerHarvest();
             int fluidCost = getEffectiveFluidPerHarvest(slot, definition);
-            int byFluid = getHarvestsSupportedByFluid(totalFluid(resourceMembers), fluidCost);
+            int byFluid = getHarvestsSupportedByFluid(
+                    totalFluid(resourceMembers, definition.fluid()), fluidCost);
             int byEnergy = energyCost == 0 ? requested : totalEnergy(resourceMembers) / energyCost;
             candidate = Math.min(requested, Math.min(byFluid, byEnergy));
         }
@@ -430,7 +431,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             randomBudget[0] = Math.max(0, randomBudget[0] - paidHarvests);
         }
         if (!settings.creative()) {
-            drainFluid(resourceMembers, getFluidCostForHarvests(
+            drainFluid(resourceMembers, definition.fluid(), getFluidCostForHarvests(
                     getEffectiveFluidPerHarvest(slot, definition), paidHarvests));
             drainEnergy(resourceMembers, paidHarvests * settings.energyPerHarvest());
         }
@@ -438,9 +439,11 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return paidHarvests;
     }
 
-    private static int totalFluid(List<LargeGreenhouseBE> members) {
+    private static int totalFluid(List<LargeGreenhouseBE> members, ResourceLocation requiredFluid) {
         long total = 0L;
-        for (LargeGreenhouseBE member : members) total += member.fluidTank.getFluidAmount();
+        for (LargeGreenhouseBE member : members) {
+            total += GreenhouseFluidPolicy.available(member.fluidTank.getFluid(), requiredFluid);
+        }
         return (int) Math.min(Integer.MAX_VALUE, total);
     }
 
@@ -450,10 +453,11 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return (int) Math.min(Integer.MAX_VALUE, total);
     }
 
-    private static void drainFluid(List<LargeGreenhouseBE> members, int amount) {
+    private static void drainFluid(List<LargeGreenhouseBE> members, ResourceLocation requiredFluid, int amount) {
         int remaining = Math.max(0, amount);
         for (LargeGreenhouseBE member : members) {
             if (remaining == 0) return;
+            if (!GreenhouseFluidPolicy.matches(member.fluidTank.getFluid(), requiredFluid)) continue;
             remaining -= member.fluidTank.drain(remaining, IFluidHandler.FluidAction.EXECUTE).getAmount();
         }
     }
@@ -506,7 +510,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         if (settings.creative()) {
             return true;
         }
-        return totalFluid(resourceMembers) >= getFluidCostForHarvests(
+        return totalFluid(resourceMembers, definition.fluid()) >= getFluidCostForHarvests(
                 getEffectiveFluidPerHarvest(slot, definition), 1)
                 && totalEnergy(resourceMembers) >= settings.energyPerHarvest();
     }
