@@ -3,6 +3,7 @@ package com.jdte.common.greenhouse;
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
@@ -15,6 +16,7 @@ public final class GreenhouseMatrixProductionProfile {
     private final ItemStack seed;
     private final int templateCount;
     private final String definitionKey;
+    private final ResourceLocation fluid;
     private final long recipeGeneration;
     private final int selectedMultiplier;
     private final int structureMultiplier;
@@ -33,21 +35,21 @@ public final class GreenhouseMatrixProductionProfile {
     private final BlockPos representativePos;
 
     public GreenhouseMatrixProductionProfile(MachineKind machineKind, ItemStack seed, int templateCount,
-                                             String definitionKey, long recipeGeneration,
+                                             String definitionKey, ResourceLocation fluid, long recipeGeneration,
                                              int selectedMultiplier, int structureMultiplier, int fortuneLevel,
                                              boolean creative, boolean overclocked,
                                              int energyPerHarvest, int fluidPerHarvest,
                                              int matrixSpeed, int matrixEfficiency,
                                              boolean seedConversion, boolean essenceConversion,
                                              int growthWork, long workPerTickPerUnit) {
-        this(machineKind, seed, templateCount, definitionKey, recipeGeneration, selectedMultiplier,
+        this(machineKind, seed, templateCount, definitionKey, fluid, recipeGeneration, selectedMultiplier,
                 structureMultiplier, fortuneLevel, creative, overclocked, energyPerHarvest, fluidPerHarvest,
                 matrixSpeed, matrixEfficiency, seedConversion, essenceConversion, growthWork,
                 workPerTickPerUnit, null, BlockPos.ZERO);
     }
 
     public GreenhouseMatrixProductionProfile(MachineKind machineKind, ItemStack seed, int templateCount,
-                                             String definitionKey, long recipeGeneration,
+                                             String definitionKey, ResourceLocation fluid, long recipeGeneration,
                                              int selectedMultiplier, int structureMultiplier, int fortuneLevel,
                                              boolean creative, boolean overclocked,
                                              int energyPerHarvest, int fluidPerHarvest,
@@ -60,6 +62,7 @@ public final class GreenhouseMatrixProductionProfile {
         this.seed = seed.copyWithCount(1);
         this.templateCount = Math.max(1, templateCount);
         this.definitionKey = Objects.requireNonNull(definitionKey);
+        this.fluid = Objects.requireNonNull(fluid);
         this.recipeGeneration = recipeGeneration;
         this.selectedMultiplier = Math.max(1, selectedMultiplier);
         this.structureMultiplier = Math.max(1, structureMultiplier);
@@ -82,6 +85,7 @@ public final class GreenhouseMatrixProductionProfile {
     public ItemStack seed() { return seed.copy(); }
     public int templateCount() { return templateCount; }
     public String definitionKey() { return definitionKey; }
+    public ResourceLocation fluid() { return fluid; }
     public long recipeGeneration() { return recipeGeneration; }
     public int selectedMultiplier() { return selectedMultiplier; }
     public int structureMultiplier() { return structureMultiplier; }
@@ -105,6 +109,7 @@ public final class GreenhouseMatrixProductionProfile {
                 .append(definition.harvestBlock()).append('|')
                 .append(definition.useLootTable()).append('|')
                 .append(definition.growthWork()).append('|')
+                .append(definition.fluid()).append('|')
                 .append(definition.timeFluid()).append('|')
                 .append(definition.harvestGenerator() == null ? "static" : definition.harvestGenerator().getClass().getName());
         for (ItemStack output : definition.outputs()) {
@@ -149,12 +154,13 @@ public final class GreenhouseMatrixProductionProfile {
                 && workPerTickPerUnit == profile.workPerTickPerUnit
                 && machineKind == profile.machineKind
                 && definitionKey.equals(profile.definitionKey)
+                && fluid.equals(profile.fluid)
                 && ItemStack.isSameItemSameComponents(seed, profile.seed);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(machineKind, templateCount, definitionKey, recipeGeneration,
+        int result = Objects.hash(machineKind, templateCount, definitionKey, fluid, recipeGeneration,
                 selectedMultiplier, structureMultiplier, fortuneLevel, creative, overclocked,
                 energyPerHarvest, fluidPerHarvest, matrixSpeed, matrixEfficiency,
                 seedConversion, essenceConversion, growthWork, workPerTickPerUnit);

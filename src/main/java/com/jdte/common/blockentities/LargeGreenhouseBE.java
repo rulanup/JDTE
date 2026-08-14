@@ -289,7 +289,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                     STRUCTURE_WORK_MULTIPLIER, effects == null ? 0 : effects.speedPercent());
             profiles.add(new GreenhouseMatrixProductionProfile(
                     GreenhouseMatrixProductionProfile.MachineKind.LARGE, seed, seed.getCount(),
-                    GreenhouseMatrixProductionProfile.definitionKey(definition), recipeGeneration,
+                    GreenhouseMatrixProductionProfile.definitionKey(definition), definition.fluid(), recipeGeneration,
                     getMultiplier(), STRUCTURE_WORK_MULTIPLIER, fortune, creative, overclocked,
                     energyCost, fluidCost, effects == null ? 0 : effects.speed(),
                     effects == null ? 0 : effects.efficiency(),

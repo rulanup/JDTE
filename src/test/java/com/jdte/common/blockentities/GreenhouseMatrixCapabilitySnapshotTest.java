@@ -1,6 +1,9 @@
 package com.jdte.common.blockentities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.energy.IEnergyStorage;
@@ -17,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 class GreenhouseMatrixCapabilitySnapshotTest {
+    private static final ResourceLocation WATER_ID = ResourceLocation.withDefaultNamespace("water");
+    private static final ResourceLocation MILK_ID = ResourceLocation.fromNamespaceAndPath("neoforge", "milk");
+
     @Test
     void resolvesThousandsOfMembersOnceAndReusesFlattenedSlotIndex() {
         int memberCount = 3_582;
@@ -76,27 +82,34 @@ class GreenhouseMatrixCapabilitySnapshotTest {
     }
 
     @Test
-    void drainsFluidAndEnergyAcrossMemberStorages() {
+    void drainsOnlyTheRequiredFluidAndEnergyAcrossMemberStorages() {
         FluidTank firstFluid = new FluidTank(1_000);
         FluidTank secondFluid = new FluidTank(1_000);
-        firstFluid.setFluid(new FluidStack(Fluids.WATER, 30));
+        FluidTank lavaFluid = new FluidTank(1_000);
+        FluidStack componentWater = new FluidStack(Fluids.WATER, 30);
+        componentWater.set(DataComponents.CUSTOM_NAME, Component.literal("same fluid id"));
+        firstFluid.setFluid(componentWater);
         secondFluid.setFluid(new FluidStack(Fluids.WATER, 40));
+        lavaFluid.setFluid(new FluidStack(Fluids.LAVA, 50));
+        int unchangedLava = lavaFluid.getFluidAmount();
         MutableEnergyStorage firstEnergy = new MutableEnergyStorage(50);
         MutableEnergyStorage secondEnergy = new MutableEnergyStorage(70);
         AtomicInteger index = new AtomicInteger();
         GreenhouseMatrixCapabilitySnapshot snapshot = GreenhouseMatrixCapabilitySnapshot.create(
-                List.of(BlockPos.ZERO, BlockPos.ZERO.above()), ignored -> {
+                List.of(BlockPos.ZERO, BlockPos.ZERO.above(), BlockPos.ZERO.above(2)), ignored -> {
                     int current = index.getAndIncrement();
                     return new GreenhouseMatrixCapabilitySnapshot.MachineTarget(new TestItemHandler(), 0, 0, 0, 0,
-                            current == 0 ? firstFluid : secondFluid,
-                            current == 0 ? firstEnergy : secondEnergy);
+                            current == 0 ? firstFluid : current == 1 ? secondFluid : lavaFluid,
+                            current == 0 ? firstEnergy : current == 1 ? secondEnergy : EmptyEnergyStorage.INSTANCE);
                 });
 
-        assertEquals(70L, snapshot.fluidStoredLong());
+        assertEquals(70L, snapshot.fluidStoredLong(WATER_ID));
+        assertEquals(0L, snapshot.fluidStoredLong(MILK_ID));
         assertEquals(120L, snapshot.energyStoredLong());
-        assertEquals(60L, snapshot.drainFluid(60L));
+        assertEquals(60L, snapshot.drainFluid(WATER_ID, 60L));
+        assertEquals(unchangedLava, lavaFluid.getFluidAmount());
         assertEquals(100L, snapshot.extractEnergy(100L));
-        assertEquals(10L, snapshot.fluidStoredLong());
+        assertEquals(10L, snapshot.fluidStoredLong(WATER_ID));
         assertEquals(20L, snapshot.energyStoredLong());
     }
 

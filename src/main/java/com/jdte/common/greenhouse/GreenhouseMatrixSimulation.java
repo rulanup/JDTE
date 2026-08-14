@@ -2,11 +2,13 @@ package com.jdte.common.greenhouse;
 
 import com.jdte.common.blockentities.GreenhouseProductionEngine;
 import com.jdte.common.recipes.GreenhouseCropResolver;
+import com.jdte.common.recipes.GreenhouseRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -112,6 +114,7 @@ public final class GreenhouseMatrixSimulation {
             saved.put("seed", profile.seed().saveOptional(provider));
             saved.putInt("templateCount", profile.templateCount());
             saved.putString("definitionKey", profile.definitionKey());
+            saved.putString("fluid", profile.fluid().toString());
             saved.putLong("recipeGeneration", profile.recipeGeneration());
             saved.putInt("selectedMultiplier", profile.selectedMultiplier());
             saved.putInt("structureMultiplier", profile.structureMultiplier());
@@ -150,8 +153,11 @@ public final class GreenhouseMatrixSimulation {
                     warning.accept("Skipped invalid matrix simulation group " + index);
                     continue;
                 }
+                ResourceLocation fluid = saved.contains("fluid", Tag.TAG_STRING)
+                        ? ResourceLocation.parse(saved.getString("fluid"))
+                        : GreenhouseRecipe.DEFAULT_FLUID;
                 GreenhouseMatrixProductionProfile profile = new GreenhouseMatrixProductionProfile(
-                        kinds[kindIndex], seed, saved.getInt("templateCount"), saved.getString("definitionKey"),
+                        kinds[kindIndex], seed, saved.getInt("templateCount"), saved.getString("definitionKey"), fluid,
                         GreenhouseCropResolver.cacheGeneration(), saved.getInt("selectedMultiplier"),
                         saved.getInt("structureMultiplier"), saved.getInt("fortuneLevel"),
                         saved.getBoolean("creative"), saved.getBoolean("overclocked"),

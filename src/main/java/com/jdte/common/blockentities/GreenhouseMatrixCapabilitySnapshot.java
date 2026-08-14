@@ -1,6 +1,8 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.greenhouse.GreenhouseFluidPolicy;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -163,11 +165,12 @@ final class GreenhouseMatrixCapabilitySnapshot {
         return received;
     }
 
-    long fluidStoredLong() {
+    long fluidStoredLong(ResourceLocation requiredFluid) {
         long total = 0L;
         for (IFluidHandler target : fluids) {
             for (int tank = 0; tank < target.getTanks(); tank++) {
-                total = saturatingAdd(total, target.getFluidInTank(tank).getAmount());
+                total = saturatingAdd(total,
+                        GreenhouseFluidPolicy.available(target.getFluidInTank(tank), requiredFluid));
             }
         }
         return total;
@@ -179,19 +182,26 @@ final class GreenhouseMatrixCapabilitySnapshot {
         return total;
     }
 
-    long drainFluid(long amount) {
-        long remaining = Math.max(0L, amount);
+    long drainFluid(ResourceLocation requiredFluid, long amount) {
+        long requested = Math.max(0L, amount);
+        if (requested == 0L) return 0L;
+        long remaining = requested;
         for (IFluidHandler target : fluids) {
-            while (remaining > 0L) {
-                int request = (int) Math.min(Integer.MAX_VALUE, remaining);
-                FluidStack drained = target.drain(request, IFluidHandler.FluidAction.EXECUTE);
-                if (drained.isEmpty()) break;
-                remaining -= drained.getAmount();
-                if (drained.getAmount() < request) break;
+            for (int tank = 0; tank < target.getTanks() && remaining > 0L; tank++) {
+                while (remaining > 0L) {
+                    FluidStack stored = target.getFluidInTank(tank);
+                    if (!GreenhouseFluidPolicy.matches(stored, requiredFluid)) break;
+                    int request = (int) Math.min(remaining, stored.getAmount());
+                    FluidStack drained = target.drain(stored.copyWithAmount(request),
+                            IFluidHandler.FluidAction.EXECUTE);
+                    if (drained.isEmpty()) break;
+                    remaining -= drained.getAmount();
+                    if (drained.getAmount() < request) break;
+                }
             }
             if (remaining == 0L) break;
         }
-        return amount - remaining;
+        return requested - remaining;
     }
 
     long extractEnergy(long amount) {

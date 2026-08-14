@@ -1,5 +1,6 @@
 package com.jdte.common.greenhouse;
 
+import com.jdte.common.recipes.GreenhouseRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -18,7 +19,7 @@ class GreenhouseMatrixSimulationTest {
     void computesHarvestsForCompleteTicksFromA1024MultiplierBatch() {
         GreenhouseMatrixProductionProfile profile = new GreenhouseMatrixProductionProfile(
                 GreenhouseMatrixProductionProfile.MachineKind.NORMAL,
-                new ItemStack(Items.WHEAT_SEEDS), 64, "minecraft:wheat", 1L,
+                new ItemStack(Items.WHEAT_SEEDS), 64, "minecraft:wheat", GreenhouseRecipe.DEFAULT_FLUID, 1L,
                 1, 1, 0, false, false, 10, 1, 0, 0,
                 false, false, 4_096, 512L);
         GreenhouseMatrixSimulation simulation = new GreenhouseMatrixSimulation();
@@ -36,7 +37,7 @@ class GreenhouseMatrixSimulationTest {
         for (int index = 0; index < 3_000; index++) members.add(new BlockPos(index, 0, 0));
         GreenhouseMatrixProductionProfile profile = new GreenhouseMatrixProductionProfile(
                 GreenhouseMatrixProductionProfile.MachineKind.NORMAL,
-                new ItemStack(Items.WHEAT_SEEDS), 64, "minecraft:wheat", 1L,
+                new ItemStack(Items.WHEAT_SEEDS), 64, "minecraft:wheat", GreenhouseRecipe.DEFAULT_FLUID, 1L,
                 1, 1, 0, false, false, 10, 1, 0, 0,
                 false, false, 4_096, 512L);
         AtomicInteger resolutions = new AtomicInteger();

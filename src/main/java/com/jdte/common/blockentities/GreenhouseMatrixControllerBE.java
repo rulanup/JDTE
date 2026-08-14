@@ -518,7 +518,6 @@ public class GreenhouseMatrixControllerBE extends BlockEntity implements MenuPro
 
     private void settleSimulation(ServerLevel serverLevel, long gameTime) {
         GreenhouseMatrixCapabilitySnapshot resources = capabilitySnapshot();
-        long availableFluid = resources.fluidStoredLong();
         long availableEnergy = resources.energyStoredLong();
         boolean changed = false;
         for (GreenhouseMatrixProductionGroup group : simulation.groups()) {
@@ -527,7 +526,7 @@ public class GreenhouseMatrixControllerBE extends BlockEntity implements MenuPro
             if (candidate <= 0L) continue;
             if (!profile.creative()) {
                 if (profile.fluidPerHarvest() > 0) candidate = Math.min(candidate,
-                        availableFluid / profile.fluidPerHarvest());
+                        resources.fluidStoredLong(profile.fluid()) / profile.fluidPerHarvest());
                 if (profile.energyPerHarvest() > 0) candidate = Math.min(candidate,
                         availableEnergy / profile.energyPerHarvest());
             }
@@ -542,14 +541,14 @@ public class GreenhouseMatrixControllerBE extends BlockEntity implements MenuPro
 
             long fluidCost = profile.creative() ? 0L : saturatingMultiply(candidate, profile.fluidPerHarvest());
             long energyCost = profile.creative() ? 0L : saturatingMultiply(candidate, profile.energyPerHarvest());
-            if (resources.drainFluid(fluidCost) != fluidCost || resources.extractEnergy(energyCost) != energyCost) {
+            if (resources.drainFluid(profile.fluid(), fluidCost) != fluidCost
+                    || resources.extractEnergy(energyCost) != energyCost) {
                 invalidateCapabilitySnapshot();
                 break;
             }
             if (outputBuffer.insertBatch(generated.drops(), false) != 0L) {
                 throw new IllegalStateException("Simulated matrix output changed after successful preflight");
             }
-            availableFluid -= fluidCost;
             availableEnergy -= energyCost;
             group.consumeHarvests(candidate);
             changed = true;

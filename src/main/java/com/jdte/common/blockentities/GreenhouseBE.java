@@ -276,7 +276,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
                     effects == null ? 0 : effects.speedPercent());
             profiles.add(new GreenhouseMatrixProductionProfile(
                     GreenhouseMatrixProductionProfile.MachineKind.NORMAL, seed, seed.getCount(),
-                    GreenhouseMatrixProductionProfile.definitionKey(definition), recipeGeneration,
+                    GreenhouseMatrixProductionProfile.definitionKey(definition), definition.fluid(), recipeGeneration,
                     getMultiplier(), 1, fortune, creative, overclocked, energyCost, fluidCost,
                     effects == null ? 0 : effects.speed(), effects == null ? 0 : effects.efficiency(),
                     UpgradeHelper.hasSeedConversionUpgrade(this)

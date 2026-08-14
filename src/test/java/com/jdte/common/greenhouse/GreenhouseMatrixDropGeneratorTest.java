@@ -38,7 +38,7 @@ class GreenhouseMatrixDropGeneratorTest {
         return new GreenhouseMatrixProductionProfile(
                 GreenhouseMatrixProductionProfile.MachineKind.NORMAL,
                 new ItemStack(Items.WHEAT_SEEDS), 1,
-                GreenhouseMatrixProductionProfile.definitionKey(definition), 1L,
+                GreenhouseMatrixProductionProfile.definitionKey(definition), definition.fluid(), 1L,
                 1, 1, fortune, false, false, 10, 1, 0, 0,
                 false, false, definition.growthWork(), 512L, definition, BlockPos.ZERO);
     }
