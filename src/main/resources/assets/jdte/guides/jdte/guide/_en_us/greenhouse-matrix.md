@@ -45,7 +45,7 @@ The interior accepts Greenhouses, Large Greenhouses (including their parts), Mat
 
 - Item Input inserts only reusable plant templates.
 - Item Output extracts from the controller's central long-count product buffer.
-- Time Fluid Input distributes Time Fluid.
+- Recipe Fluid Input distributes recipe-required fluids (Time Fluid by default).
 - Energy Input distributes FE.
 
 The controller exposes no automation capability; pipes must use the matching port.
@@ -56,7 +56,7 @@ Auto I/O is enabled by default in the management screen. Each port actively inte
 
 Once formed, internal Greenhouses no longer run recipe resolution, resource checks, and production independently every tick. The controller rebuilds their template, multiplier, and upgrade profiles in bounded batches, merges identical planting lanes into production groups, and advances those groups from real elapsed game ticks. Thousands of identically configured Greenhouses therefore settle only a small number of groups during stable operation.
 
-FE and Time Fluid remain physically stored in the internal Greenhouses and form one pool across loaded members. New products enter a persistent controller-owned long-count buffer instead of the old internal output slots; items already present in those old slots are not deleted. The Item Output port, active Auto I/O, and a linked AE Output Upgrade all drain the central buffer, with AE using long-count batch uploads.
+FE and recipe-required fluids remain physically stored in the internal Greenhouses and form one pool across loaded members. New products enter a persistent controller-owned long-count buffer instead of the old internal output slots; items already present in those old slots are not deleted. The Item Output port, active Auto I/O, and a linked AE Output Upgrade all drain the central buffer, with AE using long-count batch uploads.
 
 Real loot tables and dynamic crops use a bounded number of representative samples per group and scale the result to the group size. Seed and Essence conversions run before buffering. Paused matrices, unloaded members, and time while the game is closed do not receive catch-up production. Temporary structure invalidation does not clear buffered products.
 
@@ -83,7 +83,7 @@ ServerEvents.recipes(event => {
 ## Block Enhancers
 
 - Speed: +25% work per block, capped at +300%.
-- Efficiency: -10% FE and Time Fluid cost per block, capped at -80%.
+- Efficiency: -10% FE and recipe-fluid cost per block, capped at -80%.
 - Seed: grants the Seed-to-Essence effect to every managed Greenhouse.
 - Essence: grants Essence Conversion; essences with multiple crafting recipes remain unchanged.
 
