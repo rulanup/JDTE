@@ -20,7 +20,10 @@ import java.util.Optional;
 
 public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> outputs, ResourceLocation displayBlock,
                                Optional<ResourceLocation> harvestBlock, boolean useLootTable,
-                               int growthWork, int timeFluid) implements Recipe<CraftingInput> {
+                               int growthWork, ResourceLocation fluid, int timeFluid) implements Recipe<CraftingInput> {
+    public static final ResourceLocation DEFAULT_FLUID =
+            ResourceLocation.fromNamespaceAndPath("justdirethings", "time_fluid_source");
+
     public boolean matchesSeed(ItemStack stack) {
         return seed.test(stack);
     }
@@ -63,6 +66,7 @@ public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> output
                 ResourceLocation.CODEC.optionalFieldOf("harvest_block").forGetter(GreenhouseRecipe::harvestBlock),
                 com.mojang.serialization.Codec.BOOL.optionalFieldOf("use_loot_table", true).forGetter(GreenhouseRecipe::useLootTable),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("growth_work").forGetter(GreenhouseRecipe::growthWork),
+                ResourceLocation.CODEC.optionalFieldOf("fluid", DEFAULT_FLUID).forGetter(GreenhouseRecipe::fluid),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("time_fluid").forGetter(GreenhouseRecipe::timeFluid)
         ).apply(instance, GreenhouseRecipe::new));
 
@@ -83,6 +87,7 @@ public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> output
                             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buffer),
                             ByteBufCodecs.BOOL.decode(buffer),
                             ByteBufCodecs.VAR_INT.decode(buffer),
+                            ResourceLocation.STREAM_CODEC.decode(buffer),
                             ByteBufCodecs.VAR_INT.decode(buffer));
                 }
 
@@ -94,6 +99,7 @@ public record GreenhouseRecipe(Ingredient seed, java.util.List<ItemStack> output
                     ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).encode(buffer, recipe.harvestBlock());
                     ByteBufCodecs.BOOL.encode(buffer, recipe.useLootTable());
                     ByteBufCodecs.VAR_INT.encode(buffer, recipe.growthWork());
+                    ResourceLocation.STREAM_CODEC.encode(buffer, recipe.fluid());
                     ByteBufCodecs.VAR_INT.encode(buffer, recipe.timeFluid());
                 }
             };
