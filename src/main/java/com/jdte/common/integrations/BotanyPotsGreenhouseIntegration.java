@@ -1,6 +1,7 @@
 package com.jdte.common.integrations;
 
 import com.jdte.common.recipes.GreenhouseCropDefinition;
+import com.jdte.common.recipes.GreenhouseRecipe;
 import com.jdte.setup.JDTEConfig;
 import net.darkhax.botanypots.common.api.context.BotanyPotContext;
 import net.darkhax.botanypots.common.api.data.display.types.Display;
@@ -77,7 +78,7 @@ public final class BotanyPotsGreenhouseIntegration {
         ItemStack seedItem = seed.copyWithCount(1);
 
         return new GreenhouseCropDefinition(previewOutputs, displayBlock, displayBlock, false,
-                growthWork, JDTEConfig.COMMON.greenhouseGenericFluidCost.get(),
+                growthWork, GreenhouseRecipe.DEFAULT_FLUID, JDTEConfig.COMMON.greenhouseGenericFluidCost.get(),
                 (serverLevel, pos, tool) -> harvest(serverLevel, pos, tool, seedItem, soilItem, crop,
                         soilMatch.soil(), growthWork));
     }

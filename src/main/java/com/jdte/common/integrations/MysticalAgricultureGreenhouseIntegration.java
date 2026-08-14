@@ -3,6 +3,7 @@ package com.jdte.common.integrations;
 import com.blakebr0.mysticalagriculture.api.MysticalAgricultureAPI;
 import com.blakebr0.mysticalagriculture.api.crop.Crop;
 import com.jdte.common.recipes.GreenhouseCropDefinition;
+import com.jdte.common.recipes.GreenhouseRecipe;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
@@ -48,6 +49,7 @@ public final class MysticalAgricultureGreenhouseIntegration {
                     BuiltInRegistries.BLOCK.getKey(crop.getCropBlock()),
                     true,
                     growthWork,
+                    GreenhouseRecipe.DEFAULT_FLUID,
                     fluidCost));
         }
     }

@@ -6,19 +6,22 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
+import java.util.Objects;
 
 public record GreenhouseCropDefinition(List<ItemStack> outputs, ResourceLocation displayBlock,
                                        ResourceLocation harvestBlock, boolean useLootTable,
-                                       int growthWork, int timeFluid, HarvestGenerator harvestGenerator) {
+                                       int growthWork, ResourceLocation fluid, int timeFluid,
+                                       HarvestGenerator harvestGenerator) {
     public GreenhouseCropDefinition(List<ItemStack> outputs, ResourceLocation displayBlock,
                                     ResourceLocation harvestBlock, boolean useLootTable,
-                                    int growthWork, int timeFluid) {
-        this(outputs, displayBlock, harvestBlock, useLootTable, growthWork, timeFluid, null);
+                                    int growthWork, ResourceLocation fluid, int timeFluid) {
+        this(outputs, displayBlock, harvestBlock, useLootTable, growthWork, fluid, timeFluid, null);
     }
     public GreenhouseCropDefinition {
         outputs = outputs.stream().filter(stack -> !stack.isEmpty()).map(ItemStack::copy).toList();
         harvestBlock = harvestBlock == null ? displayBlock : harvestBlock;
         growthWork = Math.max(1, growthWork);
+        fluid = Objects.requireNonNull(fluid, "fluid");
         timeFluid = Math.max(1, timeFluid);
     }
 

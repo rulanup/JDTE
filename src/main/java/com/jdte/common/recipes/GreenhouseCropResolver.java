@@ -36,7 +36,7 @@ public final class GreenhouseCropResolver {
             if (recipe.matchesSeed(seed)) {
                 return new GreenhouseCropDefinition(recipe.outputs(), recipe.displayBlock(),
                         recipe.harvestBlock().orElse(recipe.displayBlock()), recipe.useLootTable(),
-                        recipe.growthWork(), recipe.timeFluid());
+                        recipe.growthWork(), recipe.fluid(), recipe.timeFluid());
             }
         }
         // Prefer dedicated integrations over broad recipe providers. In particular,
@@ -57,7 +57,7 @@ public final class GreenhouseCropResolver {
             var blockId = BuiltInRegistries.BLOCK.getKey(blockItem.getBlock());
             return new GreenhouseCropDefinition(java.util.List.of(seed.copyWithCount(1)), blockId, blockId, true,
                     JDTEConfig.COMMON.greenhouseDefaultGrowthWork.get(),
-                    JDTEConfig.COMMON.greenhouseGenericFluidCost.get());
+                    GreenhouseRecipe.DEFAULT_FLUID, JDTEConfig.COMMON.greenhouseGenericFluidCost.get());
         }
         return null;
     }
