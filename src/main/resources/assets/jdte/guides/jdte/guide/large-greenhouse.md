@@ -53,6 +53,7 @@ JEI 会显示模板、基础 FE、配方所需流体和预览产物；点击界�
 
 ```js
 ServerEvents.recipes(event => {
+  event.remove({ id: 'jdte:greenhouse/carrot' })
   event.custom({
     type: 'jdte:greenhouse',
     seed: { item: 'minecraft:carrot' },
@@ -61,7 +62,7 @@ ServerEvents.recipes(event => {
     growth_work: 20,
     fluid: 'minecraft:water',
     time_fluid: 100
-  }).id('kubejs:watered_carrot')
+  }).id('jdte:greenhouse/carrot')
 })
 ```
 

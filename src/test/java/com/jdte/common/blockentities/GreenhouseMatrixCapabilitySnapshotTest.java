@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GreenhouseMatrixCapabilitySnapshotTest {
     private static final ResourceLocation WATER_ID = ResourceLocation.withDefaultNamespace("water");
@@ -103,13 +104,14 @@ class GreenhouseMatrixCapabilitySnapshotTest {
                             current == 0 ? firstEnergy : current == 1 ? secondEnergy : EmptyEnergyStorage.INSTANCE);
                 });
 
-        assertEquals(70L, snapshot.fluidStoredLong(WATER_ID));
-        assertEquals(0L, snapshot.fluidStoredLong(MILK_ID));
+        GreenhouseMatrixFluidBudget fluidBudget = snapshot.fluidBudget();
+        assertEquals(70L, fluidBudget.available(WATER_ID));
+        assertEquals(0L, fluidBudget.available(MILK_ID));
         assertEquals(120L, snapshot.energyStoredLong());
-        assertEquals(60L, snapshot.drainFluid(WATER_ID, 60L));
+        assertTrue(fluidBudget.tryPay(WATER_ID, 60L, false));
         assertEquals(unchangedLava, lavaFluid.getFluidAmount());
         assertEquals(100L, snapshot.extractEnergy(100L));
-        assertEquals(10L, snapshot.fluidStoredLong(WATER_ID));
+        assertEquals(10L, fluidBudget.available(WATER_ID));
         assertEquals(20L, snapshot.energyStoredLong());
     }
 

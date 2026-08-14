@@ -66,6 +66,7 @@ FE 与配方所需流体仍实际保存在内部温室中，由所有已加载�
 
 ```js
 ServerEvents.recipes(event => {
+  event.remove({ id: 'jdte:greenhouse/potato' })
   event.custom({
     type: 'jdte:greenhouse',
     seed: { item: 'minecraft:potato' },
@@ -74,7 +75,7 @@ ServerEvents.recipes(event => {
     growth_work: 20,
     fluid: 'minecraft:water',
     time_fluid: 100
-  }).id('kubejs:watered_potato')
+  }).id('jdte:greenhouse/potato')
 })
 ```
 

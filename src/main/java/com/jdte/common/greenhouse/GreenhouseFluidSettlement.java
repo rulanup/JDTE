@@ -2,7 +2,6 @@ package com.jdte.common.greenhouse;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
@@ -21,10 +20,10 @@ public final class GreenhouseFluidSettlement {
                 requestedHarvests, 1, creative);
     }
 
-    public static int normalDrainPaidHarvests(IFluidHandler tank, ResourceLocation requiredFluid,
-                                               int fluidPerHarvest, int paidHarvests,
-                                               boolean creative) {
-        return drainPaidHarvests(List.of(tank), requiredFluid, fluidPerHarvest,
+    public static boolean normalTryPay(IFluidHandler tank, ResourceLocation requiredFluid,
+                                       int fluidPerHarvest, int paidHarvests,
+                                       boolean creative) {
+        return tryPay(List.of(tank), requiredFluid, fluidPerHarvest,
                 paidHarvests, 1, creative);
     }
 
@@ -35,10 +34,10 @@ public final class GreenhouseFluidSettlement {
                 requestedHarvests, LARGE_EFFICIENCY_MULTIPLIER, creative);
     }
 
-    public static int largeDrainPaidHarvests(List<? extends IFluidHandler> memberTanks,
-                                              ResourceLocation requiredFluid, int fluidPerHarvest,
-                                              int paidHarvests, boolean creative) {
-        return drainPaidHarvests(memberTanks, requiredFluid, fluidPerHarvest,
+    public static boolean largeTryPay(List<? extends IFluidHandler> memberTanks,
+                                      ResourceLocation requiredFluid, int fluidPerHarvest,
+                                      int paidHarvests, boolean creative) {
+        return tryPay(memberTanks, requiredFluid, fluidPerHarvest,
                 paidHarvests, LARGE_EFFICIENCY_MULTIPLIER, creative);
     }
 
@@ -53,15 +52,21 @@ public final class GreenhouseFluidSettlement {
         return (int) Math.min(requested, supported);
     }
 
-    private static int drainPaidHarvests(List<? extends IFluidHandler> tanks,
-                                         ResourceLocation requiredFluid, int fluidPerHarvest,
-                                         int paidHarvests, int efficiencyMultiplier,
-                                         boolean creative) {
-        if (creative || paidHarvests <= 0 || fluidPerHarvest <= 0) return 0;
+    private static boolean tryPay(List<? extends IFluidHandler> tanks,
+                                  ResourceLocation requiredFluid, int fluidPerHarvest,
+                                  int paidHarvests, int efficiencyMultiplier,
+                                  boolean creative) {
+        if (creative || paidHarvests <= 0 || fluidPerHarvest <= 0) return true;
+        int required = requiredAmount(fluidPerHarvest, paidHarvests, efficiencyMultiplier);
+        return drain(tanks, requiredFluid, required) == required;
+    }
+
+    private static int requiredAmount(int fluidPerHarvest, int paidHarvests,
+                                      int efficiencyMultiplier) {
         long baseCost = (long) fluidPerHarvest * paidHarvests;
         int efficiency = Math.max(1, efficiencyMultiplier);
         long cost = baseCost / efficiency + (baseCost % efficiency == 0 ? 0 : 1);
-        return drain(tanks, requiredFluid, (int) Math.min(Integer.MAX_VALUE, cost));
+        return (int) Math.min(Integer.MAX_VALUE, cost);
     }
 
     private static long available(List<? extends IFluidHandler> tanks, ResourceLocation requiredFluid) {
@@ -78,13 +83,24 @@ public final class GreenhouseFluidSettlement {
 
     private static int drain(List<? extends IFluidHandler> tanks, ResourceLocation requiredFluid, int amount) {
         if (amount <= 0 || !BuiltInRegistries.FLUID.containsKey(requiredFluid)) return 0;
-        Fluid fluid = BuiltInRegistries.FLUID.get(requiredFluid);
         int remaining = amount;
-        for (IFluidHandler tank : tanks) {
+        for (IFluidHandler handler : tanks) {
+            for (int tank = 0; tank < handler.getTanks() && remaining > 0; tank++) {
+                while (remaining > 0) {
+                    FluidStack stored = handler.getFluidInTank(tank);
+                    if (!GreenhouseFluidPolicy.matches(stored, requiredFluid)) break;
+                    int request = Math.min(remaining, stored.getAmount());
+                    FluidStack requestedVariant = stored.copyWithAmount(request);
+                    FluidStack drained = handler.drain(requestedVariant,
+                            IFluidHandler.FluidAction.EXECUTE);
+                    if (drained.isEmpty()
+                            || !FluidStack.isSameFluidSameComponents(requestedVariant, drained)) break;
+                    int accepted = Math.min(request, drained.getAmount());
+                    remaining -= accepted;
+                    if (accepted < request) break;
+                }
+            }
             if (remaining == 0) break;
-            FluidStack drained = tank.drain(new FluidStack(fluid, remaining),
-                    IFluidHandler.FluidAction.EXECUTE);
-            remaining -= drained.getAmount();
         }
         return amount - remaining;
     }

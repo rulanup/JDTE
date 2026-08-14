@@ -77,7 +77,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)KubeJS 示例$()$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.custom({ type: 'jdte:greenhouse', seed: { item: 'minecraft:potato' }, outputs: [{ id: 'minecraft:potato', count: 2 }], display_block: 'minecraft:potatoes', growth_work: 20, fluid: 'minecraft:water', time_fluid: 100 }).id('kubejs:watered_potato')$(br)})$()"
+      "text": "$(bold)KubeJS 示例$()$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.remove({ id: 'jdte:greenhouse/potato' })$(br)  event.custom({ type: 'jdte:greenhouse', seed: { item: 'minecraft:potato' }, outputs: [{ id: 'minecraft:potato', count: 2 }], display_block: 'minecraft:potatoes', growth_work: 20, fluid: 'minecraft:water', time_fluid: 100 }).id('jdte:greenhouse/potato')$(br)})$()"
     },
     {
       "type": "patchouli:crafting",

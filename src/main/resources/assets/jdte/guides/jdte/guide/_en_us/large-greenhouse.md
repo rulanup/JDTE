@@ -53,6 +53,7 @@ Large Greenhouses use the shared `jdte:greenhouse` recipe format. For example, t
 
 ```js
 ServerEvents.recipes(event => {
+  event.remove({ id: 'jdte:greenhouse/carrot' })
   event.custom({
     type: 'jdte:greenhouse',
     seed: { item: 'minecraft:carrot' },
@@ -61,7 +62,7 @@ ServerEvents.recipes(event => {
     growth_work: 20,
     fluid: 'minecraft:water',
     time_fluid: 100
-  }).id('kubejs:watered_carrot')
+  }).id('jdte:greenhouse/carrot')
 })
 ```
 

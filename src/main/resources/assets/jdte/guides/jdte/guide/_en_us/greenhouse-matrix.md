@@ -66,6 +66,7 @@ The Matrix runs the same `jdte:greenhouse` recipes as its managed Greenhouses an
 
 ```js
 ServerEvents.recipes(event => {
+  event.remove({ id: 'jdte:greenhouse/potato' })
   event.custom({
     type: 'jdte:greenhouse',
     seed: { item: 'minecraft:potato' },
@@ -74,7 +75,7 @@ ServerEvents.recipes(event => {
     growth_work: 20,
     fluid: 'minecraft:water',
     time_fluid: 100
-  }).id('kubejs:watered_potato')
+  }).id('jdte:greenhouse/potato')
 })
 ```
 

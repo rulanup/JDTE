@@ -347,14 +347,12 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
 
         beginOutputChangeBatch();
         try {
-            GreenhouseCapacityLedger capacityLedger = GreenhouseCapacityLedger.capture(internalOutputHandler);
             for (int offset = 0; offset < INPUT_SLOTS; offset++) {
                 int slot = (nextInputSlot + offset) % INPUT_SLOTS;
                 GreenhouseCropDefinition definition = definitions[slot];
                 if (definition == null) continue;
                 int budget = baseBudget + (visitedDefined++ < extraBudget ? 1 : 0);
-                settleSlot(slot, definition, elapsedTicks, Math.max(1, budget), capacityLedger,
-                        dynamicHarvestBudget);
+                settleSlot(slot, definition, elapsedTicks, Math.max(1, budget), dynamicHarvestBudget);
                 if (hasResourcesForOne(slot, definition) && hasOutputSpace(definition)) {
                     newActiveMask |= 1 << slot;
                 }
@@ -371,7 +369,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     }
 
     private void settleSlot(int slot, GreenhouseCropDefinition definition, int elapsedTicks, int harvestBudget,
-                            GreenhouseCapacityLedger capacityLedger, int[] dynamicHarvestBudget) {
+                            int[] dynamicHarvestBudget) {
         int parallelPlants = Math.max(1, itemHandler.getStackInSlot(slot).getCount());
         long addedWork = (long) JDTEConfig.COMMON.greenhouseBaseMultiplier.get()
                 * getMultiplier() * parallelPlants * elapsedTicks;
@@ -390,9 +388,9 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         }
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
         int energyCost = getEffectiveEnergyPerHarvest();
+        int fluidCost = getEffectiveFluidPerHarvest(slot, definition);
         int byFluid = GreenhouseFluidSettlement.normalSupportedHarvests(
-                fluidTank, definition.fluid(), getEffectiveFluidPerHarvest(slot, definition),
-                requested, creative);
+                fluidTank, definition.fluid(), fluidCost, requested, creative);
         int byEnergy = creative || energyCost == 0
                 ? requested : energyStorage.getEnergyStored() / energyCost;
         int candidate = Math.min(requested, Math.min(byFluid, byEnergy));
@@ -408,20 +406,28 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
             }
         }
 
-        int paidHarvests = generateAndStoreDrops(serverLevel, itemHandler.getStackInSlot(slot), definition,
-                candidate, capacityLedger);
+        HarvestPlan plan = planDrops(serverLevel, itemHandler.getStackInSlot(slot), definition,
+                candidate, GreenhouseCapacityLedger.capture(internalOutputHandler));
+        int paidHarvests = plan.harvests();
         if (paidHarvests <= 0) {
             growthWork[slot] = Math.min(availableWork, definition.growthWork());
             return;
         }
+        if (!GreenhouseFluidSettlement.normalTryPay(
+                fluidTank, definition.fluid(), fluidCost, paidHarvests, creative)) {
+            growthWork[slot] = availableWork;
+            return;
+        }
+        int totalEnergyCost = paidHarvests * energyCost;
+        if (!creative && energyStorage.extractEnergy(totalEnergyCost, false) != totalEnergyCost) {
+            growthWork[slot] = availableWork;
+            return;
+        }
+        if (!insertScaledDrops(null, internalOutputHandler, plan.drops(), 1)) {
+            throw new IllegalStateException("Reserved Greenhouse output changed before commit");
+        }
         if (definition.harvestGenerator() != null) {
             dynamicHarvestBudget[0] = Math.max(0, dynamicHarvestBudget[0] - paidHarvests);
-        }
-        GreenhouseFluidSettlement.normalDrainPaidHarvests(
-                fluidTank, definition.fluid(), getEffectiveFluidPerHarvest(slot, definition),
-                paidHarvests, creative);
-        if (!creative) {
-            energyStorage.extractEnergy(paidHarvests * getEffectiveEnergyPerHarvest(), false);
         }
         growthWork[slot] = Math.min(availableWork - (long) paidHarvests * definition.growthWork(), definition.growthWork());
     }
@@ -489,9 +495,9 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         return capacity;
     }
 
-    private int generateAndStoreDrops(ServerLevel serverLevel, ItemStack plantedSeed,
-                                      GreenhouseCropDefinition definition, int harvests,
-                                      GreenhouseCapacityLedger capacityLedger) {
+    private HarvestPlan planDrops(ServerLevel serverLevel, ItemStack plantedSeed,
+                                  GreenhouseCropDefinition definition, int harvests,
+                                  GreenhouseCapacityLedger capacityLedger) {
         boolean convertEssence = UpgradeHelper.hasEssenceConversionUpgrade(this);
         boolean convertSeeds = UpgradeHelper.hasSeedConversionUpgrade(this);
         int samples = definition.harvestGenerator() == null
@@ -500,6 +506,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         int baseGroup = harvests / samples;
         int extraGroups = harvests % samples;
         int completed = 0;
+        List<ItemStack> plannedDrops = new ArrayList<>();
         ItemStack tool = new ItemStack(Items.DIAMOND_HOE);
         int fortuneLevel = Math.min(3, UpgradeHelper.countUpgrades(this, UpgradeType.FORTUNE));
         for (int sample = 0; sample < samples; sample++) {
@@ -516,13 +523,20 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
             if (convertEssence) {
                 scaledDrops = GreenhouseEssenceConversionHelper.convert(serverLevel, scaledDrops);
             }
-            if (fitted > 0 && capacityLedger.canFit(scaledDrops, 1)
-                    && insertScaledDrops(null, internalOutputHandler, scaledDrops, 1)) {
+            if (fitted > 0 && capacityLedger.canFit(scaledDrops, 1)) {
                 capacityLedger.reserve(scaledDrops, 1);
+                plannedDrops.addAll(scaledDrops);
                 completed += fitted;
             }
         }
-        return completed;
+        return new HarvestPlan(completed, plannedDrops);
+    }
+
+    private record HarvestPlan(int harvests, List<ItemStack> drops) {
+        private HarvestPlan {
+            harvests = Math.max(0, harvests);
+            drops = List.copyOf(drops);
+        }
     }
 
     private List<ItemStack> generateSingleHarvest(ServerLevel serverLevel, GreenhouseCropDefinition definition,
