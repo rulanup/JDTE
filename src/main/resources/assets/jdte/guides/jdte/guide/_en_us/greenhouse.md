@@ -43,6 +43,27 @@ Resolution order is: JDTE data recipe → dedicated Mystical Agriculture integra
 
 JEI shows the template, base costs, and preview products. Click the growing-bed progress area to open the category.
 
+## KubeJS: Configured Fluids
+
+Use a `jdte:greenhouse` recipe to replace a plant's recipe. This same recipe format is used by the Greenhouse, Large Greenhouse, and Greenhouse Matrix.
+
+```js
+ServerEvents.recipes(event => {
+  event.remove({ id: 'jdte:greenhouse/wheat' })
+  event.custom({
+    type: 'jdte:greenhouse',
+    seed: { item: 'minecraft:wheat_seeds' },
+    outputs: [{ id: 'minecraft:wheat', count: 2 }],
+    display_block: 'minecraft:wheat',
+    growth_work: 20,
+    fluid: 'minecraft:water',
+    time_fluid: 100
+  }).id('jdte:greenhouse/wheat')
+})
+```
+
+`fluid` is optional and defaults to `justdirethings:time_fluid_source`. `time_fluid` remains the amount consumed per harvest; it is not a fluid ID. A Greenhouse has one tank, so it never mixes fluids. After `/reload`, its previous fluid can still be extracted, but it powers only recipes that still require that fluid.
+
 ## Upgrades and Automation
 
 - Supports Capacity, Fluid, Fortune, Overclock, and Creative Upgrades.

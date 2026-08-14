@@ -43,9 +43,29 @@ item_ids:
 - 内置常用原版作物、树苗、花朵和同类植物。
 - 自动发现 Mystical Agriculture、Mystical Agradditions 和 Botany Pots 作物。
 - 通用识别带成熟年龄的模组作物，并保留成熟方块掉落表中的副产物。
-- 整合包可添加 `jdte:large_greenhouse` 数据配方。
+- 整合包可添加共享的 `jdte:greenhouse` 数据配方。
 
 JEI 会显示模板、基础 FE、时间流体和预览产物；点击界面的苗床进度区域也可打开对应分类。
+
+## KubeJS：可配置流体
+
+大型温室使用共享的 `jdte:greenhouse` 配方格式。以下示例让胡萝卜消耗水而不是默认时间流体：
+
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:greenhouse',
+    seed: { item: 'minecraft:carrot' },
+    outputs: [{ id: 'minecraft:carrot', count: 2 }],
+    display_block: 'minecraft:carrots',
+    growth_work: 20,
+    fluid: 'minecraft:water',
+    time_fluid: 100
+  }).id('kubejs:watered_carrot')
+})
+```
+
+省略 `fluid` 时使用 `justdirethings:time_fluid_source`；`time_fluid` 仍是每次收获的数量。机器的单个储罐不会混装流体；`/reload` 后旧内容仍可抽出，但只会驱动所需流体仍匹配的配方。
 
 ## 自动化与加速
 

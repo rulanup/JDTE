@@ -43,9 +43,29 @@ Every batch costs at least 1 mB, so very small or slow batches may not receive t
 - Includes common vanilla crops, saplings, flowers, and similar plants.
 - Automatically discovers Mystical Agriculture, Mystical Agradditions, and Botany Pots crops.
 - Generically recognizes mod crops with a mature age and preserves secondary mature-block drops.
-- Modpacks can add `jdte:large_greenhouse` data recipes.
+- Modpacks can add shared `jdte:greenhouse` data recipes.
 
 JEI shows the template, base FE, Time Fluid, and preview outputs. Clicking the growing-bed progress area also opens the category.
+
+## KubeJS: Configured Fluids
+
+Large Greenhouses use the shared `jdte:greenhouse` recipe format. For example, this custom carrot recipe consumes water rather than the default Time Fluid:
+
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:greenhouse',
+    seed: { item: 'minecraft:carrot' },
+    outputs: [{ id: 'minecraft:carrot', count: 2 }],
+    display_block: 'minecraft:carrots',
+    growth_work: 20,
+    fluid: 'minecraft:water',
+    time_fluid: 100
+  }).id('kubejs:watered_carrot')
+})
+```
+
+Omit `fluid` to use `justdirethings:time_fluid_source`. `time_fluid` is still the per-harvest amount. The machine's one tank does not mix fluids; after `/reload`, old contents remain extractable but can operate only a recipe whose required fluid still matches.
 
 ## Automation and Acceleration
 

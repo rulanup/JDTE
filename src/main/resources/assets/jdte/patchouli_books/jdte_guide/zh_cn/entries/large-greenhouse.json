@@ -15,7 +15,15 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)内置常用原版作物、树苗、花朵和同类植物。$(li)自动发现 Mystical Agriculture、Mystical Agradditions 和 Botany Pots 作物。$(li)通用识别带成熟年龄的模组作物，并保留成熟方块掉落表中的副产物。$(li)整合包可添加 $(thing)jdte:large_greenhouse$() 数据配方。$(br2)JEI 会显示模板、基础 FE、时间流体和预览产物；点击界面的苗床进度区域也可打开对应分类。$(br2)$(bold)自动化与加速$()$(br2)产物先进入内部库存，再于真实服务器 Tick 末合批输出；容器堵塞时生产会受到背压。时间加速器产生的虚拟 Tick 会合并结算，不会重复冲击库存。Botany Pots 等动态收获默认每台温室每个真实 Tick 最多执行 128 次，剩余工作会保留到后续 Tick。$(br2)$(bold)放置与拆除$()$(br2)控制器位于正面中央底层，其余 17 格为结构部件。底层基座任意面都可输入种子、时间流体和 FE，也可抽取产物。右击任意部件会打开控制器；破坏任意部件会拆除整座结构，并只返还一个大型温室物品。$(br2)$(bold)合成$()"
+      "text": "$(li)内置常用原版作物、树苗、花朵和同类植物。$(li)自动发现 Mystical Agriculture、Mystical Agradditions 和 Botany Pots 作物。$(li)通用识别带成熟年龄的模组作物，并保留成熟方块掉落表中的副产物。$(li)整合包可添加共享的 $(thing)jdte:greenhouse$() 数据配方。$(br2)JEI 会显示模板、基础 FE、时间流体和预览产物；点击界面的苗床进度区域也可打开对应分类。$(br2)$(bold)自动化与加速$()$(br2)产物先进入内部库存，再于真实服务器 Tick 末合批输出；容器堵塞时生产会受到背压。时间加速器产生的虚拟 Tick 会合并结算，不会重复冲击库存。Botany Pots 等动态收获默认每台温室每个真实 Tick 最多执行 128 次，剩余工作会保留到后续 Tick。$(br2)$(bold)放置与拆除$()$(br2)控制器位于正面中央底层，其余 17 格为结构部件。底层基座任意面都可输入种子、时间流体和 FE，也可抽取产物。右击任意部件会打开控制器；破坏任意部件会拆除整座结构，并只返还一个大型温室物品。$(br2)$(bold)合成$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)KubeJS：可配置流体$()$(br2)大型温室使用共享的 $(thing)jdte:greenhouse$() 配方格式。省略 $(thing)fluid$() 时使用 $(thing)justdirethings:time_fluid_source$()；$(thing)time_fluid$() 仍是每次收获消耗的数量。单个储罐不会混装流体；$(thing)/reload$() 后旧内容仍可抽出，但只会驱动所需流体仍匹配的配方。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)KubeJS 示例$()$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.custom({ type: 'jdte:greenhouse', seed: { item: 'minecraft:carrot' }, outputs: [{ id: 'minecraft:carrot', count: 2 }], display_block: 'minecraft:carrots', growth_work: 20, fluid: 'minecraft:water', time_fluid: 100 }).id('kubejs:watered_carrot')$(br)})$()"
     },
     {
       "type": "patchouli:crafting",

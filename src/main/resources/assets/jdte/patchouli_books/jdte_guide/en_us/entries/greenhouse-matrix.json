@@ -100,6 +100,14 @@
       "text": "Like a normal machine, the controller has eight upgrade slots and no extra dedicated slot. The controller-only $(bold)Greenhouse Matrix Quick Install Upgrade$() can occupy any of those eight slots. Once installed, it unlocks eight additional global slots that accept stacked upgrade cards. Cards placed there are transferred one at a time into the real eight-slot upgrade inventories of managed Greenhouses and Large Greenhouses; they are not virtual effects.$(br2)The controller distributes cards round-robin and respects each Greenhouse's normal limits and conflicts. Cards that currently cannot be installed remain queued. The Quick Install Upgrade cannot be removed until the queue is empty."
     },
     {
+      "type": "patchouli:text",
+      "text": "$(bold)KubeJS: Configured Fluids$()$(br2)The Matrix runs the same $(thing)jdte:greenhouse$() recipes as its managed Greenhouses. $(thing)fluid$() defaults to $(thing)justdirethings:time_fluid_source$(); $(thing)time_fluid$() is the amount per harvest. Each managed machine has one tank and does not mix fluids, and the Matrix drains only matching recipe fluid. After $(thing)/reload$(), old fluid is extractable but powers only matching recipes."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)KubeJS example$()$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.custom({ type: 'jdte:greenhouse', seed: { item: 'minecraft:potato' }, outputs: [{ id: 'minecraft:potato', count: 2 }], display_block: 'minecraft:potatoes', growth_work: 20, fluid: 'minecraft:water', time_fluid: 100 }).id('kubejs:watered_potato')$(br)})$()"
+    },
+    {
       "type": "patchouli:crafting",
       "recipe": "jdte:greenhouse_matrix_quick_install_upgrade"
     },

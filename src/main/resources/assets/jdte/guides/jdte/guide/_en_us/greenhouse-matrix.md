@@ -60,6 +60,26 @@ FE and Time Fluid remain physically stored in the internal Greenhouses and form 
 
 Real loot tables and dynamic crops use a bounded number of representative samples per group and scale the result to the group size. Seed and Essence conversions run before buffering. Paused matrices, unloaded members, and time while the game is closed do not receive catch-up production. Temporary structure invalidation does not clear buffered products.
 
+## KubeJS: Configured Fluids
+
+The Matrix runs the same `jdte:greenhouse` recipes as its managed Greenhouses and Large Greenhouses. This recipe makes potatoes consume water:
+
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:greenhouse',
+    seed: { item: 'minecraft:potato' },
+    outputs: [{ id: 'minecraft:potato', count: 2 }],
+    display_block: 'minecraft:potatoes',
+    growth_work: 20,
+    fluid: 'minecraft:water',
+    time_fluid: 100
+  }).id('kubejs:watered_potato')
+})
+```
+
+`fluid` defaults to `justdirethings:time_fluid_source` when omitted, while `time_fluid` is the amount consumed per harvest. Each managed machine has a single tank and does not mix fluids; Matrix production drains only matching recipe fluid. After `/reload`, old fluid remains extractable but powers only recipes that still match it.
+
 ## Block Enhancers
 
 - Speed: +25% work per block, capped at +300%.

@@ -72,6 +72,14 @@
       "text": "$(li)3×3 合成格中只能出现一种完全相同的输入物品与数据组件。$(li)配方不能留下桶、瓶或其他剩余物品。$(li)样板声明的主输出必须与服务端重新执行配方得到的物品、数据组件和数量完全一致。$(li)输入、输出或配方无法解析时，该槽会在界面中标记为无效并且不参与生产。$(br2)矩阵结算时按配方的真实输入数量从中央长数量缓冲扣除原料，再按真实输出数量写回产物；同一次结算不会把刚合成的输出继续递归合成。这样不能通过篡改样板把 1 个精华伪造成 999 个产物。$(br2)$(bold)种子增强与自动合成增强冲突。$() 两种方块同时存在时，结构校验会以 $(thing)conflicting_crafting_enhancements$() 判定矩阵无效；拆除其中一种后才能重新成型。$(br2)$(bold)全局升级安装$()$(br2)控制器与普通机器一样有 8 个升级槽，没有额外的专属槽位。$(bold)温室矩阵快速安装升级$() 只能用于控制器，可放入这 8 个槽中的任意一个；安装后会解锁另外 8 个可堆叠的全局升级槽。放入全局槽的升级卡会被逐张转移到内部普通温室和大型温室的真实 8 槽升级栏中，而不是提供虚拟效果。$(br2)控制器会轮流分配升级卡，并遵守每台温室原有的升级数量限制与冲突规则。当前无法安装的卡会留在全局队列中；队列未清空时不能拆下快速安装升级，以免锁住物品。"
     },
     {
+      "type": "patchouli:text",
+      "text": "$(bold)KubeJS：可配置流体$()$(br2)矩阵运行其管理的普通温室和大型温室所使用的同一类 $(thing)jdte:greenhouse$() 配方。$(thing)fluid$() 省略时默认为 $(thing)justdirethings:time_fluid_source$()，$(thing)time_fluid$() 则是每次收获消耗的数量。每个受管机器的单储罐不混装流体，矩阵只抽取与配方匹配的流体；$(thing)/reload$() 后旧流体仍可抽出，但只能驱动仍匹配的配方。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)KubeJS 示例$()$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.custom({ type: 'jdte:greenhouse', seed: { item: 'minecraft:potato' }, outputs: [{ id: 'minecraft:potato', count: 2 }], display_block: 'minecraft:potatoes', growth_work: 20, fluid: 'minecraft:water', time_fluid: 100 }).id('kubejs:watered_potato')$(br)})$()"
+    },
+    {
       "type": "patchouli:crafting",
       "recipe": "jdte:greenhouse_matrix_quick_install_upgrade"
     },

@@ -1,6 +1,6 @@
 package com.jdte.common.jei.greenhouse;
 
-import com.direwolf20.justdirethings.setup.Registration;
+import com.mojang.logging.LogUtils;
 import com.jdte.JDTE;
 import com.jdte.setup.JDTEBlocks;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -13,11 +13,19 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
+import org.slf4j.Logger;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GreenhouseRecipeCategory implements IRecipeCategory<GreenhouseJeiRecipe> {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Set<ResourceLocation> MISSING_FLUID_WARNINGS = ConcurrentHashMap.newKeySet();
     public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "greenhouse");
     public static final RecipeType<GreenhouseJeiRecipe> RECIPE_TYPE = new RecipeType<>(UID, GreenhouseJeiRecipe.class);
     private static final ResourceLocation SLOT = ResourceLocation.withDefaultNamespace("container/slot");
@@ -52,10 +60,17 @@ public class GreenhouseRecipeCategory implements IRecipeCategory<GreenhouseJeiRe
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, GreenhouseJeiRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.CATALYST, INPUT_X + 1, INPUT_Y + 1).addItemStack(recipe.seed());
-        builder.addSlot(RecipeIngredientRole.INPUT, FLUID_X + 1, FLUID_Y + 1)
-                .setBackground(fluidBackground, -1, -1).setOverlay(fluidOverlay, -1, -1)
-                .setFluidRenderer(Math.max(1, recipe.timeFluid()), false, 16, 70)
-                .addFluidStack(Registration.TIME_FLUID_SOURCE.get(), recipe.timeFluid());
+        Fluid requiredFluid = BuiltInRegistries.FLUID.getOptional(recipe.fluid()).orElse(null);
+        if (requiredFluid == null) {
+            if (MISSING_FLUID_WARNINGS.add(recipe.id())) {
+                LOGGER.warn("Skipping missing greenhouse JEI fluid {} for recipe {}", recipe.fluid(), recipe.id());
+            }
+        } else {
+            builder.addSlot(RecipeIngredientRole.INPUT, FLUID_X + 1, FLUID_Y + 1)
+                    .setBackground(fluidBackground, -1, -1).setOverlay(fluidOverlay, -1, -1)
+                    .setFluidRenderer(Math.max(1, recipe.timeFluid()), false, 16, 70)
+                    .addFluidStack(requiredFluid, recipe.timeFluid());
+        }
         for (int i = 0; i < Math.min(16, recipe.outputs().size()); i++) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X + (i % 4) * 18 + 1,
                     OUTPUT_Y + (i / 4) * 18 + 1).addItemStack(recipe.outputs().get(i));

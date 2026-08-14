@@ -43,6 +43,27 @@ item_ids:
 
 JEI 会显示模板、基础消耗和预览产物。点击界面的苗床进度区域可直接打开该分类。
 
+## KubeJS：可配置流体
+
+使用 `jdte:greenhouse` 配方替换植物配方；普通温室、大型温室和温室矩阵都使用这一格式。
+
+```js
+ServerEvents.recipes(event => {
+  event.remove({ id: 'jdte:greenhouse/wheat' })
+  event.custom({
+    type: 'jdte:greenhouse',
+    seed: { item: 'minecraft:wheat_seeds' },
+    outputs: [{ id: 'minecraft:wheat', count: 2 }],
+    display_block: 'minecraft:wheat',
+    growth_work: 20,
+    fluid: 'minecraft:water',
+    time_fluid: 100
+  }).id('jdte:greenhouse/wheat')
+})
+```
+
+`fluid` 可省略，默认值为 `justdirethings:time_fluid_source`。`time_fluid` 仍表示每次收获消耗的数量，而不是流体 ID。普通温室只有一个储罐，因此不会混装流体；`/reload` 后旧流体仍可抽出，但只能驱动仍要求该流体的配方。
+
 ## 升级与自动化
 
 - 支持：容量、流体、时运、超频、创造升级。

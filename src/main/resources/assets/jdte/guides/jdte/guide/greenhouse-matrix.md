@@ -60,6 +60,26 @@ FE 与时间流体仍实际保存在内部温室中，由所有已加载成员�
 
 真实战利品表或动态作物采用每个生产组有上限的代表性抽样并按整组规模放大，避免一次收获数百万次。种子/精华转换在进入中央缓冲前执行。矩阵暂停、成员区块未加载或游戏关闭期间不会补产；中央缓冲会随世界保存，临时结构失效也不会清空。
 
+## KubeJS：可配置流体
+
+矩阵运行其管理的普通温室和大型温室所使用的同一类 `jdte:greenhouse` 配方。以下配方让马铃薯消耗水：
+
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:greenhouse',
+    seed: { item: 'minecraft:potato' },
+    outputs: [{ id: 'minecraft:potato', count: 2 }],
+    display_block: 'minecraft:potatoes',
+    growth_work: 20,
+    fluid: 'minecraft:water',
+    time_fluid: 100
+  }).id('kubejs:watered_potato')
+})
+```
+
+省略 `fluid` 时默认为 `justdirethings:time_fluid_source`，`time_fluid` 则是每次收获消耗的数量。每个被管理机器的单储罐不混装流体，矩阵只抽取与配方匹配的流体；`/reload` 后旧流体仍可抽出，但只能驱动仍匹配的配方。
+
 ## 方块增强
 
 - 速度增强：每个使工作量提高 25%，最高提高 300%。
