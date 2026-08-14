@@ -36,7 +36,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Property | Default behavior$()$(br)Base processing | 1x uses the former 64x throughput as its baseline: 64 work is added each tick, and each 20 work completes and immediately settles one batch$(br)Energy | 5,000 FE per batch; 10,000 FE per batch with JDT's Smelter Upgrade installed$(br)Smelting | Accepts at most one JDT Smelter Upgrade; ores with furnace recipes become their smelted results, while ores without recipes remain unchanged$(br)Experience Fluid | 25 mB per batch raises that batch's yield by 100%; remaining batches retain normal yield$(br)Time Fluid | 5 mB per accelerated batch; the base 1x batch is free$(br)Speed | 1x equals the former 64x throughput; adjustable up to 32x"
+      "text": "$(bold)Property | Default behavior$()$(br)Base processing | 1x uses the former 64x throughput as its baseline: 64 work is added each tick, and each 20 work completes and immediately settles one batch$(br)Energy | 5,000 FE per batch; 10,000 FE per batch with JDT's Smelter Upgrade installed$(br)Smelting | Accepts at most one JDT Smelter Upgrade; ores with furnace recipes become their smelted results, while ores without recipes remain unchanged$(br)Fortune role fluid (default: JDT Experience Fluid) | Raises that batch's yield by 100%; amount: experienceFluidPerCycle (25 mB by default)$(br)Acceleration role fluid (default: JDT Time Fluid) | Used only for accelerated batches; amount: timeFluidPerAcceleratedCycle (5 mB by default); the base 1x batch is free$(br)Speed | 1x equals the former 64x throughput; adjustable up to 32x"
     },
     {
       "type": "patchouli:text",
@@ -44,7 +44,15 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)Supports Capacity, Fluid, Filter, Overclock, and Creative Upgrades, plus at most one JDT Smelter Upgrade.$(li)Smelting results are cached when the mineral source, filters, or upgrade state changes; settlements do not query recipes per cycle.$(li)Allowlist and denylist entries match final ore blocks; remaining mineral weights are normalized again after filtering.$(li)Auto I/O and pipes can supply Mineral Surveys, Experience Fluid, Time Fluid, and FE, and extract products from paged outputs.$(li)Modpacks can describe custom world-generation features through $(thing)data/<namespace>/jdte/mineral_sources/*.json$() when automatic analysis cannot recognize them.$(br2)$(bold)Crafting$()"
+      "text": "$(li)Supports Capacity, Fluid, Filter, Overclock, and Creative Upgrades, plus at most one JDT Smelter Upgrade.$(li)Smelting results are cached when the mineral source, filters, or upgrade state changes; settlements do not query recipes per cycle.$(li)Allowlist and denylist entries match final ore blocks; remaining mineral weights are normalized again after filtering.$(li)Auto I/O and pipes can supply Mineral Surveys, the two role fluids (default: JDT Experience Fluid and JDT Time Fluid), and FE, and extract products from paged outputs.$(li)Modpacks can describe custom world-generation features through $(thing)data/<namespace>/jdte/mineral_sources/*.json$() when automatic analysis cannot recognize them.$(br2)$(bold)KubeJS Resource Fluids$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The standard and Large Mineral Extractors share the fixed recipe ID $(thing)jdte:mineral_extractor_resources$(). Replace it with the same ID and custom type:$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.remove({ id: 'jdte:mineral_extractor_resources' })$(br)  event.custom({$(br)    type: 'jdte:mineral_extractor_resources',$(br)    fortune_fluid: 'minecraft:lava',$(br)    acceleration_fluid: 'minecraft:water'$(br)  }).id('jdte:mineral_extractor_resources')$(br)})$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(thing)fortune_fluid$() and $(thing)acceleration_fluid$() must be different fluids.$(li)Amounts still use the existing $(thing)experienceFluidPerCycle$() and $(thing)timeFluidPerAcceleratedCycle$() config keys; the recipe changes roles, not costs.$(li)Keep the fixed recipe ID. If it is absent, JDTE falls back to the old default fluids and logs a warning.$(li)/reload does not delete a machine's fluid. The old role fluid can be extracted but no longer produces; once the tank is empty, the machine accepts the newly configured role fluid.$(br2)$(bold)Crafting$()"
     },
     {
       "type": "patchouli:text",

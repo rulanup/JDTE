@@ -24,11 +24,19 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)项目 | 默认行为$()$(br)基础处理 | 1x 以原 64x 产能为基准：每 Tick 累计 64 工作量，每 20 工作量完成 1 批并立即结算$(br)能量 | 每批 5,000 FE；安装 JDT 原版烧炼升级后为每批 10,000 FE$(br)烧炼 | 最多安装 1 张 JDT 原版烧炼升级；有熔炉配方的矿石直接输出烧炼结果，无配方时保留原矿石$(br)经验流体 | 每批 25 mB，使该批产率提高 100%；不足时其余批次保持普通产率$(br)时间流体 | 仅加速批次消耗，每批 5 mB；基础 1x 批次不消耗$(br)速度 | 1x 等于旧 64x 产能；无超频升级可调至 32x，安装超频或创造升级后可调至 64x$(br)输出 | 基础 16 格；每张容量升级增加 16 格，最多 64 格$(br)单槽上限 | 无升级 64；安装 1/2/3 张容量升级后为 2048/4096/8192$(br2)机器按当前输出容量部分结算，未能装入的积压工作会保留。输出完全没有空间、能量不足、无候选矿物或清单过期时不会扣除本次资源，也不会丢出物品。高倍率工作使用批量权重结算，耗时随矿物种类数增长，而不是逐批执行生产循环。$(br2)$(bold)过滤与自动化$()"
+      "text": "$(bold)项目 | 默认行为$()$(br)基础处理 | 1x 以原 64x 产能为基准：每 Tick 累计 64 工作量，每 20 工作量完成 1 批并立即结算$(br)能量 | 每批 5,000 FE；安装 JDT 原版烧炼升级后为每批 10,000 FE$(br)烧炼 | 最多安装 1 张 JDT 原版烧炼升级；有熔炉配方的矿石直接输出烧炼结果，无配方时保留原矿石$(br)时运角色流体（默认：JDT 经验流体） | 使该批产率提高 100%；用量：experienceFluidPerCycle（默认 25 mB）$(br)加速角色流体（默认：JDT 时间流体） | 仅加速批次消耗；用量：timeFluidPerAcceleratedCycle（默认 5 mB），基础 1x 批次不消耗$(br)速度 | 1x 等于旧 64x 产能；无超频升级可调至 32x，安装超频或创造升级后可调至 64x$(br)输出 | 基础 16 格；每张容量升级增加 16 格，最多 64 格$(br)单槽上限 | 无升级 64；安装 1/2/3 张容量升级后为 2048/4096/8192$(br2)机器按当前输出容量部分结算，未能装入的积压工作会保留。输出完全没有空间、能量不足、无候选矿物或清单过期时不会扣除本次资源，也不会丢出物品。高倍率工作使用批量权重结算，耗时随矿物种类数增长，而不是逐批执行生产循环。$(br2)$(bold)过滤与自动化$()"
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)支持容量、流体、过滤、超频、创造升级，以及最多 1 张 JDT 原版烧炼升级。$(li)烧炼结果在矿物来源、过滤条件或升级状态变化时统一缓存；生产结算不会逐批查询配方。$(li)黑白名单匹配最终矿石方块；过滤后会重新归一化剩余矿物权重。$(li)自动 I/O 和管道可输入矿物清单、经验流体、时间流体和 FE，并从分页输出槽提取产物。$(li)自定义世界生成 Feature 无法自动识别时，整合包可通过 $(thing)data/<namespace>/jdte/mineral_sources/*.json$() 提供矿物来源覆盖。$(br2)$(bold)合成$()$(br2)$(bold)矿物清单$()"
+      "text": "$(li)支持容量、流体、过滤、超频、创造升级，以及最多 1 张 JDT 原版烧炼升级。$(li)烧炼结果在矿物来源、过滤条件或升级状态变化时统一缓存；生产结算不会逐批查询配方。$(li)黑白名单匹配最终矿石方块；过滤后会重新归一化剩余矿物权重。$(li)自动 I/O 和管道可输入矿物清单、两种角色流体（默认分别为 JDT 经验流体与 JDT 时间流体）和 FE，并从分页输出槽提取产物。$(li)自定义世界生成 Feature 无法自动识别时，整合包可通过 $(thing)data/<namespace>/jdte/mineral_sources/*.json$() 提供矿物来源覆盖。$(br2)$(bold)KubeJS 资源流体$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "普通与大型矿物提取机共用固定配方 ID：$(thing)jdte:mineral_extractor_resources$()。替换时必须使用同一 ID 与自定义类型：$(br2)$(thing)ServerEvents.recipes(event => {$(br)  event.remove({ id: 'jdte:mineral_extractor_resources' })$(br)  event.custom({$(br)    type: 'jdte:mineral_extractor_resources',$(br)    fortune_fluid: 'minecraft:lava',$(br)    acceleration_fluid: 'minecraft:water'$(br)  }).id('jdte:mineral_extractor_resources')$(br)})$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(thing)fortune_fluid$() 与 $(thing)acceleration_fluid$() 必须是不同流体。$(li)用量仍使用现有的 $(thing)experienceFluidPerCycle$() 与 $(thing)timeFluidPerAcceleratedCycle$() 配置键；配方只改变角色，不改变消耗量。$(li)必须保留固定配方 ID。缺失时，JDTE 会回退到旧的默认流体，并在日志中警告。$(li)/reload 不会删除机器内已有流体。旧角色流体仍可抽出，但不再参与生产；清空储罐后，机器才会接受新配置的角色流体。$(br2)$(bold)合成$()$(br2)$(bold)矿物清单$()"
     },
     {
       "type": "patchouli:crafting",

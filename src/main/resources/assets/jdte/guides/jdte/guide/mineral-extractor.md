@@ -42,20 +42,40 @@ item_ids:
 | 基础处理 | 1x 以原 64x 产能为基准：每 Tick 累计 64 工作量，每 20 工作量完成 1 批并立即结算 |
 | 能量 | 每批 5,000 FE；安装 JDT 原版烧炼升级后为每批 10,000 FE |
 | 烧炼 | 最多安装 1 张 JDT 原版烧炼升级；有熔炉配方的矿石直接输出烧炼结果，无配方时保留原矿石 |
-| 经验流体 | 每批 25 mB，使该批产率提高 100%；不足时其余批次保持普通产率 |
-| 时间流体 | 仅加速批次消耗，每批 5 mB；基础 1x 批次不消耗 |
+| 时运角色流体（默认：JDT 经验流体） | 使该批产率提高 100%；用量仍由 `experienceFluidPerCycle` 配置（默认 25 mB）控制 |
+| 加速角色流体（默认：JDT 时间流体） | 仅加速批次消耗；用量仍由 `timeFluidPerAcceleratedCycle` 配置（默认 5 mB）控制，基础 1x 批次不消耗 |
 | 速度 | 1x 等于旧 64x 产能；无超频升级可调至 32x，安装超频或创造升级后可调至 64x |
 | 输出 | 基础 16 格；每张容量升级增加 16 格，最多 64 格 |
 | 单槽上限 | 无升级 64；安装 1/2/3 张容量升级后为 2048/4096/8192 |
 
 机器按当前输出容量部分结算，未能装入的积压工作会保留。输出完全没有空间、能量不足、无候选矿物或清单过期时不会扣除本次资源，也不会丢出物品。高倍率工作使用批量权重结算，耗时随矿物种类数增长，而不是逐批执行生产循环。
 
+## KubeJS 资源流体与重载
+
+普通与大型矿物提取机共用一个固定资源配方：`jdte:mineral_extractor_resources`。使用 KubeJS 替换时，必须移除并以同一固定 ID 重新创建该配方，且使用相同的自定义配方类型：
+
+```js
+ServerEvents.recipes(event => {
+  event.remove({ id: 'jdte:mineral_extractor_resources' })
+  event.custom({
+    type: 'jdte:mineral_extractor_resources',
+    fortune_fluid: 'minecraft:lava',
+    acceleration_fluid: 'minecraft:water'
+  }).id('jdte:mineral_extractor_resources')
+})
+```
+
+- `fortune_fluid` 与 `acceleration_fluid` 必须指定不同的流体。
+- 流体用量仍由现有的 `experienceFluidPerCycle` 与 `timeFluidPerAcceleratedCycle` 配置键控制；替换配方只改变角色流体，不改变这些消耗量。
+- 必须保留固定配方 ID。缺失时，JDTE 会回退到旧的默认流体，并在日志中警告。
+- `/reload` 不会删除机器内已有流体。旧角色流体仍可抽出，但不再参与生产；清空储罐后，机器才会接受新配置的角色流体。
+
 ## 过滤与自动化
 
 - 支持容量、流体、过滤、超频、创造升级，以及最多 1 张 JDT 原版烧炼升级。
 - 烧炼结果在矿物来源、过滤条件或升级状态变化时统一缓存；生产结算不会逐批查询配方。
 - 黑白名单匹配最终矿石方块；过滤后会重新归一化剩余矿物权重。
-- 自动 I/O 和管道可输入矿物清单、经验流体、时间流体和 FE，并从分页输出槽提取产物。
+- 自动 I/O 和管道可输入矿物清单、两种角色流体（默认分别为 JDT 经验流体与 JDT 时间流体）和 FE，并从分页输出槽提取产物。
 - 自定义世界生成 Feature 无法自动识别时，整合包可通过 `data/<namespace>/jdte/mineral_sources/*.json` 提供矿物来源覆盖。
 
 ## 合成
