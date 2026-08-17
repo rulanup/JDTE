@@ -1,8 +1,0 @@
-{
-  "parent": "jdte:block/solar_panel_template",
-  "textures": {
-    "top": "minecraft:block/diamond_block",
-    "side": "minecraft:block/obsidian",
-    "bottom": "minecraft:block/crying_obsidian"
-  }
-}

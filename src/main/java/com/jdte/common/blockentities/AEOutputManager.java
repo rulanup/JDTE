@@ -2,9 +2,9 @@ package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.autoioconfig.AutoIoTransferHelper;
+import com.jdte.common.greenhouse.ICreativeGreenhouse;
 import com.jdte.common.integrations.ae2.AEOutputNetwork;
 import com.jdte.common.upgrades.UpgradeHelper;
-import com.jdte.setup.JDTEConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -81,53 +81,12 @@ public final class AEOutputManager {
         }
     }
 
-    public static void tickMatrix(GreenhouseMatrixControllerBE controller) {
-        if (!(controller.getLevel() instanceof ServerLevel level) || !controller.isFormed()) return;
-        ItemStack upgrade = controller.getAEOutputUpgrade();
-        if (upgrade.isEmpty() || !AEOutputNetwork.isLinked(upgrade)) return;
-        MatrixState state = controller.getAEOutputState();
-        if (level.getGameTime() < state.nextAttemptTick) return;
-
-        var buffer = controller.getOutputBuffer();
-        long moved = 0L;
-        int entry = 0;
-        int typeBudget = JDTEConfig.COMMON.greenhouseMatrixAEOutputTypeBudget.get();
-        while (entry < buffer.distinctTypes() && typeBudget-- > 0) {
-            ItemStack prototype = buffer.prototypeAt(entry);
-            long remaining = buffer.amountAt(entry);
-            boolean removedEntry = false;
-            while (!prototype.isEmpty() && remaining > 0L) {
-                int offered = (int) Math.min(Integer.MAX_VALUE, remaining);
-                int simulated = AEOutputNetwork.insertItem(level, upgrade,
-                        prototype.copyWithCount(offered), true);
-                if (simulated <= 0) break;
-                int accepted = AEOutputNetwork.insertItem(level, upgrade,
-                        prototype.copyWithCount(Math.min(offered, simulated)), false);
-                if (accepted <= 0) break;
-                long removed = buffer.removeAmount(entry, accepted);
-                if (removed != accepted) throw new IllegalStateException("Matrix output changed during AE transfer");
-                moved += removed;
-                remaining -= removed;
-                removedEntry = remaining == 0L;
-                if (accepted < offered) break;
-            }
-            if (!removedEntry) entry++;
-        }
-        if (moved > 0L) {
-            state.failureBackoff = 0;
-            state.nextAttemptTick = level.getGameTime() + 1L;
-            controller.setChanged();
-        } else {
-            state.failureBackoff = state.failureBackoff <= 0 ? 5 : Math.min(MAX_BACKOFF, state.failureBackoff * 2);
-            state.nextAttemptTick = level.getGameTime() + state.failureBackoff;
-        }
-    }
 
     private static boolean flush(ServerLevel level, BaseMachineBE machine) {
         ItemStack upgrade = UpgradeHelper.getAEOutputUpgrade(machine);
         if (upgrade.isEmpty() || !AEOutputNetwork.isLinked(upgrade)) return false;
         AutoIoTransferHelper.AEOutputRoutes routes = AutoIoTransferHelper.getAEOutputRoutes(machine);
-        long movedItems = machine instanceof CreativeGreenhouseBE greenhouse
+        long movedItems = machine instanceof ICreativeGreenhouse greenhouse
                 ? flushInfiniteItems(level, upgrade, greenhouse)
                 : flushItems(level, upgrade, machine, routes.itemSlots());
         int movedFluid = flushFluid(level, upgrade, routes.fluidOutput());
@@ -135,10 +94,10 @@ public final class AEOutputManager {
     }
 
     private static long flushInfiniteItems(ServerLevel level, ItemStack upgrade,
-                                           CreativeGreenhouseBE greenhouse) {
-        List<ItemStack> prototypes = new ArrayList<>(greenhouse.getDistinctOutputTypes());
-        for (int entry = 0; entry < greenhouse.getDistinctOutputTypes(); entry++) {
-            ItemStack prototype = greenhouse.getOutputCatalog().prototypeAt(entry);
+                                           ICreativeGreenhouse greenhouse) {
+        List<ItemStack> prototypes = new ArrayList<>(greenhouse.distinctOutputTypes());
+        for (int entry = 0; entry < greenhouse.distinctOutputTypes(); entry++) {
+            ItemStack prototype = greenhouse.catalogPrototypeAt(entry);
             if (!prototype.isEmpty()) prototypes.add(prototype);
         }
         return AEOutputNetwork.transferInfiniteItems(level, upgrade, prototypes).moved();
@@ -204,7 +163,5 @@ public final class AEOutputManager {
             nextAttemptTick = 0L;
         }
     }
-
-    public static final class MatrixState extends State {
-    }
 }
+

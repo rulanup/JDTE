@@ -131,7 +131,7 @@ Basic, Advanced, and Extended Time Accelerators only. Allows the accelerator con
 
 Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a machine with item or fluid product outputs to return those products directly to the linked AE network. The access point must remain loaded, online, and have a channel. If the network is unavailable or full, unaccepted products safely remain in the machine.
 
-Machines without a product-output use, such as Clickers, Placers, Droppers, and Senders, reject this upgrade. The limit is one per machine. A Greenhouse Matrix Controller can also use it to return products from every managed Greenhouse.
+Machines without a product-output use, such as Clickers, Placers, Droppers, and Senders, reject this upgrade. The limit is one per machine. A Greenhouse Matrix Controller (from the standalone JDTE-Matrix mod) can also use it to return products from every managed Greenhouse.
 
 <RecipeFor id="jdte:ae_output_upgrade" />
 

@@ -272,7 +272,7 @@ class PatchouliBookGenerationTest(unittest.TestCase):
             "src/main/resources/data/jdte/patchouli_books/jdte_guide/book.json",
             relative_paths,
         )
-        self.assertEqual(87, len(relative_paths))
+        self.assertEqual(81, len(relative_paths))
         for language in ("zh_cn", "en_us"):
             prefix = (
                 "src/main/resources/assets/jdte/patchouli_books/"
@@ -283,7 +283,7 @@ class PatchouliBookGenerationTest(unittest.TestCase):
                 sum(path.startswith(f"{prefix}/categories/") for path in relative_paths),
             )
             self.assertEqual(
-                37,
+                34,
                 sum(path.startswith(f"{prefix}/entries/") for path in relative_paths),
             )
 
@@ -292,8 +292,6 @@ class PatchouliBookGenerationTest(unittest.TestCase):
             "ultimate-portal-gun": "upgrades_tools",
             "big-fluid-tank": "upgrades_tools",
             "time-multitool": "upgrades_tools",
-            "solar-panels": "time_energy",
-            "creative-greenhouse": "greenhouses_resources",
         }
 
         for language in ("zh_cn", "en_us"):

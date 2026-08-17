@@ -17,7 +17,7 @@ import com.jdte.common.blockentities.BasicTimeAcceleratorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
-import com.jdte.common.blockentities.CreativeGreenhouseBE;
+import com.jdte.common.greenhouse.ICreativeGreenhouse;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.BioFactoryBE;
@@ -81,8 +81,8 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
-        if (machine instanceof CreativeGreenhouseBE) {
-            return CreativeGreenhouseBE.isSupportedUpgrade(type);
+        if (machine instanceof ICreativeGreenhouse creativeGreenhouse) {
+            return creativeGreenhouse.isSupportedUpgrade(type);
         }
         if (type == UpgradeType.AE_OUTPUT) {
             return AutoIoTransferHelper.supportsAEOutput(machine);
@@ -159,7 +159,7 @@ public class UpgradeHelper {
 
     public static int getMaxUpgrades(BaseMachineBE machine, UpgradeType type) {
         if ((machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE
-                || machine instanceof CreativeGreenhouseBE)
+                || machine instanceof ICreativeGreenhouse)
                 && type == UpgradeType.FORTUNE) {
             return 3;
         }

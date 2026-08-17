@@ -45,7 +45,7 @@ JEI 会显示模板、基础消耗和预览产物。点击界面的苗床进度�
 
 ## KubeJS：可配置流体
 
-使用 `jdte:greenhouse` 配方替换植物配方；普通温室、大型温室和温室矩阵都使用这一格式。
+使用 `jdte:greenhouse` 配方替换植物配方；普通温室、大型温室和温室矩阵（温室矩阵位于独立的 JDTE-Matrix 模组中）都使用这一格式。
 
 ```js
 ServerEvents.recipes(event => {

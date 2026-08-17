@@ -20,9 +20,6 @@ public class GreenhouseConfig {
     public final ModConfigSpec.IntValue greenhouseEventOutputItemBudget;
     public final ModConfigSpec.IntValue greenhouseEventOutputTypeBudget;
     public final ModConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
-    public final ModConfigSpec.IntValue greenhouseMatrixProfileScanBudget;
-    public final ModConfigSpec.IntValue greenhouseMatrixDynamicSamplesPerGroup;
-    public final ModConfigSpec.IntValue greenhouseMatrixAEOutputTypeBudget;
 
     public GreenhouseConfig(ModConfigSpec.Builder builder) {
         builder.comment("Greenhouse Settings")
@@ -85,15 +82,6 @@ public class GreenhouseConfig {
                 .comment("Maximum exact dynamic harvest-provider calls shared by one Greenhouse per real server tick")
                 .translation("config.jdte.jdte.greenhouse.dynamicHarvestCallsPerTick")
                 .defineInRange("dynamicHarvestCallsPerTick", 128, 1, 4096);
-        greenhouseMatrixProfileScanBudget = builder
-                .comment("Maximum matrix members whose production profiles are rebuilt per server tick")
-                .defineInRange("matrixProfileScanBudget", 64, 1, 4096);
-        greenhouseMatrixDynamicSamplesPerGroup = builder
-                .comment("Maximum real loot/dynamic harvest calls per matrix production group settlement")
-                .defineInRange("matrixDynamicSamplesPerGroup", 8, 1, 256);
-        greenhouseMatrixAEOutputTypeBudget = builder
-                .comment("Maximum distinct matrix output types uploaded to AE per server tick")
-                .defineInRange("matrixAEOutputTypeBudget", 64, 1, 4096);
         builder.pop();
     }
 }

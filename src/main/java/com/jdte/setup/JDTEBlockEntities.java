@@ -103,20 +103,8 @@ public class JDTEBlockEntities {
             "crystal_incubator", () -> BlockEntityType.Builder.of(CrystalIncubatorBE::new, JDTEBlocks.CRYSTAL_INCUBATOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GreenhouseBE>> GREENHOUSE = BLOCK_ENTITIES.register(
             "greenhouse", () -> BlockEntityType.Builder.of(GreenhouseBE::new, JDTEBlocks.GREENHOUSE.get()).build(null));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeGreenhouseBE>> CREATIVE_GREENHOUSE = BLOCK_ENTITIES.register(
-            "creative_greenhouse", () -> BlockEntityType.Builder.of(CreativeGreenhouseBE::new,
-                    JDTEBlocks.CREATIVE_GREENHOUSE.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LargeGreenhouseBE>> LARGE_GREENHOUSE = BLOCK_ENTITIES.register(
             "large_greenhouse", () -> BlockEntityType.Builder.of(LargeGreenhouseBE::new, JDTEBlocks.LARGE_GREENHOUSE.get()).build(null));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GreenhouseMatrixControllerBE>> GREENHOUSE_MATRIX_CONTROLLER = BLOCK_ENTITIES.register(
-            "greenhouse_matrix_controller", () -> BlockEntityType.Builder.of(GreenhouseMatrixControllerBE::new, JDTEBlocks.GREENHOUSE_MATRIX_CONTROLLER.get()).build(null));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GreenhouseMatrixPortBE>> GREENHOUSE_MATRIX_PORT = BLOCK_ENTITIES.register(
-            "greenhouse_matrix_port", () -> BlockEntityType.Builder.of(GreenhouseMatrixPortBE::new,
-                    JDTEBlocks.GREENHOUSE_MATRIX_ITEM_INPUT.get(), JDTEBlocks.GREENHOUSE_MATRIX_ITEM_OUTPUT.get(),
-                    JDTEBlocks.GREENHOUSE_MATRIX_FLUID_INPUT.get(), JDTEBlocks.GREENHOUSE_MATRIX_ENERGY_INPUT.get()).build(null));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GreenhouseMatrixAutoCraftingBE>> GREENHOUSE_MATRIX_AUTO_CRAFTING = BLOCK_ENTITIES.register(
-            "greenhouse_matrix_auto_crafting", () -> BlockEntityType.Builder.of(
-                    GreenhouseMatrixAutoCraftingBE::new, JDTEBlocks.GREENHOUSE_MATRIX_AUTO_CRAFTING.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LifeSynthesisVatBE>> LIFE_SYNTHESIS_VAT = BLOCK_ENTITIES.register(
             "life_synthesis_vat", () -> BlockEntityType.Builder.of(LifeSynthesisVatBE::new, JDTEBlocks.LIFE_SYNTHESIS_VAT.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BioFactoryBE>> BIO_FACTORY = BLOCK_ENTITIES.register(
@@ -127,12 +115,6 @@ public class JDTEBlockEntities {
             "mineral_extractor", () -> BlockEntityType.Builder.of(MineralExtractorBE::new, JDTEBlocks.MINERAL_EXTRACTOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LargeMineralExtractorBE>> LARGE_MINERAL_EXTRACTOR = BLOCK_ENTITIES.register(
             "large_mineral_extractor", () -> BlockEntityType.Builder.of(LargeMineralExtractorBE::new, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get()).build(null));
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SolarPanelBE>> SOLAR_PANEL = BLOCK_ENTITIES.register(
-            "solar_panel", () -> BlockEntityType.Builder.of(SolarPanelBE::new,
-                    JDTEBlocks.CONCENTRATED_SOLAR_PANEL.get(), JDTEBlocks.SINGULARITY_SOLAR_PANEL.get(),
-                    JDTEBlocks.STELLAR_FUSION_SOLAR_PANEL.get(), JDTEBlocks.DIMENSIONAL_COLLAPSE_SOLAR_PANEL.get(),
-                    JDTEBlocks.CREATIVE_SOLAR_PANEL.get()).build(null));
 
     // Life Extractor
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedLifeExtractorBE>> ADVANCED_LIFE_EXTRACTOR = BLOCK_ENTITIES.register(

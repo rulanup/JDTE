@@ -69,7 +69,7 @@ CATEGORIES = (
         "time_energy",
         "jdte:advanced_time_accelerator",
         20,
-        ("time-accelerator", "time-freezer", "advanced-energy-transmitter", "solar-panels"),
+        ("time-accelerator", "time-freezer", "advanced-energy-transmitter"),
         {"zh_cn": "时间与能源", "en_us": "Time & Energy"},
         {
             "zh_cn": "时间流体、时间控制和能源传输。",
@@ -96,8 +96,8 @@ CATEGORIES = (
         "jdte:greenhouse",
         40,
         (
-            "crystal-incubator", "greenhouse", "large-greenhouse", "creative-greenhouse",
-            "greenhouse-matrix", "mineral-extractor",
+            "crystal-incubator", "greenhouse", "large-greenhouse",
+            "mineral-extractor",
         ),
         {"zh_cn": "温室与资源", "en_us": "Greenhouses & Resources"},
         {

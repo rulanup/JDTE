@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.9-alpha4`
+Current version: `0.5.9`
 
 [中文 README](README.md)
 
@@ -55,6 +55,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 | Crystal Incubator | Consumes Time Fluid and FE to accelerate conventional budding blocks at an adjustable 1-512x or 1024x when overclocked, auto-outputs mature clusters, and supports Fortune or Precision harvesting |
 | Greenhouse | Original horizontally connectable machine with four stackable plant templates, 1-4 pages of high-capacity internal output, Fortune, JEI, real-tick-coalesced acceleration, and bounded Auto I/O |
 | Large Greenhouse | Places as one 3×3×2 machine with its sole controller at the front-center of the bottom layer, nine stackable plant templates, and up to 64 unified output slots; all base-layer faces accept input/output |
+| Greenhouse Matrix, Tiered Solar Panels | Moved to the standalone **JDTE-Matrix** addon (`jdte_matrix`); JDTE keeps only the member-side API its greenhouses need, while the matrix controller, structure blocks, and all five solar panel tiers ship in the new mod |
 | Bio Factory | Uses reusable spawn eggs or Productive Bees cages, food/flowers, FE, and separate Life/Time/culture/product fluids; supports the Life Fluid Bee flowering on Life Extractors, adjustable 1-32x or 64x operation, auto I/O, eight default outputs, loaded bee JEI recipes, and all four Productivity Upgrade tiers |
 | Life Breeder | Automatically feeds and pairs standard animals or Villagers in a configured area, advances baby growth and breeding cooldowns at 1-32x, completes them with Overclock/Creative, supports spawn-egg allowlist/denylist filters and time-derived Life Fluid costs, and collects bounded batches of real drops into 4x2 outputs |
 | Life Synthesis Vat | Places as one 3×3×2 culture vat that grows tissue from organic media, Water, and FE and distills it into Life Fluid; plant/protein/enriched recipe tiers, Time Fluid doubling boost, direct-neighbor distillation priority, and a progress-tracking red viewport liquid column |

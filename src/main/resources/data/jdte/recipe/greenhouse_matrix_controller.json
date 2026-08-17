@@ -1,1 +1,0 @@
-{"type":"minecraft:crafting_shaped","category":"redstone","pattern":["ECE","CGC","ECE"],"key":{"E":{"item":"justdirethings:eclipsealloy_ingot"},"C":{"item":"jdte:greenhouse_matrix_casing"},"G":{"item":"jdte:greenhouse"}},"result":{"id":"jdte:greenhouse_matrix_controller","count":1}}

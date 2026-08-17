@@ -1,7 +1,4 @@
 {
-  "block.jdte.creative_greenhouse": "Creative Greenhouse",
-  "jdte.screen.creative_greenhouse.infinite": "Logical amount: %s",
-  "jdte.screen.creative_greenhouse.overflow": "Output types exceed the limit of %s",
   "itemGroup.jdte": "JDT Extras",
   "item.jdte.capacity_upgrade": "Capacity Upgrade",
   "item.jdte.overclock_upgrade": "Overclock Upgrade",
@@ -86,24 +83,6 @@
   "config.jade.plugin_jdte.mineral_extractor_status": "Mineral Extractor Status",
   "jade.jdte.mineral_extractor.speed": "Extraction Multiplier: %sx / %sx",
   "jade.jdte.energy": "Energy: %s / %s FE",
-  "config.jade.plugin_jdte.greenhouse_matrix_status": "Greenhouse Matrix Status",
-  "jade.jdte.greenhouse_matrix.port": "Port Type: %s",
-  "jade.jdte.greenhouse_matrix.port.item_input": "Item Input",
-  "jade.jdte.greenhouse_matrix.port.item_output": "Item Output",
-  "jade.jdte.greenhouse_matrix.port.fluid_input": "Recipe Fluid Input",
-  "jade.jdte.greenhouse_matrix.port.energy_input": "Energy Input",
-  "jade.jdte.greenhouse_matrix.linked": "Linked to Matrix Controller",
-  "jade.jdte.greenhouse_matrix.unlinked": "Not Linked to Matrix Controller",
-  "jade.jdte.greenhouse_matrix.formed": "Structure Formed · %s Greenhouses",
-  "jade.jdte.greenhouse_matrix.invalid": "Invalid Structure: %s",
-  "jade.jdte.greenhouse_matrix.size": "Structure Size: %s × %s × %s",
-  "jade.jdte.greenhouse_matrix.operation.on": "Internal Greenhouses: Running",
-  "jade.jdte.greenhouse_matrix.operation.off": "Internal Greenhouses: Paused",
-  "jade.jdte.greenhouse_matrix.auto_io.on": "Auto I/O: On",
-  "jade.jdte.greenhouse_matrix.auto_io.off": "Auto I/O: Off",
-  "jade.jdte.greenhouse_matrix.render.on": "Internal Crop Rendering: On",
-  "jade.jdte.greenhouse_matrix.render.off": "Internal Crop Rendering: Off",
-  "jade.jdte.greenhouse_matrix.enhancements": "Enhancers  Speed:%s  Efficiency:%s  Seed:%s  Essence:%s",
   "item.jdte.guide": "JDT Extras Guide",
   "item.jdte.guide.tooltip": "JDT Extras Guide",
   "jdte.panel.upgrade": "Upgrades",
@@ -820,9 +799,9 @@
   "config.jdte.jdte.timeFreezer.energyPerTick.desc": "FE consumed per tick while freezing time and weather",
   "item.jdte.ultimate_portal_gun": "Ultimate Portal Gun",
   "item.jdte.big_fluid_tank": "Big Fluid Tank",
-"tooltip.jdte.big_fluid_tank": "1000 B capacity. Right-click to pick up or place fluid; sneak + right-click air to cycle fill mode (None / JDT / JDTE / All). Equippable in the dedicated Curios Big Fluid Tank slot.",
-"curios.identifier.big_fluid_tank": "Big Fluid Tank",
-"justdirethings.fillmode.jdteonly": "Only JDTE Items",
+  "tooltip.jdte.big_fluid_tank": "1000 B capacity. Right-click to pick up or place fluid; sneak + right-click air to cycle fill mode (None / JDT / JDTE / All). Equippable in the dedicated Curios Big Fluid Tank slot.",
+  "curios.identifier.big_fluid_tank": "Big Fluid Tank",
+  "justdirethings.fillmode.jdteonly": "Only JDTE Items",
   "tooltip.jdte.ultimate_portal_gun.fluid": "Portal Fluid: %s / %s mB",
   "tooltip.jdte.ultimate_portal_gun.slots": "Teleport Slots: %s",
   "screen.jdte.ultimate_portal_gun.title": "Ultimate Portal Gun",
@@ -850,74 +829,14 @@
   "config.jdte.jdte.ultimatePortalGun.energyCost.desc": "FE consumed per teleport",
   "config.jdte.jdte.ultimatePortalGun.teleportDimensionBlacklist": "Teleport Dimension Blacklist",
   "config.jdte.jdte.ultimatePortalGun.teleportDimensionBlacklist.desc": "Dimensions hidden from the teleport dimension picker (resource location ids)",
-  "block.jdte.greenhouse_matrix_controller": "Greenhouse Matrix Controller",
-  "block.jdte.greenhouse_matrix_casing": "Greenhouse Matrix Casing",
-  "block.jdte.greenhouse_matrix_item_input": "Greenhouse Matrix Item Input",
-  "block.jdte.greenhouse_matrix_item_output": "Greenhouse Matrix Item Output",
-  "block.jdte.greenhouse_matrix_fluid_input": "Greenhouse Matrix Recipe Fluid Input",
-  "block.jdte.greenhouse_matrix_energy_input": "Greenhouse Matrix Energy Input",
-  "block.jdte.greenhouse_matrix_speed": "Greenhouse Matrix Speed Enhancer",
-  "block.jdte.greenhouse_matrix_efficiency": "Greenhouse Matrix Efficiency Enhancer",
-  "block.jdte.greenhouse_matrix_seed": "Greenhouse Matrix Seed Enhancer",
-  "block.jdte.greenhouse_matrix_essence": "Greenhouse Matrix Essence Enhancer",
-  "block.jdte.greenhouse_matrix_auto_crafting": "Greenhouse Matrix Auto-Crafting Enhancer",
-  "jdte.screen.greenhouse_matrix.enabled": "Enable / Disable All",
-  "jdte.screen.greenhouse_matrix.render": "Internal Crop Rendering",
-  "jdte.screen.greenhouse_matrix.auto_io.on": "Auto I/O: On",
-  "jdte.screen.greenhouse_matrix.auto_io.off": "Auto I/O: Off",
-  "jdte.screen.greenhouse_matrix.formed": "Structure formed",
-  "jdte.screen.greenhouse_matrix.invalid": "Structure invalid",
-  "jdte.screen.greenhouse_matrix.size": "Size: %s x %s x %s",
-  "jdte.screen.greenhouse_matrix.greenhouses": "Managed greenhouses: %s",
-  "jdte.screen.greenhouse_matrix.speed": "Speed enhancers: %s (+25%% each, max +300%%)",
-  "jdte.screen.greenhouse_matrix.efficiency": "Efficiency enhancers: %s (-10%% each, max -80%%)",
-  "jdte.screen.greenhouse_matrix.conversions": "Seed / Essence enhancers: %s / %s"
-  ,"jdte.screen.greenhouse_matrix.error.0": "Waiting for validation"
-  ,"jdte.screen.greenhouse_matrix.error.1": "Exactly one controller is required"
-  ,"jdte.screen.greenhouse_matrix.error.2": "Each dimension must be 5-18 blocks"
-  ,"jdte.screen.greenhouse_matrix.error.3": "Part of the structure is unloaded"
-  ,"jdte.screen.greenhouse_matrix.error.4": "The outer shell is incomplete"
-  ,"jdte.screen.greenhouse_matrix.error.5": "An unsupported block is inside"
-  ,"jdte.screen.greenhouse_matrix.error.6": "At least one Greenhouse is required"
-  ,"jdte.screen.greenhouse_matrix.error.7": "One port of every type is required"
-  ,"jdte.screen.greenhouse_matrix.error.8": "Auto-Crafting and Seed Conversion enhancers cannot be installed together"
-  ,"jdte.screen.greenhouse_matrix.pattern_page": "Crafting Patterns %s/%s"
-  ,"jdte.screen.greenhouse_matrix.invalid_pattern": "Invalid pattern: only real crafting patterns with one exact input item are supported"
-  ,"item.jdte.greenhouse_matrix_quick_install_upgrade": "Greenhouse Matrix Quick Install Upgrade"
-  ,"tooltip.jdte.greenhouse_matrix_quick_install_upgrade": "Unlocks the controller's stacked global upgrade queue and installs real cards into managed Greenhouses."
-  ,"jdte.screen.greenhouse_matrix.global_upgrades": "Global (%s)"
-  ,"jdte.screen.greenhouse_matrix.controller_upgrade": "Controller"
-  ,"jdte.screen.greenhouse_matrix.upgrades_queued": "Queued cards: %s"
-  ,"jdte.screen.greenhouse_matrix.quick_install_required": "Quick Install Upgrade required"
-  ,"jade.jdte.greenhouse_matrix.quick_install.on": "Quick Install: On · %s cards queued"
-  ,"jade.jdte.greenhouse_matrix.quick_install.off": "Quick Install: Not installed"
-  ,"jdte.screen.greenhouse_matrix.simulation": "Simulation groups: %s · Buffer: %s types / %s items"
-  ,"jade.jdte.greenhouse_matrix.simulation": "Central simulation: %s groups · Buffer %s types / %s items"
-  ,"item.jdte.time_multitool": "Time Multitool"
-  ,"message.jdte.time_multitool.speed": "Mining speed: %sx"
-  ,"tooltip.jdte.time_multitool.speed": "Selected mining speed: %sx"
-  ,"tooltip.jdte.time_multitool.fluid": "Time Fluid: %s / %s mB"
-  ,"tooltip.jdte.time_multitool.controls": "Sneak-use air: change speed; sneak-use block: JDT settings"
-  ,"block.jdte.concentrated_solar_panel": "Concentrated Solar Panel"
-  ,"block.jdte.singularity_solar_panel": "Singularity Solar Panel"
-  ,"block.jdte.stellar_fusion_solar_panel": "Stellar Fusion Solar Panel"
-  ,"block.jdte.dimensional_collapse_solar_panel": "Dimensional Collapse Solar Panel"
-  ,"block.jdte.creative_solar_panel": "Creative Solar Panel"
-  ,"jade.jdte.solar_panel.base_generation": "Base generation: %s FE/t"
-  ,"jade.jdte.solar_panel.generation": "Generation: %s FE/t"
-  ,"jade.jdte.solar_panel.storage": "Energy: %s / %s FE"
-  ,"jade.jdte.solar_panel.infinite": "Generation: 9.22E18 FE/t (Infinite)"
-  ,"jade.jdte.solar_panel.inactive": "Not generating: %s"
-  ,"jade.jdte.solar_panel.reason.no_sun": "night or sky blocked"
-  ,"config.jdte.jdte.solarPanel": "Tiered Solar Panel Settings"
-  ,"config.jdte.jdte.solarPanel.concentratedGeneration": "Concentrated Generation"
-  ,"config.jdte.jdte.solarPanel.concentratedCapacity": "Concentrated Capacity"
-  ,"config.jdte.jdte.solarPanel.singularityGeneration": "Singularity Generation"
-  ,"config.jdte.jdte.solarPanel.singularityCapacity": "Singularity Capacity"
-  ,"config.jdte.jdte.solarPanel.stellarFusionGeneration": "Stellar Fusion Generation"
-  ,"config.jdte.jdte.solarPanel.stellarFusionCapacity": "Stellar Fusion Capacity"
-  ,"config.jdte.jdte.solarPanel.dimensionalCollapseGeneration": "Dimensional Collapse Generation"
-  ,"config.jdte.jdte.solarPanel.dimensionalCollapseCapacity": "Dimensional Collapse Capacity"
-  ,"item.jdte.patchouli_guide.name": "JDT Extras Guide"
-  ,"item.jdte.patchouli_guide.landing": "JDT Extras is an extension mod for Just Dire Things, adding an upgrade system, time accelerators, extended machines, and additional automation machines for JDT machines.$(br2)Current version: $(thing)0.5.9-alpha4$()"
+  "config.jdte.jdte.infusion": "Infusion Machine Settings",
+  "config.jdte.jdte.infusion.spawnEggModBlacklist": "Spawn Egg Mod Blacklist",
+  "config.jdte.jdte.infusion.spawnEggModBlacklist.desc": "Mod ids (e.g. \"occultism\") whose spawn eggs are excluded from the Infusion Machine's dynamic spawn egg recipes; full item/entity ids are also accepted",
+  "item.jdte.time_multitool": "Time Multitool",
+  "message.jdte.time_multitool.speed": "Mining speed: %sx",
+  "tooltip.jdte.time_multitool.speed": "Selected mining speed: %sx",
+  "tooltip.jdte.time_multitool.fluid": "Time Fluid: %s / %s mB",
+  "tooltip.jdte.time_multitool.controls": "Sneak-use air: change speed; sneak-use block: JDT settings",
+  "item.jdte.patchouli_guide.name": "JDT Extras Guide",
+  "item.jdte.patchouli_guide.landing": "JDT Extras is an extension mod for Just Dire Things, adding an upgrade system, time accelerators, extended machines, and additional automation machines for JDT machines.$(br2)Current version: $(thing)0.5.9$()"
 }

@@ -1,8 +1,0 @@
-{
-  "parent": "jdte:block/solar_panel_template",
-  "textures": {
-    "top": "jdte:block/advanced_gel_generator_top",
-    "side": "jdte:block/advanced_gel_generator_side",
-    "bottom": "jdte:block/advanced_gel_generator_side"
-  }
-}

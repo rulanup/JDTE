@@ -62,7 +62,9 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     public static final int TOTAL_SLOTS = TERTIARY_INPUT_SLOT + 1;
     public static final int UPGRADE_SLOTS = 8;
     private static final int GLOBAL_WORK_RATE_MULTIPLIER = 5;
+    private static final String REMEMBERED_RECIPE_ENERGY_TAG = "rememberedRecipeEnergy";
 
+    private final BioFactoryEnergyCapacity energyCapacity = new BioFactoryEnergyCapacity();
     private final MachineEnergyStorage energyStorage = new MachineEnergyStorage(getMaxEnergy());
     private final PoweredMachineContainerData poweredData = new PoweredMachineContainerData(this);
     private final RedstoneControlData redstoneData = new RedstoneControlData();
@@ -253,7 +255,10 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 })
                 .filter(this::hasRecipeProcessFluid)
                 .findFirst().orElse(null);
-        if (cachedRecipe != null) return true;
+        if (cachedRecipe != null) {
+            rememberRecipeEnergy(cachedRecipe.energy());
+            return true;
+        }
         if (!ModList.get().isLoaded("productivebees")) return false;
         cachedBee = ProductiveBeesBioFactoryIntegration.createBee(specimen, level);
         if (cachedBee == null) return false;
@@ -282,8 +287,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         BioFactoryRecipe completedRecipe = cachedRecipe;
         int[] completedInputSlots = cachedRecipeInputSlots == null ? null : cachedRecipeInputSlots.clone();
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
-        int energyCost = UpgradeHelper.adjustEnergyCost(this, completedRecipe != null
-                ? Math.max(0, completedRecipe.energy()) : JDTEConfig.COMMON.bioFactoryEnergyPerCycle.get());
+        int energyCost = getEffectiveCycleEnergyCost(completedRecipe);
         int timeCost = creative ? 0 : getEffectiveTimeFluidCost();
         boolean timeBoost = creative || timeFluidTank.getFluidAmount() >= timeCost;
         int lifeCost = creative ? 0 : getEffectiveLifeFluidCost();
@@ -580,7 +584,24 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     @Override public boolean canRun() { return !itemHandler.getStackInSlot(SPECIMEN_SLOT).isEmpty(); }
-    @Override public int getMaxEnergy() { return UpgradeHelper.adjustEnergyCapacity(this, JDTEConfig.COMMON.bioFactoryEnergyCapacity.get()); }
+    @Override public int getMaxEnergy() {
+        int configuredCapacity = UpgradeHelper.adjustEnergyCapacity(this,
+                JDTEConfig.COMMON.bioFactoryEnergyCapacity.get());
+        return energyCapacity.resolve(configuredCapacity,
+                JDTEConfig.COMMON.bioFactoryEnergyPerCycle.get(),
+                baseCost -> UpgradeHelper.adjustEnergyCost(this, baseCost));
+    }
+    private int getEffectiveCycleEnergyCost(BioFactoryRecipe recipe) {
+        int baseCost = recipe != null ? Math.max(0, recipe.energy())
+                : JDTEConfig.COMMON.bioFactoryEnergyPerCycle.get();
+        return UpgradeHelper.adjustEnergyCost(this, baseCost);
+    }
+    private void rememberRecipeEnergy(int recipeEnergy) {
+        if (!energyCapacity.rememberRecipeEnergy(recipeEnergy)) return;
+        syncCapacities();
+        setChanged();
+        markDirtyClient();
+    }
     @Override public int getStandardEnergyCost() { return JDTEConfig.COMMON.bioFactoryEnergyPerCycle.get(); }
     @Override public MachineEnergyStorage getEnergyStorage() { return energyStorage; }
     @Override public ContainerData getContainerData() { return poweredData; }
@@ -611,6 +632,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("progress", progress);
         tag.putInt("multiplier", getMultiplier());
+        tag.putInt(REMEMBERED_RECIPE_ENERGY_TAG, energyCapacity.rememberedRecipeEnergy());
     }
 
     @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
@@ -631,6 +653,8 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(provider, tag.getCompound("timeFluid"));
         if (tag.contains("processFluid")) processFluidTank.deserializeNBT(provider, tag.getCompound("processFluid"));
         if (tag.contains("productFluid")) productFluidTank.deserializeNBT(provider, tag.getCompound("productFluid"));
+        energyCapacity.restoreRememberedRecipeEnergy(tag.getInt(REMEMBERED_RECIPE_ENERGY_TAG));
+        syncCapacities();
         energyStorage.setEnergy(tag.getInt("energy"));
         progress = tag.getInt("progress");
         multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")

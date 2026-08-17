@@ -2,11 +2,21 @@
 
 ### English
 
-#### v0.5.9-alpha4 (Current)
+#### v0.5.9 (Current)
 
+- **Split**: The Creative Greenhouse moved out of JDTE into the standalone **JDTE-Matrix** addon (`jdte_matrix`) as `jdte_matrix:creative_greenhouse` (`com.jdte.matrix`). JDTE keeps only the shared `ICreativeGreenhouse` marker interface plus the existing Greenhouse code paths, so cross-mod upgrades, auto I/O, AE output, FilterPage paging, and the reused slot renders keep working without JDTE referencing the matrix mod.
+- **Removed**: Deleted the `jdte:creative_greenhouse` block, block entity, container, screen, catalog, registrations, assets, lang keys, tests, and GuideME/Patchouli pages from JDTE. The feature now lives entirely in JDTE-Matrix.
+- **Changed**: The patchouli/guideme generator scripts no longer include the Creative Greenhouse entry.
+
+#### v0.5.9-alpha4
+
+- **Split**: The Greenhouse Matrix multiblock structure and the five Tiered Solar Panels moved out of JDTE into the standalone **JDTE-Matrix** addon (`jdte_matrix`). JDTE keeps only the member-side API its greenhouses need (`GreenhouseMatrixMember`, `GreenhouseMatrixProductionProfile`, `GreenhouseMatrixRuntime`, `GreenhouseMatrixRenderRegistry`, `GreenhouseMatrixMemberState`); every matrix block, the controller block entity, the structure scan, the simulation engine, the GUI, packets, recipes, assets, the solar panel blocks/block entities/storage logic, and the related tests now live in the new mod, which requires JDTE 0.5.9-alpha4+.
 - **Changed**: Greenhouse and Large Greenhouse recipes can now select their required source fluid through datapack recipe data; Greenhouse Matrix production tracks and settles each recipe's fluid independently.
 - **Changed**: Mineral Extractor and Large Mineral Extractor resource fluids are now selected by the `jdte:mineral_extractor_resources` recipe instead of hardcoded XP and Time Fluids, with dynamic tank routing and client labels.
 - **Compatibility**: Modpack authors can replace the default greenhouse and mineral extractor fluids without Java changes.
+- **Fixed**: Crystal Incubators no longer crash the server when growing Just Dyna Things Echoing Buddings (including `justdynathings:echoing_budding_time`). The Just Dyna Things integration now resolves Time Fluid through the fluid registry instead of JDT internals and guards every budding interaction so a Just Dyna Things version mismatch logs a warning instead of taking down the server.
+- **Fixed**: Extended Block Breakers (and the other extended JDT machines with tool/consumable slots: Clicker, Block Placer, Block Swapper, Dropper, Sensor, Fluid Collector, Fluid Placer, Glue Activators, Fluid Stabilizers, and Item Senders) no longer let external automation — hoppers, pipes, or ME import/storage buses — pull the tool or consumable item out of the machine slot. Feeding a pickaxe into an Extended Block Breaker that is piped to an ME system no longer makes the pickaxe vanish seconds later; the tool stays in the slot and is only consumed by its normal durability use.
+- **Changed**: Added an Infusion Machine spawn egg mod blacklist (`jdte.infusion.spawnEggModBlacklist`). Spawn eggs whose mod id is listed (fully qualified item/entity ids are also accepted) no longer generate dynamic spawn egg infusion recipes — the machine cannot produce them from mob loot and JEI no longer shows them. The Occultism mod (`occultism`) is included by default.
 - **Validation**: Added regression coverage for custom fluid routing, matrix resource pooling, recipe validation, legacy profile migration, and client fluid displays.
 
 #### v0.5.9-alpha3
@@ -204,7 +214,11 @@
 
 ### 中文
 
-#### v0.5.9-alpha4（当前）
+#### v0.5.9（当前）
+
+- 见上方英文发布说明。
+
+#### v0.5.9-alpha4
 
 - See the English release notes above.
 

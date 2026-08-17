@@ -1,8 +1,0 @@
-{
-  "parent": "jdte:block/solar_panel_template",
-  "textures": {
-    "top": "jdte:block/time2/time2_top",
-    "side": "jdte:block/time2/time2_side",
-    "bottom": "jdte:block/time2/time2_side"
-  }
-}

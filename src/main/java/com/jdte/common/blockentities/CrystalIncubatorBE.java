@@ -10,6 +10,7 @@ import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTETags;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -33,6 +34,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpgradeMachine, PoweredMachineBE {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final double AE2_GROWTH_ACCELERATOR_INTERVAL_TICKS = 10.0D;
     private static final double REGULAR_GROWTH_REFERENCE_MULTIPLIER = 8.0D;
     public static final int OUTPUT_SLOTS = 9;
@@ -246,10 +249,15 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
             if (isDynaBudding(blockEntity)) {
                 int attempts = Math.min(JDTEConfig.COMMON.crystalIncubatorDynaGrowthAttempts.get(), Math.max(1, multiplier / 4));
-                processed |= JustDynaThingsCrystalIntegration.grow(
-                        blockEntity, serverLevel.random, attempts,
-                        energyStorage, fluidTank, reservedEnergy, reservedFluid,
-                        UpgradeHelper.hasCreativeUpgrade(this)) > 0;
+                try {
+                    processed |= JustDynaThingsCrystalIntegration.grow(
+                            blockEntity, serverLevel.random, attempts,
+                            energyStorage, fluidTank, reservedEnergy, reservedFluid,
+                            UpgradeHelper.hasCreativeUpgrade(this)) > 0;
+                } catch (LinkageError | RuntimeException e) {
+                    // Just Dyna Things version mismatches must never crash the server.
+                    LOGGER.warn("[JDTE] Crystal Incubator Dyna growth failed at {}: {}", pos, e.toString());
+                }
             }
         }
 

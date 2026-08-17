@@ -1,9 +1,0 @@
-{
-  "parent": "jdte:block/greenhouse_matrix_casing_frame_component",
-  "elements": [
-    { "from": [0,15,15], "to": [16,16,16], "faces": { "up": { "texture": "#frame", "cullface": "up" } } },
-    { "from": [0,0,15], "to": [16,1,16], "faces": { "down": { "texture": "#frame", "cullface": "down" } } },
-    { "from": [0.01,0,15], "to": [1,16,16], "faces": { "west": { "texture": "#frame", "cullface": "west" } } },
-    { "from": [15,0,15], "to": [15.99,16,16], "faces": { "east": { "texture": "#frame", "cullface": "east" } } }
-  ]
-}

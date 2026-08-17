@@ -23,7 +23,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "JEI shows the template, base costs, and preview products. Click the growing-bed progress area to open the category.$(br2)$(bold)KubeJS: Configured Fluids$()$(br2)Use a $(thing)jdte:greenhouse$() recipe to replace a plant's recipe. This same recipe format is used by the Greenhouse, Large Greenhouse, and Greenhouse Matrix."
+      "text": "JEI shows the template, base costs, and preview products. Click the growing-bed progress area to open the category.$(br2)$(bold)KubeJS: Configured Fluids$()$(br2)Use a $(thing)jdte:greenhouse$() recipe to replace a plant's recipe. This same recipe format is used by the Greenhouse, Large Greenhouse, and the Greenhouse Matrix (from the standalone JDTE-Matrix mod)."
     },
     {
       "type": "patchouli:text",

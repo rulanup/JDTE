@@ -11,6 +11,7 @@ import com.jdte.setup.config.FactoryPackerConfig;
 import com.jdte.setup.config.GelGeneratorConfig;
 import com.jdte.setup.config.GeneratorUpgradeConfig;
 import com.jdte.setup.config.GreenhouseConfig;
+import com.jdte.setup.config.InfusionConfig;
 import com.jdte.setup.config.LifeBreederConfig;
 import com.jdte.setup.config.LifeExtractorConfig;
 import com.jdte.setup.config.LifeSynthesisVatConfig;
@@ -18,7 +19,6 @@ import com.jdte.setup.config.LootFabricatorConfig;
 import com.jdte.setup.config.MineralExtractorConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
-import com.jdte.setup.config.SolarPanelConfig;
 import com.jdte.setup.config.TimeAcceleratorConfig;
 import com.jdte.setup.config.TimeFreezerConfig;
 import com.jdte.setup.config.UltimatePortalGunConfig;
@@ -26,6 +26,8 @@ import com.jdte.setup.config.UpgradeItemsConfig;
 import com.jdte.setup.config.UpgradesConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
 
 public class JDTEConfig {
     public static final ModConfigSpec COMMON_SPEC;
@@ -61,7 +63,7 @@ public class JDTEConfig {
         public final GeneratorUpgradeConfig generatorUpgrade;
         public final UpgradeItemsConfig upgradeItems;
         public final AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
-        public final SolarPanelConfig solarPanel;
+        public final InfusionConfig infusion;
 
         // Upgrade System
         public final ModConfigSpec.IntValue filterSlotsPerUpgrade;
@@ -219,9 +221,6 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue greenhouseEventOutputItemBudget;
         public final ModConfigSpec.IntValue greenhouseEventOutputTypeBudget;
         public final ModConfigSpec.IntValue greenhouseDynamicHarvestCallsPerTick;
-        public final ModConfigSpec.IntValue greenhouseMatrixProfileScanBudget;
-        public final ModConfigSpec.IntValue greenhouseMatrixDynamicSamplesPerGroup;
-        public final ModConfigSpec.IntValue greenhouseMatrixAEOutputTypeBudget;
 
         // Bio Factory
         public final ModConfigSpec.IntValue bioFactoryFluidCapacity;
@@ -291,6 +290,9 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue advancedEnergyTransmitterPlayerChargeMaxItemsPerTick;
         public final ModConfigSpec.IntValue advancedEnergyTransmitterPlayerChargeMaxCallsPerItem;
 
+        // Infusion Machine
+        public final ModConfigSpec.ConfigValue<List<? extends String>> infusionSpawnEggModBlacklist;
+
         public Common(ModConfigSpec.Builder builder) {
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
 
@@ -317,7 +319,7 @@ public class JDTEConfig {
             generatorUpgrade = new GeneratorUpgradeConfig(builder);
             upgradeItems = new UpgradeItemsConfig(builder);
             advancedEnergyTransmitter = new AdvancedEnergyTransmitterConfig(builder);
-            solarPanel = new SolarPanelConfig(builder);
+            infusion = new InfusionConfig(builder);
 
             builder.pop();
 
@@ -464,9 +466,6 @@ public class JDTEConfig {
             this.greenhouseEventOutputItemBudget = greenhouse.greenhouseEventOutputItemBudget;
             this.greenhouseEventOutputTypeBudget = greenhouse.greenhouseEventOutputTypeBudget;
             this.greenhouseDynamicHarvestCallsPerTick = greenhouse.greenhouseDynamicHarvestCallsPerTick;
-            this.greenhouseMatrixProfileScanBudget = greenhouse.greenhouseMatrixProfileScanBudget;
-            this.greenhouseMatrixDynamicSamplesPerGroup = greenhouse.greenhouseMatrixDynamicSamplesPerGroup;
-            this.greenhouseMatrixAEOutputTypeBudget = greenhouse.greenhouseMatrixAEOutputTypeBudget;
 
             this.bioFactoryFluidCapacity = bioFactory.bioFactoryFluidCapacity;
             this.bioFactoryEnergyCapacity = bioFactory.bioFactoryEnergyCapacity;
@@ -529,6 +528,8 @@ public class JDTEConfig {
             this.advancedEnergyTransmitterMaxParticleTargetsPerTick = advancedEnergyTransmitter.maxParticleTargetsPerTick;
             this.advancedEnergyTransmitterPlayerChargeMaxItemsPerTick = advancedEnergyTransmitter.playerChargeMaxItemsPerTick;
             this.advancedEnergyTransmitterPlayerChargeMaxCallsPerItem = advancedEnergyTransmitter.playerChargeMaxCallsPerItem;
+
+            this.infusionSpawnEggModBlacklist = infusion.spawnEggModBlacklist;
         }
     }
 }

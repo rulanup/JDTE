@@ -2,6 +2,7 @@ package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.autoioconfig.AutoIoTransferHelper;
+import com.jdte.common.greenhouse.ICreativeGreenhouse;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -51,8 +52,8 @@ public final class MachineOutputManager {
         if (machine instanceof GreenhouseBE greenhouse) {
             return new OutputRange(GreenhouseBE.OUTPUT_START_SLOT, greenhouse.getActiveOutputSlots());
         }
-        if (machine instanceof CreativeGreenhouseBE greenhouse) {
-            return new OutputRange(CreativeGreenhouseBE.OUTPUT_START_SLOT, greenhouse.getDistinctOutputTypes());
+        if (machine instanceof ICreativeGreenhouse greenhouse) {
+            return new OutputRange(greenhouse.outputStartSlot(), greenhouse.distinctOutputTypes());
         }
         if (machine instanceof LargeGreenhouseBE greenhouse) {
             return new OutputRange(LargeGreenhouseBE.OUTPUT_START_SLOT, greenhouse.getActiveOutputSlots());

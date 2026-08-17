@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jdte.common.integrations.DraconicEvolutionIntegration;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -224,6 +225,9 @@ public final class MobLootSpawnEggHelper {
                     || spawnEgg.getType(eggStack) == EntityType.ELDER_GUARDIAN) {
                 continue;
             }
+            if (isInfusionBlacklisted(spawnEgg, eggStack)) {
+                continue;
+            }
             Set<Item> possibleDrops = new HashSet<>();
             collectLootTableItems(resources, spawnEgg.getType(eggStack).getDefaultLootTable().location(), possibleDrops, new HashSet<>());
             for (Item drop : possibleDrops) {
@@ -240,6 +244,35 @@ public final class MobLootSpawnEggHelper {
             }
         });
         return uniqueRecipes;
+    }
+
+    /**
+     * Whether a spawn egg must be excluded from the Infusion Machine's dynamic spawn egg recipes.
+     * Entries in the configured {@code infusion.spawnEggModBlacklist} are mod ids (namespaces), but
+     * full item or entity resource location ids are accepted too. This prevents the Infusion Machine
+     * from generating recipes that turn mob loot into the blacklisted mod's spawn eggs.
+     */
+    private static boolean isInfusionBlacklisted(SpawnEggItem spawnEgg, ItemStack eggStack) {
+        List<? extends String> blacklist = JDTEConfig.COMMON.infusionSpawnEggModBlacklist.get();
+        if (blacklist.isEmpty()) {
+            return false;
+        }
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(spawnEgg);
+        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(spawnEgg.getType(eggStack));
+        for (String entry : blacklist) {
+            if (entry == null || entry.isBlank()) {
+                continue;
+            }
+            String trimmed = entry.trim();
+            if (trimmed.contains(":")) {
+                if (trimmed.equals(itemId.toString()) || trimmed.equals(entityId.toString())) {
+                    return true;
+                }
+            } else if (trimmed.equals(itemId.getNamespace()) || trimmed.equals(entityId.getNamespace())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void collectLootTableItems(ResourceManager resources, ResourceLocation tableId,

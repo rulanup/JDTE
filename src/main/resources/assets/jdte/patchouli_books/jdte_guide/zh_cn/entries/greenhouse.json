@@ -15,7 +15,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)内置常见原版农作物、下界疣、可可豆和树苗配方。$(li)Mystical Agriculture 与 Mystical Agradditions 通过公开 Crop Registry 自动兼容，并使用对应成熟作物掉落。$(li)直接读取当前加载的全部 Botany Pots 作物配方，包括孢子花以及模组或数据包添加的盆栽植物。$(li)其他带 $(thing)age$() 属性的作物，以及常见花朵、树苗和蘑菇会尝试通用识别。$(li)整合包可添加 $(thing)jdte:greenhouse$() 数据配方来明确指定模板、产物和流体成本。$(br2)JEI 会显示模板、基础消耗和预览产物。点击界面的苗床进度区域可直接打开该分类。$(br2)$(bold)KubeJS：可配置流体$()$(br2)使用 $(thing)jdte:greenhouse$() 配方替换植物配方；普通温室、大型温室和温室矩阵都使用这一格式。"
+      "text": "$(li)内置常见原版农作物、下界疣、可可豆和树苗配方。$(li)Mystical Agriculture 与 Mystical Agradditions 通过公开 Crop Registry 自动兼容，并使用对应成熟作物掉落。$(li)直接读取当前加载的全部 Botany Pots 作物配方，包括孢子花以及模组或数据包添加的盆栽植物。$(li)其他带 $(thing)age$() 属性的作物，以及常见花朵、树苗和蘑菇会尝试通用识别。$(li)整合包可添加 $(thing)jdte:greenhouse$() 数据配方来明确指定模板、产物和流体成本。$(br2)JEI 会显示模板、基础消耗和预览产物。点击界面的苗床进度区域可直接打开该分类。$(br2)$(bold)KubeJS：可配置流体$()$(br2)使用 $(thing)jdte:greenhouse$() 配方替换植物配方；普通温室、大型温室和温室矩阵（温室矩阵位于独立的 JDTE-Matrix 模组中）都使用这一格式。"
     },
     {
       "type": "patchouli:text",

@@ -45,7 +45,7 @@ JEI shows the template, base costs, and preview products. Click the growing-bed 
 
 ## KubeJS: Configured Fluids
 
-Use a `jdte:greenhouse` recipe to replace a plant's recipe. This same recipe format is used by the Greenhouse, Large Greenhouse, and Greenhouse Matrix.
+Use a `jdte:greenhouse` recipe to replace a plant's recipe. This same recipe format is used by the Greenhouse, Large Greenhouse, and the Greenhouse Matrix (from the standalone JDTE-Matrix mod).
 
 ```js
 ServerEvents.recipes(event => {
