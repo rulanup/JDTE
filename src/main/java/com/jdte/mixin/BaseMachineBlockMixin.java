@@ -3,8 +3,10 @@ package com.jdte.mixin;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeItemStackHandler;
+import com.jdte.common.utils.DedicatedUpgradeDropHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
@@ -62,6 +64,13 @@ public abstract class BaseMachineBlockMixin {
             return;
         }
 
+        if (machine instanceof BioCrusherBE crusher) {
+            var dropper = (java.util.function.Consumer<ItemStack>) stack -> Containers.dropItemStack(
+                    level, pos.getX(), pos.getY(), pos.getZ(), stack);
+            DedicatedUpgradeDropHelper.drop(crusher.getLootingHandler(), dropper);
+            DedicatedUpgradeDropHelper.drop(crusher.getSharpnessHandler(), dropper);
+        }
+
         UpgradeItemStackHandler handler = UpgradeHelper.getUpgradeHandler(machine);
         if (machine instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
             net.neoforged.neoforge.items.ItemStackHandler customHandler = fabricator.getUpgradeHandler();
@@ -85,4 +94,5 @@ public abstract class BaseMachineBlockMixin {
             }
         }
     }
+
 }

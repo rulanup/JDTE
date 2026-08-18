@@ -18,6 +18,7 @@
     "EnergyCostMixin",
     "EnergyTransmitterParticleMixin",
     "EnergyStorageAccessor",
+    "FakePlayerUtilCleanupMixin",
     "FilterBasicHandlerAccessor",
     "FluidCapacityMixin",
     "FluidTankAccessor",

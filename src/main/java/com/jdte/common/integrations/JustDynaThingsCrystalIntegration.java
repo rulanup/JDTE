@@ -1,7 +1,6 @@
 package com.jdte.common.integrations;
 
 import com.devdyna.justdynathings.registry.builders.echoing_buddings.BuddingBE;
-import com.devdyna.justdynathings.config.CommonConfig;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.Direction;
@@ -59,13 +58,15 @@ public final class JustDynaThingsCrystalIntegration {
                 Direction direction = DIRECTIONS[random.nextInt(DIRECTIONS.length)];
                 if (budding.growCluster(direction)) {
                     grown++;
-                    if (CommonConfig.BUDDING_GENERAL_SOUND.get()) {
+                    if (JustDynaThingsConfig.getBoolean("BUDDING_GENERAL_SOUND", true)) {
                         budding.applySound(direction);
                     }
-                    if (!CommonConfig.BUDDING_GENERAL_FE_CHANCE.get() || random.nextBoolean()) {
+                    if (!JustDynaThingsConfig.getBoolean("BUDDING_GENERAL_FE_CHANCE", false)
+                            || random.nextBoolean()) {
                         budding.extractFEWhenPossible();
                     }
-                    if (!CommonConfig.BUDDING_GENERAL_MB_CHANCE.get() || random.nextBoolean()) {
+                    if (!JustDynaThingsConfig.getBoolean("BUDDING_GENERAL_MB_CHANCE", false)
+                            || random.nextBoolean()) {
                         budding.extractMBWhenPossible();
                     }
                 }
