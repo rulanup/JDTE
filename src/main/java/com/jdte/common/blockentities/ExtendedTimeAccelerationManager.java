@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public final class ExtendedTimeAccelerationManager {
@@ -52,9 +53,31 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
-    static PreparedAcceleration prepareAcceleration(TimeAcceleratorBE accelerator) {
+    static AccelerationRequest requestAcceleration(TimeAcceleratorBE accelerator) {
         int displayMultiplier = accelerator.getEffectiveMultiplier();
         int workTicks = accelerator.getAccelerationWorkTicks(displayMultiplier);
+        return new AccelerationRequest(displayMultiplier, workTicks);
+    }
+
+    static PreparedAcceleration prepareAcceleration(TimeAcceleratorBE accelerator) {
+        AccelerationRequest request = requestAcceleration(accelerator);
+        return prepareAcceleration(accelerator, request.displayMultiplier(), request.workTicks());
+    }
+
+    static Optional<PreparedAcceleration> prepareAcceptedAcceleration(
+            TimeAcceleratorBE accelerator, AccelerationRequest request,
+            long maxPendingTicks, long highestPendingTicks) {
+        int acceptedWorkTicks = TimeAcceleratorExecutionPolicy.admittedWorkTicks(
+                request.workTicks(), maxPendingTicks, highestPendingTicks);
+        if (acceptedWorkTicks <= 0) {
+            return Optional.empty();
+        }
+        return Optional.of(prepareAcceleration(
+                accelerator, request.displayMultiplier(), acceptedWorkTicks));
+    }
+
+    private static PreparedAcceleration prepareAcceleration(
+            TimeAcceleratorBE accelerator, int displayMultiplier, int workTicks) {
         int fluidCost = accelerator.getFluidDrainAmount(workTicks);
         int energyCost = accelerator.getEnergyCost(workTicks);
         return new PreparedAcceleration(displayMultiplier, workTicks, fluidCost, energyCost);
@@ -64,8 +87,12 @@ public final class ExtendedTimeAccelerationManager {
         if (!accelerator.hasResources(prepared.fluidCost(), prepared.energyCost())) {
             return false;
         }
-        accelerator.consumeResources(prepared.workTicks(), prepared.energyCost());
+        consumePreparedResources(accelerator, prepared);
         return true;
+    }
+
+    static void consumePreparedResources(TimeAcceleratorBE accelerator, PreparedAcceleration prepared) {
+        accelerator.consumeResources(prepared.workTicks(), prepared.energyCost());
     }
 
     public static void onServerTickPost(ServerTickEvent.Post event) {
@@ -134,6 +161,9 @@ public final class ExtendedTimeAccelerationManager {
     record PreparedAcceleration(int displayMultiplier, int workTicks, int fluidCost, int energyCost) {
     }
 
+    record AccelerationRequest(int displayMultiplier, int workTicks) {
+    }
+
     private static final class TickBudget {
         private int remaining;
 
@@ -153,15 +183,15 @@ public final class ExtendedTimeAccelerationManager {
     private static final class AcceleratorContext {
         private final TimeAcceleratorBE accelerator;
         private final AABB area;
-        private final PreparedAcceleration prepared;
+        private final AccelerationRequest request;
         private final boolean ae2AccelerationEnabled;
         private final Set<TargetKey> targets = new LinkedHashSet<>();
 
         private AcceleratorContext(TimeAcceleratorBE accelerator, AABB area,
-                                   PreparedAcceleration prepared, boolean ae2AccelerationEnabled) {
+                                   AccelerationRequest request, boolean ae2AccelerationEnabled) {
             this.accelerator = accelerator;
             this.area = area;
-            this.prepared = prepared;
+            this.request = request;
             this.ae2AccelerationEnabled = ae2AccelerationEnabled;
         }
 
@@ -285,16 +315,12 @@ public final class ExtendedTimeAccelerationManager {
                 if (accelerator.isRemoved() || accelerator.getLevel() != level) {
                     continue;
                 }
-                PreparedAcceleration prepared = prepareAcceleration(accelerator);
-                if (!accelerator.hasResources(prepared.fluidCost(), prepared.energyCost())) {
-                    continue;
-                }
-
+                AccelerationRequest request = requestAcceleration(accelerator);
                 AABB area = accelerator.getAABB(accelerator.getBlockPos());
                 boolean ae2AccelerationEnabled = isAE2AccelerationConfigured()
                         && UpgradeHelper.hasAEAccelerationUpgrade(accelerator);
                 AcceleratorContext context = new AcceleratorContext(
-                        accelerator, area, prepared, ae2AccelerationEnabled);
+                        accelerator, area, request, ae2AccelerationEnabled);
                 contexts.add(context);
                 int minChunkX = SectionPos.blockToSectionCoord(Mth.floor(area.minX));
                 int maxChunkX = SectionPos.blockToSectionCoord(Mth.ceil(area.maxX) - 1);
@@ -319,15 +345,32 @@ public final class ExtendedTimeAccelerationManager {
 
             long maxPending = JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get();
             for (AcceleratorContext context : contexts) {
-                boolean acceptsWork = context.targets.stream().anyMatch(target -> canAccept(target, maxPending));
-                if (!acceptsWork || !payForSubmission(context.accelerator, context.prepared)) {
+                if (context.targets.isEmpty()) {
                     continue;
                 }
+                long highestPending = highestPendingTicks(context.targets);
+                Optional<PreparedAcceleration> accepted = prepareAcceptedAcceleration(
+                        context.accelerator, context.request, maxPending, highestPending);
+                if (accepted.isEmpty() || !payForSubmission(context.accelerator, accepted.get())) {
+                    continue;
+                }
+                PreparedAcceleration prepared = accepted.get();
                 for (TargetKey target : context.targets) {
-                    enqueue(target, context.accelerator, context.prepared.workTicks(),
-                            context.prepared.displayMultiplier(), maxPending);
+                    enqueue(target, context.accelerator, prepared.workTicks(),
+                            prepared.displayMultiplier(), maxPending);
                 }
             }
+        }
+
+        private long highestPendingTicks(Set<TargetKey> targets) {
+            long highest = 0L;
+            for (TargetKey target : targets) {
+                PendingTarget existing = pending.get(target);
+                if (existing != null) {
+                    highest = Math.max(highest, existing.virtualTicks);
+                }
+            }
+            return highest;
         }
 
         private void retainActiveContributors(Set<TimeAcceleratorBE> active,
@@ -451,24 +494,20 @@ public final class ExtendedTimeAccelerationManager {
             return ticker != null && MiscTools.isValidTickAccelBlock(level, state, blockEntity);
         }
 
-        private boolean canAccept(TargetKey target, long maxPending) {
-            PendingTarget existing = pending.get(target);
-            return existing == null || existing.virtualTicks < maxPending;
-        }
-
         private void enqueue(TargetKey target, TimeAcceleratorBE accelerator, int workTicks,
                              int displayMultiplier, long maxPending) {
             PendingTarget work = pending.get(target);
+            long currentTicks = work == null ? 0L : work.virtualTicks;
+            long available = currentTicks >= maxPending ? 0L : maxPending - currentTicks;
+            if (workTicks <= 0 || (long) workTicks > available) {
+                throw new IllegalStateException("Accepted Time Accelerator work exceeds target capacity");
+            }
             if (work == null) {
                 work = new PendingTarget();
                 pending.put(target, work);
                 addToQueue(target);
             }
-            long accepted = Math.min((long) workTicks, maxPending - work.virtualTicks);
-            if (accepted <= 0) {
-                return;
-            }
-            work.add(accelerator, accepted, displayMultiplier);
+            work.add(accelerator, workTicks, displayMultiplier);
         }
 
         private void execute(ServerLevel level, long maxExecutions) {

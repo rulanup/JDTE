@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,6 +75,84 @@ class ExtendedTimeAccelerationManagerTest {
         }
     }
 
+    @Test
+    void requestLargerThanMaxPendingChargesAndEnqueuesOnlyAcceptedWork() throws Exception {
+        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
+        try {
+            RecordingAccelerator accelerator = newRecordingAccelerator();
+            ExtendedTimeAccelerationManager.AccelerationRequest request =
+                    ExtendedTimeAccelerationManager.requestAcceleration(accelerator);
+
+            ExtendedTimeAccelerationManager.PreparedAcceleration accepted =
+                    ExtendedTimeAccelerationManager.prepareAcceptedAcceleration(
+                            accelerator, request, 100L, 0L).orElseThrow();
+
+            assertEquals(400, request.workTicks());
+            assertEquals(100, accepted.workTicks());
+            assertEquals(100, accelerator.fluidWorkTicks);
+            assertEquals(100, accelerator.energyWorkTicks);
+            assertTrue(ExtendedTimeAccelerationManager.payForSubmission(accelerator, accepted));
+            assertEquals(100, accelerator.consumedWorkTicks);
+            assertEquals(accepted.workTicks(), accelerator.consumedWorkTicks);
+        } finally {
+            JDTEConfig.SERVER_SPEC.acceptConfig(null);
+        }
+    }
+
+    @Test
+    void nearlyFullTargetChargesAndEnqueuesOnlyItsRemainingCapacity() throws Exception {
+        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
+        try {
+            RecordingAccelerator accelerator = newRecordingAccelerator();
+            ExtendedTimeAccelerationManager.AccelerationRequest request =
+                    ExtendedTimeAccelerationManager.requestAcceleration(accelerator);
+
+            ExtendedTimeAccelerationManager.PreparedAcceleration accepted =
+                    ExtendedTimeAccelerationManager.prepareAcceptedAcceleration(
+                            accelerator, request, 100L, 95L).orElseThrow();
+
+            assertEquals(5, accepted.workTicks());
+            assertEquals(5, accelerator.fluidWorkTicks);
+            assertEquals(5, accelerator.energyWorkTicks);
+            assertTrue(ExtendedTimeAccelerationManager.payForSubmission(accelerator, accepted));
+            assertEquals(5, accelerator.consumedWorkTicks);
+        } finally {
+            JDTEConfig.SERVER_SPEC.acceptConfig(null);
+        }
+    }
+
+    @Test
+    void fullTargetRejectsSubmissionBeforeAnyCostIsCalculatedOrPaid() throws Exception {
+        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
+        try {
+            RecordingAccelerator accelerator = newRecordingAccelerator();
+            ExtendedTimeAccelerationManager.AccelerationRequest request =
+                    ExtendedTimeAccelerationManager.requestAcceleration(accelerator);
+
+            assertFalse(ExtendedTimeAccelerationManager.prepareAcceptedAcceleration(
+                    accelerator, request, 100L, 100L).isPresent());
+            assertEquals(0, accelerator.fluidWorkTicks);
+            assertEquals(0, accelerator.energyWorkTicks);
+            assertEquals(0, accelerator.consumedWorkTicks);
+        } finally {
+            JDTEConfig.SERVER_SPEC.acceptConfig(null);
+        }
+    }
+
+    @Test
+    void zeroRoundedFluidCostStillAccumulatesFractionalCostFromWorkTicks() throws Exception {
+        FractionalSettlementAccelerator accelerator = newFractionalSettlementAccelerator();
+        ExtendedTimeAccelerationManager.PreparedAcceleration subMillibucketWork =
+                new ExtendedTimeAccelerationManager.PreparedAcceleration(1, 1, 0, 0);
+
+        for (int i = 0; i < 5; i++) {
+            ExtendedTimeAccelerationManager.consumePreparedResources(accelerator, subMillibucketWork);
+        }
+
+        assertEquals(1, accelerator.drainedMb);
+        assertEquals(0.0D, accelerator.pendingCost, 1.0E-9D);
+    }
+
     private static IConfigSpec.ILoadedConfig loadedServerConfig(int durationSeconds) {
         CommentedConfig config = CommentedConfig.inMemory();
         config.set(List.of("jdte", "timeAccelerator", "timeAcceleratorAccelerationDurationSeconds"), durationSeconds);
@@ -93,6 +172,10 @@ class ExtendedTimeAccelerationManagerTest {
 
     private static RecordingAccelerator newRecordingAccelerator() throws Exception {
         return (RecordingAccelerator) unsafe().allocateInstance(RecordingAccelerator.class);
+    }
+
+    private static FractionalSettlementAccelerator newFractionalSettlementAccelerator() throws Exception {
+        return (FractionalSettlementAccelerator) unsafe().allocateInstance(FractionalSettlementAccelerator.class);
     }
 
     private static Unsafe unsafe() throws Exception {
@@ -141,6 +224,28 @@ class ExtendedTimeAccelerationManagerTest {
         protected void consumeResources(int workTicks, int energyCost) {
             consumedWorkTicks = workTicks;
             consumedEnergyCost = energyCost;
+        }
+    }
+
+    private static final class FractionalSettlementAccelerator extends TimeAcceleratorBE {
+        private double pendingCost;
+        private int drainedMb;
+
+        private FractionalSettlementAccelerator() {
+            super(null, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
+        }
+
+        @Override
+        public int getEffectiveMultiplier() {
+            return 1;
+        }
+
+        @Override
+        protected void consumeResources(int workTicks, int energyCost) {
+            TimeAcceleratorCostMath.Settlement settlement = TimeAcceleratorCostMath.settleFluid(
+                    pendingCost, TimeAcceleratorCostMath.fluidCost(workTicks, 120.0D, 1.0D, 1.0D));
+            drainedMb += settlement.drainMb();
+            pendingCost = settlement.remainingCost();
         }
     }
 }
