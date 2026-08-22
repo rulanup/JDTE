@@ -82,16 +82,20 @@ public final class ExtendedTimeAccelerationManager {
 
         int startIndex = Math.floorMod(LEVEL_CURSORS.getOrDefault(server, 0), states.size());
         LEVEL_CURSORS.put(server, startIndex + 1);
-        int executionBudget = JDTEConfig.COMMON.timeAcceleratorMaxExecutionsPerTick.get();
+        long executionBudget = TimeAcceleratorExecutionPolicy.globalBudget(
+                JDTEConfig.SERVER.timeAccelerator.timeAcceleratorAccelerateAllMachines.get(),
+                JDTEConfig.COMMON.timeAcceleratorMaxExecutionsPerTick.get());
         int scanBudget = JDTEConfig.COMMON.timeAcceleratorMaxScannedBlocksPerTick.get();
-        int executionBase = executionBudget / states.size();
-        int executionExtra = executionBudget % states.size();
+        long executionBase = executionBudget == Long.MAX_VALUE ? Long.MAX_VALUE : executionBudget / states.size();
+        long executionExtra = executionBudget == Long.MAX_VALUE ? 0L : executionBudget % states.size();
         int scanBase = scanBudget / states.size();
         int scanExtra = scanBudget % states.size();
         for (int offset = 0; offset < states.size(); offset++) {
             Map.Entry<ServerLevel, LevelState> entry = states.get((startIndex + offset) % states.size());
             int levelScanBudget = scanBase + (offset < scanExtra ? 1 : 0);
-            int levelExecutionBudget = executionBase + (offset < executionExtra ? 1 : 0);
+            long levelExecutionBudget = executionBudget == Long.MAX_VALUE
+                    ? Long.MAX_VALUE
+                    : executionBase + (offset < executionExtra ? 1L : 0L);
             entry.getValue().prepare(entry.getKey(), levelScanBudget);
             entry.getValue().execute(entry.getKey(), levelExecutionBudget);
         }
@@ -467,9 +471,9 @@ public final class ExtendedTimeAccelerationManager {
             work.add(accelerator, accepted, displayMultiplier);
         }
 
-        private void execute(ServerLevel level, int maxExecutions) {
+        private void execute(ServerLevel level, long maxExecutions) {
             int batchSize = JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get();
-            int executedThisTick = 0;
+            long executedThisTick = 0L;
             coalescedTargets.clear();
             try {
                 while (!queue.isEmpty() && executedThisTick < maxExecutions) {
@@ -479,8 +483,9 @@ public final class ExtendedTimeAccelerationManager {
                     if (work == null) {
                         continue;
                     }
-                    int remainingBudget = maxExecutions - executedThisTick;
-                    int requested = (int) Math.min(work.virtualTicks, Math.min(batchSize, remainingBudget));
+                    long remainingBudget = maxExecutions - executedThisTick;
+                    int requested = TimeAcceleratorExecutionPolicy.requestedTicks(
+                            work.virtualTicks, batchSize, remainingBudget);
                     ExecutionResult result = executeTarget(level, target, requested);
                     if (!result.valid) {
                         pending.remove(target);
