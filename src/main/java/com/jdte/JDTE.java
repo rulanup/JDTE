@@ -64,6 +64,7 @@ public class JDTE {
     public JDTE(IEventBus modEventBus, ModContainer modContainer) {
         net.neoforged.neoforge.common.NeoForgeMod.enableMilkFluid();
         modContainer.registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
+        modContainer.registerConfig(ModConfig.Type.SERVER, JDTEConfig.SERVER_SPEC, JDTE.MODID + "/time-accelerator-server.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
         JDTEDataComponents.DATA_COMPONENTS.register(modEventBus);
