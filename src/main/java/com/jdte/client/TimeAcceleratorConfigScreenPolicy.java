@@ -4,8 +4,18 @@ import net.neoforged.fml.config.ModConfig;
 
 public final class TimeAcceleratorConfigScreenPolicy {
     public enum ScreenRoute {
-        STANDARD_CONFIGURATION_SCREEN,
-        DIRECT_SERVER_SECTION
+        STANDARD_CONFIGURATION_SCREEN(false),
+        DIRECT_SERVER_SECTION(true);
+
+        private final boolean standardConfigurationParent;
+
+        ScreenRoute(boolean standardConfigurationParent) {
+            this.standardConfigurationParent = standardConfigurationParent;
+        }
+
+        public boolean usesStandardConfigurationParent() {
+            return standardConfigurationParent;
+        }
     }
 
     private TimeAcceleratorConfigScreenPolicy() {

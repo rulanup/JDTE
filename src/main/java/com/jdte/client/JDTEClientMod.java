@@ -42,16 +42,18 @@ public class JDTEClientMod {
         Minecraft minecraft = Minecraft.getInstance();
         boolean multiplayerConnected = minecraft.getCurrentServer() != null && !minecraft.isSingleplayer();
         ModConfig serverConfig = findLoadedServerConfig(modContainer.getModId());
+        ConfigurationScreen.ConfigurationSectionScreen.Filter filter = JDTEClientMod::lockServerConfigFieldsInWorld;
         if (TimeAcceleratorConfigScreenPolicy.selectScreen(multiplayerConnected, serverConfig != null)
                 == TimeAcceleratorConfigScreenPolicy.ScreenRoute.DIRECT_SERVER_SECTION) {
+            ConfigurationScreen standardParent = new ConfigurationScreen(modContainer, parent, filter);
             return new ConfigurationScreen.ConfigurationSectionScreen(
-                    parent,
+                    standardParent,
                     ModConfig.Type.SERVER,
                     serverConfig,
                     serverConfigTitle(modContainer, serverConfig),
-                    JDTEClientMod::lockServerConfigFieldsInWorld);
+                    filter);
         }
-        return new ConfigurationScreen(modContainer, parent, JDTEClientMod::lockServerConfigFieldsInWorld);
+        return new ConfigurationScreen(modContainer, parent, filter);
     }
 
     private static ModConfig findLoadedServerConfig(String modId) {

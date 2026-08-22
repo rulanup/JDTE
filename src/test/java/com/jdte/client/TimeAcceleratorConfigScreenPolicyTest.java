@@ -24,8 +24,10 @@ class TimeAcceleratorConfigScreenPolicyTest {
 
     @Test
     void multiplayerUsesDirectServerSectionOnlyWhenTheSyncedConfigIsAvailable() {
-        assertEquals(TimeAcceleratorConfigScreenPolicy.ScreenRoute.DIRECT_SERVER_SECTION,
-                TimeAcceleratorConfigScreenPolicy.selectScreen(true, true));
+        TimeAcceleratorConfigScreenPolicy.ScreenRoute multiplayerRoute =
+                TimeAcceleratorConfigScreenPolicy.selectScreen(true, true);
+        assertEquals(TimeAcceleratorConfigScreenPolicy.ScreenRoute.DIRECT_SERVER_SECTION, multiplayerRoute);
+        assertTrue(multiplayerRoute.usesStandardConfigurationParent());
         assertEquals(TimeAcceleratorConfigScreenPolicy.ScreenRoute.STANDARD_CONFIGURATION_SCREEN,
                 TimeAcceleratorConfigScreenPolicy.selectScreen(true, false));
         assertEquals(TimeAcceleratorConfigScreenPolicy.ScreenRoute.STANDARD_CONFIGURATION_SCREEN,
