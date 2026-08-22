@@ -52,6 +52,14 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
+    static PreparedAcceleration prepareAcceleration(TimeAcceleratorBE accelerator) {
+        int displayMultiplier = accelerator.getEffectiveMultiplier();
+        int workTicks = accelerator.getAccelerationWorkTicks(displayMultiplier);
+        int fluidCost = accelerator.getFluidDrainAmount(workTicks);
+        int energyCost = accelerator.getEnergyCost(workTicks);
+        return new PreparedAcceleration(displayMultiplier, workTicks, fluidCost, energyCost);
+    }
+
     public static void onServerTickPost(ServerTickEvent.Post event) {
         MinecraftServer server = event.getServer();
         List<Map.Entry<ServerLevel, LevelState>> states = new ArrayList<>();
@@ -111,6 +119,9 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
+    record PreparedAcceleration(int displayMultiplier, int workTicks, int fluidCost, int energyCost) {
+    }
+
     private static final class TickBudget {
         private int remaining;
 
@@ -130,17 +141,20 @@ public final class ExtendedTimeAccelerationManager {
     private static final class AcceleratorContext {
         private final TimeAcceleratorBE accelerator;
         private final AABB area;
-        private final int multiplier;
+        private final int displayMultiplier;
+        private final int workTicks;
         private final int fluidCost;
         private final int energyCost;
         private final boolean ae2AccelerationEnabled;
         private final Set<TargetKey> targets = new LinkedHashSet<>();
 
-        private AcceleratorContext(TimeAcceleratorBE accelerator, AABB area, int multiplier,
+        private AcceleratorContext(TimeAcceleratorBE accelerator, AABB area, int displayMultiplier,
+                                   int workTicks,
                                    int fluidCost, int energyCost, boolean ae2AccelerationEnabled) {
             this.accelerator = accelerator;
             this.area = area;
-            this.multiplier = multiplier;
+            this.displayMultiplier = displayMultiplier;
+            this.workTicks = workTicks;
             this.fluidCost = fluidCost;
             this.energyCost = energyCost;
             this.ae2AccelerationEnabled = ae2AccelerationEnabled;
@@ -266,10 +280,8 @@ public final class ExtendedTimeAccelerationManager {
                 if (accelerator.isRemoved() || accelerator.getLevel() != level) {
                     continue;
                 }
-                int multiplier = accelerator.getEffectiveMultiplier();
-                int fluidCost = accelerator.getFluidDrainAmount(multiplier);
-                int energyCost = accelerator.getEnergyCost(multiplier);
-                if (!accelerator.hasResources(fluidCost, energyCost)) {
+                PreparedAcceleration prepared = prepareAcceleration(accelerator);
+                if (!accelerator.hasResources(prepared.fluidCost(), prepared.energyCost())) {
                     continue;
                 }
 
@@ -277,7 +289,8 @@ public final class ExtendedTimeAccelerationManager {
                 boolean ae2AccelerationEnabled = isAE2AccelerationConfigured()
                         && UpgradeHelper.hasAEAccelerationUpgrade(accelerator);
                 AcceleratorContext context = new AcceleratorContext(
-                        accelerator, area, multiplier, fluidCost, energyCost, ae2AccelerationEnabled);
+                        accelerator, area, prepared.displayMultiplier(), prepared.workTicks(),
+                        prepared.fluidCost(), prepared.energyCost(), ae2AccelerationEnabled);
                 contexts.add(context);
                 int minChunkX = SectionPos.blockToSectionCoord(Mth.floor(area.minX));
                 int maxChunkX = SectionPos.blockToSectionCoord(Mth.ceil(area.maxX) - 1);
@@ -306,9 +319,9 @@ public final class ExtendedTimeAccelerationManager {
                 if (!acceptsWork || !context.accelerator.hasResources(context.fluidCost, context.energyCost)) {
                     continue;
                 }
-                context.accelerator.consumeResources(context.fluidCost, context.energyCost);
+                context.accelerator.consumeResources(context.workTicks, context.energyCost);
                 for (TargetKey target : context.targets) {
-                    enqueue(target, context.accelerator, context.multiplier, maxPending);
+                    enqueue(target, context.accelerator, context.workTicks, context.displayMultiplier, maxPending);
                 }
             }
         }
@@ -439,18 +452,19 @@ public final class ExtendedTimeAccelerationManager {
             return existing == null || existing.virtualTicks < maxPending;
         }
 
-        private void enqueue(TargetKey target, TimeAcceleratorBE accelerator, int multiplier, long maxPending) {
+        private void enqueue(TargetKey target, TimeAcceleratorBE accelerator, int workTicks,
+                             int displayMultiplier, long maxPending) {
             PendingTarget work = pending.get(target);
             if (work == null) {
                 work = new PendingTarget();
                 pending.put(target, work);
                 addToQueue(target);
             }
-            long accepted = Math.min((long) multiplier, maxPending - work.virtualTicks);
+            long accepted = Math.min((long) workTicks, maxPending - work.virtualTicks);
             if (accepted <= 0) {
                 return;
             }
-            work.add(accelerator, accepted, multiplier);
+            work.add(accelerator, accepted, displayMultiplier);
         }
 
         private void execute(ServerLevel level, int maxExecutions) {

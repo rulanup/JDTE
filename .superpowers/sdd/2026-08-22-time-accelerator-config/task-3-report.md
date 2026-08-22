@@ -106,3 +106,62 @@ BUILD SUCCESSFUL
 ## Concerns
 
 - `ExtendedTimeAccelerationManager` still calls `getFluidDrainAmount(...)`, `getEnergyCost(...)`, and `consumeResources(...)` with old multiplier semantics. That mismatch is intentionally left for task 4 per brief, so current correctness is limited to the single-accelerator BE path and the updated local API semantics.
+
+## Review Repair
+
+The review identified that the live path is `TimeAcceleratorBE.tickServer()` → `ExtendedTimeAccelerationManager.submit(this)`. The manager still prepared resource costs from the display multiplier, passed fluid cost into `consumeResources(...)`, and enqueued only the multiplier. This bypassed the configured duration and could treat mB as work ticks during the second cost calculation.
+
+The repair keeps the existing global execution, scan, pending, and parallel-budget logic unchanged, but fixes the value flow at the manager boundary:
+
+- `prepareAcceleration(...)` calculates `displayMultiplier`, then one `workTicks` value from the server duration, and derives both fluid and FE costs from that workload.
+- `AcceleratorContext` stores both `workTicks` and `displayMultiplier` separately.
+- Resource consumption receives `context.workTicks`; the enqueue path accepts `context.workTicks` while retaining `displayMultiplier` only for contribution display/effects.
+- The base fallback and Advanced FE path continue to use the same work amount for checks, execution, and settlement.
+
+### Repair RED
+
+Before the manager change, the new manager contract test was run with:
+
+```bash
+./gradlew.bat test --tests com.jdte.common.blockentities.ExtendedTimeAccelerationManagerTest
+```
+
+It failed during `compileTestJava` because `ExtendedTimeAccelerationManager.PreparedAcceleration` and `prepareAcceleration(...)` did not exist. This was the expected feature-missing failure for the manager contract.
+
+### Repair GREEN and verification
+
+The manager-focused contract passed after the minimal wiring:
+
+```bash
+./gradlew.bat test --tests com.jdte.common.blockentities.ExtendedTimeAccelerationManagerTest
+```
+
+Output: `BUILD SUCCESSFUL`.
+
+The focused manager/time-accelerator regression set passed:
+
+```bash
+./gradlew.bat test --tests com.jdte.common.blockentities.ExtendedTimeAccelerationManagerTest --tests com.jdte.common.blockentities.TimeAcceleratorTimingTest --tests com.jdte.common.blockentities.TimeAcceleratorCostMathTest --tests com.jdte.common.blockentities.AdvancedEnergyTransmitterSchedulerTest
+```
+
+Output: `BUILD SUCCESSFUL`.
+
+The complete test suite passed:
+
+```bash
+./gradlew.bat test
+```
+
+Output: `BUILD SUCCESSFUL`.
+
+### Repair self-review
+
+- The manager contract verifies that a 5-second configured duration produces 400 work ticks and passes 400—not the 7 mB test cost or the old multiplier 4—to both resource-cost entry points; a 2-second configuration produces 160.
+- The configured duration source remains exactly `JDTEConfig.SERVER.timeAccelerator.timeAcceleratorAccelerationDurationSeconds`.
+- Fluid and FE costs, resource simulation/execution, and target execution all use the same workload. Creative still bypasses resource checks and consumption.
+- Pending fractional fluid settlement, tier multipliers, the base fluid formula, Advanced simulation/execute consistency, display multiplier, and visual effects remain preserved.
+- No task-4 global budget or parallel scheduling policy was changed.
+
+### Remaining concern
+
+The manager contract test isolates the value flow with a stub accelerator rather than constructing a full world and target-discovery graph. The full test suite is green, and the manager call sites were audited to confirm the live path now uses the same work ticks for resource consumption and enqueueing. The task-4 global budget/parallel changes remain intentionally out of scope.
