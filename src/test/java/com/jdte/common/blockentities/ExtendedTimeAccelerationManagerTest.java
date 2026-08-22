@@ -13,6 +13,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExtendedTimeAccelerationManagerTest {
 
@@ -53,6 +55,25 @@ class ExtendedTimeAccelerationManagerTest {
         }
     }
 
+    @Test
+    void managerPaymentSeamChecksCostsAndConsumesConfiguredWorkTicks() throws Exception {
+        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
+        try {
+            RecordingAccelerator accelerator = newRecordingAccelerator();
+            ExtendedTimeAccelerationManager.PreparedAcceleration prepared =
+                    ExtendedTimeAccelerationManager.prepareAcceleration(accelerator);
+
+            assertTrue(ExtendedTimeAccelerationManager.payForSubmission(accelerator, prepared));
+            assertEquals(7, accelerator.checkedFluidCost);
+            assertEquals(11, accelerator.checkedEnergyCost);
+            assertEquals(400, accelerator.consumedWorkTicks);
+            assertEquals(11, accelerator.consumedEnergyCost);
+            assertNotEquals(prepared.fluidCost(), accelerator.consumedWorkTicks);
+        } finally {
+            JDTEConfig.SERVER_SPEC.acceptConfig(null);
+        }
+    }
+
     private static IConfigSpec.ILoadedConfig loadedServerConfig(int durationSeconds) {
         CommentedConfig config = CommentedConfig.inMemory();
         config.set(List.of("jdte", "timeAccelerator", "timeAcceleratorAccelerationDurationSeconds"), durationSeconds);
@@ -83,6 +104,10 @@ class ExtendedTimeAccelerationManagerTest {
     private static final class RecordingAccelerator extends TimeAcceleratorBE {
         private int fluidWorkTicks;
         private int energyWorkTicks;
+        private int checkedFluidCost;
+        private int checkedEnergyCost;
+        private int consumedWorkTicks;
+        private int consumedEnergyCost;
 
         private RecordingAccelerator() {
             super(null, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
@@ -103,6 +128,19 @@ class ExtendedTimeAccelerationManagerTest {
         protected int getEnergyCost(int workTicks) {
             energyWorkTicks = workTicks;
             return 11;
+        }
+
+        @Override
+        protected boolean hasResources(int fluidCost, int energyCost) {
+            checkedFluidCost = fluidCost;
+            checkedEnergyCost = energyCost;
+            return true;
+        }
+
+        @Override
+        protected void consumeResources(int workTicks, int energyCost) {
+            consumedWorkTicks = workTicks;
+            consumedEnergyCost = energyCost;
         }
     }
 }

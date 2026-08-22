@@ -105,7 +105,7 @@ BUILD SUCCESSFUL
 
 ## Concerns
 
-- `ExtendedTimeAccelerationManager` still calls `getFluidDrainAmount(...)`, `getEnergyCost(...)`, and `consumeResources(...)` with old multiplier semantics. That mismatch is intentionally left for task 4 per brief, so current correctness is limited to the single-accelerator BE path and the updated local API semantics.
+- Historical concern before the review repair: `ExtendedTimeAccelerationManager` called the resource methods with old multiplier semantics. The live-path mismatch was fixed in the Review Repair section below; task-4 global budget and parallel behavior remains out of scope.
 
 ## Review Repair
 
@@ -165,3 +165,41 @@ Output: `BUILD SUCCESSFUL`.
 ### Remaining concern
 
 The manager contract test isolates the value flow with a stub accelerator rather than constructing a full world and target-discovery graph. The full test suite is green, and the manager call sites were audited to confirm the live path now uses the same work ticks for resource consumption and enqueueing. The task-4 global budget/parallel changes remain intentionally out of scope.
+
+## Follow-up Review Repair
+
+The previous manager test only called `prepareAcceleration(...)`, so it could pass even if `LevelState.prepare()` later connected resource checks and payment incorrectly. The test coverage was tightened with the smallest reusable seam:
+
+- `payForSubmission(accelerator, prepared)` is package-private and performs `hasResources(prepared.fluidCost(), prepared.energyCost())`, then—only on success—calls `consumeResources(prepared.workTicks(), prepared.energyCost())`.
+- `LevelState.prepare()` calls this seam on its real post-discovery payment path before the existing enqueue loop. Discovery, queueing, execution, and all budget calculations remain unchanged.
+- `ExtendedTimeAccelerationManagerTest` reuses its `RecordingAccelerator` and asserts a 5-second configuration produces 400 work ticks, resource simulation receives the stub's 7 mB / 11 FE costs, resource consumption receives 400 work ticks / 11 FE, and 7 mB is not passed as work ticks.
+
+### Follow-up RED
+
+After adding the seam contract test before production changes:
+
+```bash
+./gradlew.bat test --tests com.jdte.common.blockentities.ExtendedTimeAccelerationManagerTest
+```
+
+Output: `compileTestJava FAILED` because `ExtendedTimeAccelerationManager.payForSubmission(...)` did not yet exist. This was the expected missing-seam failure.
+
+### Follow-up GREEN and verification
+
+The manager/time-accelerator focused suite passed:
+
+```bash
+./gradlew.bat test --tests com.jdte.common.blockentities.ExtendedTimeAccelerationManagerTest --tests com.jdte.common.blockentities.TimeAcceleratorTimingTest --tests com.jdte.common.blockentities.TimeAcceleratorCostMathTest --tests com.jdte.common.blockentities.AdvancedEnergyTransmitterSchedulerTest
+```
+
+Output: `BUILD SUCCESSFUL`.
+
+The complete test suite passed:
+
+```bash
+./gradlew.bat test
+```
+
+Output: `BUILD SUCCESSFUL`.
+
+This follow-up changes only the tested payment seam and its real `LevelState.prepare()` call site; task-4 global budget and parallel scheduling behavior is still untouched.

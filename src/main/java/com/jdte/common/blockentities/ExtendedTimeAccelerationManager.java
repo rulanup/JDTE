@@ -60,6 +60,14 @@ public final class ExtendedTimeAccelerationManager {
         return new PreparedAcceleration(displayMultiplier, workTicks, fluidCost, energyCost);
     }
 
+    static boolean payForSubmission(TimeAcceleratorBE accelerator, PreparedAcceleration prepared) {
+        if (!accelerator.hasResources(prepared.fluidCost(), prepared.energyCost())) {
+            return false;
+        }
+        accelerator.consumeResources(prepared.workTicks(), prepared.energyCost());
+        return true;
+    }
+
     public static void onServerTickPost(ServerTickEvent.Post event) {
         MinecraftServer server = event.getServer();
         List<Map.Entry<ServerLevel, LevelState>> states = new ArrayList<>();
@@ -141,22 +149,15 @@ public final class ExtendedTimeAccelerationManager {
     private static final class AcceleratorContext {
         private final TimeAcceleratorBE accelerator;
         private final AABB area;
-        private final int displayMultiplier;
-        private final int workTicks;
-        private final int fluidCost;
-        private final int energyCost;
+        private final PreparedAcceleration prepared;
         private final boolean ae2AccelerationEnabled;
         private final Set<TargetKey> targets = new LinkedHashSet<>();
 
-        private AcceleratorContext(TimeAcceleratorBE accelerator, AABB area, int displayMultiplier,
-                                   int workTicks,
-                                   int fluidCost, int energyCost, boolean ae2AccelerationEnabled) {
+        private AcceleratorContext(TimeAcceleratorBE accelerator, AABB area,
+                                   PreparedAcceleration prepared, boolean ae2AccelerationEnabled) {
             this.accelerator = accelerator;
             this.area = area;
-            this.displayMultiplier = displayMultiplier;
-            this.workTicks = workTicks;
-            this.fluidCost = fluidCost;
-            this.energyCost = energyCost;
+            this.prepared = prepared;
             this.ae2AccelerationEnabled = ae2AccelerationEnabled;
         }
 
@@ -289,8 +290,7 @@ public final class ExtendedTimeAccelerationManager {
                 boolean ae2AccelerationEnabled = isAE2AccelerationConfigured()
                         && UpgradeHelper.hasAEAccelerationUpgrade(accelerator);
                 AcceleratorContext context = new AcceleratorContext(
-                        accelerator, area, prepared.displayMultiplier(), prepared.workTicks(),
-                        prepared.fluidCost(), prepared.energyCost(), ae2AccelerationEnabled);
+                        accelerator, area, prepared, ae2AccelerationEnabled);
                 contexts.add(context);
                 int minChunkX = SectionPos.blockToSectionCoord(Mth.floor(area.minX));
                 int maxChunkX = SectionPos.blockToSectionCoord(Mth.ceil(area.maxX) - 1);
@@ -316,12 +316,12 @@ public final class ExtendedTimeAccelerationManager {
             long maxPending = JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get();
             for (AcceleratorContext context : contexts) {
                 boolean acceptsWork = context.targets.stream().anyMatch(target -> canAccept(target, maxPending));
-                if (!acceptsWork || !context.accelerator.hasResources(context.fluidCost, context.energyCost)) {
+                if (!acceptsWork || !payForSubmission(context.accelerator, context.prepared)) {
                     continue;
                 }
-                context.accelerator.consumeResources(context.workTicks, context.energyCost);
                 for (TargetKey target : context.targets) {
-                    enqueue(target, context.accelerator, context.workTicks, context.displayMultiplier, maxPending);
+                    enqueue(target, context.accelerator, context.prepared.workTicks(),
+                            context.prepared.displayMultiplier(), maxPending);
                 }
             }
         }
