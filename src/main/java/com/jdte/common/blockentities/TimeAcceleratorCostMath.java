@@ -1,8 +1,6 @@
 package com.jdte.common.blockentities;
 
 public final class TimeAcceleratorCostMath {
-    private static final double SETTLEMENT_EPSILON = 1.0E-9D;
-
     private TimeAcceleratorCostMath() {
     }
 
@@ -12,17 +10,14 @@ public final class TimeAcceleratorCostMath {
     }
 
     public static int energyCost(int multiplier, int rfCostPerTick) {
-        long product = (long) Math.max(1, multiplier) * Math.max(0, rfCostPerTick);
-        return product >= Integer.MAX_VALUE ? Integer.MAX_VALUE : Math.max(1, (int) product);
+        long product = Math.max(0L, (long) multiplier) * Math.max(0L, (long) rfCostPerTick);
+        return product >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) product;
     }
 
     public static Settlement settleFluid(double pendingCost, double newCost) {
         double totalCost = Math.max(0.0D, pendingCost) + Math.max(0.0D, newCost);
-        int drainMb = (int) Math.floor(totalCost + SETTLEMENT_EPSILON);
+        int drainMb = (int) Math.floor(totalCost);
         double remainingCost = totalCost - drainMb;
-        if (remainingCost < 0.0D) {
-            remainingCost = 0.0D;
-        }
         return new Settlement(drainMb, remainingCost);
     }
 

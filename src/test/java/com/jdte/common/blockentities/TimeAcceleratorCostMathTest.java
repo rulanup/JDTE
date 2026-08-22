@@ -31,6 +31,15 @@ class TimeAcceleratorCostMathTest {
 
     @Test
     void energyCostUsesSaturatingIntegerMultiplication() {
+        assertEquals(0, TimeAcceleratorCostMath.energyCost(0, 123));
+        assertEquals(0, TimeAcceleratorCostMath.energyCost(123, 0));
         assertEquals(Integer.MAX_VALUE, TimeAcceleratorCostMath.energyCost(Integer.MAX_VALUE, 2));
+    }
+
+    @Test
+    void settleFluidUsesPureFloorSemantics() {
+        TimeAcceleratorCostMath.Settlement settlement = TimeAcceleratorCostMath.settleFluid(0.9999999995D, 0.0D);
+        assertEquals(0, settlement.drainMb());
+        assertEquals(0.9999999995D, settlement.remainingCost(), 1.0E-12D);
     }
 }
