@@ -4,7 +4,7 @@ public final class TimeAcceleratorCostMath {
     private TimeAcceleratorCostMath() {
     }
 
-    public static double fluidCost(int virtualTicks, int timeWandFluidCost, double configMultiplier, double tierMultiplier) {
+    public static double fluidCost(int virtualTicks, double timeWandFluidCost, double configMultiplier, double tierMultiplier) {
         double cost = virtualTicks * (double) timeWandFluidCost * configMultiplier * tierMultiplier / 600.0D;
         return Math.max(0.0D, cost);
     }

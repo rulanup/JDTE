@@ -68,9 +68,10 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
             return;
         }
 
-        int multiplier = getEffectiveMultiplier();
-        int fluidCost = getFluidDrainAmount(multiplier);
-        int energyCost = getEnergyCost(multiplier);
+        int effectiveMultiplier = getEffectiveMultiplier();
+        int workTicks = getAccelerationWorkTicks(effectiveMultiplier);
+        int fluidCost = getFluidDrainAmount(workTicks);
+        int energyCost = getEnergyCost(workTicks);
         if (!hasResources(fluidCost, energyCost)) {
             return;
         }
@@ -101,13 +102,13 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
                 continue;
             }
 
-            if (accelerateTarget(serverLevel, immutable, blockState, blockEntity, multiplier)) {
+            if (accelerateTarget(serverLevel, immutable, blockState, blockEntity, workTicks, effectiveMultiplier)) {
                 accelerated = true;
             }
         }
 
         if (accelerated) {
-            consumeResources(fluidCost, energyCost);
+            consumeResources(workTicks, energyCost);
         }
     }
 
@@ -120,32 +121,33 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     @SuppressWarnings("unchecked")
-    protected boolean accelerateTarget(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity, int multiplier) {
+    protected boolean accelerateTarget(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity,
+                                       int workTicks, int displayMultiplier) {
         if (blockEntity != null) {
             BlockEntityTicker<BlockEntity> ticker = blockEntity.getBlockState().getTicker(serverLevel, (BlockEntityType<BlockEntity>) blockEntity.getType());
             if (ticker == null) {
                 return false;
             }
             if (blockEntity instanceof CoalescedAcceleratedMachine coalesced) {
-                coalesced.accumulateAcceleratedTicks(multiplier);
+                coalesced.accumulateAcceleratedTicks(workTicks);
                 coalesced.flushAcceleratedTicks();
-                spawnAccelerationEffect(serverLevel, blockPos, multiplier);
+                spawnAccelerationEffect(serverLevel, blockPos, displayMultiplier);
                 return true;
             }
-            for (int i = 0; i < multiplier; i++) {
+            for (int i = 0; i < workTicks; i++) {
                 ticker.tick(serverLevel, blockPos, blockEntity.getBlockState(), blockEntity);
             }
-            spawnAccelerationEffect(serverLevel, blockPos, multiplier);
+            spawnAccelerationEffect(serverLevel, blockPos, displayMultiplier);
             return true;
         }
 
         if (!blockState.isRandomlyTicking()) {
             return false;
         }
-        for (int i = 0; i < multiplier; i++) {
+        for (int i = 0; i < workTicks; i++) {
             blockState.randomTick(serverLevel, blockPos, serverLevel.random);
         }
-        spawnAccelerationEffect(serverLevel, blockPos, multiplier);
+        spawnAccelerationEffect(serverLevel, blockPos, displayMultiplier);
         return true;
     }
 
@@ -166,42 +168,48 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return true;
         }
-        if (fluidCost <= 0 && getFluidCostPerTick(getEffectiveMultiplier()) > 0.0D) {
+        if (fluidCost <= 0 && getFluidCostPerTick(getAccelerationWorkTicks(getEffectiveMultiplier())) > 0.0D) {
             return !fluidTank.getFluid().isEmpty();
         }
         return fluidTank.drain(fluidCost, IFluidHandler.FluidAction.SIMULATE).getAmount() == fluidCost;
     }
 
-    protected void consumeResources(int fluidCost, int energyCost) {
+    protected void consumeResources(int workTicks, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return;
         }
-        pendingFluidCost += getFluidCostPerTick(getEffectiveMultiplier());
-        int drainAmount = (int) Math.floor(pendingFluidCost);
-        if (drainAmount > 0) {
-            fluidTank.drain(drainAmount, IFluidHandler.FluidAction.EXECUTE);
-            pendingFluidCost -= drainAmount;
+        TimeAcceleratorCostMath.Settlement settlement =
+                TimeAcceleratorCostMath.settleFluid(pendingFluidCost, getFluidCostPerTick(workTicks));
+        if (settlement.drainMb() > 0) {
+            fluidTank.drain(settlement.drainMb(), IFluidHandler.FluidAction.EXECUTE);
         }
+        pendingFluidCost = settlement.remainingCost();
         setChanged();
     }
 
-    protected int getFluidDrainAmount(int multiplier) {
-        return (int) Math.floor(pendingFluidCost + getFluidCostPerTick(multiplier));
+    protected int getAccelerationWorkTicks(int effectiveMultiplier) {
+        return TimeAcceleratorTiming.workTicks(
+                effectiveMultiplier,
+                JDTEConfig.SERVER.timeAccelerator.timeAcceleratorAccelerationDurationSeconds.get());
     }
 
-    protected double getFluidCostPerTick(int multiplier) {
-        double costPerTimeWandUse = multiplier
-                * Config.TIMEWAND_FLUID_COST.get()
-                * JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier.get()
-                * getTierFluidCostMultiplier();
-        return Math.max(0.0D, costPerTimeWandUse / 600.0D);
+    protected int getFluidDrainAmount(int workTicks) {
+        return TimeAcceleratorCostMath.settleFluid(pendingFluidCost, getFluidCostPerTick(workTicks)).drainMb();
+    }
+
+    protected double getFluidCostPerTick(int workTicks) {
+        return TimeAcceleratorCostMath.fluidCost(
+                workTicks,
+                Config.TIMEWAND_FLUID_COST.get(),
+                JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier.get(),
+                getTierFluidCostMultiplier());
     }
 
     protected double getTierFluidCostMultiplier() {
         return 1.0D;
     }
 
-    protected int getEnergyCost(int multiplier) {
+    protected int getEnergyCost(int workTicks) {
         return 0;
     }
 
