@@ -12,6 +12,7 @@ import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEMenus;
 import com.jdte.setup.JDTERecipes;
 import com.jdte.common.commands.JDTECommands;
+import com.jdte.setup.config.TimeAcceleratorIntegratedServerDefaults;
 import com.jdte.common.blockentities.AdvancedItemCollectorManager;
 import com.jdte.common.blockentities.EntitySuppressorManager;
 import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
@@ -64,6 +65,7 @@ public class JDTE {
     public JDTE(IEventBus modEventBus, ModContainer modContainer) {
         net.neoforged.neoforge.common.NeoForgeMod.enableMilkFluid();
         modContainer.registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
+        modContainer.registerConfig(ModConfig.Type.CLIENT, JDTEConfig.LOCAL_SPEC, JDTE.MODID + "/time-accelerator-local.toml");
         modContainer.registerConfig(ModConfig.Type.SERVER, JDTEConfig.SERVER_SPEC, JDTE.MODID + "/time-accelerator-server.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
@@ -98,6 +100,7 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
+        NeoForge.EVENT_BUS.addListener(TimeAcceleratorIntegratedServerDefaults::onServerAboutToStart);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AEOutputManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, MachineOutputManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(AEOutputManager::onLevelUnload);

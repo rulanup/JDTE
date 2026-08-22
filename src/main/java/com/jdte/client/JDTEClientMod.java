@@ -2,6 +2,7 @@ package com.jdte.client;
 
 import com.jdte.JDTE;
 import com.jdte.client.renderers.AreaPreviewRenderBatch;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -40,62 +41,74 @@ public class JDTEClientMod {
 
     private static Screen createConfigurationScreen(ModContainer modContainer, Screen parent) {
         Minecraft minecraft = Minecraft.getInstance();
-        boolean multiplayerConnected = minecraft.getCurrentServer() != null && !minecraft.isSingleplayer();
-        ModConfig serverConfig = findLoadedServerConfig(modContainer.getModId());
-        ConfigurationScreen.ConfigurationSectionScreen.Filter filter = JDTEClientMod::lockServerConfigFieldsInWorld;
-        if (TimeAcceleratorConfigScreenPolicy.selectScreen(multiplayerConnected, serverConfig != null)
-                == TimeAcceleratorConfigScreenPolicy.ScreenRoute.DIRECT_SERVER_SECTION) {
-            ConfigurationScreen standardParent = new ConfigurationScreen(modContainer, parent, filter);
-            return new ConfigurationScreen.ConfigurationSectionScreen(
+        boolean activeWorld = minecraft.level != null;
+        ModConfig serverConfig = findLoadedConfig(modContainer.getModId(), JDTEConfig.SERVER_SPEC);
+        ModConfig localConfig = findLoadedConfig(modContainer.getModId(), JDTEConfig.LOCAL_SPEC);
+        ConfigurationScreen.ConfigurationSectionScreen.Filter filter = JDTEClientMod::lockRuntimeConfigFieldsInWorld;
+        ConfigurationScreen standardParent = new ConfigurationScreen(modContainer, parent, filter);
+        return switch (TimeAcceleratorConfigScreenPolicy.selectScreen(
+                activeWorld, serverConfig != null, localConfig != null)) {
+            case DIRECT_SERVER_SECTION -> new ConfigurationScreen.ConfigurationSectionScreen(
                     standardParent,
                     ModConfig.Type.SERVER,
                     serverConfig,
-                    serverConfigTitle(modContainer, serverConfig),
+                    configTitle(modContainer, serverConfig, "neoforge.configuration.uitext.title.server"),
                     filter);
-        }
-        return new ConfigurationScreen(modContainer, parent, filter);
+            case DIRECT_LOCAL_DEFAULTS_SECTION -> new ConfigurationScreen.ConfigurationSectionScreen(
+                    standardParent,
+                    ModConfig.Type.CLIENT,
+                    localConfig,
+                    configTitle(modContainer, localConfig, "neoforge.configuration.uitext.title.client"),
+                    filter);
+            case STANDARD_CONFIGURATION_SCREEN -> standardParent;
+        };
     }
 
-    private static ModConfig findLoadedServerConfig(String modId) {
+    private static ModConfig findLoadedConfig(String modId, ModConfigSpec expectedSpec) {
         for (ModConfig modConfig : ModConfigs.getModConfigs(modId)) {
-            if (modConfig.getType() == ModConfig.Type.SERVER
-                    && modConfig.getSpec() instanceof ModConfigSpec spec
-                    && spec.isLoaded()) {
+            if (modConfig.getSpec() == expectedSpec && expectedSpec.isLoaded()) {
                 return modConfig;
             }
         }
         return null;
     }
 
-    private static Component serverConfigTitle(ModContainer modContainer, ModConfig modConfig) {
+    private static Component configTitle(ModContainer modContainer, ModConfig modConfig, String fallbackKey) {
         String configKey = modConfig.getFileName()
                 .replaceAll("[^a-zA-Z0-9]+", ".")
                 .replaceFirst("^\\.", "")
                 .replaceFirst("\\.$", "")
                 .toLowerCase(Locale.ENGLISH);
         String titleKey = modContainer.getModId() + ".configuration.section." + configKey + ".title";
-        String fallbackKey = "neoforge.configuration.uitext.title.server";
         return Component.translatable(I18n.exists(titleKey) ? titleKey : fallbackKey,
                 modContainer.getModInfo().getDisplayName());
     }
 
-    private static ConfigurationScreen.ConfigurationSectionScreen.Element lockServerConfigFieldsInWorld(
+    private static ConfigurationScreen.ConfigurationSectionScreen.Element lockRuntimeConfigFieldsInWorld(
             ConfigurationScreen.ConfigurationSectionScreen.Context context,
             String key,
             ConfigurationScreen.ConfigurationSectionScreen.Element original) {
         if (original == null) {
             return null;
         }
-        if (!TimeAcceleratorConfigScreenPolicy.shouldLockFields(context.modConfig().getType(), Minecraft.getInstance().level != null)) {
+        boolean localDefaultsConfig = context.modConfig().getSpec() == JDTEConfig.LOCAL_SPEC;
+        if (!TimeAcceleratorConfigScreenPolicy.shouldLockFields(
+                context.modConfig().getType(), localDefaultsConfig, Minecraft.getInstance().level != null)) {
             return original;
         }
         AbstractWidget widget = original.getWidget(Minecraft.getInstance().options);
+        return makeReadOnly(original, widget);
+    }
+
+    static ConfigurationScreen.ConfigurationSectionScreen.Element makeReadOnly(
+            ConfigurationScreen.ConfigurationSectionScreen.Element original,
+            AbstractWidget widget) {
         widget.active = false;
         return new ConfigurationScreen.ConfigurationSectionScreen.Element(
                 original.name(),
                 original.tooltip(),
                 widget,
                 original.option(),
-                original.undoable());
+                false);
     }
 }
