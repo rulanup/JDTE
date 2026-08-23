@@ -178,9 +178,9 @@ item.jdte.advanced_machine_settings_copier = Advanced Machine Settings Copier
 配方使用 `justdirethings:machinesettingscopier` 和 `justdirethings:eclipsealloy_ingot`，形状为：
 
 ```text
- e 
-ece
- e 
+" e "
+"ece"
+" e "
 ```
 
 结果为 1 个 `jdte:advanced_machine_settings_copier`。
