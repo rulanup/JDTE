@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -73,5 +74,18 @@ public abstract class GeneratorT1UpgradeMixin {
         if (UpgradeHelper.hasGeneratorUpgrade((GeneratorT1BE) (Object) this)) {
             cir.setReturnValue(Config.GENERATOR_T1_FE_PER_TICK.get() * 3);
         }
+    }
+
+    @Redirect(
+            method = "doBurn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/direwolf20/justdirethings/common/items/FuelCanister;getBurnSpeedMultiplier(Lnet/minecraft/world/item/ItemStack;)I"
+            )
+    )
+    private int jdte$useLargeFuelBurnMultiplier(ItemStack fuelStack) {
+        return fuelStack.getItem() instanceof com.jdte.common.items.LargeFuelCanisterItem
+                ? com.jdte.common.items.LargeFuelCanisterItem.getBurnSpeedMultiplier(fuelStack)
+                : com.direwolf20.justdirethings.common.items.FuelCanister.getBurnSpeedMultiplier(fuelStack);
     }
 }

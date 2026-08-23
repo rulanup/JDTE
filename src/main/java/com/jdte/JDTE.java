@@ -211,7 +211,10 @@ public class JDTE {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(AEOutputNetwork::registerLinkable);
+        event.enqueueWork(() -> {
+            AEOutputNetwork.registerLinkable();
+            com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration.registerCurioBehaviors();
+        });
     }
 
     public static ResourceLocation id(String path) {

@@ -25,7 +25,7 @@ class LargePocketGeneratorScreenTest {
         ItemStack largeFuelCanister = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());
         FuelCanister.setBurnSpeed(largeFuelCanister, 2.0D);
 
-        assertEquals(2, LargePocketGeneratorScreen.burnSpeedMultiplierTooltipValue(largeFuelCanister));
+        assertEquals(20, LargePocketGeneratorScreen.burnSpeedMultiplierTooltipValue(largeFuelCanister));
     }
 
     @Test

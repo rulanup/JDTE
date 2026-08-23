@@ -2,6 +2,9 @@ package com.jdte.common.integrations.curios;
 
 import com.jdte.common.containers.LargePortableContainerMenus;
 import com.jdte.JDTE;
+import com.jdte.setup.JDTEItems;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -20,6 +23,22 @@ public class BigFluidTankCuriosIntegration {
             LargePortableContainerMenus.LARGE_POTION_CANISTER_SLOT,
             LargePortableContainerMenus.LARGE_FUEL_CANISTER_SLOT
     );
+
+    public static void registerCurioBehaviors() {
+        if (!ModList.get().isLoaded("curios")) {
+            return;
+        }
+        top.theillusivec4.curios.api.CuriosApi.registerCurio(
+                JDTEItems.LARGE_POCKET_GENERATOR.get(),
+                new top.theillusivec4.curios.api.type.capability.ICurioItem() {
+                    @Override
+                    public void curioTick(top.theillusivec4.curios.api.SlotContext slotContext, ItemStack stack) {
+                        LivingEntity entity = slotContext.entity();
+                        JDTEItems.LARGE_POCKET_GENERATOR.get()
+                                .inventoryTick(stack, entity.level(), entity, -1, false);
+                    }
+                });
+    }
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
