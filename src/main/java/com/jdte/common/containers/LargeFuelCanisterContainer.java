@@ -100,4 +100,8 @@ public class LargeFuelCanisterContainer extends BaseContainer {
     public ItemStack getBoundStack() {
         return binding.boundStack();
     }
+
+    public ItemStack getCurrentStack() {
+        return binding.currentStack();
+    }
 }

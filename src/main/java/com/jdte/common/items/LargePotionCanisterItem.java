@@ -2,6 +2,7 @@ package com.jdte.common.items;
 
 import com.direwolf20.justdirethings.common.items.PotionCanister;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.direwolf20.justdirethings.util.MagicHelpers;
 import net.minecraft.core.component.DataComponents;
 import com.jdte.common.containers.LargePortableContainerMenus;
 import com.jdte.common.network.data.OpenLargePortableContainerPayload;
@@ -9,10 +10,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 public class LargePotionCanisterItem extends PotionCanister {
     public static int getPotionCapacityMb() {
@@ -29,6 +35,27 @@ public class LargePotionCanisterItem extends PotionCanister {
 
     public int getCapacityMb() {
         return getPotionCapacityMb();
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        Level level = context.level();
+        if (level == null) {
+            return;
+        }
+
+        PotionContents contents = getPotionContents(stack);
+        int amount = getPotionAmount(stack);
+        if (amount == 0 || contents.equals(PotionContents.EMPTY)) {
+            return;
+        }
+
+        tooltip.add(Component.literal(potionAmountTooltip(amount)));
+        contents.addPotionTooltip(tooltip::add, 1.0F, 20.0F);
+    }
+
+    static String potionAmountTooltip(int amount) {
+        return MagicHelpers.formatted(amount) + "/" + MagicHelpers.formatted(getPotionCapacityMb());
     }
 
     public static boolean tryFillBatch(ItemStack canister, ItemStack potionInput) {

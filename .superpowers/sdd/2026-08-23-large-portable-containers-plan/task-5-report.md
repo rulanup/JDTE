@@ -12,20 +12,15 @@ Executed Task 5 from `.superpowers/sdd/2026-08-23-large-portable-containers-plan
 
 ## Exact verification commands and results
 
-Authoritative latest serial verification run after all scoped follow-up fixes, including the final base-generator runtime rereview:
+Authoritative latest serial verification run after the live-screen and large-item-hover repair:
 
-Focused regression verification before the full run:
-
-1. `./gradlew test --tests com.jdte.common.items.LargePortableContainerLogicTest --tests com.jdte.client.screens.LargePocketGeneratorScreenTest`
-   - Result: `BUILD SUCCESSFUL in 29s`
-
-2. `./gradlew test --tests com.jdte.common.items.LargePortableContainerLogicTest --tests com.jdte.client.screens.LargePocketGeneratorScreenTest --tests com.jdte.common.items.GeneratorFuelRuntimeHookTest`
-   - Result: `BUILD SUCCESSFUL in 27s`
+1. `./gradlew test --tests com.jdte.client.screens.LargeCanisterScreenLiveRefreshTest --tests com.jdte.common.items.LargeCanisterTooltipTest --tests com.jdte.client.screens.LargePocketGeneratorScreenTest --tests com.jdte.common.items.LargePortableContainerLogicTest`
+   - Result: `BUILD SUCCESSFUL in 28s` (36 tests)
 
 Full serial verification:
 
 1. `./gradlew test`
-   - Result: `BUILD SUCCESSFUL in 27s`
+   - Result: `BUILD SUCCESSFUL in 23s`
 
 2. `./gradlew compileJava`
    - Result: `BUILD SUCCESSFUL in 1s`
@@ -98,6 +93,24 @@ Supporting inspection commands used during the audit:
      - routed that invoke through `PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(...)`
      - preserved generator-upgrade behavior, which still uses `GeneratorUpgradeHelper.burnSpeedMultiplier(...)` and the early-cancel path
      - added `GeneratorFuelRuntimeHookTest` as a focused guard that checks the live mixin source still contains the base `doBurn()` redirect to the shared resolver
+
+8. Large potion/fuel canister screens read a stale bound snapshot for live display state.
+   - Impact: after server synchronization or source-stack component changes, potion bars/tooltips and fuel labels could remain on the decoded menu snapshot instead of the current hand/Curios stack.
+   - Fix:
+     - added `getCurrentStack()` to `LargePotionCanisterContainer` and `LargeFuelCanisterContainer`
+     - changed `LargePotionCanisterScreen` bar and tooltip reads to use `menu.getCurrentStack()`
+     - changed `LargeFuelCanisterScreen` labels to use `menu.getCurrentStack()`
+     - added `LargeCanisterScreenLiveRefreshTest` guards for both screens so a future `getBoundStack()` regression fails
+
+9. Large potion/fuel canisters inherited JDT hover text sized for the original canisters.
+   - Impact: potion hover text could report `1000 mB`, and fuel item-equivalent hover text divided by the original `200` ticks instead of the large canister’s `4000 mB` and `2000` tick minimum.
+   - Fix:
+     - overrode `appendHoverText(...)` in `LargePotionCanisterItem` using the live potion contents/amount and `getPotionCapacityMb()`
+     - overrode `appendHoverText(...)` in `LargeFuelCanisterItem` preserving JDT’s shift/raw-fuel branch and using `getMinimumFuelConsumed()` for the item-equivalent branch
+     - added `LargeCanisterTooltipTest` for `4000 mB`, `2000` ticks, and inherited-hover replacement guards
+   - JDT bytecode evidence inspected before implementation:
+     - `PotionCanister.appendHoverText(...)` uses static `getMaxMB() = 1000`
+     - `FuelCanister.appendHoverText(...)` divides by literal `200.0f`
 
 ## Acceptance audit
 
@@ -209,18 +222,25 @@ Evidence:
 - `validateDocs` no longer reports a branch-specific undocumented-item or category-mapping mismatch for the three large items; it only reports the pre-existing generated-book baseline drift
 - `GeneratorFuelRuntimeHookTest` guards the presence of the base `doBurn()` redirect so the normal-generator runtime hook is not accidentally removed again during cleanup
 
-## Git inspection after the final rereview repair
+## Git inspection after the live-screen and hover repair
 
-Fresh `git status --short --untracked-files=all` after the final normal-generator runtime repair showed only the expected scoped delta for this last commit:
+Fresh `git status --short --untracked-files=all` after the live-screen and hover repair showed only the expected scoped delta for this last commit:
 
 - `M .superpowers/sdd/2026-08-23-large-portable-containers-plan/task-5-report.md`
-- `M src/main/java/com/jdte/mixin/GeneratorT1UpgradeMixin.java`
-- `?? src/test/java/com/jdte/common/items/GeneratorFuelRuntimeHookTest.java`
+- `M src/main/java/com/jdte/client/screens/LargeFuelCanisterScreen.java`
+- `M src/main/java/com/jdte/client/screens/LargePotionCanisterScreen.java`
+- `M src/main/java/com/jdte/common/containers/LargeFuelCanisterContainer.java`
+- `M src/main/java/com/jdte/common/containers/LargePotionCanisterContainer.java`
+- `M src/main/java/com/jdte/common/items/LargeFuelCanisterItem.java`
+- `M src/main/java/com/jdte/common/items/LargePotionCanisterItem.java`
+- `?? src/test/java/com/jdte/client/screens/LargeCanisterScreenLiveRefreshTest.java`
+- `?? src/test/java/com/jdte/common/items/LargeCanisterTooltipTest.java`
 
 This matched the intended final scope:
 
-- restore the shared runtime resolver hook in `GeneratorT1BE.doBurn(...)`
-- add a focused regression guard for the live base-generator hook
+- refresh both canister screens from the source metadata each frame
+- replace inherited fixed-size canister hover text with large-container semantics
+- add focused regression coverage for both repairs
 - update the Task 5 report with the exact fresh verification evidence
 
 ## Remaining limitations
@@ -236,7 +256,7 @@ This matched the intended final scope:
 
 ## Conclusion
 
-Task 5 and its follow-up reviews found six real feature-scope runtime/UI integration defects plus one documentation-coverage gap. All were corrected in the feature worktree. The latest serial verification ends in:
+Task 5 and its follow-up reviews found eight real feature-scope runtime/UI integration defects plus one documentation-coverage gap. All were corrected in the feature worktree. The latest serial verification ends in:
 
 - `test`: pass
 - `compileJava`: pass

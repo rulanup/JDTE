@@ -36,7 +36,7 @@ public class LargeFuelCanisterScreen extends AbstractContainerScreen<LargeFuelCa
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        ItemStack stack = menu.getBoundStack();
+        ItemStack stack = menu.getCurrentStack();
         float itemEquivalent = (float) FuelCanister.getFuelLevel(stack) / LargeFuelCanisterItem.getMinimumFuelConsumed();
         Component itemLine = Component.translatable("justdirethings.fuelcanisteritemsamt",
                 MagicHelpers.formatted(itemEquivalent));

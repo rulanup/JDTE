@@ -44,7 +44,7 @@ public class LargePotionCanisterScreen extends AbstractContainerScreen<LargePoti
         guiGraphics.blit(FLUID_BAR, barLeft, barTop, 0, 0, 18, 72, 36, 72);
 
         int maxMb = LargePotionCanisterItem.getPotionCapacityMb();
-        int amount = PotionCanister.getPotionAmount(menu.getBoundStack());
+        int amount = PotionCanister.getPotionAmount(menu.getCurrentStack());
         if (maxMb > 0 && amount > 0) {
             int height = amount * 70 / maxMb;
             renderFluid(guiGraphics, getGuiLeft() + 6, getGuiTop() + 76, 16, height);
@@ -70,7 +70,7 @@ public class LargePotionCanisterScreen extends AbstractContainerScreen<LargePoti
     }
 
     private boolean renderFluidBarTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        ItemStack stack = menu.getBoundStack();
+        ItemStack stack = menu.getCurrentStack();
         PotionContents contents = PotionCanister.getPotionContents(stack);
         int amount = PotionCanister.getPotionAmount(stack);
         if (amount == 0 || contents.equals(PotionContents.EMPTY)) {

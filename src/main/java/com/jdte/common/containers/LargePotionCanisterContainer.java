@@ -103,6 +103,10 @@ public class LargePotionCanisterContainer extends BaseContainer {
         return binding.boundStack();
     }
 
+    public ItemStack getCurrentStack() {
+        return binding.currentStack();
+    }
+
     private static final class PotionBatchSlot extends SlotItemHandler {
         private PotionBatchSlot(IItemHandler itemHandler, int index, int x, int y) {
             super(itemHandler, index, x, y);
