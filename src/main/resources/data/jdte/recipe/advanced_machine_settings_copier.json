@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "justdirethings",
+  "pattern": [
+    " e ",
+    "ece",
+    " e "
+  ],
+  "key": {
+    "e": { "item": "justdirethings:eclipsealloy_ingot" },
+    "c": { "item": "justdirethings:machinesettingscopier" }
+  },
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_machine_settings_copier"
+  }
+}

@@ -26,6 +26,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.SHARPNESS_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
         output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
+        output.accept(JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get());
         output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
         output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
         output.accept(JDTEItems.BIG_FLUID_TANK.get());

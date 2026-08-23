@@ -17,6 +17,7 @@
   "item.jdte.seed_conversion_upgrade": "Seed-to-Essence Upgrade",
   "item.jdte.extended_upgrade": "Extended Upgrade",
   "item.jdte.eclipsealloy_wrench": "Eclipse Alloy Wrench",
+  "item.jdte.advanced_machine_settings_copier": "Advanced Machine Settings Copier",
   "item.jdte.time_fluid_catalyst": "Time Fluid Catalyst",
   "item.jdte.mineral_survey": "Mineral Survey",
   "tooltip.jdte.mineral_survey.blank": "Right-click in a biome to record its recognizable mineral distribution.",
