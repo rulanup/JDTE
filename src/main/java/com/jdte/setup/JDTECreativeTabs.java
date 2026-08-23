@@ -31,6 +31,9 @@ public class JDTECreativeTabs {
         output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
         output.accept(JDTEItems.BIG_FLUID_TANK.get());
         output.accept(JDTEItems.TIME_MULTITOOL.get());
+        output.accept(JDTEItems.LARGE_POCKET_GENERATOR.get());
+        output.accept(JDTEItems.LARGE_POTION_CANISTER.get());
+        output.accept(JDTEItems.LARGE_FUEL_CANISTER.get());
         output.accept(JDTEItems.FACTORY_PACKAGE.get());
                 output.accept(JDTEItems.MINERAL_SURVEY.get());
 

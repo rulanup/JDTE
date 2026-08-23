@@ -8,6 +8,9 @@ import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.FactoryPackageItem;
 import com.jdte.common.items.LifeAppleItem;
+import com.jdte.common.items.LargeFuelCanisterItem;
+import com.jdte.common.items.LargePocketGeneratorItem;
+import com.jdte.common.items.LargePotionCanisterItem;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.MineralSurveyItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
@@ -52,6 +55,9 @@ public class JDTEItems {
     public static final DeferredHolder<Item, UltimatePortalGunItem> ULTIMATE_PORTAL_GUN = ITEMS.register("ultimate_portal_gun", UltimatePortalGunItem::new);
     public static final DeferredHolder<Item, BigFluidTankItem> BIG_FLUID_TANK = ITEMS.register("big_fluid_tank", BigFluidTankItem::new);
     public static final DeferredHolder<Item, TimeMultitoolItem> TIME_MULTITOOL = ITEMS.register("time_multitool", TimeMultitoolItem::new);
+    public static final DeferredHolder<Item, LargePocketGeneratorItem> LARGE_POCKET_GENERATOR = ITEMS.register("large_pocket_generator", LargePocketGeneratorItem::new);
+    public static final DeferredHolder<Item, LargePotionCanisterItem> LARGE_POTION_CANISTER = ITEMS.register("large_potion_canister", LargePotionCanisterItem::new);
+    public static final DeferredHolder<Item, LargeFuelCanisterItem> LARGE_FUEL_CANISTER = ITEMS.register("large_fuel_canister", LargeFuelCanisterItem::new);
     public static final DeferredHolder<Item, FactoryPackageItem> FACTORY_PACKAGE = ITEMS.register("factory_package", FactoryPackageItem::new);
     public static final DeferredHolder<Item, MineralSurveyItem> MINERAL_SURVEY = ITEMS.register("mineral_survey", MineralSurveyItem::new);
 

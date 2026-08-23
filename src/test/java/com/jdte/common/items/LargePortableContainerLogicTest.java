@@ -1,9 +1,12 @@
 package com.jdte.common.items;
 
+import com.jdte.setup.JDTEItems;
+import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LargePortableContainerLogicTest {
@@ -76,5 +79,35 @@ class LargePortableContainerLogicTest {
         int baseBurnMultiplier = 214_748_365;
 
         assertEquals(Integer.MAX_VALUE, LargePortableContainerLogic.fuelBurnMultiplier(baseBurnMultiplier));
+    }
+
+    @Test
+    void registersLargePortableContainerItemHolders() {
+        assertEquals("large_pocket_generator", JDTEItems.LARGE_POCKET_GENERATOR.getId().getPath());
+        assertEquals("large_potion_canister", JDTEItems.LARGE_POTION_CANISTER.getId().getPath());
+        assertEquals("large_fuel_canister", JDTEItems.LARGE_FUEL_CANISTER.getId().getPath());
+    }
+
+    @Test
+    void exposesLargePortableContainerItemTypesAndSingleStackDefaults() {
+        LargePocketGeneratorItem largePocketGenerator = JDTEItems.LARGE_POCKET_GENERATOR.get();
+        LargePotionCanisterItem largePotionCanister = JDTEItems.LARGE_POTION_CANISTER.get();
+        LargeFuelCanisterItem largeFuelCanister = JDTEItems.LARGE_FUEL_CANISTER.get();
+
+        assertNotNull(largePocketGenerator);
+        assertNotNull(largePotionCanister);
+        assertNotNull(largeFuelCanister);
+        assertEquals(1, new ItemStack(largePocketGenerator).getMaxStackSize());
+        assertEquals(1, new ItemStack(largePotionCanister).getMaxStackSize());
+        assertEquals(1, new ItemStack(largeFuelCanister).getMaxStackSize());
+    }
+
+    @Test
+    void largePocketGeneratorUsesFourTimesTheConfiguredEnergyCapacity() {
+        int basePocketCapacity = 536_870_911;
+
+        assertEquals(
+                LargePortableContainerLogic.pocketGeneratorCapacity(basePocketCapacity),
+                LargePocketGeneratorItem.getScaledMaxEnergy(basePocketCapacity));
     }
 }
