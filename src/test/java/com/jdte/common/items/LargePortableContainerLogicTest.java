@@ -8,13 +8,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LargePortableContainerLogicTest {
     @Test
-    void scalesPocketGeneratorCapacityByFourWithSaturation() {
-        int basePocketCapacity = 12_345;
+    void scalesPocketGeneratorCapacityByFourAtTheLastSafeValue() {
+        int basePocketCapacity = 536_870_911;
 
-        assertEquals(basePocketCapacity * 4,
+        assertEquals(2_147_483_644,
                 LargePortableContainerLogic.pocketGeneratorCapacity(basePocketCapacity));
+    }
+
+    @Test
+    void saturatesPocketGeneratorCapacityWhenMultiplicationWouldOverflow() {
+        int basePocketCapacity = 536_870_912;
+
         assertEquals(Integer.MAX_VALUE,
-                LargePortableContainerLogic.pocketGeneratorCapacity(Integer.MAX_VALUE));
+                LargePortableContainerLogic.pocketGeneratorCapacity(basePocketCapacity));
     }
 
     @Test
@@ -26,27 +32,49 @@ class LargePortableContainerLogicTest {
     @Test
     void onlyFourPotionsCanFillAOneThousandMillibucketBatchWithinCapacity() {
         assertTrue(LargePortableContainerLogic.canFillPotionBatch(4, 3_000, 4_000));
+        assertFalse(LargePortableContainerLogic.canFillPotionBatch(4, 3_001, 4_000));
         assertFalse(LargePortableContainerLogic.canFillPotionBatch(3, 3_000, 4_000));
     }
 
     @Test
-    void scalesFuelCapacityByFourWithSaturation() {
-        int baseFuelCapacity = 9_876;
+    void scalesFuelCapacityByFourAtTheLastSafeValue() {
+        int baseFuelCapacity = 536_870_911;
 
-        assertEquals(baseFuelCapacity * 4,
-                LargePortableContainerLogic.fuelCapacity(baseFuelCapacity));
-        assertEquals(Integer.MAX_VALUE,
-                LargePortableContainerLogic.fuelCapacity(Integer.MAX_VALUE));
+        assertEquals(2_147_483_644, LargePortableContainerLogic.fuelCapacity(baseFuelCapacity));
     }
 
     @Test
-    void scalesFuelMinimumConsumptionAndBurnMultiplierByTenWithSaturation() {
-        int baseMinimum = 77;
-        int baseBurnMultiplier = 6;
+    void saturatesFuelCapacityWhenMultiplicationWouldOverflow() {
+        int baseFuelCapacity = 536_870_912;
 
-        assertEquals(baseMinimum * 10, LargePortableContainerLogic.fuelMinimumConsumption(baseMinimum));
-        assertEquals(baseBurnMultiplier * 10, LargePortableContainerLogic.fuelBurnMultiplier(baseBurnMultiplier));
-        assertEquals(Integer.MAX_VALUE, LargePortableContainerLogic.fuelMinimumConsumption(Integer.MAX_VALUE));
-        assertEquals(Integer.MAX_VALUE, LargePortableContainerLogic.fuelBurnMultiplier(Integer.MAX_VALUE));
+        assertEquals(Integer.MAX_VALUE, LargePortableContainerLogic.fuelCapacity(baseFuelCapacity));
+    }
+
+    @Test
+    void scalesFuelMinimumConsumptionByTenAtTheLastSafeValue() {
+        int baseMinimum = 214_748_364;
+
+        assertEquals(2_147_483_640, LargePortableContainerLogic.fuelMinimumConsumption(baseMinimum));
+    }
+
+    @Test
+    void saturatesFuelMinimumConsumptionWhenMultiplicationWouldOverflow() {
+        int baseMinimum = 214_748_365;
+
+        assertEquals(Integer.MAX_VALUE, LargePortableContainerLogic.fuelMinimumConsumption(baseMinimum));
+    }
+
+    @Test
+    void scalesFuelBurnMultiplierByTenAtTheLastSafeValue() {
+        int baseBurnMultiplier = 214_748_364;
+
+        assertEquals(2_147_483_640, LargePortableContainerLogic.fuelBurnMultiplier(baseBurnMultiplier));
+    }
+
+    @Test
+    void saturatesFuelBurnMultiplierWhenMultiplicationWouldOverflow() {
+        int baseBurnMultiplier = 214_748_365;
+
+        assertEquals(Integer.MAX_VALUE, LargePortableContainerLogic.fuelBurnMultiplier(baseBurnMultiplier));
     }
 }
