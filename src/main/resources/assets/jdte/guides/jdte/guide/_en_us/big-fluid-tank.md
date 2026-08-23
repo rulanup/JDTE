@@ -5,9 +5,6 @@ navigation:
   position: 6.6
 item_ids:
   - jdte:big_fluid_tank
-  - jdte:large_pocket_generator
-  - jdte:large_potion_canister
-  - jdte:large_fuel_canister
 ---
 
 # Big Fluid Tank
@@ -32,12 +29,6 @@ While the tank is in the player's inventory or Curios slot, it can feed its flui
 - **JDT**: fill Just Dire Things items only.
 - **JDTE**: fill JDT Extras items only.
 - **All**: fill every item with a compatible fluid capability.
-
-## Related portable containers
-
-- `jdte:large_pocket_generator`: a 4x-capacity pocket generator with its own Curios slot and hotkey-opened menu.
-- `jdte:large_potion_canister`: a 4,000 mB potion canister that consumes 4 matching potions per 1,000 mB batch.
-- `jdte:large_fuel_canister`: a 40,000,000-fuel canister whose minimum consumption and burn multiplier are both scaled by 10.
 
 ## Crafting
 

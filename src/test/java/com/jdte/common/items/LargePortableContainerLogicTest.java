@@ -13,6 +13,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -201,6 +202,33 @@ class LargePortableContainerLogicTest {
         FuelCanister.setBurnSpeed(stack, 2.0D);
 
         assertEquals(20, LargeFuelCanisterItem.getBurnSpeedMultiplier(stack));
+    }
+
+    @Test
+    void portableFuelBurnSpeedHelperKeepsOriginalCanistersAndScalesLargeCanisters() {
+        ItemStack plainFuelCanister = new ItemStack(BuiltInRegistries.ITEM.get(
+                ResourceLocation.fromNamespaceAndPath("justdirethings", "fuel_canister")));
+        FuelCanister.setBurnSpeed(plainFuelCanister, 2.0D);
+
+        ItemStack largeFuelCanister = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());
+        FuelCanister.setBurnSpeed(largeFuelCanister, 2.0D);
+
+        assertEquals(2, PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(plainFuelCanister));
+        assertEquals(20, PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(largeFuelCanister));
+    }
+
+    @Test
+    void largePocketGeneratorStoresAndUsesResolvedFuelMultiplierState() {
+        LargePocketGeneratorItem generatorItem = JDTEItems.LARGE_POCKET_GENERATOR.get();
+        ItemStack generatorStack = new ItemStack(generatorItem);
+        ItemStack largeFuelCanister = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());
+        FuelCanister.setBurnSpeed(largeFuelCanister, 2.0D);
+
+        generatorItem.setFuelMultiplier(generatorStack,
+                PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(largeFuelCanister));
+
+        assertEquals(20, generatorItem.getFuelMultiplier(generatorStack));
+        assertEquals(20, generatorStack.getOrDefault(JustDireDataComponents.POCKETGEN_FUELMULT, 1));
     }
 
     @Test

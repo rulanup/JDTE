@@ -24,6 +24,7 @@
     "FluidTankAccessor",
     "GeneratorFluidUpgradeMixin",
     "GeneratorT1UpgradeMixin",
+    "PocketGeneratorFuelMultiplierMixin",
     "HelpersRemoveBlockMixin",
     "LevelTicksAccessor",
     "MekanismMagneticAttractionMixin",
@@ -40,6 +41,7 @@
     "BaseMachineScreenMixin",
     "BlockEntityRenderDispatcherMixin",
     "SlotAccessor",
+    "GeneratorT1ScreenFuelTooltipMixin",
     "EntityRenderDispatcherMixin",
     "ItemEntityRendererMixin",
     "ParticleEngineMixin"

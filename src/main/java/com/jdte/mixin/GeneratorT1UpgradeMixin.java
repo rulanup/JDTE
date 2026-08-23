@@ -76,16 +76,4 @@ public abstract class GeneratorT1UpgradeMixin {
         }
     }
 
-    @Redirect(
-            method = "doBurn",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lcom/direwolf20/justdirethings/common/items/FuelCanister;getBurnSpeedMultiplier(Lnet/minecraft/world/item/ItemStack;)I"
-            )
-    )
-    private int jdte$useLargeFuelBurnMultiplier(ItemStack fuelStack) {
-        return fuelStack.getItem() instanceof com.jdte.common.items.LargeFuelCanisterItem
-                ? com.jdte.common.items.LargeFuelCanisterItem.getBurnSpeedMultiplier(fuelStack)
-                : com.direwolf20.justdirethings.common.items.FuelCanister.getBurnSpeedMultiplier(fuelStack);
-    }
 }

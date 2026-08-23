@@ -8,7 +8,7 @@ import com.direwolf20.justdirethings.common.items.resources.Coal_T1;
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.jdte.common.containers.LargePocketGeneratorContainer;
-import com.jdte.common.items.LargeFuelCanisterItem;
+import com.jdte.common.items.PortableFuelBurnSpeedHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.locale.Language;
@@ -140,20 +140,7 @@ public class LargePocketGeneratorScreen extends AbstractContainerScreen<LargePoc
     }
 
     static int burnSpeedMultiplierTooltipValue(ItemStack fuelStack) {
-        int burnSpeedMultiplier = 1;
-        Item item = fuelStack.getItem();
-        if (item instanceof Coal_T1 coal) {
-            burnSpeedMultiplier = coal.getBurnSpeedMultiplier();
-        } else if (item instanceof BlockItem blockItem) {
-            if (blockItem.getBlock() instanceof CoalBlock_T1 coalBlock) {
-                burnSpeedMultiplier = coalBlock.getBurnSpeedMultiplier();
-            }
-        } else if (item instanceof LargeFuelCanisterItem) {
-            burnSpeedMultiplier = LargeFuelCanisterItem.getBurnSpeedMultiplier(fuelStack);
-        } else if (item instanceof FuelCanister) {
-            burnSpeedMultiplier = FuelCanister.getBurnSpeedMultiplier(fuelStack);
-        }
-        return burnSpeedMultiplier;
+        return PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack);
     }
 
     static String[] energyTooltipValues(int energyStored, int maxEnergyStored, boolean shiftDown) {

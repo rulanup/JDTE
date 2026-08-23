@@ -1,7 +1,10 @@
 package com.jdte.client.screens;
 
 import com.direwolf20.justdirethings.common.items.FuelCanister;
+import com.jdte.common.items.PortableFuelBurnSpeedHelper;
 import com.jdte.setup.JDTEItems;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 
@@ -21,11 +24,18 @@ class LargePocketGeneratorScreenTest {
     }
 
     @Test
-    void burnSpeedTooltipUsesTheOriginalFuelCanisterMultiplierLogic() {
+    void burnSpeedTooltipUsesResolvedFuelCanisterMultiplierLogic() {
+        ItemStack plainFuelCanister = new ItemStack(BuiltInRegistries.ITEM.get(
+                ResourceLocation.fromNamespaceAndPath("justdirethings", "fuel_canister")));
+        FuelCanister.setBurnSpeed(plainFuelCanister, 2.0D);
+
         ItemStack largeFuelCanister = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());
         FuelCanister.setBurnSpeed(largeFuelCanister, 2.0D);
 
+        assertEquals(2, LargePocketGeneratorScreen.burnSpeedMultiplierTooltipValue(plainFuelCanister));
         assertEquals(20, LargePocketGeneratorScreen.burnSpeedMultiplierTooltipValue(largeFuelCanister));
+        assertEquals(PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(largeFuelCanister),
+                LargePocketGeneratorScreen.burnSpeedMultiplierTooltipValue(largeFuelCanister));
     }
 
     @Test
