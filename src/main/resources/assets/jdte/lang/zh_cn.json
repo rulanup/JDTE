@@ -854,5 +854,5 @@
   "message.jdte.time_multitool.speed": "挖掘速度：%s 倍",
   "tooltip.jdte.time_multitool.speed": "当前挖掘速度：%s 倍",
   "tooltip.jdte.time_multitool.fluid": "时间流体：%s / %s mB",
-  "tooltip.jdte.time_multitool.controls": "潜行右击空气切换速度；潜行右击方块打开 JDT 设置",
+  "tooltip.jdte.time_multitool.controls": "潜行右击空气切换速度；潜行右击方块打开 JDT 设置"
 }

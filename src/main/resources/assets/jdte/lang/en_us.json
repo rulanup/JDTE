@@ -854,5 +854,5 @@
   "message.jdte.time_multitool.speed": "Mining speed: %sx",
   "tooltip.jdte.time_multitool.speed": "Selected mining speed: %sx",
   "tooltip.jdte.time_multitool.fluid": "Time Fluid: %s / %s mB",
-  "tooltip.jdte.time_multitool.controls": "Sneak-use air: change speed; sneak-use block: JDT settings",
+  "tooltip.jdte.time_multitool.controls": "Sneak-use air: change speed; sneak-use block: JDT settings"
 }
