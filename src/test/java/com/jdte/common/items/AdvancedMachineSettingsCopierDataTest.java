@@ -1,5 +1,6 @@
 package com.jdte.common.items;
 
+import com.direwolf20.justdirethings.common.items.MachineSettingsCopier;
 import net.minecraft.nbt.CompoundTag;
 import org.junit.jupiter.api.Test;
 
@@ -7,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AdvancedMachineSettingsCopierDataTest {
     @Test
@@ -17,6 +19,14 @@ class AdvancedMachineSettingsCopierDataTest {
         assertEquals(Optional.of(new AdvancedMachineSettingsCopierData.Masks(0b11_1111, 0b10_1010)),
                 AdvancedMachineSettingsCopierData.read(copiedData));
         assertEquals(Set.of("jdteAutoIoConfig"), copiedData.getAllKeys());
+        assertEquals(Set.of("inputMask", "outputMask"),
+                copiedData.getCompound(AdvancedMachineSettingsCopierData.ROOT_KEY).getAllKeys());
+    }
+
+    @Test
+    void remainsAJdtMachineSettingsCopier() {
+        assertTrue(MachineSettingsCopier.class.isAssignableFrom(AdvancedMachineSettingsCopierItem.class));
+        assertEquals(MachineSettingsCopier.class, AdvancedMachineSettingsCopierItem.class.getSuperclass());
     }
 
     @Test
