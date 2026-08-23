@@ -20,6 +20,10 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -35,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LargePortableContainerRecipeTest {
     private static final RegistryAccess REGISTRY_ACCESS =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
-
     @Test
     void upgradesPocketGeneratorWithoutDroppingStoredEnergyOrFuelData() {
         ItemStack source = new ItemStack(item("justdirethings", "pocket_generator"));
@@ -133,12 +136,37 @@ class LargePortableContainerRecipeTest {
     }
 
     @Test
-    void registersLargePortableContainerRecipeTypeAndSerializer() {
-        assertEquals("large_portable_container",
-                JDTERecipes.LARGE_PORTABLE_CONTAINER_RECIPE_TYPE.getId().getPath());
+    void registersLargePortableContainerRecipeSerializerAndUsesVanillaCraftingType() {
+        LargePortableContainerRecipe recipe =
+                new LargePortableContainerRecipe(item("justdirethings", "pocket_generator"),
+                        JDTEItems.LARGE_POCKET_GENERATOR.get());
+
+        assertEquals(RecipeType.CRAFTING, recipe.getType());
         assertEquals("large_portable_container",
                 BuiltInRegistries.RECIPE_SERIALIZER.getKey(
                         JDTERecipes.LARGE_PORTABLE_CONTAINER_RECIPE_SERIALIZER.get()).getPath());
+    }
+
+    @Test
+    void recipeManagerExposesLargePortableUpgradeAsVanillaCraftingRecipe() {
+        RecipeManager recipeManager = new RecipeManager(REGISTRY_ACCESS);
+        RecipeHolder<?> recipeHolder = ExposedRecipeManager.fromJson(
+                ResourceLocation.fromNamespaceAndPath("jdte", "large_pocket_generator"),
+                json("data/jdte/recipe/large_pocket_generator.json"),
+                REGISTRY_ACCESS);
+        recipeManager.replaceRecipes(List.of(recipeHolder));
+
+        CraftingInput input = craftingInput(
+                new ItemStack(item("justdirethings", "pocket_generator")),
+                new ItemStack(item("justdirethings", "eclipsealloy_ingot"), 4),
+                new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get()));
+
+        assertTrue(recipeManager.getRecipeFor(RecipeType.CRAFTING, input, null).isPresent());
+        RecipeHolder<CraftingRecipe> craftingHolder = recipeManager.getRecipeFor(RecipeType.CRAFTING, input, null)
+                .orElseThrow();
+        assertEquals(ResourceLocation.fromNamespaceAndPath("jdte", "large_pocket_generator"), craftingHolder.id());
+        assertEquals(LargePortableContainerRecipe.class, craftingHolder.value().getClass());
+        assertEquals(1, recipeManager.getAllRecipesFor(RecipeType.CRAFTING).size());
     }
 
     @Test
@@ -247,6 +275,17 @@ class LargePortableContainerRecipeTest {
             return JsonParser.parseReader(reader).getAsJsonObject();
         } catch (Exception e) {
             throw new AssertionError("Unable to parse resource: " + path, e);
+        }
+    }
+
+    private static final class ExposedRecipeManager extends RecipeManager {
+        private ExposedRecipeManager() {
+            super(REGISTRY_ACCESS);
+        }
+
+        protected static RecipeHolder<?> fromJson(ResourceLocation id, JsonObject recipeJson,
+                                                  RegistryAccess registries) {
+            return RecipeManager.fromJson(id, recipeJson, registries);
         }
     }
 }

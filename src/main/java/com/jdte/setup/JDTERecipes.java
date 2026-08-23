@@ -4,8 +4,8 @@ import com.jdte.JDTE;
 import com.jdte.common.recipes.InfusionRecipe;
 import com.jdte.common.recipes.GreenhouseRecipe;
 import com.jdte.common.recipes.BioFactoryRecipe;
-import com.jdte.common.recipes.LargePortableContainerRecipe;
 import com.jdte.common.recipes.LifeSynthesisRecipe;
+import com.jdte.common.recipes.LargePortableContainerRecipe;
 import com.jdte.common.recipes.MineralExtractorResourcesRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -48,9 +48,6 @@ public class JDTERecipes {
 
     public static final Supplier<MineralExtractorResourcesRecipe.Serializer> MINERAL_EXTRACTOR_RESOURCES_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
             "mineral_extractor_resources", MineralExtractorResourcesRecipe.Serializer::new);
-
-    public static final DeferredHolder<RecipeType<?>, RecipeType<LargePortableContainerRecipe>> LARGE_PORTABLE_CONTAINER_RECIPE_TYPE = RECIPE_TYPES.register(
-            "large_portable_container", () -> RecipeType.simple(com.jdte.JDTE.id("large_portable_container")));
 
     public static final Supplier<LargePortableContainerRecipe.Serializer> LARGE_PORTABLE_CONTAINER_RECIPE_SERIALIZER =
             RECIPE_SERIALIZERS.register("large_portable_container", LargePortableContainerRecipe.Serializer::new);

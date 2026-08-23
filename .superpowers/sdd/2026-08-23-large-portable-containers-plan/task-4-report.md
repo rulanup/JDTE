@@ -6,7 +6,7 @@
 
 - 新增自定义无损升级配方：
   - `src/main/java/com/jdte/common/recipes/LargePortableContainerRecipe.java`
-  - 注册 `jdte:large_portable_container` recipe type / serializer
+  - 注册 `jdte:large_portable_container` 自定义 serializer，供 JSON `type` 反序列化使用
   - 仅允许以下一对一升级：
     - `justdirethings:pocket_generator -> jdte:large_pocket_generator`
     - `justdirethings:potion_canister -> jdte:large_potion_canister`
@@ -23,7 +23,8 @@
     - pocket generator / fuel canister 的组件无损升级
     - potion canister 的合法原版状态无损升级
     - 错误源物品 / 缺材料 / 多源物品拒绝匹配
-    - recipe type / serializer 注册 ID
+    - serializer 注册 ID 与 vanilla crafting runtime type
+    - 通过 `RecipeManager` + `RecipeType.CRAFTING` 验证 JSON 配方可被工作台路径发现
     - Curios item tag / slot / entity 资源契约
     - 三个 recipe JSON、三个基础 item model、英文/中文 lang key
 
@@ -89,7 +90,7 @@ RED 结果：
 
 ### GREEN
 
-补齐 recipe/type/serializer、Curios 资源、模型属性和 lang 后重跑。
+补齐 recipe / serializer、Curios 资源、模型属性和 lang 后重跑。
 
 中途发现一个测试预期需要修正：
 
@@ -102,6 +103,30 @@ GREEN 聚焦命令：
 `./gradlew test --tests com.jdte.common.recipes.LargePortableContainerRecipeTest`
 
 GREEN 结果：
+
+- `BUILD SUCCESSFUL in 19s`
+
+### 2026-08-23 复审修复：接入原版工作台
+
+复审发现关键集成缺陷：
+
+- `LargePortableContainerRecipe.getType()` 返回了自定义 `jdte:large_portable_container`
+- 但工作台查询的是 `RecipeType.CRAFTING`
+- 结果是三个升级 JSON 虽然能被自定义 serializer 反序列化，但不会出现在原版 crafting recipe 集合中
+
+修复内容：
+
+- `LargePortableContainerRecipe` 改为实现 `CraftingRecipe`
+- `getType()` 改为返回 `RecipeType.CRAFTING`
+- 增加 `category()`，归类为 `CraftingBookCategory.MISC`
+- 删除误导性的 `LARGE_PORTABLE_CONTAINER_RECIPE_TYPE` 运行时注册，仅保留自定义 serializer 注册
+- 新增 `RecipeManager` 回归测试：从真实 Task 4 JSON 走 `RecipeManager.fromJson(...)` + `replaceRecipes(...)` 装入后，必须能被 `getRecipeFor(RecipeType.CRAFTING, ...)` 找到
+
+修复后聚焦命令：
+
+`./gradlew test --tests com.jdte.common.recipes.LargePortableContainerRecipeTest`
+
+修复后结果：
 
 - `BUILD SUCCESSFUL in 19s`
 
@@ -131,6 +156,7 @@ GREEN 结果：
 - `assemble` 走 `transmuteCopy`，没有手写“挑几个字段复制”的易漏方案。
 - Curios 登录补槽仍然是可选集成；未安装 Curios 时不会触发类加载边界外的 API 调用。
 - 三个 Curios 槽位独立、大小均为 1，且 item tag 只接受各自对应的大型物品。
+- 升级配方现在属于原版 `RecipeType.CRAFTING`，工作台与 `RecipeManager.getRecipeFor(RecipeType.CRAFTING, ...)` 都能发现它。
 - 模型属性 ID 与资源 ID 按任务要求保持精确：
   - `justdirethings:enabled`
   - `justdirethings:potion_fullness`

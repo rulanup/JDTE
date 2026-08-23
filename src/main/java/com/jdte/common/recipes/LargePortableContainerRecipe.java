@@ -1,6 +1,5 @@
 package com.jdte.common.recipes;
 
-import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTERecipes;
 import com.mojang.serialization.DataResult;
@@ -14,13 +13,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) implements Recipe<CraftingInput> {
+public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) implements CraftingRecipe {
     private static final Item ECLIPSE_ALLOY_INGOT = item("justdirethings", "eclipsealloy_ingot");
 
     public LargePortableContainerRecipe {
@@ -80,12 +80,17 @@ public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) imp
 
     @Override
     public RecipeType<?> getType() {
-        return JDTERecipes.LARGE_PORTABLE_CONTAINER_RECIPE_TYPE.get();
+        return RecipeType.CRAFTING;
     }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
         return JDTERecipes.LARGE_PORTABLE_CONTAINER_RECIPE_SERIALIZER.get();
+    }
+
+    @Override
+    public CraftingBookCategory category() {
+        return CraftingBookCategory.MISC;
     }
 
     private static boolean isSupportedUpgrade(Item sourceItem, Item resultItem) {
