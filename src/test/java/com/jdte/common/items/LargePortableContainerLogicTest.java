@@ -2,7 +2,13 @@ package com.jdte.common.items;
 
 import com.jdte.setup.JDTEItems;
 import com.direwolf20.justdirethings.common.items.FuelCanister;
+import com.direwolf20.justdirethings.common.items.PotionCanister;
+import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -116,6 +122,58 @@ class LargePortableContainerLogicTest {
     void largePotionCanisterExposesFourThousandMillibucketCapacityEntry() {
         assertEquals(4_000, LargePotionCanisterItem.getPotionCapacityMb());
         assertEquals(4_000, JDTEItems.LARGE_POTION_CANISTER.get().getCapacityMb());
+    }
+
+    @Test
+    void largePotionCanisterFillsOneBatchFromFourMatchingPotions() {
+        ItemStack canister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
+        ItemStack potionInput = PotionContents.createItemStack(Items.POTION, Potions.WATER);
+        potionInput.setCount(4);
+
+        assertTrue(LargePotionCanisterItem.tryFillBatch(canister, potionInput));
+        assertEquals(0, potionInput.getCount());
+        assertEquals(1_000, LargePotionCanisterItem.getPotionAmount(canister));
+        assertEquals(PotionContents.createItemStack(Items.POTION, Potions.WATER)
+                .getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY), LargePotionCanisterItem.getPotionContents(canister));
+    }
+
+    @Test
+    void largePotionCanisterRejectsMixedPotionBatchWithoutChangingData() {
+        ItemStack canister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
+        ItemStack potionInput = PotionContents.createItemStack(Items.POTION, Potions.HEALING);
+        potionInput.setCount(4);
+        PotionContents originalContents = PotionContents.createItemStack(Items.POTION, Potions.WATER)
+                .getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+        canister.set(JustDireDataComponents.POTION_CONTENTS, originalContents);
+        canister.set(JustDireDataComponents.POTION_AMOUNT, 1_000);
+
+        assertFalse(LargePotionCanisterItem.tryFillBatch(canister, potionInput));
+        assertEquals(4, potionInput.getCount());
+        assertEquals(1_000, LargePotionCanisterItem.getPotionAmount(canister));
+        assertEquals(originalContents, LargePotionCanisterItem.getPotionContents(canister));
+    }
+
+    @Test
+    void largePotionCanisterRejectsShortOrOverflowingBatchWithoutChangingData() {
+        ItemStack shortCanister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
+        ItemStack shortInput = PotionContents.createItemStack(Items.POTION, Potions.WATER);
+        shortInput.setCount(3);
+
+        assertFalse(LargePotionCanisterItem.tryFillBatch(shortCanister, shortInput));
+        assertEquals(3, shortInput.getCount());
+        assertEquals(0, LargePotionCanisterItem.getPotionAmount(shortCanister));
+
+        ItemStack fullCanister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
+        ItemStack fullInput = PotionContents.createItemStack(Items.POTION, Potions.WATER);
+        fullInput.setCount(4);
+        PotionContents waterContents = fullInput.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+        fullCanister.set(JustDireDataComponents.POTION_CONTENTS, waterContents);
+        fullCanister.set(JustDireDataComponents.POTION_AMOUNT, 3_500);
+
+        assertFalse(LargePotionCanisterItem.tryFillBatch(fullCanister, fullInput));
+        assertEquals(4, fullInput.getCount());
+        assertEquals(3_500, LargePotionCanisterItem.getPotionAmount(fullCanister));
+        assertEquals(waterContents, LargePotionCanisterItem.getPotionContents(fullCanister));
     }
 
     @Test

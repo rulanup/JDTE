@@ -201,3 +201,94 @@ BUILD SUCCESSFUL in 1s
 - `LargeFuelCanisterItem` 的 4 倍上限、10 倍最小消耗和 10 倍倍率入口都可直接单测。
 - `GeneratorUpgradeHelper` 已改为在大型燃料罐分支调用大型逻辑，同时保留原版 `FuelCanister` 行为不变。
 - 尝试为 `GeneratorUpgradeHelper` 写独立运行期测试时，测试类/反射路径都会被 Mixin 包保护拦截；因此本轮保留生产修复，但测试聚焦到用户明确要求的物品公共入口。
+
+## 审查修复追加（二）（2026-08-23）
+
+### 修复范围
+
+本轮只修复大型药水罐仍缺失的真实批量填充入口，保留已有燃料修复：
+
+- `LargePotionCanisterItem` 新增真实公共操作 `tryFillBatch(ItemStack canister, ItemStack potionInput)`
+- 测试改为直接使用真实 `ItemStack`、真实药水内容组件和真实大型药水罐实例验证批量填充行为
+
+仍未实现：
+
+- 菜单
+- 网络
+- Curios 资源
+- 客户端界面
+- 任务 3 才会接的“大型菜单 use 入口”
+
+### 第三轮 TDD
+
+#### RED
+
+先补真实行为测试，新增以下断言：
+
+- 4 个同种药水可向空的大型药水罐灌入 1000 mB，并消耗 4 个输入
+- 混合药水时返回 `false`，且不修改输入数量、`POTION_CONTENTS`、`POTION_AMOUNT`
+- 输入不足 4 个或剩余空间不足 1000 mB 时返回 `false`，且不修改任何数据
+
+执行：
+
+```text
+./gradlew test --tests com.jdte.common.items.LargePortableContainerLogicTest
+```
+
+结果：`compileTestJava FAILED`
+
+关键信息：
+
+- `LargePotionCanisterItem.tryFillBatch(ItemStack, ItemStack)` 不存在
+
+这一步确认当前缺口确实是“大型药水真实批量填充入口未实现”。
+
+#### GREEN
+
+最小实现如下：
+
+- `LargePotionCanisterItem` 新增 `tryFillBatch(ItemStack canister, ItemStack potionInput)`
+- 直接读取/写入：
+  - `JustDireDataComponents.POTION_CONTENTS`
+  - `JustDireDataComponents.POTION_AMOUNT`
+- 只有在以下条件同时满足时才落变更：
+  - 输入是药水物品
+  - 输入数量至少 4
+  - 当前罐内药水为空或与输入药水内容一致
+  - 剩余空间至少 1000 mB
+- 成功时：
+  - 空罐保存输入药水内容
+  - `POTION_AMOUNT += 1000`
+  - 输入 `shrink(4)`
+- 失败路径不修改任何数据
+
+再次执行：
+
+```text
+./gradlew test --tests com.jdte.common.items.LargePortableContainerLogicTest
+```
+
+结果：`BUILD SUCCESSFUL in 22s`
+
+### 本轮验证
+
+```text
+./gradlew test --tests com.jdte.common.items.LargePortableContainerLogicTest
+BUILD SUCCESSFUL in 22s
+```
+
+```text
+./gradlew test
+BUILD SUCCESSFUL in 26s
+```
+
+```text
+./gradlew compileJava
+BUILD SUCCESSFUL in 1s
+```
+
+### 本轮自审
+
+- `LargePotionCanisterItem` 现在已经具备后续大型菜单可直接调用的真实公共批量填充入口，而不是只暴露容量 getter/helper。
+- 测试直接覆盖了真实 `ItemStack` 和真实 Data Component 写入，不再只是验证容量 helper。
+- 没有提前实现任务 3 的菜单类型、菜单打开逻辑或网络同步。
