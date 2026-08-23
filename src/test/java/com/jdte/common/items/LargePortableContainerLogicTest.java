@@ -1,6 +1,7 @@
 package com.jdte.common.items;
 
 import com.jdte.setup.JDTEItems;
+import com.direwolf20.justdirethings.common.items.FuelCanister;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 
@@ -109,5 +110,27 @@ class LargePortableContainerLogicTest {
         assertEquals(
                 LargePortableContainerLogic.pocketGeneratorCapacity(basePocketCapacity),
                 LargePocketGeneratorItem.getScaledMaxEnergy(basePocketCapacity));
+    }
+
+    @Test
+    void largePotionCanisterExposesFourThousandMillibucketCapacityEntry() {
+        assertEquals(4_000, LargePotionCanisterItem.getPotionCapacityMb());
+        assertEquals(4_000, JDTEItems.LARGE_POTION_CANISTER.get().getCapacityMb());
+    }
+
+    @Test
+    void largeFuelCanisterExposesScaledCapacityAndConsumptionEntries() {
+        assertEquals(2_147_483_644, LargeFuelCanisterItem.getMaxFuelLevel(536_870_911));
+        assertEquals(Integer.MAX_VALUE, LargeFuelCanisterItem.getMaxFuelLevel(536_870_912));
+        assertEquals(2_147_483_640, LargeFuelCanisterItem.getMinimumFuelConsumed(214_748_364));
+        assertEquals(Integer.MAX_VALUE, LargeFuelCanisterItem.getMinimumFuelConsumed(214_748_365));
+    }
+
+    @Test
+    void largeFuelCanisterReturnsTenTimesTheBaseBurnSpeedMultiplier() {
+        ItemStack stack = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());
+        FuelCanister.setBurnSpeed(stack, 2.0D);
+
+        assertEquals(20, LargeFuelCanisterItem.getBurnSpeedMultiplier(stack));
     }
 }

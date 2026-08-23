@@ -3,6 +3,7 @@ package com.jdte.mixin;
 import com.direwolf20.justdirethings.common.blocks.resources.CoalBlock_T1;
 import com.direwolf20.justdirethings.common.items.FuelCanister;
 import com.direwolf20.justdirethings.common.items.resources.Coal_T1;
+import com.jdte.common.items.LargeFuelCanisterItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -18,6 +19,9 @@ final class GeneratorUpgradeHelper {
         if (fuelStack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CoalBlock_T1 coalBlock) {
             return coalBlock.getBurnSpeedMultiplier();
         }
+        if (fuelStack.getItem() instanceof LargeFuelCanisterItem) {
+            return LargeFuelCanisterItem.getBurnSpeedMultiplier(fuelStack);
+        }
         if (fuelStack.getItem() instanceof FuelCanister) {
             return FuelCanister.getBurnSpeedMultiplier(fuelStack);
         }
@@ -28,6 +32,9 @@ final class GeneratorUpgradeHelper {
     static void consumeFuel(ItemStackHandler machineHandler, ItemStack fuelStack) {
         if (fuelStack.hasCraftingRemainingItem()) {
             ItemStack remaining = fuelStack.getCraftingRemainingItem();
+            if (remaining.getItem() instanceof LargeFuelCanisterItem) {
+                LargeFuelCanisterItem.decrementFuel(remaining);
+            } else
             if (remaining.getItem() instanceof FuelCanister) {
                 FuelCanister.decrementFuel(remaining);
             }

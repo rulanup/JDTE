@@ -32,16 +32,28 @@ public class LargeFuelCanisterItem extends FuelCanister {
         return remaining;
     }
 
+    public static int getMaxFuelLevel(int baseFuelCapacity) {
+        return LargePortableContainerLogic.fuelCapacity(baseFuelCapacity);
+    }
+
     public static int getMaxFuelLevel() {
-        return LargePortableContainerLogic.fuelCapacity(Config.FUEL_CANISTER_MAXIMUM_FUEL.get());
+        return getMaxFuelLevel(Config.FUEL_CANISTER_MAXIMUM_FUEL.get());
+    }
+
+    public static int getMinimumFuelConsumed(int baseMinimumFuelConsumed) {
+        return LargePortableContainerLogic.fuelMinimumConsumption(baseMinimumFuelConsumed);
     }
 
     public static int getMinimumFuelConsumed() {
-        return LargePortableContainerLogic.fuelMinimumConsumption(Config.FUEL_CANISTER_MINIMUM_TICKS_CONSUMED.get());
+        return getMinimumFuelConsumed(Config.FUEL_CANISTER_MINIMUM_TICKS_CONSUMED.get());
     }
 
     public static int getBurnSpeedMultiplier(ItemStack stack) {
-        return (int) Math.round(FuelCanister.getBurnSpeed(stack));
+        return getBurnSpeedMultiplier(FuelCanister.getBurnSpeedMultiplier(stack));
+    }
+
+    public static int getBurnSpeedMultiplier(int baseBurnSpeedMultiplier) {
+        return LargePortableContainerLogic.fuelBurnMultiplier(baseBurnSpeedMultiplier);
     }
 
     public static void decrementFuel(ItemStack stack) {
