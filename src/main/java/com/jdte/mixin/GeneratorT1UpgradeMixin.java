@@ -2,6 +2,7 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
 import com.direwolf20.justdirethings.setup.Config;
+import com.jdte.common.items.PortableFuelBurnSpeedHelper;
 import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -74,6 +75,17 @@ public abstract class GeneratorT1UpgradeMixin {
         if (UpgradeHelper.hasGeneratorUpgrade((GeneratorT1BE) (Object) this)) {
             cir.setReturnValue(Config.GENERATOR_T1_FE_PER_TICK.get() * 3);
         }
+    }
+
+    @Redirect(
+            method = "doBurn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/direwolf20/justdirethings/common/items/FuelCanister;getBurnSpeedMultiplier(Lnet/minecraft/world/item/ItemStack;)I"
+            )
+    )
+    private int jdte$useResolvedBaseFuelMultiplier(ItemStack fuelStack) {
+        return PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack);
     }
 
 }

@@ -12,17 +12,20 @@ Executed Task 5 from `.superpowers/sdd/2026-08-23-large-portable-containers-plan
 
 ## Exact verification commands and results
 
-Authoritative latest serial verification run after all scoped follow-up fixes:
+Authoritative latest serial verification run after all scoped follow-up fixes, including the final base-generator runtime rereview:
 
 Focused regression verification before the full run:
 
 1. `./gradlew test --tests com.jdte.common.items.LargePortableContainerLogicTest --tests com.jdte.client.screens.LargePocketGeneratorScreenTest`
    - Result: `BUILD SUCCESSFUL in 29s`
 
+2. `./gradlew test --tests com.jdte.common.items.LargePortableContainerLogicTest --tests com.jdte.client.screens.LargePocketGeneratorScreenTest --tests com.jdte.common.items.GeneratorFuelRuntimeHookTest`
+   - Result: `BUILD SUCCESSFUL in 27s`
+
 Full serial verification:
 
 1. `./gradlew test`
-   - Result: `BUILD SUCCESSFUL in 4s`
+   - Result: `BUILD SUCCESSFUL in 27s`
 
 2. `./gradlew compileJava`
    - Result: `BUILD SUCCESSFUL in 1s`
@@ -88,6 +91,14 @@ Supporting inspection commands used during the audit:
      - removed their `item_ids` mapping from the Big Fluid Tank page
      - updated `scripts/generate_patchouli_book.py` category ownership and `scripts/test_generate_patchouli_book.py` expected counts/category assertions so the dedicated pages are first-class Patchouli entries
 
+7. Final rereview found that the last cleanup had removed the base `GeneratorT1BE.doBurn()` runtime redirect.
+   - Impact: normal generator runtime would again treat `LargeFuelCanisterItem` as a plain `FuelCanister`, even though pocket-generator burn init and both tooltip paths had already moved to the shared resolver.
+   - Fix:
+     - restored a single `@Redirect` in `com.jdte.mixin.GeneratorT1UpgradeMixin` for the base `doBurn()` `FuelCanister.getBurnSpeedMultiplier(...)` invoke
+     - routed that invoke through `PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(...)`
+     - preserved generator-upgrade behavior, which still uses `GeneratorUpgradeHelper.burnSpeedMultiplier(...)` and the early-cancel path
+     - added `GeneratorFuelRuntimeHookTest` as a focused guard that checks the live mixin source still contains the base `doBurn()` redirect to the shared resolver
+
 ## Acceptance audit
 
 This was a static/manual acceptance audit backed by source inspection, existing Task 1-4 tests, the serial Gradle run above, and JDT/Curios API inspection. No live `runClient` playthrough was performed in Task 5.
@@ -133,6 +144,7 @@ Evidence:
 - `PocketGeneratorFuelMultiplierMixin` now redirects JDT pocket-generator burn initialization to store the resolved large-canister multiplier into `POCKETGEN_FUELMULT`.
 - `PortableFuelBurnSpeedHelper` is now the shared resolver used by:
   - generator-upgrade runtime
+  - base generator `doBurn()` runtime
   - inherited pocket-generator burn initialization
   - large pocket generator fuel tooltip
   - normal JDT generator tooltip
@@ -195,42 +207,21 @@ Evidence:
   - English and Chinese names plus Curios slot labels
 - dedicated GuideME pages now exist for each large portable container in both languages
 - `validateDocs` no longer reports a branch-specific undocumented-item or category-mapping mismatch for the three large items; it only reports the pre-existing generated-book baseline drift
+- `GeneratorFuelRuntimeHookTest` guards the presence of the base `doBurn()` redirect so the normal-generator runtime hook is not accidentally removed again during cleanup
 
-## Git inspection after follow-up fixes
+## Git inspection after the final rereview repair
 
-`git status --short --untracked-files=all` before the follow-up commit showed only scoped large-portable-container runtime/UI/docs changes:
+Fresh `git status --short --untracked-files=all` after the final normal-generator runtime repair showed only the expected scoped delta for this last commit:
 
-- `scripts/generate_patchouli_book.py`
-- `scripts/test_generate_patchouli_book.py`
-- `src/main/java/com/jdte/client/screens/LargePocketGeneratorScreen.java`
-- `src/main/java/com/jdte/common/items/PortableFuelBurnSpeedHelper.java`
-- `src/main/java/com/jdte/mixin/PocketGeneratorFuelMultiplierMixin.java`
-- `src/main/java/com/jdte/mixin/GeneratorT1ScreenFuelTooltipMixin.java`
-- `src/main/java/com/jdte/mixin/GeneratorT1UpgradeMixin.java`
-- `src/main/java/com/jdte/mixin/GeneratorUpgradeHelper.java`
-- `src/main/resources/mixins.jdte.json`
-- `src/main/resources/assets/jdte/guides/jdte/guide/big-fluid-tank.md`
-- `src/main/resources/assets/jdte/guides/jdte/guide/_en_us/big-fluid-tank.md`
-- `src/main/resources/assets/jdte/guides/jdte/guide/large-pocket-generator.md`
-- `src/main/resources/assets/jdte/guides/jdte/guide/large-potion-canister.md`
-- `src/main/resources/assets/jdte/guides/jdte/guide/large-fuel-canister.md`
-- `src/main/resources/assets/jdte/guides/jdte/guide/_en_us/large-pocket-generator.md`
-- `src/main/resources/assets/jdte/guides/jdte/guide/_en_us/large-potion-canister.md`
-- `src/main/resources/assets/jdte/guides/jdte/guide/_en_us/large-fuel-canister.md`
-- `src/test/java/com/jdte/client/screens/LargePocketGeneratorScreenTest.java`
-- `src/test/java/com/jdte/common/items/LargePortableContainerLogicTest.java`
+- `M .superpowers/sdd/2026-08-23-large-portable-containers-plan/task-5-report.md`
+- `M src/main/java/com/jdte/mixin/GeneratorT1UpgradeMixin.java`
+- `?? src/test/java/com/jdte/common/items/GeneratorFuelRuntimeHookTest.java`
 
-`git diff --stat` at that point:
+This matched the intended final scope:
 
-```text
- src/main/java/com/jdte/JDTE.java                      |  5 ++++-
- .../client/screens/LargePocketGeneratorScreen.java    |  3 +++
- .../curios/BigFluidTankCuriosIntegration.java         | 19 +++++++++++++++++++
- .../java/com/jdte/mixin/GeneratorT1UpgradeMixin.java  | 14 ++++++++++++++
- .../jdte/guides/jdte/guide/_en_us/big-fluid-tank.md   |  9 +++++++++
- .../assets/jdte/guides/jdte/guide/big-fluid-tank.md   |  9 +++++++++
- .../screens/LargePocketGeneratorScreenTest.java       |  2 +-
-```
+- restore the shared runtime resolver hook in `GeneratorT1BE.doBurn(...)`
+- add a focused regression guard for the live base-generator hook
+- update the Task 5 report with the exact fresh verification evidence
 
 ## Remaining limitations
 
@@ -245,7 +236,7 @@ Evidence:
 
 ## Conclusion
 
-Task 5 and its follow-up review found five real feature-scope runtime/UI integration defects plus one documentation-coverage gap. All were corrected in the feature worktree. The latest serial verification ends in:
+Task 5 and its follow-up reviews found six real feature-scope runtime/UI integration defects plus one documentation-coverage gap. All were corrected in the feature worktree. The latest serial verification ends in:
 
 - `test`: pass
 - `compileJava`: pass
