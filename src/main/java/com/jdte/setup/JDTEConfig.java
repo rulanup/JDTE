@@ -20,6 +20,8 @@ import com.jdte.setup.config.MineralExtractorConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
 import com.jdte.setup.config.TimeAcceleratorConfig;
+import com.jdte.setup.config.TimeAcceleratorLocalConfig;
+import com.jdte.setup.config.TimeAcceleratorServerConfig;
 import com.jdte.setup.config.TimeFreezerConfig;
 import com.jdte.setup.config.UltimatePortalGunConfig;
 import com.jdte.setup.config.UpgradeItemsConfig;
@@ -32,11 +34,21 @@ import java.util.List;
 public class JDTEConfig {
     public static final ModConfigSpec COMMON_SPEC;
     public static final Common COMMON;
+    public static final ModConfigSpec SERVER_SPEC;
+    public static final Server SERVER;
+    public static final ModConfigSpec LOCAL_SPEC;
+    public static final Local LOCAL;
 
     static {
         Pair<Common, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Common::new);
         COMMON = pair.getLeft();
         COMMON_SPEC = pair.getRight();
+        Pair<Server, ModConfigSpec> serverPair = new ModConfigSpec.Builder().configure(Server::new);
+        SERVER = serverPair.getLeft();
+        SERVER_SPEC = serverPair.getRight();
+        Pair<Local, ModConfigSpec> localPair = new ModConfigSpec.Builder().configure(Local::new);
+        LOCAL = localPair.getLeft();
+        LOCAL_SPEC = localPair.getRight();
     }
 
     public static class Common {
@@ -530,6 +542,28 @@ public class JDTEConfig {
             this.advancedEnergyTransmitterPlayerChargeMaxCallsPerItem = advancedEnergyTransmitter.playerChargeMaxCallsPerItem;
 
             this.infusionSpawnEggModBlacklist = infusion.spawnEggModBlacklist;
+        }
+    }
+
+    public static class Server {
+        public final TimeAcceleratorServerConfig timeAccelerator;
+
+        public Server(ModConfigSpec.Builder builder) {
+            builder.comment("JDT Extras Server Settings").translation("config.jdte.jdte.server").push("jdte");
+            timeAccelerator = new TimeAcceleratorServerConfig(builder);
+            builder.pop();
+        }
+    }
+
+    public static class Local {
+        public final TimeAcceleratorLocalConfig timeAccelerator;
+
+        public Local(ModConfigSpec.Builder builder) {
+            builder.comment("JDT Extras Local Singleplayer Defaults")
+                    .translation("config.jdte.jdte.local")
+                    .push("jdte");
+            timeAccelerator = new TimeAcceleratorLocalConfig(builder);
+            builder.pop();
         }
     }
 }

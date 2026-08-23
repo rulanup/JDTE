@@ -76,7 +76,7 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
 
     @Override
     public int getStandardEnergyCost() {
-        return getEnergyCost(getEffectiveMultiplier());
+        return getEnergyCost(getAccelerationWorkTicks(getEffectiveMultiplier()));
     }
 
     @Override
@@ -88,17 +88,17 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     }
 
     @Override
-    protected void consumeResources(int fluidCost, int energyCost) {
+    protected void consumeResources(int workTicks, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return;
         }
-        super.consumeResources(fluidCost, energyCost);
+        super.consumeResources(workTicks, energyCost);
         energyStorage.extractEnergy(energyCost, false);
     }
 
     @Override
-    protected int getEnergyCost(int multiplier) {
-        return Math.max(1, multiplier * Config.TIMEWAND_RF_COST.get());
+    protected int getEnergyCost(int workTicks) {
+        return TimeAcceleratorCostMath.energyCost(workTicks, Config.TIMEWAND_RF_COST.get());
     }
 
     @Override

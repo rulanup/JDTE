@@ -124,12 +124,12 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
     @Override
     public int getStandardEnergyCost() {
-        return getEnergyCost(getEffectiveMultiplier());
+        return getEnergyCost(getAccelerationWorkTicks(getEffectiveMultiplier()));
     }
 
     @Override
-    protected double getFluidCostPerTick(int multiplier) {
-        return Math.max(0.0D, multiplier * Config.TIMEWAND_FLUID_COST.get()
+    protected double getFluidCostPerTick(int workTicks) {
+        return Math.max(0.0D, workTicks * Config.TIMEWAND_FLUID_COST.get()
                 * JDTEConfig.COMMON.crystalIncubatorFluidCostMultiplier.get() / 600.0D);
     }
 
@@ -145,23 +145,23 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
         harvestMatureCrystals(serverLevel);
 
-        int multiplier = getEffectiveMultiplier();
-        int fluidCost = getFluidDrainAmount(multiplier);
-        int energyCost = getEnergyCost(multiplier);
-        if (!hasResources(fluidCost, energyCost)) {
+        ExtendedTimeAccelerationManager.PreparedAcceleration prepared =
+                ExtendedTimeAccelerationManager.prepareAcceleration(this);
+        if (!hasResources(prepared.fluidCost(), prepared.energyCost())) {
             return;
         }
 
-        boolean processed = growCachedBudding(serverLevel, multiplier, energyCost, fluidCost);
+        boolean processed = growCachedBudding(
+                serverLevel, prepared.workTicks(), prepared.energyCost(), prepared.fluidCost());
         if (processed) {
-            consumeResources(fluidCost, energyCost);
+            ExtendedTimeAccelerationManager.consumePreparedResources(this, prepared);
             harvestMatureCrystals(serverLevel);
         }
     }
 
     @Override
-    protected int getEnergyCost(int multiplier) {
-        double cost = multiplier * (double) Config.TIMEWAND_RF_COST.get()
+    protected int getEnergyCost(int workTicks) {
+        double cost = workTicks * (double) Config.TIMEWAND_RF_COST.get()
                 * JDTEConfig.COMMON.crystalIncubatorEnergyCostMultiplier.get();
         return (int) Math.min(Integer.MAX_VALUE, Math.max(0.0D, Math.ceil(cost)));
     }
@@ -176,11 +176,11 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    protected void consumeResources(int fluidCost, int energyCost) {
+    protected void consumeResources(int workTicks, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return;
         }
-        super.consumeResources(fluidCost, energyCost);
+        super.consumeResources(workTicks, energyCost);
         energyStorage.extractEnergy(energyCost, false);
     }
 
@@ -233,7 +233,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
         harvestCursor = normalizeCursor(harvestCursor);
     }
 
-    private boolean growCachedBudding(ServerLevel serverLevel, int multiplier,
+    private boolean growCachedBudding(ServerLevel serverLevel, int workTicks,
                                       int reservedEnergy, int reservedFluid) {
         if (buddingPositions.isEmpty()) {
             return false;
@@ -248,7 +248,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             }
             BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
             if (isDynaBudding(blockEntity)) {
-                int attempts = Math.min(JDTEConfig.COMMON.crystalIncubatorDynaGrowthAttempts.get(), Math.max(1, multiplier / 4));
+                int attempts = Math.min(JDTEConfig.COMMON.crystalIncubatorDynaGrowthAttempts.get(), Math.max(1, workTicks / 4));
                 try {
                     processed |= JustDynaThingsCrystalIntegration.grow(
                             blockEntity, serverLevel.random, attempts,
@@ -275,7 +275,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             }
         }
         double equivalentAccelerators = JDTEConfig.COMMON.crystalIncubatorRegularGrowthAcceleratorsAt8x.get();
-        pendingRandomTicks += activeRegularMothers * multiplier * equivalentAccelerators
+        pendingRandomTicks += (double) activeRegularMothers * workTicks * equivalentAccelerators
                 / (REGULAR_GROWTH_REFERENCE_MULTIPLIER * AE2_GROWTH_ACCELERATOR_INTERVAL_TICKS);
         int operationBudget = JDTEConfig.COMMON.crystalIncubatorGrowthOperationsPerTick.get();
         int operations = Math.min((int) Math.floor(pendingRandomTicks), operationBudget);
