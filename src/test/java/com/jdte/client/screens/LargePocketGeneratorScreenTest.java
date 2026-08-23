@@ -27,4 +27,20 @@ class LargePocketGeneratorScreenTest {
 
         assertEquals(2, LargePocketGeneratorScreen.burnSpeedMultiplierTooltipValue(largeFuelCanister));
     }
+
+    @Test
+    void energyTooltipUsesFullFormattingForBothValuesWhenShiftIsHeld() {
+        String[] values = LargePocketGeneratorScreen.energyTooltipValues(12345, 67890, true);
+
+        assertEquals(com.direwolf20.justdirethings.util.MagicHelpers.formatted(12345), values[0]);
+        assertEquals(com.direwolf20.justdirethings.util.MagicHelpers.formatted(67890), values[1]);
+    }
+
+    @Test
+    void energyTooltipUsesSuffixFormattingForBothValuesWhenShiftIsNotHeld() {
+        String[] values = LargePocketGeneratorScreen.energyTooltipValues(12345, 67890, false);
+
+        assertEquals(com.direwolf20.justdirethings.util.MagicHelpers.withSuffix(12345), values[0]);
+        assertEquals(com.direwolf20.justdirethings.util.MagicHelpers.withSuffix(67890), values[1]);
+    }
 }

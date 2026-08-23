@@ -10,7 +10,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.jdte.common.containers.LargePocketGeneratorContainer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -94,10 +93,10 @@ public class LargePocketGeneratorScreen extends AbstractContainerScreen<LargePoc
         if (pocketGenerator.getItem() instanceof PocketGenerator pocketGeneratorItem) {
             fePerTick = pocketGeneratorItem.getFePerFuelTick() * pocketGeneratorItem.getBurnSpeedMultiplier(pocketGenerator);
         }
+        String[] energyValues = energyTooltipValues(energyStorage.getEnergyStored(), energyStorage.getMaxEnergyStored(), hasShiftDown());
         List<FormattedText> lines = Arrays.asList(
                 Component.translatable("justdirethings.screen.energy",
-                        hasShiftDown() ? MagicHelpers.formatted(energyStorage.getEnergyStored()) : MagicHelpers.withSuffix(energyStorage.getEnergyStored()),
-                        hasShiftDown() ? MagicHelpers.withSuffix(energyStorage.getMaxEnergyStored()) : MagicHelpers.withSuffix(energyStorage.getMaxEnergyStored())),
+                        energyValues[0], energyValues[1]),
                 burnTicks > 0
                         ? Component.translatable("justdirethings.screen.burn_time", MagicHelpers.ticksInSeconds(burnTicks))
                         : Component.translatable("justdirethings.screen.no_fuel"),
@@ -152,5 +151,12 @@ public class LargePocketGeneratorScreen extends AbstractContainerScreen<LargePoc
             burnSpeedMultiplier = FuelCanister.getBurnSpeedMultiplier(fuelStack);
         }
         return burnSpeedMultiplier;
+    }
+
+    static String[] energyTooltipValues(int energyStored, int maxEnergyStored, boolean shiftDown) {
+        if (shiftDown) {
+            return new String[]{MagicHelpers.formatted(energyStored), MagicHelpers.formatted(maxEnergyStored)};
+        }
+        return new String[]{MagicHelpers.withSuffix(energyStored), MagicHelpers.withSuffix(maxEnergyStored)};
     }
 }

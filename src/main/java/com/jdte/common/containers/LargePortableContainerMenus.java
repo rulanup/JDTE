@@ -46,7 +46,7 @@ public final class LargePortableContainerMenus {
                 player::getMainHandItem,
                 validator
         );
-        openBoundMenu(player, kind, stack, binding);
+        openBoundMenu(player, kind, stack, binding, LargePortableContainerSource.mainHand());
     }
 
     public static boolean openFromCurios(ServerPlayer player, OpenLargePortableContainerPayload.ContainerKind kind) {
@@ -65,7 +65,7 @@ public final class LargePortableContainerMenus {
                 () -> resolveCuriosStack(player, slotId).orElse(ItemStack.EMPTY),
                 validator(kind)
         );
-        openBoundMenu(player, kind, stack, binding);
+        openBoundMenu(player, kind, stack, binding, LargePortableContainerSource.curios(slotId));
         return true;
     }
 
@@ -93,12 +93,18 @@ public final class LargePortableContainerMenus {
     }
 
     private static void openBoundMenu(Player player, OpenLargePortableContainerPayload.ContainerKind kind,
-                                      ItemStack stack, LargePortableContainerBinding binding) {
-        player.openMenu(menuProvider(kind, stack, binding), buf -> encodeStack(buf, stack));
+                                      ItemStack stack, LargePortableContainerBinding binding,
+                                      LargePortableContainerSource source) {
+        player.openMenu(menuProvider(kind, stack, binding), buf -> encodeOpenData(buf, stack, source));
     }
 
-    private static void encodeStack(RegistryFriendlyByteBuf buf, ItemStack stack) {
+    static void encodeOpenData(RegistryFriendlyByteBuf buf, ItemStack stack, LargePortableContainerSource source) {
         ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, stack);
+        source.encode(buf);
+    }
+
+    static DecodedOpenData decodeOpenData(RegistryFriendlyByteBuf buf) {
+        return new DecodedOpenData(ItemStack.OPTIONAL_STREAM_CODEC.decode(buf), LargePortableContainerSource.decode(buf));
     }
 
     private static MenuProvider menuProvider(OpenLargePortableContainerPayload.ContainerKind kind,
@@ -148,5 +154,40 @@ public final class LargePortableContainerMenus {
             case LARGE_POTION_CANISTER -> LARGE_POTION_CANISTER_SLOT;
             case LARGE_FUEL_CANISTER -> LARGE_FUEL_CANISTER_SLOT;
         };
+    }
+
+    static LargePortableContainerBinding createClientBinding(Player player,
+                                                             ItemStack decodedStack,
+                                                             OpenLargePortableContainerPayload.ContainerKind kind,
+                                                             LargePortableContainerSource source) {
+        return new LargePortableContainerBinding(
+                decodedStack,
+                () -> resolveClientSourceStack(
+                        source,
+                        player.getMainHandItem(),
+                        ModList.get().isLoaded("curios"),
+                        slotId -> CuriosApi.getCuriosInventory(player)
+                                .flatMap(handler -> handler.getStacksHandler(slotId))
+                                .filter(handler -> handler.getSlots() > 0)
+                                .map(handler -> handler.getStacks().getStackInSlot(0))
+                ).orElse(decodedStack),
+                validator(kind)
+        );
+    }
+
+    static Optional<ItemStack> resolveClientSourceStack(LargePortableContainerSource source,
+                                                        ItemStack mainHand,
+                                                        boolean curiosAvailable,
+                                                        Function<String, Optional<ItemStack>> slotLookup) {
+        if (source.sourceType() == LargePortableContainerSource.SourceType.MAIN_HAND) {
+            return Optional.of(mainHand);
+        }
+        if (!curiosAvailable) {
+            return Optional.empty();
+        }
+        return slotLookup.apply(source.curiosSlotId());
+    }
+
+    record DecodedOpenData(ItemStack stack, LargePortableContainerSource source) {
     }
 }

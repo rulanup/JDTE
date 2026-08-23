@@ -21,13 +21,23 @@ public class LargePocketGeneratorContainer extends BaseContainer {
 
     public LargePocketGeneratorContainer(int windowId, Inventory inventory, FriendlyByteBuf extraData) {
         this(windowId, inventory, inventory.player,
-                ItemStack.OPTIONAL_STREAM_CODEC.decode((RegistryFriendlyByteBuf) extraData));
+                LargePortableContainerMenus.decodeOpenData((RegistryFriendlyByteBuf) extraData));
     }
 
     public LargePocketGeneratorContainer(int windowId, Inventory inventory, Player player, ItemStack stack) {
         this(windowId, inventory, player, stack,
                 new LargePortableContainerBinding(stack, () -> stack,
                         itemStack -> !itemStack.isEmpty() && itemStack.getItem() instanceof LargePocketGeneratorItem));
+    }
+
+    private LargePocketGeneratorContainer(int windowId, Inventory inventory, Player player,
+                                          LargePortableContainerMenus.DecodedOpenData decodedOpenData) {
+        this(windowId, inventory, player, decodedOpenData.stack(),
+                LargePortableContainerMenus.createClientBinding(
+                        player,
+                        decodedOpenData.stack(),
+                        com.jdte.common.network.data.OpenLargePortableContainerPayload.ContainerKind.LARGE_POCKET_GENERATOR,
+                        decodedOpenData.source()));
     }
 
     public LargePocketGeneratorContainer(int windowId, Inventory inventory, Player player, ItemStack stack,

@@ -21,13 +21,23 @@ public class LargeFuelCanisterContainer extends BaseContainer {
 
     public LargeFuelCanisterContainer(int windowId, Inventory inventory, FriendlyByteBuf extraData) {
         this(windowId, inventory, inventory.player,
-                ItemStack.OPTIONAL_STREAM_CODEC.decode((RegistryFriendlyByteBuf) extraData));
+                LargePortableContainerMenus.decodeOpenData((RegistryFriendlyByteBuf) extraData));
     }
 
     public LargeFuelCanisterContainer(int windowId, Inventory inventory, Player player, ItemStack stack) {
         this(windowId, inventory, player, stack,
                 new LargePortableContainerBinding(stack, () -> stack,
                         itemStack -> !itemStack.isEmpty() && itemStack.getItem() instanceof LargeFuelCanisterItem));
+    }
+
+    private LargeFuelCanisterContainer(int windowId, Inventory inventory, Player player,
+                                       LargePortableContainerMenus.DecodedOpenData decodedOpenData) {
+        this(windowId, inventory, player, decodedOpenData.stack(),
+                LargePortableContainerMenus.createClientBinding(
+                        player,
+                        decodedOpenData.stack(),
+                        com.jdte.common.network.data.OpenLargePortableContainerPayload.ContainerKind.LARGE_FUEL_CANISTER,
+                        decodedOpenData.source()));
     }
 
     public LargeFuelCanisterContainer(int windowId, Inventory inventory, Player player, ItemStack stack,

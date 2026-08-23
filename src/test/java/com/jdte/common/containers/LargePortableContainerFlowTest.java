@@ -85,6 +85,38 @@ class LargePortableContainerFlowTest {
     }
 
     @Test
+    void clientSourceResolverPrefersTheLiveMainHandStackOverTheDecodedCopy() {
+        ItemStack liveMainHand = new ItemStack(JDTEItems.LARGE_POCKET_GENERATOR.get());
+
+        Optional<ItemStack> resolved = LargePortableContainerMenus.resolveClientSourceStack(
+                LargePortableContainerSource.mainHand(),
+                liveMainHand,
+                false,
+                slotId -> Optional.empty()
+        );
+
+        assertTrue(resolved.isPresent());
+        assertSame(liveMainHand, resolved.orElseThrow());
+    }
+
+    @Test
+    void clientSourceResolverUsesTheExactLiveCuriosSlotWhenPresent() {
+        ItemStack liveCurios = new ItemStack(JDTEItems.LARGE_POCKET_GENERATOR.get());
+
+        Optional<ItemStack> resolved = LargePortableContainerMenus.resolveClientSourceStack(
+                LargePortableContainerSource.curios(LargePortableContainerMenus.LARGE_POCKET_GENERATOR_SLOT),
+                ItemStack.EMPTY,
+                true,
+                slotId -> LargePortableContainerMenus.LARGE_POCKET_GENERATOR_SLOT.equals(slotId)
+                        ? Optional.of(liveCurios)
+                        : Optional.empty()
+        );
+
+        assertTrue(resolved.isPresent());
+        assertSame(liveCurios, resolved.orElseThrow());
+    }
+
+    @Test
     void clientHotkeyCollectorEmitsOnlyThePressedKindsWhenPlayerCanOpen() {
         List<OpenLargePortableContainerPayload> payloads = LargePortableContainerClientEvents.collectOpenPayloads(
                 true,

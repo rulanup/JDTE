@@ -91,3 +91,72 @@
   - 断言能量条公式
   - 断言 Fuel Canister tooltip 走 JDT 原 multiplier 逻辑
 
+---
+
+## Re-review 2 repair（Important findings follow-up）
+
+状态：DONE
+
+### 本轮修复点
+
+1. 客户端 `LargePocketGenerator` live source 解析
+   - 新增 `LargePortableContainerSource`，把菜单绑定来源显式编码为：
+     - 主手
+     - 精确 Curios 槽位
+   - 菜单打开包现在同时下发“初始展示栈 + 绑定来源”。
+   - 三个大型容器 client menu 构造都改为基于来源创建 client binding：
+     - 主手每帧重新取 `player.getMainHandItem()`
+     - Curios 每帧按精确槽位重新查找
+   - Curios 在客户端缺失时安全回退到打开包里的解码栈副本，不崩溃、不改变服务端 source-of-truth。
+
+2. Pocket Generator tooltip 的 Shift 语义
+   - `LargePocketGeneratorScreen` 提取 `energyTooltipValues(...)`。
+   - 非 Shift：当前值/最大值都保留 `MagicHelpers.withSuffix(...)`。
+   - 按住 Shift：当前值/最大值都改为 `MagicHelpers.formatted(...)`，确保最大能量不再缩写。
+
+### 本轮实际改动文件
+
+#### 生产代码
+
+- `src/main/java/com/jdte/client/screens/LargePocketGeneratorScreen.java`
+- `src/main/java/com/jdte/common/containers/LargeFuelCanisterContainer.java`
+- `src/main/java/com/jdte/common/containers/LargePocketGeneratorContainer.java`
+- `src/main/java/com/jdte/common/containers/LargePortableContainerMenus.java`
+- `src/main/java/com/jdte/common/containers/LargePortableContainerSource.java`
+- `src/main/java/com/jdte/common/containers/LargePotionCanisterContainer.java`
+
+#### 测试
+
+- `src/test/java/com/jdte/client/screens/LargePocketGeneratorScreenTest.java`
+- `src/test/java/com/jdte/common/containers/LargePortableContainerFlowTest.java`
+
+### 回归断言
+
+- `LargePortableContainerFlowTest`
+  - `clientSourceResolverPrefersTheLiveMainHandStackOverTheDecodedCopy`
+  - `clientSourceResolverUsesTheExactLiveCuriosSlotWhenPresent`
+- `LargePocketGeneratorScreenTest`
+  - `energyTooltipUsesFullFormattingForBothValuesWhenShiftIsHeld`
+  - `energyTooltipUsesSuffixFormattingForBothValuesWhenShiftIsNotHeld`
+
+### 验证证据
+
+以下命令已在本轮修复完成后串行重跑：
+
+1. 聚焦测试
+
+   `.\gradlew test --tests com.jdte.common.containers.LargePortableContainerFlowTest --tests com.jdte.client.screens.LargePocketGeneratorScreenTest`
+
+   结果：`BUILD SUCCESSFUL in 21s`
+
+2. 完整测试
+
+   `.\gradlew test`
+
+   结果：`BUILD SUCCESSFUL in 16s`
+
+3. Java 编译
+
+   `.\gradlew compileJava`
+
+   结果：`BUILD SUCCESSFUL in 1s`
