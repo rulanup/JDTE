@@ -51,7 +51,7 @@ public class LargePotionCanisterItem extends PotionCanister {
             return new InteractionResultHolder<>(InteractionResult.PASS, stack);
         }
         LargePortableContainerMenus.openFromMainHand(
-                player, hand, OpenLargePortableContainerPayload.ContainerKind.LARGE_POTION_CANISTER);
+                player, OpenLargePortableContainerPayload.ContainerKind.LARGE_POTION_CANISTER);
         return new InteractionResultHolder<>(InteractionResult.PASS, stack);
     }
 }

@@ -22,8 +22,12 @@ public final class LargePortableContainerBinding {
         return boundStack;
     }
 
+    public ItemStack currentStack() {
+        return stackResolver.get();
+    }
+
     public boolean isStillValid() {
-        ItemStack currentStack = stackResolver.get();
+        ItemStack currentStack = currentStack();
         return currentStack == boundStack && !currentStack.isEmpty() && validator.test(currentStack);
     }
 }

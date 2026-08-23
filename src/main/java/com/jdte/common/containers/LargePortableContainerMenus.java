@@ -18,6 +18,7 @@ import net.neoforged.fml.ModList;
 import top.theillusivec4.curios.api.CuriosApi;
 
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class LargePortableContainerMenus {
@@ -28,31 +29,37 @@ public final class LargePortableContainerMenus {
     private LargePortableContainerMenus() {
     }
 
-    public static void openFromMainHand(Player player, InteractionHand hand,
-                                        OpenLargePortableContainerPayload.ContainerKind kind) {
-        ItemStack stack = player.getItemInHand(hand);
-        Predicate<ItemStack> validator = validator(kind);
-        if (!validator.test(stack)) {
+    public static void openFromMainHand(Player player, OpenLargePortableContainerPayload.ContainerKind kind) {
+        Optional<ItemStack> resolved = resolveHandheldStack(
+                kind,
+                InteractionHand.MAIN_HAND,
+                player.getMainHandItem(),
+                player.getOffhandItem()
+        );
+        if (resolved.isEmpty()) {
             return;
         }
+        Predicate<ItemStack> validator = validator(kind);
+        ItemStack stack = resolved.get();
         LargePortableContainerBinding binding = new LargePortableContainerBinding(
                 stack,
-                () -> player.getItemInHand(hand),
+                player::getMainHandItem,
                 validator
         );
         openBoundMenu(player, kind, stack, binding);
     }
 
     public static boolean openFromCurios(ServerPlayer player, OpenLargePortableContainerPayload.ContainerKind kind) {
-        if (!ModList.get().isLoaded("curios")) {
-            return false;
-        }
-        String slotId = curiosSlot(kind);
-        Optional<ItemStack> resolved = resolveCuriosStack(player, slotId).filter(validator(kind));
+        Optional<ItemStack> resolved = resolveCuriosStack(
+                kind,
+                ModList.get().isLoaded("curios"),
+                slotId -> resolveCuriosStack(player, slotId)
+        );
         if (resolved.isEmpty()) {
             return false;
         }
         ItemStack stack = resolved.get();
+        String slotId = curiosSlot(kind);
         LargePortableContainerBinding binding = new LargePortableContainerBinding(
                 stack,
                 () -> resolveCuriosStack(player, slotId).orElse(ItemStack.EMPTY),
@@ -67,6 +74,22 @@ public final class LargePortableContainerMenus {
                 .flatMap(handler -> handler.getStacksHandler(slotId))
                 .filter(handler -> handler.getSlots() > 0)
                 .map(handler -> handler.getStacks().getStackInSlot(0));
+    }
+
+    static Optional<ItemStack> resolveHandheldStack(OpenLargePortableContainerPayload.ContainerKind kind,
+                                                    InteractionHand triggeringHand,
+                                                    ItemStack mainHand,
+                                                    ItemStack offHand) {
+        return Optional.of(mainHand).filter(validator(kind));
+    }
+
+    static Optional<ItemStack> resolveCuriosStack(OpenLargePortableContainerPayload.ContainerKind kind,
+                                                  boolean curiosAvailable,
+                                                  Function<String, Optional<ItemStack>> slotLookup) {
+        if (!curiosAvailable) {
+            return Optional.empty();
+        }
+        return slotLookup.apply(curiosSlot(kind)).filter(validator(kind));
     }
 
     private static void openBoundMenu(Player player, OpenLargePortableContainerPayload.ContainerKind kind,

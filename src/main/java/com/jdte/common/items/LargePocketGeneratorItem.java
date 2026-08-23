@@ -29,7 +29,7 @@ public class LargePocketGeneratorItem extends PocketGenerator {
         }
         if (!player.isShiftKeyDown()) {
             LargePortableContainerMenus.openFromMainHand(
-                    player, hand, OpenLargePortableContainerPayload.ContainerKind.LARGE_POCKET_GENERATOR);
+                    player, OpenLargePortableContainerPayload.ContainerKind.LARGE_POCKET_GENERATOR);
         }
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }

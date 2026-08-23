@@ -25,7 +25,7 @@ public class LargeFuelCanisterItem extends FuelCanister {
             return new InteractionResultHolder<>(InteractionResult.PASS, stack);
         }
         LargePortableContainerMenus.openFromMainHand(
-                player, hand, OpenLargePortableContainerPayload.ContainerKind.LARGE_FUEL_CANISTER);
+                player, OpenLargePortableContainerPayload.ContainerKind.LARGE_FUEL_CANISTER);
         return new InteractionResultHolder<>(InteractionResult.PASS, stack);
     }
 

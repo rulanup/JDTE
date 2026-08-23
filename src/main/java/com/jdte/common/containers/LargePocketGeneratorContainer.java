@@ -87,4 +87,8 @@ public class LargePocketGeneratorContainer extends BaseContainer {
     public ItemStack getBoundStack() {
         return binding.boundStack();
     }
+
+    public ItemStack getCurrentStack() {
+        return binding.currentStack();
+    }
 }
