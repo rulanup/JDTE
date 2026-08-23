@@ -855,6 +855,4 @@
   "tooltip.jdte.time_multitool.speed": "Selected mining speed: %sx",
   "tooltip.jdte.time_multitool.fluid": "Time Fluid: %s / %s mB",
   "tooltip.jdte.time_multitool.controls": "Sneak-use air: change speed; sneak-use block: JDT settings",
-  "item.jdte.patchouli_guide.name": "JDT Extras Guide",
-  "item.jdte.patchouli_guide.landing": "JDT Extras is an extension mod for Just Dire Things, adding an upgrade system, time accelerators, extended machines, and additional automation machines for JDT machines.$(br2)Current version: $(thing)0.5.9$()"
 }
