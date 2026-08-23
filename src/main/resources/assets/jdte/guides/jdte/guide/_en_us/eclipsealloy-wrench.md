@@ -5,6 +5,7 @@ navigation:
   position: 6
 item_ids:
   - jdte:eclipsealloy_wrench
+  - jdte:advanced_machine_settings_copier
 ---
 
 # Eclipse Alloy Wrench
@@ -12,6 +13,12 @@ item_ids:
 <ItemImage id="jdte:eclipsealloy_wrench" scale="2" />
 
 The Eclipse Alloy Wrench is a multi-purpose tool for working with JDTE and JDT machines.
+
+## Advanced Machine Settings Copier
+
+<ItemImage id="jdte:advanced_machine_settings_copier" scale="2" />
+
+The Advanced Machine Settings Copier inherits JDT's machine-settings copy and paste behavior and additionally saves and loads the six absolute-face auto-I/O settings of JDTE machines.
 
 ## Usage
 
@@ -42,3 +49,7 @@ While held in Creative mode, the Eclipse Alloy Wrench cannot break blocks, preve
 ## Crafting
 
 <RecipeFor id="jdte:eclipsealloy_wrench" />
+
+### Advanced Machine Settings Copier
+
+<RecipeFor id="jdte:advanced_machine_settings_copier" />

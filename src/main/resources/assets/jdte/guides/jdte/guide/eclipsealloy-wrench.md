@@ -5,6 +5,7 @@ navigation:
   position: 6
 item_ids:
   - jdte:eclipsealloy_wrench
+  - jdte:advanced_machine_settings_copier
 ---
 
 # 蚀空合金扳手
@@ -12,6 +13,12 @@ item_ids:
 <ItemImage id="jdte:eclipsealloy_wrench" scale="2" />
 
 蚀空合金扳手是用于操作 JDTE 和 JDT 机器的多用途工具。
+
+## 高级机器设置复制器
+
+<ItemImage id="jdte:advanced_machine_settings_copier" scale="2" />
+
+高级机器设置复制器继承 JDT 机器设置复制器的复制和粘贴功能，并额外保存和加载 JDTE 机器六个绝对方向面的自动输入与输出配置。
 
 ## 使用方法
 
@@ -42,3 +49,7 @@ item_ids:
 ## 合成
 
 <RecipeFor id="jdte:eclipsealloy_wrench" />
+
+### 高级机器设置复制器
+
+<RecipeFor id="jdte:advanced_machine_settings_copier" />
