@@ -65,6 +65,14 @@ public class LargeFuelCanisterItem extends FuelCanister {
         return LargePortableContainerLogic.fuelBurnMultiplier(baseBurnSpeedMultiplier);
     }
 
+    public static int getFullness(ItemStack stack) {
+        int fuelLevel = FuelCanister.getFuelLevel(stack);
+        if (fuelLevel <= 0) {
+            return 0;
+        }
+        return Math.min(4, (int) Math.ceil((double) fuelLevel * 4 / getMaxFuelLevel()));
+    }
+
     public static void decrementFuel(ItemStack stack) {
         int fuelLevel = FuelCanister.getFuelLevel(stack);
         if (fuelLevel >= getMinimumFuelConsumed()) {

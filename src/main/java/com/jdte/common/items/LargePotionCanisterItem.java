@@ -19,6 +19,14 @@ public class LargePotionCanisterItem extends PotionCanister {
         return LargePortableContainerLogic.potionCapacity();
     }
 
+    public static int getFullness(ItemStack stack) {
+        int amount = getPotionAmount(stack);
+        if (amount <= 0) {
+            return 0;
+        }
+        return Math.min(4, (int) Math.ceil((double) amount / LargePortableContainerLogic.POTION_BATCH_MB));
+    }
+
     public int getCapacityMb() {
         return getPotionCapacityMb();
     }

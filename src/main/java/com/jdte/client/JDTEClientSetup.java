@@ -8,6 +8,9 @@ import com.jdte.client.renderers.MineralExtractorBER;
 import com.jdte.client.renderers.TimeAcceleratorBER;
 import com.jdte.client.screens.*;
 import com.jdte.common.items.FactoryPackageItem;
+import com.jdte.common.items.LargeFuelCanisterItem;
+import com.jdte.common.items.LargePocketGeneratorItem;
+import com.jdte.common.items.LargePotionCanisterItem;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEEntities;
@@ -33,10 +36,24 @@ public class JDTEClientSetup {
                 JDTEItems.FACTORY_PACKAGE.get(),
                 ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),
                 (stack, level, entity, seed) -> FactoryPackageItem.isFilled(stack) ? 1.0F : 0.0F));
-        event.enqueueWork(() -> ItemProperties.register(
-                JDTEItems.ULTIMATE_PORTAL_GUN.get(),
-                ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fullness"),
-                (stack, level, entity, seed) -> com.jdte.common.items.UltimatePortalGunItem.getFullness(stack)));
+        event.enqueueWork(() -> {
+            ItemProperties.register(
+                    JDTEItems.ULTIMATE_PORTAL_GUN.get(),
+                    ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fullness"),
+                    (stack, level, entity, seed) -> com.jdte.common.items.UltimatePortalGunItem.getFullness(stack));
+            ItemProperties.register(
+                    JDTEItems.LARGE_POCKET_GENERATOR.get(),
+                    ResourceLocation.fromNamespaceAndPath("justdirethings", "enabled"),
+                    (stack, level, entity, seed) -> LargePocketGeneratorItem.getEnabledProperty(stack));
+            ItemProperties.register(
+                    JDTEItems.LARGE_POTION_CANISTER.get(),
+                    ResourceLocation.fromNamespaceAndPath("justdirethings", "potion_fullness"),
+                    (stack, level, entity, seed) -> LargePotionCanisterItem.getFullness(stack));
+            ItemProperties.register(
+                    JDTEItems.LARGE_FUEL_CANISTER.get(),
+                    ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fuel_fullness"),
+                    (stack, level, entity, seed) -> LargeFuelCanisterItem.getFullness(stack));
+        });
     }
 
     @SubscribeEvent

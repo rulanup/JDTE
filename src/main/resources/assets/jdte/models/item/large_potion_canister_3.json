@@ -1,0 +1,6 @@
+{
+  "parent": "jdte:item/large_potion_canister",
+  "textures": {
+    "layer1": "justdirethings:item/potion_canister_layer_3"
+  }
+}

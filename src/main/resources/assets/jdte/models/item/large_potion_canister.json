@@ -1,0 +1,33 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "justdirethings:item/potion_canister",
+    "layer1": "justdirethings:item/potion_canister_layer_0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "justdirethings:potion_fullness": 1
+      },
+      "model": "jdte:item/large_potion_canister_1"
+    },
+    {
+      "predicate": {
+        "justdirethings:potion_fullness": 2
+      },
+      "model": "jdte:item/large_potion_canister_2"
+    },
+    {
+      "predicate": {
+        "justdirethings:potion_fullness": 3
+      },
+      "model": "jdte:item/large_potion_canister_3"
+    },
+    {
+      "predicate": {
+        "justdirethings:potion_fullness": 4
+      },
+      "model": "jdte:item/large_potion_canister_4"
+    }
+  ]
+}

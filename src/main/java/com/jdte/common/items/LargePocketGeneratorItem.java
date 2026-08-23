@@ -1,6 +1,7 @@
 package com.jdte.common.items;
 
 import com.direwolf20.justdirethings.common.items.PocketGenerator;
+import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.containers.LargePortableContainerMenus;
 import com.jdte.common.network.data.OpenLargePortableContainerPayload;
 import com.direwolf20.justdirethings.setup.Config;
@@ -14,6 +15,10 @@ import net.minecraft.world.level.Level;
 public class LargePocketGeneratorItem extends PocketGenerator {
     public static int getScaledMaxEnergy(int basePocketCapacity) {
         return LargePortableContainerLogic.pocketGeneratorCapacity(basePocketCapacity);
+    }
+
+    public static float getEnabledProperty(ItemStack stack) {
+        return stack.getOrDefault(JustDireDataComponents.TOOL_ENABLED, true) ? 1.0F : 0.0F;
     }
 
     @Override
