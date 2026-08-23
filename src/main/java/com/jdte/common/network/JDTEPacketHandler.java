@@ -22,6 +22,7 @@ import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import com.jdte.common.network.data.MineralExtractorOutputPagePayload;
 import com.jdte.common.network.data.MineralSurveyOpenPayload;
+import com.jdte.common.network.data.OpenLargePortableContainerPayload;
 import com.jdte.common.network.data.EntitySuppressorPayload;
 import com.jdte.common.network.data.EntitySuppressorSyncPayload;
 import com.jdte.common.network.data.RangeBlockerPayload;
@@ -61,6 +62,7 @@ import com.jdte.common.network.handler.SpawnEggRecipeSyncPacket;
 import com.jdte.common.network.handler.LootFabricatorLootSyncPacket;
 import com.jdte.common.network.handler.MineralExtractorOutputPagePacket;
 import com.jdte.common.network.handler.MineralSurveyOpenPacket;
+import com.jdte.common.network.handler.OpenLargePortableContainerPacket;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -93,6 +95,8 @@ public class JDTEPacketHandler {
                 MineralExtractorOutputPagePayload.STREAM_CODEC, MineralExtractorOutputPagePacket::handle);
         registrar.playToClient(MineralSurveyOpenPayload.TYPE, MineralSurveyOpenPayload.STREAM_CODEC,
                 MineralSurveyOpenPacket::handle);
+        registrar.playToServer(OpenLargePortableContainerPayload.TYPE, OpenLargePortableContainerPayload.STREAM_CODEC,
+                OpenLargePortableContainerPacket::handle);
         registrar.playToServer(EntitySuppressorPayload.TYPE, EntitySuppressorPayload.STREAM_CODEC, EntitySuppressorPacket::handle);
         registrar.playToClient(EntitySuppressorSyncPayload.TYPE, EntitySuppressorSyncPayload.STREAM_CODEC, EntitySuppressorSyncPacket::handle);
         registrar.playToServer(RangeBlockerPayload.TYPE, RangeBlockerPayload.STREAM_CODEC, RangeBlockerPacket::handle);

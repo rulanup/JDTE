@@ -11,4 +11,22 @@ public class JDTEKeyMappings {
             GLFW.GLFW_KEY_LEFT_ALT,
             "key.categories.jdte"
     );
+    public static final KeyMapping LARGE_POCKET_GENERATOR = new KeyMapping(
+            "key.jdte.large_pocket_generator",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_G,
+            "key.categories.jdte"
+    );
+    public static final KeyMapping LARGE_POTION_CANISTER = new KeyMapping(
+            "key.jdte.large_potion_canister",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_P,
+            "key.categories.jdte"
+    );
+    public static final KeyMapping LARGE_FUEL_CANISTER = new KeyMapping(
+            "key.jdte.large_fuel_canister",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_F,
+            "key.categories.jdte"
+    );
 }

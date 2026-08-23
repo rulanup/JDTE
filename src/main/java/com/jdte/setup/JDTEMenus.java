@@ -45,6 +45,12 @@ public class JDTEMenus {
             "range_blocker", () -> IMenuTypeExtension.create(RangeBlockerContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<FactoryPackerContainer>> FACTORY_PACKER = MENUS.register(
             "factory_packer", () -> IMenuTypeExtension.create(FactoryPackerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<LargePocketGeneratorContainer>> LARGE_POCKET_GENERATOR = MENUS.register(
+            "large_pocket_generator", () -> IMenuTypeExtension.create(LargePocketGeneratorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<LargePotionCanisterContainer>> LARGE_POTION_CANISTER = MENUS.register(
+            "large_potion_canister", () -> IMenuTypeExtension.create(LargePotionCanisterContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<LargeFuelCanisterContainer>> LARGE_FUEL_CANISTER = MENUS.register(
+            "large_fuel_canister", () -> IMenuTypeExtension.create(LargeFuelCanisterContainer::new));
 
     // Glue Activator
     public static final DeferredHolder<MenuType<?>, MenuType<BasicGlueActivatorContainer>> BASIC_GLUE_ACTIVATOR = MENUS.register(

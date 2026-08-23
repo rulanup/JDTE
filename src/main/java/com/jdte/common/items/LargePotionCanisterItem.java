@@ -3,9 +3,16 @@ package com.jdte.common.items;
 import com.direwolf20.justdirethings.common.items.PotionCanister;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import net.minecraft.core.component.DataComponents;
+import com.jdte.common.containers.LargePortableContainerMenus;
+import com.jdte.common.network.data.OpenLargePortableContainerPayload;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.level.Level;
 
 public class LargePotionCanisterItem extends PotionCanister {
     public static int getPotionCapacityMb() {
@@ -35,5 +42,16 @@ public class LargePotionCanisterItem extends PotionCanister {
         canister.set(JustDireDataComponents.POTION_AMOUNT, currentAmount + 1_000);
         potionInput.shrink(4);
         return true;
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (level.isClientSide()) {
+            return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+        }
+        LargePortableContainerMenus.openFromMainHand(
+                player, hand, OpenLargePortableContainerPayload.ContainerKind.LARGE_POTION_CANISTER);
+        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
     }
 }

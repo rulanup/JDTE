@@ -1,19 +1,30 @@
 package com.jdte.common.items;
 
 import com.jdte.setup.JDTEItems;
+import com.jdte.common.containers.LargePortableContainerBinding;
+import com.jdte.common.containers.handlers.LargeFuelCanisterHandler;
+import com.jdte.common.containers.handlers.LargePotionCanisterHandler;
+import com.jdte.common.network.data.OpenLargePortableContainerPayload;
 import com.direwolf20.justdirethings.common.items.FuelCanister;
 import com.direwolf20.justdirethings.common.items.PotionCanister;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import io.netty.buffer.Unpooled;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Predicate;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LargePortableContainerLogicTest {
@@ -190,5 +201,92 @@ class LargePortableContainerLogicTest {
         FuelCanister.setBurnSpeed(stack, 2.0D);
 
         assertEquals(20, LargeFuelCanisterItem.getBurnSpeedMultiplier(stack));
+    }
+
+    @Test
+    void largePotionMenuHandlerFillsExactlyOneBatchAndReturnsFourGlassBottles() {
+        ItemStack canister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
+        LargePotionCanisterHandler handler =
+                new LargePotionCanisterHandler(canister, JustDireDataComponents.TOOL_CONTENTS.get(), 1);
+        ItemStack input = PotionContents.createItemStack(Items.POTION, Potions.WATER);
+        input.setCount(4);
+
+        handler.setStackInSlot(0, input);
+
+        assertEquals(1_000, LargePotionCanisterItem.getPotionAmount(canister));
+        assertEquals(Items.GLASS_BOTTLE, handler.getStackInSlot(0).getItem());
+        assertEquals(4, handler.getStackInSlot(0).getCount());
+    }
+
+    @Test
+    void largePotionMenuHandlerLeavesInputUntouchedWhenBatchCannotFill() {
+        ItemStack canister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
+        LargePotionCanisterHandler handler =
+                new LargePotionCanisterHandler(canister, JustDireDataComponents.TOOL_CONTENTS.get(), 1);
+        ItemStack shortInput = PotionContents.createItemStack(Items.POTION, Potions.WATER);
+        shortInput.setCount(3);
+
+        handler.setStackInSlot(0, shortInput);
+
+        assertEquals(0, LargePotionCanisterItem.getPotionAmount(canister));
+        assertEquals(Items.POTION, handler.getStackInSlot(0).getItem());
+        assertEquals(3, handler.getStackInSlot(0).getCount());
+    }
+
+    @Test
+    void largeFuelMenuHandlerRejectsFuelCanistersAsInput() {
+        ItemStack canister = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());
+        LargeFuelCanisterHandler handler = new LargeFuelCanisterHandler(1, canister);
+
+        assertFalse(handler.isItemValid(0, new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get())));
+    }
+
+    @Test
+    void largePortableContainerBindingRequiresTheSameResolvedItemStackInstance() {
+        ItemStack trackedStack = new ItemStack(JDTEItems.LARGE_POCKET_GENERATOR.get());
+        ItemStack[] liveSlot = {trackedStack};
+        Predicate<ItemStack> validator = stack -> stack.getItem() instanceof LargePocketGeneratorItem;
+        LargePortableContainerBinding binding =
+                new LargePortableContainerBinding(trackedStack, () -> liveSlot[0], validator);
+
+        assertTrue(binding.isStillValid());
+
+        liveSlot[0] = trackedStack.copy();
+
+        assertFalse(binding.isStillValid());
+    }
+
+    @Test
+    void largePortableContainerPayloadRoundTripsEachAllowedContainerKind() {
+        for (OpenLargePortableContainerPayload.ContainerKind kind : OpenLargePortableContainerPayload.ContainerKind.values()) {
+            RegistryFriendlyByteBuf buffer = buffer();
+            try {
+                OpenLargePortableContainerPayload.STREAM_CODEC.encode(buffer, new OpenLargePortableContainerPayload(kind));
+
+                OpenLargePortableContainerPayload decoded = OpenLargePortableContainerPayload.STREAM_CODEC.decode(buffer);
+
+                assertEquals(kind, decoded.containerKind());
+            } finally {
+                buffer.release();
+            }
+        }
+    }
+
+    @Test
+    void largePortableContainerPayloadRejectsUnknownContainerKind() {
+        RegistryFriendlyByteBuf buffer = buffer();
+        try {
+            buffer.writeInt(99);
+
+            assertThrows(IllegalArgumentException.class,
+                    () -> OpenLargePortableContainerPayload.STREAM_CODEC.decode(buffer));
+        } finally {
+            buffer.release();
+        }
+    }
+
+    private static RegistryFriendlyByteBuf buffer() {
+        return new RegistryFriendlyByteBuf(Unpooled.buffer(),
+                RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
     }
 }

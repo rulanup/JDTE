@@ -61,6 +61,9 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.ENTITY_SUPPRESSOR.get(), EntitySuppressorScreen::new);
         event.register(JDTEMenus.RANGE_BLOCKER.get(), RangeBlockerScreen::new);
         event.register(JDTEMenus.FACTORY_PACKER.get(), FactoryPackerScreen::new);
+        event.register(JDTEMenus.LARGE_POCKET_GENERATOR.get(), LargePocketGeneratorScreen::new);
+        event.register(JDTEMenus.LARGE_POTION_CANISTER.get(), LargePotionCanisterScreen::new);
+        event.register(JDTEMenus.LARGE_FUEL_CANISTER.get(), LargeFuelCanisterScreen::new);
 
         // Glue Activators
         event.register(JDTEMenus.BASIC_GLUE_ACTIVATOR.get(), BasicGlueActivatorScreen::new);
@@ -132,6 +135,9 @@ public class JDTEClientSetup {
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(JDTEKeyMappings.WRENCH_AREA_MODIFIER);
+        event.register(JDTEKeyMappings.LARGE_POCKET_GENERATOR);
+        event.register(JDTEKeyMappings.LARGE_POTION_CANISTER);
+        event.register(JDTEKeyMappings.LARGE_FUEL_CANISTER);
     }
 
     @SubscribeEvent
