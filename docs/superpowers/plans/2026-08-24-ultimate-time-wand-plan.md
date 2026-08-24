@@ -105,7 +105,7 @@ git commit -m "feat(顶级时间手杖): 添加模式与成本逻辑"
 - 创建：`src/test/java/com/jdte/common/blockentities/UltimateTimeWandTargetRuntimeTest.java`
 - 修改：`src/main/java/com/jdte/common/blockentities/TimeAcceleratorBE.java`、`src/main/java/com/jdte/common/blockentities/ExtendedTimeAccelerationManager.java`、`src/main/java/com/jdte/common/integrations/ae2/ExtendedTimeAcceleratorAE2Integration.java`
 
-- [ ] **步骤 1：先写路由和预算测试**
+- [x] **步骤 1：先写路由和预算测试**
 
 ```java
 @Test
@@ -122,27 +122,27 @@ void ae2RouteWinsWhenTickableExists() {
 }
 ```
 
-- [ ] **步骤 2：运行目标测试确认失败**
+- [x] **步骤 2：运行目标测试确认失败**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.blockentities.UltimateTimeWandTargetRuntimeTest`
 
 预期：FAIL，尚未存在路由和预算入口。
 
-- [ ] **步骤 3：把普通目标执行提取为共享、有界入口**
+- [x] **步骤 3：把普通目标执行提取为共享、有界入口**
 
 将 `TimeAcceleratorBE.accelerateTarget` 中的方块实体 ticker、`CoalescedAcceleratedMachine`、随机刻和 `MiscTools.isValidTickAccelBlock` 相关执行提取到可被机器管理器和手杖调用的包级入口；每次调用只执行 `min(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize)`，不在 1024× 请求中无界循环。现有管理器继续负责机器贡献、全局预算、轮转和待执行虚拟 tick，改为调用该入口，确保既有时间加速器行为和资源结算不变。
 
-- [ ] **步骤 4：实现 AE2 优先路由**
+- [x] **步骤 4：实现 AE2 优先路由**
 
 在 `UltimateTimeWandTargetRuntime.execute(ServerLevel, BlockPos, int)` 中先调用 `ExtendedTimeAcceleratorAE2Integration.hasTickable`；存在服务时调用 `accelerate`，返回实际执行数并把 `SLEEP` 端点视为无效/空闲；只有没有 AE2 服务时才执行普通 JDT 目标。AE2 未加载、无节点、无 `IGridTickable` 或服务休眠时均不抛异常；同一次请求绝不再调用普通 ticker。把 AE2 直接入口与现有升级卡入口分开，现有机器仍由 `AE_ACCELERATION_UPGRADE` 控制。
 
-- [ ] **步骤 5：运行测试和现有时间加速回归测试**
+- [x] **步骤 5：运行测试和现有时间加速回归测试**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.blockentities.UltimateTimeWandTargetRuntimeTest --tests com.jdte.common.blockentities.ExtendedTimeAccelerationManagerTest --tests com.jdte.common.blockentities.TimeAcceleratorExecutionPolicyTest`
 
 预期：全部 PASS；普通路径受预算限制、AE2 路径不双算、现有机器管理器测试保持通过。
 
-- [ ] **步骤 6：提交共享执行器**
+- [x] **步骤 6：提交共享执行器**
 
 ```bash
 git add src/main/java/com/jdte/common/blockentities/UltimateTimeWandTargetRuntime.java src/main/java/com/jdte/common/blockentities/TimeAcceleratorBE.java src/main/java/com/jdte/common/blockentities/ExtendedTimeAccelerationManager.java src/main/java/com/jdte/common/integrations/ae2/ExtendedTimeAcceleratorAE2Integration.java src/test/java/com/jdte/common/blockentities/UltimateTimeWandTargetRuntimeTest.java
