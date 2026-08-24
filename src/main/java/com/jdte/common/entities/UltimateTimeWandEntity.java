@@ -39,8 +39,13 @@ public class UltimateTimeWandEntity extends Entity {
     }
 
     public UltimateTimeWandEntity(Level level, BlockPos target, int exponent) {
+        this(level, target, exponent, DEFAULT_DURATION);
+    }
+
+    public UltimateTimeWandEntity(Level level, BlockPos target, int exponent, int duration) {
         this(JDTEEntities.ULTIMATE_TIME_WAND.get(), level);
-        applyState(new WandState(target, exponent, DEFAULT_DURATION, DEFAULT_DURATION));
+        int safeDuration = Math.max(1, duration);
+        applyState(new WandState(target, exponent, safeDuration, safeDuration));
     }
 
     @Override
@@ -107,6 +112,11 @@ public class UltimateTimeWandEntity extends Entity {
 
     public void merge(int exponentStep) {
         applyState(merge(state(), exponentStep, UltimateTimeWandData.MAX_EXPONENT));
+    }
+
+    /** Applies a fully planned state or restores the prior state after a failed item transaction. */
+    public void applyWandState(WandState state) {
+        applyState(state);
     }
 
     public WandState state() {

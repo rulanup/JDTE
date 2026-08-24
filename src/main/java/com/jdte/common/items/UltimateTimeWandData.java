@@ -1,6 +1,7 @@
 package com.jdte.common.items;
 
 import com.jdte.common.entities.UltimateTimeWandEntity;
+import net.minecraft.core.BlockPos;
 
 import java.util.Locale;
 
@@ -72,9 +73,25 @@ public final class UltimateTimeWandData {
     }
 
     public static FluidSettlement settleFluid(double pendingCost, double newCost) {
+        return settleFluid(pendingCost, newCost, true);
+    }
+
+    /**
+     * Without fractional settlement each operation rounds its full cost up, so no fractional
+     * debt is carried to a later use.
+     */
+    public static FluidSettlement settleFluid(double pendingCost, double newCost, boolean keepFractionalRemainder) {
         double total = Math.max(0.0D, pendingCost) + Math.max(0.0D, newCost);
+        if (!keepFractionalRemainder) {
+            return new FluidSettlement((int) Math.min(Integer.MAX_VALUE, Math.ceil(total)), 0.0D);
+        }
         int drainMb = (int) Math.min(Integer.MAX_VALUE, Math.floor(total));
         return new FluidSettlement(drainMb, total - drainMb);
+    }
+
+    public static UltimateTimeWandEntity.WandState initialState(BlockPos target, int exponent, int duration) {
+        int safeDuration = Math.max(1, duration);
+        return new UltimateTimeWandEntity.WandState(target, Math.max(0, exponent), safeDuration, safeDuration);
     }
 
     /**

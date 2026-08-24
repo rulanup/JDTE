@@ -68,6 +68,21 @@ class UltimateTimeWandDataTest {
     }
 
     @Test
+    void disabledFractionalSettlementRoundsUpWithoutRemainder() {
+        UltimateTimeWandData.FluidSettlement settlement =
+                UltimateTimeWandData.settleFluid(0.25D, 0.5D, false);
+        assertEquals(1, settlement.drainMb());
+        assertEquals(0.0D, settlement.remainingCost(), 1.0E-9D);
+    }
+
+    @Test
+    void initialStateUsesTheConfiguredDuration() {
+        WandState state = UltimateTimeWandData.initialState(BlockPos.ZERO, 4, 720);
+        assertEquals(720, state.totalTime());
+        assertEquals(720, state.remainingTime());
+    }
+
+    @Test
     void insufficientResourcesDoNotChangeExistingState() {
         WandState before = new WandState(BlockPos.ZERO, 4, 600, 400);
         assertFalse(UltimateTimeWandData.canApply(before, Mode.MAX, 0, 0, 1, 1));
