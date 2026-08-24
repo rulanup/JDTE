@@ -54,7 +54,7 @@
 - 修改：`src/main/java/com/jdte/setup/config/TimeAcceleratorConfig.java`、`src/main/java/com/jdte/setup/JDTEConfig.java`
 - 测试：`src/test/java/com/jdte/common/items/UltimateTimeWandDataTest.java`
 
-- [ ] **步骤 1：编写失败测试，覆盖模式和指数契约**
+- [x] **步骤 1：编写失败测试，覆盖模式和指数契约**
 
 ```java
 @Test
@@ -74,23 +74,23 @@ void modesUseOneTwoFourAndTenExponentSteps() {
 }
 ```
 
-- [ ] **步骤 2：运行目标测试确认当前缺少类型**
+- [x] **步骤 2：运行目标测试确认当前缺少类型**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.items.UltimateTimeWandDataTest`
 
 预期：FAIL，编译错误指向尚未创建的 `UltimateTimeWandData`/`Mode`。
 
-- [ ] **步骤 3：实现最小纯逻辑和 COMMON 配置**
+- [x] **步骤 3：实现最小纯逻辑和 COMMON 配置**
 
 在 `UltimateTimeWandData` 中固定四个模式名 `normal`、`x2`、`x4`、`max`，非法序号/名称统一回退 `NORMAL`；`multiplierForExponent` 使用 `1 << clamp(exponent, 0, 10)`；`addStep` 饱和到 10。配置默认值明确为：流体 `800000` mB、FE `10000000`、持续时间 `600` tick、最大指数 `10`、模式步进 `1/2/4/10`，并把倍率基础成本乘数、FE 基础成本乘数和流体小数结算开关放入 JDTE COMMON 配置。对 FE 使用 `long` 乘法后饱和到 `Integer.MAX_VALUE`；流体用 `double` 累积，结算时只取整数 mB 并保留小数余量。
 
-- [ ] **步骤 4：运行纯逻辑测试确认通过**
+- [x] **步骤 4：运行纯逻辑测试确认通过**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.items.UltimateTimeWandDataTest`
 
 预期：PASS；模式循环、非法模式恢复、1024× 上限、FE 饱和和流体小数结算全部通过。
 
-- [ ] **步骤 5：提交纯逻辑和配置契约**
+- [x] **步骤 5：提交纯逻辑和配置契约**
 
 ```bash
 git add src/main/java/com/jdte/common/items/UltimateTimeWandData.java src/main/java/com/jdte/setup/config/TimeAcceleratorConfig.java src/main/java/com/jdte/setup/JDTEConfig.java src/test/java/com/jdte/common/items/UltimateTimeWandDataTest.java
