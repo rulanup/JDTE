@@ -39,12 +39,12 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
     @Override
     public int getMaxMB() {
-        return JDTEConfig.COMMON.ultimateTimeWandFluidCapacity.get();
+        return configuredFluidCapacity();
     }
 
     @Override
     public int getMaxEnergy() {
-        return JDTEConfig.COMMON.ultimateTimeWandEnergyCapacity.get();
+        return configuredEnergyCapacity();
     }
 
     @Override
@@ -87,7 +87,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
         UltimateTimeWandEntity existing = findExisting(level, pos);
         UltimateTimeWandEntity.WandState before = existing == null
-                ? UltimateTimeWandData.initialState(pos, 0, JDTEConfig.COMMON.ultimateTimeWandDuration.get())
+                ? UltimateTimeWandData.initialState(pos, 0, configuredDuration())
                 : existing.state();
         UltimateTimeWandData.Mode mode = getMode(stack);
         int finalExponent = UltimateTimeWandData.addStep(before.exponent(), mode);
@@ -98,7 +98,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         int multiplier = UltimateTimeWandData.multiplierForExponent(finalExponent);
         UltimateTimeWandData.FluidSettlement fluidSettlement = UltimateTimeWandData.settleFluid(
                 pendingFluid(stack), fluidCost(multiplier),
-                JDTEConfig.COMMON.ultimateTimeWandFractionalFluidSettlement.get());
+                keepsFractionalFluidSettlement());
         int energyCost = UltimateTimeWandData.saturatingEnergyCost(multiplier, scaledEnergyBaseCost());
         UltimateTimeWandData.OperationResult operation = planWithResources(
                 player, stack, before, mode, fluidSettlement.drainMb(), energyCost);
@@ -111,7 +111,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         if (!creative && (!hasFluidForSettlement(stack, fluidSettlement) || !commitPort.canCommitResources(operation))) {
             return false;
         }
-        if (!commitIfTargetValid(true, creative, operation, commitPort)) {
+        if (!commitIfTargetValid(true, creative, operation, commitPort).success()) {
             return false;
         }
         if (!creative) {
@@ -161,6 +161,22 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         return scaled >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) scaled;
     }
 
+    static int configuredDuration() {
+        return JDTEConfig.COMMON.ultimateTimeWandDuration.get();
+    }
+
+    static int configuredFluidCapacity() {
+        return JDTEConfig.COMMON.ultimateTimeWandFluidCapacity.get();
+    }
+
+    static int configuredEnergyCapacity() {
+        return JDTEConfig.COMMON.ultimateTimeWandEnergyCapacity.get();
+    }
+
+    static boolean keepsFractionalFluidSettlement() {
+        return JDTEConfig.COMMON.ultimateTimeWandFractionalFluidSettlement.get();
+    }
+
     private static UltimateTimeWandData.OperationResult planWithResources(
             Player player, ItemStack stack, UltimateTimeWandEntity.WandState state, UltimateTimeWandData.Mode mode,
             int fluidCost, int energyCost) {
@@ -171,24 +187,45 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 FluidContainingItem.getAvailableFluid(stack), PoweredItem.getAvailableEnergy(stack), fluidCost, energyCost);
     }
 
-    static boolean commitIfTargetValid(boolean targetValid, boolean creative,
-                                       UltimateTimeWandData.OperationResult operation, CommitPort port) {
-        if (!targetValid || !operation.success() || !port.applyEntity(operation.state())) {
-            return false;
+    static CommitOutcome commitIfTargetValid(boolean targetValid, boolean creative,
+                                             UltimateTimeWandData.OperationResult operation, CommitPort port) {
+        if (!targetValid) {
+            return CommitOutcome.TARGET_REJECTED;
+        }
+        if (!operation.success()) {
+            return CommitOutcome.OPERATION_REJECTED;
+        }
+        if (!port.applyEntity(operation.state())) {
+            return CommitOutcome.ENTITY_REJECTED;
         }
         if (creative) {
-            return true;
+            return CommitOutcome.SUCCESS;
         }
         if (!port.drainFluid(operation.fluidCost())) {
+            boolean fluidRestored = port.refundFluid(operation.fluidCost());
             port.rollbackEntity();
-            return false;
+            return fluidRestored ? CommitOutcome.ROLLED_BACK : CommitOutcome.COMPENSATION_FAILED;
         }
         if (!port.drainEnergy(operation.energyCost())) {
-            port.refundFluid(operation.fluidCost());
+            boolean energyRestored = port.refundEnergy(operation.energyCost());
+            boolean fluidRestored = port.refundFluid(operation.fluidCost());
             port.rollbackEntity();
-            return false;
+            return energyRestored && fluidRestored ? CommitOutcome.ROLLED_BACK : CommitOutcome.COMPENSATION_FAILED;
         }
-        return true;
+        return CommitOutcome.SUCCESS;
+    }
+
+    enum CommitOutcome {
+        SUCCESS,
+        TARGET_REJECTED,
+        OPERATION_REJECTED,
+        ENTITY_REJECTED,
+        ROLLED_BACK,
+        COMPENSATION_FAILED;
+
+        boolean success() {
+            return this == SUCCESS;
+        }
     }
 
     interface CommitPort {
@@ -198,11 +235,11 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
         boolean drainFluid(int amount);
 
-        void refundFluid(int amount);
+        boolean refundFluid(int amount);
 
         boolean drainEnergy(int amount);
 
-        void refundEnergy(int amount);
+        boolean refundEnergy(int amount);
     }
 
     private static final class ServerCommitPort implements CommitPort {
@@ -262,22 +299,24 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 return false;
             }
             drainedFluid = fluid.drain(amount, IFluidHandler.FluidAction.EXECUTE);
-            if (drainedFluid.getAmount() == amount) {
-                return true;
-            }
-            refundFluid(amount);
-            return false;
+            return drainedFluid.getAmount() == amount;
         }
 
         @Override
-        public void refundFluid(int amount) {
-            if (!drainedFluid.isEmpty()) {
-                IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
-                if (fluid != null) {
-                    fluid.fill(drainedFluid, IFluidHandler.FluidAction.EXECUTE);
-                }
-                drainedFluid = FluidStack.EMPTY;
+        public boolean refundFluid(int amount) {
+            if (drainedFluid.isEmpty()) {
+                return true;
             }
+            IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
+            if (fluid == null) {
+                return false;
+            }
+            int restored = fluid.fill(drainedFluid, IFluidHandler.FluidAction.EXECUTE);
+            if (restored != drainedFluid.getAmount()) {
+                return false;
+            }
+            drainedFluid = FluidStack.EMPTY;
+            return true;
         }
 
         @Override
@@ -290,22 +329,24 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 return false;
             }
             drainedEnergy = energy.extractEnergy(amount, false);
-            if (drainedEnergy == amount) {
-                return true;
-            }
-            refundEnergy(amount);
-            return false;
+            return drainedEnergy == amount;
         }
 
         @Override
-        public void refundEnergy(int amount) {
-            if (drainedEnergy > 0) {
-                IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-                if (energy != null) {
-                    energy.receiveEnergy(drainedEnergy, false);
-                }
-                drainedEnergy = 0;
+        public boolean refundEnergy(int amount) {
+            if (drainedEnergy <= 0) {
+                return true;
             }
+            IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+            if (energy == null) {
+                return false;
+            }
+            int restored = energy.receiveEnergy(drainedEnergy, false);
+            if (restored != drainedEnergy) {
+                return false;
+            }
+            drainedEnergy = 0;
+            return true;
         }
     }
 
