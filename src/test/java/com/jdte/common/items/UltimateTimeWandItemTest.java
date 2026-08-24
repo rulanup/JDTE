@@ -2,11 +2,13 @@ package com.jdte.common.items;
 
 import com.jdte.common.entities.UltimateTimeWandEntity.WandState;
 import com.jdte.setup.JDTEConfig;
+import com.jdte.setup.JDTEItems;
 import com.direwolf20.justdirethings.common.items.interfaces.FluidContainingItem;
 import com.direwolf20.justdirethings.common.items.interfaces.PoweredItem;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -118,47 +120,46 @@ class UltimateTimeWandItemTest {
 
     @Test
     void blockShiftRightClickStillAcceleratesInsteadOfCyclingMode() {
-        assertEquals("accelerate", dispatchMarker(UltimateTimeWandItem.InteractionTarget.BLOCK, true));
-        assertEquals("accelerate", dispatchMarker(UltimateTimeWandItem.InteractionTarget.BLOCK, false));
+        UltimateTimeWandItem wand = JDTEItems.ULTIMATE_TIME_WAND.get();
+        assertEquals(UltimateTimeWandItem.InteractionAction.ACCELERATE, wand.useOnInteractionTarget(true));
+        assertEquals(UltimateTimeWandItem.InteractionAction.ACCELERATE, wand.useOnInteractionTarget(false));
     }
 
     @Test
     void airShiftRightClickCyclesMode() {
-        assertEquals("cycle-mode", dispatchMarker(UltimateTimeWandItem.InteractionTarget.AIR, true));
+        assertEquals(UltimateTimeWandItem.InteractionAction.CYCLE_MODE,
+                JDTEItems.ULTIMATE_TIME_WAND.get().useInteractionTarget(true));
     }
 
     @Test
     void airNonShiftRightClickPassesThrough() {
-        assertEquals("pass", dispatchMarker(UltimateTimeWandItem.InteractionTarget.AIR, false));
+        assertEquals(UltimateTimeWandItem.InteractionAction.PASS,
+                JDTEItems.ULTIMATE_TIME_WAND.get().useInteractionTarget(false));
     }
 
     @Test
     void appendHoverTextShowsCurrentAndMaximumResourcesInOrder() {
-        ItemStack stack = new ItemStack(new UltimateTimeWandItem());
+        UltimateTimeWandItem wand = JDTEItems.ULTIMATE_TIME_WAND.get();
+        ItemStack stack = new ItemStack(wand);
         fillFluid(stack, 1_234);
         fillEnergy(stack, 2_222);
 
         List<Component> tooltip = new ArrayList<>();
-        new UltimateTimeWandItem().appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
+        wand.appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
 
         assertEquals(2, tooltip.size());
-        String fluidText = tooltip.get(0).getString();
-        String energyText = tooltip.get(1).getString();
         String currentFluid = MagicHelpers.formatted(1_234);
-        String maximumFluid = MagicHelpers.formatted(UltimateTimeWandItem.configuredFluidCapacity());
+        String maximumFluid = MagicHelpers.formatted(wand.getMaxMB());
         String currentEnergy = MagicHelpers.formatted(2_222);
-        String maximumEnergy = MagicHelpers.formatted(UltimateTimeWandItem.configuredEnergyCapacity());
-        assertTrue(fluidText.contains(currentFluid));
-        assertTrue(fluidText.contains(maximumFluid));
-        assertTrue(energyText.contains(currentEnergy));
-        assertTrue(energyText.contains(maximumEnergy));
-        assertTrue(fluidText.indexOf(currentFluid) < fluidText.indexOf(maximumFluid));
-        assertTrue(energyText.indexOf(currentEnergy) < energyText.indexOf(maximumEnergy));
-    }
-
-    private static String dispatchMarker(UltimateTimeWandItem.InteractionTarget target, boolean shiftDown) {
-        return UltimateTimeWandItem.dispatchInteraction(target, shiftDown,
-                () -> "pass", () -> "cycle-mode", () -> "accelerate");
+        String maximumEnergy = MagicHelpers.formatted(wand.getMaxEnergy());
+        TranslatableContents fluidLine = (TranslatableContents) tooltip.get(0).getContents();
+        TranslatableContents energyLine = (TranslatableContents) tooltip.get(1).getContents();
+        assertEquals("tooltip.jdte.ultimate_time_wand.fluid", fluidLine.getKey());
+        assertEquals("tooltip.jdte.ultimate_time_wand.energy", energyLine.getKey());
+        assertEquals(currentFluid, fluidLine.getArgs()[0]);
+        assertEquals(maximumFluid, fluidLine.getArgs()[1]);
+        assertEquals(currentEnergy, energyLine.getArgs()[0]);
+        assertEquals(maximumEnergy, energyLine.getArgs()[1]);
     }
 
     private static void fillFluid(ItemStack stack, int amount) {

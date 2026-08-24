@@ -33,13 +33,18 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 /** Applies one server-owned, bounded Ultimate Time Wand request to the clicked target. */
 public class UltimateTimeWandItem extends Item implements FluidContainingItem, PoweredItem {
     public enum InteractionTarget {
         AIR,
         BLOCK
+    }
+
+    enum InteractionAction {
+        PASS,
+        CYCLE_MODE,
+        ACCELERATE
     }
 
     public UltimateTimeWandItem() {
@@ -59,15 +64,13 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        return dispatchInteraction(InteractionTarget.AIR, player.isShiftKeyDown(),
-                () -> InteractionResultHolder.pass(stack),
-                () -> {
-                    if (!level.isClientSide()) {
-                        cycleMode(player, stack);
-                    }
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
-                },
-                () -> InteractionResultHolder.pass(stack));
+        if (useInteractionTarget(player.isShiftKeyDown()) != InteractionAction.CYCLE_MODE) {
+            return InteractionResultHolder.pass(stack);
+        }
+        if (!level.isClientSide()) {
+            cycleMode(player, stack);
+        }
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
     @Override
@@ -81,11 +84,11 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         if (level.isClientSide() || !(level instanceof ServerLevel serverLevel)) {
             return InteractionResult.sidedSuccess(level.isClientSide());
         }
-        return dispatchInteraction(InteractionTarget.BLOCK, player.isShiftKeyDown(),
-                () -> InteractionResult.PASS,
-                () -> InteractionResult.PASS,
-                () -> applyToTarget(serverLevel, player, stack, context.getClickedPos())
-                        ? InteractionResult.SUCCESS : InteractionResult.FAIL);
+        if (useOnInteractionTarget(player.isShiftKeyDown()) != InteractionAction.ACCELERATE) {
+            return InteractionResult.PASS;
+        }
+        return applyToTarget(serverLevel, player, stack, context.getClickedPos())
+                ? InteractionResult.SUCCESS : InteractionResult.FAIL;
     }
 
     private boolean applyToTarget(ServerLevel level, Player player, ItemStack stack, BlockPos pos) {
@@ -205,13 +208,18 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                         .withStyle(ChatFormatting.YELLOW));
     }
 
-    static <T> T dispatchInteraction(InteractionTarget target, boolean shiftDown,
-                                      Supplier<T> pass,
-                                      Supplier<T> cycleMode,
-                                      Supplier<T> accelerate) {
+    InteractionAction useInteractionTarget(boolean shiftDown) {
+        return dispatchInteraction(InteractionTarget.AIR, shiftDown);
+    }
+
+    InteractionAction useOnInteractionTarget(boolean shiftDown) {
+        return dispatchInteraction(InteractionTarget.BLOCK, shiftDown);
+    }
+
+    private static InteractionAction dispatchInteraction(InteractionTarget target, boolean shiftDown) {
         return switch (target) {
-            case BLOCK -> accelerate.get();
-            case AIR -> (shiftDown ? cycleMode : pass).get();
+            case BLOCK -> InteractionAction.ACCELERATE;
+            case AIR -> shiftDown ? InteractionAction.CYCLE_MODE : InteractionAction.PASS;
         };
     }
 

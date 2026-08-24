@@ -105,3 +105,11 @@ TDD 红灯（生产 helper 尚未添加时）：
 ### 未解决疑虑
 
 - 本回合 focused 测试因用户要求停止等待而未取得最终退出结果；提交前未虚报其通过。上一回合完整测试已通过，建议后续在不被中断的环境中补跑 focused 与 full test。
+
+## 第 3 修复回合审计记录
+
+- 测试改用已注册的 `JDTEItems.ULTIMATE_TIME_WAND.get()`，避免在 registry frozen 后构造未注册物品。
+- 交互测试调用 `UltimateTimeWandItem.useInteractionTarget(...)` 和 `useOnInteractionTarget(...)`；生产 `use(...)` / `useOn(...)` 同样经由这些入口分派。
+- 保留真实 `appendHoverText(...)` 测试以及 `Component.translatable` 翻译链路。
+- `./gradlew.bat test --tests com.jdte.common.items.UltimateTimeWandItemTest --tests com.jdte.setup.UltimateTimeWandConfigLanguageContractTest --no-daemon`：`BUILD SUCCESSFUL in 27s`。
+- `./gradlew.bat test --no-daemon`：`BUILD SUCCESSFUL in 32s`。
