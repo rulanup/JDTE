@@ -82,15 +82,15 @@ public class LargePocketGeneratorItem extends PocketGenerator {
         }
 
         setFuelMultiplier(generatorStack, PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack));
+        int burnTicks = burnTime / Math.max(1, getBurnSpeedMultiplier(generatorStack));
+        if (burnTicks <= 0) {
+            return false;
+        }
         if (fuelStack.hasCraftingRemainingItem()) {
             fuelHandler.setStackInSlot(0, fuelStack.getCraftingRemainingItem());
         } else {
             fuelStack.shrink(1);
             fuelHandler.setStackInSlot(0, fuelStack);
-        }
-        int burnTicks = burnTime / Math.max(1, getBurnSpeedMultiplier(generatorStack));
-        if (burnTicks <= 0) {
-            return false;
         }
         generatorStack.set(JustDireDataComponents.POCKETGEN_COUNTER, burnTicks);
         generatorStack.set(JustDireDataComponents.POCKETGEN_MAXBURN, burnTicks);

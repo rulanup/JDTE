@@ -65,3 +65,9 @@ Result:
 BUILD SUCCESSFUL in 18s
 9 actionable tasks: 2 executed, 7 up-to-date
 ```
+
+## Review follow-up
+
+- Moved the zero-tick guard before fuel consumption so an unusable burn multiplier cannot consume fuel and then report failure.
+- Added a non-fuel regression assertion (`minecraft:dirt` resolves to zero burn time).
+- Re-ran the focused suite after the follow-up: `BUILD SUCCESSFUL in 37s`.

@@ -249,6 +249,11 @@ class LargePortableContainerLogicTest {
     }
 
     @Test
+    void largePocketGeneratorFuelResolverRejectsNonFuelItems() {
+        assertEquals(0, LargePocketGeneratorItem.resolveFuelBurnTime(new ItemStack(Items.DIRT)));
+    }
+
+    @Test
     void largePocketGeneratorBurnsJdtAndVanillaCoalBlocksAndProducesEnergy() {
         assertLargePocketGeneratorBurnsFuel(new ItemStack(Registration.CoalBlock_T1_ITEM.get()));
         assertLargePocketGeneratorBurnsFuel(new ItemStack(Items.COAL_BLOCK));
