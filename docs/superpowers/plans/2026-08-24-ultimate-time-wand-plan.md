@@ -207,7 +207,7 @@ git commit -m "feat(顶级时间手杖): 添加可持久化加速实体"
 - 修改：`src/main/java/com/jdte/setup/JDTEDataComponents.java`、`src/main/java/com/jdte/setup/JDTEItems.java`、`src/main/java/com/jdte/setup/JDTECreativeTabs.java`
 - 测试：`src/test/java/com/jdte/common/items/UltimateTimeWandDataTest.java`（补充资源/叠加纯逻辑测试）
 
-- [ ] **步骤 1：补充失败测试，先锁定原子资源流程**
+- [x] **步骤 1：补充失败测试，先锁定原子资源流程**
 
 ```java
 @Test
@@ -227,27 +227,27 @@ void existingMaxExponentIsNotChargedAgain() {
 }
 ```
 
-- [ ] **步骤 2：运行目标测试确认失败**
+- [x] **步骤 2：运行目标测试确认失败**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.items.UltimateTimeWandDataTest`
 
 预期：FAIL，尚未存在原子操作计划类型。
 
-- [ ] **步骤 3：实现 `UltimateTimeWandItem` 的服务端操作顺序**
+- [x] **步骤 3：实现 `UltimateTimeWandItem` 的服务端操作顺序**
 
 让物品实现 JDT `FluidContainingItem`，`getMaxMB()` 从 COMMON 配置返回 800000，FE 容量通过 JDT `PoweredItem` 能力返回 10000000。潜行右键只循环数据组件模式、显示当前模式并返回成功；普通右键先用 `MiscTools.isValidTickAccelBlock` 或 AE2 `hasTickable` 校验，再查找同一 `ServerLevel`/`BlockPos` 的 `UltimateTimeWandEntity`。新实体使用 600 tick；已有实体只允许指数真正增加且不超过 10。先用最终指数计算 JDT `Config.TIMEWAND_FLUID_COST`/`Config.TIMEWAND_RF_COST` 对应成本，流体保留小数结算，FE 用饱和乘法；创造模式跳过消耗但不跳过目标和实体状态校验。资源模拟成功后才修改实体并扣除资源，失败路径不生成、不延长、不扣费。右键方块不打开容器界面；填充继续走标准 `FluidContainingItem` capability。成功后播放 JDT 风格音效并同步实体数据。
 
-- [ ] **步骤 4：注册物品和数据组件，加入创造标签**
+- [x] **步骤 4：注册物品和数据组件，加入创造标签**
 
 在 `JDTEDataComponents` 注册 `ultimate_time_wand_mode`（持久化字符串或枚举 codec，网络同步使用对应 stream codec）；在 `JDTEItems` 注册 `ULTIMATE_TIME_WAND`；在创造标签中展示空手杖。注册过程不引用 Dyna 包，也不修改任何 `JustDynaThings*` 集成类。
 
-- [ ] **步骤 5：运行物品逻辑和编译测试**
+- [x] **步骤 5：运行物品逻辑和编译测试**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.items.UltimateTimeWandDataTest; .\gradlew.bat compileJava`
 
 预期：原子资源测试通过，物品、组件、能力和注册均编译通过。
 
-- [ ] **步骤 6：提交物品操作**
+- [x] **步骤 6：提交物品操作**
 
 ```bash
 git add src/main/java/com/jdte/common/items/UltimateTimeWandItem.java src/main/java/com/jdte/setup/JDTEDataComponents.java src/main/java/com/jdte/setup/JDTEItems.java src/main/java/com/jdte/setup/JDTECreativeTabs.java src/test/java/com/jdte/common/items/UltimateTimeWandDataTest.java
