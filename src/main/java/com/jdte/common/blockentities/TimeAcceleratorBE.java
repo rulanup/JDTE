@@ -10,7 +10,6 @@ import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandl
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.setup.Config;
 import com.direwolf20.justdirethings.setup.Registration;
-import com.direwolf20.justdirethings.util.MiscTools;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -25,7 +24,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -90,19 +88,11 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
             }
 
             BlockEntity blockEntity = serverLevel.getBlockEntity(immutable);
-            if (blockEntity instanceof TimeAcceleratorMachine) {
-                continue;
-            }
-
             if (!isBlockValidFilter(serverLevel, immutable, blockState)) {
                 continue;
             }
 
-            if (!MiscTools.isValidTickAccelBlock(serverLevel, blockState, blockEntity)) {
-                continue;
-            }
-
-            if (accelerateTarget(serverLevel, immutable, blockState, blockEntity, workTicks, effectiveMultiplier)) {
+            if (accelerateTarget(serverLevel, immutable, workTicks, effectiveMultiplier)) {
                 accelerated = true;
             }
         }
@@ -120,32 +110,14 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         return isStackValidFilter(blockItemStack);
     }
 
-    @SuppressWarnings("unchecked")
-    protected boolean accelerateTarget(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity,
-                                       int workTicks, int displayMultiplier) {
-        if (blockEntity != null) {
-            BlockEntityTicker<BlockEntity> ticker = blockEntity.getBlockState().getTicker(serverLevel, (BlockEntityType<BlockEntity>) blockEntity.getType());
-            if (ticker == null) {
-                return false;
-            }
-            if (blockEntity instanceof CoalescedAcceleratedMachine coalesced) {
-                coalesced.accumulateAcceleratedTicks(workTicks);
-                coalesced.flushAcceleratedTicks();
-                spawnAccelerationEffect(serverLevel, blockPos, displayMultiplier);
-                return true;
-            }
-            for (int i = 0; i < workTicks; i++) {
-                ticker.tick(serverLevel, blockPos, blockEntity.getBlockState(), blockEntity);
-            }
-            spawnAccelerationEffect(serverLevel, blockPos, displayMultiplier);
-            return true;
+    protected boolean accelerateTarget(ServerLevel serverLevel, BlockPos blockPos, int workTicks, int displayMultiplier) {
+        UltimateTimeWandTargetRuntime.Result result =
+                UltimateTimeWandTargetRuntime.executeOrdinary(serverLevel, blockPos, workTicks);
+        if (result.coalescedTarget() != null) {
+            result.coalescedTarget().flushAcceleratedTicks();
         }
-
-        if (!blockState.isRandomlyTicking()) {
+        if (result.executed() <= 0) {
             return false;
-        }
-        for (int i = 0; i < workTicks; i++) {
-            blockState.randomTick(serverLevel, blockPos, serverLevel.random);
         }
         spawnAccelerationEffect(serverLevel, blockPos, displayMultiplier);
         return true;

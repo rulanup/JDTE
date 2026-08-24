@@ -560,8 +560,7 @@ public final class ExtendedTimeAccelerationManager {
 
         private ExecutionResult executeTarget(ServerLevel level, TargetKey target, int requested) {
             return switch (target.kind()) {
-                case BLOCK_ENTITY -> executeBlockEntity(level, target.pos(), requested);
-                case RANDOM_TICK -> executeRandomTicks(level, target.pos(), requested);
+                case BLOCK_ENTITY, RANDOM_TICK -> executeOrdinaryTarget(level, target.pos(), requested);
                 case AE2_GRID -> {
                     ExtendedTimeAcceleratorAE2Integration.Result result =
                             ExtendedTimeAcceleratorAE2Integration.accelerate(level, target.pos(), requested);
@@ -570,39 +569,13 @@ public final class ExtendedTimeAccelerationManager {
             };
         }
 
-        @SuppressWarnings("unchecked")
-        private ExecutionResult executeBlockEntity(ServerLevel level, BlockPos pos, int requested) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity == null || blockEntity.isRemoved() || blockEntity instanceof TimeAcceleratorMachine) {
-                return ExecutionResult.invalid();
+        private ExecutionResult executeOrdinaryTarget(ServerLevel level, BlockPos pos, int requested) {
+            UltimateTimeWandTargetRuntime.Result result =
+                    UltimateTimeWandTargetRuntime.executeOrdinary(level, pos, requested);
+            if (result.coalescedTarget() != null) {
+                coalescedTargets.add(result.coalescedTarget());
             }
-            BlockEntityTicker<BlockEntity> ticker = blockEntity.getBlockState().getTicker(
-                    level, (BlockEntityType<BlockEntity>) blockEntity.getType());
-            if (ticker == null || !MiscTools.isValidTickAccelBlock(level, blockEntity.getBlockState(), blockEntity)) {
-                return ExecutionResult.invalid();
-            }
-            if (blockEntity instanceof CoalescedAcceleratedMachine coalesced) {
-                coalesced.accumulateAcceleratedTicks(requested);
-                coalescedTargets.add(coalesced);
-                return new ExecutionResult(requested, true, false);
-            }
-            int executed = 0;
-            for (; executed < requested && !blockEntity.isRemoved(); executed++) {
-                ticker.tick(level, pos, blockEntity.getBlockState(), blockEntity);
-            }
-            return new ExecutionResult(executed, true, false);
-        }
-
-        private ExecutionResult executeRandomTicks(ServerLevel level, BlockPos pos, int requested) {
-            BlockState state = level.getBlockState(pos);
-            if (state.hasBlockEntity() || !state.isRandomlyTicking()
-                    || !MiscTools.isValidTickAccelBlock(level, state, null)) {
-                return ExecutionResult.invalid();
-            }
-            for (int executed = 0; executed < requested; executed++) {
-                state.randomTick(level, pos, level.random);
-            }
-            return new ExecutionResult(requested, true, false);
+            return new ExecutionResult(result.executed(), result.valid(), result.idle());
         }
 
         private void spawnEffect(ServerLevel level, BlockPos pos, int multiplier) {
