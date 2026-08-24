@@ -2,6 +2,7 @@ package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.entities.TimeAcceleratorEffectEntity;
+import com.jdte.common.entities.UltimateTimeWandEntity;
 import com.jdte.common.integrations.ae2.ExtendedTimeAcceleratorAE2Integration;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEConfig;
@@ -26,7 +27,6 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -51,6 +51,32 @@ public final class ExtendedTimeAccelerationManager {
         if (accelerator.getLevel() instanceof ServerLevel level && !accelerator.isRemoved()) {
             LEVELS.computeIfAbsent(level, ignored -> new LevelState()).submitted.add(accelerator);
         }
+    }
+
+    public static boolean submitWand(UltimateTimeWandEntity wand, ServerLevel level,
+                                     BlockPos target, int requestedTicks) {
+        if (wand.isRemoved() || wand.level() != level || requestedTicks <= 0) {
+            return false;
+        }
+        UltimateTimeWandTargetRuntime.Route route = UltimateTimeWandTargetRuntime.route(level, target);
+        TargetKind kind = switch (route) {
+            case AE2 -> TargetKind.AE2_GRID;
+            case ORDINARY -> level.getBlockEntity(target) == null
+                    ? TargetKind.RANDOM_TICK : TargetKind.BLOCK_ENTITY;
+            case NONE -> null;
+        };
+        if (kind == null) {
+            return false;
+        }
+        LevelState state = LEVELS.computeIfAbsent(level, ignored -> new LevelState());
+        state.submittedWands.put(wand,
+                new WandSubmission(new TargetKey(target, kind), requestedTicks));
+        return true;
+    }
+
+    static boolean isCurrentWandTarget(BlockPos pendingPos, UltimateTimeWandTargetRuntime.Route pendingRoute,
+                                       BlockPos submittedPos, UltimateTimeWandTargetRuntime.Route submittedRoute) {
+        return pendingPos.equals(submittedPos) && pendingRoute == submittedRoute;
     }
 
     static AccelerationRequest requestAcceleration(TimeAcceleratorBE accelerator) {
@@ -152,16 +178,13 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
-    private record ExecutionResult(int executed, boolean valid, boolean idle) {
-        private static ExecutionResult invalid() {
-            return new ExecutionResult(0, false, true);
-        }
-    }
-
     record PreparedAcceleration(int displayMultiplier, int workTicks, int fluidCost, int energyCost) {
     }
 
     record AccelerationRequest(int displayMultiplier, int workTicks) {
+    }
+
+    private record WandSubmission(TargetKey target, int workTicks) {
     }
 
     private static final class TickBudget {
@@ -202,62 +225,6 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
-    private static final class PendingTarget {
-        private long virtualTicks;
-        private final Map<TimeAcceleratorBE, Contribution> contributions = new IdentityHashMap<>();
-
-        private void add(TimeAcceleratorBE accelerator, long ticks, int multiplier) {
-            Contribution contribution = contributions.computeIfAbsent(accelerator, ignored -> new Contribution());
-            contribution.virtualTicks += ticks;
-            contribution.multiplier = multiplier;
-            virtualTicks += ticks;
-        }
-
-        private void retainContributors(Set<TimeAcceleratorBE> active) {
-            var iterator = contributions.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<TimeAcceleratorBE, Contribution> entry = iterator.next();
-                if (!active.contains(entry.getKey())) {
-                    virtualTicks -= entry.getValue().virtualTicks;
-                    iterator.remove();
-                }
-            }
-        }
-
-        private void consume(long ticks) {
-            long remaining = ticks;
-            var iterator = contributions.entrySet().iterator();
-            while (iterator.hasNext() && remaining > 0) {
-                Contribution contribution = iterator.next().getValue();
-                long consumed = Math.min(remaining, contribution.virtualTicks);
-                contribution.virtualTicks -= consumed;
-                virtualTicks -= consumed;
-                remaining -= consumed;
-                if (contribution.virtualTicks <= 0) {
-                    iterator.remove();
-                }
-            }
-        }
-
-        private int displayMultiplier() {
-            int total = 0;
-            for (Contribution contribution : contributions.values()) {
-                total = saturatingAdd(total, contribution.multiplier);
-            }
-            return Math.max(1, total);
-        }
-    }
-
-    private static final class Contribution {
-        private long virtualTicks;
-        private int multiplier;
-    }
-
-    private static int saturatingAdd(int left, int right) {
-        long value = (long) left + right;
-        return value >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) value;
-    }
-
     private static final class RandomTargetCache {
         private AABB area;
         private long refreshAt;
@@ -276,16 +243,15 @@ public final class ExtendedTimeAccelerationManager {
 
     private static final class LevelState {
         private final Set<TimeAcceleratorBE> submitted = Collections.newSetFromMap(new IdentityHashMap<>());
-        private final Map<TargetKey, PendingTarget> pending = new LinkedHashMap<>();
-        private final ArrayDeque<TargetKey> queue = new ArrayDeque<>();
-        private final Set<TargetKey> queued = new LinkedHashSet<>();
+        private final Map<UltimateTimeWandEntity, WandSubmission> submittedWands = new IdentityHashMap<>();
+        private final TimeAccelerationWorkQueue<Object, TargetKey> workQueue = new TimeAccelerationWorkQueue<>();
         private final Set<CoalescedAcceleratedMachine> coalescedTargets =
                 Collections.newSetFromMap(new IdentityHashMap<>());
         private final Map<TimeAcceleratorBE, RandomTargetCache> randomTargets = new IdentityHashMap<>();
         private final Map<BlockPos, Long> nextEffectTick = new LinkedHashMap<>();
 
         private boolean hasWork() {
-            return !submitted.isEmpty() || !pending.isEmpty();
+            return !submitted.isEmpty() || !submittedWands.isEmpty() || workQueue.hasWork();
         }
 
         private void prepare(ServerLevel level, int maxScannedBlocks) {
@@ -293,9 +259,11 @@ public final class ExtendedTimeAccelerationManager {
             if (level.getGameTime() % 200L == 0L) {
                 nextEffectTick.entrySet().removeIf(entry -> entry.getValue() + 200L < level.getGameTime());
             }
-            Set<TimeAcceleratorBE> active = Collections.newSetFromMap(new IdentityHashMap<>());
+            Set<Object> active = Collections.newSetFromMap(new IdentityHashMap<>());
             active.addAll(submitted);
-            Set<TimeAcceleratorBE> ae2Active = Collections.newSetFromMap(new IdentityHashMap<>());
+            active.addAll(submittedWands.keySet());
+            Set<Object> ae2Active = Collections.newSetFromMap(new IdentityHashMap<>());
+            ae2Active.addAll(submittedWands.keySet());
             if (isAE2AccelerationConfigured()) {
                 for (TimeAcceleratorBE accelerator : submitted) {
                     if (UpgradeHelper.hasAEAccelerationUpgrade(accelerator)) {
@@ -305,7 +273,7 @@ public final class ExtendedTimeAccelerationManager {
             }
             retainActiveContributors(active, ae2Active);
             randomTargets.keySet().removeIf(accelerator -> !active.contains(accelerator));
-            if (submitted.isEmpty()) {
+            if (submitted.isEmpty() && submittedWands.isEmpty()) {
                 return;
             }
 
@@ -334,13 +302,11 @@ public final class ExtendedTimeAccelerationManager {
             }
             submitted.clear();
             randomTargets.keySet().removeIf(accelerator -> accelerator.isRemoved() || accelerator.getLevel() != level);
-            if (contexts.isEmpty()) {
-                return;
-            }
-
-            discoverBlockEntities(level, byChunk);
-            for (AcceleratorContext context : contexts) {
-                context.targets.addAll(getRandomTargets(level, context, scanBudget));
+            if (!contexts.isEmpty()) {
+                discoverBlockEntities(level, byChunk);
+                for (AcceleratorContext context : contexts) {
+                    context.targets.addAll(getRandomTargets(level, context, scanBudget));
+                }
             }
 
             long maxPending = JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get();
@@ -348,7 +314,7 @@ public final class ExtendedTimeAccelerationManager {
                 if (context.targets.isEmpty()) {
                     continue;
                 }
-                long highestPending = highestPendingTicks(context.targets);
+                long highestPending = workQueue.highestPendingTicks(context.targets);
                 Optional<PreparedAcceleration> accepted = prepareAcceptedAcceleration(
                         context.accelerator, context.request, maxPending, highestPending);
                 if (accepted.isEmpty() || !payForSubmission(context.accelerator, accepted.get())) {
@@ -356,40 +322,38 @@ public final class ExtendedTimeAccelerationManager {
                 }
                 PreparedAcceleration prepared = accepted.get();
                 for (TargetKey target : context.targets) {
-                    enqueue(target, context.accelerator, prepared.workTicks(),
+                    workQueue.enqueue(target, context.accelerator, prepared.workTicks(),
                             prepared.displayMultiplier(), maxPending);
                 }
             }
-        }
 
-        private long highestPendingTicks(Set<TargetKey> targets) {
-            long highest = 0L;
-            for (TargetKey target : targets) {
-                PendingTarget existing = pending.get(target);
-                if (existing != null) {
-                    highest = Math.max(highest, existing.virtualTicks);
+            for (Map.Entry<UltimateTimeWandEntity, WandSubmission> entry : submittedWands.entrySet()) {
+                WandSubmission submission = entry.getValue();
+                int accepted = TimeAcceleratorExecutionPolicy.admittedWorkTicks(
+                        submission.workTicks(), maxPending, workQueue.pendingTicks(submission.target()));
+                if (accepted > 0) {
+                    workQueue.enqueue(submission.target(), entry.getKey(), accepted, 0, maxPending);
                 }
             }
-            return highest;
+            submittedWands.clear();
         }
 
-        private void retainActiveContributors(Set<TimeAcceleratorBE> active,
-                                              Set<TimeAcceleratorBE> ae2Active) {
-            boolean removed = false;
-            var iterator = pending.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<TargetKey, PendingTarget> entry = iterator.next();
-                Set<TimeAcceleratorBE> allowed = entry.getKey().kind() == TargetKind.AE2_GRID ? ae2Active : active;
-                entry.getValue().retainContributors(allowed);
-                if (entry.getValue().virtualTicks <= 0) {
-                    iterator.remove();
-                    removed = true;
+        private void retainActiveContributors(Set<Object> active, Set<Object> ae2Active) {
+            workQueue.retainContributors((target, source) -> {
+                if (source instanceof UltimateTimeWandEntity wand) {
+                    WandSubmission current = submittedWands.get(wand);
+                    return current != null && isCurrentWandTarget(
+                            target.pos(), routeFor(target.kind()),
+                            current.target().pos(), routeFor(current.target().kind()));
                 }
-            }
-            if (removed) {
-                queue.removeIf(target -> !pending.containsKey(target));
-                queued.retainAll(pending.keySet());
-            }
+                return (target.kind() == TargetKind.AE2_GRID ? ae2Active : active).contains(source);
+            });
+        }
+
+        private UltimateTimeWandTargetRuntime.Route routeFor(TargetKind kind) {
+            return kind == TargetKind.AE2_GRID
+                    ? UltimateTimeWandTargetRuntime.Route.AE2
+                    : UltimateTimeWandTargetRuntime.Route.ORDINARY;
         }
 
         private void discoverBlockEntities(ServerLevel level, Map<Long, List<AcceleratorContext>> byChunk) {
@@ -494,88 +458,52 @@ public final class ExtendedTimeAccelerationManager {
             return ticker != null && MiscTools.isValidTickAccelBlock(level, state, blockEntity);
         }
 
-        private void enqueue(TargetKey target, TimeAcceleratorBE accelerator, int workTicks,
-                             int displayMultiplier, long maxPending) {
-            PendingTarget work = pending.get(target);
-            long currentTicks = work == null ? 0L : work.virtualTicks;
-            long available = currentTicks >= maxPending ? 0L : maxPending - currentTicks;
-            if (workTicks <= 0 || (long) workTicks > available) {
-                throw new IllegalStateException("Accepted Time Accelerator work exceeds target capacity");
-            }
-            if (work == null) {
-                work = new PendingTarget();
-                pending.put(target, work);
-                addToQueue(target);
-            }
-            work.add(accelerator, workTicks, displayMultiplier);
-        }
-
         private void execute(ServerLevel level, long maxExecutions) {
             int batchSize = JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get();
-            long executedThisTick = 0L;
             coalescedTargets.clear();
             try {
-                while (!queue.isEmpty() && executedThisTick < maxExecutions) {
-                    TargetKey target = queue.removeFirst();
-                    queued.remove(target);
-                    PendingTarget work = pending.get(target);
-                    if (work == null) {
-                        continue;
-                    }
-                    long remainingBudget = maxExecutions - executedThisTick;
-                    int requested = TimeAcceleratorExecutionPolicy.requestedTicks(
-                            work.virtualTicks, batchSize, remainingBudget);
-                    ExecutionResult result = executeTarget(level, target, requested, remainingBudget);
-                    if (!result.valid) {
-                        pending.remove(target);
-                        nextEffectTick.remove(target.pos());
-                        continue;
-                    }
-                    if (result.executed <= 0) {
-                        addToQueue(target);
-                        break;
-                    }
-
-                    executedThisTick += result.executed;
-                    int displayMultiplier = work.displayMultiplier();
-                    work.consume(result.executed);
-                    spawnEffect(level, target.pos(), displayMultiplier);
-                    if (result.idle || work.virtualTicks <= 0) {
-                        pending.remove(target);
-                    } else {
-                        addToQueue(target);
-                    }
-                }
+                workQueue.execute(maxExecutions, batchSize,
+                        (target, requested, remainingBudget) -> {
+                            TimeAccelerationWorkQueue.ExecutionResult result =
+                                    executeTarget(level, target, requested, remainingBudget);
+                            if (!result.valid()) {
+                                nextEffectTick.remove(target.pos());
+                            }
+                            return result;
+                        },
+                        (target, result, displayMultiplier) -> {
+                            if (displayMultiplier > 0) {
+                                spawnEffect(level, target.pos(), displayMultiplier);
+                            }
+                        });
             } finally {
                 coalescedTargets.forEach(CoalescedAcceleratedMachine::flushAcceleratedTicks);
                 coalescedTargets.clear();
             }
         }
 
-        private void addToQueue(TargetKey target) {
-            if (queued.add(target)) {
-                queue.addLast(target);
-            }
-        }
-
-        private ExecutionResult executeTarget(ServerLevel level, TargetKey target, int requested, long remainingBudget) {
+        private TimeAccelerationWorkQueue.ExecutionResult executeTarget(
+                ServerLevel level, TargetKey target, int requested, long remainingBudget) {
             return switch (target.kind()) {
                 case BLOCK_ENTITY, RANDOM_TICK -> executeOrdinaryTarget(level, target.pos(), requested, remainingBudget);
                 case AE2_GRID -> {
                     ExtendedTimeAcceleratorAE2Integration.Result result =
                             ExtendedTimeAcceleratorAE2Integration.accelerate(level, target.pos(), requested);
-                    yield new ExecutionResult(result.executed(), result.valid(), result.idle());
+                    yield new TimeAccelerationWorkQueue.ExecutionResult(
+                            result.executed(), result.valid(), result.idle());
                 }
             };
         }
 
-        private ExecutionResult executeOrdinaryTarget(ServerLevel level, BlockPos pos, int requested, long remainingBudget) {
+        private TimeAccelerationWorkQueue.ExecutionResult executeOrdinaryTarget(
+                ServerLevel level, BlockPos pos, int requested, long remainingBudget) {
             UltimateTimeWandTargetRuntime.Result result =
                     UltimateTimeWandTargetRuntime.executeOrdinary(level, pos, requested, remainingBudget);
             if (result.coalescedTarget() != null) {
                 coalescedTargets.add(result.coalescedTarget());
             }
-            return new ExecutionResult(result.executed(), result.valid(), result.idle());
+            return new TimeAccelerationWorkQueue.ExecutionResult(
+                    result.executed(), result.valid(), result.idle());
         }
 
         private void spawnEffect(ServerLevel level, BlockPos pos, int multiplier) {

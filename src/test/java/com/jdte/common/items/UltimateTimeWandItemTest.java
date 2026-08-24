@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UltimateTimeWandItemTest {
@@ -24,36 +23,42 @@ class UltimateTimeWandItemTest {
         assertEquals(UltimateTimeWandItem.CommitOutcome.ENTITY_REJECTED,
                 UltimateTimeWandItem.commitIfTargetValid(true, false, OPERATION, port));
 
-        assertEquals(0, port.fluidDrains);
-        assertEquals(0, port.energyDrains);
+        assertEquals(1, port.resourcePrepares);
+        assertEquals(0, port.resourceCommits);
         assertEquals(BEFORE, port.entityState);
+        assertEquals(100, port.liveFluid);
+        assertEquals(200, port.liveEnergy);
     }
 
     @Test
-    void failedEnergyCommitRestoresFluidAndEntityState() {
+    void rejectedFinalResourceCommitRestoresEntityWithoutChargingLiveResources() {
         RecordingCommitPort port = new RecordingCommitPort(true, true, false, BEFORE);
 
         assertEquals(UltimateTimeWandItem.CommitOutcome.ROLLED_BACK,
                 UltimateTimeWandItem.commitIfTargetValid(true, false, OPERATION, port));
 
-        assertEquals(1, port.fluidDrains);
-        assertEquals(1, port.fluidRefunds);
-        assertEquals(1, port.energyDrains);
-        assertEquals(1, port.energyRefunds);
+        assertEquals(1, port.resourcePrepares);
+        assertEquals(1, port.resourceCommits);
+        assertEquals(1, port.entityRollbacks);
         assertEquals(BEFORE, port.entityState);
+        assertEquals(100, port.liveFluid);
+        assertEquals(200, port.liveEnergy);
     }
 
     @Test
-    void failedFluidCommitRestoresAnExistingEntityState() {
+    void failedResourcePreparationNeverChangesTheEntityOrLiveResources() {
         RecordingCommitPort port = new RecordingCommitPort(true, false, true, BEFORE);
 
         assertEquals(UltimateTimeWandItem.CommitOutcome.ROLLED_BACK,
                 UltimateTimeWandItem.commitIfTargetValid(true, false, OPERATION, port));
 
-        assertEquals(1, port.entityRollbacks);
-        assertEquals(1, port.fluidRefunds);
+        assertEquals(0, port.entityApplies);
+        assertEquals(0, port.entityRollbacks);
+        assertEquals(1, port.resourcePrepares);
+        assertEquals(0, port.resourceCommits);
         assertEquals(BEFORE, port.entityState);
-        assertEquals(0, port.energyDrains);
+        assertEquals(100, port.liveFluid);
+        assertEquals(200, port.liveEnergy);
     }
 
     @Test
@@ -64,20 +69,20 @@ class UltimateTimeWandItemTest {
                 UltimateTimeWandItem.commitIfTargetValid(false, true, OPERATION, port));
 
         assertEquals(0, port.entityApplies);
-        assertEquals(0, port.fluidDrains);
-        assertEquals(0, port.energyDrains);
+        assertEquals(0, port.resourcePrepares);
+        assertEquals(0, port.resourceCommits);
     }
 
     @Test
-    void incompleteResourceRefundIsAnExplicitCompensationFailure() {
-        RecordingCommitPort port = new RecordingCommitPort(true, true, false, false, true, BEFORE);
+    void partialDrainAndRefundFailureCannotChangeLiveResources() {
+        PartialFailureCommitPort port = new PartialFailureCommitPort();
 
-        assertEquals(UltimateTimeWandItem.CommitOutcome.COMPENSATION_FAILED,
+        assertEquals(UltimateTimeWandItem.CommitOutcome.ROLLED_BACK,
                 UltimateTimeWandItem.commitIfTargetValid(true, false, OPERATION, port));
 
-        assertEquals(1, port.fluidRefunds);
-        assertEquals(1, port.energyRefunds);
         assertEquals(BEFORE, port.entityState);
+        assertEquals(100, port.liveFluid);
+        assertEquals(200, port.liveEnergy);
     }
 
     @Test
@@ -97,35 +102,62 @@ class UltimateTimeWandItemTest {
                 UltimateTimeWandItem.keepsFractionalFluidSettlement());
     }
 
-    private static final class RecordingCommitPort implements UltimateTimeWandItem.CommitPort {
-        private final boolean entitySucceeds;
-        private final boolean fluidSucceeds;
-        private final boolean energySucceeds;
-        private final boolean fluidRefundSucceeds;
-        private final boolean energyRefundSucceeds;
-        private final WandState before;
-        private WandState entityState;
-        private int entityApplies;
-        private int entityRollbacks;
-        private int fluidDrains;
-        private int fluidRefunds;
-        private int energyDrains;
-        private int energyRefunds;
+    private static final class PartialFailureCommitPort implements UltimateTimeWandItem.CommitPort {
+        private WandState entityState = BEFORE;
+        private int liveFluid = 100;
+        private int liveEnergy = 200;
 
-        private RecordingCommitPort(boolean entitySucceeds, boolean fluidSucceeds, boolean energySucceeds,
-                                    WandState before) {
-            this(entitySucceeds, fluidSucceeds, energySucceeds, true, true, before);
+        @Override
+        public boolean prepareResources(UltimateTimeWandData.OperationResult operation) {
+            int stagedFluid = liveFluid - Math.max(0, operation.fluidCost() - 1);
+            return stagedFluid == liveFluid;
         }
 
-        private RecordingCommitPort(boolean entitySucceeds, boolean fluidSucceeds, boolean energySucceeds,
-                                    boolean fluidRefundSucceeds, boolean energyRefundSucceeds, WandState before) {
+        @Override
+        public boolean applyEntity(WandState after) {
+            entityState = after;
+            return true;
+        }
+
+        @Override
+        public void rollbackEntity() {
+            entityState = BEFORE;
+        }
+
+        @Override
+        public boolean commitResources() {
+            return false;
+        }
+    }
+
+    private static final class RecordingCommitPort implements UltimateTimeWandItem.CommitPort {
+        private final boolean entitySucceeds;
+        private final boolean prepareSucceeds;
+        private final boolean commitSucceeds;
+        private final WandState before;
+        private WandState entityState;
+        private UltimateTimeWandData.OperationResult preparedOperation;
+        private int entityApplies;
+        private int entityRollbacks;
+        private int resourcePrepares;
+        private int resourceCommits;
+        private int liveFluid = 100;
+        private int liveEnergy = 200;
+
+        private RecordingCommitPort(boolean entitySucceeds, boolean prepareSucceeds, boolean commitSucceeds,
+                                    WandState before) {
             this.entitySucceeds = entitySucceeds;
-            this.fluidSucceeds = fluidSucceeds;
-            this.energySucceeds = energySucceeds;
-            this.fluidRefundSucceeds = fluidRefundSucceeds;
-            this.energyRefundSucceeds = energyRefundSucceeds;
+            this.prepareSucceeds = prepareSucceeds;
+            this.commitSucceeds = commitSucceeds;
             this.before = before;
             this.entityState = before;
+        }
+
+        @Override
+        public boolean prepareResources(UltimateTimeWandData.OperationResult operation) {
+            resourcePrepares++;
+            preparedOperation = operation;
+            return prepareSucceeds;
         }
 
         @Override
@@ -145,27 +177,14 @@ class UltimateTimeWandItemTest {
         }
 
         @Override
-        public boolean drainFluid(int amount) {
-            fluidDrains++;
-            return fluidSucceeds;
-        }
-
-        @Override
-        public boolean refundFluid(int amount) {
-            fluidRefunds++;
-            return fluidRefundSucceeds;
-        }
-
-        @Override
-        public boolean drainEnergy(int amount) {
-            energyDrains++;
-            return energySucceeds;
-        }
-
-        @Override
-        public boolean refundEnergy(int amount) {
-            energyRefunds++;
-            return energyRefundSucceeds;
+        public boolean commitResources() {
+            resourceCommits++;
+            if (!commitSucceeds) {
+                return false;
+            }
+            liveFluid -= preparedOperation.fluidCost();
+            liveEnergy -= preparedOperation.energyCost();
+            return true;
         }
     }
 }

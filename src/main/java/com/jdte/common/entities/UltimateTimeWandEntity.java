@@ -1,6 +1,6 @@
 package com.jdte.common.entities;
 
-import com.jdte.common.blockentities.UltimateTimeWandTargetRuntime;
+import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
 import com.jdte.common.items.UltimateTimeWandData;
 import com.jdte.setup.JDTEEntities;
 import net.minecraft.core.BlockPos;
@@ -60,9 +60,7 @@ public class UltimateTimeWandEntity extends Entity {
         }
 
         int requestedTicks = UltimateTimeWandData.multiplierForExponent(getExponent());
-        UltimateTimeWandTargetRuntime.Result result =
-                UltimateTimeWandTargetRuntime.execute(serverLevel, target, requestedTicks, requestedTicks);
-        if (!result.valid()) {
+        if (!ExtendedTimeAccelerationManager.submitWand(this, serverLevel, target, requestedTicks)) {
             discard();
             return;
         }

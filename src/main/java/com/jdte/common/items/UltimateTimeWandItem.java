@@ -27,7 +27,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
@@ -108,7 +107,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
         boolean creative = player.getAbilities().instabuild;
         ServerCommitPort commitPort = new ServerCommitPort(level, stack, pos, existing, before);
-        if (!creative && (!hasFluidForSettlement(stack, fluidSettlement) || !commitPort.canCommitResources(operation))) {
+        if (!creative && !hasFluidForSettlement(stack, fluidSettlement)) {
             return false;
         }
         if (!commitIfTargetValid(true, creative, operation, commitPort).success()) {
@@ -195,22 +194,18 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         if (!operation.success()) {
             return CommitOutcome.OPERATION_REJECTED;
         }
+        if (!creative && !port.prepareResources(operation)) {
+            return CommitOutcome.ROLLED_BACK;
+        }
         if (!port.applyEntity(operation.state())) {
             return CommitOutcome.ENTITY_REJECTED;
         }
         if (creative) {
             return CommitOutcome.SUCCESS;
         }
-        if (!port.drainFluid(operation.fluidCost())) {
-            boolean fluidRestored = port.refundFluid(operation.fluidCost());
+        if (!port.commitResources()) {
             port.rollbackEntity();
-            return fluidRestored ? CommitOutcome.ROLLED_BACK : CommitOutcome.COMPENSATION_FAILED;
-        }
-        if (!port.drainEnergy(operation.energyCost())) {
-            boolean energyRestored = port.refundEnergy(operation.energyCost());
-            boolean fluidRestored = port.refundFluid(operation.fluidCost());
-            port.rollbackEntity();
-            return energyRestored && fluidRestored ? CommitOutcome.ROLLED_BACK : CommitOutcome.COMPENSATION_FAILED;
+            return CommitOutcome.ROLLED_BACK;
         }
         return CommitOutcome.SUCCESS;
     }
@@ -220,8 +215,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         TARGET_REJECTED,
         OPERATION_REJECTED,
         ENTITY_REJECTED,
-        ROLLED_BACK,
-        COMPENSATION_FAILED;
+        ROLLED_BACK;
 
         boolean success() {
             return this == SUCCESS;
@@ -229,17 +223,13 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     }
 
     interface CommitPort {
+        boolean prepareResources(UltimateTimeWandData.OperationResult operation);
+
         boolean applyEntity(UltimateTimeWandEntity.WandState after);
 
         void rollbackEntity();
 
-        boolean drainFluid(int amount);
-
-        boolean refundFluid(int amount);
-
-        boolean drainEnergy(int amount);
-
-        boolean refundEnergy(int amount);
+        boolean commitResources();
     }
 
     private static final class ServerCommitPort implements CommitPort {
@@ -249,8 +239,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         private final UltimateTimeWandEntity existing;
         private final UltimateTimeWandEntity.WandState before;
         private UltimateTimeWandEntity created;
-        private FluidStack drainedFluid = FluidStack.EMPTY;
-        private int drainedEnergy;
+        private ItemStackComponentTransaction preparedResources;
 
         private ServerCommitPort(ServerLevel level, ItemStack stack, BlockPos target,
                                  UltimateTimeWandEntity existing, UltimateTimeWandEntity.WandState before) {
@@ -261,13 +250,25 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
             this.before = before;
         }
 
-        private boolean canCommitResources(UltimateTimeWandData.OperationResult operation) {
-            IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
-            IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-            return fluid != null && energy != null
-                    && fluid.drain(operation.fluidCost(), IFluidHandler.FluidAction.SIMULATE).getAmount()
-                    == operation.fluidCost()
-                    && energy.extractEnergy(operation.energyCost(), true) == operation.energyCost();
+        @Override
+        public boolean prepareResources(UltimateTimeWandData.OperationResult operation) {
+            preparedResources = ItemStackComponentTransaction.prepare(stack, staged -> {
+                if (operation.fluidCost() > 0) {
+                    IFluidHandlerItem fluid = staged.getCapability(Capabilities.FluidHandler.ITEM);
+                    if (fluid == null || fluid.drain(operation.fluidCost(), IFluidHandler.FluidAction.EXECUTE).getAmount()
+                            != operation.fluidCost()) {
+                        return false;
+                    }
+                }
+                if (operation.energyCost() > 0) {
+                    IEnergyStorage energy = staged.getCapability(Capabilities.EnergyStorage.ITEM);
+                    if (energy == null || energy.extractEnergy(operation.energyCost(), false) != operation.energyCost()) {
+                        return false;
+                    }
+                }
+                return true;
+            }).orElse(null);
+            return preparedResources != null;
         }
 
         @Override
@@ -290,63 +291,8 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         }
 
         @Override
-        public boolean drainFluid(int amount) {
-            if (amount <= 0) {
-                return true;
-            }
-            IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
-            if (fluid == null) {
-                return false;
-            }
-            drainedFluid = fluid.drain(amount, IFluidHandler.FluidAction.EXECUTE);
-            return drainedFluid.getAmount() == amount;
-        }
-
-        @Override
-        public boolean refundFluid(int amount) {
-            if (drainedFluid.isEmpty()) {
-                return true;
-            }
-            IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
-            if (fluid == null) {
-                return false;
-            }
-            int restored = fluid.fill(drainedFluid, IFluidHandler.FluidAction.EXECUTE);
-            if (restored != drainedFluid.getAmount()) {
-                return false;
-            }
-            drainedFluid = FluidStack.EMPTY;
-            return true;
-        }
-
-        @Override
-        public boolean drainEnergy(int amount) {
-            if (amount <= 0) {
-                return true;
-            }
-            IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-            if (energy == null) {
-                return false;
-            }
-            drainedEnergy = energy.extractEnergy(amount, false);
-            return drainedEnergy == amount;
-        }
-
-        @Override
-        public boolean refundEnergy(int amount) {
-            if (drainedEnergy <= 0) {
-                return true;
-            }
-            IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-            if (energy == null) {
-                return false;
-            }
-            int restored = energy.receiveEnergy(drainedEnergy, false);
-            if (restored != drainedEnergy) {
-                return false;
-            }
-            drainedEnergy = 0;
-            return true;
+        public boolean commitResources() {
+            return preparedResources != null && preparedResources.commit(stack);
         }
     }
 

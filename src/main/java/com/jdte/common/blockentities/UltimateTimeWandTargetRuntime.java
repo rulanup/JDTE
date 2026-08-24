@@ -29,6 +29,28 @@ public final class UltimateTimeWandTargetRuntime {
         return ordinaryAvailable ? Route.ORDINARY : Route.NONE;
     }
 
+    static Route route(ServerLevel level, BlockPos pos) {
+        return route(true, ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos),
+                hasOrdinaryTarget(level, pos));
+    }
+
+    private static boolean hasOrdinaryTarget(ServerLevel level, BlockPos pos) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity != null) {
+            if (blockEntity.isRemoved() || blockEntity instanceof TimeAcceleratorMachine) {
+                return false;
+            }
+            BlockState state = blockEntity.getBlockState();
+            @SuppressWarnings("unchecked")
+            BlockEntityTicker<BlockEntity> ticker = state.getTicker(
+                    level, (BlockEntityType<BlockEntity>) blockEntity.getType());
+            return ticker != null && MiscTools.isValidTickAccelBlock(level, state, blockEntity);
+        }
+        BlockState state = level.getBlockState(pos);
+        return !state.hasBlockEntity() && state.isRandomlyTicking()
+                && MiscTools.isValidTickAccelBlock(level, state, null);
+    }
+
     /**
      * Executes one direct wand request. AE2 targets have priority and never also receive an
      * ordinary block-entity or random-tick execution from the same request.
