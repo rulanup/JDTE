@@ -263,25 +263,25 @@ git commit -m "feat(顶级时间手杖): 添加物品操作与资源校验"
 - 创建：`src/main/resources/assets/jdte/models/item/ultimate_time_wand.json`
 - 修改：`src/main/resources/assets/jdte/lang/zh_cn.json`、`src/main/resources/assets/jdte/lang/en_us.json`
 
-- [ ] **步骤 1：实现客户端实体渲染器**
+- [x] **步骤 1：实现客户端实体渲染器**
 
 复制现有 `TimeAcceleratorEffectRenderer` 的无纹理进度条和六面文字布局，但让 renderer 类型改为 `UltimateTimeWandEntity`，倍率文字使用 `UltimateTimeWandData.multiplierForExponent`；对 `totalTime <= 0`、方块为空和剩余时间越界做安全裁剪，避免客户端同步半帧产生除零或负进度。
 
-- [ ] **步骤 2：注册 renderer 和模型属性**
+- [x] **步骤 2：注册 renderer 和模型属性**
 
 在 `JDTEClientSetup.registerRenderers` 注册 `JDTEEntities.ULTIMATE_TIME_WAND`，在客户端设置注册可选的模式/满度属性。不要让服务端类路径加载 `net.minecraft.client` 或 renderer 类。
 
-- [ ] **步骤 3：添加模型和翻译**
+- [x] **步骤 3：添加模型和翻译**
 
 模型优先复用 JDT 的时间手杖父模型；如果 JDT 父模型不可直接作为跨命名空间 parent，则复制其公开模型结构到 JDTE 资源并只替换纹理。中文显示名为“顶级时间手杖”，英文为“Ultimate Time Wand”；补充 Normal、2×、4×、Max、切换提示、资源不足、目标无效和最高倍率提示键，以及新配置键的中英文翻译。
 
-- [ ] **步骤 4：运行资源/编译测试**
+- [x] **步骤 4：运行资源/编译测试**
 
 运行：`.\gradlew.bat compileJava; .\gradlew.bat test --tests com.jdte.setup.UltimateTimeWandConfigLanguageContractTest`
 
 预期：客户端注册编译通过，语言契约测试确认所有新增 key 在中英文文件中均存在。
 
-- [ ] **步骤 5：提交客户端资源**
+- [x] **步骤 5：提交客户端资源**
 
 ```bash
 git add src/main/java/com/jdte/client/entityrenders/UltimateTimeWandRenderer.java src/main/java/com/jdte/client/JDTEClientSetup.java src/main/resources/assets/jdte/models/item/ultimate_time_wand.json src/main/resources/assets/jdte/lang/zh_cn.json src/main/resources/assets/jdte/lang/en_us.json
@@ -296,7 +296,7 @@ git commit -m "feat(顶级时间手杖): 添加客户端显示资源"
 - 创建：`src/main/resources/assets/jdte/guides/jdte/guide/ultimate-time-wand.md`
 - 创建：`src/main/resources/assets/jdte/guides/jdte/guide/_en_us/ultimate-time-wand.md`
 - 创建/修改：`src/main/resources/assets/justdirethings/patchouli_books/justdirethingsbook/zh_cn/entries/jdte/ultimate-time-wand.json`、`src/main/resources/assets/justdirethings/patchouli_books/justdirethingsbook/en_us/entries/jdte/ultimate-time-wand.json`及对应索引
-- 创建：`src/test/java/com/jdte/setup/UltimateTimeWandConfigLanguageContractTest.java`
+- 修改：`src/test/java/com/jdte/setup/UltimateTimeWandConfigLanguageContractTest.java`（任务 5 已创建，本任务复用并扩展注册契约）
 
 - [ ] **步骤 1：编写注册契约失败测试**
 
