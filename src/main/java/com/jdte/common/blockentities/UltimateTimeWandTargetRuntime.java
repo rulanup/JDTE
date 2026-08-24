@@ -33,36 +33,41 @@ public final class UltimateTimeWandTargetRuntime {
      * Executes one direct wand request. AE2 targets have priority and never also receive an
      * ordinary block-entity or random-tick execution from the same request.
      */
-    public static Result execute(ServerLevel level, BlockPos pos, int requestedTicks) {
-        int admittedTicks = admit(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), Long.MAX_VALUE);
-        if (admittedTicks <= 0) {
-            return Result.noWork();
-        }
-
-        boolean hasTickable = ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos);
-        if (route(true, hasTickable, true) == Route.AE2) {
-            ExtendedTimeAcceleratorAE2Integration.Result result =
-                    ExtendedTimeAcceleratorAE2Integration.accelerate(level, pos, admittedTicks);
-            return new Result(result.executed(), result.valid(), result.idle(), null);
-        }
-        Result result = executeOrdinary(level, pos, admittedTicks);
+    public static Result execute(ServerLevel level, BlockPos pos, int requestedTicks, long remainingBudget) {
+        Result result = execute(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), remainingBudget,
+                new ServerTargetExecutor(level, pos));
         if (result.coalescedTarget() != null) {
             result.coalescedTarget().flushAcceleratedTicks();
         }
         return result;
     }
 
-    static Result executeOrdinary(ServerLevel level, BlockPos pos, int requestedTicks) {
-        int admittedTicks = admit(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), Long.MAX_VALUE);
+    static Result execute(int requestedTicks, int batchSize, long remainingBudget, TargetExecutor target) {
+        int admittedTicks = admit(requestedTicks, batchSize, remainingBudget);
         if (admittedTicks <= 0) {
             return Result.noWork();
         }
 
+        if (target.hasAe2Tickable()) {
+            return target.executeAe2(admittedTicks);
+        }
+        return target.executeOrdinary(admittedTicks);
+    }
+
+    static Result executeOrdinary(ServerLevel level, BlockPos pos, int requestedTicks, long remainingBudget) {
+        int admittedTicks = admit(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), remainingBudget);
+        if (admittedTicks <= 0) {
+            return Result.noWork();
+        }
+        return executeOrdinaryTarget(level, pos, admittedTicks);
+    }
+
+    private static Result executeOrdinaryTarget(ServerLevel level, BlockPos pos, int requestedTicks) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity != null) {
-            return executeBlockEntity(level, pos, blockEntity, admittedTicks);
+            return executeBlockEntity(level, pos, blockEntity, requestedTicks);
         }
-        return executeRandomTicks(level, pos, admittedTicks);
+        return executeRandomTicks(level, pos, requestedTicks);
     }
 
     @SuppressWarnings("unchecked")
@@ -103,6 +108,33 @@ public final class UltimateTimeWandTargetRuntime {
         AE2,
         ORDINARY,
         NONE
+    }
+
+    interface TargetExecutor {
+        boolean hasAe2Tickable();
+
+        Result executeAe2(int requestedTicks);
+
+        Result executeOrdinary(int requestedTicks);
+    }
+
+    private record ServerTargetExecutor(ServerLevel level, BlockPos pos) implements TargetExecutor {
+        @Override
+        public boolean hasAe2Tickable() {
+            return ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos);
+        }
+
+        @Override
+        public Result executeAe2(int requestedTicks) {
+            ExtendedTimeAcceleratorAE2Integration.Result result =
+                    ExtendedTimeAcceleratorAE2Integration.accelerate(level, pos, requestedTicks);
+            return new Result(result.executed(), result.valid(), result.idle(), null);
+        }
+
+        @Override
+        public Result executeOrdinary(int requestedTicks) {
+            return executeOrdinaryTarget(level, pos, requestedTicks);
+        }
     }
 
     public static record Result(int executed, boolean valid, boolean idle,

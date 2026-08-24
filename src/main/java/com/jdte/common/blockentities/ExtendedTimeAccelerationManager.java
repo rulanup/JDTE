@@ -525,7 +525,7 @@ public final class ExtendedTimeAccelerationManager {
                     long remainingBudget = maxExecutions - executedThisTick;
                     int requested = TimeAcceleratorExecutionPolicy.requestedTicks(
                             work.virtualTicks, batchSize, remainingBudget);
-                    ExecutionResult result = executeTarget(level, target, requested);
+                    ExecutionResult result = executeTarget(level, target, requested, remainingBudget);
                     if (!result.valid) {
                         pending.remove(target);
                         nextEffectTick.remove(target.pos());
@@ -558,9 +558,9 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
-        private ExecutionResult executeTarget(ServerLevel level, TargetKey target, int requested) {
+        private ExecutionResult executeTarget(ServerLevel level, TargetKey target, int requested, long remainingBudget) {
             return switch (target.kind()) {
-                case BLOCK_ENTITY, RANDOM_TICK -> executeOrdinaryTarget(level, target.pos(), requested);
+                case BLOCK_ENTITY, RANDOM_TICK -> executeOrdinaryTarget(level, target.pos(), requested, remainingBudget);
                 case AE2_GRID -> {
                     ExtendedTimeAcceleratorAE2Integration.Result result =
                             ExtendedTimeAcceleratorAE2Integration.accelerate(level, target.pos(), requested);
@@ -569,9 +569,9 @@ public final class ExtendedTimeAccelerationManager {
             };
         }
 
-        private ExecutionResult executeOrdinaryTarget(ServerLevel level, BlockPos pos, int requested) {
+        private ExecutionResult executeOrdinaryTarget(ServerLevel level, BlockPos pos, int requested, long remainingBudget) {
             UltimateTimeWandTargetRuntime.Result result =
-                    UltimateTimeWandTargetRuntime.executeOrdinary(level, pos, requested);
+                    UltimateTimeWandTargetRuntime.executeOrdinary(level, pos, requested, remainingBudget);
             if (result.coalescedTarget() != null) {
                 coalescedTargets.add(result.coalescedTarget());
             }

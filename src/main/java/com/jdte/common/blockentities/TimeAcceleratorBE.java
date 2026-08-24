@@ -87,7 +87,6 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
                 continue;
             }
 
-            BlockEntity blockEntity = serverLevel.getBlockEntity(immutable);
             if (!isBlockValidFilter(serverLevel, immutable, blockState)) {
                 continue;
             }
@@ -111,14 +110,31 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     protected boolean accelerateTarget(ServerLevel serverLevel, BlockPos blockPos, int workTicks, int displayMultiplier) {
-        UltimateTimeWandTargetRuntime.Result result =
-                UltimateTimeWandTargetRuntime.executeOrdinary(serverLevel, blockPos, workTicks);
-        if (result.coalescedTarget() != null) {
-            result.coalescedTarget().flushAcceleratedTicks();
-        }
-        if (result.executed() <= 0) {
+        if (workTicks <= 0) {
             return false;
         }
+
+        CoalescedAcceleratedMachine coalescedTarget = null;
+        int remainingWork = workTicks;
+        try {
+            while (remainingWork > 0) {
+                UltimateTimeWandTargetRuntime.Result result =
+                        UltimateTimeWandTargetRuntime.executeOrdinary(
+                                serverLevel, blockPos, remainingWork, remainingWork);
+                if (result.coalescedTarget() != null) {
+                    coalescedTarget = result.coalescedTarget();
+                }
+                if (!result.valid() || result.executed() <= 0) {
+                    return false;
+                }
+                remainingWork -= result.executed();
+            }
+        } finally {
+            if (coalescedTarget != null) {
+                coalescedTarget.flushAcceleratedTicks();
+            }
+        }
+
         spawnAccelerationEffect(serverLevel, blockPos, displayMultiplier);
         return true;
     }
