@@ -30,6 +30,20 @@ public final class JDTEDataComponents {
                     .cacheEncoding()
                     .build());
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> ULTIMATE_TIME_WAND_MODE =
+            DATA_COMPONENTS.register("ultimate_time_wand_mode", () -> DataComponentType.<String>builder()
+                    .persistent(Codec.STRING)
+                    .networkSynchronized(ByteBufCodecs.STRING_UTF8)
+                    .cacheEncoding()
+                    .build());
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Double>> ULTIMATE_TIME_WAND_PENDING_FLUID =
+            DATA_COMPONENTS.register("ultimate_time_wand_pending_fluid", () -> DataComponentType.<Double>builder()
+                    .persistent(Codec.DOUBLE)
+                    .networkSynchronized(ByteBufCodecs.DOUBLE)
+                    .cacheEncoding()
+                    .build());
+
     /** 顶级传送枪手动坐标槽位标记（与收藏列表索引对齐；true = 手动坐标，传送固定消耗 10 B）。 */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<Boolean>>> ULTIMATE_PORTAL_GUN_MANUAL_SLOTS =
             DATA_COMPONENTS.register("ultimate_portal_gun_manual_slots",

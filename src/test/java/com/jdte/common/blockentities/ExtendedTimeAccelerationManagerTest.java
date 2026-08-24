@@ -20,6 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ExtendedTimeAccelerationManagerTest {
 
     @Test
+    void wandPendingRouteIsRetainedOnlyWhileItMatchesTheCurrentSubmission() {
+        assertTrue(ExtendedTimeAccelerationManager.isCurrentWandTarget(
+                BlockPos.ZERO, UltimateTimeWandTargetRuntime.Route.AE2,
+                BlockPos.ZERO, UltimateTimeWandTargetRuntime.Route.AE2));
+        assertFalse(ExtendedTimeAccelerationManager.isCurrentWandTarget(
+                BlockPos.ZERO, UltimateTimeWandTargetRuntime.Route.ORDINARY,
+                BlockPos.ZERO, UltimateTimeWandTargetRuntime.Route.AE2));
+    }
+
+    @Test
     void managerPreparesResourcesFromConfiguredWorkTicks() throws Exception {
         JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
         try {

@@ -19,6 +19,12 @@ public class TimeAcceleratorConfig {
     public final ModConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
     public final ModConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
     public final ModConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
+    public final ModConfigSpec.IntValue ultimateTimeWandFluidCapacity;
+    public final ModConfigSpec.IntValue ultimateTimeWandEnergyCapacity;
+    public final ModConfigSpec.IntValue ultimateTimeWandDuration;
+    public final ModConfigSpec.DoubleValue ultimateTimeWandBaseCostMultiplier;
+    public final ModConfigSpec.DoubleValue ultimateTimeWandEnergyCostMultiplier;
+    public final ModConfigSpec.BooleanValue ultimateTimeWandFractionalFluidSettlement;
 
     public TimeAcceleratorConfig(ModConfigSpec.Builder builder) {
         builder.comment("Time Accelerator Settings").translation("config.jdte.jdte.timeAccelerator").push("timeAccelerator");
@@ -86,6 +92,24 @@ public class TimeAcceleratorConfig {
                 .comment("Allow Time Accelerators with an AE Acceleration Upgrade to invoke AE2 IGridTickable services")
                 .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorAE2Enabled")
                 .define("timeAcceleratorAE2Enabled", true);
+        ultimateTimeWandFluidCapacity = builder
+                .comment("Ultimate Time Wand Time Fluid capacity (mB)")
+                .defineInRange("ultimateTimeWandFluidCapacity", 800000, 1000, 100000000);
+        ultimateTimeWandEnergyCapacity = builder
+                .comment("Ultimate Time Wand FE capacity")
+                .defineInRange("ultimateTimeWandEnergyCapacity", 10000000, 10000, 1000000000);
+        ultimateTimeWandDuration = builder
+                .comment("Ultimate Time Wand effect duration (ticks)")
+                .defineInRange("ultimateTimeWandDuration", 600, 1, 1000000);
+        ultimateTimeWandBaseCostMultiplier = builder
+                .comment("Ultimate Time Wand base multiplier cost multiplier")
+                .defineInRange("ultimateTimeWandBaseCostMultiplier", 1.0D, 0.0D, 1000000.0D);
+        ultimateTimeWandEnergyCostMultiplier = builder
+                .comment("Ultimate Time Wand FE base cost multiplier")
+                .defineInRange("ultimateTimeWandEnergyCostMultiplier", 1.0D, 0.0D, 1000000.0D);
+        ultimateTimeWandFractionalFluidSettlement = builder
+                .comment("Keep fractional Ultimate Time Wand fluid cost between settlements")
+                .define("ultimateTimeWandFractionalFluidSettlement", true);
         builder.pop();
     }
 }

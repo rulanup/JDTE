@@ -191,6 +191,10 @@ public class JDTE {
                 JDTEItems.TIME_MULTITOOL.get());
         event.registerItem(Capabilities.EnergyStorage.ITEM,
                 (stack, context) -> new EnergyStorageItemstack(
+                        JDTEConfig.COMMON.ultimateTimeWandEnergyCapacity.get(), stack),
+                JDTEItems.ULTIMATE_TIME_WAND.get());
+        event.registerItem(Capabilities.EnergyStorage.ITEM,
+                (stack, context) -> new EnergyStorageItemstack(
                         LargePortableContainerLogic.pocketGeneratorCapacity(Config.POCKET_GENERATOR_MAX_FE.get()), stack),
                 JDTEItems.LARGE_POCKET_GENERATOR.get());
         event.registerItem(Capabilities.FluidHandler.ITEM,
@@ -208,6 +212,21 @@ public class JDTE {
                     }
                 },
                 JDTEItems.TIME_MULTITOOL.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidHandlerItemStack(
+                        com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
+                        stack, JDTEConfig.COMMON.ultimateTimeWandFluidCapacity.get()) {
+                    @Override
+                    public boolean isFluidValid(int tank, FluidStack fluid) {
+                        return fluid.is(Registration.TIME_FLUID_TYPE.get());
+                    }
+
+                    @Override
+                    public boolean canFillFluidType(FluidStack fluid) {
+                        return fluid.is(Registration.TIME_FLUID_TYPE.get());
+                    }
+                },
+                JDTEItems.ULTIMATE_TIME_WAND.get());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

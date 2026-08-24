@@ -103,6 +103,12 @@ public class JDTEConfig {
         public final ModConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
         public final ModConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
         public final ModConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
+        public final ModConfigSpec.IntValue ultimateTimeWandFluidCapacity;
+        public final ModConfigSpec.IntValue ultimateTimeWandEnergyCapacity;
+        public final ModConfigSpec.IntValue ultimateTimeWandDuration;
+        public final ModConfigSpec.DoubleValue ultimateTimeWandBaseCostMultiplier;
+        public final ModConfigSpec.DoubleValue ultimateTimeWandEnergyCostMultiplier;
+        public final ModConfigSpec.BooleanValue ultimateTimeWandFractionalFluidSettlement;
 
         // Bio Crusher
         public final ModConfigSpec.IntValue bioCrusherFluidCapacity;
@@ -359,6 +365,12 @@ public class JDTEConfig {
             this.timeAcceleratorAE2Enabled = timeAccelerator.timeAcceleratorAE2Enabled;
             this.timeAcceleratorBaseFluidCapacity = timeAccelerator.timeAcceleratorBaseFluidCapacity;
             this.timeAcceleratorFluidCostMultiplier = timeAccelerator.timeAcceleratorFluidCostMultiplier;
+            this.ultimateTimeWandFluidCapacity = timeAccelerator.ultimateTimeWandFluidCapacity;
+            this.ultimateTimeWandEnergyCapacity = timeAccelerator.ultimateTimeWandEnergyCapacity;
+            this.ultimateTimeWandDuration = timeAccelerator.ultimateTimeWandDuration;
+            this.ultimateTimeWandBaseCostMultiplier = timeAccelerator.ultimateTimeWandBaseCostMultiplier;
+            this.ultimateTimeWandEnergyCostMultiplier = timeAccelerator.ultimateTimeWandEnergyCostMultiplier;
+            this.ultimateTimeWandFractionalFluidSettlement = timeAccelerator.ultimateTimeWandFractionalFluidSettlement;
 
             this.bioCrusherFluidCapacity = bioCrusher.bioCrusherFluidCapacity;
             this.bioCrusherEnergyCost = bioCrusher.bioCrusherEnergyCost;
