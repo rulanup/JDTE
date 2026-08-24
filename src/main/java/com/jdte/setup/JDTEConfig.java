@@ -103,6 +103,17 @@ public class JDTEConfig {
         public final ModConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
         public final ModConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
         public final ModConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
+        public final ModConfigSpec.IntValue ultimateTimeWandFluidCapacity;
+        public final ModConfigSpec.IntValue ultimateTimeWandEnergyCapacity;
+        public final ModConfigSpec.IntValue ultimateTimeWandDuration;
+        public final ModConfigSpec.IntValue ultimateTimeWandMaxExponent;
+        public final ModConfigSpec.IntValue ultimateTimeWandNormalStep;
+        public final ModConfigSpec.IntValue ultimateTimeWandX2Step;
+        public final ModConfigSpec.IntValue ultimateTimeWandX4Step;
+        public final ModConfigSpec.IntValue ultimateTimeWandMaxStep;
+        public final ModConfigSpec.DoubleValue ultimateTimeWandBaseCostMultiplier;
+        public final ModConfigSpec.DoubleValue ultimateTimeWandEnergyCostMultiplier;
+        public final ModConfigSpec.BooleanValue ultimateTimeWandFractionalFluidSettlement;
 
         // Bio Crusher
         public final ModConfigSpec.IntValue bioCrusherFluidCapacity;
@@ -359,6 +370,17 @@ public class JDTEConfig {
             this.timeAcceleratorAE2Enabled = timeAccelerator.timeAcceleratorAE2Enabled;
             this.timeAcceleratorBaseFluidCapacity = timeAccelerator.timeAcceleratorBaseFluidCapacity;
             this.timeAcceleratorFluidCostMultiplier = timeAccelerator.timeAcceleratorFluidCostMultiplier;
+            this.ultimateTimeWandFluidCapacity = timeAccelerator.ultimateTimeWandFluidCapacity;
+            this.ultimateTimeWandEnergyCapacity = timeAccelerator.ultimateTimeWandEnergyCapacity;
+            this.ultimateTimeWandDuration = timeAccelerator.ultimateTimeWandDuration;
+            this.ultimateTimeWandMaxExponent = timeAccelerator.ultimateTimeWandMaxExponent;
+            this.ultimateTimeWandNormalStep = timeAccelerator.ultimateTimeWandNormalStep;
+            this.ultimateTimeWandX2Step = timeAccelerator.ultimateTimeWandX2Step;
+            this.ultimateTimeWandX4Step = timeAccelerator.ultimateTimeWandX4Step;
+            this.ultimateTimeWandMaxStep = timeAccelerator.ultimateTimeWandMaxStep;
+            this.ultimateTimeWandBaseCostMultiplier = timeAccelerator.ultimateTimeWandBaseCostMultiplier;
+            this.ultimateTimeWandEnergyCostMultiplier = timeAccelerator.ultimateTimeWandEnergyCostMultiplier;
+            this.ultimateTimeWandFractionalFluidSettlement = timeAccelerator.ultimateTimeWandFractionalFluidSettlement;
 
             this.bioCrusherFluidCapacity = bioCrusher.bioCrusherFluidCapacity;
             this.bioCrusherEnergyCost = bioCrusher.bioCrusherEnergyCost;
