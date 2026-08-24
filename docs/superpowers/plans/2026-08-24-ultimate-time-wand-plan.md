@@ -298,7 +298,7 @@ git commit -m "feat(顶级时间手杖): 添加客户端显示资源"
 - 创建/修改：`src/main/resources/assets/justdirethings/patchouli_books/justdirethingsbook/zh_cn/entries/jdte/ultimate-time-wand.json`、`src/main/resources/assets/justdirethings/patchouli_books/justdirethingsbook/en_us/entries/jdte/ultimate-time-wand.json`及对应索引
 - 修改：`src/test/java/com/jdte/setup/UltimateTimeWandConfigLanguageContractTest.java`（任务 5 已创建，本任务复用并扩展注册契约）
 
-- [ ] **步骤 1：编写注册契约失败测试**
+- [x] **步骤 1：编写注册契约失败测试**
 
 ```java
 @Test
@@ -310,17 +310,17 @@ void itemAndRecipeUseJdteNamespaceWithoutDynaReferences() throws IOException {
 }
 ```
 
-- [ ] **步骤 2：创建配方和文档**
+- [x] **步骤 2：创建配方和文档**
 
 配方使用 JDTE 现有 `time_multitool`/`ultimate_portal_gun` 已采用的高阶材料体系：JDT 蚀空合金 Paxel、`jdte:big_fluid_tank`、`jdte:time_fluid_catalyst` 和 `jdte:ae_acceleration_upgrade`，结果为 `jdte:ultimate_time_wand`；不得写入任何 Dyna 物品 ID。文档明确列出 800000 mB、10000000 FE、四种模式、潜行切换、普通右键、实体叠加、1024×上限、AE2 直接加速、资源不足不扣除和服务端安全规则。
 
-- [ ] **步骤 3：运行资源契约和文档检查**
+- [x] **步骤 3：运行资源契约和文档检查**
 
 运行：`.\gradlew.bat test --tests com.jdte.setup.UltimateTimeWandConfigLanguageContractTest; python scripts/test_validate_docs.py`
 
 预期：物品/配方命名空间、翻译、GuideME 页面和既有文档校验通过；若既有 Patchouli 资源漂移导致基线校验失败，只记录具体基线失败文件，不修改与本功能无关的文档。
 
-- [ ] **步骤 4：提交配方和文档**
+- [x] **步骤 4：提交配方和文档**
 
 ```bash
 git add src/main/resources/data/jdte/recipe/ultimate_time_wand.json src/main/resources/assets/jdte/guides src/main/resources/assets/justdirethings/patchouli_books src/test/java/com/jdte/setup/UltimateTimeWandConfigLanguageContractTest.java
