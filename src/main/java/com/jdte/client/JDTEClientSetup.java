@@ -2,6 +2,7 @@ package com.jdte.client;
 
 import com.jdte.JDTE;
 import com.jdte.client.entityrenders.TimeAcceleratorEffectRenderer;
+import com.jdte.client.entityrenders.UltimateTimeWandRenderer;
 import com.jdte.client.renderers.AdvancedEnergyTransmitterBER;
 import com.jdte.client.renderers.AdvancedItemCollectorBER;
 import com.jdte.client.renderers.MineralExtractorBER;
@@ -11,10 +12,13 @@ import com.jdte.common.items.FactoryPackageItem;
 import com.jdte.common.items.LargeFuelCanisterItem;
 import com.jdte.common.items.LargePocketGeneratorItem;
 import com.jdte.common.items.LargePotionCanisterItem;
+import com.jdte.common.items.UltimateTimeWandData;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEEntities;
 import com.jdte.setup.JDTEItems;
+import com.jdte.setup.JDTEDataComponents;
+import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
@@ -41,6 +45,20 @@ public class JDTEClientSetup {
                     JDTEItems.ULTIMATE_PORTAL_GUN.get(),
                     ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fullness"),
                     (stack, level, entity, seed) -> com.jdte.common.items.UltimatePortalGunItem.getFullness(stack));
+            ItemProperties.register(
+                    JDTEItems.ULTIMATE_TIME_WAND.get(),
+                    ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "mode"),
+                    (stack, level, entity, seed) -> UltimateTimeWandData.Mode.fromName(
+                            stack.getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get(),
+                                    UltimateTimeWandData.Mode.NORMAL.serializedName())).ordinal());
+            ItemProperties.register(
+                    JDTEItems.ULTIMATE_TIME_WAND.get(),
+                    ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fullness"),
+                    (stack, level, entity, seed) -> {
+                        var fluid = stack.getCapability(net.neoforged.neoforge.capabilities.Capabilities.FluidHandler.ITEM);
+                        return fluid == null ? 0.0F : (float) fluid.getFluidInTank(0).getAmount()
+                                / Math.max(1, JDTEConfig.COMMON.ultimateTimeWandFluidCapacity.get());
+                    });
             ItemProperties.register(
                     JDTEItems.LARGE_POCKET_GENERATOR.get(),
                     ResourceLocation.fromNamespaceAndPath("justdirethings", "enabled"),
@@ -164,6 +182,7 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerEntityRenderer(JDTEEntities.TIME_ACCELERATOR_EFFECT.get(), TimeAcceleratorEffectRenderer::new);
+        event.registerEntityRenderer(JDTEEntities.ULTIMATE_TIME_WAND.get(), UltimateTimeWandRenderer::new);
 
         // Extended Machines
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.ClickerT2BER::new);
