@@ -157,7 +157,7 @@ git commit -m "feat(顶级时间手杖): 共享有界目标执行与AE路由"
 - 创建：`src/test/java/com/jdte/common/entities/UltimateTimeWandEntityPersistenceTest.java`
 - 修改：`src/main/java/com/jdte/setup/JDTEEntities.java`
 
-- [ ] **步骤 1：编写状态/NBT 失败测试**
+- [x] **步骤 1：编写状态/NBT 失败测试**
 
 ```java
 @Test
@@ -176,23 +176,23 @@ void mergeAddsStepAndHalfElapsedTimeWithoutPassingMaxExponent() {
 }
 ```
 
-- [ ] **步骤 2：运行测试确认失败**
+- [x] **步骤 2：运行测试确认失败**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.entities.UltimateTimeWandEntityPersistenceTest`
 
 预期：FAIL，尚未有状态记录、稳定 NBT 键和合并方法。
 
-- [ ] **步骤 3：实现实体状态和注册类型**
+- [x] **步骤 3：实现实体状态和注册类型**
 
 定义 `WandState(BlockPos target, int exponent, int totalTime, int remainingTime)`，NBT 键固定为 `target`、`exponent`、`totalTime`、`remainingTime`；实体同步 `exponent`、`totalTime`、`remainingTime`，构造时把位置放在目标方块中心。实体默认持续 600 tick；`merge` 将指数加上模式步进并限制为 10，将已消耗时间 `(totalTime - remainingTime) / 2` 加回剩余时间并限制到 `totalTime`。在服务端每 tick 检查同维度目标、目标方块有效性、AE2 端点/普通 ticker有效性和剩余时间，失效或耗尽就移除；有效时把一个真实 tick 的有界工作提交到 `UltimateTimeWandTargetRuntime`，然后扣减一真实 tick。客户端只消费同步字段。
 
-- [ ] **步骤 4：运行持久化测试和编译**
+- [x] **步骤 4：运行持久化测试和编译**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.entities.UltimateTimeWandEntityPersistenceTest; .\gradlew.bat compileJava`
 
 预期：状态往返、指数上限、半消耗时间补充和实体注册编译通过。
 
-- [ ] **步骤 5：提交实体生命周期**
+- [x] **步骤 5：提交实体生命周期**
 
 ```bash
 git add src/main/java/com/jdte/common/entities/UltimateTimeWandEntity.java src/main/java/com/jdte/setup/JDTEEntities.java src/test/java/com/jdte/common/entities/UltimateTimeWandEntityPersistenceTest.java
