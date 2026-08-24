@@ -11,7 +11,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The Ultimate Time Wand creates a time-limited, server-owned acceleration request for one target. By default, it stores $(bold)800,000 mB of Time Fluid$() and $(bold)10,000,000 FE$(). The capacities, duration, and cost multipliers are configurable by the server.$(br2)$(bold)Modes and stacking$()$(br2)Sneak-right-click air or a block to cycle through four modes:$(br2)$(bold)Mode | Exponent added per use$()$(br)Normal | 1$(br)2x | 2$(br)4x | 4$(br)Max | 10$(br2)Normal right-click on a valid target creates a request; right-clicking a target with an existing request adds its exponent. The effect is capped at $(bold)1024x$(), and reaching the cap does not consume resources. The wand accelerates JDT-approved tickable blocks and directly accelerates AE2 devices that expose the $(thing)IGridTickable$() service."
+      "text": "The Ultimate Time Wand creates a time-limited, server-owned acceleration request for one target. By default, it stores $(bold)800000 mB of Time Fluid$() and $(bold)10000000 FE$(). The capacities, duration, and cost multipliers are configurable by the server.$(br2)$(bold)Modes and stacking$()$(br2)Sneak-right-click air or a block to cycle through four modes:$(br2)$(bold)Mode | Exponent added per use$()$(br)Normal | 1$(br)2x | 2$(br)4x | 4$(br)Max | 10$(br2)Normal right-click on a valid target creates a request; right-clicking a target with an existing request adds its exponent. The effect is capped at $(bold)1024×$(), and reaching the cap does not consume resources. The wand accelerates JDT-approved tickable blocks and directly accelerates AE2 devices that expose the $(thing)IGridTickable$() service."
     },
     {
       "type": "patchouli:text",
