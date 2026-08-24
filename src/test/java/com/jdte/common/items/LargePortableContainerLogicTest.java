@@ -5,6 +5,7 @@ import com.jdte.common.containers.LargePortableContainerBinding;
 import com.jdte.common.containers.handlers.LargeFuelCanisterHandler;
 import com.jdte.common.containers.handlers.LargePotionCanisterHandler;
 import com.jdte.common.network.data.OpenLargePortableContainerPayload;
+import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemStackNoReceive;
 import com.direwolf20.justdirethings.common.items.FuelCanister;
 import com.direwolf20.justdirethings.common.items.PotionCanister;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
@@ -19,8 +20,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.neoforged.neoforge.items.ComponentItemHandler;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -245,6 +249,12 @@ class LargePortableContainerLogicTest {
     }
 
     @Test
+    void largePocketGeneratorBurnsJdtAndVanillaCoalBlocksAndProducesEnergy() {
+        assertLargePocketGeneratorBurnsFuel(new ItemStack(Registration.CoalBlock_T1_ITEM.get()));
+        assertLargePocketGeneratorBurnsFuel(new ItemStack(Items.COAL_BLOCK));
+    }
+
+    @Test
     void largePotionMenuHandlerFillsExactlyOneBatchAndReturnsFourGlassBottles() {
         ItemStack canister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
         LargePotionCanisterHandler handler =
@@ -329,6 +339,29 @@ class LargePortableContainerLogicTest {
     private static RegistryFriendlyByteBuf buffer() {
         return new RegistryFriendlyByteBuf(Unpooled.buffer(),
                 RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+    }
+
+    private static void assertLargePocketGeneratorBurnsFuel(ItemStack fuelStack) {
+        LargePocketGeneratorItem generatorItem = JDTEItems.LARGE_POCKET_GENERATOR.get();
+        ItemStack generatorStack = new ItemStack(generatorItem);
+        generatorStack.set(JustDireDataComponents.ITEMSTACK_HANDLER,
+                ItemContainerContents.fromItems(List.of(fuelStack.copy())));
+        EnergyStorageItemStackNoReceive energy = new EnergyStorageItemStackNoReceive(1_000_000_000, generatorStack);
+
+        generatorItem.tryBurn(energy, generatorStack);
+
+        assertTrue(energy.getEnergyStored() > 0,
+                "The large portable generator must start burning the supplied fuel");
+        assertTrue(generatorStack.getOrDefault(JustDireDataComponents.POCKETGEN_COUNTER, 0) > 0,
+                "The large portable generator must create a burn counter");
+        assertTrue(generatorStack.getOrDefault(JustDireDataComponents.POCKETGEN_MAXBURN, 0) > 0,
+                "The large portable generator must record the resolved burn length");
+        assertEquals(PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack),
+                generatorItem.getFuelMultiplier(generatorStack));
+        assertTrue(new ComponentItemHandler(generatorStack, JustDireDataComponents.ITEMSTACK_HANDLER.get(), 1)
+                .getStackInSlot(0)
+                .isEmpty(),
+                "The consumed fuel must leave the slot");
     }
 
 }
