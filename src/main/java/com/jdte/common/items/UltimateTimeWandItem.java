@@ -3,6 +3,7 @@ package com.jdte.common.items;
 import com.direwolf20.justdirethings.common.items.interfaces.FluidContainingItem;
 import com.direwolf20.justdirethings.common.items.interfaces.PoweredItem;
 import com.direwolf20.justdirethings.setup.Config;
+import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.entities.UltimateTimeWandEntity;
 import com.jdte.common.integrations.ae2.ExtendedTimeAcceleratorAE2Integration;
@@ -20,6 +21,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,6 +31,8 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+
+import java.util.List;
 
 /** Applies one server-owned, bounded Ultimate Time Wand request to the clicked target. */
 public class UltimateTimeWandItem extends Item implements FluidContainingItem, PoweredItem {
@@ -66,12 +70,6 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         }
         Level level = context.getLevel();
         ItemStack stack = context.getItemInHand();
-        if (player.isShiftKeyDown()) {
-            if (!level.isClientSide()) {
-                cycleMode(player, stack);
-            }
-            return InteractionResult.sidedSuccess(level.isClientSide());
-        }
         if (level.isClientSide() || !(level instanceof ServerLevel serverLevel)) {
             return InteractionResult.sidedSuccess(level.isClientSide());
         }
@@ -174,6 +172,18 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
     static boolean keepsFractionalFluidSettlement() {
         return JDTEConfig.COMMON.ultimateTimeWandFractionalFluidSettlement.get();
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context,
+                                List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.fluid",
+                MagicHelpers.formatted(Math.max(0, FluidContainingItem.getAvailableFluid(stack))),
+                MagicHelpers.formatted(configuredFluidCapacity())).withStyle(ChatFormatting.AQUA));
+        tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.energy",
+                MagicHelpers.formatted(Math.max(0, PoweredItem.getAvailableEnergy(stack))),
+                MagicHelpers.formatted(configuredEnergyCapacity())).withStyle(ChatFormatting.YELLOW));
     }
 
     private static UltimateTimeWandData.OperationResult planWithResources(

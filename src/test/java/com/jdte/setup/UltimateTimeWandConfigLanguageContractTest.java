@@ -104,6 +104,24 @@ class UltimateTimeWandConfigLanguageContractTest {
         assertPatchouliContract("en_us");
     }
 
+    @Test
+    void tooltipMustShowCurrentFluidAndEnergyResourceValues() throws IOException {
+        String source = Files.readString(sourcePath("src/main/java/com/jdte/common/items/UltimateTimeWandItem.java"));
+        assertTrue(source.contains("appendHoverText"));
+        assertTrue(source.contains("MagicHelpers.formatted"));
+        assertTrue(source.contains("FluidContainingItem.getAvailableFluid"));
+        assertTrue(source.contains("PoweredItem.getAvailableEnergy"));
+        assertTrue(source.contains("tooltip.jdte.ultimate_time_wand.fluid"));
+        assertTrue(source.contains("tooltip.jdte.ultimate_time_wand.energy"));
+
+        JsonObject english = readJson(ENGLISH);
+        JsonObject chinese = readJson(CHINESE);
+        for (JsonObject language : List.of(english, chinese)) {
+            assertTrue(language.has("tooltip.jdte.ultimate_time_wand.fluid"));
+            assertTrue(language.has("tooltip.jdte.ultimate_time_wand.energy"));
+        }
+    }
+
     private static void assertContainsNoDynaReferences(String source) {
         String normalized = source.toLowerCase(Locale.ROOT);
         assertFalse(normalized.contains("dyna"), "Dyna references are forbidden");

@@ -256,6 +256,8 @@
   "tooltip.jdte.ultimate_time_wand.mode.x2": "2 倍",
   "tooltip.jdte.ultimate_time_wand.mode.x4": "4 倍",
   "tooltip.jdte.ultimate_time_wand.mode.max": "最大",
+  "tooltip.jdte.ultimate_time_wand.fluid": "时间流体：%s / %s mB",
+  "tooltip.jdte.ultimate_time_wand.energy": "FE：%s / %s FE",
   "message.jdte.ultimate_time_wand.mode": "顶级时间手杖模式：%s",
   "message.jdte.ultimate_time_wand.switch": "顶级时间手杖模式已切换为 %s",
   "message.jdte.ultimate_time_wand.insufficient_resources": "顶级时间手杖资源不足",

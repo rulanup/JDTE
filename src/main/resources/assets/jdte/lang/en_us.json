@@ -256,6 +256,8 @@
   "tooltip.jdte.ultimate_time_wand.mode.x2": "2x",
   "tooltip.jdte.ultimate_time_wand.mode.x4": "4x",
   "tooltip.jdte.ultimate_time_wand.mode.max": "Max",
+  "tooltip.jdte.ultimate_time_wand.fluid": "Time Fluid: %s / %s mB",
+  "tooltip.jdte.ultimate_time_wand.energy": "FE: %s / %s FE",
   "message.jdte.ultimate_time_wand.mode": "Ultimate Time Wand mode: %s",
   "message.jdte.ultimate_time_wand.switch": "Switched Ultimate Time Wand mode to %s",
   "message.jdte.ultimate_time_wand.insufficient_resources": "Not enough resources for the Ultimate Time Wand",

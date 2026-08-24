@@ -7,7 +7,11 @@ import com.direwolf20.justdirethings.common.items.interfaces.PoweredItem;
 import net.minecraft.core.BlockPos;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UltimateTimeWandItemTest {
@@ -100,6 +104,30 @@ class UltimateTimeWandItemTest {
         assertEquals(JDTEConfig.COMMON.ultimateTimeWandDuration.get(), UltimateTimeWandItem.configuredDuration());
         assertEquals(JDTEConfig.COMMON.ultimateTimeWandFractionalFluidSettlement.get(),
                 UltimateTimeWandItem.keepsFractionalFluidSettlement());
+    }
+
+    @Test
+    void blockShiftRightClickDoesNotCycleModeInUseOn() throws Exception {
+        Path projectRoot = findProjectRoot();
+        String source = Files.readString(projectRoot.resolve("src/main/java/com/jdte/common/items/UltimateTimeWandItem.java"));
+        int useOnStart = source.indexOf("public InteractionResult useOn");
+        int applyToTargetStart = source.indexOf("private boolean applyToTarget");
+        String useOnSource = source.substring(useOnStart, applyToTargetStart);
+
+        assertTrue(useOnSource.contains("return applyToTarget(serverLevel, player, stack, context.getClickedPos())"));
+        assertFalse(useOnSource.contains("cycleMode(player, stack)"));
+        assertFalse(useOnSource.contains("if (player.isShiftKeyDown())"));
+    }
+
+    private static Path findProjectRoot() {
+        Path current = Path.of(System.getProperty("user.dir", "")).toAbsolutePath();
+        while (current != null && !Files.exists(current.resolve("gradle.properties"))) {
+            current = current.getParent();
+        }
+        if (current == null) {
+            throw new AssertionError("Could not locate project root from test runtime path");
+        }
+        return current;
     }
 
     private static final class PartialFailureCommitPort implements UltimateTimeWandItem.CommitPort {
