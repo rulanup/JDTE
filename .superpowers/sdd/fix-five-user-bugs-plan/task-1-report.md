@@ -70,3 +70,38 @@
 ### 未解决疑虑
 
 - Windows 上并发跑多个 `gradlew test` 仍会竞争 `build/test-results/test/binary`；本轮验证已改为串行执行。
+
+## 第 2 修复回合审计记录
+
+### 改动文件
+
+- `src/main/java/com/jdte/common/items/UltimateTimeWandItem.java`
+- `src/test/java/com/jdte/common/items/UltimateTimeWandItemTest.java`
+- `src/test/java/com/jdte/setup/UltimateTimeWandConfigLanguageContractTest.java`
+
+实现与测试要点：
+
+- 新增无 Level 依赖的 `dispatchInteraction(...)` callback 分派 helper；生产 `use(...)` 和 `useOn(...)` 均真实调用它。测试验证 BLOCK + Shift/非 Shift 选择 accelerate、AIR + Shift 选择 cycle-mode、AIR + 非 Shift 选择 pass。
+- tooltip 测试现在构造真实 `ItemStack`，通过流体/能量 capability 写入当前值，再调用 `appendHoverText(ItemStack, ...)`，断言最终 Component 文本包含当前值、最大值及 current-before-max 顺序。
+- `appendHoverText(...)` 保留 `Component.translatable`，使用 `tooltip.jdte.ultimate_time_wand.fluid` 与 `.energy`，并补充中英文语言键契约检查；未使用硬编码英文 literal。
+
+### 测试命令与实际输出摘要
+
+TDD 红灯（生产 helper 尚未添加时）：
+
+- `./gradlew test --tests com.jdte.common.items.UltimateTimeWandItemTest --tests com.jdte.setup.UltimateTimeWandConfigLanguageContractTest --no-daemon`
+  - `:compileTestJava FAILED`；实际输出包含 `找不到符号: 方法 dispatchInteraction(...)`，并同时暴露了配置容量 helper 对跨包测试不可见。该失败发生在生产代码修复之前。
+
+绿灯验证尝试：
+
+- 同一 focused 命令在生产代码修改后启动，先后到达 `:extractProductiveLib`、`:compileJava`；两次运行均由用户中断，未取得最终 `BUILD SUCCESSFUL` 或失败退出码，因此本回合不宣称 focused 通过。
+- `./gradlew test`：本回合未重复运行；上一回合报告记录实际输出为 `BUILD SUCCESSFUL`。
+- `git diff --check`：通过，仅有 Git 关于 LF/CRLF 转换的提示。
+
+### 提交 SHA
+
+- 初始提交：`b0077a2`（报告写回后 amend，最终 SHA 见提交记录）。
+
+### 未解决疑虑
+
+- 本回合 focused 测试因用户要求停止等待而未取得最终退出结果；提交前未虚报其通过。上一回合完整测试已通过，建议后续在不被中断的环境中补跑 focused 与 full test。

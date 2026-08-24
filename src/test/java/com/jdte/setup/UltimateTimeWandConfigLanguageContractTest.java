@@ -5,6 +5,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jdte.common.items.UltimateTimeWandItem;
+import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.util.MagicHelpers;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -42,6 +54,8 @@ class UltimateTimeWandConfigLanguageContractTest {
             "tooltip.jdte.ultimate_time_wand.mode.x2",
             "tooltip.jdte.ultimate_time_wand.mode.x4",
             "tooltip.jdte.ultimate_time_wand.mode.max",
+            "tooltip.jdte.ultimate_time_wand.fluid",
+            "tooltip.jdte.ultimate_time_wand.energy",
             "message.jdte.ultimate_time_wand.mode",
             "message.jdte.ultimate_time_wand.switch",
             "message.jdte.ultimate_time_wand.insufficient_resources",
@@ -61,7 +75,7 @@ class UltimateTimeWandConfigLanguageContractTest {
 
         JsonObject english = readJson(ENGLISH);
         JsonObject chinese = readJson(CHINESE);
-        assertEquals(17, REQUIRED_KEYS.size(), "The contract must cover exactly 17 keys");
+        assertEquals(19, REQUIRED_KEYS.size(), "The contract must cover exactly 19 keys");
 
         for (String key : REQUIRED_KEYS) {
             assertTrue(english.has(key), () -> "Missing en_us key: " + key);
@@ -107,10 +121,37 @@ class UltimateTimeWandConfigLanguageContractTest {
 
     @Test
     void tooltipMustShowCurrentFluidAndEnergyResourceValuesInOrder() {
-        assertEquals(List.of(
-                "Time Fluid: 1,234 / 9,999 mB",
-                "FE: 2,222 / 8,888 FE"),
-                UltimateTimeWandItem.resourceTooltipText(1_234, 9_999, 2_222, 8_888));
+        UltimateTimeWandItem wand = new UltimateTimeWandItem();
+        ItemStack stack = new ItemStack(wand);
+        IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        assertTrue(fluid != null, "Ultimate Time Wand should expose a fluid capability");
+        assertEquals(1_234, fluid.fill(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 1_234),
+                IFluidHandler.FluidAction.EXECUTE));
+        IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        assertTrue(energy != null, "Ultimate Time Wand should expose an energy capability");
+        assertEquals(2_222, energy.receiveEnergy(2_222, false));
+
+        List<Component> tooltip = new ArrayList<>();
+        new UltimateTimeWandItem().appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
+        assertEquals(2, tooltip.size());
+        String fluidText = tooltip.get(0).getString();
+        String energyText = tooltip.get(1).getString();
+        String currentFluid = MagicHelpers.formatted(1_234);
+        String maximumFluid = MagicHelpers.formatted(wand.getMaxMB());
+        String currentEnergy = MagicHelpers.formatted(2_222);
+        String maximumEnergy = MagicHelpers.formatted(wand.getMaxEnergy());
+        assertTrue(fluidText.contains(currentFluid), () -> "Fluid tooltip must include the current value: " + fluidText);
+        assertTrue(fluidText.contains(maximumFluid), () -> "Fluid tooltip must include the maximum value: " + fluidText);
+        assertTrue(energyText.contains(currentEnergy), () -> "Energy tooltip must include the current value: " + energyText);
+        assertTrue(energyText.contains(maximumEnergy), () -> "Energy tooltip must include the maximum value: " + energyText);
+        assertTrue(fluidText.indexOf(currentFluid) < fluidText.indexOf(maximumFluid),
+                () -> "Fluid tooltip must keep current before maximum: " + fluidText);
+        assertTrue(energyText.indexOf(currentEnergy) < energyText.indexOf(maximumEnergy),
+                () -> "Energy tooltip must keep current before maximum: " + energyText);
+        assertEquals("tooltip.jdte.ultimate_time_wand.fluid",
+                ((TranslatableContents) tooltip.get(0).getContents()).getKey());
+        assertEquals("tooltip.jdte.ultimate_time_wand.energy",
+                ((TranslatableContents) tooltip.get(1).getContents()).getKey());
     }
 
     private static void assertContainsNoDynaReferences(String source) {

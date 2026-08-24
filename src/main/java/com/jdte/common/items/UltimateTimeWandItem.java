@@ -33,16 +33,13 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /** Applies one server-owned, bounded Ultimate Time Wand request to the clicked target. */
 public class UltimateTimeWandItem extends Item implements FluidContainingItem, PoweredItem {
-    public enum AirUseAction {
-        PASS,
-        CYCLE_MODE
-    }
-
-    public enum UseOnAction {
-        ACCELERATE
+    public enum InteractionTarget {
+        AIR,
+        BLOCK
     }
 
     public UltimateTimeWandItem() {
@@ -62,13 +59,15 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (resolveAirUseAction(player.isShiftKeyDown()) != AirUseAction.CYCLE_MODE) {
-            return InteractionResultHolder.pass(stack);
-        }
-        if (!level.isClientSide()) {
-            cycleMode(player, stack);
-        }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return dispatchInteraction(InteractionTarget.AIR, player.isShiftKeyDown(),
+                () -> InteractionResultHolder.pass(stack),
+                () -> {
+                    if (!level.isClientSide()) {
+                        cycleMode(player, stack);
+                    }
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+                },
+                () -> InteractionResultHolder.pass(stack));
     }
 
     @Override
@@ -82,11 +81,11 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         if (level.isClientSide() || !(level instanceof ServerLevel serverLevel)) {
             return InteractionResult.sidedSuccess(level.isClientSide());
         }
-        if (resolveUseOnAction(player.isShiftKeyDown()) != UseOnAction.ACCELERATE) {
-            return InteractionResult.PASS;
-        }
-        return applyToTarget(serverLevel, player, stack, context.getClickedPos())
-                ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+        return dispatchInteraction(InteractionTarget.BLOCK, player.isShiftKeyDown(),
+                () -> InteractionResult.PASS,
+                () -> InteractionResult.PASS,
+                () -> applyToTarget(serverLevel, player, stack, context.getClickedPos())
+                        ? InteractionResult.SUCCESS : InteractionResult.FAIL);
     }
 
     private boolean applyToTarget(ServerLevel level, Player player, ItemStack stack, BlockPos pos) {
@@ -190,26 +189,30 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
                                 List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        for (String line : resourceTooltipText(Math.max(0, FluidContainingItem.getAvailableFluid(stack)),
+        tooltip.addAll(resourceTooltipComponents(Math.max(0, FluidContainingItem.getAvailableFluid(stack)),
                 configuredFluidCapacity(), Math.max(0, PoweredItem.getAvailableEnergy(stack)),
-                configuredEnergyCapacity())) {
-            tooltip.add(Component.literal(line));
-        }
+                configuredEnergyCapacity()));
     }
 
-    public static List<String> resourceTooltipText(int currentFluid, int maxFluid,
-                                                   int currentEnergy, int maxEnergy) {
+    public static List<Component> resourceTooltipComponents(int currentFluid, int maxFluid,
+                                                           int currentEnergy, int maxEnergy) {
         return List.of(
-                "Time Fluid: " + MagicHelpers.formatted(currentFluid) + " / " + MagicHelpers.formatted(maxFluid) + " mB",
-                "FE: " + MagicHelpers.formatted(currentEnergy) + " / " + MagicHelpers.formatted(maxEnergy) + " FE");
+                Component.translatable("tooltip.jdte.ultimate_time_wand.fluid",
+                        MagicHelpers.formatted(currentFluid), MagicHelpers.formatted(maxFluid))
+                        .withStyle(ChatFormatting.AQUA),
+                Component.translatable("tooltip.jdte.ultimate_time_wand.energy",
+                        MagicHelpers.formatted(currentEnergy), MagicHelpers.formatted(maxEnergy))
+                        .withStyle(ChatFormatting.YELLOW));
     }
 
-    static AirUseAction resolveAirUseAction(boolean shiftDown) {
-        return shiftDown ? AirUseAction.CYCLE_MODE : AirUseAction.PASS;
-    }
-
-    static UseOnAction resolveUseOnAction(boolean shiftDown) {
-        return UseOnAction.ACCELERATE;
+    static <T> T dispatchInteraction(InteractionTarget target, boolean shiftDown,
+                                      Supplier<T> pass,
+                                      Supplier<T> cycleMode,
+                                      Supplier<T> accelerate) {
+        return switch (target) {
+            case BLOCK -> accelerate.get();
+            case AIR -> (shiftDown ? cycleMode : pass).get();
+        };
     }
 
     private static UltimateTimeWandData.OperationResult planWithResources(
