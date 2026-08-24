@@ -8,6 +8,7 @@ import com.jdte.common.network.data.OpenLargePortableContainerPayload;
 import com.direwolf20.justdirethings.common.items.FuelCanister;
 import com.direwolf20.justdirethings.common.items.PotionCanister;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.direwolf20.justdirethings.setup.Registration;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
@@ -232,6 +233,18 @@ class LargePortableContainerLogicTest {
     }
 
     @Test
+    void largePocketGeneratorFuelResolverTreatsJdtAndVanillaCoalBlocksAsBurnableFuel() {
+        ItemStack jdtCoalBlock = new ItemStack(Registration.CoalBlock_T1_ITEM.get());
+        ItemStack vanillaCoalBlock = new ItemStack(Items.COAL_BLOCK);
+        int jdtBurnTime = LargePocketGeneratorItem.resolveFuelBurnTime(jdtCoalBlock);
+        int vanillaBurnTime = LargePocketGeneratorItem.resolveFuelBurnTime(vanillaCoalBlock);
+
+        assertTrue(jdtBurnTime > 0);
+        assertTrue(vanillaBurnTime > 0);
+        assertEquals(vanillaBurnTime, jdtBurnTime);
+    }
+
+    @Test
     void largePotionMenuHandlerFillsExactlyOneBatchAndReturnsFourGlassBottles() {
         ItemStack canister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
         LargePotionCanisterHandler handler =
@@ -317,4 +330,5 @@ class LargePortableContainerLogicTest {
         return new RegistryFriendlyByteBuf(Unpooled.buffer(),
                 RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
     }
+
 }
