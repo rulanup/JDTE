@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "justdirethings:eclipsealloy_paxel"
+    },
+    {
+      "item": "jdte:big_fluid_tank"
+    },
+    {
+      "item": "jdte:time_fluid_catalyst"
+    },
+    {
+      "item": "jdte:ae_acceleration_upgrade"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:ultimate_time_wand"
+  }
+}

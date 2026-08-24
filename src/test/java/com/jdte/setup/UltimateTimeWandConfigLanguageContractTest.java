@@ -57,6 +57,15 @@ class UltimateTimeWandConfigLanguageContractTest {
         }
     }
 
+    @Test
+    void itemAndRecipeUseJdteNamespaceWithoutDynaReferences() throws IOException {
+        Path recipe = sourcePath("src/main/resources/data/jdte/recipe/ultimate_time_wand.json");
+        assertTrue(Files.exists(recipe), "Missing Ultimate Time Wand recipe: " + recipe);
+        String source = Files.readString(sourcePath("src/main/java/com/jdte/common/items/UltimateTimeWandItem.java"));
+        assertFalse(source.contains("justdynthings"));
+        assertFalse(source.contains("com.direwolf20.justdynathings"));
+    }
+
     private static JsonObject readLanguage(Path path) throws IOException {
         try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             return JsonParser.parseReader(reader).getAsJsonObject();
@@ -64,7 +73,11 @@ class UltimateTimeWandConfigLanguageContractTest {
     }
 
     private static Path sourceLanguage(String fileName) {
-        Path relativePath = Path.of(LANGUAGE_ROOT, fileName);
+        return sourcePath(Path.of(LANGUAGE_ROOT, fileName).toString());
+    }
+
+    private static Path sourcePath(String sourcePath) {
+        Path relativePath = Path.of(sourcePath);
         Path workingDirectory = Path.of("").toAbsolutePath();
         Path discovered = findFrom(workingDirectory, relativePath);
         if (discovered != null) {
