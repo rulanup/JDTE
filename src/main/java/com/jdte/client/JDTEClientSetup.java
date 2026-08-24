@@ -69,7 +69,7 @@ public class JDTEClientSetup {
                     (stack, level, entity, seed) -> LargePotionCanisterItem.getFullness(stack));
             ItemProperties.register(
                     JDTEItems.LARGE_FUEL_CANISTER.get(),
-                    ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fuel_fullness"),
+                    ResourceLocation.fromNamespaceAndPath("justdirethings", "fullness"),
                     (stack, level, entity, seed) -> LargeFuelCanisterItem.getFullness(stack));
         });
     }

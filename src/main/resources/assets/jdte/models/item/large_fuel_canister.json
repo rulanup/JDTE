@@ -6,25 +6,25 @@
   "overrides": [
     {
       "predicate": {
-        "jdte:fuel_fullness": 1
+        "justdirethings:fullness": 1
       },
       "model": "jdte:item/large_fuel_canister_1"
     },
     {
       "predicate": {
-        "jdte:fuel_fullness": 2
+        "justdirethings:fullness": 2
       },
       "model": "jdte:item/large_fuel_canister_2"
     },
     {
       "predicate": {
-        "jdte:fuel_fullness": 3
+        "justdirethings:fullness": 3
       },
       "model": "jdte:item/large_fuel_canister_3"
     },
     {
       "predicate": {
-        "jdte:fuel_fullness": 4
+        "justdirethings:fullness": 4
       },
       "model": "jdte:item/large_fuel_canister_4"
     }

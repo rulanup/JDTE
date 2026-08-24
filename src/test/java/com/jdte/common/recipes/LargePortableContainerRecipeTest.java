@@ -200,7 +200,7 @@ class LargePortableContainerRecipeTest {
         assertTrue(potionModel.getAsJsonArray("overrides").toString().contains("justdirethings:potion_fullness"));
 
         JsonObject fuelModel = json("assets/jdte/models/item/large_fuel_canister.json");
-        assertTrue(fuelModel.getAsJsonArray("overrides").toString().contains("jdte:fuel_fullness"));
+        assertTrue(fuelModel.getAsJsonArray("overrides").toString().contains("justdirethings:fullness"));
     }
 
     @Test
