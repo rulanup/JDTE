@@ -334,7 +334,7 @@ git commit -m "feat(顶级时间手杖): 添加配方与指南"
 - 修改：仅在测试揭示本功能回归时修改对应实现/测试文件。
 - 审计：所有新增手杖文件、注册文件、资源文件以及 `JustDynaThings*` 集成未改动状态。
 
-- [ ] **步骤 1：运行新增测试和完整测试**
+- [x] **步骤 1：运行新增测试和完整测试**
 
 运行：`.\gradlew.bat test --tests com.jdte.common.items.UltimateTimeWandDataTest --tests com.jdte.common.blockentities.UltimateTimeWandTargetRuntimeTest --tests com.jdte.common.entities.UltimateTimeWandEntityPersistenceTest --tests com.jdte.setup.UltimateTimeWandConfigLanguageContractTest`
 
@@ -344,19 +344,19 @@ git commit -m "feat(顶级时间手杖): 添加配方与指南"
 
 预期：完整 JUnit 套件 PASS，或若失败只出现已在基线记录中的失败。
 
-- [ ] **步骤 2：运行编译和静态依赖审计**
+- [x] **步骤 2：运行编译和静态依赖审计**
 
 运行：`.\gradlew.bat compileJava; rg -n "Dyna|dyna|justdynathings|com\.direwolf20\.justdynathings" src/main/java/com/jdte/common/items/UltimateTimeWand* src/main/java/com/jdte/common/entities/UltimateTimeWand* src/main/java/com/jdte/common/blockentities/UltimateTimeWand* src/main/java/com/jdte/setup/JDTEItems.java src/main/java/com/jdte/setup/JDTEEntities.java`
 
 预期：编译成功，新增手杖实现和注册代码无 Dyna 导入、继承或调用；JDT 和 AE2 引用均为已声明依赖/API。
 
-- [ ] **步骤 3：检查差异范围和资源完整性**
+- [x] **步骤 3：检查差异范围和资源完整性**
 
 运行：`git diff --check; git status --short; git diff main...HEAD --stat`
 
 确认只包含本计划定义的实现、测试、配置、注册和资源；不覆盖主工作区的用户改动，不修改 Dyna 集成，不替换 JDT 原版 `time_wand`，不添加 Curios 槽位。
 
-- [ ] **步骤 4：提交最终验证修复并请求代码审查**
+- [x] **步骤 4：提交最终验证修复并请求代码审查**
 
 ```bash
 git add -u
