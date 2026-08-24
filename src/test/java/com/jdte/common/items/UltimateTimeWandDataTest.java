@@ -13,6 +13,7 @@ class UltimateTimeWandDataTest {
     void cyclesNormalX2X4MaxAndBack() {
         assertEquals(Mode.X2, Mode.NORMAL.next());
         assertEquals(Mode.X4, Mode.X2.next());
+        assertEquals(Mode.MAX, Mode.X4.next());
         assertEquals(Mode.MAX.next(), Mode.NORMAL);
     }
 
@@ -34,10 +35,19 @@ class UltimateTimeWandDataTest {
     }
 
     @Test
+    void validModeNamesResolveToTheirModes() {
+        assertEquals(Mode.NORMAL, Mode.fromName("normal"));
+        assertEquals(Mode.X2, Mode.fromName("x2"));
+        assertEquals(Mode.X4, Mode.fromName("x4"));
+        assertEquals(Mode.MAX, Mode.fromName("max"));
+    }
+
+    @Test
     void exponentAndMultiplierAreClampedToTen() {
         assertEquals(1, multiplierForExponent(-1));
         assertEquals(1024, multiplierForExponent(11));
         assertEquals(10, UltimateTimeWandData.addStep(9, Mode.X2));
+        assertEquals(10, UltimateTimeWandData.addStep(Integer.MAX_VALUE, Mode.MAX));
     }
 
     @Test
@@ -59,11 +69,11 @@ class UltimateTimeWandDataTest {
         assertEquals(800000, JDTEConfig.COMMON.ultimateTimeWandFluidCapacity.get());
         assertEquals(10000000, JDTEConfig.COMMON.ultimateTimeWandEnergyCapacity.get());
         assertEquals(600, JDTEConfig.COMMON.ultimateTimeWandDuration.get());
-        assertEquals(10, JDTEConfig.COMMON.ultimateTimeWandMaxExponent.get());
-        assertEquals(1, JDTEConfig.COMMON.ultimateTimeWandNormalStep.get());
-        assertEquals(2, JDTEConfig.COMMON.ultimateTimeWandX2Step.get());
-        assertEquals(4, JDTEConfig.COMMON.ultimateTimeWandX4Step.get());
-        assertEquals(10, JDTEConfig.COMMON.ultimateTimeWandMaxStep.get());
+        assertEquals(10, UltimateTimeWandData.MAX_EXPONENT);
+        assertEquals(1, Mode.NORMAL.step());
+        assertEquals(2, Mode.X2.step());
+        assertEquals(4, Mode.X4.step());
+        assertEquals(10, Mode.MAX.step());
         assertEquals(1.0D, JDTEConfig.COMMON.ultimateTimeWandBaseCostMultiplier.get());
         assertEquals(1.0D, JDTEConfig.COMMON.ultimateTimeWandEnergyCostMultiplier.get());
         assertEquals(true, JDTEConfig.COMMON.ultimateTimeWandFractionalFluidSettlement.get());

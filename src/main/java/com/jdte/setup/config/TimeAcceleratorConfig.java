@@ -22,11 +22,6 @@ public class TimeAcceleratorConfig {
     public final ModConfigSpec.IntValue ultimateTimeWandFluidCapacity;
     public final ModConfigSpec.IntValue ultimateTimeWandEnergyCapacity;
     public final ModConfigSpec.IntValue ultimateTimeWandDuration;
-    public final ModConfigSpec.IntValue ultimateTimeWandMaxExponent;
-    public final ModConfigSpec.IntValue ultimateTimeWandNormalStep;
-    public final ModConfigSpec.IntValue ultimateTimeWandX2Step;
-    public final ModConfigSpec.IntValue ultimateTimeWandX4Step;
-    public final ModConfigSpec.IntValue ultimateTimeWandMaxStep;
     public final ModConfigSpec.DoubleValue ultimateTimeWandBaseCostMultiplier;
     public final ModConfigSpec.DoubleValue ultimateTimeWandEnergyCostMultiplier;
     public final ModConfigSpec.BooleanValue ultimateTimeWandFractionalFluidSettlement;
@@ -106,13 +101,6 @@ public class TimeAcceleratorConfig {
         ultimateTimeWandDuration = builder
                 .comment("Ultimate Time Wand effect duration (ticks)")
                 .defineInRange("ultimateTimeWandDuration", 600, 1, 1000000);
-        ultimateTimeWandMaxExponent = builder
-                .comment("Ultimate Time Wand maximum time exponent")
-                .defineInRange("ultimateTimeWandMaxExponent", 10, 0, 30);
-        ultimateTimeWandNormalStep = builder.defineInRange("ultimateTimeWandNormalStep", 1, 0, 30);
-        ultimateTimeWandX2Step = builder.defineInRange("ultimateTimeWandX2Step", 2, 0, 30);
-        ultimateTimeWandX4Step = builder.defineInRange("ultimateTimeWandX4Step", 4, 0, 30);
-        ultimateTimeWandMaxStep = builder.defineInRange("ultimateTimeWandMaxStep", 10, 0, 30);
         ultimateTimeWandBaseCostMultiplier = builder
                 .comment("Ultimate Time Wand base multiplier cost multiplier")
                 .defineInRange("ultimateTimeWandBaseCostMultiplier", 1.0D, 0.0D, 1000000.0D);

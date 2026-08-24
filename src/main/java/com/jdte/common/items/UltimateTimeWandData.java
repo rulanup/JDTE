@@ -60,7 +60,8 @@ public final class UltimateTimeWandData {
 
     public static int addStep(int exponent, Mode mode) {
         Mode safeMode = mode == null ? Mode.NORMAL : mode;
-        return Math.min(MAX_EXPONENT, Math.max(0, exponent) + safeMode.step());
+        long candidate = (long) Math.max(0, exponent) + safeMode.step();
+        return (int) Math.min(MAX_EXPONENT, candidate);
     }
 
     public static int saturatingEnergyCost(int multiplier, int baseCost) {
