@@ -1,5 +1,7 @@
 package com.jdte.common.items;
 
+import com.jdte.common.entities.UltimateTimeWandEntity;
+
 import java.util.Locale;
 
 /** Pure data and arithmetic contracts for the Ultimate Time Wand. */
@@ -75,10 +77,49 @@ public final class UltimateTimeWandData {
         return new FluidSettlement(drainMb, total - drainMb);
     }
 
+    /**
+     * Builds the complete state and resource mutation before the item changes either one.
+     * A saturated exponent is a no-op and therefore never charges resources.
+     */
+    public static OperationResult planOperation(UltimateTimeWandEntity.WandState state, Mode mode,
+                                                int fluidCost, int energyCost) {
+        int nextExponent = addStep(state.exponent(), mode);
+        if (nextExponent <= state.exponent()) {
+            return new OperationResult(false, state, 0, 0);
+        }
+        UltimateTimeWandEntity.WandState merged = UltimateTimeWandEntity.merge(
+                state, nextExponent - state.exponent(), MAX_EXPONENT);
+        return new OperationResult(true, merged, Math.max(0, fluidCost), Math.max(0, energyCost));
+    }
+
+    public static boolean canApply(UltimateTimeWandEntity.WandState state, Mode mode,
+                                   int availableFluid, int availableEnergy,
+                                   int fluidCost, int energyCost) {
+        OperationResult result = planOperation(state, mode, fluidCost, energyCost);
+        return result.success()
+                && Math.max(0, availableFluid) >= result.fluidCost()
+                && Math.max(0, availableEnergy) >= result.energyCost();
+    }
+
+    public static OperationResult applyIfAffordable(UltimateTimeWandEntity.WandState state, Mode mode,
+                                                     int availableFluid, int availableEnergy,
+                                                     int fluidCost, int energyCost) {
+        OperationResult result = planOperation(state, mode, fluidCost, energyCost);
+        if (!result.success() || Math.max(0, availableFluid) < result.fluidCost()
+                || Math.max(0, availableEnergy) < result.energyCost()) {
+            return new OperationResult(false, state, 0, 0);
+        }
+        return result;
+    }
+
     private static int clampExponent(int exponent) {
         return Math.max(0, Math.min(MAX_EXPONENT, exponent));
     }
 
     public record FluidSettlement(int drainMb, double remainingCost) {
+    }
+
+    public record OperationResult(boolean success, UltimateTimeWandEntity.WandState state,
+                                  int fluidCost, int energyCost) {
     }
 }

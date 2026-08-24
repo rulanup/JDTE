@@ -1,5 +1,7 @@
 package com.jdte.common.items;
 
+import com.jdte.common.entities.UltimateTimeWandEntity.WandState;
+import net.minecraft.core.BlockPos;
 import org.junit.jupiter.api.Test;
 
 import com.jdte.setup.JDTEConfig;
@@ -7,6 +9,7 @@ import com.jdte.setup.JDTEConfig;
 import static com.jdte.common.items.UltimateTimeWandData.Mode;
 import static com.jdte.common.items.UltimateTimeWandData.multiplierForExponent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class UltimateTimeWandDataTest {
     @Test
@@ -62,6 +65,22 @@ class UltimateTimeWandDataTest {
                 UltimateTimeWandData.settleFluid(0.75D, 0.5D);
         assertEquals(1, settlement.drainMb());
         assertEquals(0.25D, settlement.remainingCost(), 1.0E-9D);
+    }
+
+    @Test
+    void insufficientResourcesDoNotChangeExistingState() {
+        WandState before = new WandState(BlockPos.ZERO, 4, 600, 400);
+        assertFalse(UltimateTimeWandData.canApply(before, Mode.MAX, 0, 0, 1, 1));
+        assertEquals(before, UltimateTimeWandData.applyIfAffordable(before, Mode.MAX, 0, 0, 1, 1).state());
+    }
+
+    @Test
+    void existingMaxExponentIsNotChargedAgain() {
+        UltimateTimeWandData.OperationResult result = UltimateTimeWandData.planOperation(
+                new WandState(BlockPos.ZERO, 10, 600, 300), Mode.MAX, 100000, 100000);
+        assertFalse(result.success());
+        assertEquals(0, result.fluidCost());
+        assertEquals(0, result.energyCost());
     }
 
     @Test
