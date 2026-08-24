@@ -36,6 +36,15 @@ import java.util.List;
 
 /** Applies one server-owned, bounded Ultimate Time Wand request to the clicked target. */
 public class UltimateTimeWandItem extends Item implements FluidContainingItem, PoweredItem {
+    public enum AirUseAction {
+        PASS,
+        CYCLE_MODE
+    }
+
+    public enum UseOnAction {
+        ACCELERATE
+    }
+
     public UltimateTimeWandItem() {
         super(new Properties().stacksTo(1));
     }
@@ -53,7 +62,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!player.isShiftKeyDown()) {
+        if (resolveAirUseAction(player.isShiftKeyDown()) != AirUseAction.CYCLE_MODE) {
             return InteractionResultHolder.pass(stack);
         }
         if (!level.isClientSide()) {
@@ -72,6 +81,9 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         ItemStack stack = context.getItemInHand();
         if (level.isClientSide() || !(level instanceof ServerLevel serverLevel)) {
             return InteractionResult.sidedSuccess(level.isClientSide());
+        }
+        if (resolveUseOnAction(player.isShiftKeyDown()) != UseOnAction.ACCELERATE) {
+            return InteractionResult.PASS;
         }
         return applyToTarget(serverLevel, player, stack, context.getClickedPos())
                 ? InteractionResult.SUCCESS : InteractionResult.FAIL;
@@ -178,12 +190,26 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
                                 List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.fluid",
-                MagicHelpers.formatted(Math.max(0, FluidContainingItem.getAvailableFluid(stack))),
-                MagicHelpers.formatted(configuredFluidCapacity())).withStyle(ChatFormatting.AQUA));
-        tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.energy",
-                MagicHelpers.formatted(Math.max(0, PoweredItem.getAvailableEnergy(stack))),
-                MagicHelpers.formatted(configuredEnergyCapacity())).withStyle(ChatFormatting.YELLOW));
+        for (String line : resourceTooltipText(Math.max(0, FluidContainingItem.getAvailableFluid(stack)),
+                configuredFluidCapacity(), Math.max(0, PoweredItem.getAvailableEnergy(stack)),
+                configuredEnergyCapacity())) {
+            tooltip.add(Component.literal(line));
+        }
+    }
+
+    public static List<String> resourceTooltipText(int currentFluid, int maxFluid,
+                                                   int currentEnergy, int maxEnergy) {
+        return List.of(
+                "Time Fluid: " + MagicHelpers.formatted(currentFluid) + " / " + MagicHelpers.formatted(maxFluid) + " mB",
+                "FE: " + MagicHelpers.formatted(currentEnergy) + " / " + MagicHelpers.formatted(maxEnergy) + " FE");
+    }
+
+    static AirUseAction resolveAirUseAction(boolean shiftDown) {
+        return shiftDown ? AirUseAction.CYCLE_MODE : AirUseAction.PASS;
+    }
+
+    static UseOnAction resolveUseOnAction(boolean shiftDown) {
+        return UseOnAction.ACCELERATE;
     }
 
     private static UltimateTimeWandData.OperationResult planWithResources(

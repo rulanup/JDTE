@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.jdte.common.items.UltimateTimeWandItem;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -105,21 +106,11 @@ class UltimateTimeWandConfigLanguageContractTest {
     }
 
     @Test
-    void tooltipMustShowCurrentFluidAndEnergyResourceValues() throws IOException {
-        String source = Files.readString(sourcePath("src/main/java/com/jdte/common/items/UltimateTimeWandItem.java"));
-        assertTrue(source.contains("appendHoverText"));
-        assertTrue(source.contains("MagicHelpers.formatted"));
-        assertTrue(source.contains("FluidContainingItem.getAvailableFluid"));
-        assertTrue(source.contains("PoweredItem.getAvailableEnergy"));
-        assertTrue(source.contains("tooltip.jdte.ultimate_time_wand.fluid"));
-        assertTrue(source.contains("tooltip.jdte.ultimate_time_wand.energy"));
-
-        JsonObject english = readJson(ENGLISH);
-        JsonObject chinese = readJson(CHINESE);
-        for (JsonObject language : List.of(english, chinese)) {
-            assertTrue(language.has("tooltip.jdte.ultimate_time_wand.fluid"));
-            assertTrue(language.has("tooltip.jdte.ultimate_time_wand.energy"));
-        }
+    void tooltipMustShowCurrentFluidAndEnergyResourceValuesInOrder() {
+        assertEquals(List.of(
+                "Time Fluid: 1,234 / 9,999 mB",
+                "FE: 2,222 / 8,888 FE"),
+                UltimateTimeWandItem.resourceTooltipText(1_234, 9_999, 2_222, 8_888));
     }
 
     private static void assertContainsNoDynaReferences(String source) {
