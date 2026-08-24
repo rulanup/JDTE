@@ -2,6 +2,7 @@ package com.jdte.setup;
 
 import com.jdte.JDTE;
 import com.jdte.common.entities.TimeAcceleratorEffectEntity;
+import com.jdte.common.entities.UltimateTimeWandEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -19,4 +20,11 @@ public class JDTEEntities {
                     .updateInterval(1)
                     .noSave()
                     .build("time_accelerator_effect"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<UltimateTimeWandEntity>> ULTIMATE_TIME_WAND = ENTITIES.register(
+            "ultimate_time_wand", () -> EntityType.Builder.<UltimateTimeWandEntity>of(UltimateTimeWandEntity::new, MobCategory.MISC)
+                    .sized(0.1f, 0.1f)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("ultimate_time_wand"));
 }
