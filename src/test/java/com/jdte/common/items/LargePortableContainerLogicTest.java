@@ -21,6 +21,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.items.ComponentItemHandler;
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +30,7 @@ import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -257,6 +259,15 @@ class LargePortableContainerLogicTest {
     void largePocketGeneratorBurnsJdtAndVanillaCoalBlocksAndProducesEnergy() {
         assertLargePocketGeneratorBurnsFuel(new ItemStack(Registration.CoalBlock_T1_ITEM.get()));
         assertLargePocketGeneratorBurnsFuel(new ItemStack(Items.COAL_BLOCK));
+    }
+
+    @Test
+    void largePocketGeneratorExposesTheNoReceiveCapabilityRequiredByTheJdtFuelLoop() {
+        ItemStack generatorStack = new ItemStack(JDTEItems.LARGE_POCKET_GENERATOR.get());
+
+        IEnergyStorage energyStorage = LargePocketGeneratorItem.createEnergyStorage(generatorStack);
+
+        assertInstanceOf(EnergyStorageItemStackNoReceive.class, energyStorage);
     }
 
     @Test

@@ -23,10 +23,9 @@ import com.jdte.common.blockentities.TimeFreezerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.items.UltimatePortalGunItem;
-import com.jdte.common.items.LargePortableContainerLogic;
+import com.jdte.common.items.LargePocketGeneratorItem;
 import com.jdte.common.items.TimeMultitoolMiningEvents;
 import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemstack;
-import com.direwolf20.justdirethings.setup.Config;
 import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -194,8 +193,7 @@ public class JDTE {
                         JDTEConfig.COMMON.ultimateTimeWandEnergyCapacity.get(), stack),
                 JDTEItems.ULTIMATE_TIME_WAND.get());
         event.registerItem(Capabilities.EnergyStorage.ITEM,
-                (stack, context) -> new EnergyStorageItemstack(
-                        LargePortableContainerLogic.pocketGeneratorCapacity(Config.POCKET_GENERATOR_MAX_FE.get()), stack),
+                (stack, context) -> LargePocketGeneratorItem.createEnergyStorage(stack),
                 JDTEItems.LARGE_POCKET_GENERATOR.get());
         event.registerItem(Capabilities.FluidHandler.ITEM,
                 (stack, context) -> new FluidHandlerItemStack(

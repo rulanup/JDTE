@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class LargePocketGeneratorItem extends PocketGenerator {
+    private static final int FALLBACK_BASE_MAX_ENERGY = 1_000_000;
     private static final int FALLBACK_FE_PER_FUEL_TICK = 1;
     private static final int FALLBACK_BURN_SPEED_MULTIPLIER = 1;
 
@@ -31,9 +32,13 @@ public class LargePocketGeneratorItem extends PocketGenerator {
         return stack.getOrDefault(JustDireDataComponents.TOOL_ENABLED, true) ? 1.0F : 0.0F;
     }
 
+    public static EnergyStorageItemStackNoReceive createEnergyStorage(ItemStack stack) {
+        return new EnergyStorageItemStackNoReceive(getConfiguredMaxEnergy(), stack);
+    }
+
     @Override
     public int getMaxEnergy() {
-        return getScaledMaxEnergy(Config.POCKET_GENERATOR_MAX_FE.get());
+        return getConfiguredMaxEnergy();
     }
 
     @Override
@@ -103,6 +108,10 @@ public class LargePocketGeneratorItem extends PocketGenerator {
         } catch (IllegalStateException ignored) {
             return fallback;
         }
+    }
+
+    private static int getConfiguredMaxEnergy() {
+        return getScaledMaxEnergy(resolveConfigInt(Config.POCKET_GENERATOR_MAX_FE, FALLBACK_BASE_MAX_ENERGY));
     }
 
     @Override
