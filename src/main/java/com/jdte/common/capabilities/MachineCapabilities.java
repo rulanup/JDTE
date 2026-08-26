@@ -205,6 +205,7 @@ public final class MachineCapabilities {
             // 工具/消耗品槽对自动化只进不出，防止稿子等内容被管道抽出。
             machine(JDTEBlocks.EXTENDED_CLICKER, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),
             machine(JDTEBlocks.EXTENDED_GENERATOR, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),
+            machine(JDTEBlocks.EXTENDED_FLUID_GENERATOR, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK), items(INSERT_ONLY_MACHINE_ITEMS)),
             machine(JDTEBlocks.EXTENDED_BLOCK_BREAKER, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),
             machine(JDTEBlocks.EXTENDED_BLOCK_PLACER, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),
             machine(JDTEBlocks.EXTENDED_BLOCK_SWAPPER, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),

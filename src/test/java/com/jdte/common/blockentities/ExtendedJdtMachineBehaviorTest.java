@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
 import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
 import com.direwolf20.justdirethings.common.items.FuelCanister;
 import com.jdte.client.screens.ExtendedGeneratorScreen;
@@ -40,6 +41,26 @@ class ExtendedJdtMachineBehaviorTest {
         assertEquals(JDTEBlocks.EXTENDED_GENERATOR.getId(), BuiltInRegistries.BLOCK.getKey(JDTEBlocks.EXTENDED_GENERATOR.get()));
         assertEquals(JDTEBlocks.EXTENDED_GENERATOR.getId(), BuiltInRegistries.ITEM.getKey(BuiltInRegistries.ITEM.get(generatorId)));
         assertEquals(generatorId, JDTEMenus.EXTENDED_GENERATOR.getId());
+    }
+
+    @Test
+    void extendedFluidGeneratorKeepsJdtFluidGeneratorContract() {
+        ExtendedFluidGeneratorBE machine = new ExtendedFluidGeneratorBE(
+                BlockPos.ZERO, JDTEBlocks.EXTENDED_FLUID_GENERATOR.get().defaultBlockState());
+
+        assertInstanceOf(GeneratorFluidT1BE.class, machine);
+        assertInstanceOf(ExtendedUpgradeMachine.class, machine);
+        assertEquals(JDTEBlockEntities.EXTENDED_FLUID_GENERATOR.get(), machine.getType());
+        assertEquals(ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT,
+                UpgradeHelper.getUpgradeHandler(machine).getSlots());
+
+        ResourceLocation generatorId = ResourceLocation.fromNamespaceAndPath("jdte", "extended_fluid_generator");
+        assertEquals(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(), BuiltInRegistries.BLOCK.get(generatorId));
+        assertEquals(JDTEBlocks.EXTENDED_FLUID_GENERATOR.getId(),
+                BuiltInRegistries.BLOCK.getKey(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get()));
+        assertEquals(JDTEBlocks.EXTENDED_FLUID_GENERATOR.getId(),
+                BuiltInRegistries.ITEM.getKey(BuiltInRegistries.ITEM.get(generatorId)));
+        assertEquals(generatorId, JDTEMenus.EXTENDED_FLUID_GENERATOR.getId());
     }
 
     @Test

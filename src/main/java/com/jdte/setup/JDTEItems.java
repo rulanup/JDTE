@@ -71,6 +71,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_TIME_FREEZER = ITEMS.register("extended_time_freezer", () -> new BlockItem(JDTEBlocks.EXTENDED_TIME_FREEZER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_CLICKER = ITEMS.register("extended_clicker", () -> new BlockItem(JDTEBlocks.EXTENDED_CLICKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_GENERATOR = ITEMS.register("extended_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_GENERATOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_GENERATOR = ITEMS.register("extended_fluid_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_BREAKER = ITEMS.register("extended_block_breaker", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_BREAKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_PLACER = ITEMS.register("extended_block_placer", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_PLACER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_SWAPPER = ITEMS.register("extended_block_swapper", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get(), new Item.Properties()));
