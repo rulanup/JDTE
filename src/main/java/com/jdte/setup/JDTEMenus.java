@@ -41,6 +41,8 @@ public class JDTEMenus {
             "extended_fluid_collector", () -> IMenuTypeExtension.create(ExtendedFluidCollectorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedFluidPlacerContainer>> EXTENDED_FLUID_PLACER = MENUS.register(
             "extended_fluid_placer", () -> IMenuTypeExtension.create(ExtendedFluidPlacerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedExperienceHolderContainer>> EXTENDED_EXPERIENCE_HOLDER = MENUS.register(
+            "extended_experience_holder", () -> IMenuTypeExtension.create(ExtendedExperienceHolderContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedItemCollectorContainer>> ADVANCED_ITEM_COLLECTOR = MENUS.register(
             "advanced_item_collector", () -> IMenuTypeExtension.create(AdvancedItemCollectorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<EntitySuppressorContainer>> ENTITY_SUPPRESSOR = MENUS.register(
