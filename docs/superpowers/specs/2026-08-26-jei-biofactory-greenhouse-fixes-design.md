@@ -51,13 +51,13 @@ Productive Bees 集成和 Bio Factory BER 的 spawn egg 渲染路径统一调用
 
 新增带 `neoforge:mod_loaded` 条件的兼容配方：
 
-- 种子：`forbidden_arcanus:edelwood_sapling`
-- 展示方块：`forbidden_arcanus:edelwood_sapling`
+- 种子：`forbidden_arcanus:growing_edelwood`
+- 展示方块：`forbidden_arcanus:growing_edelwood`
 - 产物：`4x forbidden_arcanus:edelwood_log`、`1x forbidden_arcanus:edelwood_sapling`
 - 使用固定成长工作量和 Time Fluid 成本，与现有 sapling 温室配方一致。
 - `use_loot_table: false`，确保产物明确为原木而不是依赖外部树叶/掉落表。
 
-如果目标版本注册的 sapling ID 与上述 ID 不一致，配方测试和依赖 jar 注册表检查必须先确认实际 ID，再以实际注册名落盘；不得静默添加不存在的物品 ID。
+目标版本依赖 jar 已确认使用 `forbidden_arcanus:growing_edelwood`，不得改用不存在的 `edelwood_sapling` ID。
 
 ## 数据流与失败行为
 

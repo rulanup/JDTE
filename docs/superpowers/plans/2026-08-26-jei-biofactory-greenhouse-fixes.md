@@ -65,7 +65,7 @@
 **步骤：**
 
 1. 使用 `neoforge:mod_loaded` 条件保护配方。
-2. 使用已确认的 `forbidden_arcanus:edelwood_sapling` 输入/展示方块和 `forbidden_arcanus:edelwood_log` 原木输出；若依赖 jar 检查发现注册名不同，先修正测试和资源为真实 ID。
+2. 使用已确认的 `forbidden_arcanus:growing_edelwood` 输入/展示方块和 `forbidden_arcanus:edelwood_log` 原木输出；不要使用不存在的 `edelwood_sapling` ID。
 3. 保持 `use_loot_table:false`，并沿用现有 sapling 配方的成长工作量、Time Fluid 与返还 sapling 语义。
 4. 运行 recipe codec 测试及所有 greenhouse tests。
 
