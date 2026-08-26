@@ -9,6 +9,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 
 public class ExtendedFluidGeneratorContainer extends BaseMachineContainer {
@@ -39,5 +40,15 @@ public class ExtendedFluidGeneratorContainer extends BaseMachineContainer {
     public boolean stillValid(Player player) {
         return stillValid(ContainerLevelAccess.create(player.level(), pos), player,
                 JDTEBlocks.EXTENDED_FLUID_GENERATOR.get());
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player player, int index) {
+        return super.quickMoveStack(player, index);
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
     }
 }

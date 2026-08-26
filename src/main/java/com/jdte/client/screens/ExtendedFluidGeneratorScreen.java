@@ -10,13 +10,11 @@ import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.containers.ExtendedFluidGeneratorContainer;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.Arrays;
 
 public class ExtendedFluidGeneratorScreen extends BaseMachineScreen<ExtendedFluidGeneratorContainer> {
     protected final ExtendedFluidGeneratorContainer container;
@@ -31,6 +29,11 @@ public class ExtendedFluidGeneratorScreen extends BaseMachineScreen<ExtendedFlui
     }
 
     @Override
+    public void init() {
+        super.init();
+    }
+
+    @Override
     public void setTopSection() {
         extraWidth = 0;
         extraHeight = 0;
@@ -38,6 +41,7 @@ public class ExtendedFluidGeneratorScreen extends BaseMachineScreen<ExtendedFlui
 
     @Override
     public void addTickSpeedButton() {
+        // No-op: fluid generators do not expose tick speed controls.
     }
 
     @Override
@@ -61,18 +65,22 @@ public class ExtendedFluidGeneratorScreen extends BaseMachineScreen<ExtendedFlui
             return;
         }
 
-        List<Component> lines = new ArrayList<>();
-        if (Screen.hasShiftDown()) {
-            lines.add(Component.translatable("justdirethings.screen.energy",
-                    MagicHelpers.formatted(container.getEnergy()),
-                    MagicHelpers.formatted(poweredMachineBE.getMaxEnergy())));
+        if (hasShiftDown()) {
+            guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+                    Component.translatable("justdirethings.screen.energy",
+                            MagicHelpers.formatted(container.getEnergy()),
+                            MagicHelpers.formatted(poweredMachineBE.getMaxEnergy())),
+                    Component.translatable("justdirethings.screen.fepertick",
+                            MagicHelpers.formatted(generatorBE.getFePerFuelTick()))
+            )), mouseX, mouseY);
         } else {
-            lines.add(Component.translatable("justdirethings.screen.energy",
-                    MagicHelpers.withSuffix(container.getEnergy()),
-                    MagicHelpers.withSuffix(poweredMachineBE.getMaxEnergy())));
+            guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+                    Component.translatable("justdirethings.screen.energy",
+                            MagicHelpers.withSuffix(container.getEnergy()),
+                            MagicHelpers.withSuffix(poweredMachineBE.getMaxEnergy())),
+                    Component.translatable("justdirethings.screen.fepertick",
+                            MagicHelpers.formatted(generatorBE.getFePerFuelTick()))
+            )), mouseX, mouseY);
         }
-        lines.add(Component.translatable("justdirethings.screen.fepertick",
-                MagicHelpers.formatted(generatorBE.getFePerFuelTick())));
-        guiGraphics.renderTooltip(font, lines, Optional.empty(), mouseX, mouseY);
     }
 }
