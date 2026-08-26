@@ -1,5 +1,6 @@
 package com.jdte.common.integrations;
 
+import com.jdte.common.utils.SpawnEggEntityData;
 import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
 import cy.jdkdigital.productivebees.ProductiveBees;
@@ -38,6 +39,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
@@ -89,6 +91,9 @@ public final class ProductiveBeesBioFactoryIntegration {
         }
         if (stack.getItem() instanceof SpawnEggItem egg) {
             Entity entity = egg.getType(stack).create(level);
+            if (entity != null) {
+                SpawnEggEntityData.copy(stack).ifPresent(entity::load);
+            }
             return entity instanceof Bee bee ? bee : null;
         }
         return null;
@@ -264,84 +269,134 @@ public final class ProductiveBeesBioFactoryIntegration {
     public static List<JeiRecipe> getJeiRecipes(Level level, RecipeManager recipes) {
         List<JeiRecipe> result = new ArrayList<>();
         for (var holder : recipes.getAllRecipesFor(ModRecipeTypes.ADVANCED_BEEHIVE_TYPE.get())) {
-            AdvancedBeehiveRecipe recipe = holder.value();
-            BeeIngredient ingredient = recipe.ingredient.get();
-            Entity entity = ingredient.getCachedEntity(level);
-            if (!(entity instanceof Bee bee)) continue;
-
-            ItemStack cage = new ItemStack(ModItems.BEE_CAGE.get());
-            BeeCage.captureEntity(bee, cage);
-            FloweringInputs flowering = getFloweringInputs(bee);
-            List<JeiOutput> outputs = getDisplayOutputs(recipe.getRecipeOutputs());
-            if (outputs.isEmpty()) continue;
-
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath("jdte",
-                    "bio_factory/productivebees/" + holder.id().getPath());
-            result.add(new JeiRecipe(id, cage, flowering.items(), flowering.fluid(), outputs));
+            try {
+                addJeiRecipe(result, level, holder);
+            } catch (RuntimeException | StackOverflowError exception) {
+                LOGGER.warn("Skipping Productive Bees Bio Factory JEI recipe {}: {}",
+                        holder.id(), exception.toString());
+            }
         }
         LOGGER.info("Prepared {} Productive Bees Bio Factory JEI recipes", result.size());
         return result;
     }
 
+    private static void addJeiRecipe(List<JeiRecipe> result, Level level,
+                                     RecipeHolder<AdvancedBeehiveRecipe> holder) {
+        AdvancedBeehiveRecipe recipe = holder.value();
+        BeeIngredient ingredient = recipe.ingredient.get();
+        Entity entity = ingredient.getCachedEntity(level);
+        if (!(entity instanceof Bee bee)) return;
+
+        ItemStack cage = new ItemStack(ModItems.BEE_CAGE.get());
+        BeeCage.captureEntity(bee, cage);
+        FloweringInputs flowering = getFloweringInputsSafely(bee, holder.id());
+        List<JeiOutput> outputs = getDisplayOutputs(recipe.getRecipeOutputs());
+        if (outputs.isEmpty()) return;
+
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath("jdte",
+                "bio_factory/productivebees/" + holder.id().getPath());
+        result.add(new JeiRecipe(id, cage, flowering.items(), flowering.fluid(), outputs));
+    }
+
+    private static FloweringInputs getFloweringInputsSafely(Bee bee, ResourceLocation recipeId) {
+        try {
+            return getFloweringInputs(bee);
+        } catch (RuntimeException | StackOverflowError exception) {
+            LOGGER.warn("Skipping Productive Bees flowering inputs for JEI recipe {}: {}",
+                    recipeId, exception.toString());
+            return FloweringInputs.empty();
+        }
+    }
+
     private static FloweringInputs getFloweringInputs(Bee bee) {
-        List<ItemStack> result = new ArrayList<>();
+        FloweringInputsBuilder builder = new FloweringInputsBuilder();
         Optional<ResourceLocation> fluid = Optional.empty();
         if (bee instanceof ConfigurableBee configurable) {
             CompoundTag data = getBeeData(configurable);
             if (usesEntityTypeFlowers(data)) {
-                addEntityTypeFlowers(result, data);
+                addEntityTypeFlowers(builder, data);
             } else {
-                if (data != null && data.contains("flowerTag")) addFlowerTag(result, data.getString("flowerTag"));
-                if (data != null && data.contains("flowerBlock")) addBlock(result, data.getString("flowerBlock"));
-                if (data != null && data.contains("flowerItem")) addItem(result, data.getString("flowerItem"));
+                if (data != null && data.contains("flowerTag")) addFlowerTag(builder, data.getString("flowerTag"));
+                if (data != null && data.contains("flowerBlock")) addBlock(builder, data.getString("flowerBlock"));
+                if (data != null && data.contains("flowerItem")) addItem(builder, data.getString("flowerItem"));
                 if (data != null && data.contains("flowerFluid")) fluid = resolveFluid(data.getString("flowerFluid"));
             }
         } else {
-            BuiltInRegistries.ITEM.getTag(ItemTags.BEE_FOOD).ifPresent(tag ->
-                    tag.forEach(item -> addUnique(result, new ItemStack(item.value()))));
+            BuiltInRegistries.ITEM.getTag(ItemTags.BEE_FOOD).ifPresent(tag -> {
+                for (var item : tag) {
+                    if (builder.atLimit()) break;
+                    builder.add(new ItemStack(item.value()));
+                }
+            });
         }
-        return new FloweringInputs(List.copyOf(result), fluid);
+        return new FloweringInputs(builder.items(), fluid);
     }
 
-    private static void addEntityTypeFlowers(List<ItemStack> result, CompoundTag data) {
+    private static void addEntityTypeFlowers(FloweringInputsBuilder builder, CompoundTag data) {
         BuiltInRegistries.ENTITY_TYPE.stream()
                 .filter(entityType -> matchesConfiguredEntityType(data, entityType))
                 .map(AmberItem::getFakeAmberItem)
-                .forEach(stack -> addUnique(result, stack));
+                .limit(MAX_JEI_FLOWERING_ITEMS)
+                .forEach(builder::add);
     }
 
-    private static void addBlock(List<ItemStack> result, String id) {
+    private static void addBlock(FloweringInputsBuilder builder, String id) {
         try {
             BuiltInRegistries.BLOCK.getOptional(ResourceLocation.parse(id))
-                    .ifPresent(block -> addUnique(result, new ItemStack(block.asItem())));
+                    .ifPresent(block -> builder.add(new ItemStack(block.asItem())));
         } catch (RuntimeException ignored) {
         }
     }
 
-    private static void addFlowerTag(List<ItemStack> result, String id) {
+    private static void addFlowerTag(FloweringInputsBuilder builder, String id) {
         try {
             ResourceLocation location = ResourceLocation.parse(id);
             TagKey<Block> blockTag = TagKey.create(Registries.BLOCK, location);
-            BuiltInRegistries.BLOCK.getTag(blockTag).ifPresent(values -> values.forEach(holder ->
-                    addUnique(result, new ItemStack(holder.value().asItem()))));
-            if (result.isEmpty()) addItemTag(result, id);
-        } catch (RuntimeException ignored) {
+            int before = builder.size();
+            expandBlockTag(builder, blockTag);
+            if (builder.size() == before) expandItemTag(builder, id);
+        } catch (RuntimeException | StackOverflowError exception) {
+            LOGGER.debug("Skipping Productive Bees JEI flowering tag {}: {}", id, exception.toString());
         }
     }
 
-    private static void addItemTag(List<ItemStack> result, String id) {
+    private static void expandBlockTag(FloweringInputsBuilder builder, TagKey<Block> tag) {
+        if (!builder.enterTag(tag)) return;
+        try {
+            var values = BuiltInRegistries.BLOCK.getTag(tag);
+            if (values.isEmpty()) return;
+            for (var holder : values.get()) {
+                if (builder.atLimit()) break;
+                builder.add(new ItemStack(holder.value().asItem()));
+            }
+        } finally {
+            builder.leaveTag(tag);
+        }
+    }
+
+    private static void expandItemTag(FloweringInputsBuilder builder, String id) {
         try {
             TagKey<net.minecraft.world.item.Item> tag = TagKey.create(Registries.ITEM, ResourceLocation.parse(id));
-            BuiltInRegistries.ITEM.getTag(tag).ifPresent(values ->
-                    values.forEach(item -> addUnique(result, new ItemStack(item.value()))));
-        } catch (RuntimeException ignored) {
+            if (!builder.enterTag(tag)) return;
+            try {
+                var values = BuiltInRegistries.ITEM.getTag(tag);
+                if (values.isEmpty()) return;
+                for (var item : values.get()) {
+                    if (builder.atLimit()) break;
+                    builder.add(new ItemStack(item.value()));
+                }
+            } finally {
+                builder.leaveTag(tag);
+            }
+        } catch (RuntimeException | StackOverflowError exception) {
+            LOGGER.debug("Skipping Productive Bees JEI flowering item tag {}: {}", id, exception.toString());
         }
     }
 
-    private static void addItem(List<ItemStack> result, String id) {
+    private static void addItem(FloweringInputsBuilder builder, String id) {
         try {
             BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(id))
-                    .ifPresent(item -> addUnique(result, new ItemStack(item)));
+                    .ifPresent(item -> builder.add(new ItemStack(item)));
         } catch (RuntimeException ignored) {
         }
     }
@@ -363,11 +418,6 @@ public final class ProductiveBeesBioFactoryIntegration {
         }
     }
 
-    private static void addUnique(List<ItemStack> result, ItemStack stack) {
-        if (stack.isEmpty() || result.stream().anyMatch(existing -> ItemStack.isSameItemSameComponents(existing, stack))) return;
-        result.add(stack);
-    }
-
     private static List<JeiOutput> getDisplayOutputs(Map<ItemStack, ChancedOutput> recipeOutputs) {
         List<JeiOutput> outputs = new ArrayList<>();
         for (Map.Entry<ItemStack, ChancedOutput> entry : recipeOutputs.entrySet()) {
@@ -379,7 +429,49 @@ public final class ProductiveBeesBioFactoryIntegration {
         return List.copyOf(outputs);
     }
 
-    private record FloweringInputs(List<ItemStack> items, Optional<ResourceLocation> fluid) { }
+    private static final int MAX_JEI_FLOWERING_ITEMS = 128;
+    private static final int MAX_JEI_FLOWERING_TAGS = 32;
+
+    private static final class FloweringInputsBuilder {
+        private final List<ItemStack> items = new ArrayList<>();
+        private final java.util.Set<TagKey<?>> expandedTags = new java.util.HashSet<>();
+        private final java.util.Set<TagKey<?>> activeTags = new java.util.HashSet<>();
+
+        private void add(ItemStack stack) {
+            if (stack.isEmpty() || atLimit()
+                    || items.stream().anyMatch(existing -> ItemStack.isSameItemSameComponents(existing, stack))) return;
+            items.add(stack);
+        }
+
+        private boolean atLimit() {
+            return items.size() >= MAX_JEI_FLOWERING_ITEMS;
+        }
+
+        private int size() {
+            return items.size();
+        }
+
+        private boolean enterTag(TagKey<?> tag) {
+            if (activeTags.contains(tag) || expandedTags.size() >= MAX_JEI_FLOWERING_TAGS
+                    || !expandedTags.add(tag)) return false;
+            activeTags.add(tag);
+            return true;
+        }
+
+        private void leaveTag(TagKey<?> tag) {
+            activeTags.remove(tag);
+        }
+
+        private List<ItemStack> items() {
+            return List.copyOf(items);
+        }
+    }
+
+    private record FloweringInputs(List<ItemStack> items, Optional<ResourceLocation> fluid) {
+        private static FloweringInputs empty() {
+            return new FloweringInputs(List.of(), Optional.empty());
+        }
+    }
 
     public record JeiRecipe(ResourceLocation id, ItemStack specimen, List<ItemStack> foods,
                             Optional<ResourceLocation> processFluid,

@@ -48,6 +48,10 @@ public class BioFactoryBER implements BlockEntityRenderer<BioFactoryBE> {
 
     private Entity createDisplayEntity(BioFactoryBE factory, ItemStack specimen) {
         try {
+            if (ModList.get().isLoaded("productivebees")
+                    && specimen.getItem() instanceof SpawnEggItem) {
+                return ProductiveBeesBioFactoryIntegration.createBee(specimen, factory.getLevel());
+            }
             if (specimen.getItem() instanceof SpawnEggItem egg) return egg.getType(specimen).create(factory.getLevel());
             if (ModList.get().isLoaded("productivebees")) {
                 return ProductiveBeesBioFactoryIntegration.createBee(specimen, factory.getLevel());
