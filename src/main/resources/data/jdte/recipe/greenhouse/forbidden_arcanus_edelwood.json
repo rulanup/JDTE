@@ -1,0 +1,18 @@
+{
+  "type": "jdte:greenhouse",
+  "seed": { "item": "forbidden_arcanus:growing_edelwood" },
+  "outputs": [
+    { "id": "forbidden_arcanus:edelwood_log", "count": 4 },
+    { "id": "forbidden_arcanus:growing_edelwood", "count": 1 }
+  ],
+  "display_block": "forbidden_arcanus:growing_edelwood",
+  "use_loot_table": false,
+  "growth_work": 32768,
+  "time_fluid": 100,
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "forbidden_arcanus"
+    }
+  ]
+}
