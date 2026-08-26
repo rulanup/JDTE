@@ -15,7 +15,7 @@ class GreenhouseCropResolverTest {
                 new ItemStack(Items.WHEAT_SEEDS));
 
         assertNotNull(definition);
-        assertEquals(Items.WHEAT, definition.outputs().getFirst().getItem());
+        assertEquals(Items.WHEAT_SEEDS, definition.outputs().getFirst().getItem());
         assertEquals("minecraft:wheat", definition.displayBlock().toString());
     }
 }
