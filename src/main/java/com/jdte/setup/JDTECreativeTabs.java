@@ -49,6 +49,7 @@ public class JDTECreativeTabs {
 
                 // Extended Machines
                 output.accept(JDTEItems.EXTENDED_CLICKER.get());
+                output.accept(JDTEItems.EXTENDED_EXPERIENCE_HOLDER.get());
                 output.accept(JDTEItems.EXTENDED_BLOCK_BREAKER.get());
                 output.accept(JDTEItems.EXTENDED_BLOCK_PLACER.get());
                 output.accept(JDTEItems.EXTENDED_BLOCK_SWAPPER.get());

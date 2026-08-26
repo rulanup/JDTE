@@ -5,6 +5,7 @@ import com.jdte.client.entityrenders.TimeAcceleratorEffectRenderer;
 import com.jdte.client.entityrenders.UltimateTimeWandRenderer;
 import com.jdte.client.renderers.AdvancedEnergyTransmitterBER;
 import com.jdte.client.renderers.AdvancedItemCollectorBER;
+import com.jdte.client.renderers.ExtendedExperienceHolderBER;
 import com.jdte.client.renderers.MineralExtractorBER;
 import com.jdte.client.renderers.TimeAcceleratorBER;
 import com.jdte.client.screens.*;
@@ -86,6 +87,7 @@ public class JDTEClientSetup {
         // Extended Machines
         event.register(JDTEMenus.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.screens.ClickerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_GENERATOR.get(), ExtendedGeneratorScreen::new);
+        event.register(JDTEMenus.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderScreen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_GENERATOR.get(), ExtendedFluidGeneratorScreen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_BREAKER.get(), com.direwolf20.justdirethings.client.screens.BlockBreakerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.screens.BlockPlacerT2Screen::new);
@@ -188,6 +190,7 @@ public class JDTEClientSetup {
 
         // Extended Machines
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.ClickerT2BER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_BREAKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockBreakerT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockPlacerT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_SWAPPER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockSwapperT2BER::new);

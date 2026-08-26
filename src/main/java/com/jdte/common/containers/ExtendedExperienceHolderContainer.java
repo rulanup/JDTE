@@ -20,6 +20,10 @@ public class ExtendedExperienceHolderContainer extends BaseMachineContainer {
         addPlayerSlots(playerInventory);
     }
 
+    public BlockPos getBlockPos() {
+        return pos;
+    }
+
     @Override
     public boolean stillValid(Player player) {
         return stillValid(ContainerLevelAccess.create(player.level(), pos), player,

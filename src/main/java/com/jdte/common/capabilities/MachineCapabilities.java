@@ -10,6 +10,7 @@ import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.ExtendedBioCrusherBE;
+import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.FluidReceiverBE;
 import com.jdte.common.blockentities.FluidSenderBE;
@@ -143,6 +144,9 @@ public final class MachineCapabilities {
 
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> GEL_GENERATOR_FLUID =
             (level, pos, state, be, side) -> be instanceof GelGeneratorBE generator ? generator.getFluidHandler() : null;
+    private static final IBlockCapabilityProvider<IFluidHandler, Direction> EXTENDED_EXPERIENCE_HOLDER_FLUID =
+            (level, pos, state, be, side) -> be instanceof ExtendedExperienceHolderBE experienceHolder
+                    ? experienceHolder.getXpFluidHandler() : null;
     private static final IBlockCapabilityProvider<IItemHandler, Direction> GEL_GENERATOR_ITEMS =
             (level, pos, state, be, side) -> be instanceof GelGeneratorBE generator ? generator.getAutomationItemHandler() : null;
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> FLUID_SENDER_TANK =
@@ -205,6 +209,7 @@ public final class MachineCapabilities {
             // 工具/消耗品槽对自动化只进不出，防止稿子等内容被管道抽出。
             machine(JDTEBlocks.EXTENDED_CLICKER, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),
             machine(JDTEBlocks.EXTENDED_GENERATOR, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),
+            machine(JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER, fluid(EXTENDED_EXPERIENCE_HOLDER_FLUID)),
             machine(JDTEBlocks.EXTENDED_FLUID_GENERATOR, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK), items(INSERT_ONLY_MACHINE_ITEMS)),
             machine(JDTEBlocks.EXTENDED_BLOCK_BREAKER, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),
             machine(JDTEBlocks.EXTENDED_BLOCK_PLACER, energy(POWERED_ENERGY), items(INSERT_ONLY_MACHINE_ITEMS)),
