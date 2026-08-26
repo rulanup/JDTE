@@ -2,8 +2,8 @@ package com.jdte.common.utils;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ class SpawnEggEntityDataTest {
 
     @Test
     void copiesEntityDataWithoutSharingMutableTag() {
-        ItemStack stack = new ItemStack(new Item(new Item.Properties()));
+        ItemStack stack = new ItemStack(Items.STICK);
         CompoundTag source = new CompoundTag();
         source.putString("id", "productivebees:configurable_bee");
         source.putString("type", "productivebees:life_fluid");
@@ -37,7 +37,7 @@ class SpawnEggEntityDataTest {
     @Test
     void missingEntityDataIsEmpty() {
         Optional<CompoundTag> copy = SpawnEggEntityData.copy(
-                new ItemStack(new Item(new Item.Properties())));
+                new ItemStack(Items.STICK));
 
         assertFalse(copy.isPresent());
     }
