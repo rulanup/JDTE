@@ -27,6 +27,21 @@ public final class GreenhouseCropResolver {
         cacheGeneration++;
     }
 
+    public static GreenhouseCropDefinition findGeneric(ItemStack seed) {
+        if (seed.isEmpty() || !(seed.getItem() instanceof BlockItem blockItem)) {
+            return null;
+        }
+        if (!(blockItem.getBlock() instanceof CropBlock || blockItem.getBlock() instanceof BushBlock
+                || blockItem.getBlock().defaultBlockState().getProperties().stream()
+                .anyMatch(property -> property instanceof IntegerProperty && "age".equals(property.getName())))) {
+            return null;
+        }
+        var blockId = BuiltInRegistries.BLOCK.getKey(blockItem.getBlock());
+        return new GreenhouseCropDefinition(java.util.List.of(seed.copyWithCount(1)), blockId, blockId, true,
+                JDTEConfig.COMMON.greenhouseDefaultGrowthWork.get(),
+                GreenhouseRecipe.DEFAULT_FLUID, JDTEConfig.COMMON.greenhouseGenericFluidCost.get());
+    }
+
     public static GreenhouseCropDefinition find(Level level, ItemStack seed) {
         if (level == null || seed.isEmpty()) {
             return null;
@@ -50,15 +65,6 @@ public final class GreenhouseCropResolver {
             GreenhouseCropDefinition botanyPots = BotanyPotsGreenhouseIntegration.find(level, seed);
             if (botanyPots != null) return botanyPots;
         }
-        if (seed.getItem() instanceof BlockItem blockItem
-                && (blockItem.getBlock() instanceof CropBlock || blockItem.getBlock() instanceof BushBlock
-                || blockItem.getBlock().defaultBlockState().getProperties().stream()
-                .anyMatch(property -> property instanceof IntegerProperty && "age".equals(property.getName())))) {
-            var blockId = BuiltInRegistries.BLOCK.getKey(blockItem.getBlock());
-            return new GreenhouseCropDefinition(java.util.List.of(seed.copyWithCount(1)), blockId, blockId, true,
-                    JDTEConfig.COMMON.greenhouseDefaultGrowthWork.get(),
-                    GreenhouseRecipe.DEFAULT_FLUID, JDTEConfig.COMMON.greenhouseGenericFluidCost.get());
-        }
-        return null;
+        return findGeneric(seed);
     }
 }

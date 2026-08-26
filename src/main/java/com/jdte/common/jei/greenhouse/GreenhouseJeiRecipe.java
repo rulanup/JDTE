@@ -14,9 +14,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.block.BushBlock;
-import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
@@ -70,10 +67,9 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
         }
 
         for (Item item : BuiltInRegistries.ITEM) {
-            if (seen.contains(item) || !(item instanceof BlockItem blockItem) || !isPlant(blockItem)) continue;
+            if (seen.contains(item) || !(item instanceof BlockItem)) continue;
             ItemStack seed = new ItemStack(item);
-            GreenhouseCropDefinition definition = minecraft.level != null
-                    ? GreenhouseCropResolver.find(minecraft.level, seed) : findWithoutLevel(seed, blockItem);
+            GreenhouseCropDefinition definition = GreenhouseCropResolver.findGeneric(seed);
             if (definition == null || definition.outputs().isEmpty()) continue;
             seen.add(item);
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
@@ -94,21 +90,4 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
                 fluidType, fluid, JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get(), growthWork);
     }
 
-    private static boolean isPlant(BlockItem item) {
-        var block = item.getBlock();
-        return block instanceof BushBlock || block instanceof CropBlock
-                || block.defaultBlockState().getProperties().stream()
-                .anyMatch(property -> property instanceof IntegerProperty && "age".equals(property.getName()));
-    }
-
-    private static GreenhouseCropDefinition findWithoutLevel(ItemStack seed, BlockItem blockItem) {
-        if (ModList.get().isLoaded("mysticalagriculture")) {
-            GreenhouseCropDefinition mystical = MysticalAgricultureGreenhouseIntegration.find(seed);
-            if (mystical != null) return mystical;
-        }
-        ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(blockItem.getBlock());
-        return new GreenhouseCropDefinition(List.of(seed.copyWithCount(1)), blockId, blockId, true,
-                JDTEConfig.COMMON.greenhouseDefaultGrowthWork.get(), GreenhouseRecipe.DEFAULT_FLUID,
-                JDTEConfig.COMMON.greenhouseGenericFluidCost.get());
-    }
 }
