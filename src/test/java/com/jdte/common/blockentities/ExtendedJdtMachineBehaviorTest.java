@@ -1,6 +1,7 @@
 package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
+import com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE;
 import com.jdte.client.screens.ExtendedFluidGeneratorScreen;
 import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
@@ -27,10 +28,58 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExtendedJdtMachineBehaviorTest {
+    @Test
+    void extendedTransmitterIsTheOrdinaryJdtTransmitterOnly() {
+        ExtendedEnergyTransmitterBE machine = new ExtendedEnergyTransmitterBE(
+                BlockPos.ZERO, JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get().defaultBlockState());
+
+        assertEquals(EnergyTransmitterBE.class, ExtendedEnergyTransmitterBE.class.getSuperclass());
+        assertFalse((Object) machine instanceof AdvancedEnergyTransmitterBE);
+        assertInstanceOf(ExtendedUpgradeMachine.class, machine);
+        assertEquals(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), machine.getType());
+        assertEquals(ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT,
+                UpgradeHelper.getUpgradeHandler(machine).getSlots());
+
+        ResourceLocation transmitterId = ResourceLocation.fromNamespaceAndPath("jdte", "extended_energy_transmitter");
+        assertEquals(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get(), BuiltInRegistries.BLOCK.get(transmitterId));
+        assertEquals(transmitterId, BuiltInRegistries.BLOCK.getKey(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get()));
+        assertEquals(transmitterId, BuiltInRegistries.ITEM.getKey(JDTEItems.EXTENDED_ENERGY_TRANSMITTER.get()));
+        assertEquals(transmitterId, JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.getId());
+        assertEquals(transmitterId, JDTEMenus.EXTENDED_ENERGY_TRANSMITTER.getId());
+
+        assertInstanceOf(AdvancedEnergyTransmitterBE.class,
+                JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get().newBlockEntity(
+                        BlockPos.ZERO, JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get().defaultBlockState()));
+    }
+
+    @Test
+    void extendedTransmitterSourcesStayIsolatedFromAdvancedImplementations() throws Exception {
+        Path projectRoot = findProjectRoot(Path.of(System.getProperty("user.dir", "")).toAbsolutePath());
+        assertTrue(projectRoot != null, "Could not locate project root from test runtime path");
+
+        String[] sources = {
+                "common/blockentities/ExtendedEnergyTransmitterBE.java",
+                "common/blocks/ExtendedEnergyTransmitterBlock.java",
+                "common/containers/ExtendedEnergyTransmitterContainer.java",
+                "client/screens/ExtendedEnergyTransmitterScreen.java",
+                "common/network/data/ExtendedEnergyTransmitterSettingPayload.java",
+                "common/network/handler/ExtendedEnergyTransmitterPacket.java"
+        };
+        StringBuilder combinedSource = new StringBuilder();
+        for (String source : sources) {
+            combinedSource.append(Files.readString(projectRoot.resolve("src/main/java/com/jdte").resolve(source)));
+        }
+
+        assertFalse(combinedSource.toString().contains("AdvancedEnergyTransmitter"));
+        assertFalse(combinedSource.toString().contains("AE2"));
+        assertFalse(combinedSource.toString().contains("PlayerCharger"));
+    }
+
     @Test
     void extendedGeneratorUsesItsOwnTypeAndEightUpgradeSlots() {
         ExtendedGeneratorBE machine = new ExtendedGeneratorBE(

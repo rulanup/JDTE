@@ -18,6 +18,7 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, ExtendedGeneratorBlock> EXTENDED_GENERATOR = BLOCKS.register("extended_generator", ExtendedGeneratorBlock::new);
     public static final DeferredHolder<Block, ExtendedExperienceHolderBlock> EXTENDED_EXPERIENCE_HOLDER = BLOCKS.register("extended_experience_holder", ExtendedExperienceHolderBlock::new);
     public static final DeferredHolder<Block, ExtendedFluidGeneratorBlock> EXTENDED_FLUID_GENERATOR = BLOCKS.register("extended_fluid_generator", ExtendedFluidGeneratorBlock::new);
+    public static final DeferredHolder<Block, ExtendedEnergyTransmitterBlock> EXTENDED_ENERGY_TRANSMITTER = BLOCKS.register("extended_energy_transmitter", ExtendedEnergyTransmitterBlock::new);
     public static final DeferredHolder<Block, ExtendedBlockBreakerBlock> EXTENDED_BLOCK_BREAKER = BLOCKS.register("extended_block_breaker", ExtendedBlockBreakerBlock::new);
     public static final DeferredHolder<Block, ExtendedBlockPlacerBlock> EXTENDED_BLOCK_PLACER = BLOCKS.register("extended_block_placer", ExtendedBlockPlacerBlock::new);
     public static final DeferredHolder<Block, ExtendedBlockSwapperBlock> EXTENDED_BLOCK_SWAPPER = BLOCKS.register("extended_block_swapper", ExtendedBlockSwapperBlock::new);

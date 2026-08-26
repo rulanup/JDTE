@@ -89,6 +89,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.EXTENDED_GENERATOR.get(), ExtendedGeneratorScreen::new);
         event.register(JDTEMenus.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderScreen::new);
         event.register(JDTEMenus.EXTENDED_FLUID_GENERATOR.get(), ExtendedFluidGeneratorScreen::new);
+        event.register(JDTEMenus.EXTENDED_ENERGY_TRANSMITTER.get(), ExtendedEnergyTransmitterScreen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_BREAKER.get(), com.direwolf20.justdirethings.client.screens.BlockBreakerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.screens.BlockPlacerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_SWAPPER.get(), com.direwolf20.justdirethings.client.screens.BlockSwapperT2Screen::new);
@@ -191,6 +192,8 @@ public class JDTEClientSetup {
         // Extended Machines
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.ClickerT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(),
+                com.direwolf20.justdirethings.client.blockentityrenders.EnergyTransmitterRenderer::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_BREAKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockBreakerT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockPlacerT2BER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_SWAPPER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockSwapperT2BER::new);

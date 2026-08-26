@@ -27,6 +27,7 @@ import com.jdte.common.network.data.EntitySuppressorPayload;
 import com.jdte.common.network.data.EntitySuppressorSyncPayload;
 import com.jdte.common.network.data.ExtendedExperienceHolderPayload;
 import com.jdte.common.network.data.ExtendedExperienceHolderSettingsPayload;
+import com.jdte.common.network.data.ExtendedEnergyTransmitterSettingPayload;
 import com.jdte.common.network.data.RangeBlockerPayload;
 import com.jdte.common.network.data.RangeBlockerSyncPayload;
 import com.jdte.common.network.data.FactoryPackerStartPayload;
@@ -41,6 +42,7 @@ import com.jdte.common.network.handler.EntitySuppressorPacket;
 import com.jdte.common.network.handler.EntitySuppressorSyncPacket;
 import com.jdte.common.network.handler.ExtendedExperienceHolderPacket;
 import com.jdte.common.network.handler.ExtendedExperienceHolderSettingsPacket;
+import com.jdte.common.network.handler.ExtendedEnergyTransmitterPacket;
 import com.jdte.common.network.handler.RangeBlockerPacket;
 import com.jdte.common.network.handler.RangeBlockerSyncPacket;
 import com.jdte.common.network.handler.FactoryPackerStartPacket;
@@ -85,6 +87,9 @@ public class JDTEPacketHandler {
         registrar.playToServer(ExtendedExperienceHolderSettingsPayload.TYPE,
                 ExtendedExperienceHolderSettingsPayload.STREAM_CODEC,
                 ExtendedExperienceHolderSettingsPacket::handle);
+        registrar.playToServer(ExtendedEnergyTransmitterSettingPayload.TYPE,
+                ExtendedEnergyTransmitterSettingPayload.STREAM_CODEC,
+                ExtendedEnergyTransmitterPacket::handle);
         registrar.playToServer(UltimatePortalGunPayload.TYPE, UltimatePortalGunPayload.STREAM_CODEC, UltimatePortalGunPacket.get()::handle);
         registrar.playToServer(GelGeneratorPayload.TYPE, GelGeneratorPayload.STREAM_CODEC, GelGeneratorPacket.get()::handle);
         registrar.playToServer(LifeExtractorPayload.TYPE, LifeExtractorPayload.STREAM_CODEC, LifeExtractorPacket.get()::handle);

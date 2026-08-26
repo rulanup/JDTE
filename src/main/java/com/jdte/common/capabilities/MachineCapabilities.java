@@ -11,6 +11,7 @@ import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.ExtendedBioCrusherBE;
 import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
+import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.FluidReceiverBE;
 import com.jdte.common.blockentities.FluidSenderBE;
@@ -74,6 +75,11 @@ public final class MachineCapabilities {
     /** 与 JDT 原版传输器一致，只允许朝向面上的相邻设备向传输器输入 FE。 */
     private static final IBlockCapabilityProvider<IEnergyStorage, Direction> TRANSMITTER_INPUT_ENERGY =
             (level, pos, state, be, side) -> be instanceof AdvancedEnergyTransmitterBE transmitter
+                    && side != null && side == state.getValue(BlockStateProperties.FACING)
+                    ? transmitter.getEnergyStorage() : null;
+
+    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> EXTENDED_TRANSMITTER_INPUT_ENERGY =
+            (level, pos, state, be, side) -> be instanceof ExtendedEnergyTransmitterBE transmitter
                     && side != null && side == state.getValue(BlockStateProperties.FACING)
                     ? transmitter.getEnergyStorage() : null;
 
@@ -293,7 +299,9 @@ public final class MachineCapabilities {
                     fluid(LARGE_MINERAL_EXTRACTOR_PART_FLUID), items(LARGE_MINERAL_EXTRACTOR_PART_ITEMS)),
             machine(JDTEBlocks.ADVANCED_POTION_BREWER, energy(POWERED_ENERGY), fluid(POTION_BREWER_FLUID), items(POTION_BREWER_ITEMS)),
 
-            // --- Advanced Energy Transmitter ---
+            // --- Energy Transmitters ---
+            machine(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER,
+                    energy(EXTENDED_TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS)),
             machine(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER, energy(TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS))
     );
 

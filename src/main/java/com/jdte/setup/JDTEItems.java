@@ -73,6 +73,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_GENERATOR = ITEMS.register("extended_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_GENERATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_EXPERIENCE_HOLDER = ITEMS.register("extended_experience_holder", () -> new BlockItem(JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_GENERATOR = ITEMS.register("extended_fluid_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_ENERGY_TRANSMITTER = ITEMS.register("extended_energy_transmitter", () -> new BlockItem(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_BREAKER = ITEMS.register("extended_block_breaker", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_BREAKER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_PLACER = ITEMS.register("extended_block_placer", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_PLACER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_BLOCK_SWAPPER = ITEMS.register("extended_block_swapper", () -> new BlockItem(JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get(), new Item.Properties()));

@@ -27,6 +27,8 @@ public class JDTEMenus {
             "extended_generator", () -> IMenuTypeExtension.create(ExtendedGeneratorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedFluidGeneratorContainer>> EXTENDED_FLUID_GENERATOR = MENUS.register(
             "extended_fluid_generator", () -> IMenuTypeExtension.create(ExtendedFluidGeneratorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedEnergyTransmitterContainer>> EXTENDED_ENERGY_TRANSMITTER = MENUS.register(
+            "extended_energy_transmitter", () -> IMenuTypeExtension.create(ExtendedEnergyTransmitterContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedBlockBreakerContainer>> EXTENDED_BLOCK_BREAKER = MENUS.register(
             "extended_block_breaker", () -> IMenuTypeExtension.create(ExtendedBlockBreakerContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedBlockPlacerContainer>> EXTENDED_BLOCK_PLACER = MENUS.register(

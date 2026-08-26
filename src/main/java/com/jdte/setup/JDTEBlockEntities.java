@@ -28,6 +28,8 @@ public class JDTEBlockEntities {
             "extended_experience_holder", () -> BlockEntityType.Builder.of(ExtendedExperienceHolderBE::new, JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedFluidGeneratorBE>> EXTENDED_FLUID_GENERATOR = BLOCK_ENTITIES.register(
             "extended_fluid_generator", () -> BlockEntityType.Builder.of(ExtendedFluidGeneratorBE::new, JDTEBlocks.EXTENDED_FLUID_GENERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedEnergyTransmitterBE>> EXTENDED_ENERGY_TRANSMITTER = BLOCK_ENTITIES.register(
+            "extended_energy_transmitter", () -> BlockEntityType.Builder.of(ExtendedEnergyTransmitterBE::new, JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedBlockBreakerBE>> EXTENDED_BLOCK_BREAKER = BLOCK_ENTITIES.register(
             "extended_block_breaker", () -> BlockEntityType.Builder.of(ExtendedBlockBreakerBE::new, JDTEBlocks.EXTENDED_BLOCK_BREAKER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedBlockPlacerBE>> EXTENDED_BLOCK_PLACER = BLOCK_ENTITIES.register(
