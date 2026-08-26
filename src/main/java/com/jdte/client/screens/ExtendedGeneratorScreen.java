@@ -9,13 +9,12 @@ import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.containers.ExtendedGeneratorContainer;
+import com.jdte.common.items.PortableFuelBurnSpeedHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -102,7 +101,7 @@ public class ExtendedGeneratorScreen extends BaseMachineScreen<ExtendedGenerator
             ItemStack hoveredStack = hoveredSlot.getItem();
             int burnTime = hoveredStack.getBurnTime(RecipeType.SMELTING);
             if (burnTime > 0) {
-                int burnSpeedMultiplier = burnSpeedMultiplier(hoveredStack);
+                int burnSpeedMultiplier = burnSpeedMultiplierTooltipValue(hoveredStack);
                 List<Component> components = new ArrayList<>(getTooltipFromContainerItem(hoveredStack));
                 components.add(Component.translatable("justdirethings.screen.burnspeedmultiplier", burnSpeedMultiplier)
                         .withStyle(ChatFormatting.RED));
@@ -113,17 +112,7 @@ public class ExtendedGeneratorScreen extends BaseMachineScreen<ExtendedGenerator
         super.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
-    private int burnSpeedMultiplier(ItemStack stack) {
-        if (stack.getItem() instanceof com.direwolf20.justdirethings.common.items.resources.Coal_T1 coal) {
-            return coal.getBurnSpeedMultiplier();
-        }
-        if (stack.getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock() instanceof com.direwolf20.justdirethings.common.blocks.resources.CoalBlock_T1 coalBlock) {
-            return coalBlock.getBurnSpeedMultiplier();
-        }
-        if (stack.getItem() instanceof com.direwolf20.justdirethings.common.items.FuelCanister) {
-            return com.direwolf20.justdirethings.common.items.FuelCanister.getBurnSpeedMultiplier(stack);
-        }
-        return 1;
+    public static int burnSpeedMultiplierTooltipValue(ItemStack stack) {
+        return PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(stack);
     }
 }
