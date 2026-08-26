@@ -85,6 +85,7 @@ public class JDTEClientSetup {
 
         // Extended Machines
         event.register(JDTEMenus.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.screens.ClickerT2Screen::new);
+        event.register(JDTEMenus.EXTENDED_GENERATOR.get(), ExtendedGeneratorScreen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_BREAKER.get(), com.direwolf20.justdirethings.client.screens.BlockBreakerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.screens.BlockPlacerT2Screen::new);
         event.register(JDTEMenus.EXTENDED_BLOCK_SWAPPER.get(), com.direwolf20.justdirethings.client.screens.BlockSwapperT2Screen::new);
