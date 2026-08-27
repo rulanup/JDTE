@@ -4,11 +4,13 @@ import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -94,6 +96,39 @@ class ExtendedUpgradeItemTest {
         assertFalse(ExtendedUpgradeItem.isValidReplacement(
                 Registration.GeneratorT1.get().defaultBlockState(), extendedBlock,
                 freshEntity, freshEntity.getType()));
+    }
+
+    @Test
+    void targetStateCopiesFacingWhenBothStatesHaveIt() {
+        BlockState source = Registration.ExperienceHolder.get().defaultBlockState()
+                .setValue(BlockStateProperties.FACING, Direction.WEST);
+        BlockState targetDefault = JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get().defaultBlockState();
+
+        BlockState target = ExtendedUpgradeItem.targetStateWithCompatibleFacing(source, targetDefault);
+
+        assertNotNull(target);
+        assertEquals(Direction.WEST, target.getValue(BlockStateProperties.FACING));
+    }
+
+    @Test
+    void targetStateKeepsDefaultWhenNeitherStateHasFacing() {
+        BlockState source = Registration.GeneratorT1.get().defaultBlockState();
+        BlockState targetDefault = JDTEBlocks.EXTENDED_GENERATOR.get().defaultBlockState();
+
+        BlockState target = ExtendedUpgradeItem.targetStateWithCompatibleFacing(source, targetDefault);
+
+        assertSame(targetDefault, target);
+    }
+
+    @Test
+    void targetStateRejectsAsymmetricFacingProperties() {
+        BlockState facingSource = Registration.ExperienceHolder.get().defaultBlockState();
+        BlockState facingTarget = JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get().defaultBlockState();
+        BlockState noFacingSource = Registration.GeneratorT1.get().defaultBlockState();
+        BlockState noFacingTarget = JDTEBlocks.EXTENDED_GENERATOR.get().defaultBlockState();
+
+        assertNull(ExtendedUpgradeItem.targetStateWithCompatibleFacing(facingSource, noFacingTarget));
+        assertNull(ExtendedUpgradeItem.targetStateWithCompatibleFacing(noFacingSource, facingTarget));
     }
 
     @Test

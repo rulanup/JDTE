@@ -4,7 +4,6 @@ import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -67,6 +66,20 @@ public class ExtendedUpgradeItem extends Item {
                 && newBE.getType().isValid(replacedState);
     }
 
+    static BlockState targetStateWithCompatibleFacing(BlockState sourceState, BlockState targetDefaultState) {
+        boolean sourceHasFacing = sourceState.hasProperty(BlockStateProperties.FACING);
+        boolean targetHasFacing = targetDefaultState.hasProperty(BlockStateProperties.FACING);
+        if (sourceHasFacing != targetHasFacing) {
+            return null;
+        }
+        if (!sourceHasFacing) {
+            return targetDefaultState;
+        }
+        return targetDefaultState.setValue(
+                BlockStateProperties.FACING,
+                sourceState.getValue(BlockStateProperties.FACING));
+    }
+
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
@@ -87,17 +100,15 @@ public class ExtendedUpgradeItem extends Item {
         if (oldBE == null
                 || oldBE.isRemoved()
                 || oldBE.getBlockState().getBlock() != block
-                || !oldBE.getType().isValid(state)
-                || !state.hasProperty(BlockStateProperties.FACING)) {
+                || !oldBE.getType().isValid(state)) {
             return InteractionResult.FAIL;
         }
 
-        Direction facing = state.getValue(BlockStateProperties.FACING);
-        BlockState extendedState = extendedBlock.defaultBlockState();
-        if (!extendedState.hasProperty(BlockStateProperties.FACING)) {
+        BlockState extendedState = targetStateWithCompatibleFacing(
+                state, extendedBlock.defaultBlockState());
+        if (extendedState == null) {
             return InteractionResult.FAIL;
         }
-        extendedState = extendedState.setValue(BlockStateProperties.FACING, facing);
         if (!(extendedBlock instanceof EntityBlock entityBlock)) {
             return InteractionResult.FAIL;
         }
