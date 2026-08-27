@@ -57,6 +57,16 @@ public class ExtendedUpgradeItem extends Item {
         return UPGRADE_MAP.get(source);
     }
 
+    static boolean isValidReplacement(BlockState replacedState, Block extendedBlock,
+                                      BlockEntity newBE, BlockEntityType<?> expectedType) {
+        return replacedState.getBlock() == extendedBlock
+                && newBE != null
+                && !newBE.isRemoved()
+                && newBE.getBlockState().getBlock() == extendedBlock
+                && newBE.getType() == expectedType
+                && newBE.getType().isValid(replacedState);
+    }
+
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
@@ -115,12 +125,7 @@ public class ExtendedUpgradeItem extends Item {
 
             BlockState replacedState = level.getBlockState(pos);
             BlockEntity newBE = level.getBlockEntity(pos);
-            if (replacedState.getBlock() != extendedBlock
-                    || newBE == null
-                    || newBE.isRemoved()
-                    || newBE.getBlockState().getBlock() != extendedBlock
-                    || newBE.getType() != expectedType
-                    || !newBE.getType().isValid(replacedState)) {
+            if (!isValidReplacement(replacedState, extendedBlock, newBE, expectedType)) {
                 restoreOriginal(level, pos, state, data, oldBE);
                 return InteractionResult.FAIL;
             }

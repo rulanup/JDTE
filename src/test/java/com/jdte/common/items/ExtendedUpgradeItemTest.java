@@ -8,8 +8,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,6 +62,109 @@ class ExtendedUpgradeItemTest {
                 JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get(), targets);
         assertAcceptsOnly(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(),
                 JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get(), targets);
+    }
+
+    @Test
+    void replacementValidationAcceptsOnlyTheExpectedLiveBlockEntity() {
+        Block extendedBlock = JDTEBlocks.EXTENDED_GENERATOR.get();
+        BlockStateAndEntity replacement = replacementFor(extendedBlock);
+
+        assertTrue(ExtendedUpgradeItem.isValidReplacement(
+                replacement.state(), extendedBlock, replacement.entity(), replacement.entity().getType()));
+    }
+
+    @Test
+    void replacementValidationRejectsMissingRemovedWrongAndInvalidEntities() {
+        Block extendedBlock = JDTEBlocks.EXTENDED_GENERATOR.get();
+        BlockStateAndEntity replacement = replacementFor(extendedBlock);
+        BlockEntity expectedEntity = replacement.entity();
+        BlockEntity freshEntity = replacementFor(extendedBlock).entity();
+        BlockEntity wrongBlockEntity = ((EntityBlock) Registration.GeneratorT1.get()).newBlockEntity(
+                BlockPos.ZERO, Registration.GeneratorT1.get().defaultBlockState());
+
+        assertFalse(ExtendedUpgradeItem.isValidReplacement(
+                replacement.state(), extendedBlock, null, expectedEntity.getType()));
+
+        expectedEntity.setRemoved();
+        assertFalse(ExtendedUpgradeItem.isValidReplacement(
+                replacement.state(), extendedBlock, expectedEntity, expectedEntity.getType()));
+
+        assertFalse(ExtendedUpgradeItem.isValidReplacement(
+                replacement.state(), extendedBlock, wrongBlockEntity, expectedEntity.getType()));
+        assertFalse(ExtendedUpgradeItem.isValidReplacement(
+                Registration.GeneratorT1.get().defaultBlockState(), extendedBlock,
+                freshEntity, freshEntity.getType()));
+    }
+
+    @Test
+    void useOnChecksClientAndUnsupportedSourceBeforeAnyWorldMutation() throws Exception {
+        String source = readExtendedUpgradeItemSource();
+        int clientBranch = source.indexOf("if (level.isClientSide)");
+        int unsupportedBranch = source.indexOf("if (extendedBlock == null)");
+        int firstMutation = source.indexOf("level.removeBlockEntity(pos)");
+
+        assertTrue(unsupportedBranch >= 0);
+        assertTrue(clientBranch > unsupportedBranch);
+        assertTrue(firstMutation > clientBranch);
+        assertTrue(source.contains("return InteractionResult.PASS;"));
+        assertTrue(source.contains("return InteractionResult.SUCCESS;"));
+    }
+
+    @Test
+    void useOnValidatesBeforeMutationAndOnlyConsumesAfterReplacementValidation() throws Exception {
+        String source = readExtendedUpgradeItemSource();
+        int oldEntityGuard = source.indexOf("if (oldBE == null");
+        int firstMutation = source.indexOf("level.removeBlockEntity(pos)");
+        int replacementValidation = source.indexOf("if (!isValidReplacement(");
+        int shrink = source.indexOf("context.getItemInHand().shrink(1);");
+
+        assertTrue(oldEntityGuard >= 0);
+        assertTrue(firstMutation > oldEntityGuard);
+        assertTrue(replacementValidation > firstMutation);
+        assertTrue(shrink > replacementValidation);
+        assertTrue(source.contains("oldBE.getType().isValid(state)"));
+        assertTrue(source.contains("expectedBE.getType().isValid(extendedState)"));
+    }
+
+    @Test
+    void useOnRestoresOnSetFailureAndExceptionsAndLoadsCustomDataOnlyAfterValidation() throws Exception {
+        String source = readExtendedUpgradeItemSource();
+        int setFailure = source.indexOf("if (!level.setBlock(pos, extendedState, Block.UPDATE_ALL))");
+        int firstRestore = source.indexOf("restoreOriginal(level, pos, state, data, oldBE)", setFailure);
+        int catchRestore = source.indexOf("restoreOriginal(level, pos, state, data, oldBE)", firstRestore + 1);
+        int replacementLoad = source.indexOf("newBE.loadCustomOnly(data, level.registryAccess())");
+        int replacementGuard = source.indexOf("if (!isValidReplacement(");
+        int restoreLoad = source.indexOf("restoredBE.loadCustomOnly(data, level.registryAccess())");
+        int shrink = source.indexOf("context.getItemInHand().shrink(1);");
+
+        assertTrue(setFailure >= 0);
+        assertTrue(firstRestore > setFailure);
+        assertTrue(catchRestore > firstRestore);
+        assertTrue(replacementLoad > replacementGuard);
+        assertTrue(restoreLoad > catchRestore);
+        assertTrue(shrink > replacementLoad);
+        assertTrue(source.contains("return InteractionResult.FAIL;"));
+        assertTrue(source.contains("// Best-effort rollback"));
+    }
+
+    private static BlockStateAndEntity replacementFor(Block block) {
+        BlockState state = block.defaultBlockState();
+        BlockEntity entity = ((EntityBlock) block).newBlockEntity(BlockPos.ZERO, state);
+        assertNotNull(entity);
+        return new BlockStateAndEntity(state, entity);
+    }
+
+    private static String readExtendedUpgradeItemSource() throws Exception {
+        Path current = Path.of(System.getProperty("user.dir", "")).toAbsolutePath();
+        while (current != null && !Files.exists(current.resolve("gradle.properties"))) {
+            current = current.getParent();
+        }
+        assertNotNull(current, "Could not locate project root from test runtime path");
+        return Files.readString(current.resolve(
+                "src/main/java/com/jdte/common/items/ExtendedUpgradeItem.java"));
+    }
+
+    private record BlockStateAndEntity(BlockState state, BlockEntity entity) {
     }
 
     private static void assertAcceptsOnly(BlockEntityType<?> type, Block ownBlock, List<Block> targets) {
