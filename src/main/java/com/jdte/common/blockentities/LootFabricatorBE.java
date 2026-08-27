@@ -7,6 +7,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControl
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.mojang.authlib.GameProfile;
 import com.jdte.common.integrations.DraconicEvolutionIntegration;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.LootFabricatorUpgradeItemStackHandler;
@@ -50,6 +51,7 @@ import com.jdte.mixin.FluidTankAccessor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE {
     private static final ResourceLocation PRODUCTIVE_BEES_CONFIGURABLE_EGG =
@@ -68,6 +70,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     public static final int MAX_TICK_SPEED = 1200;
     public static final int BOSS_COST_MULTIPLIER = 10;
     public static final int ENDER_DRAGON_COST_MULTIPLIER = 100;
+    private static final String LOOTING_PLAYER_NAME = "[JDTE Loot Fabricator]";
 
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
@@ -253,8 +256,9 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         Entity entity = egg.getType(eggStack).create(level);
         if (!(entity instanceof LivingEntity living)) return List.of();
         living.moveTo(getBlockPos().getCenter());
-        FakePlayer player = getFakePlayer(level);
-        ItemStack previous = player.getMainHandItem().copy();
+        // Loot tables read Looting from the attacking entity.  Use a throwaway player
+        // so the temporary sword cannot enter the owner-shared FakePlayer inventory.
+        FakePlayer player = new FakePlayer(level, createLootingProfile());
         player.setItemInHand(InteractionHand.MAIN_HAND, createLootingWeapon(level));
         try {
             var damage = level.damageSources().playerAttack(player);
@@ -274,8 +278,12 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             addVanillaBossDrops(living, drops);
             return applyLootingBonus(level, drops);
         } finally {
-            player.setItemInHand(InteractionHand.MAIN_HAND, previous);
+            player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
+    }
+
+    static GameProfile createLootingProfile() {
+        return new GameProfile(UUID.randomUUID(), LOOTING_PLAYER_NAME);
     }
 
     @Override public boolean canRun() { return true; }

@@ -38,6 +38,8 @@ public abstract class ItemReceiverBE extends BaseMachineBE implements Filterable
     private int transferRetryTicks;
     private int transferFailureBackoff;
     private boolean transferMoved;
+    private int incomingFilterFingerprint;
+    private boolean incomingFilterFingerprintInitialized;
 
     protected ItemReceiverBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -98,6 +100,7 @@ public abstract class ItemReceiverBE extends BaseMachineBE implements Filterable
     protected void receiveItems() {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
+        refreshIncomingFilterCache();
         int itemsToReceive = getItemsToReceive();
         int received = 0;
 
@@ -134,6 +137,7 @@ public abstract class ItemReceiverBE extends BaseMachineBE implements Filterable
         for (int i = 0; i < sourceHandler.getSlots() && received < limit; i++) {
             ItemStack simulated = sourceHandler.extractItem(i, limit - received, true);
             if (simulated.isEmpty()) continue;
+            if (!isStackValidFilter(simulated)) continue;
 
             ItemStack remainder = ItemHandlerHelper.insertItemStacked(itemHandler, simulated, true);
             int accepted = simulated.getCount() - remainder.getCount();
@@ -195,7 +199,43 @@ public abstract class ItemReceiverBE extends BaseMachineBE implements Filterable
         return true;
     }
 
+    /**
+     * Checks an item against the receiver's filter before a direct-transfer path pulls it.
+     * The vanilla JDT filter cache does not know when a filter slot changes, so refresh its
+     * cache fingerprint before asking the shared filter implementation for the result.
+     */
+    public boolean allowsIncomingItem(ItemStack stack) {
+        refreshIncomingFilterCache();
+        return isStackValidFilter(stack);
+    }
+
     protected void onDirectTransferSuccess() {
+    }
+
+    private void refreshIncomingFilterCache() {
+        FilterBasicHandler handler = getFilterHandler();
+        if (handler == null) return;
+
+        int fingerprint = filterData.hashCode();
+        int baseFilterSlots = UpgradeHelper.getBaseFilterSlots(handler);
+        int activeFilterSlots = Math.min(
+                UpgradeHelper.getActiveFilterSlots(this, baseFilterSlots), handler.getSlots());
+        for (int slot = 0; slot < activeFilterSlots; slot++) {
+            fingerprint = 31 * fingerprint
+                    + ItemStack.hashItemAndComponents(handler.getStackInSlot(slot));
+        }
+        if (!incomingFilterFingerprintInitialized || incomingFilterFingerprint != fingerprint) {
+            filterData.filterCache.clear();
+            incomingFilterFingerprint = fingerprint;
+            incomingFilterFingerprintInitialized = true;
+        }
+    }
+
+    @Override
+    public void setFilterSettings(FilterData settings) {
+        FilterableBE.super.setFilterSettings(settings);
+        filterData.filterCache.clear();
+        incomingFilterFingerprintInitialized = false;
     }
 
     public ItemStackHandler getItemHandler() {
@@ -237,6 +277,8 @@ public abstract class ItemReceiverBE extends BaseMachineBE implements Filterable
         }
         loadAreaSettings(tag);
         areaAffectingData.area = null;
+        filterData.filterCache.clear();
+        incomingFilterFingerprintInitialized = false;
         OverclockDirectTransferHelper.invalidate(this);
     }
 }

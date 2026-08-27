@@ -25,9 +25,12 @@ final class JustDynaThingsConfig {
             Class<?> configClass = Class.forName(COMMON_CONFIG);
             Field field = configClass.getField(fieldName);
             Object configValue = field.get(null);
+            if (configValue == null) return null;
             Method get = configValue.getClass().getMethod("get");
             return get.invoke(configValue);
         } catch (ReflectiveOperationException | LinkageError | RuntimeException ignored) {
+            return null;
+        } catch (Throwable ignored) {
             return null;
         }
     }

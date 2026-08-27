@@ -72,6 +72,11 @@ neoForge {
 
         client {
             client()
+            // The full development pack has a large native footprint. Keep the
+            // client below the default 25%-of-RAM heap on 16 GB machines so
+            // G1 can reserve its native regions without taking down the JVM.
+            jvmArgument '-Xms512m'
+            jvmArgument '-Xmx2G'
             programArguments.addAll '--username', 'JDTEDev'
             sourceSet = sourceSets.clientRuntime
         }

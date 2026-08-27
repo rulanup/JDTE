@@ -21,6 +21,7 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.common.integrations.JustDynaThingsGooIntegration;
 import com.jdte.mixin.FluidTankAccessor;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -39,6 +40,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.slf4j.Logger;
 
 public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMachineBE, FilterableBE, RedstoneControlledBE, FluidMachineBE, BaseFilterMachine {
     public static final int GEL_SLOT = 0;
@@ -58,6 +60,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     private static final int FORTUNE_ENERGY_PERCENT_PER_LEVEL = 5;
     private static final int FUEL_USES_PER_ITEM = 2;
     private static final String JUST_DYNA_THINGS_MOD_ID = "justdynathings";
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
@@ -175,19 +178,24 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
-                if (slot == GEL_SLOT) {
-                    return isValidGel(stack);
-                }
-                if (slot == FOOD_SLOT) {
-                    return isValidGelFood(stack, itemHandler.getStackInSlot(GEL_SLOT));
-                }
-                if (isOutputSlot(slot)) {
+                try {
+                    if (slot == GEL_SLOT) {
+                        return isValidGel(stack);
+                    }
+                    if (slot == FOOD_SLOT) {
+                        return isValidGelFood(stack, itemHandler.getStackInSlot(GEL_SLOT));
+                    }
+                    if (isOutputSlot(slot)) {
+                        return false;
+                    }
+                    if (isInputSlot(slot)) {
+                        return isValidInputItem(stack);
+                    }
+                    return false;
+                } catch (Throwable e) {
+                    LOGGER.warn("[JDTE] GelGenerator isItemValid failed slot={}: {}", slot, e.toString());
                     return false;
                 }
-                if (isInputSlot(slot)) {
-                    return isValidInputItem(stack);
-                }
-                return false;
             }
         };
         automationItemHandler = new IItemHandler() {
@@ -247,8 +255,16 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     protected void processConversion() {
         ItemStack gelStack = itemHandler.getStackInSlot(GEL_SLOT);
         ItemStack foodStack = itemHandler.getStackInSlot(FOOD_SLOT);
-        int gelTier = getGelTier(gelStack);
-        JustDynaThingsGooIntegration.GooType dynaGooType = getDynaGooType(gelStack);
+        int gelTier;
+        JustDynaThingsGooIntegration.GooType dynaGooType;
+        try {
+            gelTier = getGelTier(gelStack);
+            dynaGooType = getDynaGooType(gelStack);
+        } catch (Throwable e) {
+            LOGGER.warn("[JDTE] GelGenerator JustDynaThings check failed: {}", e.toString());
+            resetProgress();
+            return;
+        }
         boolean freeOperation = UpgradeHelper.hasCreativeUpgrade(this)
                 || dynaGooType == JustDynaThingsGooIntegration.GooType.CREATIVE;
         if (gelTier <= 0 || (!freeOperation
@@ -263,8 +279,16 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
             return;
         }
 
-        int operationEnergyCost = freeOperation ? 0 : getStandardEnergyCost();
-        int gooEnergyCost = freeOperation ? 0 : getDynaGooEnergyCost(gelStack);
+        int operationEnergyCost;
+        int gooEnergyCost;
+        try {
+            operationEnergyCost = freeOperation ? 0 : getStandardEnergyCost();
+            gooEnergyCost = freeOperation ? 0 : getDynaGooEnergyCost(gelStack);
+        } catch (Throwable e) {
+            LOGGER.warn("[JDTE] GelGenerator energy cost check failed: {}", e.toString());
+            resetProgress();
+            return;
+        }
         long requiredEnergy = (long) operationEnergyCost + gooEnergyCost;
         if (requiredEnergy > 0) {
             if (requiredEnergy > Integer.MAX_VALUE || !hasEnoughPower((int) requiredEnergy)) {
@@ -282,8 +306,17 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
             return;
         }
 
-        int itemConversions = convertInputs(gelTier);
-        boolean fluidConverted = convertFluid(gelTier);
+        int itemConversions = 0;
+        boolean fluidConverted = false;
+        try {
+            itemConversions = convertInputs(gelTier);
+            fluidConverted = convertFluid(gelTier);
+        } catch (Throwable e) {
+            LOGGER.warn("[JDTE] GelGenerator conversion failed tier={}: {}", gelTier, e.toString());
+            conversionProgress = 0;
+            setChanged();
+            return;
+        }
         if (itemConversions > 0 || fluidConverted) {
             if (operationEnergyCost > 0) {
                 extractEnergy(operationEnergyCost, false);
@@ -549,25 +582,45 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     }
 
     public static boolean isValidGel(ItemStack stack) {
-        return getGelTier(stack) > 0;
+        try {
+            return getGelTier(stack) > 0;
+        } catch (Throwable e) {
+            LOGGER.warn("[JDTE] GelGenerator isValidGel failed: {}", e.toString());
+            return false;
+        }
     }
 
     public static int getGelTier(ItemStack stack) {
-        if (stack.is(Registration.GooBlock_Tier4_ITEM.get())) return 4;
-        if (stack.is(Registration.GooBlock_Tier3_ITEM.get())) return 3;
-        if (stack.is(Registration.GooBlock_Tier2_ITEM.get())) return 2;
-        if (stack.is(Registration.GooBlock_Tier1_ITEM.get())) return 1;
-        return isJustDynaThingsLoaded() ? JustDynaThingsGooIntegration.getTier(stack) : 0;
+        try {
+            if (stack.is(Registration.GooBlock_Tier4_ITEM.get())) return 4;
+            if (stack.is(Registration.GooBlock_Tier3_ITEM.get())) return 3;
+            if (stack.is(Registration.GooBlock_Tier2_ITEM.get())) return 2;
+            if (stack.is(Registration.GooBlock_Tier1_ITEM.get())) return 1;
+            return isJustDynaThingsLoaded() ? JustDynaThingsGooIntegration.getTier(stack) : 0;
+        } catch (Throwable e) {
+            LOGGER.warn("[JDTE] GelGenerator getGelTier failed: {}", e.toString());
+            return 0;
+        }
     }
 
     private static JustDynaThingsGooIntegration.GooType getDynaGooType(ItemStack stack) {
-        return isJustDynaThingsLoaded()
-                ? JustDynaThingsGooIntegration.getType(stack)
-                : JustDynaThingsGooIntegration.GooType.NONE;
+        try {
+            return isJustDynaThingsLoaded()
+                    ? JustDynaThingsGooIntegration.getType(stack)
+                    : JustDynaThingsGooIntegration.GooType.NONE;
+        } catch (Throwable e) {
+            LOGGER.warn("[JDTE] GelGenerator getDynaGooType failed: {}", e.toString());
+            return JustDynaThingsGooIntegration.GooType.NONE;
+        }
     }
 
     private static int getDynaGooEnergyCost(ItemStack stack) {
-        return isJustDynaThingsLoaded() ? JustDynaThingsGooIntegration.getEnergyCostPerTick(stack) : 0;
+        try {
+            return isJustDynaThingsLoaded() ? JustDynaThingsGooIntegration.getEnergyCostPerTick(stack) : 0;
+        } catch (Throwable e) {
+            LOGGER.warn("[JDTE] GelGenerator getDynaGooEnergyCost failed: {}", e.toString());
+            return 0;
+        }
     }
 
     private static boolean isJustDynaThingsLoaded() {
@@ -575,14 +628,19 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     }
 
     public static boolean isValidGelFood(ItemStack foodStack, ItemStack gelStack) {
-        if (getDynaGooType(gelStack) != JustDynaThingsGooIntegration.GooType.NONE) {
+        try {
+            if (getDynaGooType(gelStack) != JustDynaThingsGooIntegration.GooType.NONE) {
+                return false;
+            }
+            int tier = getGelTier(gelStack);
+            if (tier <= 0) {
+                return isAnyGelFood(foodStack);
+            }
+            return isValidGelFoodForTier(foodStack, tier);
+        } catch (Throwable e) {
+            LOGGER.warn("[JDTE] GelGenerator isValidGelFood failed: {}", e.toString());
             return false;
         }
-        int tier = getGelTier(gelStack);
-        if (tier <= 0) {
-            return isAnyGelFood(foodStack);
-        }
-        return isValidGelFoodForTier(foodStack, tier);
     }
 
     private static boolean isAnyGelFood(ItemStack foodStack) {

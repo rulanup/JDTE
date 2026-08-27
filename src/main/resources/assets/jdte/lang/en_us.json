@@ -137,6 +137,8 @@
   "jdte.screen.io_config.available.output": "Available: Output only",
   "jdte.screen.io_config.available.none": "Available: None",
   "jdte.slot.item_storage": "Item Slot",
+  "jdte.slot.item_receiver_storage": "Pulled Items",
+  "jdte.slot.item_receiver_filter": "Filter Markers",
   "block.jdte.basic_glue_activator": "Basic Glue Activator",
   "block.jdte.advanced_glue_activator": "Advanced Glue Activator",
   "block.jdte.extended_glue_activator": "Extended Glue Activator",

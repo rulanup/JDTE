@@ -7,6 +7,7 @@ import com.direwolf20.justdirethings.client.screens.standardbuttons.ValueButtons
 import com.direwolf20.justdirethings.client.screens.widgets.GrayscaleButton;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.common.network.data.TickSpeedPayload;
+import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.ItemReceiverContainerBase;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.upgrades.UpgradeHelper;
@@ -16,7 +17,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class ItemReceiverScreenBase<T extends ItemReceiverContainerBase> extends BaseMachineScreen<T> {
-    private static final Component ITEM_SLOT_TOOLTIP = Component.translatable("jdte.slot.item_storage");
+    private static final Component ITEM_SLOT_TOOLTIP = Component.translatable("jdte.slot.item_receiver_storage");
+    private static final Component FILTER_SLOT_TOOLTIP = Component.translatable("jdte.slot.item_receiver_filter");
 
     protected ItemReceiverScreenBase(T container, Inventory inv, Component name) {
         super(container, inv, name);
@@ -163,8 +165,12 @@ public abstract class ItemReceiverScreenBase<T extends ItemReceiverContainerBase
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderTooltip(guiGraphics, mouseX, mouseY);
-        if (hoveredSlot != null && !hoveredSlot.hasItem() && hoveredSlot.index < 9) {
+        if (hoveredSlot == null || hoveredSlot.hasItem()) return;
+
+        if (hoveredSlot.index < 9) {
             guiGraphics.renderTooltip(font, ITEM_SLOT_TOOLTIP, mouseX, mouseY);
+        } else if (hoveredSlot instanceof DynamicFilterSlot) {
+            guiGraphics.renderTooltip(font, FILTER_SLOT_TOOLTIP, mouseX, mouseY);
         }
     }
 }

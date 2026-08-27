@@ -103,7 +103,8 @@ public final class OverclockDirectTransferHelper {
         Set<BlockPos> excludedSources = endpointPositions(targets);
 
         if (hasVisibleItems(machine.getItemHandler())) {
-            remaining -= moveItemsToAdjacent(machine.getItemHandler(), null, targets, remaining, budget);
+            remaining -= moveItemsToAdjacent(machine.getItemHandler(), null, targets, remaining, budget,
+                    ignored -> true);
         }
         int count = cache.positions.size();
         int start = count == 0 ? 0 : Math.floorMod(cache.cursor, count);
@@ -181,19 +182,23 @@ public final class OverclockDirectTransferHelper {
     }
 
     private static int moveItemsFromRange(ServerLevel level, BaseMachineBE machine, BlockPos sourcePos,
-                                          RangeCache cache, List<ItemEndpoint> targets, int limit,
-                                          ItemTransferBudget budget) {
+                                           RangeCache cache, List<ItemEndpoint> targets, int limit,
+                                           ItemTransferBudget budget) {
+        final ItemFilter filter = machine instanceof ItemReceiverBE receiver
+                ? receiver::allowsIncomingItem
+                : ignored -> true;
         return withRangeItemHandler(level, machine, sourcePos, cache,
-                source -> moveItemsToAdjacent(source, sourcePos, targets, limit, budget));
+                source -> moveItemsToAdjacent(source, sourcePos, targets, limit, budget, filter));
     }
 
     private static int moveItemsToAdjacent(IItemHandler source, BlockPos sourcePos,
-                                           List<ItemEndpoint> targets, int limit, ItemTransferBudget budget) {
+                                            List<ItemEndpoint> targets, int limit, ItemTransferBudget budget,
+                                            ItemFilter filter) {
         int moved = 0;
         for (ItemEndpoint target : targets) {
             if (moved >= limit || !budget.canContinue()) break;
             if (target.pos().equals(sourcePos)) continue;
-            moved += moveItems(source, target.handler(), limit - moved, budget);
+            moved += moveItems(source, target.handler(), limit - moved, budget, filter);
         }
         return moved;
     }
@@ -236,11 +241,17 @@ public final class OverclockDirectTransferHelper {
     }
 
     private static int moveItems(IItemHandler source, IItemHandler target, int limit, ItemTransferBudget budget) {
+        return moveItems(source, target, limit, budget, ignored -> true);
+    }
+
+    private static int moveItems(IItemHandler source, IItemHandler target, int limit, ItemTransferBudget budget,
+                                 ItemFilter filter) {
         int moved = 0;
         for (int slot = 0; slot < source.getSlots() && moved < limit; slot++) {
             while (moved < limit && !source.getStackInSlot(slot).isEmpty() && budget.beginOperation()) {
                 ItemStack simulated = source.extractItem(slot, limit - moved, true);
                 if (simulated.isEmpty()) break;
+                if (!filter.allows(simulated)) break;
                 ItemStack simulatedRemainder = ItemHandlerHelper.insertItemStacked(target, simulated, true);
                 int movable = simulated.getCount() - simulatedRemainder.getCount();
                 if (movable <= 0) break;
@@ -492,6 +503,11 @@ public final class OverclockDirectTransferHelper {
     @FunctionalInterface
     private interface ItemHandlerOperation {
         int apply(IItemHandler handler);
+    }
+
+    @FunctionalInterface
+    private interface ItemFilter {
+        boolean allows(ItemStack stack);
     }
 
     @FunctionalInterface
