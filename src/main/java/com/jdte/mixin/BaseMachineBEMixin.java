@@ -19,7 +19,9 @@ public abstract class BaseMachineBEMixin {
     private void jdte$syncUpgradeCapacities(CallbackInfo ci) {
         BaseMachineBE machine = (BaseMachineBE) (Object) this;
         UpgradeHelper.syncCapacities(machine);
-        AutoIoTransferHelper.tick(machine);
+        if (UpgradeHelper.mayRunWithUpgrades(machine)) {
+            AutoIoTransferHelper.tick(machine);
+        }
     }
 
     @Inject(method = "handleTicks", at = @At("HEAD"), cancellable = true)

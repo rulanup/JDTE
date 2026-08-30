@@ -27,6 +27,7 @@ import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
+import com.jdte.common.integrations.ae2.AE2CraftingReadNetwork;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.autoioconfig.AutoIoTransferHelper;
 import com.jdte.mixin.EnergyStorageAccessor;
@@ -40,6 +41,8 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+
+import java.util.function.Predicate;
 
 public class UpgradeHelper {
     public static int getFilterSlotsPerUpgrade() {
@@ -295,6 +298,49 @@ public class UpgradeHelper {
 
     public static boolean hasAeCraftingReadUpgrade(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.AE_CRAFTING_READ) > 0;
+    }
+
+    /** Returns whether normal machine work is allowed by the optional AE crafting binding. */
+    public static boolean mayRunWithUpgrades(BaseMachineBE machine) {
+        if (machine == null || !hasAeCraftingReadUpgrade(machine)) {
+            return true;
+        }
+        if (!(machine.getLevel() instanceof net.minecraft.server.level.ServerLevel level)) {
+            return true;
+        }
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return false;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack upgrade = handler.getStackInSlot(slot);
+            if (isUpgrade(upgrade, UpgradeType.AE_CRAFTING_READ)
+                    && AE2CraftingReadNetwork.hasActiveCraftingTask(level, upgrade)) return true;
+        }
+        return false;
+    }
+
+    public static boolean mayRunWithUpgrades(UpgradeItemStackHandler handler, boolean activeCraftingTask) {
+        return handler == null || countUpgrades(handler, UpgradeType.AE_CRAFTING_READ) == 0 || activeCraftingTask;
+    }
+
+    public static boolean mayRunWithUpgrades(UpgradeItemStackHandler handler, long gameTime,
+                                             AE2CraftingReadNetwork.TargetResolver resolver,
+                                             java.util.function.Predicate<ItemStack> isBound) {
+        if (handler == null) return true;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack upgrade = handler.getStackInSlot(slot);
+            if (isUpgrade(upgrade, UpgradeType.AE_CRAFTING_READ)
+                    && isBound.test(upgrade)
+                    && AE2CraftingReadNetwork.hasActiveCraftingTask(upgrade, gameTime, resolver)) return true;
+        }
+        return countUpgrades(handler, UpgradeType.AE_CRAFTING_READ) == 0;
+    }
+
+    private static int countUpgrades(UpgradeItemStackHandler handler, UpgradeType type) {
+        int count = 0;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (isUpgrade(handler.getStackInSlot(slot), type)) count++;
+        }
+        return count;
     }
 
     public static boolean hasAEOutputUpgrade(BaseMachineBE machine) {

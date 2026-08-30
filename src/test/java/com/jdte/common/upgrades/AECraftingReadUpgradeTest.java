@@ -87,6 +87,38 @@ class AECraftingReadUpgradeTest {
         ItemStack other = upgrade.copy();
         AE2CraftingReadNetwork.bind(other,
                 GlobalPos.of(TARGET.dimension(), net.minecraft.core.BlockPos.ZERO.offset(1, 0, 0)));
-        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(GlobalPos.of(TARGET.dimension(), net.minecraft.core.BlockPos.ZERO.offset(1, 0, 0)), 19, resolver));
+        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(GlobalPos.of(TARGET.dimension(),
+                net.minecraft.core.BlockPos.ZERO.offset(1, 0, 0)), 19, resolver));
+    }
+
+    @Test
+    void independentPermissionStrategyDistinguishesUpgradeStates() {
+        UpgradeItemStackHandler handler = new UpgradeItemStackHandler(null);
+        ItemStack upgrade = new ItemStack(JDTEItems.AE_CRAFTING_READ_UPGRADE.get());
+        AE2CraftingReadNetwork.TargetResolver active = ignored -> new AE2CraftingReadNetwork.NetworkState(
+                "grid", true, true, false,
+                List.of(new AE2CraftingReadNetwork.CraftingCpuSnapshot(true, true)));
+        AE2CraftingReadNetwork.TargetResolver inactive = ignored -> new AE2CraftingReadNetwork.NetworkState(
+                "grid", true, true, false,
+                List.of(new AE2CraftingReadNetwork.CraftingCpuSnapshot(false, false)));
+
+        assertTrue(UpgradeHelper.mayRunWithUpgrades(handler, false));
+        handler.setStackInSlot(0, upgrade);
+        assertFalse(UpgradeHelper.mayRunWithUpgrades(handler, false));
+        assertTrue(UpgradeHelper.mayRunWithUpgrades(handler, true));
+        assertFalse(UpgradeHelper.mayRunWithUpgrades(handler, false));
+    }
+
+    @Test
+    void ordinaryMachineWithoutCraftingReadKeepsOriginalPermission() {
+        assertTrue(UpgradeHelper.mayRunWithUpgrades(new PlainMachine()));
+    }
+
+    private static final class PlainMachine extends com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE {
+        private PlainMachine() {
+            super(net.minecraft.world.level.block.entity.BlockEntityType.SIGN,
+                    net.minecraft.core.BlockPos.ZERO,
+                    net.minecraft.world.level.block.Blocks.OAK_SIGN.defaultBlockState());
+        }
     }
 }
