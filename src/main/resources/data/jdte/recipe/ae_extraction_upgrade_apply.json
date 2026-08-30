@@ -1,0 +1,6 @@
+{
+  "type": "jdte:ae_extraction_smithing",
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "ae2" }
+  ]
+}

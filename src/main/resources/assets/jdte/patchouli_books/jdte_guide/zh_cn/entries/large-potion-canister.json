@@ -1,0 +1,24 @@
+{
+  "name": "大型药水罐",
+  "icon": "jdte:large_potion_canister",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 662,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:large_potion_canister",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "大型药水罐是 JDT 药水罐的扩展版本，容量提升到 $(bold)4,000 mB$()。$(br2)$(bold)批量灌装规则$()$(br2)$(li)每次必须放入 $(bold)4 瓶相同药水$()。$(li)成功后增加 $(bold)1,000 mB$()。$(li)仅有 3 瓶或混合药水时不会消耗输入。$(br2)$(bold)合成$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:large_potion_canister"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:large_potion_canister": 0
+  }
+}

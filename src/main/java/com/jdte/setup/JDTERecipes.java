@@ -7,6 +7,7 @@ import com.jdte.common.recipes.BioFactoryRecipe;
 import com.jdte.common.recipes.LifeSynthesisRecipe;
 import com.jdte.common.recipes.LargePortableContainerRecipe;
 import com.jdte.common.recipes.MineralExtractorResourcesRecipe;
+import com.jdte.common.recipes.AEExtractionSmithingRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -48,6 +49,9 @@ public class JDTERecipes {
 
     public static final Supplier<MineralExtractorResourcesRecipe.Serializer> MINERAL_EXTRACTOR_RESOURCES_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
             "mineral_extractor_resources", MineralExtractorResourcesRecipe.Serializer::new);
+
+    public static final Supplier<AEExtractionSmithingRecipe.Serializer> AE_EXTRACTION_SMITHING_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register("ae_extraction_smithing", AEExtractionSmithingRecipe.Serializer::new);
 
     public static final Supplier<LargePortableContainerRecipe.Serializer> LARGE_PORTABLE_CONTAINER_RECIPE_SERIALIZER =
             RECIPE_SERIALIZERS.register("large_portable_container", LargePortableContainerRecipe.Serializer::new);

@@ -14,6 +14,8 @@
 
 - **New**: Added the AE Crafting Read Upgrade (`jdte:ae_crafting_read_upgrade`). Bind it by placing the card in an AE2 Wireless Access Point's linking input, then install it in a standard or extended upgrade slot on a compatible machine. The machine runs automatically while the linked AE2 network has an active crafting task, and pauses when the card is unbound, the access point is offline or unloaded, the network is booting, or no crafting task is active. AE2 remains an optional dependency.
 
+- **New**: Added the AE Extraction Upgrade, an AE2-bound smithing upgrade that refills carried JDT/JDTE FE and fluid items, with optional Applied Flux support and conservative empty-universal-tank selection.
+
 - **Split**: The Creative Greenhouse moved out of JDTE into the standalone **JDTE-Matrix** addon (`jdte_matrix`) as `jdte_matrix:creative_greenhouse` (`com.jdte.matrix`). JDTE keeps only the shared `ICreativeGreenhouse` marker interface plus the existing Greenhouse code paths, so cross-mod upgrades, auto I/O, AE output, FilterPage paging, and the reused slot renders keep working without JDTE referencing the matrix mod.
 - **Removed**: Deleted the `jdte:creative_greenhouse` block, block entity, container, screen, catalog, registrations, assets, lang keys, tests, and GuideME/Patchouli pages from JDTE. The feature now lives entirely in JDTE-Matrix.
 - **Changed**: The patchouli/guideme generator scripts no longer include the Creative Greenhouse entry.

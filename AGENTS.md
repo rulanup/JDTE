@@ -17,6 +17,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 Major features:
 
 - 16 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, and AE Output. Looting and Sharpness are dedicated upgrade items outside UpgradeType.
+- AE Extraction Upgrade (`jdte:ae_extraction_upgrade`): an AE2 Wireless Access Point-bound smithing upgrade that refills carried JDT/JDTE FE and fluid items, with optional Applied Flux integration and conservative empty-universal-tank selection.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Time Freezer and Extended Time Freezer machines that consume Time Fluid to freeze a dimension's day/night cycle and weather, plus the permission-4 `/jdte timefreezer list` command for server operators.
 - Ultimate Portal Gun (`jdte:ultimate_portal_gun`): a JDT Advanced Portal Gun enhancement with a 1000 B single large Portal Fluid tank, unlimited teleport slots in a paginated radial menu (V key), manual coordinate editing with full server dimension selection, and per-slot fluid pricing.

@@ -1,0 +1,81 @@
+{
+  "name": "时间加速器",
+  "icon": "jdte:basic_time_accelerator",
+  "category": "jdte:time_energy",
+  "sortnum": 200,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "时间加速器可以加速区域内方块的运行速度。$(br2)$(bold)初级时间加速器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:basic_time_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "仅消耗时间流体的简单加速器。$(br2)$(li)默认加速倍率：16x$(li)安装超频或创造升级后：32x$(li)使用基础时间流体消耗倍率"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:basic_time_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)高级时间加速器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_time_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "消耗时间流体和 FE 能量的高级加速器。$(br2)$(li)可调节倍率：1x - 64x$(li)安装超频或创造升级后：128x$(li)时间流体消耗为初级版的 2 倍"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_time_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展高级时间加速器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_time_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "高级时间加速器的扩展版本，拥有 8 个升级槽。可通过扩展升级右键高级时间加速器获得。$(br2)$(li)可调节倍率：1x - 512x$(li)安装超频或创造升级后：1024x$(li)时间流体消耗为初级版的 5 倍$(li)支持 8 个升级槽，可安装更多升级卡$(br2)三个等级共用统一调度器。多个时间加速器覆盖同一目标时倍率会完整叠加，范围内已加载方块实体按区块统一发现，当前服务器 tick 未完成的已付费虚拟 tick 会在贡献加速器保持启用时继续执行。调度器使用每 tick 固定执行与扫描预算；服务器 MSPT 过高时不会停止加速，超出预算的工作会继续排队。安装 AE 加速升级后，该时间加速器也可加速通过标准 $(thing)IGridTickable$() 服务运行的 AE2 设备；取出升级会立即移除该机器尚未执行的 AE2 加速工作。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_time_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)时间流体催化剂$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:time_fluid_catalyst",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "可直接触发源水到 JDT 时间流体的 FluidDrop 转换，也可放入流体稳定器的催化剂槽中使用。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:time_fluid_catalyst"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:basic_time_accelerator": 1,
+    "jdte:advanced_time_accelerator": 5,
+    "jdte:extended_time_accelerator": 9
+  }
+}

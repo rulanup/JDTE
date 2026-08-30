@@ -1,0 +1,28 @@
+{
+  "name": "Repair Talisman",
+  "icon": "jdte:repair_talisman",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 680,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:repair_talisman",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Repair Talisman works from anywhere in your inventory: as long as it sits in the main inventory, the armor slots, or the offhand, every damaged tool, weapon, and piece of armor on the player is continuously repaired — 5 durability per item per cycle by default (a cycle every 4 ticks, which is 25 durability per second, far faster than the Equivalent Exchange repair talisman). Repairs consume FE: every durability point costs 10,000 FE by default, drawn in slot order from charged energy items in the inventory (batteries, portable generators, and the like). When the available energy runs dry, repairs simply pause — nothing is ever repaired on credit. A fully charged Pocket Generator or large"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "energy cell keeps the talisman running for a long time.$(br2)Everything is configurable under $(thing)jdte.repairTalisman$(): $(thing)amountPerCycle$() controls the durability repaired per item per cycle, $(thing)cycleInterval$() the interval in ticks (0 disables the talisman), and $(thing)energyPerDurability$() the FE cost per durability point (0 makes repairs free). Items with the Unbreakable component are left untouched.$(br2)The talisman carries an enchant glint so it is easy to spot in the inventory.$(br2)$(bold)Crafting$()$(br2)The recipe forms a pendant ring from an Eclipse Alloy block and Time Crystal blocks — a late-game purchase."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:repair_talisman"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:repair_talisman": 0
+  }
+}

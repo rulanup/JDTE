@@ -16,6 +16,13 @@ public final class JDTEDataComponents {
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
             DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, JDTE.MODID);
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> AE_EXTRACTION_ENABLED =
+            DATA_COMPONENTS.register("ae_extraction_enabled", () -> DataComponentType.<Boolean>builder()
+                    .persistent(Codec.BOOL)
+                    .networkSynchronized(ByteBufCodecs.BOOL)
+                    .cacheEncoding()
+                    .build());
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MineralSurveyData>> MINERAL_SURVEY =
             DATA_COMPONENTS.register("mineral_survey", () -> DataComponentType.<MineralSurveyData>builder()
                     .persistent(MineralSurveyData.CODEC)

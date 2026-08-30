@@ -1,0 +1,69 @@
+{
+  "name": "Fluid Stabilizer",
+  "icon": "jdte:advanced_fluid_stabilizer",
+  "category": "jdte:logistics_automation",
+  "sortnum": 1300,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Fluid Stabilizer scans source fluid blocks within its configured range and matches them against the JDT FluidDrop recipes using the item in the catalyst slot.$(br2)$(li)Converts up to 1 source fluid block per operation.$(li)Consumes 1 catalyst per successful conversion.$(li)Creative Upgrade waives both FE and catalyst consumption.$(li)Filter slots use fluid buckets as filter items.$(li)Supports redstone control, Range Upgrade, Filter Upgrade, Overclock, Underclock, and Capacity Upgrades.$(br2)For example, placing JDT's Polymorph Catalyst converts water sources to polymorph fluid; placing JDTE's Time Fluid Catalyst converts water sources to time fluid."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Basic Fluid Stabilizer$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:basic_fluid_stabilizer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Does not require FE and only consumes catalysts. Longer operation interval (40 ticks)."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:basic_fluid_stabilizer"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Fluid Stabilizer$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_fluid_stabilizer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Requires both FE and catalysts. Operation interval is 20 ticks, with FE consumption scaling with configured range."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_fluid_stabilizer"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Fluid Stabilizer$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_stabilizer",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An extended version of the Advanced Fluid Stabilizer with 8 upgrade slots. Obtained by right-clicking an Advanced Fluid Stabilizer with an Extended Upgrade."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_stabilizer"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:basic_fluid_stabilizer": 2,
+    "jdte:advanced_fluid_stabilizer": 6,
+    "jdte:extended_fluid_stabilizer": 10,
+    "jdte:time_fluid_catalyst": 0
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "大型便携发电机",
+  "icon": "jdte:large_pocket_generator",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 661,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:large_pocket_generator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "大型便携发电机继承 JDT 便携发电机的行为，但把内部 FE 容量提升到 $(bold)4 倍$()，并保留燃料槽、开关状态与发电逻辑。$(br2)$(bold)特性$()$(br2)$(li)可放入独立的 Curios $(thing)large_pocket_generator$() 槽位。$(li)支持专用快捷键直接打开界面。$(li)放在物品栏或 Curios 中时，会继续按 JDT 原版规则给背包与 Curios 中的可充能物品供能。$(li)使用大型燃料罐时，会按大型燃料罐解析后的燃烧倍率工作。$(br2)$(bold)合成$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:large_pocket_generator"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:large_pocket_generator": 0
+  }
+}

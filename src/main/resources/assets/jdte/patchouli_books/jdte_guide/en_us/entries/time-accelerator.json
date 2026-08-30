@@ -1,0 +1,85 @@
+{
+  "name": "Time Accelerator",
+  "icon": "jdte:basic_time_accelerator",
+  "category": "jdte:time_energy",
+  "sortnum": 200,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Time accelerators speed up the operation of blocks within their configured area.$(br2)$(bold)Basic Time Accelerator$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:basic_time_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A simple accelerator that only consumes time fluid.$(br2)$(li)Default acceleration multiplier: 16x$(li)With Overclock or Creative Upgrade: 32x$(li)Uses the base Time Fluid cost rate"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:basic_time_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Time Accelerator$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_time_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An advanced accelerator that consumes both time fluid and FE energy.$(br2)$(li)Adjustable multiplier: 1x - 64x$(li)With Overclock or Creative Upgrade: 128x$(li)Uses twice the Basic tier's Time Fluid cost rate"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_time_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Time Accelerator$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_time_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An extended version of the Advanced Time Accelerator with 8 upgrade slots. Obtained by right-clicking an Advanced Time Accelerator with an Extended Upgrade.$(br2)$(li)Adjustable multiplier: 1x - 512x$(li)With Overclock or Creative Upgrade: 1024x$(li)Uses five times the Basic tier's Time Fluid cost rate$(li)Supports 8 upgrade slots for more upgrade cards"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "All three tiers use the same managed scheduler. Overlapping accelerators fully add their multipliers, loaded block entities are discovered once per chunk, and unfinished paid virtual ticks continue while their contributing accelerators remain active. Fixed per-tick execution and scan budgets replace the MSPT cutoff, so high server MSPT no longer stops acceleration and excess work remains queued. With an AE Acceleration Upgrade installed, that accelerator can also accelerate AE2 devices exposing the standard $(thing)IGridTickable$() service. Removing the card immediately removes that accelerator's pending AE2 work."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_time_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Time Fluid Catalyst$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:time_fluid_catalyst",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Directly triggers the water source to JDT time fluid FluidDrop conversion. Can also be placed in the Fluid Stabilizer's catalyst slot."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:time_fluid_catalyst"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:basic_time_accelerator": 1,
+    "jdte:advanced_time_accelerator": 5,
+    "jdte:extended_time_accelerator": 9
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "Ultimate Portal Gun",
+  "icon": "jdte:ultimate_portal_gun",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 650,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_portal_gun",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Ultimate Portal Gun retains the projectiles, FE cost, and normal destination rules of JDT's Advanced Portal Gun while expanding its fluid storage and destination management for long-term use.$(br2)$(bold)Tank and costs$()$(br2)The gun has one $(bold)1000 B (1,000,000 mB) Portal Fluid tank$(). Right-click a Portal Fluid source to collect it. Firing also consumes the FE configured for JDT's Advanced Portal Gun. No projectile is created when either resource is insufficient.$(br2)Destinations captured directly from the world continue to use JDT's distance and cross-dimensional pricing. Manually edited coordinate slots use fixed rules:"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Same dimension: 1 B per block, capped at 500 B per shot.$(li)Different dimension: a fixed 1000 B, requiring a full tank.$(br2)$(bold)Destination menu$()$(br2)Hold the gun and press $(bold)V$() to open its paged radial menu. Each page contains 12 slots, and more pages can be added, so there is no fixed destination limit.$(br2)The menu can select a destination, save the current position, clear a slot, or manually enter X/Y/Z coordinates and choose from the server's currently available dimensions. Normal left/right-click and sneaking portal controls remain consistent with the JDT portal gun.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_portal_gun"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:ultimate_portal_gun": 0
+  }
+}

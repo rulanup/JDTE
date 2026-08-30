@@ -1,0 +1,24 @@
+{
+  "name": "顶级时间手杖",
+  "icon": "jdte:ultimate_time_wand",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 660,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_time_wand",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "顶级时间手杖会为一个目标建立服务端持有的限时加速请求。默认可储存 $(bold)800000 mB 时间流体$()和 $(bold)10000000 FE$()；容量、持续时间与消耗倍率均可由服务器配置调整。$(br2)$(bold)模式与叠加$()$(br2)潜行右键空气或方块可依次切换四种模式：$(br2)$(bold)模式 | 每次右键增加的指数$()$(br)普通 | 1$(br)2× | 2$(br)4× | 4$(br)最大 | 10$(br2)普通右键有效目标会创建请求；对已有请求再次右键会叠加指数。效果最高为 $(bold)1024×$()，达到上限后不会继续消耗资源。手杖可以加速 JDT 允许的可加速方块，也能直接加速提供 $(thing)IGridTickable$() 服务的 AE2 设备。$(br2)$(bold)资源与服务端安全$()$(br2)每次叠加都会在服务端先验证目标、计算资源消耗，再写入新的请求状态。时间流体或 FE 不足、目标无效、目标达到最高倍率，或服务端无法提交请求时，均不会扣除资源。$(br2)请求只在服务端执行，并受每目标批处理上限约束。AE2 目标优先走其直接加速路径，不会在同一次请求中额外执行普通方块实体或随机刻；时间加速器自身也不会作为目标，从而避免递归加速。$(br2)$(bold)合成$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_time_wand"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:ultimate_time_wand": 0
+  }
+}

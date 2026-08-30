@@ -1,0 +1,24 @@
+{
+  "name": "修复护符",
+  "icon": "jdte:repair_talisman",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 680,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:repair_talisman",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "修复护符是一件放在背包里就能工作的护身符：只要它位于主背包、盔甲栏或副手栏的任意位置，玩家全部受损的工具、武器和盔甲都会被持续修复，每个修复周期为每件受损物品恢复 5 点耐久（默认每 4 刻一个周期，即每秒 25 点，远快于等价交换的修复护符）。$(br2)修复消耗 FE：每修复 1 点耐久收取 10,000 FE（可配置），按槽位顺序从背包中已充能的能量物品（电池、便携发电机等）抽取；能量不足时修复自动停止，不会出现部分修复欠账。携带一块充满的便携式发电机或大容量电池即可支撑长时间修复。$(br2)配置 $(thing)jdte.repairTalisman$() 可调整：$(thing)amountPerCycle$() 控制每个周期每件物品的修复点数，$(thing)cycleInterval$() 控制周期间隔（设为 0 时护符失效），$(thing)energyPerDurability$() 控制每点耐久的 FE 费用（设为 0 时免费修复）。带有不可破坏（Unbreakable）组件的物品不会被改动。$(br2)护符自身带附魔光效，方便在背包中辨认。$(br2)$(bold)合成$()$(br2)配方以蚀空合金块与时间水晶块组成吊坠环，属于后期消耗。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:repair_talisman"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:repair_talisman": 0
+  }
+}

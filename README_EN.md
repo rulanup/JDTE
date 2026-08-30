@@ -27,6 +27,7 @@ Standard machines have four upgrade slots and extended machines have eight. Empt
 | Precision | Crystal Incubator only; harvests through vanilla Silk Touch loot logic and conflicts with Fortune | 1 |
 | AE Acceleration | Time Accelerator tiers only; enables acceleration of AE2 `IGridTickable` devices | 1 |
 | AE Crafting Read | Lets compatible machines read active crafting tasks from a linked AE2 network; pauses when unlinked, offline, or idle | 1 |
+| AE Extraction | Binds to a Wireless Access Point and refills carried JDT/JDTE FE and fluid items; supports Applied Flux | 1 |
 | Looting | Dedicated to Bio Crushers and the Loot Fabricator | 6 |
 | Sharpness | Bio Crusher only; adds five damage per card | 6 |
 
@@ -46,6 +47,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 |---|---|
 | Advanced Item Collector | Inserts drops into its facing inventory before they enter the world; supports oversized-stack pre-transfer, AE2 `ME_STORAGE`, and ExtendedAE interfaces |
 | Advanced Energy Transmitter | Fairly supplies every FE receiver in a configurable 3D area; fixed-budget demand batching raises overclocked throughput without more scans, AE2 plus Applied Flux enables direct ME-cable access to FE stored on energy disks, and an optional player binding prioritizes FE equipment in the online player's hotbar, hands, armor, and Curios slots across dimensions |
+| AE Extraction Upgrade | Bind it in an AE2 Wireless Access Point, then smith it onto a JDT/JDTE FE or fluid item to refill carried resources; Applied Flux is optional and empty universal fluid containers are never selected speculatively |
 | Entity Suppressor | Suppresses entity updates, prevents entity spawning, disables entity rendering, disables block entity rendering, or disables particles |
 | Range Blocker | Contains mobs inside an area or prevents player magnets from attracting items within it |
 | Glue Activator | Automates JDT glue operations |

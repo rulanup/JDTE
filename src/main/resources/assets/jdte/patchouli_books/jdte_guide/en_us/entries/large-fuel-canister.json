@@ -1,0 +1,24 @@
+{
+  "name": "Large Fuel Canister",
+  "icon": "jdte:large_fuel_canister",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 663,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:large_fuel_canister",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Large Fuel Canister expands the JDT fuel canister to a $(bold)40,000,000$() fuel cap while preserving the same general handling pattern.$(br2)$(bold)Burn rules$()$(br2)$(li)Minimum single-use fuel consumption is scaled up by $(bold)10x$().$(li)Burn speed multiplier is scaled up by $(bold)10x$() from the base resolved fuel-canister value.$(li)Both the normal JDT generator and the large pocket generator use that resolved large-canister multiplier.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:large_fuel_canister"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:large_fuel_canister": 0
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": { "item": "justdirethings:eclipsealloy_ingot" },
+    "B": { "item": "minecraft:blaze_rod" },
+    "R": { "item": "minecraft:redstone_block" }
+  },
+  "pattern": [
+    " E ",
+    "EBE",
+    " R "
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:energy_brewing_upgrade"
+  }
+}

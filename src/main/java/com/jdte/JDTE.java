@@ -33,6 +33,8 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySources;
+import com.jdte.common.integrations.ae2.AEExtractionNetwork;
+import com.jdte.common.items.AEExtractionPlayerService;
 import com.jdte.common.integrations.ae2.AEOutputNetwork;
 import com.jdte.common.minerals.MineralSourceReloadListener;
 import com.jdte.common.minerals.MineralSurveyIndex;
@@ -98,6 +100,8 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
+        NeoForge.EVENT_BUS.addListener(AEExtractionPlayerService::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(AEExtractionPlayerService::onTooltip);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
@@ -234,6 +238,7 @@ public class JDTE {
         event.enqueueWork(() -> {
             AEOutputNetwork.registerLinkable();
             com.jdte.common.integrations.ae2.AE2CraftingReadNetwork.registerLinkable();
+            AEExtractionNetwork.registerLinkable();
             com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration.registerCurioBehaviors();
         });
     }

@@ -1,0 +1,6 @@
+{
+  "name": "Greenhouses & Resources",
+  "description": "Crop, crystal, and mineral resource production.",
+  "icon": "jdte:greenhouse",
+  "sortnum": 40
+}

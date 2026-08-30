@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": { "item": "justdirethings:eclipsealloy_block" },
+    "T": { "item": "justdirethings:time_crystal_block" }
+  },
+  "pattern": [
+    "ETE",
+    "E E",
+    "ETE"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:repair_talisman"
+  }
+}

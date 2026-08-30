@@ -1,0 +1,28 @@
+{
+  "name": "Extended Upgrade",
+  "icon": "jdte:extended_upgrade",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 400,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Extended Upgrade can directly convert advanced machines into extended advanced machines, granting 8 upgrade slots.$(br2)$(bold)Usage$()$(br2)Hold the Extended Upgrade and right-click any advanced machine to convert. After conversion:$(br2)$(li)The machine becomes the corresponding extended advanced machine$(li)Original items and settings are preserved$(li)The Extended Upgrade item is consumed$(br2)$(bold)Supported Machines$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)T2 Machine | Converts To$()$(br)Clicker T2 | Extended Clicker$(br)Block Breaker T2 | Extended Block Breaker$(br)Block Placer T2 | Extended Block Placer$(br)Block Swapper T2 | Extended Block Swapper$(br)Dropper T2 | Extended Dropper$(br)Sensor T2 | Extended Sensor$(br)Fluid Collector T2 | Extended Fluid Collector$(br)Fluid Placer T2 | Extended Fluid Placer$(br)Advanced Time Accelerator | Extended Time Accelerator"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_upgrade"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:extended_upgrade": 0
+  }
+}

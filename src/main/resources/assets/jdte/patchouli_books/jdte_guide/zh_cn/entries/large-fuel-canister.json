@@ -1,0 +1,24 @@
+{
+  "name": "大型燃料罐",
+  "icon": "jdte:large_fuel_canister",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 663,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:large_fuel_canister",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "大型燃料罐把 JDT 燃料罐扩展到 $(bold)40,000,000$() 燃料上限，并保持与原版燃料罐相同的使用方式。$(br2)$(bold)燃烧规则$()$(br2)$(li)单次最小消耗按原版规则放大到 $(bold)10 倍$()。$(li)燃烧倍率按原版燃料解析结果放大 $(bold)10 倍$()。$(li)JDT 发电机和大型便携发电机会按解析后的大型倍率工作。$(br2)$(bold)合成$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:large_fuel_canister"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:large_fuel_canister": 0
+  }
+}
