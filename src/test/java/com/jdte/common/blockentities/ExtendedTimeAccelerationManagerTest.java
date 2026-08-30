@@ -121,6 +121,24 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
+    void unloadedContributorFilterDoesNotReadBlockState() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        AtomicInteger stateReads = new AtomicInteger();
+        ExtendedTimeAccelerationManager.TargetKey target = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+
+        boolean valid = ExtendedTimeAccelerationManager.isContributorFilterValid(
+                target, newRecordingAccelerator(), (targetLevel, pos) -> Optional.empty(),
+                (source, targetLevel, pos, state) -> {
+                    stateReads.incrementAndGet();
+                    return true;
+                });
+
+        assertFalse(valid);
+        assertEquals(0, stateReads.get());
+    }
+
+    @Test
     void ordinaryExecutionUsesCurrentKindWithoutDroppingPendingRoute() throws Exception {
         ServerLevel level = serverLevelFixture();
         ExtendedTimeAccelerationManager.TargetKey pending = new ExtendedTimeAccelerationManager.TargetKey(
@@ -188,6 +206,49 @@ class ExtendedTimeAccelerationManagerTest {
 
         assertEquals(1, target.flushes);
         assertTrue(targets.isEmpty());
+    }
+
+    @Test
+    void levelStatePrepareAndExecuteRunsRealPipelineWithMergePruningAndFinallyFlush() throws Exception {
+        ServerLevel sourceLevel = serverLevelFixture();
+        ServerLevel targetLevel = serverLevelFixture();
+        BlockPos direct = new BlockPos(3, 0, 0);
+        BlockPos proxy = new BlockPos(2, 0, 0);
+        RecordingAccelerator rejected = newRecordingAccelerator();
+        RecordingAccelerator accepted = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.LevelState state = new ExtendedTimeAccelerationManager.LevelState();
+        state.submitForTest(rejected);
+        state.submitForTest(accepted);
+        Map<BlockPos, BlockEntity> discovered = Map.of(
+                direct, fakeBlockEntity(),
+                proxy, fakeProxy(new TimeAccelerationTarget(targetLevel, direct)));
+        ExtendedTimeAccelerationManager.LevelPreparationAdapter adapter = new TestPreparationAdapter(
+                sourceLevel, targetLevel, discovered, proxy, direct);
+
+        state.prepare(sourceLevel, 64, adapter);
+
+        ExtendedTimeAccelerationManager.TargetKey ordinaryKey = new ExtendedTimeAccelerationManager.TargetKey(
+                targetLevel, direct, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        assertEquals(8, state.pendingTicksForTest(ordinaryKey));
+        AtomicInteger calls = new AtomicInteger();
+        CountingCoalesced coalesced = new CountingCoalesced();
+        state.execute(sourceLevel, 64,
+                pending -> Optional.of(new ExtendedTimeAccelerationManager.TargetKey(
+                        targetLevel, direct, ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK)),
+                (current, requested, budget) -> {
+                    calls.incrementAndGet();
+                    assertSame(targetLevel, current.targetLevel());
+                    assertEquals(ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK, current.kind());
+                    assertEquals(4, requested);
+                    state.recordCoalescedTarget(coalesced);
+                    return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                },
+                (target, contributor) -> contributor == accepted,
+                (target, multiplier) -> assertEquals(2, multiplier));
+
+        assertEquals(1, calls.get());
+        assertEquals(1, coalesced.flushes);
+        assertEquals(0, state.pendingTicksForTest(ordinaryKey));
     }
 
     @Test
@@ -375,11 +436,11 @@ class ExtendedTimeAccelerationManagerTest {
             return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
         };
 
-        assertFalse(ExtendedTimeAccelerationManager.executeIfCurrentTarget(
+        assertFalse(ExtendedTimeAccelerationManager.executeIfCurrentRoute(
                 expected, Optional.of(new ExtendedTimeAccelerationManager.TargetKey(
-                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK)),
+                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.AE2_GRID)),
                 4, 4, executor).valid());
-        assertFalse(ExtendedTimeAccelerationManager.executeIfCurrentTarget(
+        assertFalse(ExtendedTimeAccelerationManager.executeIfCurrentRoute(
                 expected, Optional.empty(), 4, 4, executor).valid());
         assertEquals(0, calls.get());
     }
@@ -571,6 +632,105 @@ class ExtendedTimeAccelerationManagerTest {
         Field field = Unsafe.class.getDeclaredField("theUnsafe");
         field.setAccessible(true);
         return (Unsafe) field.get(null);
+    }
+
+    private static final class TestPreparationAdapter
+            implements ExtendedTimeAccelerationManager.LevelPreparationAdapter {
+        private final ServerLevel sourceLevel;
+        private final ServerLevel targetLevel;
+        private final Map<BlockPos, BlockEntity> discovered;
+        private final BlockPos proxy;
+        private final BlockPos direct;
+
+        private TestPreparationAdapter(ServerLevel sourceLevel, ServerLevel targetLevel,
+                                       Map<BlockPos, BlockEntity> discovered,
+                                       BlockPos proxy, BlockPos direct) {
+            this.sourceLevel = sourceLevel;
+            this.targetLevel = targetLevel;
+            this.discovered = discovered;
+            this.proxy = proxy;
+            this.direct = direct;
+        }
+
+        @Override
+        public long gameTime(ServerLevel level) {
+            return 1L;
+        }
+
+        @Override
+        public boolean isActive(TimeAcceleratorBE accelerator, ServerLevel level) {
+            return level == sourceLevel;
+        }
+
+        @Override
+        public ExtendedTimeAccelerationManager.AccelerationRequest request(TimeAcceleratorBE accelerator) {
+            return new ExtendedTimeAccelerationManager.AccelerationRequest(2, 4);
+        }
+
+        @Override
+        public net.minecraft.world.phys.AABB area(TimeAcceleratorBE accelerator) {
+            return new net.minecraft.world.phys.AABB(0, 0, 0, 16, 1, 1);
+        }
+
+        @Override
+        public boolean ae2Enabled(TimeAcceleratorBE accelerator) {
+            return false;
+        }
+
+        @Override
+        public Map<BlockPos, BlockEntity> blockEntities(ServerLevel level, net.minecraft.world.level.ChunkPos chunkPos) {
+            return chunkPos.x == 0 && chunkPos.z == 0 ? discovered : Map.of();
+        }
+
+        @Override
+        public Optional<ExtendedTimeAccelerationManager.TargetKey> resolveTarget(
+                ServerLevel level, BlockPos pos, boolean ae2Enabled) {
+            if (pos.equals(proxy) || pos.equals(direct)) {
+                return Optional.of(new ExtendedTimeAccelerationManager.TargetKey(
+                        targetLevel, direct,
+                        pos.equals(proxy)
+                                ? ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK
+                                : ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY));
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public net.minecraft.world.level.block.state.BlockState state(
+                ExtendedTimeAccelerationManager.TargetKey target) {
+            return Blocks.STONE.defaultBlockState();
+        }
+
+        @Override
+        public boolean filter(TimeAcceleratorBE accelerator,
+                              ExtendedTimeAccelerationManager.TargetKey target,
+                              net.minecraft.world.level.block.state.BlockState state) {
+            return true;
+        }
+
+        @Override
+        public Optional<ExtendedTimeAccelerationManager.PreparedAcceleration> accept(
+                TimeAcceleratorBE accelerator,
+                ExtendedTimeAccelerationManager.AccelerationRequest request,
+                long maxPending, long highestPending) {
+            return Optional.of(new ExtendedTimeAccelerationManager.PreparedAcceleration(2, 4, 0, 0));
+        }
+
+        @Override
+        public boolean pay(TimeAcceleratorBE accelerator,
+                           ExtendedTimeAccelerationManager.PreparedAcceleration prepared) {
+            return true;
+        }
+
+        @Override
+        public long maxPending() {
+            return 64L;
+        }
+
+        @Override
+        public boolean includeRandomTargets() {
+            return false;
+        }
     }
 
     private static final class MapTargetLookup {

@@ -36,6 +36,49 @@ class TimeAccelerationWorkQueueTest {
     }
 
     @Test
+    void ordinaryKindChangeMergesPendingAndMultiplierIntoOneQueueEntry() throws Exception {
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue = new TimeAccelerationWorkQueue<>();
+        ServerLevel level = serverLevelFixture();
+        ExtendedTimeAccelerationManager.TargetKey blockEntity = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey randomTick = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK);
+        queue.enqueue(blockEntity, new Object(), 3, 2, 64);
+        queue.enqueue(randomTick, new Object(), 5, 4, 64);
+        AtomicInteger calls = new AtomicInteger();
+
+        long used = queue.execute(64, 64, (target, requested, remaining) -> {
+            calls.incrementAndGet();
+            assertEquals(8, requested);
+            return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+        }, (target, result, multiplier) -> assertEquals(6, multiplier));
+
+        assertEquals(8, used);
+        assertEquals(1, calls.get());
+    }
+
+    @Test
+    void ae2AndOrdinaryRemainSeparateQueueEntries() throws Exception {
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue = new TimeAccelerationWorkQueue<>();
+        ServerLevel level = serverLevelFixture();
+        queue.enqueue(new ExtendedTimeAccelerationManager.TargetKey(
+                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY),
+                new Object(), 3, 2, 64);
+        queue.enqueue(new ExtendedTimeAccelerationManager.TargetKey(
+                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.AE2_GRID),
+                new Object(), 5, 4, 64);
+        AtomicInteger calls = new AtomicInteger();
+
+        long used = queue.execute(64, 64, (target, requested, remaining) -> {
+            calls.incrementAndGet();
+            return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+        }, (target, result, multiplier) -> { });
+
+        assertEquals(8, used);
+        assertEquals(2, calls.get());
+    }
+
+    @Test
     void samePositionInDifferentLevelsUsesIndependentQueueEntries() throws Exception {
         TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue = new TimeAccelerationWorkQueue<>();
         ExtendedTimeAccelerationManager.TargetKey levelA = new ExtendedTimeAccelerationManager.TargetKey(
