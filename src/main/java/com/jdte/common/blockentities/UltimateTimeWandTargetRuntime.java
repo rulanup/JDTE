@@ -56,35 +56,43 @@ public final class UltimateTimeWandTargetRuntime {
      * ordinary block-entity or random-tick execution from the same request.
      */
     public static Result execute(ServerLevel level, BlockPos pos, int requestedTicks, long remainingBudget) {
-        Result result = execute(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), remainingBudget,
-                new ServerTargetExecutor(level, pos));
-        if (result.coalescedTarget() != null) {
-            result.coalescedTarget().flushAcceleratedTicks();
-        }
-        return result;
+        return execute(new TimeAccelerationTarget(level, pos), requestedTicks,
+                JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), remainingBudget,
+                new ServerTargetExecutor());
     }
 
     static Result execute(int requestedTicks, int batchSize, long remainingBudget, TargetExecutor target) {
+        return execute(null, requestedTicks, batchSize, remainingBudget, target);
+    }
+
+    static Result execute(TimeAccelerationTarget target, int requestedTicks, int batchSize,
+                          long remainingBudget, TargetExecutor executor) {
         int admittedTicks = admit(requestedTicks, batchSize, remainingBudget);
         if (admittedTicks <= 0) {
             return Result.noWork();
         }
 
-        if (target.hasAe2Tickable()) {
-            return target.executeAe2(admittedTicks);
+        if (executor.hasAe2Tickable(target)) {
+            return executor.executeAe2(target, admittedTicks);
         }
-        return target.executeOrdinary(admittedTicks);
+        return executor.executeOrdinary(target, admittedTicks);
     }
 
     static Result executeOrdinary(ServerLevel level, BlockPos pos, int requestedTicks, long remainingBudget) {
+        return executeOrdinary(new TimeAccelerationTarget(level, pos), requestedTicks, remainingBudget);
+    }
+
+    static Result executeOrdinary(TimeAccelerationTarget target, int requestedTicks, long remainingBudget) {
         int admittedTicks = admit(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), remainingBudget);
         if (admittedTicks <= 0) {
             return Result.noWork();
         }
-        return executeOrdinaryTarget(level, pos, admittedTicks);
+        return executeOrdinaryTarget(target, admittedTicks);
     }
 
-    private static Result executeOrdinaryTarget(ServerLevel level, BlockPos pos, int requestedTicks) {
+    private static Result executeOrdinaryTarget(TimeAccelerationTarget target, int requestedTicks) {
+        ServerLevel level = target.level();
+        BlockPos pos = target.pos();
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity != null) {
             return executeBlockEntity(level, pos, blockEntity, requestedTicks);
@@ -138,24 +146,51 @@ public final class UltimateTimeWandTargetRuntime {
         Result executeAe2(int requestedTicks);
 
         Result executeOrdinary(int requestedTicks);
+
+        default boolean hasAe2Tickable(TimeAccelerationTarget target) {
+            return hasAe2Tickable();
+        }
+
+        default Result executeAe2(TimeAccelerationTarget target, int requestedTicks) {
+            return executeAe2(requestedTicks);
+        }
+
+        default Result executeOrdinary(TimeAccelerationTarget target, int requestedTicks) {
+            return executeOrdinary(requestedTicks);
+        }
     }
 
-    private record ServerTargetExecutor(ServerLevel level, BlockPos pos) implements TargetExecutor {
+    private static final class ServerTargetExecutor implements TargetExecutor {
         @Override
         public boolean hasAe2Tickable() {
-            return ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos);
+            throw new UnsupportedOperationException("A target is required");
         }
 
         @Override
         public Result executeAe2(int requestedTicks) {
-            ExtendedTimeAcceleratorAE2Integration.Result result =
-                    ExtendedTimeAcceleratorAE2Integration.accelerate(level, pos, requestedTicks);
-            return new Result(result.executed(), result.valid(), result.idle(), null);
+            throw new UnsupportedOperationException("A target is required");
         }
 
         @Override
         public Result executeOrdinary(int requestedTicks) {
-            return executeOrdinaryTarget(level, pos, requestedTicks);
+            throw new UnsupportedOperationException("A target is required");
+        }
+
+        @Override
+        public boolean hasAe2Tickable(TimeAccelerationTarget target) {
+            return ExtendedTimeAcceleratorAE2Integration.hasTickable(target.level(), target.pos());
+        }
+
+        @Override
+        public Result executeAe2(TimeAccelerationTarget target, int requestedTicks) {
+            ExtendedTimeAcceleratorAE2Integration.Result result =
+                    ExtendedTimeAcceleratorAE2Integration.accelerate(target.level(), target.pos(), requestedTicks);
+            return new Result(result.executed(), result.valid(), result.idle(), null);
+        }
+
+        @Override
+        public Result executeOrdinary(TimeAccelerationTarget target, int requestedTicks) {
+            return executeOrdinaryTarget(target, requestedTicks);
         }
     }
 
