@@ -82,7 +82,7 @@ public class UpgradeHelper {
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
         if (machine instanceof ICreativeGreenhouse creativeGreenhouse) {
-            return creativeGreenhouse.isSupportedUpgrade(type);
+            return type == UpgradeType.AE_CRAFTING_READ || creativeGreenhouse.isSupportedUpgrade(type);
         }
         if (type == UpgradeType.AE_OUTPUT) {
             return AutoIoTransferHelper.supportsAEOutput(machine);
@@ -90,42 +90,47 @@ public class UpgradeHelper {
         if (machine instanceof MineralExtractorBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.FILTER
-                    || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
                     || type == UpgradeType.FORTUNE || type == UpgradeType.ESSENCE_CONVERSION
-                    || type == UpgradeType.SEED_CONVERSION;
+                    || type == UpgradeType.SEED_CONVERSION || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof LifeSynthesisVatBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof BioFactoryBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof LifeBreederBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.RANGE || type == UpgradeType.FILTER
-                    || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof AdvancedItemCollectorBE) {
-            return type == UpgradeType.RANGE || type == UpgradeType.FILTER;
+            return type == UpgradeType.RANGE || type == UpgradeType.FILTER
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof EntitySuppressorBE || machine instanceof RangeBlockerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
-                    || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof FactoryPackerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof AdvancedEnergyTransmitterBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
                     || type == UpgradeType.CAPACITY || type == UpgradeType.OVERCLOCK
-                    || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         return switch (type) {
             case FLUID_STORAGE -> machine instanceof ClickerT1BE;

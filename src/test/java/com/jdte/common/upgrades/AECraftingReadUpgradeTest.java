@@ -1,18 +1,20 @@
 package com.jdte.common.upgrades;
 
 import com.jdte.common.integrations.ae2.AE2CraftingReadNetwork;
+import com.jdte.setup.JDTEItems;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AECraftingReadUpgradeTest {
@@ -20,6 +22,24 @@ class AECraftingReadUpgradeTest {
             ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
                     ResourceLocation.withDefaultNamespace("overworld")),
             net.minecraft.core.BlockPos.ZERO);
+
+    @Test
+    void upgradeRegistrationAndHandlerLimitAreReal() {
+        assertEquals("ae_crafting_read", UpgradeType.AE_CRAFTING_READ.getSerializedName());
+        assertEquals(1, UpgradeType.AE_CRAFTING_READ.getMaxPerMachine());
+        assertInstanceOf(com.jdte.common.items.UpgradeCardItem.class, JDTEItems.AE_CRAFTING_READ_UPGRADE.get());
+
+        ItemStack upgrade = new ItemStack(JDTEItems.AE_CRAFTING_READ_UPGRADE.get());
+        UpgradeItemStackHandler standardHandler = new UpgradeItemStackHandler(null);
+        assertTrue(standardHandler.isItemValid(0, upgrade));
+        standardHandler.setStackInSlot(0, upgrade);
+        assertFalse(standardHandler.isItemValid(1, upgrade));
+
+        ExtendedUpgradeItemStackHandler extendedHandler = new ExtendedUpgradeItemStackHandler(null);
+        assertTrue(extendedHandler.isItemValid(0, upgrade));
+        extendedHandler.setStackInSlot(0, upgrade);
+        assertFalse(extendedHandler.isItemValid(1, upgrade));
+    }
 
     @Test
     void facadeResolvesBindingAndRejectsUnavailableStates() {
