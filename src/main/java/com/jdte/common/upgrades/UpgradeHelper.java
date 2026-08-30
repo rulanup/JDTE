@@ -288,6 +288,10 @@ public class UpgradeHelper {
         return countUpgrades(machine, UpgradeType.AE_ACCELERATION) > 0;
     }
 
+    public static boolean hasAeCraftingReadUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.AE_CRAFTING_READ) > 0;
+    }
+
     public static boolean hasAEOutputUpgrade(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.AE_OUTPUT) > 0;
     }
