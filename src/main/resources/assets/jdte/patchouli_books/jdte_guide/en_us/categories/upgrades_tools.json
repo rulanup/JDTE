@@ -1,0 +1,6 @@
+{
+  "name": "Upgrades & Tools",
+  "description": "Upgrade cards, extended machines, the wrench, and special materials.",
+  "icon": "jdte:capacity_upgrade",
+  "sortnum": 10
+}

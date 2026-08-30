@@ -1,0 +1,24 @@
+{
+  "name": "Large Potion Canister",
+  "icon": "jdte:large_potion_canister",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 662,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:large_potion_canister",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Large Potion Canister is an expanded JDT potion canister with $(bold)4,000 mB$() of storage.$(br2)$(bold)Batch filling rules$()$(br2)$(li)Each fill requires $(bold)4 matching potions$().$(li)A successful batch adds $(bold)1,000 mB$().$(li)Three potions or mixed potion contents do not consume the input.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:large_potion_canister"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:large_potion_canister": 0
+  }
+}

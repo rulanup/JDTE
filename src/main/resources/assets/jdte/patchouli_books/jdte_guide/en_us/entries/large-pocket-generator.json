@@ -1,0 +1,24 @@
+{
+  "name": "Large Pocket Generator",
+  "icon": "jdte:large_pocket_generator",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 661,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:large_pocket_generator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Large Pocket Generator extends JDT's pocket generator with $(bold)4x$() internal FE capacity while keeping its fuel slot, toggle state, and generation behavior.$(br2)$(bold)Features$()$(br2)$(li)Equips in the dedicated Curios $(thing)large_pocket_generator$() slot.$(li)Opens through its dedicated hotkey.$(li)Continues charging compatible items in both inventory and Curios using JDT's existing charging behavior.$(li)Uses the resolved large fuel canister burn multiplier when one is inserted as fuel.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:large_pocket_generator"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:large_pocket_generator": 0
+  }
+}

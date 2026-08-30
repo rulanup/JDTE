@@ -17,6 +17,7 @@ item_ids:
   - jdte:precision_upgrade
   - jdte:ae_acceleration_upgrade
   - jdte:ae_output_upgrade
+  - jdte:ae_extraction_upgrade
   - jdte:essence_conversion_upgrade
   - jdte:seed_conversion_upgrade
   - jdte:looting_upgrade
@@ -134,6 +135,18 @@ Place the card in the linking input of an AE2 Wireless Access Point screen and r
 Machines without a product-output use, such as Clickers, Placers, Droppers, and Senders, reject this upgrade. The limit is one per machine. A Greenhouse Matrix Controller (from the standalone JDTE-Matrix mod) can also use it to return products from every managed Greenhouse.
 
 <RecipeFor id="jdte:ae_output_upgrade" />
+
+## AE Extraction Upgrade
+
+<ItemImage id="jdte:ae_extraction_upgrade" scale="2" />
+
+Craft this upgrade from a Wireless Receiver, Export Bus, and Capacity Upgrade. Put it into an AE2 Wireless Access Point input slot to bind it, then apply the bound upgrade in a JDT or JDTE smithing recipe. A bound upgrade collects enabled FE and fluid items carried by the player and refills them from the linked Applied Flux/AE2 network; the Wireless Access Point must stay loaded, online, and connected to storage with available resources.
+
+Fluid selection prefers fluid already present in a tank. An empty universal tank is selected only when exactly one candidate fluid is valid, so an unknown fluid is never filled speculatively. Applied Flux is an optional integration; FE refilling safely does nothing when it is not installed.
+
+Empty universal containers are not selected as fluid targets. Only tanks with existing contents or a dedicated tank that accepts exactly one candidate participate. Smithing preserves the target item's existing energy, fluid, and other components.
+
+<RecipeFor id="jdte:ae_extraction_upgrade_apply" />
 
 ## Essence Conversion Upgrade
 

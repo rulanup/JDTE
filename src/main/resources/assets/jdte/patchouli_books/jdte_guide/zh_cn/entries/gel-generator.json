@@ -1,0 +1,42 @@
+{
+  "name": "凝胶发生器",
+  "icon": "jdte:advanced_gel_generator",
+  "category": "jdte:logistics_automation",
+  "sortnum": 800,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "凝胶发生器可以消耗输入物品并产出凝胶相关结果，支持流体和能量能力。$(br2)$(bold)变体$()$(br2)$(bold)机器 | 升级槽 | 能量容量 | 流体容量$()$(br)高级凝胶发生器 | 4 | 100,000 FE | 4,000 mB$(br)扩展凝胶发生器 | 8 | 200,000 FE | 4,000 mB$(br2)$(bold)功能$()$(br2)$(li)消耗燃料物品产生凝胶流体$(li)支持红石控制、范围升级、过滤升级$(li)支持超频、降频和容量升级$(li)支持最多 8 张时运升级。每张增加 1 级原版矿石时运效果，使核源铁、炽金、苍穹晶、蚀空合金和原始煤炭等 JDT 原矿配方提高产量$(li)每张时运升级使当前操作耗电增加 5%；8 张时总计增加 40%$(li)食物物品可提供 2 次使用$(br2)$(bold)合成$()$(br2)$(bold)高级凝胶发生器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_gel_generator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_gel_generator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展凝胶发生器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_gel_generator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "高级凝胶发生器的扩展版本，拥有 8 个升级槽。可通过扩展升级右键高级凝胶发生器获得。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_gel_generator"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_gel_generator": 1,
+    "jdte:extended_gel_generator": 4
+  }
+}

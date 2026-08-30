@@ -17,6 +17,7 @@ item_ids:
   - jdte:precision_upgrade
   - jdte:ae_acceleration_upgrade
   - jdte:ae_output_upgrade
+  - jdte:ae_extraction_upgrade
   - jdte:essence_conversion_upgrade
   - jdte:seed_conversion_upgrade
   - jdte:looting_upgrade
@@ -134,6 +135,18 @@ item_ids:
 点击器、放置器、投掷器、发送器等没有产物输出用途的机器不能安装此升级。每台机器最多安装 1 张。温室矩阵控制器（位于独立的 JDTE-Matrix 模组中）也支持此升级，并会回传所有受管理温室的产物。
 
 <RecipeFor id="jdte:ae_output_upgrade" />
+
+## AE 提取升级
+
+<ItemImage id="jdte:ae_extraction_upgrade" scale="2" />
+
+将无线接收器、输出总线和容量升级合成为此升级。先把它放入 AE2 无线访问点的输入槽进行绑定，再把绑定后的升级放入 JDT 或 JDTE 的锻造升级槽。绑定的升级会在玩家身上收集启用的 FE 与流体物品，并从对应 Applied Flux/AE2 网络补充资源；无线访问点必须保持加载、在线并连接到有可用存储的网络。
+
+流体选择会优先保留储罐中已有的流体。空的通用储罐只有在候选流体恰好唯一时才会选择，不会在无法确定流体时误填。Applied Flux 是可选兼容；未安装时 FE 补充会安全跳过。
+
+空通用容器不会被选作流体目标，只有已装流体或能明确接受唯一候选流体的专用储罐才会参与。锻造时会保留目标物品原有的能量、流体和其他组件。
+
+<RecipeFor id="jdte:ae_extraction_upgrade_apply" />
 
 ## 精华转化升级
 

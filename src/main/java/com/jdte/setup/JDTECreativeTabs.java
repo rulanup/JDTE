@@ -24,6 +24,8 @@ public class JDTECreativeTabs {
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
                 output.accept(JDTEItems.LOOTING_UPGRADE.get());
                 output.accept(JDTEItems.SHARPNESS_UPGRADE.get());
+                output.accept(JDTEItems.AE_OUTPUT_UPGRADE.get());
+                output.accept(JDTEItems.AE_EXTRACTION_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
         output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
         output.accept(JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get());

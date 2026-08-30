@@ -1,0 +1,6 @@
+{
+  "name": "时间与能源",
+  "description": "时间流体、时间控制和能源传输。",
+  "icon": "jdte:advanced_time_accelerator",
+  "sortnum": 20
+}

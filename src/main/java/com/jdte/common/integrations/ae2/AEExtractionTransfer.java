@@ -17,8 +17,10 @@ final class AEExtractionTransfer {
     record Result(long moved, long unrestored) {
     }
 
+    private static final long MAX_SINGLE_OPERATION = Integer.MAX_VALUE;
+
     static Result move(long requested, Source source, Sink sink) {
-        long demand = Math.max(0L, requested);
+        long demand = Math.min(MAX_SINGLE_OPERATION, Math.max(0L, requested));
         if (demand == 0L) return new Result(0L, 0L);
 
         long accepted = clamp(sink.insert(demand, true), demand);

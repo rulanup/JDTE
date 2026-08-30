@@ -226,6 +226,8 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
     compileOnly files(extractedProductiveLib).builtBy(extractProductiveLib)
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testCompileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
+    testRuntimeOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly "curse.maven:just-dire-things-1002348:7463040"
 }

@@ -90,6 +90,36 @@ class AEExtractionTransferTest {
     }
 
     @Test
+    void capsSingleOperationAtIntegerMaximum() {
+        FakeSource source = new FakeSource(Long.MAX_VALUE);
+        FakeSink sink = new FakeSink(Long.MAX_VALUE, Long.MAX_VALUE);
+
+        AEExtractionTransfer.Result result = AEExtractionTransfer.move(Long.MAX_VALUE, source, sink);
+
+        assertEquals(Integer.MAX_VALUE, result.moved());
+        assertEquals(List.of("simulate:" + Integer.MAX_VALUE, "actual:" + Integer.MAX_VALUE), source.calls);
+        assertEquals(List.of("simulate:" + Integer.MAX_VALUE, "actual:" + Integer.MAX_VALUE), sink.calls);
+    }
+
+
+    @Test
+    void callsEndpointsInTransactionalOrder() {
+        List<String> calls = new ArrayList<>();
+        FakeSource source = new FakeSource(100, calls);
+        FakeSink sink = new FakeSink(100, 60, calls);
+
+        AEExtractionTransfer.move(100, source, sink);
+
+        assertEquals(List.of(
+                "sink simulate:100",
+                "source simulate:100",
+                "source actual:100",
+                "sink actual:100",
+                "source restore:40"
+        ), calls);
+    }
+
+    @Test
     void endpointValuesAreClampedToRequestedAmounts() {
         FakeSource source = new FakeSource(100);
         source.simulateLimit = 200;
@@ -105,28 +135,73 @@ class AEExtractionTransferTest {
         assertEquals(0, result.unrestored());
     }
 
+    @Test
+    void negativeEndpointValuesAreClampedToZero() {
+        FakeSource source = new FakeSource(100);
+        FakeSink sink = new FakeSink(-1, 100);
+        assertEquals(new AEExtractionTransfer.Result(0, 0), AEExtractionTransfer.move(100, source, sink));
+        assertEquals(List.of(), source.calls);
+
+        source = new FakeSource(100);
+        source.simulateLimit = -1;
+        sink = new FakeSink(100, 100);
+        assertEquals(new AEExtractionTransfer.Result(0, 0), AEExtractionTransfer.move(100, source, sink));
+        assertEquals(List.of("simulate:100"), source.calls);
+        assertEquals(List.of("simulate:100"), sink.calls);
+
+        source = new FakeSource(100);
+        source.actualLimit = -1;
+        sink = new FakeSink(100, 100);
+        assertEquals(new AEExtractionTransfer.Result(0, 0), AEExtractionTransfer.move(100, source, sink));
+        assertEquals(List.of("simulate:100", "actual:100"), source.calls);
+        assertEquals(List.of("simulate:100"), sink.calls);
+
+        source = new FakeSource(100);
+        sink = new FakeSink(100, -1);
+        assertEquals(new AEExtractionTransfer.Result(0, 0), AEExtractionTransfer.move(100, source, sink));
+        assertEquals(100, source.amount());
+
+        source = new FakeSource(100);
+        source.restoreLimit = -1;
+        sink = new FakeSink(100, 60);
+        assertEquals(new AEExtractionTransfer.Result(60, 40), AEExtractionTransfer.move(100, source, sink));
+        assertEquals(0, source.amount());
+    }
+
     private static final class FakeSource implements AEExtractionTransfer.Source {
         private long amount;
         private long simulateLimit = Long.MAX_VALUE;
         private long actualLimit = Long.MAX_VALUE;
         private long restoreLimit = Long.MAX_VALUE;
         private final List<String> calls = new ArrayList<>();
+        private final List<String> globalCalls;
 
-        private FakeSource(long amount) { this.amount = amount; }
+        private FakeSource(long amount) {
+            this(amount, null);
+        }
+
+        private FakeSource(long amount, List<String> globalCalls) {
+            this.amount = amount;
+            this.globalCalls = globalCalls;
+        }
 
         @Override
         public long extract(long requested, boolean simulate) {
             calls.add((simulate ? "simulate:" : "actual:") + requested);
+            if (globalCalls != null) {
+                globalCalls.add("source " + (simulate ? "simulate:" : "actual:") + requested);
+            }
             long extracted = Math.min(amount, Math.min(requested, simulate ? simulateLimit : actualLimit));
-            if (!simulate) amount -= extracted;
+            if (!simulate) amount -= Math.max(0, extracted);
             return extracted;
         }
 
         @Override
         public long restore(long requested) {
             calls.add("restore:" + requested);
+            if (globalCalls != null) globalCalls.add("source restore:" + requested);
             long restored = Math.min(requested, restoreLimit);
-            amount += restored;
+            amount += Math.max(0, restored);
             return restored;
         }
 
@@ -137,15 +212,24 @@ class AEExtractionTransferTest {
         private long simulateLimit;
         private long actualLimit;
         private final List<String> calls = new ArrayList<>();
+        private final List<String> globalCalls;
 
         private FakeSink(long simulateLimit, long actualLimit) {
+            this(simulateLimit, actualLimit, null);
+        }
+
+        private FakeSink(long simulateLimit, long actualLimit, List<String> globalCalls) {
             this.simulateLimit = simulateLimit;
             this.actualLimit = actualLimit;
+            this.globalCalls = globalCalls;
         }
 
         @Override
         public long insert(long requested, boolean simulate) {
             calls.add((simulate ? "simulate:" : "actual:") + requested);
+            if (globalCalls != null) {
+                globalCalls.add("sink " + (simulate ? "simulate:" : "actual:") + requested);
+            }
             return Math.min(requested, simulate ? simulateLimit : actualLimit);
         }
     }

@@ -1,0 +1,36 @@
+{
+  "name": "Life Breeder",
+  "icon": "jdte:life_breeder",
+  "category": "jdte:biology_life",
+  "sortnum": 2200,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:life_breeder",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Life Breeder breeds animals or Villagers in its configured area and directly advances baby growth and adult breeding cooldowns. It uses each creature's native breeding path, never copies parent NBT, and does not repeat complete entity AI ticks.$(br2)$(bold)Quick Start$()$(br2)1. Configure the work area and mode.$(br)2. Put breeding food for creatures in the area into the 2x2 input.$(br)3. Supply FE and Life Fluid, then select a $(thing)1-32x$() speed.$(br)4. Existing item entities such as eggs are collected into the 4x2 output. Items that do not fit remain in the world.$(br2)$(bold)Modes$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mode | Behavior$()$(br)Breeding and Growth | Pairs creatures while advancing babies and adult cooldowns$(br)Breeding Only | Breeds only adults that can currently mate$(br)Growth Only | Advances growth and cooldowns without consuming feed to breed$(br2)A Villager pair needs 24 food points, such as six Bread or 24 Carrots, Potatoes, or Beetroot; mixed food works. No additional empty bed is required.$(br2)$(bold)Costs and Upgrades$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Life Fluid follows the biological ticks actually skipped. Defaults charge 10 mB per 20 growth ticks and about 3000 mB per breeding pair.$(li)Overclock completes the remaining baby age or adult cooldown for each processed creature and charges for the time actually skipped.$(li)Creative includes Overclock and removes FE and Life Fluid costs.$(li)Capacity, Fluid, Range, Filter, Overclock, and Creative Upgrades are supported, together with redstone control and absolute-side auto I/O.$(li)Filter slots use spawn eggs: allowlist processes only listed types, denylist excludes them, and an empty filter allows every compatible creature.$(br2)$(bold)Compatibility and Limits$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Modded creatures using Minecraft's standard $(thing)Animal$() and $(thing)AgeableMob$() breeding/growth APIs work automatically; their own sex, breed, and genetics rules remain authoritative.$(li)Villagers use a dedicated public-API adapter. Fully custom entities outside the standard systems are not force-bred.$(li)Only loaded chunks are queried, with separate budgets for scanning, pairing, growth, and item collection.$(li)Breeding pauses at 64 creatures of one type by default to prevent unbounded growth. Costs and budgets are server-configurable.$(br2)$(bold)Crafting$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:life_breeder"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:life_breeder": 0
+  }
+}

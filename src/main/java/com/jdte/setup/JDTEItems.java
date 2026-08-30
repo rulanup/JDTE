@@ -18,6 +18,7 @@ import com.jdte.common.items.TimeMultitoolItem;
 import com.jdte.common.items.UltimateTimeWandItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.items.AEOutputUpgradeItem;
+import com.jdte.common.items.AEExtractionUpgradeItem;
 import com.jdte.common.items.UltimatePortalGunItem;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.world.item.BlockItem;
@@ -47,6 +48,8 @@ public class JDTEItems {
     public static final DeferredHolder<Item, UpgradeCardItem> AE_ACCELERATION_UPGRADE = ITEMS.register("ae_acceleration_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_ACCELERATION));
     public static final DeferredHolder<Item, UpgradeCardItem> AE_OUTPUT_UPGRADE = ITEMS.register("ae_output_upgrade", AEOutputUpgradeItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> ESSENCE_CONVERSION_UPGRADE = ITEMS.register("essence_conversion_upgrade", () -> new UpgradeCardItem(UpgradeType.ESSENCE_CONVERSION));
+    public static final DeferredHolder<Item, AEExtractionUpgradeItem> AE_EXTRACTION_UPGRADE =
+            ITEMS.register("ae_extraction_upgrade", AEExtractionUpgradeItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> SEED_CONVERSION_UPGRADE = ITEMS.register("seed_conversion_upgrade", () -> new UpgradeCardItem(UpgradeType.SEED_CONVERSION));
     public static final DeferredHolder<Item, ExtendedUpgradeItem> EXTENDED_UPGRADE = ITEMS.register("extended_upgrade", ExtendedUpgradeItem::new);
     public static final DeferredHolder<Item, EclipseAlloyWrenchItem> ECLIPSEALLOY_WRENCH = ITEMS.register("eclipsealloy_wrench", EclipseAlloyWrenchItem::new);
