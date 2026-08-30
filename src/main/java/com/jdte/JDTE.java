@@ -230,6 +230,7 @@ public class JDTE {
     private void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             AEOutputNetwork.registerLinkable();
+            com.jdte.common.integrations.ae2.AE2CraftingReadNetwork.registerLinkable();
             com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration.registerCurioBehaviors();
         });
     }
