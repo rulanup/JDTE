@@ -232,6 +232,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
             accumulatedAcceleratedTicks = 0;
             return;
         }
+        if (!UpgradeHelper.mayRunWithUpgrades(this)) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks);
@@ -306,6 +307,10 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         if (!isActiveRedstone() || !canRun()) {
             setActiveMask(0);
             settlementTicker = 0;
+            return;
+        }
+        if (!UpgradeHelper.mayRunWithUpgrades(this)) {
+            setActiveMask(0);
             return;
         }
 

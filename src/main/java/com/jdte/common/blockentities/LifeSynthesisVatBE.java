@@ -258,6 +258,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
 
     @Override
     public void flushAcceleratedTicks() {
+        if (!UpgradeHelper.mayRunWithUpgrades(this)) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks);
@@ -269,6 +270,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             settlementTicker = 0;
             return;
         }
+        if (!UpgradeHelper.mayRunWithUpgrades(this)) return;
         int interval = JDTEConfig.COMMON.lifeSynthesisVat.settlementInterval.get();
         settlementTicker = saturatingAdd(settlementTicker, ticks);
         if (settlementTicker < interval || level == null || lastSettlementGameTime == level.getGameTime()) return;

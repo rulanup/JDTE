@@ -243,6 +243,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             accumulatedAcceleratedTicks = 0;
             return;
         }
+        if (!UpgradeHelper.mayRunWithUpgrades(this)) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks);
@@ -320,6 +321,10 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         if (!isActiveRedstone() || !canRun()) {
             setActiveMask(0);
             settlementTicker = 0;
+            return;
+        }
+        if (!UpgradeHelper.mayRunWithUpgrades(this)) {
+            setActiveMask(0);
             return;
         }
 
