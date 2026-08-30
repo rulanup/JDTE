@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -26,63 +28,64 @@ class AECraftingReadMachineBehaviorTest {
     }
 
     @Test
-    void executableFreezerPolicyDeactivatesWithoutChargingWhenDenied() {
+    void executableFreezerPolicyChecksResourcesOnlyAfterPermissionAndIntent() {
+        AtomicInteger resourceChecks = new AtomicInteger();
         AECraftingReadMachinePolicy.MachineWorkDecision denied = AECraftingReadMachinePolicy.freezer(
-                false, true, true, true);
+                false, true, true, () -> {
+                    resourceChecks.incrementAndGet();
+                    return true;
+                });
         assertTrue(denied.deactivate());
         assertFalse(denied.consumeResources());
+        assertEquals(0, resourceChecks.get());
+
         AECraftingReadMachinePolicy.MachineWorkDecision allowed = AECraftingReadMachinePolicy.freezer(
-                true, true, true, true);
+                true, true, true, () -> {
+                    resourceChecks.incrementAndGet();
+                    return true;
+                });
         assertFalse(allowed.deactivate());
         assertTrue(allowed.consumeResources());
-    }
-    @Test
-    void productionMachinesGateEveryProductionEntryWithoutDiscardingPendingWork() throws Exception {
-        String greenhouse = source("src/main/java/com/jdte/common/blockentities/GreenhouseBE.java");
-        String largeGreenhouse = source("src/main/java/com/jdte/common/blockentities/LargeGreenhouseBE.java");
-        String vat = source("src/main/java/com/jdte/common/blockentities/LifeSynthesisVatBE.java");
-        String mineral = source("src/main/java/com/jdte/common/blockentities/MineralExtractorBE.java");
-        String breeder = source("src/main/java/com/jdte/common/blockentities/LifeBreederBE.java");
-
-        assertTrue(greenhouse.contains("production(allowed, isActiveRedstone(), canRun())"));
-        assertOrdered(greenhouse, "production(allowed, isActiveRedstone(), canRun())", "GreenhouseEssenceConversionHelper.convertStored");
-        assertOrdered(largeGreenhouse, "production(allowed, isActiveRedstone(), canRun())", "GreenhouseEssenceConversionHelper.convertStored");
-        assertOrdered(largeGreenhouse, "production(allowed, isActiveRedstone(), canRun())", "int ticks = accumulatedAcceleratedTicks");
-        assertTrue(vat.contains("AECraftingReadMachinePolicy.production"));
-        assertTrue(mineral.contains("AECraftingReadMachinePolicy.MachineWorkDecision decision"));
-        assertTrue(mineral.contains("if (hasTransientWork() && decision.runWork()) settle();"));
-        assertTrue(mineral.contains("if (decision.runWork()) discardExpiredTransientWork();"));
-        assertTrue(breeder.contains("AECraftingReadMachinePolicy.production"));
-        assertOrdered(breeder, "AECraftingReadMachinePolicy.production", "if (++cycleTicker");
+        assertEquals(1, resourceChecks.get());
     }
 
     @Test
-    void freezerAlwaysDeactivatesWhenCraftingTaskIsDenied() throws Exception {
-        String source = source("src/main/java/com/jdte/common/blockentities/TimeFreezerBE.java");
-        assertTrue(source.contains("boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);"));
-        assertTrue(source.contains("AECraftingReadMachinePolicy.MachineWorkDecision decision"));
-        assertTrue(source.contains("TimeFreezerManager.deactivate(this);"));
+    void aePausePreservesProgressWhileRedstoneOffRequestsOriginalReset() {
+        AECraftingReadMachinePolicy.ProductionDecision aeDenied =
+                AECraftingReadMachinePolicy.productionState(false, true, true);
+        assertFalse(aeDenied.runWork());
+        assertFalse(aeDenied.resetInactiveState());
+
+        AECraftingReadMachinePolicy.ProductionDecision redstoneOff =
+                AECraftingReadMachinePolicy.productionState(true, false, true);
+        assertFalse(redstoneOff.runWork());
+        assertTrue(redstoneOff.resetInactiveState());
     }
 
     @Test
-    void maintenanceMachinesRemainOutsideTheCommonTickerGate() throws Exception {
-        String helper = source("src/main/java/com/jdte/common/upgrades/UpgradeHelper.java");
-        assertTrue(helper.contains("&& !(machine instanceof TimeAcceleratorMachine || machine instanceof EntitySuppressorBE)"));
-        assertTrue(helper.contains("&& !(machine instanceof RangeBlockerBE || machine instanceof AdvancedEnergyTransmitterBE)"));
-        assertTrue(helper.contains("&& !(machine instanceof FactoryPackerBE);"));
+    void rollbackPhasesContinueWhileForwardFactoryWorkPauses() {
+        assertFalse(AECraftingReadMachinePolicy.mayAdvanceFactoryPhase(false, false));
+        assertTrue(AECraftingReadMachinePolicy.mayAdvanceFactoryPhase(false, true));
+        assertTrue(AECraftingReadMachinePolicy.mayAdvanceFactoryPhase(true, false));
     }
 
-    private static void assertOrdered(String source, String first, String second) {
-        int firstIndex = source.indexOf(first);
-        int secondIndex = source.indexOf(second, firstIndex + first.length());
-        assertTrue(firstIndex >= 0 && secondIndex > firstIndex,
-                () -> "Expected " + first + " before " + second);
+    @Test
+    void excludedMachinesKeepExplicitProductionGateWiring() throws Exception {
+        for (String source : List.of(
+                "TimeAcceleratorBE.java", "EntitySuppressorBE.java", "RangeBlockerBE.java",
+                "AdvancedEnergyTransmitterBE.java", "AdvancedItemCollectorBE.java", "FactoryPackerBE.java")) {
+            assertTrue(blockEntitySource(source).contains("UpgradeHelper.mayRunWithUpgrades(this)"), source);
+        }
+        assertTrue(blockEntitySource("TimeAcceleratorBE.java")
+                .contains("ExtendedTimeAccelerationManager.deactivate(this)"));
+        assertTrue(blockEntitySource("TimeFreezerBE.java")
+                .contains("AECraftingReadMachinePolicy.freezer("));
     }
 
-    private static String source(String relativePath) throws Exception {
+    private static String blockEntitySource(String fileName) throws Exception {
         Path current = Path.of(System.getProperty("user.dir", "")).toAbsolutePath();
         while (current != null && !Files.exists(current.resolve("gradle.properties"))) current = current.getParent();
         if (current == null) throw new IllegalStateException("project root not found");
-        return Files.readString(current.resolve(relativePath));
+        return Files.readString(current.resolve("src/main/java/com/jdte/common/blockentities").resolve(fileName));
     }
 }

@@ -100,6 +100,7 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
+        NeoForge.EVENT_BUS.addListener(com.jdte.common.integrations.ae2.AE2CraftingReadNetwork::onServerStopped);
         NeoForge.EVENT_BUS.addListener(TimeAcceleratorIntegratedServerDefaults::onServerAboutToStart);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AEOutputManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, MachineOutputManager::onServerTickPost);

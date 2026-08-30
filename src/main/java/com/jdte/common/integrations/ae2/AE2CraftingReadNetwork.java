@@ -1,16 +1,22 @@
 package com.jdte.common.integrations.ae2;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.GlobalPos;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import org.slf4j.Logger;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Optional AE2 facade used by machines to query crafting activity. */
 public final class AE2CraftingReadNetwork {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final boolean AVAILABLE = ModList.get().isLoaded("ae2");
+    private static final AtomicBoolean REFLECTION_FAILURE_LOGGED = new AtomicBoolean();
 
     private AE2CraftingReadNetwork() {
     }
@@ -28,7 +34,10 @@ public final class AE2CraftingReadNetwork {
         try {
             Class<?> type = Class.forName("com.jdte.common.integrations.ae2.AE2CraftingReadNetworkIntegration");
             return type.getDeclaredMethod(name, types).invoke(null, args);
-        } catch (ReflectiveOperationException | LinkageError ignored) {
+        } catch (ReflectiveOperationException | LinkageError error) {
+            if (REFLECTION_FAILURE_LOGGED.compareAndSet(false, true)) {
+                LOGGER.error("AE2 is loaded, but the AE crafting read integration could not be initialized", error);
+            }
             return null;
         }
     }
@@ -58,26 +67,79 @@ public final class AE2CraftingReadNetwork {
     }
 
     public static boolean hasActiveCraftingTask(GlobalPos target, long gameTime, TargetResolver resolver) {
-        if (target == null || resolver == null) return false;
-        NetworkState state = resolver.resolve(target);
-        if (state == null || !state.loaded() || !state.active() || state.booting() || state.cpus() == null) return false;
-        CacheEntry cached = CACHE.get(target);
-        if (cached != null && cached.gridIdentity == state.gridIdentity() && cached.expiresAt > gameTime) return cached.active;
-        boolean active = hasActiveCraftingTask(state.cpus());
-        CACHE.entrySet().removeIf(entry -> entry.getValue().expiresAt <= gameTime);
-        CACHE.put(target, new CacheEntry(state.gridIdentity(), active, gameTime + CACHE_TICKS));
-        return active;
+        return hasActiveCraftingTask(resolver, target, gameTime, resolver);
     }
 
-    public static void clearCacheForTests() { CACHE.clear(); }
+    public static boolean hasActiveCraftingTask(Object scopeIdentity, GlobalPos target, long gameTime,
+                                                TargetResolver resolver) {
+        if (scopeIdentity == null || target == null || resolver == null) return false;
+        NetworkState state = resolver.resolve(target);
+        CacheKey key = new CacheKey(scopeIdentity, target);
+        if (state == null || !state.loaded() || !state.active() || state.booting() || state.cpus() == null) {
+            invalidate(scopeIdentity, target);
+            return false;
+        }
+        synchronized (CACHE) {
+            CacheEntry cached = CACHE.get(key);
+            if (cached != null && cached.gridIdentity == state.gridIdentity() && cached.expiresAt > gameTime) {
+                return cached.active;
+            }
+            boolean active = hasActiveCraftingTask(state.cpus());
+            CACHE.entrySet().removeIf(entry -> entry.getValue().expiresAt <= gameTime);
+            CACHE.put(key, new CacheEntry(state.gridIdentity(), active, gameTime + CACHE_TICKS));
+            return active;
+        }
+    }
+
+    public static void invalidate(Object scopeIdentity, GlobalPos target) {
+        if (scopeIdentity == null || target == null) return;
+        synchronized (CACHE) {
+            CACHE.remove(new CacheKey(scopeIdentity, target));
+        }
+    }
+
+    public static void clearCacheForTests() {
+        synchronized (CACHE) {
+            CACHE.clear();
+        }
+    }
+
+    public static void onServerStopped(ServerStoppedEvent event) {
+        Object server = event.getServer();
+        synchronized (CACHE) {
+            CACHE.keySet().removeIf(key -> key.scopeIdentity == server);
+        }
+    }
 
     private static final long CACHE_TICKS = 5L;
     private static final int MAX_CACHE_ENTRIES = 256;
-    private static final Map<GlobalPos, CacheEntry> CACHE = new LinkedHashMap<>(16, 0.75f, true) {
-        @Override protected boolean removeEldestEntry(Map.Entry<GlobalPos, CacheEntry> eldest) {
+    private static final Map<CacheKey, CacheEntry> CACHE = new LinkedHashMap<>(16, 0.75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<CacheKey, CacheEntry> eldest) {
             return size() > MAX_CACHE_ENTRIES;
         }
     };
+
+    private static final class CacheKey {
+        private final Object scopeIdentity;
+        private final GlobalPos target;
+
+        private CacheKey(Object scopeIdentity, GlobalPos target) {
+            this.scopeIdentity = scopeIdentity;
+            this.target = target;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof CacheKey key
+                    && scopeIdentity == key.scopeIdentity
+                    && target.equals(key.target);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * System.identityHashCode(scopeIdentity) + target.hashCode();
+        }
+    }
 
     private record CacheEntry(Object gridIdentity, boolean active, long expiresAt) {}
 

@@ -250,7 +250,12 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             setChanged();
         }
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) return;
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), canRun());
+        if (!decision.runWork()) {
+            if (decision.resetInactiveState()) settlementTicker = 0;
+            return;
+        }
         advanceProductionTicks(1, true);
     }
 
@@ -262,7 +267,15 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
     @Override
     public void flushAcceleratedTicks() {
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) return;
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), canRun());
+        if (!decision.runWork()) {
+            if (decision.resetInactiveState()) {
+                accumulatedAcceleratedTicks = 0;
+                settlementTicker = 0;
+            }
+            return;
+        }
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks, true);

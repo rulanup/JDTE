@@ -219,8 +219,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
 
     @Override public void tickServer() {
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        AECraftingReadMachinePolicy.MachineWorkDecision decision =
-                AECraftingReadMachinePolicy.production(allowed, isActiveRedstone());
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), true);
         if (level instanceof ServerLevel serverLevel && regularTickGameTime == serverLevel.getGameTime()) {
             if (decision.runWork()) advanceTransientTick();
             return;
@@ -229,8 +229,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         syncCapacities();
         if (!(level instanceof ServerLevel serverLevel)) return;
         long gameTime = serverLevel.getGameTime();
-        if (hasTransientWork() && decision.runWork()) settle();
-        if (decision.runWork()) discardExpiredTransientWork();
+        if (hasTransientWork() && (decision.runWork() || decision.resetInactiveState())) settle();
+        if (decision.runWork() || decision.resetInactiveState()) discardExpiredTransientWork();
         regularTickGameTime = gameTime;
         if (!isActiveRedstone()) {
             setState(State.IDLE);
@@ -283,7 +283,12 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
 
     @Override public void flushAcceleratedTicks() {
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) return;
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), true);
+        if (!decision.runWork()) {
+            if (decision.resetInactiveState()) accumulatedAcceleratedTicks = 0;
+            return;
+        }
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         if (ticks <= 0 || !isActiveRedstone()) return;

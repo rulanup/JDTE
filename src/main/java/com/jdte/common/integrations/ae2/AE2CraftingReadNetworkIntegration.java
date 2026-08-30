@@ -15,8 +15,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 final class AE2CraftingReadNetworkIntegration {
     private static final long CACHE_TICKS = 5L;
@@ -58,18 +58,43 @@ final class AE2CraftingReadNetworkIntegration {
         GlobalPos target = upgrade.get(AEComponents.WIRELESS_LINK_TARGET);
         if (target == null || origin.getServer() == null) return false;
         ServerLevel level = origin.getServer().getLevel(target.dimension());
-        if (level == null || !level.isLoaded(target.pos())) return false;
+        if (level == null || !level.isLoaded(target.pos())) {
+            AE2CraftingReadNetwork.invalidate(origin.getServer(), target);
+            return false;
+        }
         BlockEntity blockEntity = level.getBlockEntity(target.pos());
-        if (!(blockEntity instanceof IWirelessAccessPoint accessPoint) || !accessPoint.isActive()) return false;
+        if (!(blockEntity instanceof IWirelessAccessPoint accessPoint) || !accessPoint.isActive()) {
+            AE2CraftingReadNetwork.invalidate(origin.getServer(), target);
+            return false;
+        }
         IGrid grid = accessPoint.getGrid();
-        if (grid == null || grid.getPathingService().isNetworkBooting()) return false;
+        if (grid == null || grid.getPathingService().isNetworkBooting()) {
+            AE2CraftingReadNetwork.invalidate(origin.getServer(), target);
+            return false;
+        }
         if (!level.getServer().isSameThread()) return false;
         long now = level.getGameTime();
-        return AE2CraftingReadNetwork.hasActiveCraftingTask(target, now, ignored ->
+        return AE2CraftingReadNetwork.hasActiveCraftingTask(origin.getServer(), target, now, ignored ->
                 new AE2CraftingReadNetwork.NetworkState(grid, true, true,
-                        false, grid.getCraftingService().getCpus().stream()
-                        .map(cpu -> new AE2CraftingReadNetwork.CraftingCpuSnapshot(cpu.isBusy(), cpu.getJobStatus() != null))
-                        .toList()));
+                        false, cpuSnapshots(grid.getCraftingService().getCpus().stream())));
+    }
+
+    private static Iterable<AE2CraftingReadNetwork.CraftingCpuSnapshot> cpuSnapshots(Stream<ICraftingCPU> cpus) {
+        return () -> new Iterator<>() {
+            private final Iterator<ICraftingCPU> delegate = cpus.iterator();
+
+            @Override
+            public boolean hasNext() {
+                return delegate.hasNext();
+            }
+
+            @Override
+            public AE2CraftingReadNetwork.CraftingCpuSnapshot next() {
+                ICraftingCPU cpu = delegate.next();
+                return new AE2CraftingReadNetwork.CraftingCpuSnapshot(
+                        cpu.isBusy(), cpu.getJobStatus() != null);
+            }
+        };
     }
 
 }

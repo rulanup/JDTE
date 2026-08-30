@@ -213,10 +213,17 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
     @Override
     public void flushAcceleratedTicks() {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        boolean operational = isActiveRedstone() && canRun();
+        if (!allowed && operational) {
+            return;
+        }
         int ticks = acceleratedTicks;
         acceleratedTicks = 0;
-        if (ticks <= 0 || !(level instanceof ServerLevel serverLevel)
-                || !isActiveRedstone() || !canRun()) {
+        if (ticks <= 0 || !operational) {
             return;
         }
         providePower(serverLevel, ticks + 1L);
@@ -269,14 +276,17 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         }
 
         energyNetworkSource.ensureReady(serverLevel, getBlockPos());
-        updateTargetDiscovery(serverLevel);
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        if (allowed) {
+            updateTargetDiscovery(serverLevel);
+        }
         if (!isActiveRedstone()) {
             returnNetworkEnergyReserve();
             lastAttemptedTargets = 0;
             lastTransferred = 0;
             return;
         }
-        if (!canRun()) {
+        if (!allowed || !canRun()) {
             returnNetworkEnergyReserve();
             lastAttemptedTargets = 0;
             lastTransferred = 0;

@@ -21,6 +21,7 @@ import com.jdte.common.factory.FactoryTransform;
 import com.jdte.common.factory.MekanismFactoryMoveIntegration;
 import com.jdte.common.entities.TimeAcceleratorEffectEntity;
 import com.jdte.common.items.FactoryPackageItem;
+import com.jdte.common.upgrades.AECraftingReadMachinePolicy;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTEBlockEntities;
@@ -203,6 +204,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
 
     public Component startOperation(ServerPlayer player) {
         if (!(level instanceof ServerLevel serverLevel)) return message("invalid_level");
+        if (!UpgradeHelper.mayRunWithUpgrades(this)) return message("ae_crafting_inactive");
         if (isBusy()) return message("busy");
         ItemStack packageStack = packageHandler.getStackInSlot(0);
         if (!FactoryPackageItem.isFactoryPackage(packageStack)) return message("missing_package");
@@ -270,6 +272,13 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         if (!(level instanceof ServerLevel serverLevel)) return;
         reporter.notifyPhaseChange(serverLevel);
         if (ioPending) return;
+        boolean safetyPhase = switch (phase) {
+            case ROLLBACK_CUT, ROLLBACK_PLACE, ROLLBACK_CUT_ENTITIES,
+                    ROLLBACK_PLACE_ENTITIES, ROLLBACK_PREPARE, ROLLBACK_PERMISSION -> true;
+            default -> false;
+        };
+        if (!AECraftingReadMachinePolicy.mayAdvanceFactoryPhase(
+                UpgradeHelper.mayRunWithUpgrades(this), safetyPhase)) return;
         int budget = operationBudget();
         switch (phase) {
             case IDLE, WRITING, CLAIMING -> { }

@@ -54,11 +54,10 @@ public class TimeFreezerBE extends BaseMachineBE implements FluidMachineBE, Reds
         boolean wantsAnything = timeFreezeEnabled || weatherFreezeEnabled;
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        boolean hasResources = creative
-                || (energy.extractEnergy(getEnergyCostPerTick(), true) == getEnergyCostPerTick()
-                && fluidTank.getFluidAmount() >= getFluidCostPerTick());
         AECraftingReadMachinePolicy.MachineWorkDecision decision = AECraftingReadMachinePolicy.freezer(
-                allowed, wantsAnything, isActiveRedstone(), hasResources);
+                allowed, wantsAnything, isActiveRedstone(), () -> creative
+                        || (energy.extractEnergy(getEnergyCostPerTick(), true) == getEnergyCostPerTick()
+                        && fluidTank.getFluidAmount() >= getFluidCostPerTick()));
         if (!decision.deactivate()) {
             if (!creative && decision.consumeResources()) {
                 energy.extractEnergy(getEnergyCostPerTick(), false);

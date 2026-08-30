@@ -693,6 +693,7 @@
   "screen.jdte.factory_packer.error.19": "选区只包含了已成型 Mekanism 裂变反应堆的一部分",
   "screen.jdte.factory_packer.error.20": "Mekanism 裂变反应堆未能在限定时间内确认停机",
   "message.jdte.factory_packer.invalid_level": "当前维度无法使用工厂打包机",
+  "message.jdte.factory_packer.ae_crafting_inactive": "绑定的 AE 网络当前没有正在执行的合成任务",
   "message.jdte.factory_packer.busy": "工厂打包机正在工作",
   "message.jdte.factory_packer.missing_package": "请先放入工厂包裹",
   "message.jdte.factory_packer.target_dimension": "包裹设定的摆放位置位于其他维度",

@@ -1,6 +1,7 @@
 package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.jdte.common.blockentities.AdvancedItemCollectorBE;
 import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.BasicTimeAcceleratorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
@@ -83,6 +84,7 @@ class BaseMachineTickerGateTest {
                 new MineralExtractorBE(BlockPos.ZERO, JDTEBlocks.MINERAL_EXTRACTOR.get().defaultBlockState()),
                 new LargeMineralExtractorBE(BlockPos.ZERO, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get().defaultBlockState()),
                 new LifeBreederBE(BlockPos.ZERO, JDTEBlocks.LIFE_BREEDER.get().defaultBlockState()),
+                new AdvancedItemCollectorBE(BlockPos.ZERO, JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get().defaultBlockState()),
                 new TimeFreezerBE(BlockPos.ZERO, JDTEBlocks.TIME_FREEZER.get().defaultBlockState()),
                 new ExtendedTimeFreezerBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_TIME_FREEZER.get().defaultBlockState()),
                 new BasicTimeAcceleratorBE(BlockPos.ZERO, JDTEBlocks.BASIC_TIME_ACCELERATOR.get().defaultBlockState()),
@@ -108,7 +110,7 @@ class BaseMachineTickerGateTest {
     }
 
     @Test
-    void excludedStateMachineAlwaysRunsOriginalTickerWithoutReadingPermissionOrOverclocking() {
+    void excludedStateMachineKeepsOriginalOverclockWithoutReadingPermission() {
         AtomicInteger executions = new AtomicInteger();
         AtomicInteger permissionReads = new AtomicInteger();
 
@@ -117,7 +119,7 @@ class BaseMachineTickerGateTest {
             return false;
         }, true, executions::incrementAndGet);
 
-        assertEquals(1, executions.get());
+        assertEquals(2, executions.get());
         assertEquals(0, permissionReads.get());
     }
 }

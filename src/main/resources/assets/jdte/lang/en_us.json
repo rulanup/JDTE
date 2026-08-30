@@ -693,6 +693,7 @@
   "screen.jdte.factory_packer.error.19": "A formed Mekanism fission reactor is only partially inside the selected area",
   "screen.jdte.factory_packer.error.20": "A Mekanism fission reactor did not confirm shutdown in time",
   "message.jdte.factory_packer.invalid_level": "Factory Packer is unavailable in this level",
+  "message.jdte.factory_packer.ae_crafting_inactive": "The bound AE network has no active crafting job",
   "message.jdte.factory_packer.busy": "Factory Packer is already working",
   "message.jdte.factory_packer.missing_package": "Insert a Factory Package first",
   "message.jdte.factory_packer.target_dimension": "The package placement target is in another dimension",

@@ -215,8 +215,11 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         super.tickServer();
         UpgradeHelper.syncCapacities(this);
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone(), canRun()).runWork()) {
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), canRun());
+        if (!decision.runWork()) {
             setActiveMask(0);
+            if (decision.resetInactiveState()) settlementTicker = 0;
             return;
         }
         if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel
@@ -239,7 +242,16 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
             return;
         }
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone(), canRun()).runWork()) return;
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), canRun());
+        if (!decision.runWork()) {
+            if (decision.resetInactiveState()) {
+                accumulatedAcceleratedTicks = 0;
+                settlementTicker = 0;
+                setActiveMask(0);
+            }
+            return;
+        }
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks, true);

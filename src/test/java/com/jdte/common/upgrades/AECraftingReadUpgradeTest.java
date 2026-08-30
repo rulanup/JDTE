@@ -75,19 +75,34 @@ class AECraftingReadUpgradeTest {
         ItemStack upgrade = new ItemStack(Items.STICK);
         AtomicInteger reads = new AtomicInteger();
         Object[] grid = {"one"};
+        boolean[] active = {true};
         AE2CraftingReadNetwork.TargetResolver resolver = ignored -> {
             reads.incrementAndGet();
             return new AE2CraftingReadNetwork.NetworkState(grid[0], true, true, false,
-                    List.of(new AE2CraftingReadNetwork.CraftingCpuSnapshot(true, true)));
+                    List.of(new AE2CraftingReadNetwork.CraftingCpuSnapshot(active[0], active[0])));
         };
-        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(TARGET, 10, resolver));
-        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(TARGET, 11, resolver));
+        Object scopeOne = new Object();
+        Object scopeTwo = new Object();
+        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(scopeOne, TARGET, 10, resolver));
+        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(scopeOne, TARGET, 11, resolver));
+        active[0] = false;
+        assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(scopeTwo, TARGET, 11, resolver),
+                "a different server scope must not reuse the cached true result");
+        active[0] = true;
         grid[0] = "two";
-        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(TARGET, 12, resolver));
-        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(TARGET, 18, resolver));
-        assertTrue(reads.get() >= 3);
+        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(scopeOne, TARGET, 12, resolver));
+        active[0] = false;
+        assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(scopeOne, TARGET, 18, resolver),
+                "expired cached true must be replaced by the fresh false result");
+        active[0] = true;
+        assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(scopeOne, TARGET, 19,
+                ignored -> new AE2CraftingReadNetwork.NetworkState(grid[0], true, false, false, List.of())));
+        assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(scopeOne, TARGET, 20, resolver),
+                "an unavailable access point must invalidate the previous cache entry");
+        assertTrue(reads.get() >= 5);
 
         ItemStack other = upgrade.copy();
+        active[0] = true;
         AE2CraftingReadNetwork.bind(other,
                 GlobalPos.of(TARGET.dimension(), net.minecraft.core.BlockPos.ZERO.offset(1, 0, 0)));
         assertTrue(AE2CraftingReadNetwork.hasActiveCraftingTask(GlobalPos.of(TARGET.dimension(),

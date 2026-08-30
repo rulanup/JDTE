@@ -342,6 +342,7 @@ public class UpgradeHelper {
         return !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof LifeSynthesisVatBE || machine instanceof MineralExtractorBE)
                 && !(machine instanceof LifeBreederBE || machine instanceof TimeFreezerBE)
+                && !(machine instanceof AdvancedItemCollectorBE)
                 && !(machine instanceof TimeAcceleratorMachine || machine instanceof EntitySuppressorBE)
                 && !(machine instanceof RangeBlockerBE || machine instanceof AdvancedEnergyTransmitterBE)
                 && !(machine instanceof FactoryPackerBE);
@@ -357,6 +358,9 @@ public class UpgradeHelper {
                                        boolean overclock, Runnable originalTicker) {
         if (!useCommonGate) {
             originalTicker.run();
+            if (overclock) {
+                originalTicker.run();
+            }
             return;
         }
         if (!redstoneActive) {

@@ -52,8 +52,10 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     public void tickServer() {
         super.tickServer();
         UpgradeHelper.syncCapacities(this);
-        if (isActiveRedstone() && canRun()) {
+        if (isActiveRedstone() && canRun() && UpgradeHelper.mayRunWithUpgrades(this)) {
             handleAccelerationTick();
+        } else {
+            ExtendedTimeAccelerationManager.deactivate(this);
         }
     }
 
