@@ -94,6 +94,15 @@ public final class ExtendedTimeAccelerationManager {
         return current.isPresent() && current.get().equals(expected);
     }
 
+    static TimeAccelerationWorkQueue.ExecutionResult executeIfCurrentRoute(
+            TargetKey pending, Optional<TargetKey> current, int requested, long remainingBudget,
+            TargetExecution executor) {
+        if (current.isEmpty() || !isCurrentWandTarget(pending, current.get())) {
+            return new TimeAccelerationWorkQueue.ExecutionResult(0, false, true);
+        }
+        return executor.execute(current.get(), requested, remainingBudget);
+    }
+
     static TimeAccelerationWorkQueue.ExecutionResult executeIfCurrentTarget(
             TargetKey expected, Optional<TargetKey> current, int requested, long remainingBudget,
             TargetExecution executor) {
@@ -172,6 +181,22 @@ public final class ExtendedTimeAccelerationManager {
             return TargetKind.AE2_GRID;
         }
         return hasBlockEntityTicker ? TargetKind.BLOCK_ENTITY : null;
+    }
+
+    static <S> void enqueuePreparedTargets(TimeAccelerationWorkQueue<S, TargetKey> queue,
+                                           Collection<TargetKey> targets, S source,
+                                           int workTicks, int displayMultiplier, long maxPending) {
+        for (TargetKey target : targets) {
+            queue.enqueue(target, source, workTicks, displayMultiplier, maxPending);
+        }
+    }
+
+    static <S> long executePendingTargets(TimeAccelerationWorkQueue<S, TargetKey> queue,
+                                          long maxExecutions, int batchSize,
+                                          java.util.function.BiPredicate<TargetKey, S> keepContributor,
+                                          TimeAccelerationWorkQueue.Executor<TargetKey> executor,
+                                          TimeAccelerationWorkQueue.ExecutionListener<TargetKey> listener) {
+        return queue.execute(maxExecutions, batchSize, keepContributor, executor, listener);
     }
 
     static Set<TargetKey> resolveDistinctTargetKeys(ServerLevel level, Collection<BlockPos> sources,
@@ -515,10 +540,8 @@ public final class ExtendedTimeAccelerationManager {
                     continue;
                 }
                 PreparedAcceleration prepared = accepted.get();
-                for (TargetKey target : context.targets) {
-                    workQueue.enqueue(target, context.accelerator, prepared.workTicks(),
-                            prepared.displayMultiplier(), maxPending);
-                }
+                enqueuePreparedTargets(workQueue, context.targets, context.accelerator,
+                        prepared.workTicks(), prepared.displayMultiplier(), maxPending);
             }
 
             for (Map.Entry<UltimateTimeWandEntity, WandSubmission> entry : submittedWands.entrySet()) {
@@ -638,7 +661,8 @@ public final class ExtendedTimeAccelerationManager {
             int batchSize = JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get();
             coalescedTargets.clear();
             try {
-                workQueue.execute(maxExecutions, batchSize,
+                executePendingTargets(workQueue, maxExecutions, batchSize,
+                        this::isContributorFilterValid,
                         (target, requested, remainingBudget) -> {
                             TimeAccelerationWorkQueue.ExecutionResult result =
                                     executeTarget(level, target, requested, remainingBudget);
@@ -658,6 +682,14 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
+        private boolean isContributorFilterValid(TargetKey target, Object source) {
+            if (!(source instanceof TimeAcceleratorBE accelerator)) {
+                return true;
+            }
+            BlockState state = target.targetLevel().getBlockState(target.pos());
+            return accelerator.isBlockValidFilter(target.targetLevel(), target.pos(), state);
+        }
+
         private TimeAccelerationWorkQueue.ExecutionResult executeTarget(
                 ServerLevel level, TargetKey target, int requested, long remainingBudget) {
             boolean ae2RecheckEnabled = shouldRecheckAe2Target(
@@ -665,7 +697,7 @@ public final class ExtendedTimeAccelerationManager {
             Optional<TargetKey> current = resolveTargetKey(
                     target.targetLevel(), target.pos(),
                     target.kind() == TargetKind.AE2_GRID && ae2RecheckEnabled);
-            return executeIfCurrentTarget(target, current, requested, remainingBudget,
+            return executeIfCurrentRoute(target, current, requested, remainingBudget,
                     (currentTarget, admitted, budget) -> executeTargetRoute(currentTarget, admitted, budget));
         }
 

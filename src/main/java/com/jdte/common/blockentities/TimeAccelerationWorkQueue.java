@@ -65,12 +65,22 @@ final class TimeAccelerationWorkQueue<S, T> {
     }
 
     long execute(long maxExecutions, int batchSize, Executor<T> executor, ExecutionListener<T> listener) {
+        return execute(maxExecutions, batchSize, (target, source) -> true, executor, listener);
+    }
+
+    long execute(long maxExecutions, int batchSize, BiPredicate<T, S> keepContributor,
+                 Executor<T> executor, ExecutionListener<T> listener) {
         long executedThisTick = 0L;
         while (!queue.isEmpty() && executedThisTick < maxExecutions) {
             T target = queue.removeFirst();
             queued.remove(target);
             PendingTarget<S> work = pending.get(target);
             if (work == null) {
+                continue;
+            }
+            work.retainContributors(source -> keepContributor.test(target, source));
+            if (work.virtualTicks <= 0) {
+                pending.remove(target);
                 continue;
             }
             long remainingBudget = maxExecutions - executedThisTick;

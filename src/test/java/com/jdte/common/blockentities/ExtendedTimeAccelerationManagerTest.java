@@ -121,6 +121,29 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
+    void ordinaryExecutionUsesCurrentKindWithoutDroppingPendingRoute() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        ExtendedTimeAccelerationManager.TargetKey pending = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey current = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK);
+        AtomicInteger calls = new AtomicInteger();
+
+        TimeAccelerationWorkQueue.ExecutionResult result =
+                ExtendedTimeAccelerationManager.executeIfCurrentRoute(
+                        pending, Optional.of(current), 4, 4,
+                        (target, requested, budget) -> {
+                            calls.incrementAndGet();
+                            assertEquals(current, target);
+                            return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                        });
+
+        assertTrue(result.valid());
+        assertEquals(4, result.executed());
+        assertEquals(1, calls.get());
+    }
+
+    @Test
     void staleTargetIsRejectedWithoutInvokingExecutor() throws Exception {
         ServerLevel level = serverLevelFixture();
         ExtendedTimeAccelerationManager.TargetKey expected = new ExtendedTimeAccelerationManager.TargetKey(
@@ -165,6 +188,135 @@ class ExtendedTimeAccelerationManagerTest {
 
         assertEquals(1, target.flushes);
         assertTrue(targets.isEmpty());
+    }
+
+    @Test
+    void managerPipelineDiscoversEnqueuesAndExecutesFinalTargetOnce() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        BlockPos proxy = new BlockPos(2, 0, 0);
+        BlockPos finalTarget = new BlockPos(3, 0, 0);
+        MapTargetLookup graph = new MapTargetLookup();
+        graph.put(level, proxy, fakeProxy(new TimeAccelerationTarget(level, finalTarget)));
+        graph.put(level, finalTarget, fakeBlockEntity());
+        Set<ExtendedTimeAccelerationManager.TargetKey> discovered =
+                ExtendedTimeAccelerationManager.resolveDistinctTargetKeys(
+                        level, List.of(finalTarget, proxy), graph::get,
+                        ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue =
+                new TimeAccelerationWorkQueue<>();
+        Object accelerator = new Object();
+        ExtendedTimeAccelerationManager.enqueuePreparedTargets(
+                queue, discovered, accelerator, 4, 2, 64);
+        AtomicInteger calls = new AtomicInteger();
+
+        long used = ExtendedTimeAccelerationManager.executePendingTargets(
+                queue, 64, 64, (target, source) -> true,
+                (pending, requested, budget) -> ExtendedTimeAccelerationManager.executeIfCurrentRoute(
+                        pending, Optional.of(pending), requested, budget,
+                        (current, admitted, remaining) -> {
+                            calls.incrementAndGet();
+                            assertSame(level, current.targetLevel());
+                            assertEquals(finalTarget, current.pos());
+                            return new TimeAccelerationWorkQueue.ExecutionResult(admitted, true, false);
+                        }),
+                (target, result, multiplier) -> assertEquals(2, multiplier));
+
+        assertEquals(4, used);
+        assertEquals(1, calls.get());
+    }
+
+    @Test
+    void managerPipelineUsesCrossLevelTargetAndFlushesCoalescedOnce() throws Exception {
+        ServerLevel sourceLevel = serverLevelFixture();
+        ServerLevel targetLevel = serverLevelFixture();
+        BlockPos proxy = new BlockPos(2, 0, 0);
+        BlockPos finalTarget = new BlockPos(8, 0, 0);
+        MapTargetLookup graph = new MapTargetLookup();
+        graph.put(sourceLevel, proxy, fakeProxy(new TimeAccelerationTarget(targetLevel, finalTarget)));
+        Set<ExtendedTimeAccelerationManager.TargetKey> discovered =
+                ExtendedTimeAccelerationManager.resolveDistinctTargetKeys(
+                        sourceLevel, List.of(proxy), graph::get,
+                        ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue =
+                new TimeAccelerationWorkQueue<>();
+        ExtendedTimeAccelerationManager.enqueuePreparedTargets(
+                queue, discovered, new Object(), 3, 1, 64);
+        CountingCoalesced coalesced = new CountingCoalesced();
+        Set<CoalescedAcceleratedMachine> coalescedTargets =
+                Collections.newSetFromMap(new IdentityHashMap<>());
+
+        try {
+            ExtendedTimeAccelerationManager.executePendingTargets(
+                    queue, 64, 64, (target, source) -> true,
+                    (pending, requested, budget) -> {
+                        assertSame(targetLevel, pending.targetLevel());
+                        assertEquals(finalTarget, pending.pos());
+                        coalescedTargets.add(coalesced);
+                        coalescedTargets.add(coalesced);
+                        return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                    },
+                    (target, result, multiplier) -> { });
+        } finally {
+            ExtendedTimeAccelerationManager.flushCoalescedTargets(coalescedTargets);
+        }
+
+        assertEquals(1, coalesced.flushes);
+    }
+
+    @Test
+    void managerPipelineDropsCycleBeforeEnqueueAndExecution() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        BlockPos first = new BlockPos(1, 0, 0);
+        BlockPos second = new BlockPos(2, 0, 0);
+        MapTargetLookup graph = new MapTargetLookup();
+        graph.put(level, first, fakeProxy(new TimeAccelerationTarget(level, second)));
+        graph.put(level, second, fakeProxy(new TimeAccelerationTarget(level, first)));
+        Set<ExtendedTimeAccelerationManager.TargetKey> discovered =
+                ExtendedTimeAccelerationManager.resolveDistinctTargetKeys(
+                        level, List.of(first), graph::get,
+                        ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue =
+                new TimeAccelerationWorkQueue<>();
+        ExtendedTimeAccelerationManager.enqueuePreparedTargets(
+                queue, discovered, new Object(), 3, 1, 64);
+        AtomicInteger calls = new AtomicInteger();
+
+        long used = ExtendedTimeAccelerationManager.executePendingTargets(
+                queue, 64, 64, (target, source) -> true,
+                (target, requested, budget) -> {
+                    calls.incrementAndGet();
+                    return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                },
+                (target, result, multiplier) -> { });
+
+        assertEquals(0, used);
+        assertEquals(0, calls.get());
+    }
+
+    @Test
+    void managerPipelineRemovesOnlyContributorWithInvalidDynamicFilter() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        ExtendedTimeAccelerationManager.TargetKey target = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue =
+                new TimeAccelerationWorkQueue<>();
+        Object rejected = new Object();
+        Object accepted = new Object();
+        ExtendedTimeAccelerationManager.enqueuePreparedTargets(queue, Set.of(target), rejected, 3, 2, 64);
+        ExtendedTimeAccelerationManager.enqueuePreparedTargets(queue, Set.of(target), accepted, 5, 4, 64);
+        AtomicInteger calls = new AtomicInteger();
+
+        long used = ExtendedTimeAccelerationManager.executePendingTargets(
+                queue, 64, 64, (pending, source) -> source == accepted,
+                (pending, requested, budget) -> {
+                    calls.incrementAndGet();
+                    assertEquals(5, requested);
+                    return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                },
+                (pending, result, multiplier) -> assertEquals(4, multiplier));
+
+        assertEquals(5, used);
+        assertEquals(1, calls.get());
     }
 
     @Test

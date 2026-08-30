@@ -78,6 +78,29 @@ class TimeAccelerationWorkQueueTest {
     }
 
     @Test
+    void executionFilterRemovesOnlyInvalidContributor() {
+        TimeAccelerationWorkQueue<Object, String> queue = new TimeAccelerationWorkQueue<>();
+        Object rejected = new Object();
+        Object accepted = new Object();
+        queue.enqueue("target", rejected, 3, 2, 64);
+        queue.enqueue("target", accepted, 5, 4, 64);
+        AtomicInteger calls = new AtomicInteger();
+
+        long used = queue.execute(64, 64,
+                (target, source) -> source == accepted,
+                (target, requested, remaining) -> {
+                    calls.incrementAndGet();
+                    assertEquals(5, requested);
+                    return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                },
+                (target, result, multiplier) -> assertEquals(4, multiplier));
+
+        assertEquals(5, used);
+        assertEquals(1, calls.get());
+        assertEquals(0, queue.pendingTicks("target"));
+    }
+
+    @Test
     void wandRemainderSurvivesABatchWhileSharingTheGlobalBudget() {
         TimeAccelerationWorkQueue<String, String> queue = new TimeAccelerationWorkQueue<>();
         queue.enqueue("wand-target", "wand", 1024, 0, 2048);
