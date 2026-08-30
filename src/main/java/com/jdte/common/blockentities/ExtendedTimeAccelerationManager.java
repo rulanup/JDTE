@@ -28,6 +28,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -74,7 +75,43 @@ public final class ExtendedTimeAccelerationManager {
     }
 
     static boolean isCurrentWandTarget(TargetKey pendingTarget, TargetKey submittedTarget) {
-        return pendingTarget.equals(submittedTarget);
+        return pendingTarget.targetLevel() == submittedTarget.targetLevel()
+                && pendingTarget.pos().equals(submittedTarget.pos())
+                && routeFor(pendingTarget) == routeFor(submittedTarget);
+    }
+
+    private static UltimateTimeWandTargetRuntime.Route routeFor(TargetKey target) {
+        return target.kind() == TargetKind.AE2_GRID
+                ? UltimateTimeWandTargetRuntime.Route.AE2
+                : UltimateTimeWandTargetRuntime.Route.ORDINARY;
+    }
+
+    static boolean shouldRecheckAe2Target(boolean ae2AccelerationConfigured, boolean wandRoute) {
+        return ae2AccelerationConfigured || wandRoute;
+    }
+
+    static boolean isCurrentTarget(TargetKey expected, Optional<TargetKey> current) {
+        return current.isPresent() && current.get().equals(expected);
+    }
+
+    static TimeAccelerationWorkQueue.ExecutionResult executeIfCurrentTarget(
+            TargetKey expected, Optional<TargetKey> current, int requested, long remainingBudget,
+            TargetExecution executor) {
+        if (!isCurrentTarget(expected, current)) {
+            return new TimeAccelerationWorkQueue.ExecutionResult(0, false, true);
+        }
+        return executor.execute(expected, requested, remainingBudget);
+    }
+
+    static void flushCoalescedTargets(Set<CoalescedAcceleratedMachine> targets) {
+        targets.forEach(CoalescedAcceleratedMachine::flushAcceleratedTicks);
+        targets.clear();
+    }
+
+    @FunctionalInterface
+    interface TargetExecution {
+        TimeAccelerationWorkQueue.ExecutionResult execute(
+                TargetKey target, int requested, long remainingBudget);
     }
 
     static Optional<TimeAccelerationTarget> resolveTimeAccelerationTarget(ServerLevel level, BlockPos pos) {
@@ -135,6 +172,20 @@ public final class ExtendedTimeAccelerationManager {
             return TargetKind.AE2_GRID;
         }
         return hasBlockEntityTicker ? TargetKind.BLOCK_ENTITY : null;
+    }
+
+    static Set<TargetKey> resolveDistinctTargetKeys(ServerLevel level, Collection<BlockPos> sources,
+                                                     TargetLookup lookup, TargetKind kind) {
+        Set<TargetKey> targets = new LinkedHashSet<>();
+        if (sources == null || lookup == null || kind == null) {
+            return targets;
+        }
+        for (BlockPos source : sources) {
+            resolveTimeAccelerationTarget(level, source, lookup)
+                    .map(target -> new TargetKey(target.level(), target.pos(), kind))
+                    .ifPresent(targets::add);
+        }
+        return targets;
     }
 
     static Optional<TargetKey> resolveTargetKey(ServerLevel level, BlockPos pos,
@@ -378,6 +429,7 @@ public final class ExtendedTimeAccelerationManager {
     private static final class LevelState {
         private final Set<TimeAcceleratorBE> submitted = Collections.newSetFromMap(new IdentityHashMap<>());
         private final Map<UltimateTimeWandEntity, WandSubmission> submittedWands = new IdentityHashMap<>();
+        private final Set<TargetKey> wandAe2Targets = new LinkedHashSet<>();
         private final TimeAccelerationWorkQueue<Object, TargetKey> workQueue = new TimeAccelerationWorkQueue<>();
         private final Set<CoalescedAcceleratedMachine> coalescedTargets =
                 Collections.newSetFromMap(new IdentityHashMap<>());
@@ -405,8 +457,16 @@ public final class ExtendedTimeAccelerationManager {
                     }
                 }
             }
+            Set<TargetKey> currentWandAe2Targets = new LinkedHashSet<>();
+            for (WandSubmission submission : submittedWands.values()) {
+                if (submission.target().kind() == TargetKind.AE2_GRID) {
+                    currentWandAe2Targets.add(submission.target());
+                }
+            }
+            wandAe2Targets.retainAll(currentWandAe2Targets);
             retainActiveContributors(active, ae2Active);
             randomTargets.keySet().removeIf(accelerator -> !active.contains(accelerator));
+            wandAe2Targets.removeIf(target -> workQueue.pendingTicks(target) <= 0L);
             if (submitted.isEmpty() && submittedWands.isEmpty()) {
                 return;
             }
@@ -467,6 +527,9 @@ public final class ExtendedTimeAccelerationManager {
                         submission.workTicks(), maxPending, workQueue.pendingTicks(submission.target()));
                 if (accepted > 0) {
                     workQueue.enqueue(submission.target(), entry.getKey(), accepted, 0, maxPending);
+                    if (submission.target().kind() == TargetKind.AE2_GRID) {
+                        wandAe2Targets.add(submission.target());
+                    }
                 }
             }
             submittedWands.clear();
@@ -581,6 +644,7 @@ public final class ExtendedTimeAccelerationManager {
                                     executeTarget(level, target, requested, remainingBudget);
                             if (!result.valid()) {
                                 nextEffectTick.remove(target);
+                                wandAe2Targets.remove(target);
                             }
                             return result;
                         },
@@ -590,19 +654,23 @@ public final class ExtendedTimeAccelerationManager {
                             }
                         });
             } finally {
-                coalescedTargets.forEach(CoalescedAcceleratedMachine::flushAcceleratedTicks);
-                coalescedTargets.clear();
+                flushCoalescedTargets(coalescedTargets);
             }
         }
 
         private TimeAccelerationWorkQueue.ExecutionResult executeTarget(
                 ServerLevel level, TargetKey target, int requested, long remainingBudget) {
+            boolean ae2RecheckEnabled = shouldRecheckAe2Target(
+                    isAE2AccelerationConfigured(), wandAe2Targets.contains(target));
             Optional<TargetKey> current = resolveTargetKey(
                     target.targetLevel(), target.pos(),
-                    target.kind() == TargetKind.AE2_GRID && isAE2AccelerationConfigured());
-            if (current.isEmpty() || !current.get().equals(target)) {
-                return new TimeAccelerationWorkQueue.ExecutionResult(0, false, true);
-            }
+                    target.kind() == TargetKind.AE2_GRID && ae2RecheckEnabled);
+            return executeIfCurrentTarget(target, current, requested, remainingBudget,
+                    (currentTarget, admitted, budget) -> executeTargetRoute(currentTarget, admitted, budget));
+        }
+
+        private TimeAccelerationWorkQueue.ExecutionResult executeTargetRoute(
+                TargetKey target, int requested, long remainingBudget) {
             return switch (target.kind()) {
                 case BLOCK_ENTITY, RANDOM_TICK -> executeOrdinaryTarget(target, requested, remainingBudget);
                 case AE2_GRID -> {

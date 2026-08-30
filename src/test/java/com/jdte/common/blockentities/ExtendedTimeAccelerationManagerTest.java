@@ -5,16 +5,25 @@ import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.fml.config.IConfigSpec;
 import org.junit.jupiter.api.Test;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -54,7 +63,7 @@ class ExtendedTimeAccelerationManagerTest {
 
         assertTrue(ExtendedTimeAccelerationManager.isCurrentWandTarget(first, first));
         assertFalse(ExtendedTimeAccelerationManager.isCurrentWandTarget(first, second));
-        assertFalse(ExtendedTimeAccelerationManager.isCurrentWandTarget(first, route));
+        assertTrue(ExtendedTimeAccelerationManager.isCurrentWandTarget(first, route));
     }
 
     @Test
@@ -90,13 +99,157 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
-    void wandPendingRouteIsRetainedOnlyWhileItMatchesTheCurrentSubmission() {
+    void wandPendingRouteIsRetainedOnlyWhileItMatchesTheCurrentSubmission() throws Exception {
+        ServerLevel level = serverLevelFixture();
         assertTrue(ExtendedTimeAccelerationManager.isCurrentWandTarget(
-                BlockPos.ZERO, UltimateTimeWandTargetRuntime.Route.AE2,
-                BlockPos.ZERO, UltimateTimeWandTargetRuntime.Route.AE2));
+                new ExtendedTimeAccelerationManager.TargetKey(
+                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY),
+                new ExtendedTimeAccelerationManager.TargetKey(
+                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK)));
         assertFalse(ExtendedTimeAccelerationManager.isCurrentWandTarget(
-                BlockPos.ZERO, UltimateTimeWandTargetRuntime.Route.ORDINARY,
-                BlockPos.ZERO, UltimateTimeWandTargetRuntime.Route.AE2));
+                new ExtendedTimeAccelerationManager.TargetKey(
+                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY),
+                new ExtendedTimeAccelerationManager.TargetKey(
+                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.AE2_GRID)));
+    }
+
+    @Test
+    void ae2RecheckAllowsWandRouteWhenGlobalOrdinaryAe2SwitchIsOff() {
+        assertTrue(ExtendedTimeAccelerationManager.shouldRecheckAe2Target(false, true));
+        assertFalse(ExtendedTimeAccelerationManager.shouldRecheckAe2Target(false, false));
+        assertTrue(ExtendedTimeAccelerationManager.shouldRecheckAe2Target(true, false));
+    }
+
+    @Test
+    void staleTargetIsRejectedWithoutInvokingExecutor() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        ExtendedTimeAccelerationManager.TargetKey expected = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        AtomicInteger calls = new AtomicInteger();
+
+        TimeAccelerationWorkQueue.ExecutionResult result =
+                ExtendedTimeAccelerationManager.executeIfCurrentTarget(
+                        expected, Optional.empty(), 4, 4,
+                        (target, requested, budget) -> {
+                            calls.incrementAndGet();
+                            return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                        });
+
+        assertFalse(result.valid());
+        assertEquals(0, calls.get());
+    }
+
+    @Test
+    void ordinaryKindChangeKeepsTargetCurrentButRouteChangeDoesNot() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        ExtendedTimeAccelerationManager.TargetKey blockEntity = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey randomTick = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK);
+        ExtendedTimeAccelerationManager.TargetKey ae2 = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.AE2_GRID);
+
+        assertTrue(ExtendedTimeAccelerationManager.isCurrentWandTarget(blockEntity, randomTick));
+        assertFalse(ExtendedTimeAccelerationManager.isCurrentWandTarget(blockEntity, ae2));
+    }
+
+    @Test
+    void coalescedTargetsFlushExactlyOnceThroughManagerBoundary() {
+        CountingCoalesced target = new CountingCoalesced();
+        Set<CoalescedAcceleratedMachine> targets =
+                Collections.newSetFromMap(new IdentityHashMap<>());
+        targets.add(target);
+        targets.add(target);
+
+        ExtendedTimeAccelerationManager.flushCoalescedTargets(targets);
+
+        assertEquals(1, target.flushes);
+        assertTrue(targets.isEmpty());
+    }
+
+    @Test
+    void sameAcceleratorDirectAndProxySourcesResolveToOneFinalTarget() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        BlockPos proxy = new BlockPos(2, 0, 0);
+        BlockPos finalTarget = new BlockPos(3, 0, 0);
+        MapTargetLookup graph = new MapTargetLookup();
+        graph.put(level, proxy, fakeProxy(new TimeAccelerationTarget(level, finalTarget)));
+        graph.put(level, finalTarget, fakeBlockEntity());
+
+        Set<ExtendedTimeAccelerationManager.TargetKey> targets =
+                ExtendedTimeAccelerationManager.resolveDistinctTargetKeys(
+                        level, List.of(finalTarget, proxy), graph::get,
+                        ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        AtomicInteger calls = new AtomicInteger();
+
+        for (ExtendedTimeAccelerationManager.TargetKey target : targets) {
+            ExtendedTimeAccelerationManager.executeIfCurrentTarget(
+                    target, Optional.of(target), 4, 4,
+                    (received, requested, budget) -> {
+                        calls.incrementAndGet();
+                        return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                    });
+        }
+
+        assertEquals(Set.of(new ExtendedTimeAccelerationManager.TargetKey(
+                level, finalTarget, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY)), targets);
+        assertEquals(1, calls.get());
+    }
+
+    @Test
+    void proxyTargetCanResolveIntoAnotherServerLevel() throws Exception {
+        ServerLevel source = serverLevelFixture();
+        ServerLevel target = serverLevelFixture();
+        BlockPos sourcePos = new BlockPos(1, 0, 0);
+        BlockPos targetPos = new BlockPos(9, 0, 0);
+        MapTargetLookup graph = new MapTargetLookup();
+        graph.put(source, sourcePos, fakeProxy(new TimeAccelerationTarget(target, targetPos)));
+
+        TimeAccelerationTarget resolved = ExtendedTimeAccelerationManager.resolveTimeAccelerationTarget(
+                source, sourcePos, graph::get).orElseThrow();
+
+        assertSame(target, resolved.level());
+        assertEquals(targetPos, resolved.pos());
+    }
+
+    @Test
+    void targetReplacementAndRemovalAreRejectedBeforeExecution() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        ExtendedTimeAccelerationManager.TargetKey expected = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        AtomicInteger calls = new AtomicInteger();
+        ExtendedTimeAccelerationManager.TargetExecution executor = (target, requested, budget) -> {
+            calls.incrementAndGet();
+            return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+        };
+
+        assertFalse(ExtendedTimeAccelerationManager.executeIfCurrentTarget(
+                expected, Optional.of(new ExtendedTimeAccelerationManager.TargetKey(
+                        level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK)),
+                4, 4, executor).valid());
+        assertFalse(ExtendedTimeAccelerationManager.executeIfCurrentTarget(
+                expected, Optional.empty(), 4, 4, executor).valid());
+        assertEquals(0, calls.get());
+    }
+
+    @Test
+    void proxyCycleResolvesToNoExecutableTarget() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        BlockPos first = new BlockPos(1, 0, 0);
+        BlockPos second = new BlockPos(2, 0, 0);
+        MapTargetLookup graph = new MapTargetLookup();
+        graph.put(level, first, fakeProxy(new TimeAccelerationTarget(level, second)));
+        graph.put(level, second, fakeProxy(new TimeAccelerationTarget(level, first)));
+        AtomicInteger calls = new AtomicInteger();
+
+        Optional<TimeAccelerationTarget> resolved =
+                ExtendedTimeAccelerationManager.resolveTimeAccelerationTarget(level, first, graph::get);
+        if (resolved.isPresent()) {
+            calls.incrementAndGet();
+        }
+
+        assertTrue(resolved.isEmpty());
+        assertEquals(0, calls.get());
     }
 
     @Test
@@ -258,10 +411,69 @@ class ExtendedTimeAccelerationManagerTest {
         return (FractionalSettlementAccelerator) unsafe().allocateInstance(FractionalSettlementAccelerator.class);
     }
 
+    private static ServerLevel serverLevelFixture() throws Exception {
+        return (ServerLevel) unsafe().allocateInstance(ServerLevel.class);
+    }
+
     private static Unsafe unsafe() throws Exception {
         Field field = Unsafe.class.getDeclaredField("theUnsafe");
         field.setAccessible(true);
         return (Unsafe) field.get(null);
+    }
+
+    private static final class MapTargetLookup {
+        private final Map<ServerLevel, Map<BlockPos, BlockEntity>> entities = new IdentityHashMap<>();
+
+        private void put(ServerLevel level, BlockPos pos, BlockEntity entity) {
+            entities.computeIfAbsent(level, ignored -> new HashMap<>()).put(pos.immutable(), entity);
+        }
+
+        private BlockEntity get(ServerLevel level, BlockPos pos) {
+            Map<BlockPos, BlockEntity> levelEntities = entities.get(level);
+            return levelEntities == null ? null : levelEntities.get(pos);
+        }
+    }
+
+    private static FakeBlockEntity fakeBlockEntity() throws Exception {
+        return (FakeBlockEntity) unsafe().allocateInstance(FakeBlockEntity.class);
+    }
+
+    private static FakeProxy fakeProxy(TimeAccelerationTarget target) throws Exception {
+        FakeProxy proxy = (FakeProxy) unsafe().allocateInstance(FakeProxy.class);
+        proxy.target = target;
+        return proxy;
+    }
+
+    private static class FakeBlockEntity extends BlockEntity {
+        private FakeBlockEntity() {
+            super(null, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
+        }
+    }
+
+    private static final class FakeProxy extends FakeBlockEntity implements TimeAccelerationTargetProxy {
+        private TimeAccelerationTarget target;
+
+        private FakeProxy() {
+            super();
+        }
+
+        @Override
+        public TimeAccelerationTarget getTimeAccelerationTarget() {
+            return target;
+        }
+    }
+
+    private static final class CountingCoalesced implements CoalescedAcceleratedMachine {
+        private int flushes;
+
+        @Override
+        public void accumulateAcceleratedTicks(int ticks) {
+        }
+
+        @Override
+        public void flushAcceleratedTicks() {
+            flushes++;
+        }
     }
 
     private static final class RecordingAccelerator extends TimeAcceleratorBE {
