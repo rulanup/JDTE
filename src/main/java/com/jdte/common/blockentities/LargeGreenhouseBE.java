@@ -18,6 +18,7 @@ import com.jdte.common.greenhouse.GreenhouseMatrixMember;
 import com.jdte.common.greenhouse.GreenhouseMatrixMemberState;
 import com.jdte.common.greenhouse.GreenhouseMatrixProductionProfile;
 import com.jdte.common.greenhouse.GreenhouseMatrixRuntime;
+import com.jdte.common.upgrades.AECraftingReadMachinePolicy;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
@@ -229,7 +230,11 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                 && level.getGameTime() % 20L == 0L) {
             GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
         }
-        advanceProductionTicks(1, allowed);
+        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) {
+            setActiveMask(0);
+            return;
+        }
+        advanceProductionTicks(1, true);
     }
 
     @Override
@@ -272,7 +277,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     @Override
     public List<GreenhouseMatrixProductionProfile> captureMatrixProfiles(ServerLevel serverLevel,
                                                                          GreenhouseMatrixRuntime.Effects effects) {
-        if (!isActiveRedstone() || !canRun() || !UpgradeHelper.mayRunWithUpgrades(this)) return List.of();
+        if (!AECraftingReadMachinePolicy.production(UpgradeHelper.mayRunWithUpgrades(this), isActiveRedstone()).runWork()) return List.of();
         List<GreenhouseMatrixProductionProfile> profiles = new ArrayList<>();
         long recipeGeneration = GreenhouseCropResolver.cacheGeneration();
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);

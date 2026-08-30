@@ -55,3 +55,16 @@
 - `./gradlew test`：通过
 - `./gradlew compileJava`：通过
 - `git diff --check`：通过
+
+## 第 2 轮审查修复追加（2026-08-30）
+
+- 删除测试专用死 API `mayAdvance`，并重命名决策 record 为 `MachineWorkDecision`；`runWork`、`deactivate`、`consumeResources` 分别表达实际含义，不再把 active 状态命名为 allowed。
+- `AECraftingReadMachinePolicy.production(...)` 已被 Greenhouse、LargeGreenhouse、LifeSynthesisVat、MineralExtractor、LifeBreeder 的真实生产入口调用；`freezer(...)` 被 TimeFreezer 的 activate/deactivate 和资源扣费边界调用。
+- 测试不再用纯整数 API 作为行为结论；直接执行生产实际使用的 decision，并验证 deny 保留 pending、allow 恢复推进，deny 的 Time Freezer 返回 deactivate 且 `consumeResources=false`。少量源码断言仅确认各真实入口接入统一 API。
+
+第 2 轮修复验证：
+
+- `./gradlew test --tests com.jdte.common.upgrades.AECraftingReadMachineBehaviorTest`：通过
+- `./gradlew test`：通过
+- `./gradlew compileJava`：通过
+- `git diff --check`：通过

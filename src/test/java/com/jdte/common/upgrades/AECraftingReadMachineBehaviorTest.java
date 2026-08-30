@@ -11,21 +11,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AECraftingReadMachineBehaviorTest {
     @Test
-    void executablePolicyPreservesStateWhileDeniedAndResumesAfterTaskAppears() {
+    void executableProductionDecisionPreservesPendingUntilAllowed() {
         int pending = 37;
-        assertFalse(AECraftingReadMachinePolicy.mayAdvance(false, true));
+        AECraftingReadMachinePolicy.MachineWorkDecision denied =
+                AECraftingReadMachinePolicy.production(false, true);
+        if (denied.runWork()) pending++;
         assertEquals(37, pending, "deny must preserve pending work");
-        assertTrue(AECraftingReadMachinePolicy.mayAdvance(true, true));
-        assertEquals(38, pending + 1, "allow must resume progress");
+
+        AECraftingReadMachinePolicy.MachineWorkDecision allowed =
+                AECraftingReadMachinePolicy.production(true, true);
+        if (allowed.runWork()) pending++;
+        assertEquals(38, pending, "allow must resume progress");
+        assertFalse(allowed.deactivate());
     }
 
     @Test
     void executableFreezerPolicyDeactivatesWithoutChargingWhenDenied() {
-        AECraftingReadMachinePolicy.WorkDecision denied = AECraftingReadMachinePolicy.decideWork(
+        AECraftingReadMachinePolicy.MachineWorkDecision denied = AECraftingReadMachinePolicy.freezer(
                 false, true, true, true);
         assertTrue(denied.deactivate());
         assertFalse(denied.consumeResources());
-        AECraftingReadMachinePolicy.WorkDecision allowed = AECraftingReadMachinePolicy.decideWork(
+        AECraftingReadMachinePolicy.MachineWorkDecision allowed = AECraftingReadMachinePolicy.freezer(
                 true, true, true, true);
         assertFalse(allowed.deactivate());
         assertTrue(allowed.consumeResources());
@@ -38,22 +44,21 @@ class AECraftingReadMachineBehaviorTest {
         String mineral = source("src/main/java/com/jdte/common/blockentities/MineralExtractorBE.java");
         String breeder = source("src/main/java/com/jdte/common/blockentities/LifeBreederBE.java");
 
-        assertTrue(greenhouse.contains("boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);"));
-        assertTrue(greenhouse.contains("captureMatrixProfiles"));
-        assertTrue(greenhouse.contains("!canRun() || !UpgradeHelper.mayRunWithUpgrades(this)"));
-        assertTrue(largeGreenhouse.contains("!canRun() || !UpgradeHelper.mayRunWithUpgrades(this)"));
-        assertTrue(vat.contains("if (!UpgradeHelper.mayRunWithUpgrades(this)) return;"));
-        assertTrue(mineral.contains("boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);"));
-        assertTrue(mineral.contains("if (hasTransientWork() && allowed) settle();"));
-        assertTrue(mineral.contains("if (allowed) discardExpiredTransientWork();"));
-        assertOrdered(breeder, "if (!UpgradeHelper.mayRunWithUpgrades(this)) return;", "if (++cycleTicker");
+        assertTrue(greenhouse.contains("AECraftingReadMachinePolicy.production"));
+        assertTrue(largeGreenhouse.contains("AECraftingReadMachinePolicy.production"));
+        assertTrue(vat.contains("AECraftingReadMachinePolicy.production"));
+        assertTrue(mineral.contains("AECraftingReadMachinePolicy.MachineWorkDecision decision"));
+        assertTrue(mineral.contains("if (hasTransientWork() && decision.runWork()) settle();"));
+        assertTrue(mineral.contains("if (decision.runWork()) discardExpiredTransientWork();"));
+        assertTrue(breeder.contains("AECraftingReadMachinePolicy.production"));
+        assertOrdered(breeder, "AECraftingReadMachinePolicy.production", "if (++cycleTicker");
     }
 
     @Test
     void freezerAlwaysDeactivatesWhenCraftingTaskIsDenied() throws Exception {
         String source = source("src/main/java/com/jdte/common/blockentities/TimeFreezerBE.java");
         assertTrue(source.contains("boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);"));
-        assertTrue(source.contains("AECraftingReadMachinePolicy.WorkDecision decision"));
+        assertTrue(source.contains("AECraftingReadMachinePolicy.MachineWorkDecision decision"));
         assertTrue(source.contains("TimeFreezerManager.deactivate(this);"));
     }
 

@@ -18,6 +18,7 @@ import com.jdte.common.minerals.MineralOutputPlanner;
 import com.jdte.common.minerals.MineralSurveyData;
 import com.jdte.common.minerals.MineralSurveyIndex;
 import com.jdte.common.upgrades.JDTEFluidTank;
+import com.jdte.common.upgrades.AECraftingReadMachinePolicy;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.common.recipes.MineralExtractorResourceResolver;
@@ -218,22 +219,24 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
 
     @Override public void tickServer() {
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        AECraftingReadMachinePolicy.MachineWorkDecision decision =
+                AECraftingReadMachinePolicy.production(allowed, isActiveRedstone());
         if (level instanceof ServerLevel serverLevel && regularTickGameTime == serverLevel.getGameTime()) {
-            if (allowed) advanceTransientTick();
+            if (decision.runWork()) advanceTransientTick();
             return;
         }
         super.tickServer();
         syncCapacities();
         if (!(level instanceof ServerLevel serverLevel)) return;
         long gameTime = serverLevel.getGameTime();
-        if (hasTransientWork() && allowed) settle();
-        if (allowed) discardExpiredTransientWork();
+        if (hasTransientWork() && decision.runWork()) settle();
+        if (decision.runWork()) discardExpiredTransientWork();
         regularTickGameTime = gameTime;
         if (!isActiveRedstone()) {
             setState(State.IDLE);
             return;
         }
-        if (!allowed) return;
+        if (!decision.runWork()) return;
         advanceBaseTick();
     }
 
@@ -279,7 +282,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     }
 
     @Override public void flushAcceleratedTicks() {
-        if (!UpgradeHelper.mayRunWithUpgrades(this)) return;
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         if (ticks <= 0 || !isActiveRedstone()) return;

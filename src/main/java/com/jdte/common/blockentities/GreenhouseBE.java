@@ -16,6 +16,7 @@ import com.jdte.common.greenhouse.GreenhouseMatrixMember;
 import com.jdte.common.greenhouse.GreenhouseMatrixMemberState;
 import com.jdte.common.greenhouse.GreenhouseMatrixProductionProfile;
 import com.jdte.common.greenhouse.GreenhouseMatrixRuntime;
+import com.jdte.common.upgrades.AECraftingReadMachinePolicy;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
@@ -218,7 +219,11 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
                 && level.getGameTime() % 20L == 0L) {
             GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
         }
-        advanceProductionTicks(1, allowed);
+        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) {
+            setActiveMask(0);
+            return;
+        }
+        advanceProductionTicks(1, true);
     }
 
     @Override
@@ -234,7 +239,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
             return;
         }
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        if (!allowed) return;
+        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks, true);
@@ -261,7 +266,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     @Override
     public List<GreenhouseMatrixProductionProfile> captureMatrixProfiles(ServerLevel serverLevel,
                                                                          GreenhouseMatrixRuntime.Effects effects) {
-        if (!isActiveRedstone() || !canRun() || !UpgradeHelper.mayRunWithUpgrades(this)) return List.of();
+        if (!AECraftingReadMachinePolicy.production(UpgradeHelper.mayRunWithUpgrades(this), isActiveRedstone()).runWork()) return List.of();
         List<GreenhouseMatrixProductionProfile> profiles = new ArrayList<>();
         long recipeGeneration = GreenhouseCropResolver.cacheGeneration();
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
