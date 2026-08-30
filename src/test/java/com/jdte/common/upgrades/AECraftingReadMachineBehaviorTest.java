@@ -5,9 +5,31 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AECraftingReadMachineBehaviorTest {
+    @Test
+    void executablePolicyPreservesStateWhileDeniedAndResumesAfterTaskAppears() {
+        int pending = 37;
+        assertFalse(AECraftingReadMachinePolicy.mayAdvance(false, true));
+        assertEquals(37, pending, "deny must preserve pending work");
+        assertTrue(AECraftingReadMachinePolicy.mayAdvance(true, true));
+        assertEquals(38, pending + 1, "allow must resume progress");
+    }
+
+    @Test
+    void executableFreezerPolicyDeactivatesWithoutChargingWhenDenied() {
+        AECraftingReadMachinePolicy.WorkDecision denied = AECraftingReadMachinePolicy.decideWork(
+                false, true, true, true);
+        assertTrue(denied.deactivate());
+        assertFalse(denied.consumeResources());
+        AECraftingReadMachinePolicy.WorkDecision allowed = AECraftingReadMachinePolicy.decideWork(
+                true, true, true, true);
+        assertFalse(allowed.deactivate());
+        assertTrue(allowed.consumeResources());
+    }
     @Test
     void productionMachinesGateEveryProductionEntryWithoutDiscardingPendingWork() throws Exception {
         String greenhouse = source("src/main/java/com/jdte/common/blockentities/GreenhouseBE.java");
@@ -16,14 +38,14 @@ class AECraftingReadMachineBehaviorTest {
         String mineral = source("src/main/java/com/jdte/common/blockentities/MineralExtractorBE.java");
         String breeder = source("src/main/java/com/jdte/common/blockentities/LifeBreederBE.java");
 
-        assertTrue(greenhouse.contains("if (!UpgradeHelper.mayRunWithUpgrades(this)) return;"));
-        assertOrdered(greenhouse, "if (!UpgradeHelper.mayRunWithUpgrades(this)) {", "GreenhouseCropDefinition[] definitions");
-        assertTrue(largeGreenhouse.contains("if (!UpgradeHelper.mayRunWithUpgrades(this)) return;"));
-        assertOrdered(largeGreenhouse, "if (!UpgradeHelper.mayRunWithUpgrades(this)) {", "settlementTicker = saturatingAdd");
+        assertTrue(greenhouse.contains("boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);"));
+        assertTrue(greenhouse.contains("captureMatrixProfiles"));
+        assertTrue(greenhouse.contains("!canRun() || !UpgradeHelper.mayRunWithUpgrades(this)"));
+        assertTrue(largeGreenhouse.contains("!canRun() || !UpgradeHelper.mayRunWithUpgrades(this)"));
         assertTrue(vat.contains("if (!UpgradeHelper.mayRunWithUpgrades(this)) return;"));
-        assertTrue(mineral.contains("if (UpgradeHelper.mayRunWithUpgrades(this)) advanceTransientTick();"));
-        assertTrue(mineral.contains("if (hasTransientWork() && UpgradeHelper.mayRunWithUpgrades(this)) settle();"));
-        assertTrue(mineral.contains("if (UpgradeHelper.mayRunWithUpgrades(this)) discardExpiredTransientWork();"));
+        assertTrue(mineral.contains("boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);"));
+        assertTrue(mineral.contains("if (hasTransientWork() && allowed) settle();"));
+        assertTrue(mineral.contains("if (allowed) discardExpiredTransientWork();"));
         assertOrdered(breeder, "if (!UpgradeHelper.mayRunWithUpgrades(this)) return;", "if (++cycleTicker");
     }
 
@@ -31,7 +53,7 @@ class AECraftingReadMachineBehaviorTest {
     void freezerAlwaysDeactivatesWhenCraftingTaskIsDenied() throws Exception {
         String source = source("src/main/java/com/jdte/common/blockentities/TimeFreezerBE.java");
         assertTrue(source.contains("boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);"));
-        assertTrue(source.contains("boolean wantFreeze = allowed && wantsAnything && isActiveRedstone()"));
+        assertTrue(source.contains("AECraftingReadMachinePolicy.WorkDecision decision"));
         assertTrue(source.contains("TimeFreezerManager.deactivate(this);"));
     }
 

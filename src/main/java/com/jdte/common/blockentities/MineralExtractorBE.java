@@ -217,22 +217,23 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     }
 
     @Override public void tickServer() {
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
         if (level instanceof ServerLevel serverLevel && regularTickGameTime == serverLevel.getGameTime()) {
-            if (UpgradeHelper.mayRunWithUpgrades(this)) advanceTransientTick();
+            if (allowed) advanceTransientTick();
             return;
         }
         super.tickServer();
         syncCapacities();
         if (!(level instanceof ServerLevel serverLevel)) return;
         long gameTime = serverLevel.getGameTime();
-        if (hasTransientWork() && UpgradeHelper.mayRunWithUpgrades(this)) settle();
-        if (UpgradeHelper.mayRunWithUpgrades(this)) discardExpiredTransientWork();
+        if (hasTransientWork() && allowed) settle();
+        if (allowed) discardExpiredTransientWork();
         regularTickGameTime = gameTime;
         if (!isActiveRedstone()) {
             setState(State.IDLE);
             return;
         }
-        if (!UpgradeHelper.mayRunWithUpgrades(this)) return;
+        if (!allowed) return;
         advanceBaseTick();
     }
 

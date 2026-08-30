@@ -224,11 +224,12 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         }
         super.tickServer();
         if (level != null && level.getGameTime() % 20L == 0L) UpgradeHelper.syncCapacities(this);
-        if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        if (allowed && UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel
                 && level.getGameTime() % 20L == 0L) {
             GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
         }
-        advanceProductionTicks(1);
+        advanceProductionTicks(1, allowed);
     }
 
     @Override
@@ -243,10 +244,11 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             accumulatedAcceleratedTicks = 0;
             return;
         }
-        if (!UpgradeHelper.mayRunWithUpgrades(this)) return;
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        if (!allowed) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
-        advanceProductionTicks(ticks);
+        advanceProductionTicks(ticks, true);
     }
 
     @Override
@@ -270,7 +272,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     @Override
     public List<GreenhouseMatrixProductionProfile> captureMatrixProfiles(ServerLevel serverLevel,
                                                                          GreenhouseMatrixRuntime.Effects effects) {
-        if (!isActiveRedstone() || !canRun()) return List.of();
+        if (!isActiveRedstone() || !canRun() || !UpgradeHelper.mayRunWithUpgrades(this)) return List.of();
         List<GreenhouseMatrixProductionProfile> profiles = new ArrayList<>();
         long recipeGeneration = GreenhouseCropResolver.cacheGeneration();
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
@@ -313,7 +315,15 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     }
 
     private void advanceProductionTicks(int ticks) {
+        advanceProductionTicks(ticks, UpgradeHelper.mayRunWithUpgrades(this));
+    }
+
+    private void advanceProductionTicks(int ticks, boolean allowed) {
         if (ticks <= 0) return;
+        if (!allowed) {
+            setActiveMask(0);
+            return;
+        }
         if (com.jdte.common.greenhouse.GreenhouseMatrixRuntime.isDisabled(this)) {
             setActiveMask(0);
             return;
@@ -321,10 +331,6 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         if (!isActiveRedstone() || !canRun()) {
             setActiveMask(0);
             settlementTicker = 0;
-            return;
-        }
-        if (!UpgradeHelper.mayRunWithUpgrades(this)) {
-            setActiveMask(0);
             return;
         }
 

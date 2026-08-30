@@ -40,3 +40,18 @@
 - `git diff --check`：通过
 
 提交：`feat: gate JDTE state machines on AE crafting`
+
+## 审查修复追加（2026-08-30）
+
+- 修复 Greenhouse/LargeGreenhouse 的 tickServer 顺序：先取得本次入口的 AE 许可，再执行 Essence conversion；deny 时不改变库存。
+- `captureMatrixProfiles` 两个独立入口均在解析配方和构建 profile 前检查许可，deny 返回空列表。
+- Greenhouse/LargeGreenhouse production tick 与 accelerated flush 复用入口许可快照；MineralExtractor 单次 ticker 复用一次 `allowed`，避免普通 tick 中重复查询。
+- 新增生产实际调用的纯策略 `AECraftingReadMachinePolicy`，统一表达状态机推进和 Time Freezer 的 activate/deactivate、资源扣除决策。
+- `AECraftingReadMachineBehaviorTest` 增加可执行策略测试：deny 保留 pending/progress、allow 恢复推进，Time Freezer active->deny 触发 deactivate 且不扣费；同时保留入口契约覆盖。
+
+审查修复验证：
+
+- `./gradlew test --tests com.jdte.common.upgrades.AECraftingReadMachineBehaviorTest`：通过
+- `./gradlew test`：通过
+- `./gradlew compileJava`：通过
+- `git diff --check`：通过
