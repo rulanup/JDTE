@@ -14,12 +14,12 @@ class AECraftingReadMachineBehaviorTest {
     void executableProductionDecisionPreservesPendingUntilAllowed() {
         int pending = 37;
         AECraftingReadMachinePolicy.MachineWorkDecision denied =
-                AECraftingReadMachinePolicy.production(false, true);
+                AECraftingReadMachinePolicy.production(false, true, true);
         if (denied.runWork()) pending++;
         assertEquals(37, pending, "deny must preserve pending work");
 
         AECraftingReadMachinePolicy.MachineWorkDecision allowed =
-                AECraftingReadMachinePolicy.production(true, true);
+                AECraftingReadMachinePolicy.production(true, true, true);
         if (allowed.runWork()) pending++;
         assertEquals(38, pending, "allow must resume progress");
         assertFalse(allowed.deactivate());
@@ -44,8 +44,10 @@ class AECraftingReadMachineBehaviorTest {
         String mineral = source("src/main/java/com/jdte/common/blockentities/MineralExtractorBE.java");
         String breeder = source("src/main/java/com/jdte/common/blockentities/LifeBreederBE.java");
 
-        assertTrue(greenhouse.contains("AECraftingReadMachinePolicy.production"));
-        assertTrue(largeGreenhouse.contains("AECraftingReadMachinePolicy.production"));
+        assertTrue(greenhouse.contains("production(allowed, isActiveRedstone(), canRun())"));
+        assertOrdered(greenhouse, "production(allowed, isActiveRedstone(), canRun())", "GreenhouseEssenceConversionHelper.convertStored");
+        assertOrdered(largeGreenhouse, "production(allowed, isActiveRedstone(), canRun())", "GreenhouseEssenceConversionHelper.convertStored");
+        assertOrdered(largeGreenhouse, "production(allowed, isActiveRedstone(), canRun())", "int ticks = accumulatedAcceleratedTicks");
         assertTrue(vat.contains("AECraftingReadMachinePolicy.production"));
         assertTrue(mineral.contains("AECraftingReadMachinePolicy.MachineWorkDecision decision"));
         assertTrue(mineral.contains("if (hasTransientWork() && decision.runWork()) settle();"));

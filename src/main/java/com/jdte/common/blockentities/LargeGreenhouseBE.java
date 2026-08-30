@@ -226,13 +226,13 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         super.tickServer();
         if (level != null && level.getGameTime() % 20L == 0L) UpgradeHelper.syncCapacities(this);
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        if (allowed && UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel
-                && level.getGameTime() % 20L == 0L) {
-            GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
-        }
-        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) {
+        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone(), canRun()).runWork()) {
             setActiveMask(0);
             return;
+        }
+        if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel
+                && level.getGameTime() % 20L == 0L) {
+            GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
         }
         advanceProductionTicks(1, true);
     }
@@ -250,7 +250,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             return;
         }
         boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
-        if (!allowed) return;
+        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone(), canRun()).runWork()) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks, true);

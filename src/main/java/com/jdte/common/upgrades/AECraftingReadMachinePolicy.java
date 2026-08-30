@@ -7,7 +7,11 @@ public final class AECraftingReadMachinePolicy {
     public record MachineWorkDecision(boolean runWork, boolean deactivate, boolean consumeResources) {}
 
     public static MachineWorkDecision production(boolean allowed, boolean redstoneActive) {
-        boolean run = allowed && redstoneActive;
+        return production(allowed, redstoneActive, true);
+    }
+
+    public static MachineWorkDecision production(boolean allowed, boolean redstoneActive, boolean canRun) {
+        boolean run = allowed && redstoneActive && canRun;
         return new MachineWorkDecision(run, !run, run);
     }
 

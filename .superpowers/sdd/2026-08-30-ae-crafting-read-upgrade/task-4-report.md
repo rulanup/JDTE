@@ -68,3 +68,16 @@
 - `./gradlew test`：通过
 - `./gradlew compileJava`：通过
 - `git diff --check`：通过
+
+## 第 3 轮定向修复追加（2026-08-30）
+
+- Greenhouse/LargeGreenhouse `tickServer` 现在先计算 `production(allowed, isActiveRedstone(), canRun())`，只有 `decision.runWork()` 时才执行 Essence conversion 和生产推进；红石关闭或 AE deny 均不会 conversion。
+- LargeGreenhouse `flushAcceleratedTicks` 改为使用同一三条件 production policy，且本次入口只读取一次 AE 许可；`canRun`、红石和 AE 语义与 tick/profile 入口一致。
+- `AECraftingReadMachineBehaviorTest` 增加 conversion 前策略顺序及 Large flush 三条件策略接线契约，并保留可执行 deny/allow 状态决策测试。
+
+第 3 轮验证：
+
+- `./gradlew test --tests com.jdte.common.upgrades.AECraftingReadMachineBehaviorTest`：通过
+- `./gradlew test`：通过
+- `./gradlew compileJava`：通过
+- `git diff --check`：通过
