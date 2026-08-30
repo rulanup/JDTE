@@ -49,6 +49,26 @@ final class TimeAccelerationWorkQueue<S, T> {
         }
     }
 
+    void reconcileContributor(S source, Set<T> currentTargets) {
+        boolean removed = false;
+        var iterator = pending.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<T, PendingTarget<S>> entry = iterator.next();
+            if (!currentTargets.contains(entry.getKey())
+                    && entry.getValue().removeContributor(source)) {
+                removed = true;
+            }
+            if (entry.getValue().virtualTicks <= 0) {
+                iterator.remove();
+                removed = true;
+            }
+        }
+        if (removed) {
+            queue.removeIf(target -> !pending.containsKey(target));
+            queued.retainAll(pending.keySet());
+        }
+    }
+
     void enqueue(T target, S source, int workTicks, int displayMultiplier, long maxPending) {
         PendingTarget<S> work = pending.get(target);
         long currentTicks = work == null ? 0L : work.virtualTicks;
@@ -153,6 +173,15 @@ final class TimeAccelerationWorkQueue<S, T> {
                     iterator.remove();
                 }
             }
+        }
+
+        private boolean removeContributor(S source) {
+            Contribution contribution = contributions.remove(source);
+            if (contribution == null) {
+                return false;
+            }
+            virtualTicks -= contribution.virtualTicks;
+            return true;
         }
 
         private void consume(long ticks) {

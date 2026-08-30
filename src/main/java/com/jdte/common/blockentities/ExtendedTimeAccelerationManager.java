@@ -219,6 +219,11 @@ public final class ExtendedTimeAccelerationManager {
         return chunk == null ? Optional.empty() : Optional.of(chunk.getBlockState(pos));
     }
 
+    static <S> void reconcilePreparedTargets(TimeAccelerationWorkQueue<S, TargetKey> queue,
+                                             Collection<TargetKey> targets, S source) {
+        queue.reconcileContributor(source, Set.copyOf(targets));
+    }
+
     static <S> void enqueuePreparedTargets(TimeAccelerationWorkQueue<S, TargetKey> queue,
                                            Collection<TargetKey> targets, S source,
                                            int workTicks, int displayMultiplier, long maxPending) {
@@ -661,6 +666,7 @@ public final class ExtendedTimeAccelerationManager {
             Map<Long, List<AcceleratorContext>> byChunk = new LinkedHashMap<>();
             for (TimeAcceleratorBE accelerator : submitted) {
                 if (!adapter.isActive(accelerator, level)) {
+                    reconcilePreparedTargets(workQueue, List.of(), accelerator);
                     continue;
                 }
                 AccelerationRequest request = adapter.request(accelerator);
@@ -692,6 +698,7 @@ public final class ExtendedTimeAccelerationManager {
 
             long maxPending = adapter.maxPending();
             for (AcceleratorContext context : contexts) {
+                reconcilePreparedTargets(workQueue, context.targets, context.accelerator);
                 if (context.targets.isEmpty()) {
                     continue;
                 }

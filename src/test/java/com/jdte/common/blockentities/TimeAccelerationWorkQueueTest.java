@@ -7,6 +7,7 @@ import sun.misc.Unsafe;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -141,6 +142,41 @@ class TimeAccelerationWorkQueueTest {
         assertEquals(5, used);
         assertEquals(1, calls.get());
         assertEquals(0, queue.pendingTicks("target"));
+    }
+
+    @Test
+    void reconciliationRemovesOnlySourceTargetsOutsideCurrentSet() throws Exception {
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue = new TimeAccelerationWorkQueue<>();
+        ServerLevel level = serverLevelFixture();
+        ExtendedTimeAccelerationManager.TargetKey stale = new ExtendedTimeAccelerationManager.TargetKey(
+                level, new BlockPos(1, 0, 0), ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey current = new ExtendedTimeAccelerationManager.TargetKey(
+                level, new BlockPos(2, 0, 0), ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        Object source = new Object();
+        Object otherSource = new Object();
+        queue.enqueue(stale, source, 3, 2, 64);
+        queue.enqueue(current, source, 5, 4, 64);
+        queue.enqueue(stale, otherSource, 7, 8, 64);
+
+        queue.reconcileContributor(source, Set.of(current));
+
+        assertEquals(7, queue.pendingTicks(stale));
+        assertEquals(5, queue.pendingTicks(current));
+
+        long used = queue.execute(64, 64,
+                (target, requested, remaining) ->
+                        new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false),
+                (target, result, multiplier) -> {
+                    if (target.equals(stale)) {
+                        assertEquals(8, multiplier);
+                        assertEquals(7, result.executed());
+                    } else {
+                        assertEquals(4, multiplier);
+                        assertEquals(5, result.executed());
+                    }
+                });
+
+        assertEquals(12, used);
     }
 
     @Test

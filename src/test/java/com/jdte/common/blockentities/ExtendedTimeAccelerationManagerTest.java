@@ -410,6 +410,56 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
+    void prepareReconcilesReboundProxyContributionButRetainsDirectContribution() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        BlockPos direct = new BlockPos(1, 0, 0);
+        BlockPos proxy = new BlockPos(2, 0, 0);
+        BlockPos firstTarget = new BlockPos(3, 0, 0);
+        BlockPos reboundTarget = new BlockPos(4, 0, 0);
+        RecordingAccelerator accelerator = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.LevelState state = new ExtendedTimeAccelerationManager.LevelState();
+        Map<BlockPos, BlockEntity> discovered = Map.of(
+                direct, fakeBlockEntity(),
+                proxy, fakeProxy(new TimeAccelerationTarget(level, firstTarget)));
+        TestPreparationAdapter adapter = new TestPreparationAdapter(
+                level, level, discovered, proxy, direct, firstTarget);
+
+        state.submitForTest(accelerator);
+        state.prepare(level, 64, adapter);
+
+        ExtendedTimeAccelerationManager.TargetKey directKey = new ExtendedTimeAccelerationManager.TargetKey(
+                level, direct, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey firstKey = new ExtendedTimeAccelerationManager.TargetKey(
+                level, firstTarget, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey reboundKey = new ExtendedTimeAccelerationManager.TargetKey(
+                level, reboundTarget, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        assertEquals(4, state.pendingTicksForTest(firstKey));
+        assertEquals(4, state.pendingTicksForTest(directKey));
+
+        adapter.rebindProxy(reboundTarget);
+        state.submitForTest(accelerator);
+        state.prepare(level, 64, adapter);
+
+        assertEquals(0, state.pendingTicksForTest(firstKey));
+        assertEquals(8, state.pendingTicksForTest(directKey));
+        assertEquals(4, state.pendingTicksForTest(reboundKey));
+
+        Set<BlockPos> executed = new java.util.LinkedHashSet<>();
+        state.execute(level, 64,
+                pending -> Optional.of(pending),
+                (target, requested, budget) -> {
+                    executed.add(target.pos());
+                    return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                },
+                (target, source) -> true,
+                (target, multiplier) -> { });
+
+        assertFalse(executed.contains(firstTarget));
+        assertTrue(executed.contains(reboundTarget));
+        assertTrue(executed.contains(direct));
+    }
+
+    @Test
     void proxyTargetCanResolveIntoAnotherServerLevel() throws Exception {
         ServerLevel source = serverLevelFixture();
         ServerLevel target = serverLevelFixture();
@@ -641,15 +691,27 @@ class ExtendedTimeAccelerationManagerTest {
         private final Map<BlockPos, BlockEntity> discovered;
         private final BlockPos proxy;
         private final BlockPos direct;
+        private BlockPos resolvedProxyTarget;
 
         private TestPreparationAdapter(ServerLevel sourceLevel, ServerLevel targetLevel,
                                        Map<BlockPos, BlockEntity> discovered,
                                        BlockPos proxy, BlockPos direct) {
+            this(sourceLevel, targetLevel, discovered, proxy, direct, direct);
+        }
+
+        private TestPreparationAdapter(ServerLevel sourceLevel, ServerLevel targetLevel,
+                                       Map<BlockPos, BlockEntity> discovered,
+                                       BlockPos proxy, BlockPos direct, BlockPos resolvedProxyTarget) {
             this.sourceLevel = sourceLevel;
             this.targetLevel = targetLevel;
             this.discovered = discovered;
             this.proxy = proxy;
             this.direct = direct;
+            this.resolvedProxyTarget = resolvedProxyTarget;
+        }
+
+        private void rebindProxy(BlockPos target) {
+            resolvedProxyTarget = target;
         }
 
         @Override
@@ -687,10 +749,8 @@ class ExtendedTimeAccelerationManagerTest {
                 ServerLevel level, BlockPos pos, boolean ae2Enabled) {
             if (pos.equals(proxy) || pos.equals(direct)) {
                 return Optional.of(new ExtendedTimeAccelerationManager.TargetKey(
-                        targetLevel, direct,
-                        pos.equals(proxy)
-                                ? ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK
-                                : ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY));
+                        targetLevel, pos.equals(proxy) ? resolvedProxyTarget : direct,
+                        ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY));
             }
             return Optional.empty();
         }
