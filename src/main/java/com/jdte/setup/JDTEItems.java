@@ -4,6 +4,7 @@ import com.jdte.JDTE;
 import com.jdte.common.items.AdvancedMachineSettingsCopierItem;
 import com.jdte.common.items.BossEssenceItem;
 import com.jdte.common.items.BigFluidTankItem;
+import com.jdte.common.items.EnergyBrewingUpgradeItem;
 import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.FactoryPackageItem;
@@ -13,6 +14,7 @@ import com.jdte.common.items.LargePocketGeneratorItem;
 import com.jdte.common.items.LargePotionCanisterItem;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.MineralSurveyItem;
+import com.jdte.common.items.RepairTalismanItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.TimeMultitoolItem;
 import com.jdte.common.items.UltimateTimeWandItem;
@@ -166,6 +168,9 @@ public class JDTEItems {
     // Bio Crusher Upgrades
     public static final DeferredHolder<Item, LootingUpgradeItem> LOOTING_UPGRADE = ITEMS.register("looting_upgrade", LootingUpgradeItem::new);
     public static final DeferredHolder<Item, SharpnessUpgradeItem> SHARPNESS_UPGRADE = ITEMS.register("sharpness_upgrade", SharpnessUpgradeItem::new);
+    public static final DeferredHolder<Item, EnergyBrewingUpgradeItem> ENERGY_BREWING_UPGRADE = ITEMS.register("energy_brewing_upgrade", EnergyBrewingUpgradeItem::new);
+    public static final DeferredHolder<Item, RepairTalismanItem> REPAIR_TALISMAN = ITEMS.register("repair_talisman",
+            () -> new RepairTalismanItem(new Item.Properties()));
 
     public static List<DeferredHolder<Item, UpgradeCardItem>> upgrades() {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,

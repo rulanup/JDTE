@@ -22,6 +22,7 @@ item_ids:
   - jdte:seed_conversion_upgrade
   - jdte:looting_upgrade
   - jdte:sharpness_upgrade
+  - jdte:energy_brewing_upgrade
 ---
 
 # Upgrade Cards
@@ -136,9 +137,9 @@ Place the card in the linking input of an AE2 Wireless Access Point screen and r
 
 ## AE Output Upgrade
 
-Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a machine with item or fluid product outputs to return those products directly to the linked AE network. The access point must remain loaded, online, and have a channel. If the network is unavailable or full, unaccepted products safely remain in the machine.
+Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in ANY JDT/JDTE machine and products are returned to the linked AE network on a fixed cadence (every 5 ticks by default, configurable with `jdte.aeOutput.returnInterval`) through real ME storage writes — terminals, buses, and crafting providers see returned items immediately. The access point must remain loaded, online, and have a channel. If the network is unavailable or full, unaccepted products safely remain in the machine.
 
-Machines without a product-output use, such as Clickers, Placers, Droppers, and Senders, reject this upgrade. The limit is one per machine. A Greenhouse Matrix Controller (from the standalone JDTE-Matrix mod) can also use it to return products from every managed Greenhouse.
+The limit is one per machine; machines without output slots simply never return anything. Installing this card disables the machine's regular automatic output so products only flow to AE. A Greenhouse Matrix Controller (from the standalone JDTE-Matrix mod) can also use it to return products from every managed Greenhouse.
 
 <RecipeFor id="jdte:ae_output_upgrade" />
 
@@ -173,3 +174,11 @@ Exclusive to the Bio Crusher. Increases extra drop chance. Max level 6, with 50%
 Exclusive to the Bio Crusher. Increases attack damage. Each upgrade adds 5 damage, max 6, for up to 35 damage.
 
 <RecipeFor id="jdte:sharpness_upgrade" />
+
+## Energy Brewing Upgrade
+
+<ItemImage id="jdte:energy_brewing_upgrade" scale="2" />
+
+Advanced Potion Brewer only, limited to 1. Once installed, brewing fuel is paid with FE: each charge consumes the configured `energyPerBlazePowder` FE (default 5,000) and provides the same 20 brews as one Blaze Powder, disabling the Blaze Powder slot so no external Blaze Powder supply is needed. The Creative Upgrade waives the fee.
+
+<RecipeFor id="jdte:energy_brewing_upgrade" />

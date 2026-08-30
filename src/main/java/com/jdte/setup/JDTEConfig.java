@@ -17,7 +17,9 @@ import com.jdte.setup.config.LifeExtractorConfig;
 import com.jdte.setup.config.LifeSynthesisVatConfig;
 import com.jdte.setup.config.LootFabricatorConfig;
 import com.jdte.setup.config.MineralExtractorConfig;
+import com.jdte.setup.config.AEOutputConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
+import com.jdte.setup.config.RepairTalismanConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
 import com.jdte.setup.config.TimeAcceleratorConfig;
 import com.jdte.setup.config.TimeAcceleratorLocalConfig;
@@ -64,6 +66,8 @@ public class JDTEConfig {
         public final AdvancedItemCollectorConfig advancedItemCollector;
         public final EntitySuppressorConfig entitySuppressor;
         public final RangeBlockerConfig rangeBlocker;
+        public final RepairTalismanConfig repairTalisman;
+        public final AEOutputConfig aeOutput;
         public final FactoryPackerConfig factoryPacker;
         public final AdvancedPotionBrewerConfig advancedPotionBrewer;
         public final CrystalIncubatorConfig crystalIncubator;
@@ -184,6 +188,11 @@ public class JDTEConfig {
         public final ModConfigSpec.BooleanValue rangeBlockerContainOwnerlessProjectiles;
         public final ModConfigSpec.BooleanValue rangeBlockerContainProjectileExplosions;
 
+        public final ModConfigSpec.IntValue repairTalismanAmountPerCycle;
+        public final ModConfigSpec.IntValue repairTalismanCycleInterval;
+        public final ModConfigSpec.IntValue repairTalismanEnergyPerDurability;
+        public final ModConfigSpec.IntValue aeOutputReturnInterval;
+
         // Factory Packer
         public final ModConfigSpec.IntValue factoryPackerEnergyCapacity;
         public final ModConfigSpec.DoubleValue factoryPackerBaseRadius;
@@ -205,6 +214,7 @@ public class JDTEConfig {
 
         // Advanced Potion Brewer
         public final ModConfigSpec.BooleanValue potionBrewerRejectPatternProviderFuelInput;
+        public final ModConfigSpec.IntValue potionBrewerEnergyPerBlazePowder;
 
         // Crystal Incubator
         public final ModConfigSpec.IntValue crystalIncubatorFluidCapacity;
@@ -326,6 +336,8 @@ public class JDTEConfig {
             advancedItemCollector = new AdvancedItemCollectorConfig(builder);
             entitySuppressor = new EntitySuppressorConfig(builder);
             rangeBlocker = new RangeBlockerConfig(builder);
+            repairTalisman = new RepairTalismanConfig(builder);
+            aeOutput = new AEOutputConfig(builder);
             factoryPacker = new FactoryPackerConfig(builder);
             advancedPotionBrewer = new AdvancedPotionBrewerConfig(builder);
             crystalIncubator = new CrystalIncubatorConfig(builder);
@@ -439,6 +451,11 @@ public class JDTEConfig {
             this.rangeBlockerContainOwnerlessProjectiles = rangeBlocker.rangeBlockerContainOwnerlessProjectiles;
             this.rangeBlockerContainProjectileExplosions = rangeBlocker.rangeBlockerContainProjectileExplosions;
 
+            this.repairTalismanAmountPerCycle = repairTalisman.repairTalismanAmountPerCycle;
+            this.repairTalismanCycleInterval = repairTalisman.repairTalismanCycleInterval;
+            this.repairTalismanEnergyPerDurability = repairTalisman.repairTalismanEnergyPerDurability;
+            this.aeOutputReturnInterval = aeOutput.aeOutputReturnInterval;
+
             this.factoryPackerEnergyCapacity = factoryPacker.factoryPackerEnergyCapacity;
             this.factoryPackerBaseRadius = factoryPacker.factoryPackerBaseRadius;
             this.factoryPackerEnergyPerBlock = factoryPacker.factoryPackerEnergyPerBlock;
@@ -458,6 +475,7 @@ public class JDTEConfig {
             this.factoryPackerChatNotifications = factoryPacker.factoryPackerChatNotifications;
 
             this.potionBrewerRejectPatternProviderFuelInput = advancedPotionBrewer.potionBrewerRejectPatternProviderFuelInput;
+            this.potionBrewerEnergyPerBlazePowder = advancedPotionBrewer.potionBrewerEnergyPerBlazePowder;
 
             this.crystalIncubatorFluidCapacity = crystalIncubator.crystalIncubatorFluidCapacity;
             this.crystalIncubatorEnergyCapacity = crystalIncubator.crystalIncubatorEnergyCapacity;

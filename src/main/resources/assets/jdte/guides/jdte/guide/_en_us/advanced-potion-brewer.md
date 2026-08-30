@@ -26,7 +26,7 @@ The Advanced Potion Brewer is an automated version of the vanilla brewing stand.
 
 - Bottle input slots: 3 slots, each capped to 1 glass bottle or potion.
 - Ingredient slots: 6 slots, representing brewing steps 1-6 in order.
-- Blaze powder slot: 1 slot, accepts blaze powder only.
+- Blaze powder slot: 1 slot, accepts blaze powder only; disabled while an Energy Brewing Upgrade is installed.
 - Product output slots: 3 slots, each capped to 1 final potion.
 
 Ingredient order:
@@ -51,7 +51,7 @@ The water tank can automatically fill glass bottles in the bottle input slots in
 ## Brewing Flow
 
 1. Place glass bottles or potions in the three bottle input slots.
-2. Place blaze powder in the blaze powder slot.
+2. Place blaze powder in the blaze powder slot (skippable with an Energy Brewing Upgrade, which pays the fuel with FE).
 3. Place ingredients in order across ingredient steps 1-6.
 4. The machine checks ingredients starting from step 1.
 5. Empty ingredient slots are skipped; ingredients that do not apply to the current potion are skipped.

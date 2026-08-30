@@ -5,6 +5,7 @@ import com.jdte.common.autoioconfig.AutoIoTransferHelper;
 import com.jdte.common.greenhouse.ICreativeGreenhouse;
 import com.jdte.common.integrations.ae2.AEOutputNetwork;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.setup.JDTEConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -72,7 +73,8 @@ public final class AEOutputManager {
             boolean moved = flush(level, machine);
             if (moved) {
                 state.failureBackoff = 0;
-                state.nextAttemptTick = level.getGameTime() + 1L;
+                state.nextAttemptTick = level.getGameTime()
+                        + JDTEConfig.COMMON.aeOutputReturnInterval.get();
                 machine.setChanged();
             } else {
                 state.failureBackoff = state.failureBackoff <= 0 ? 5 : Math.min(MAX_BACKOFF, state.failureBackoff * 2);

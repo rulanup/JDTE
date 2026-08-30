@@ -12,6 +12,7 @@
     "BaseSpawnerAccessor",
     "BaseSpawnerInvoker",
     "ApothSpawnerInvoker",
+    "StabilizedSpawnerLogicAccessor",
     "ClickerFluidMixin",
     "ChunkMapShutdownMixin",
     "AreaAffectingBEMixin",

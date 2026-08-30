@@ -394,4 +394,5 @@ public class GuiUpgradeLayoutConfig {
     public int getGreenhouseOutputPageButtonSize() { return get("greenhouse_widgets", "output_page_button_size", 12); }
     public int getGreenhouseOutputPageTextX() { return get("greenhouse_widgets", "output_page_text_x", 133); }
     public int getGreenhouseOutputPageTextY() { return get("greenhouse_widgets", "output_page_text_y", 53); }
+
 }

@@ -247,6 +247,31 @@ public abstract class ItemReceiverBE extends BaseMachineBE implements Filterable
         return getData(Registration.HANDLER_BASIC_FILTER);
     }
 
+    /**
+     * 黑名单兜底：JDT 的黑名单匹配在 compareNBT 开启时按完整组件比对，某些模组
+     * 机器（如深度怪物学习的模拟室）的数据模型组件会随使用持续变化，过滤器里
+     * 存放的副本永远无法与之匹配，导致黑名单形同虚设。这里在黑名单模式下于标准
+     * 检查放行之后追加一次按物品类型的宽松比对——过滤器中存在同物品条目即拒绝。
+     * 白名单语义保持 JDT 原样（不放宽，避免抽到未明确允许的变体）。
+     */
+    @Override
+    public boolean isStackValidFilter(ItemStack testStack) {
+        if (filterData.allowlist) {
+            return FilterableBE.super.isStackValidFilter(testStack);
+        }
+        if (!FilterableBE.super.isStackValidFilter(testStack)) {
+            return false;
+        }
+        FilterBasicHandler filter = getFilterHandler();
+        for (int i = 0; i < filter.getSlots(); i++) {
+            ItemStack entry = filter.getStackInSlot(i);
+            if (!entry.isEmpty() && entry.getItem() == testStack.getItem()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public FilterData getFilterData() {
         return filterData;

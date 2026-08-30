@@ -24,6 +24,7 @@ public class JDTECreativeTabs {
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
                 output.accept(JDTEItems.LOOTING_UPGRADE.get());
                 output.accept(JDTEItems.SHARPNESS_UPGRADE.get());
+                output.accept(JDTEItems.ENERGY_BREWING_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
         output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
         output.accept(JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get());
@@ -31,6 +32,7 @@ public class JDTECreativeTabs {
         output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
         output.accept(JDTEItems.BIG_FLUID_TANK.get());
         output.accept(JDTEItems.TIME_MULTITOOL.get());
+        output.accept(JDTEItems.REPAIR_TALISMAN.get());
         output.accept(JDTEItems.ULTIMATE_TIME_WAND.get());
         output.accept(JDTEItems.LARGE_POCKET_GENERATOR.get());
         output.accept(JDTEItems.LARGE_POTION_CANISTER.get());

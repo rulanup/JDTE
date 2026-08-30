@@ -8,6 +8,7 @@ import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.setup.Config;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.jdte.common.upgrades.AdvancedPotionBrewerUpgradeItemStackHandler;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.integrations.ae2.AE2PatternProviderInputGuard;
@@ -70,6 +71,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     public final ContainerData timeFluidData;
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     protected final ItemStackHandler itemHandler;
+    private final AdvancedPotionBrewerUpgradeItemStackHandler upgradeHandler;
     protected final IItemHandler automationItemHandler;
     protected final Map<Direction, IItemHandler> sidedAutomationItemHandlers = new EnumMap<>(Direction.class);
     protected final IFluidHandler fluidHandler;
@@ -91,6 +93,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         super(JDTEBlockEntities.ADVANCED_POTION_BREWER.get(), pos, state);
         MACHINE_SLOTS = TOTAL_SLOTS;
         tickSpeed = 1;
+        upgradeHandler = new AdvancedPotionBrewerUpgradeItemStackHandler(this);
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
         waterFluidTank = createTank(f -> f.is(Fluids.WATER));
@@ -333,7 +336,8 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
             return isAllowedByRecipeLock(slot, stack) && isBrewingIngredient(stack);
         }
         if (slot == FUEL_SLOT) {
-            return stack.is(Items.BLAZE_POWDER);
+            // 能量酿造升级安装后燃料改由 FE 支付，烈焰粉槽停用
+            return !hasEnergyBrewingUpgrade() && stack.is(Items.BLAZE_POWDER);
         }
         return false;
     }
@@ -380,6 +384,15 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     @Override
     public ItemStackHandler getMachineHandler() {
         return itemHandler;
+    }
+
+    public AdvancedPotionBrewerUpgradeItemStackHandler getUpgradeHandler() {
+        return upgradeHandler;
+    }
+
+    /** 是否安装了能量酿造升级（酿造燃料改由 FE 支付）。 */
+    public boolean hasEnergyBrewingUpgrade() {
+        return upgradeHandler.hasEnergyBrewingUpgrade();
     }
 
     public IItemHandler getAutomationItemHandler() {
@@ -447,12 +460,25 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         }
 
         if (fuel <= 0) {
-            ItemStack fuelStack = itemHandler.getStackInSlot(FUEL_SLOT);
-            if (!fuelStack.isEmpty() && fuelStack.is(Items.BLAZE_POWDER)) {
-                fuelStack.shrink(1);
-                itemHandler.setStackInSlot(FUEL_SLOT, fuelStack);
-                fuel = FUEL_PER_BLAZE;
-                setChanged();
+            if (hasEnergyBrewingUpgrade()) {
+                // 能量酿造升级：以 FE 替代烈焰粉购买一次充能（20 次酿造）
+                int cost = JDTEConfig.COMMON.potionBrewerEnergyPerBlazePowder.get();
+                boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
+                if (creative || cost <= 0 || energyStorage.extractEnergy(cost, true) == cost) {
+                    if (!creative && cost > 0) {
+                        energyStorage.extractEnergy(cost, false);
+                    }
+                    fuel = FUEL_PER_BLAZE;
+                    setChanged();
+                }
+            } else {
+                ItemStack fuelStack = itemHandler.getStackInSlot(FUEL_SLOT);
+                if (!fuelStack.isEmpty() && fuelStack.is(Items.BLAZE_POWDER)) {
+                    fuelStack.shrink(1);
+                    itemHandler.setStackInSlot(FUEL_SLOT, fuelStack);
+                    fuel = FUEL_PER_BLAZE;
+                    setChanged();
+                }
             }
         }
 

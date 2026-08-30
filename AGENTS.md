@@ -36,10 +36,11 @@ Major features:
 - Red-windowed 3×3×2 Life Synthesis Vat with one controller, 17 stateless structure parts, three data-driven recipe tiers, pending-queue backpressure, direct-neighbor distillation priority, Time Fluid doubling boost, and a client-rendered progress liquid column.
 - Factory Packer with UUID-backed portable packages, populated block entities, entity trees, scheduled ticks, horizontal rotation, internal-link remapping, cached actual-block previews, public AE2 move strategies, Logistics Networks node recovery, Mekanism fission-reactor quiescing and radioactive-transmitter preservation, dependent multiblock teardown handling, bounded live-source recapture, asynchronous compressed storage, rollback, restart recovery, and actionable blacklist reports.
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
-- Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains.
+- Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains, plus the dedicated Energy Brewing Upgrade (`jdte:energy_brewing_upgrade`, limit 1) that replaces Blaze Powder fuel with FE (`energyPerBlazePowder` per 20-brew charge, Creative-waived) and disables the fuel slot while installed.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
 - Mineral Survey snapshots, the Mineral Extractor, and the 3×3×2 Large Mineral Extractor, backed by a reload-built biome ore index, public-codec world-generation analysis, datapack overrides, fixed-point weighted batch production, dual fluids, smelting, filtering, paged outputs, and coalesced work up to 64x. The large tier merges four surveys and accumulates base work four times faster through one shared production pipeline.
 - Eclipse Alloy Wrench for rotation, NBT-preserving machine pickup, reusable two-corner selection, Ctrl-scroll face resizing, and optional FTB Ultimine bulk operations.
+- Repair Talisman (`jdte:repair_talisman`): an Equivalent Exchange-style talisman that repairs every damaged item on the player (inventory, armor, offhand) by a configurable amount per cycle (default 5 durability every 4 ticks), drawing FE from charged energy items in the player's inventory at a configurable cost per durability (default 10,000 FE, 0 = free), with `jdte.repairTalisman` config controls.
 - Permanent Life Apple progression and JEI categories for machine recipes.
 - The Large Mineral Extractor controller occupies the front-center bottom position and owns all state; its other 17 blocks have no block entities and resolve the controller in O(1) from coordinate state. The controller exposes no FE, fluid, or item capability; pipes and active auto I/O are restricted to the structure's outer boundary.
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
@@ -71,7 +72,7 @@ The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and Produ
 | GuideME | `21.1.16` | In-game documentation |
 | JEI | `19.27.0.340` | Recipe categories, catalysts, information pages, and GUI click areas |
 | Apothic Spawners | CurseForge `7492121` | Optional spawner cycle and XP compatibility |
-| Draconic Evolution | CurseForge `7584459` | Optional Chaos Guardian and dragon loot compatibility |
+| Draconic Evolution | CurseForge `7584459` | Optional Chaos Guardian, dragon loot, and Stabilized Spawner crushing compatibility |
 | FTB Ultimine | CurseForge `8231400` | Optional bulk wrench and Upgrade Card operations |
 | Mystical Agriculture | CurseForge `8344249` | Optional Greenhouse crop registry integration |
 | Mystical Agradditions | CurseForge `7802027` | Optional high-tier Greenhouse crop integration through the shared registry |
@@ -308,7 +309,7 @@ Common/server mixins:
 | `FluidCapacityMixin` | Adjusts fluid capacity |
 | `GeneratorT1UpgradeMixin`, `GeneratorFluidUpgradeMixin` | Generator upgrade behavior |
 | `PoweredMachineDefaultMaxEnergyMixin`, `PoweredMachineOverrideMaxEnergyMixin` | Energy-capacity adjustment entry points |
-| `SpawnerMixin` | Intercepts spawner cycles for Bio Crushers |
+| `SpawnerMixin` | Intercepts spawner cycles for Bio Crushers (vanilla, Apothic, and Draconic Evolution stabilized spawners) |
 | `BaseSpawnerInvoker`, `ApothSpawnerInvoker` | Invoke vanilla and Apothic spawner internals |
 | `TickSpeedPacketMixin` | Keeps tick-speed packets compatible with upgrades |
 | Accessor mixins | Update JDT/NeoForge energy, fluid, filter, screen, and slot internals |
@@ -531,13 +532,15 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Advanced Energy Transmitter | `jdte.advancedEnergyTransmitter` | FE capacity, transmit delay, cache refresh and scan budgets, attempted targets, per-target throughput, loop exclusion, and particle defaults/budget |
 | Entity Suppressor | `jdte.entitySuppressor` | Energy use, named/tamed/Boss protection, and optional removal of existing blocked entities |
 | Range Blocker | `jdte.rangeBlocker` | Three mode energy costs, six containment targets, sound suppression, entity safety, projectile/explosion boundaries, and optional Mekanism compatibility |
+| Repair Talisman | `jdte.repairTalisman` | Repair amount per cycle, cycle interval, and the FE cost per durability point drawn from inventory energy items |
+| AE Output | `jdte.aeOutput` | Tick interval between AE return flushes for machines with the AE Output Upgrade |
 | Crystal Incubator | `jdte.crystalIncubator` | FE/Time Fluid capacity and cost, 512x/1024x rates, cache scanning, bounded growth/harvest batches, and Dyna growth attempts |
 | Greenhouse | `jdte.greenhouse` | FE/Time Fluid capacity, 1-32x/64x speed, 10 FE harvest cost, 100x fluid divisor, settlement interval, generic/Mystical costs, and batch cap |
 | Bio Factory | `jdte.bioFactory` | FE/fluid capacity, cycle timing, settlement interval, default/1-32x/64x Time Fluid speed, Life Fluid yield, and culture-fluid cost |
 | Life Breeder | `jdte.lifeBreeder` | FE/Life Fluid capacity and costs, biological-tick conversion, fluid multiplier, breeding cooldown basis, processing interval, entity/pair/growth/drop budgets, population guard, and 1-32x speed |
 | Life Synthesis Vat | `jdte.lifeSynthesisVat` | FE/fluid capacity, base culture work rate, default/1-32x/64x speed, settlement interval, Time Fluid cost per boosted batch, pending queue cap, and batch budget |
 | Factory Packer | `jdte.factoryPacker` | Base radius, FE block/entity costs, batch budget, source recapture retries, chat notifications, axis/volume/entity/preview limits, migration toggles, link remapping, mod move strategies, and compressed/uncompressed package limits |
-| Advanced Potion Brewer | `jdte.advancedPotionBrewer` | Optional rejection of adjacent AE2 crafting providers for Blaze Powder automation |
+| Advanced Potion Brewer | `jdte.advancedPotionBrewer` | Optional rejection of adjacent AE2 crafting providers for Blaze Powder automation, and the Energy Brewing Upgrade FE cost per blaze-powder-equivalent charge |
 | Gel Generator | `jdte.gelGenerator` | Slots, capacity, conversion, and fuel use |
 | Generator upgrade | `jdte.generatorUpgrade` | Energy multiplier and fluid consumption |
 | Upgrade items | `jdte.upgradeItems` | Limits and damage values |

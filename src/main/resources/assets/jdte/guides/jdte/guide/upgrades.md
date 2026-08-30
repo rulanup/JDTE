@@ -22,6 +22,7 @@ item_ids:
   - jdte:seed_conversion_upgrade
   - jdte:looting_upgrade
   - jdte:sharpness_upgrade
+  - jdte:energy_brewing_upgrade
 ---
 
 # 升级卡
@@ -136,9 +137,9 @@ item_ids:
 
 ## AE 输出升级
 
-先将升级卡放入 AE2 无线访问点界面的绑定输入槽，并从输出槽取回已绑定的卡。随后把它安装到具有物品或流体产物槽的机器中，产物会优先直接回传到绑定的 AE 网络。无线访问点必须已加载、在线且有频道；网络容量不足或离线时，未能写入的产物会安全保留在机器中。
+先将升级卡放入 AE2 无线访问点界面的绑定输入槽，并从输出槽取回已绑定的卡。随后把它安装到任意 JDT/JDTE 机器中，产物会按固定节奏（默认每 5 刻，`jdte.aeOutput.returnInterval` 可调）直接回传到绑定的 AE 网络，走真实 ME 存储写入——终端、总线和合成供应器都能即时看到回流物品。无线访问点必须已加载、在线且有频道；网络容量不足或离线时，未能写入的产物会安全保留在机器中。
 
-点击器、放置器、投掷器、发送器等没有产物输出用途的机器不能安装此升级。每台机器最多安装 1 张。温室矩阵控制器（位于独立的 JDTE-Matrix 模组中）也支持此升级，并会回传所有受管理温室的产物。
+每台机器最多安装 1 张；没有产物槽的机器装卡后不会回流。安装此卡的机器会停用常规自动输出，产物只走 AE。温室矩阵控制器（位于独立的 JDTE-Matrix 模组中）也支持此升级，并会回传所有受管理温室的产物。
 
 <RecipeFor id="jdte:ae_output_upgrade" />
 
@@ -173,3 +174,11 @@ item_ids:
 生物粉碎机专用，增加攻击伤害。每个升级增加 5 点伤害，最多 6 个，最大 35 点伤害。
 
 <RecipeFor id="jdte:sharpness_upgrade" />
+
+## 能量酿造升级
+
+<ItemImage id="jdte:energy_brewing_upgrade" scale="2" />
+
+高级炼药机专用，最多安装 1 张。安装后酿造燃料改由 FE 支付：每次消耗 `energyPerBlazePowder` 配置的 FE（默认 5,000）获得相当于一个烈焰粉的 20 次酿造充能，烈焰粉槽随之停用，无需再外接烈焰粉。创造升级会豁免该费用。
+
+<RecipeFor id="jdte:energy_brewing_upgrade" />

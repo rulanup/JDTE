@@ -23,6 +23,7 @@ import com.jdte.common.blockentities.TimeFreezerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.items.UltimatePortalGunItem;
+import com.jdte.common.items.RepairTalismanEvents;
 import com.jdte.common.items.LargePocketGeneratorItem;
 import com.jdte.common.items.TimeMultitoolMiningEvents;
 import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemstack;
@@ -93,6 +94,7 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(this::clearMineralIndex);
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
+        NeoForge.EVENT_BUS.addListener(RepairTalismanEvents::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);

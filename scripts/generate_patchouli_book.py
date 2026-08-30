@@ -58,7 +58,7 @@ CATEGORIES = (
         (
             "upgrades", "extended-upgrade", "extended-machines", "eclipsealloy-wrench", "boss-essences",
             "ultimate-portal-gun", "big-fluid-tank", "large-pocket-generator",
-            "large-potion-canister", "large-fuel-canister", "time-multitool",
+            "large-potion-canister", "large-fuel-canister", "time-multitool", "ultimate-time-wand", "repair-talisman",
         ),
         {"zh_cn": "升级与工具", "en_us": "Upgrades & Tools"},
         {

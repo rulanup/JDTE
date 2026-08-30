@@ -55,6 +55,9 @@ public class UpgradeHelper {
         if (machine instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
             return fabricator.getUpgradeHandler();
         }
+        if (machine instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE brewer) {
+            return brewer.getUpgradeHandler();
+        }
         if (machine instanceof BioFactoryBE factory) {
             return factory.getUpgradeHandler();
         }
@@ -90,7 +93,8 @@ public class UpgradeHelper {
             return type == UpgradeType.AE_CRAFTING_READ || creativeGreenhouse.isSupportedUpgrade(type);
         }
         if (type == UpgradeType.AE_OUTPUT) {
-            return AutoIoTransferHelper.supportsAEOutput(machine);
+            // AE 返回升级：任意 JDTE 机器均可安装；无输出路由的机器装上后不回流
+            return true;
         }
         if (machine instanceof MineralExtractorBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
@@ -127,6 +131,9 @@ public class UpgradeHelper {
                     || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE
                     || type == UpgradeType.AE_CRAFTING_READ;
         }
+        if (machine instanceof SelectiveUpgradeMachine selective) {
+            return selective.isUpgradeAllowed(type);
+        }
         if (machine instanceof FactoryPackerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
@@ -146,7 +153,7 @@ public class UpgradeHelper {
             case PRECISION -> machine instanceof CrystalIncubatorBE;
             case AE_ACCELERATION -> machine instanceof BasicTimeAcceleratorBE
                     || machine instanceof AdvancedTimeAcceleratorBE;
-            case AE_OUTPUT -> AutoIoTransferHelper.supportsAEOutput(machine);
+            case AE_OUTPUT -> true;
             case ESSENCE_CONVERSION -> machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
             case SEED_CONVERSION -> machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
             default -> true;

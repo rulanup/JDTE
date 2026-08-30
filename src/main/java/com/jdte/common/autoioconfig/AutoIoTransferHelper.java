@@ -102,12 +102,8 @@ public final class AutoIoTransferHelper {
     }
 
     public static boolean supportsAEOutput(BaseMachineBE machine) {
-        // The card can be installed before any seed template has populated the live catalog.
-        if (machine instanceof ICreativeGreenhouse) {
-            return true;
-        }
-        AEOutputRoutes routes = getAEOutputRoutes(machine);
-        return routes.itemSlots().length > 0 || routes.fluidOutput() != null;
+        // AE 返回升级现已面向任意机器开放；无输出路由的机器装卡后不会回流
+        return machine != null;
     }
 
     public static void tick(BaseMachineBE machine) {
