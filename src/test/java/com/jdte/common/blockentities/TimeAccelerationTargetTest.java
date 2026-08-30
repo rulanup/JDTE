@@ -15,9 +15,9 @@ class TimeAccelerationTargetTest {
     @Test
     void targetCopiesPositionButPreservesServerLevelIdentity() throws Exception {
         ServerLevel first = serverLevelFixture();
-        BlockPos mutable = new BlockPos(3, 4, 5);
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos(3, 4, 5);
         TimeAccelerationTarget target = new TimeAccelerationTarget(first, mutable);
-        mutable = mutable.offset(1, 0, 0);
+        mutable.set(6, 7, 8);
 
         assertSame(first, target.level());
         assertEquals(new BlockPos(3, 4, 5), target.pos());
