@@ -79,6 +79,52 @@ public final class ExtendedTimeAccelerationManager {
         return pendingPos.equals(submittedPos) && pendingRoute == submittedRoute;
     }
 
+    static Optional<TimeAccelerationTarget> resolveTimeAccelerationTarget(ServerLevel level, BlockPos pos) {
+        return resolveTimeAccelerationTarget(level, pos, ExtendedTimeAccelerationManager::getLoadedBlockEntity);
+    }
+
+    static Optional<TimeAccelerationTarget> resolveTimeAccelerationTarget(
+            ServerLevel level, BlockPos pos, TargetLookup blockEntityLookup) {
+        if (level == null || pos == null || blockEntityLookup == null) {
+            return Optional.empty();
+        }
+        IdentityHashMap<ServerLevel, Set<BlockPos>> visited = new IdentityHashMap<>();
+        ServerLevel currentLevel = level;
+        BlockPos currentPos = pos.immutable();
+        for (int depth = 0; depth <= 10; depth++) {
+            Set<BlockPos> positions = visited.computeIfAbsent(currentLevel,
+                    ignored -> new LinkedHashSet<>());
+            if (!positions.add(currentPos)) {
+                return Optional.empty();
+            }
+            BlockEntity blockEntity = blockEntityLookup.get(currentLevel, currentPos);
+            if (!(blockEntity instanceof TimeAccelerationTargetProxy proxy)) {
+                return Optional.of(new TimeAccelerationTarget(currentLevel, currentPos));
+            }
+            TimeAccelerationTarget next = proxy.getTimeAccelerationTarget();
+            if (next == null) {
+                return Optional.empty();
+            }
+            if (depth == 10) {
+                return Optional.empty();
+            }
+            currentLevel = next.level();
+            currentPos = next.pos();
+        }
+        return Optional.empty();
+    }
+
+    private static BlockEntity getLoadedBlockEntity(ServerLevel level, BlockPos pos) {
+        LevelChunk chunk = level.getChunkSource().getChunkNow(
+                SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
+        return chunk == null ? null : chunk.getBlockEntity(pos);
+    }
+
+    @FunctionalInterface
+    interface TargetLookup {
+        BlockEntity get(ServerLevel level, BlockPos pos);
+    }
+
     static AccelerationRequest requestAcceleration(TimeAcceleratorBE accelerator) {
         int displayMultiplier = accelerator.getEffectiveMultiplier();
         int workTicks = accelerator.getAccelerationWorkTicks(displayMultiplier);
