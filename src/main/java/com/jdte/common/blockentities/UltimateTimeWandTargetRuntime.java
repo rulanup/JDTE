@@ -62,7 +62,15 @@ public final class UltimateTimeWandTargetRuntime {
     }
 
     static Result execute(int requestedTicks, int batchSize, long remainingBudget, TargetExecutor target) {
-        return execute(null, requestedTicks, batchSize, remainingBudget, target);
+        int admittedTicks = admit(requestedTicks, batchSize, remainingBudget);
+        if (admittedTicks <= 0) {
+            return Result.noWork();
+        }
+
+        if (target.hasAe2Tickable()) {
+            return target.executeAe2(admittedTicks);
+        }
+        return target.executeOrdinary(admittedTicks);
     }
 
     static Result execute(TimeAccelerationTarget target, int requestedTicks, int batchSize,
@@ -147,17 +155,11 @@ public final class UltimateTimeWandTargetRuntime {
 
         Result executeOrdinary(int requestedTicks);
 
-        default boolean hasAe2Tickable(TimeAccelerationTarget target) {
-            return hasAe2Tickable();
-        }
+        boolean hasAe2Tickable(TimeAccelerationTarget target);
 
-        default Result executeAe2(TimeAccelerationTarget target, int requestedTicks) {
-            return executeAe2(requestedTicks);
-        }
+        Result executeAe2(TimeAccelerationTarget target, int requestedTicks);
 
-        default Result executeOrdinary(TimeAccelerationTarget target, int requestedTicks) {
-            return executeOrdinary(requestedTicks);
-        }
+        Result executeOrdinary(TimeAccelerationTarget target, int requestedTicks);
     }
 
     private static final class ServerTargetExecutor implements TargetExecutor {

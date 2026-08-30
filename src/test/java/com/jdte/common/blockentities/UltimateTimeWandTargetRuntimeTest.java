@@ -79,15 +79,19 @@ class UltimateTimeWandTargetRuntimeTest {
 
     @Test
     void executeResolvedTargetDoesNotRunOrdinaryTickerWhenAe2TickableExists() throws Exception {
+        ServerLevel targetLevel = serverLevelFixture();
+        BlockPos targetPos = new BlockPos(4, 5, 6);
         RecordingTarget target = new RecordingTarget(true, new UltimateTimeWandTargetRuntime.Result(5, true, false, null),
                 new UltimateTimeWandTargetRuntime.Result(5, true, false, null));
 
         UltimateTimeWandTargetRuntime.Result result =
                 UltimateTimeWandTargetRuntime.execute(
-                        new TimeAccelerationTarget(serverLevelFixture(), new BlockPos(4, 5, 6)),
+                        new TimeAccelerationTarget(targetLevel, targetPos),
                         5, 64, 5, target);
 
         assertEquals(5, result.executed());
+        assertSame(targetLevel, target.ae2Target.level());
+        assertEquals(targetPos, target.ae2Target.pos());
         assertEquals(5, target.ae2RequestedTicks);
         assertEquals(0, target.ordinaryRequestedTicks);
         assertNull(target.ordinaryTarget);
@@ -137,6 +141,7 @@ class UltimateTimeWandTargetRuntimeTest {
         private final UltimateTimeWandTargetRuntime.Result ordinaryResult;
         private int ae2RequestedTicks;
         private int ordinaryRequestedTicks;
+        private TimeAccelerationTarget ae2Target;
         private TimeAccelerationTarget ordinaryTarget;
 
         private RecordingTarget(boolean hasTickable, UltimateTimeWandTargetRuntime.Result ae2Result,
@@ -161,6 +166,18 @@ class UltimateTimeWandTargetRuntimeTest {
         public UltimateTimeWandTargetRuntime.Result executeOrdinary(int requestedTicks) {
             ordinaryRequestedTicks = requestedTicks;
             return ordinaryResult;
+        }
+
+        @Override
+        public boolean hasAe2Tickable(TimeAccelerationTarget target) {
+            return hasTickable;
+        }
+
+        @Override
+        public UltimateTimeWandTargetRuntime.Result executeAe2(
+                TimeAccelerationTarget target, int requestedTicks) {
+            ae2Target = target;
+            return executeAe2(requestedTicks);
         }
 
         @Override
