@@ -1,13 +1,81 @@
 package com.jdte.common.blockentities;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import org.junit.jupiter.api.Test;
+import sun.misc.Unsafe;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
 class TimeAccelerationWorkQueueTest {
+
+    @Test
+    void sameFinalTargetFromDirectAndProxySourcesSharesOneQueueEntry() throws Exception {
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue = new TimeAccelerationWorkQueue<>();
+        ServerLevel level = serverLevelFixture();
+        ExtendedTimeAccelerationManager.TargetKey target = new ExtendedTimeAccelerationManager.TargetKey(
+                level, BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        queue.enqueue(target, new Object(), 3, 2, 64);
+        queue.enqueue(target, new Object(), 5, 4, 64);
+
+        AtomicInteger calls = new AtomicInteger();
+        long used = queue.execute(64, 64, (key, requested, remaining) -> {
+            calls.incrementAndGet();
+            assertEquals(8, requested);
+            return new TimeAccelerationWorkQueue.ExecutionResult(8, true, false);
+        }, (key, result, multiplier) -> assertEquals(6, multiplier));
+
+        assertEquals(8, used);
+        assertEquals(1, calls.get());
+    }
+
+    @Test
+    void samePositionInDifferentLevelsUsesIndependentQueueEntries() throws Exception {
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue = new TimeAccelerationWorkQueue<>();
+        ExtendedTimeAccelerationManager.TargetKey levelA = new ExtendedTimeAccelerationManager.TargetKey(
+                serverLevelFixture(), BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey levelB = new ExtendedTimeAccelerationManager.TargetKey(
+                serverLevelFixture(), BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        queue.enqueue(levelA, new Object(), 3, 2, 64);
+        queue.enqueue(levelB, new Object(), 5, 4, 64);
+
+        AtomicInteger calls = new AtomicInteger();
+        long used = queue.execute(64, 64, (key, requested, remaining) -> {
+            calls.incrementAndGet();
+            return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+        }, (key, result, multiplier) -> { });
+
+        assertEquals(8, used);
+        assertEquals(2, calls.get());
+    }
+
+    @Test
+    void invalidResultRemovesOnlyItsFinalTargetKey() throws Exception {
+        TimeAccelerationWorkQueue<Object, ExtendedTimeAccelerationManager.TargetKey> queue = new TimeAccelerationWorkQueue<>();
+        ExtendedTimeAccelerationManager.TargetKey invalid = new ExtendedTimeAccelerationManager.TargetKey(
+                serverLevelFixture(), BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey valid = new ExtendedTimeAccelerationManager.TargetKey(
+                serverLevelFixture(), BlockPos.ZERO, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        Object source = new Object();
+        queue.enqueue(invalid, source, 3, 2, 64);
+        queue.enqueue(valid, source, 5, 4, 64);
+
+        long used = queue.execute(64, 64, (key, requested, remaining) ->
+                        key == invalid
+                                ? new TimeAccelerationWorkQueue.ExecutionResult(0, false, true)
+                                : new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false),
+                (key, result, multiplier) -> { });
+
+        assertEquals(5, used);
+        assertEquals(0, queue.pendingTicks(invalid));
+        assertEquals(0, queue.pendingTicks(valid));
+    }
 
     @Test
     void wandRemainderSurvivesABatchWhileSharingTheGlobalBudget() {
@@ -27,5 +95,11 @@ class TimeAccelerationWorkQueueTest {
         assertEquals(64, executed.get("machine-target"));
         assertEquals(960, queue.pendingTicks("wand-target"));
         assertEquals(0, queue.pendingTicks("machine-target"));
+    }
+
+    private static ServerLevel serverLevelFixture() throws Exception {
+        Field field = Unsafe.class.getDeclaredField("theUnsafe");
+        field.setAccessible(true);
+        return (ServerLevel) ((Unsafe) field.get(null)).allocateInstance(ServerLevel.class);
     }
 }

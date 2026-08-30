@@ -58,25 +58,23 @@ public final class ExtendedTimeAccelerationManager {
         if (wand.isRemoved() || wand.level() != level || requestedTicks <= 0) {
             return false;
         }
-        UltimateTimeWandTargetRuntime.Route route = UltimateTimeWandTargetRuntime.route(level, target);
-        TargetKind kind = switch (route) {
-            case AE2 -> TargetKind.AE2_GRID;
-            case ORDINARY -> level.getBlockEntity(target) == null
-                    ? TargetKind.RANDOM_TICK : TargetKind.BLOCK_ENTITY;
-            case NONE -> null;
-        };
-        if (kind == null) {
+        Optional<TargetKey> resolved = resolveTargetKey(level, target, true);
+        if (resolved.isEmpty()) {
             return false;
         }
         LevelState state = LEVELS.computeIfAbsent(level, ignored -> new LevelState());
         state.submittedWands.put(wand,
-                new WandSubmission(new TargetKey(target, kind), requestedTicks));
+                new WandSubmission(resolved.get(), requestedTicks));
         return true;
     }
 
     static boolean isCurrentWandTarget(BlockPos pendingPos, UltimateTimeWandTargetRuntime.Route pendingRoute,
                                        BlockPos submittedPos, UltimateTimeWandTargetRuntime.Route submittedRoute) {
         return pendingPos.equals(submittedPos) && pendingRoute == submittedRoute;
+    }
+
+    static boolean isCurrentWandTarget(TargetKey pendingTarget, TargetKey submittedTarget) {
+        return pendingTarget.equals(submittedTarget);
     }
 
     static Optional<TimeAccelerationTarget> resolveTimeAccelerationTarget(ServerLevel level, BlockPos pos) {
@@ -98,6 +96,9 @@ public final class ExtendedTimeAccelerationManager {
                 return Optional.empty();
             }
             BlockEntity blockEntity = blockEntityLookup.get(currentLevel, currentPos);
+            if (blockEntity != null && blockEntity.isRemoved()) {
+                return Optional.empty();
+            }
             if (!(blockEntity instanceof TimeAccelerationTargetProxy proxy)) {
                 return Optional.of(new TimeAccelerationTarget(currentLevel, currentPos));
             }
@@ -114,10 +115,75 @@ public final class ExtendedTimeAccelerationManager {
         return Optional.empty();
     }
 
+    private static boolean isAE2Target(ServerLevel level, BlockPos pos, BlockEntity blockEntity) {
+        BlockState state = blockEntity.getBlockState();
+        return !state.is(JDT_TICK_SPEED_DENY)
+                && ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static boolean isBlockEntityTarget(ServerLevel level, BlockEntity blockEntity) {
+        BlockState state = blockEntity.getBlockState();
+        BlockEntityTicker<BlockEntity> ticker = state.getTicker(level,
+                (BlockEntityType<BlockEntity>) blockEntity.getType());
+        return ticker != null && MiscTools.isValidTickAccelBlock(level, state, blockEntity);
+    }
+
+    static TargetKind selectTargetKind(boolean hasAe2Service, boolean ae2AccelerationEnabled,
+                                       boolean hasBlockEntityTicker) {
+        if (hasAe2Service && ae2AccelerationEnabled) {
+            return TargetKind.AE2_GRID;
+        }
+        return hasBlockEntityTicker ? TargetKind.BLOCK_ENTITY : null;
+    }
+
+    static Optional<TargetKey> resolveTargetKey(ServerLevel level, BlockPos pos,
+                                                  boolean ae2AccelerationEnabled) {
+        Optional<TimeAccelerationTarget> target = resolveTimeAccelerationTarget(level, pos);
+        return target.flatMap(resolved -> classifyTarget(resolved, ae2AccelerationEnabled));
+    }
+
+    private static Optional<TargetKey> classifyTarget(TimeAccelerationTarget target,
+                                                       boolean ae2AccelerationEnabled) {
+        ServerLevel level = target.level();
+        BlockPos pos = target.pos();
+        LevelChunk chunk = getLoadedChunk(level, pos);
+        if (chunk == null) {
+            return Optional.empty();
+        }
+        BlockEntity blockEntity = chunk.getBlockEntity(pos);
+        BlockState state = chunk.getBlockState(pos);
+        if (blockEntity != null) {
+            if (blockEntity.isRemoved() || blockEntity instanceof TimeAcceleratorMachine) {
+                return Optional.empty();
+            }
+            TargetKind kind = selectTargetKind(
+                    isAE2Target(level, pos, blockEntity), ae2AccelerationEnabled,
+                    isBlockEntityTarget(level, blockEntity));
+            if (kind == TargetKind.AE2_GRID
+                    && !MiscTools.isValidTickAccelBlock(level, state, blockEntity)) {
+                return Optional.empty();
+            }
+            return kind == null ? Optional.empty() : Optional.of(new TargetKey(level, pos, kind));
+        }
+        if (!state.hasBlockEntity() && state.isRandomlyTicking()
+                && MiscTools.isValidTickAccelBlock(level, state, null)) {
+            return Optional.of(new TargetKey(level, pos, TargetKind.RANDOM_TICK));
+        }
+        return Optional.empty();
+    }
+
     private static BlockEntity getLoadedBlockEntity(ServerLevel level, BlockPos pos) {
-        LevelChunk chunk = level.getChunkSource().getChunkNow(
-                SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
+        LevelChunk chunk = getLoadedChunk(level, pos);
         return chunk == null ? null : chunk.getBlockEntity(pos);
+    }
+
+    private static LevelChunk getLoadedChunk(ServerLevel level, BlockPos pos) {
+        if (level == null || pos == null) {
+            return null;
+        }
+        return level.getChunkSource().getChunkNow(
+                SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
     }
 
     @FunctionalInterface
@@ -212,15 +278,37 @@ public final class ExtendedTimeAccelerationManager {
         LEVEL_CURSORS.remove(server);
     }
 
-    private enum TargetKind {
+    enum TargetKind {
         BLOCK_ENTITY,
         RANDOM_TICK,
         AE2_GRID
     }
 
-    private record TargetKey(BlockPos pos, TargetKind kind) {
-        private TargetKey {
-            pos = pos.immutable();
+    static record TargetKey(ServerLevel targetLevel, BlockPos pos, TargetKind kind) {
+        TargetKey {
+            java.util.Objects.requireNonNull(targetLevel, "targetLevel");
+            pos = java.util.Objects.requireNonNull(pos, "pos").immutable();
+            java.util.Objects.requireNonNull(kind, "kind");
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof TargetKey that)) {
+                return false;
+            }
+            return targetLevel == that.targetLevel
+                    && pos.equals(that.pos)
+                    && kind == that.kind;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = System.identityHashCode(targetLevel);
+            result = 31 * result + pos.hashCode();
+            return 31 * result + kind.hashCode();
         }
     }
 
@@ -294,7 +382,7 @@ public final class ExtendedTimeAccelerationManager {
         private final Set<CoalescedAcceleratedMachine> coalescedTargets =
                 Collections.newSetFromMap(new IdentityHashMap<>());
         private final Map<TimeAcceleratorBE, RandomTargetCache> randomTargets = new IdentityHashMap<>();
-        private final Map<BlockPos, Long> nextEffectTick = new LinkedHashMap<>();
+        private final Map<TargetKey, Long> nextEffectTick = new LinkedHashMap<>();
 
         private boolean hasWork() {
             return !submitted.isEmpty() || !submittedWands.isEmpty() || workQueue.hasWork();
@@ -388,18 +476,10 @@ public final class ExtendedTimeAccelerationManager {
             workQueue.retainContributors((target, source) -> {
                 if (source instanceof UltimateTimeWandEntity wand) {
                     WandSubmission current = submittedWands.get(wand);
-                    return current != null && isCurrentWandTarget(
-                            target.pos(), routeFor(target.kind()),
-                            current.target().pos(), routeFor(current.target().kind()));
+                    return current != null && isCurrentWandTarget(target, current.target());
                 }
                 return (target.kind() == TargetKind.AE2_GRID ? ae2Active : active).contains(source);
             });
-        }
-
-        private UltimateTimeWandTargetRuntime.Route routeFor(TargetKind kind) {
-            return kind == TargetKind.AE2_GRID
-                    ? UltimateTimeWandTargetRuntime.Route.AE2
-                    : UltimateTimeWandTargetRuntime.Route.ORDINARY;
         }
 
         private void discoverBlockEntities(ServerLevel level, Map<Long, List<AcceleratorContext>> byChunk) {
@@ -415,20 +495,20 @@ public final class ExtendedTimeAccelerationManager {
                     if (blockEntity instanceof TimeAcceleratorMachine || blockEntity.isRemoved()) {
                         continue;
                     }
-                    boolean ae2Target = isAE2Target(level, pos, blockEntity);
-                    boolean blockEntityTarget = isBlockEntityTarget(level, blockEntity);
-                    if (!ae2Target && !blockEntityTarget) {
-                        continue;
-                    }
-                    BlockState state = blockEntity.getBlockState();
                     for (AcceleratorContext context : entry.getValue()) {
-                        if (context.contains(pos) && context.accelerator.isBlockValidFilter(level, pos, state)) {
-                            if (ae2Target) {
-                                if (context.ae2AccelerationEnabled) {
-                                    context.targets.add(new TargetKey(pos, TargetKind.AE2_GRID));
-                                }
-                            } else if (blockEntityTarget) {
-                                context.targets.add(new TargetKey(pos, TargetKind.BLOCK_ENTITY));
+                        if (!context.contains(pos)) {
+                            continue;
+                        }
+                        Optional<TimeAccelerationTarget> resolved = resolveTimeAccelerationTarget(level, pos);
+                        if (resolved.isEmpty()) {
+                            continue;
+                        }
+                        Optional<TargetKey> target = classifyTarget(resolved.get(), context.ae2AccelerationEnabled);
+                        if (target.isPresent()) {
+                            TargetKey key = target.get();
+                            BlockState state = key.targetLevel().getBlockState(key.pos());
+                            if (context.accelerator.isBlockValidFilter(key.targetLevel(), key.pos(), state)) {
+                                context.targets.add(key);
                             }
                         }
                     }
@@ -461,7 +541,7 @@ public final class ExtendedTimeAccelerationManager {
                 }
                 if (MiscTools.isValidTickAccelBlock(level, state, null)
                         && context.accelerator.isBlockValidFilter(level, scanPos, state)) {
-                    cache.rebuildingTargets.add(new TargetKey(scanPos, TargetKind.RANDOM_TICK));
+                    cache.rebuildingTargets.add(new TargetKey(level, scanPos, TargetKind.RANDOM_TICK));
                 }
             }
             if (cache.scanIndex >= cache.scanVolume) {
@@ -491,19 +571,6 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
-        private boolean isAE2Target(ServerLevel level, BlockPos pos, BlockEntity blockEntity) {
-            BlockState state = blockEntity.getBlockState();
-            return isAE2AccelerationConfigured() && !state.is(JDT_TICK_SPEED_DENY)
-                    && ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos);
-        }
-
-        @SuppressWarnings("unchecked")
-        private boolean isBlockEntityTarget(ServerLevel level, BlockEntity blockEntity) {
-            BlockState state = blockEntity.getBlockState();
-            BlockEntityTicker<BlockEntity> ticker = state.getTicker(level, (BlockEntityType<BlockEntity>) blockEntity.getType());
-            return ticker != null && MiscTools.isValidTickAccelBlock(level, state, blockEntity);
-        }
-
         private void execute(ServerLevel level, long maxExecutions) {
             int batchSize = JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get();
             coalescedTargets.clear();
@@ -513,13 +580,13 @@ public final class ExtendedTimeAccelerationManager {
                             TimeAccelerationWorkQueue.ExecutionResult result =
                                     executeTarget(level, target, requested, remainingBudget);
                             if (!result.valid()) {
-                                nextEffectTick.remove(target.pos());
+                                nextEffectTick.remove(target);
                             }
                             return result;
                         },
                         (target, result, displayMultiplier) -> {
                             if (displayMultiplier > 0) {
-                                spawnEffect(level, target.pos(), displayMultiplier);
+                                spawnEffect(target, displayMultiplier);
                             }
                         });
             } finally {
@@ -530,11 +597,18 @@ public final class ExtendedTimeAccelerationManager {
 
         private TimeAccelerationWorkQueue.ExecutionResult executeTarget(
                 ServerLevel level, TargetKey target, int requested, long remainingBudget) {
+            Optional<TargetKey> current = resolveTargetKey(
+                    target.targetLevel(), target.pos(),
+                    target.kind() == TargetKind.AE2_GRID && isAE2AccelerationConfigured());
+            if (current.isEmpty() || !current.get().equals(target)) {
+                return new TimeAccelerationWorkQueue.ExecutionResult(0, false, true);
+            }
             return switch (target.kind()) {
-                case BLOCK_ENTITY, RANDOM_TICK -> executeOrdinaryTarget(level, target.pos(), requested, remainingBudget);
+                case BLOCK_ENTITY, RANDOM_TICK -> executeOrdinaryTarget(target, requested, remainingBudget);
                 case AE2_GRID -> {
                     ExtendedTimeAcceleratorAE2Integration.Result result =
-                            ExtendedTimeAcceleratorAE2Integration.accelerate(level, target.pos(), requested);
+                            ExtendedTimeAcceleratorAE2Integration.accelerate(
+                                    target.targetLevel(), target.pos(), requested);
                     yield new TimeAccelerationWorkQueue.ExecutionResult(
                             result.executed(), result.valid(), result.idle());
                 }
@@ -542,9 +616,11 @@ public final class ExtendedTimeAccelerationManager {
         }
 
         private TimeAccelerationWorkQueue.ExecutionResult executeOrdinaryTarget(
-                ServerLevel level, BlockPos pos, int requested, long remainingBudget) {
+                TargetKey target, int requested, long remainingBudget) {
             UltimateTimeWandTargetRuntime.Result result =
-                    UltimateTimeWandTargetRuntime.executeOrdinary(level, pos, requested, remainingBudget);
+                    UltimateTimeWandTargetRuntime.executeOrdinary(
+                            new TimeAccelerationTarget(target.targetLevel(), target.pos()),
+                            requested, remainingBudget);
             if (result.coalescedTarget() != null) {
                 coalescedTargets.add(result.coalescedTarget());
             }
@@ -552,12 +628,14 @@ public final class ExtendedTimeAccelerationManager {
                     result.executed(), result.valid(), result.idle());
         }
 
-        private void spawnEffect(ServerLevel level, BlockPos pos, int multiplier) {
+        private void spawnEffect(TargetKey target, int multiplier) {
+            ServerLevel level = target.targetLevel();
+            BlockPos pos = target.pos();
             long gameTime = level.getGameTime();
-            if (gameTime < nextEffectTick.getOrDefault(pos, Long.MIN_VALUE)) {
+            if (gameTime < nextEffectTick.getOrDefault(target, Long.MIN_VALUE)) {
                 return;
             }
-            nextEffectTick.put(pos.immutable(), gameTime + 10L);
+            nextEffectTick.put(target, gameTime + 10L);
             boolean present = !level.getEntitiesOfClass(TimeAcceleratorEffectEntity.class, new AABB(pos), entity -> true).isEmpty();
             if (!present) {
                 level.addFreshEntity(new TimeAcceleratorEffectEntity(level, pos, Math.max(1, multiplier)));

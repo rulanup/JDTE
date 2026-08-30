@@ -3,6 +3,7 @@ package com.jdte.common.blockentities;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.fml.config.IConfigSpec;
 import org.junit.jupiter.api.Test;
@@ -12,12 +13,81 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExtendedTimeAccelerationManagerTest {
+
+    @Test
+    void finalTargetKeyIncludesLevelKindAndImmutablePosition() throws Exception {
+        ServerLevel firstLevel = (ServerLevel) unsafe().allocateInstance(ServerLevel.class);
+        ServerLevel secondLevel = (ServerLevel) unsafe().allocateInstance(ServerLevel.class);
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos(3, 4, 5);
+        ExtendedTimeAccelerationManager.TargetKey first = new ExtendedTimeAccelerationManager.TargetKey(
+                firstLevel, mutable, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        mutable.set(9, 9, 9);
+        ExtendedTimeAccelerationManager.TargetKey second = new ExtendedTimeAccelerationManager.TargetKey(
+                secondLevel, new BlockPos(3, 4, 5), ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+
+        assertEquals(firstLevel, first.targetLevel());
+        assertEquals(new BlockPos(3, 4, 5), first.pos());
+        assertNotSame(mutable, first.pos());
+        assertNotEquals(first, second);
+    }
+
+    @Test
+    void finalTargetKeyComparisonSeparatesDimensionsAndRoutes() throws Exception {
+        ServerLevel firstLevel = (ServerLevel) unsafe().allocateInstance(ServerLevel.class);
+        ServerLevel secondLevel = (ServerLevel) unsafe().allocateInstance(ServerLevel.class);
+        BlockPos pos = new BlockPos(3, 4, 5);
+        ExtendedTimeAccelerationManager.TargetKey first = new ExtendedTimeAccelerationManager.TargetKey(
+                firstLevel, pos, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey second = new ExtendedTimeAccelerationManager.TargetKey(
+                secondLevel, pos, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey route = new ExtendedTimeAccelerationManager.TargetKey(
+                firstLevel, pos, ExtendedTimeAccelerationManager.TargetKind.RANDOM_TICK);
+
+        assertTrue(ExtendedTimeAccelerationManager.isCurrentWandTarget(first, first));
+        assertFalse(ExtendedTimeAccelerationManager.isCurrentWandTarget(first, second));
+        assertFalse(ExtendedTimeAccelerationManager.isCurrentWandTarget(first, route));
+    }
+
+    @Test
+    void finalTargetKeyHashingUsesOwningLevelIdentity() throws Exception {
+        ServerLevel firstLevel = (ServerLevel) unsafe().allocateInstance(ServerLevel.class);
+        ServerLevel secondLevel = (ServerLevel) unsafe().allocateInstance(ServerLevel.class);
+        BlockPos pos = new BlockPos(3, 4, 5);
+        ExtendedTimeAccelerationManager.TargetKey first = new ExtendedTimeAccelerationManager.TargetKey(
+                firstLevel, pos, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey same = new ExtendedTimeAccelerationManager.TargetKey(
+                firstLevel, pos, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey other = new ExtendedTimeAccelerationManager.TargetKey(
+                secondLevel, pos, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+
+        assertEquals(first, same);
+        assertEquals(first.hashCode(), same.hashCode());
+        assertNotEquals(first, other);
+    }
+
+    @Test
+    void ordinaryTickerRemainsEligibleWhenAe2ServiceIsDisabled() {
+        assertEquals(ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY,
+                ExtendedTimeAccelerationManager.selectTargetKind(true, false, true));
+        assertEquals(ExtendedTimeAccelerationManager.TargetKind.AE2_GRID,
+                ExtendedTimeAccelerationManager.selectTargetKind(true, true, true));
+        assertEquals(ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY,
+                ExtendedTimeAccelerationManager.selectTargetKind(false, false, true));
+    }
+
+    @Test
+    void ae2ServiceWithoutOrdinaryTickerIsRejectedWhenDisabled() {
+        assertNull(ExtendedTimeAccelerationManager.selectTargetKind(true, false, false));
+    }
 
     @Test
     void wandPendingRouteIsRetainedOnlyWhileItMatchesTheCurrentSubmission() {
