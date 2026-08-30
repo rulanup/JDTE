@@ -124,11 +124,11 @@ public final class ExtendedTimeAccelerationManager {
                 TargetKey target, int requested, long remainingBudget);
     }
 
-    public static Optional<TimeAccelerationTarget> resolveTimeAccelerationTarget(ServerLevel level, BlockPos pos) {
+    static Optional<TimeAccelerationTarget> resolveTimeAccelerationTarget(ServerLevel level, BlockPos pos) {
         return resolveTimeAccelerationTarget(level, pos, ExtendedTimeAccelerationManager::getLoadedBlockEntity);
     }
 
-    public static Optional<TimeAccelerationTarget> resolveTimeAccelerationTarget(
+    static Optional<TimeAccelerationTarget> resolveTimeAccelerationTarget(
             ServerLevel level, BlockPos pos, TargetLookup blockEntityLookup) {
         if (level == null || pos == null || blockEntityLookup == null) {
             return Optional.empty();
@@ -290,7 +290,7 @@ public final class ExtendedTimeAccelerationManager {
     }
 
     @FunctionalInterface
-    public interface TargetLookup {
+    interface TargetLookup {
         BlockEntity get(ServerLevel level, BlockPos pos);
     }
 
