@@ -134,8 +134,6 @@ Basic, Advanced, and Extended Time Accelerators only. Allows the accelerator con
 
 Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a compatible machine's standard or extended upgrade slot. The machine reads active crafting tasks from the linked AE2 network and runs automatically while one is present. It pauses when unlinked, when the Wireless Access Point is unloaded or offline, while the network is booting, or when no crafting task is active; it resumes automatically after the network recovers and a task is available. Limited to one per machine. AE2 is an optional dependency, so the upgrade remains inactive when AE2 is not installed.
 
-<RecipeFor id="jdte:ae_crafting_read_upgrade" />
-
 ## AE Output Upgrade
 
 Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a machine with item or fluid product outputs to return those products directly to the linked AE network. The access point must remain loaded, online, and have a channel. If the network is unavailable or full, unaccepted products safely remain in the machine.

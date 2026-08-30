@@ -4,8 +4,6 @@
 
 #### v0.5.9 (Current)
 
-- **新增**：加入 AE 合成读取升级（`jdte:ae_crafting_read_upgrade`）。将卡片放入 AE2 无线访问点的 linking 输入槽完成绑定，再安装到兼容机器的标准或扩展升级槽。绑定的 AE2 网络存在活动合成任务时机器自动运行；未绑定、访问点离线或未加载、网络启动中或没有进行中的合成任务时暂停，网络恢复且出现任务后自动继续。AE2 仍为可选依赖。
-
 - **New**: Added the AE Crafting Read Upgrade (`jdte:ae_crafting_read_upgrade`). Bind it by placing the card in an AE2 Wireless Access Point's linking input, then install it in a standard or extended upgrade slot on a compatible machine. The machine runs automatically while the linked AE2 network has an active crafting task, and pauses when the card is unbound, the access point is offline or unloaded, the network is booting, or no crafting task is active. AE2 remains an optional dependency.
 
 - **Split**: The Creative Greenhouse moved out of JDTE into the standalone **JDTE-Matrix** addon (`jdte_matrix`) as `jdte_matrix:creative_greenhouse` (`com.jdte.matrix`). JDTE keeps only the shared `ICreativeGreenhouse` marker interface plus the existing Greenhouse code paths, so cross-mod upgrades, auto I/O, AE output, FilterPage paging, and the reused slot renders keep working without JDTE referencing the matrix mod.
