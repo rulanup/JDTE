@@ -27,6 +27,7 @@ import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
+import com.jdte.common.blockentities.TimeFreezerBE;
 import com.jdte.common.integrations.ae2.AE2CraftingReadNetwork;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.autoioconfig.AutoIoTransferHelper;
@@ -336,9 +337,28 @@ public class UpgradeHelper {
         return countUpgrades(handler, UpgradeType.AE_CRAFTING_READ) == 0;
     }
 
+    /** Returns whether the whole ticker is a safe boundary for the common AE work gate. */
+    public static boolean usesCommonAeTickerGate(BaseMachineBE machine) {
+        return !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+                && !(machine instanceof LifeSynthesisVatBE || machine instanceof MineralExtractorBE)
+                && !(machine instanceof LifeBreederBE || machine instanceof TimeFreezerBE)
+                && !(machine instanceof TimeAcceleratorMachine || machine instanceof EntitySuppressorBE)
+                && !(machine instanceof RangeBlockerBE || machine instanceof AdvancedEnergyTransmitterBE)
+                && !(machine instanceof FactoryPackerBE);
+    }
+
     /** Executes the actual machine ticker while preserving the original redstone-off reset path. */
     public static void runServerTicker(boolean redstoneActive, BooleanSupplier mayRun,
                                        boolean overclock, Runnable originalTicker) {
+        runServerTicker(true, redstoneActive, mayRun, overclock, originalTicker);
+    }
+
+    public static void runServerTicker(boolean useCommonGate, boolean redstoneActive, BooleanSupplier mayRun,
+                                       boolean overclock, Runnable originalTicker) {
+        if (!useCommonGate) {
+            originalTicker.run();
+            return;
+        }
         if (!redstoneActive) {
             originalTicker.run();
             return;

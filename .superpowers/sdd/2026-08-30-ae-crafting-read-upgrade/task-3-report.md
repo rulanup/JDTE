@@ -66,3 +66,41 @@
 - 全量 `./gradlew test`：`BUILD SUCCESSFUL`。
 - `./gradlew compileJava`：`BUILD SUCCESSFUL`。
 - `git diff --check`：通过，仅有 Git 的 LF/CRLF 提示。
+
+## 第3轮 Critical 修复（2026-08-30）
+
+### 根因
+
+- 第2轮把通用 AE gate 放在 `BaseMachineBlock` 返回的整个服务端 ticker 外层。该边界适用于普通 JDT 生产机器，但不适用于 ticker 同时承担状态机维护、manager deactivate、预留资源归还或事务恢复的 JDTE 自有机器。
+- 最直接的错误是 Time Freezer：AE deny 跳过整个 ticker 会阻止 `TimeFreezerManager.deactivate(this)`，导致维度冻结状态残留。任务4要求在具体 activate/生产副作用边界接入 AE gate，任务3必须让这些 ticker 继续执行。
+
+### 修复内容
+
+- 新增显式 `UpgradeHelper.usesCommonAeTickerGate(BaseMachineBE)` 类型策略。
+- 通用 ticker gate 排除任务4状态机族：
+  - `GreenhouseBE`、`LargeGreenhouseBE`；
+  - `LifeSynthesisVatBE`；
+  - `MineralExtractorBE`，因此同时覆盖继承它的 `LargeMineralExtractorBE`；
+  - `LifeBreederBE`；
+  - `TimeFreezerBE`，因此同时覆盖 `ExtendedTimeFreezerBE`。
+- 代码复审后额外排除需要持续 maintenance/deactivate 的 JDTE 机器：
+  - `TimeAcceleratorMachine` 全族，包括 Basic/Advanced/Extended Time Accelerator 和继承该族的 Crystal Incubator；
+  - `EntitySuppressorBE`、`RangeBlockerBE`，其 ticker 维护 active 状态、过滤缓存和 manager/client 同步；
+  - `AdvancedEnergyTransmitterBE`，其 ticker 在停止时归还网络预留能量并维护目标发现；
+  - `FactoryPackerBE`，其 ticker 驱动事务阶段、恢复和 rollback。
+- 排除机器始终恰好执行一次 original ticker，不读取 AE 许可，也不由通用 wrapper 追加 overclock；任务4在实际副作用边界实现 deny、暂停和 deactivate。
+- 普通 JDT 机器继续使用第2轮通用 gate：红石关闭仍走原 reset 路径，Pulse 在 deny 时不被消费，AE deny 不执行 ticker，allow 后恢复，Overclock/Creative 仍可执行第二次且每 tick 只查询一次许可。
+- `BaseMachineBEMixin` 的 Auto I/O gate 保持不变。
+- 未修改任何任务4指定机器源码。
+
+### 测试与验证
+
+- 扩展 `BaseMachineTickerGateTest`：
+  - 使用真实机器实例验证全部任务4族及额外维护型机器被排除；
+  - 显式覆盖 `LargeMineralExtractorBE`、`ExtendedTimeFreezerBE` 的继承匹配；
+  - 验证普通 JDT `BaseMachineBE` 仍使用通用 gate，AE deny 时 original ticker 执行次数为 0；
+  - 验证排除状态机即使 AE deny 且传入 overclock，也只执行一次 original ticker且不读取许可。
+- focused tests：`BUILD SUCCESSFUL`。
+- 全量 `./gradlew test`：`BUILD SUCCESSFUL`。
+- `./gradlew compileJava`：`BUILD SUCCESSFUL`。
+- `git diff --check`：通过，仅有 Git 的 LF/CRLF 提示。
