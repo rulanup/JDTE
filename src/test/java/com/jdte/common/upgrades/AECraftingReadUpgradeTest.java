@@ -58,12 +58,15 @@ class AECraftingReadUpgradeTest {
 
         assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(TARGET, 3,
                 ignored -> new AE2CraftingReadNetwork.NetworkState("grid", false, true, false, List.of())));
-        assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(upgrade, 4,
+        assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(TARGET, 4,
                 ignored -> new AE2CraftingReadNetwork.NetworkState("grid", true, false, false, List.of())));
         assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(upgrade, 5,
-                ignored -> new AE2CraftingReadNetwork.NetworkState("grid", true, true, true, List.of())));
+                ignored -> new AE2CraftingReadNetwork.NetworkState("grid", true, false, false, List.of())));
         assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(upgrade, 6,
+                ignored -> new AE2CraftingReadNetwork.NetworkState("grid", true, true, true, List.of())));
+        assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(upgrade, 7,
                 ignored -> new AE2CraftingReadNetwork.NetworkState("grid", true, true, false, List.of())));
+        assertFalse(AE2CraftingReadNetwork.hasActiveCraftingTask(TARGET, 8, ignored -> null));
     }
 
     @Test

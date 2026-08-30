@@ -1,6 +1,7 @@
 package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.blockentities.BioCrusherBE;
@@ -46,10 +47,19 @@ public abstract class BaseMachineBlockMixin {
         }
 
         cir.setReturnValue((tickLevel, pos, blockState, blockEntity) -> {
-            original.tick(tickLevel, pos, blockState, blockEntity);
-            if (blockEntity instanceof BaseMachineBE machine && UpgradeHelper.shouldRunOverclock(machine)) {
+            if (!(blockEntity instanceof BaseMachineBE machine)) {
                 original.tick(tickLevel, pos, blockState, blockEntity);
+                return;
             }
+
+            boolean redstoneActive = true;
+            if (machine instanceof RedstoneControlledBE redstoneControlled) {
+                redstoneControlled.evaluateRedstone();
+                redstoneActive = redstoneControlled.isActiveRedstoneTestOnly();
+            }
+            boolean overclock = redstoneActive && UpgradeHelper.shouldRunOverclock(machine);
+            UpgradeHelper.runServerTicker(redstoneActive, () -> UpgradeHelper.mayRunWithUpgrades(machine), overclock,
+                    () -> original.tick(tickLevel, pos, blockState, blockEntity));
         });
     }
 

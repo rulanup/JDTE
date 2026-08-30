@@ -42,6 +42,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
 public class UpgradeHelper {
@@ -333,6 +334,22 @@ public class UpgradeHelper {
                     && AE2CraftingReadNetwork.hasActiveCraftingTask(upgrade, gameTime, resolver)) return true;
         }
         return countUpgrades(handler, UpgradeType.AE_CRAFTING_READ) == 0;
+    }
+
+    /** Executes the actual machine ticker while preserving the original redstone-off reset path. */
+    public static void runServerTicker(boolean redstoneActive, BooleanSupplier mayRun,
+                                       boolean overclock, Runnable originalTicker) {
+        if (!redstoneActive) {
+            originalTicker.run();
+            return;
+        }
+        if (!mayRun.getAsBoolean()) {
+            return;
+        }
+        originalTicker.run();
+        if (overclock) {
+            originalTicker.run();
+        }
     }
 
     private static int countUpgrades(UpgradeItemStackHandler handler, UpgradeType type) {
