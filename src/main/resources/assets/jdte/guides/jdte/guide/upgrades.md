@@ -16,6 +16,7 @@ item_ids:
   - jdte:fortune_upgrade
   - jdte:precision_upgrade
   - jdte:ae_acceleration_upgrade
+  - jdte:ae_crafting_read_upgrade
   - jdte:ae_output_upgrade
   - jdte:essence_conversion_upgrade
   - jdte:seed_conversion_upgrade
@@ -126,6 +127,14 @@ item_ids:
 仅限初级、高级和扩展高级时间加速器。允许安装此卡的时间加速器通过 AE2 公开的 `IGridTickable` 服务加速支持的 AE2 设备。每台机器最多安装 1 张；重叠范围内只有安装此卡的加速器会向 AE2 设备贡献倍率。
 
 <RecipeFor id="jdte:ae_acceleration_upgrade" />
+
+## AE 合成读取升级
+
+<ItemImage id="jdte:ae_crafting_read_upgrade" scale="2" />
+
+将升级卡放入 AE2 无线访问点界面的 linking 输入槽，再从输出槽取回已绑定的卡。把它安装到兼容机器的标准或扩展升级槽中，机器会读取绑定 AE2 网络的活动合成任务并自动运行。未绑定、无线访问点未加载或离线、网络正在启动，或网络没有进行中的合成任务时，机器会暂停；网络恢复并出现合成任务后会自动继续。每台机器最多安装 1 张。AE2 为可选依赖，未安装 AE2 时该升级不会启用。
+
+<RecipeFor id="jdte:ae_crafting_read_upgrade" />
 
 ## AE 输出升级
 

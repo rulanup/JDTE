@@ -16,7 +16,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 
 Major features:
 
-- 14 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, AE Acceleration, Looting, and Sharpness.
+- 16 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, AE Acceleration, AE Crafting Read, AE Output, Looting, and Sharpness.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Time Freezer and Extended Time Freezer machines that consume Time Fluid to freeze a dimension's day/night cycle and weather, plus the permission-4 `/jdte timefreezer list` command for server operators.
 - Ultimate Portal Gun (`jdte:ultimate_portal_gun`): a JDT Advanced Portal Gun enhancement with a 1000 B single large Portal Fluid tank, unlimited teleport slots in a paginated radial menu (V key), manual coordinate editing with full server dimension selection, and per-slot fluid pricing.
@@ -160,6 +160,7 @@ Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItem
 | `FORTUNE` | `fortune` | 8 | Gel Generator, Crystal Incubator, and Greenhouse; Greenhouse uses a machine-specific limit of 3 |
 | `PRECISION` | `precision` | 1 | Crystal Incubator only; applies vanilla Silk Touch loot behavior and conflicts with Fortune |
 | `AE_ACCELERATION` | `ae_acceleration` | 1 | Basic, Advanced, and Extended Time Accelerators only; enables AE2 `IGridTickable` acceleration |
+| `AE_CRAFTING_READ` | `ae_crafting_read` | 1 | Compatible machines run only while a linked AE2 network has an active crafting task; optional AE2 integration |
 
 Fortune and Precision are standard `UpgradeType` values restricted to supported production machines; they conflict on the Crystal Incubator like vanilla Fortune and Silk Touch. Looting and Sharpness are dedicated upgrade items and are not members of `UpgradeType`. Bio Crushers accept up to six of each in dedicated slots. The Loot Fabricator uses `LootFabricatorUpgradeItemStackHandler` to allow up to three Looting Upgrades alongside eight standard slots.
 
@@ -181,6 +182,7 @@ Fortune and Precision are standard `UpgradeType` values restricted to supported 
 - `UpgradeHelper.getMaxAreaRadius()` and `getMaxAreaOffset()` apply Range upgrades.
 - `UpgradeHelper.getActiveFilterSlots()` calculates active paged filter slots.
 - `UpgradeHelper.fillClickerItemFromTank()` transfers a Clicker's internal fluid into its slotted item.
+- `AE_CRAFTING_READ` cards are bound through an AE2 Wireless Access Point linking input and are inactive when unbound, unloaded/offline, booting, or idle; AE2 classes remain behind the optional integration boundary.
 
 ## Time Accelerators
 

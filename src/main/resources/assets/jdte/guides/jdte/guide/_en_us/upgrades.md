@@ -16,6 +16,7 @@ item_ids:
   - jdte:fortune_upgrade
   - jdte:precision_upgrade
   - jdte:ae_acceleration_upgrade
+  - jdte:ae_crafting_read_upgrade
   - jdte:ae_output_upgrade
   - jdte:essence_conversion_upgrade
   - jdte:seed_conversion_upgrade
@@ -126,6 +127,14 @@ Crystal Incubator only. It applies vanilla Silk Touch to the simulated harvestin
 Basic, Advanced, and Extended Time Accelerators only. Allows the accelerator containing this card to accelerate supported AE2 devices through AE2's public `IGridTickable` service. Limited to one per machine; when accelerators overlap, only those containing this card contribute acceleration to AE2 devices.
 
 <RecipeFor id="jdte:ae_acceleration_upgrade" />
+
+## AE Crafting Read Upgrade
+
+<ItemImage id="jdte:ae_crafting_read_upgrade" scale="2" />
+
+Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a compatible machine's standard or extended upgrade slot. The machine reads active crafting tasks from the linked AE2 network and runs automatically while one is present. It pauses when unlinked, when the Wireless Access Point is unloaded or offline, while the network is booting, or when no crafting task is active; it resumes automatically after the network recovers and a task is available. Limited to one per machine. AE2 is an optional dependency, so the upgrade remains inactive when AE2 is not installed.
+
+<RecipeFor id="jdte:ae_crafting_read_upgrade" />
 
 ## AE Output Upgrade
 
