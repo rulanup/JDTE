@@ -16,6 +16,7 @@ import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.upgrades.JDTEFluidTank;
+import com.jdte.common.upgrades.AECraftingReadMachinePolicy;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
@@ -146,7 +147,9 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
 
     @Override public void tickServer() {
         super.tickServer();
-        if (!isActiveRedstone() || ++cycleTicker < JDTEConfig.COMMON.lifeBreederProcessingInterval.get()) return;
+        if (!isActiveRedstone()) return;
+        if (!AECraftingReadMachinePolicy.production(UpgradeHelper.mayRunWithUpgrades(this), true).runWork()) return;
+        if (++cycleTicker < JDTEConfig.COMMON.lifeBreederProcessingInterval.get()) return;
         cycleTicker = 0;
         if (!(level instanceof ServerLevel serverLevel)) return;
 

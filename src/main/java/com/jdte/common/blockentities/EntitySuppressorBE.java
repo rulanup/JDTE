@@ -120,7 +120,8 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     boolean canOperateThisTick() {
-        if (isRemoved() || level == null || !isActiveRedstone()) return false;
+        if (isRemoved() || level == null || !isActiveRedstone()
+                || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         if (UpgradeHelper.hasCreativeUpgrade(this)) return true;
         long gameTime = level.getGameTime();
         if (paidGameTime == gameTime) return true;
@@ -132,7 +133,8 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     private boolean canActivateWithoutConsuming() {
-        if (isRemoved() || level == null || !isActiveRedstone()) return false;
+        if (isRemoved() || level == null || !isActiveRedstone()
+                || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         return UpgradeHelper.hasCreativeUpgrade(this)
                 || energy.extractEnergy(getStandardEnergyCost(), true) == getStandardEnergyCost();
     }
@@ -163,7 +165,8 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
             markDirtyClient();
             syncClientState();
         }
-        if (mode == Mode.BLOCK_ENTITY && JDTEConfig.COMMON.entitySuppressorRemoveExisting.get()
+        if (UpgradeHelper.mayRunWithUpgrades(this)
+                && mode == Mode.BLOCK_ENTITY && JDTEConfig.COMMON.entitySuppressorRemoveExisting.get()
                 && Math.floorMod(level.getGameTime() + getBlockPos().asLong(), 20L) == 0L) {
             EntitySuppressorManager.removeExistingEntities(this);
         }

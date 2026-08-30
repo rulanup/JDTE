@@ -45,6 +45,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, UpgradeCardItem> FORTUNE_UPGRADE = ITEMS.register("fortune_upgrade", () -> new UpgradeCardItem(UpgradeType.FORTUNE));
     public static final DeferredHolder<Item, UpgradeCardItem> PRECISION_UPGRADE = ITEMS.register("precision_upgrade", () -> new UpgradeCardItem(UpgradeType.PRECISION));
     public static final DeferredHolder<Item, UpgradeCardItem> AE_ACCELERATION_UPGRADE = ITEMS.register("ae_acceleration_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_ACCELERATION));
+    public static final DeferredHolder<Item, UpgradeCardItem> AE_CRAFTING_READ_UPGRADE = ITEMS.register("ae_crafting_read_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_CRAFTING_READ));
     public static final DeferredHolder<Item, UpgradeCardItem> AE_OUTPUT_UPGRADE = ITEMS.register("ae_output_upgrade", AEOutputUpgradeItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> ESSENCE_CONVERSION_UPGRADE = ITEMS.register("essence_conversion_upgrade", () -> new UpgradeCardItem(UpgradeType.ESSENCE_CONVERSION));
     public static final DeferredHolder<Item, UpgradeCardItem> SEED_CONVERSION_UPGRADE = ITEMS.register("seed_conversion_upgrade", () -> new UpgradeCardItem(UpgradeType.SEED_CONVERSION));
@@ -169,7 +170,7 @@ public class JDTEItems {
     public static List<DeferredHolder<Item, UpgradeCardItem>> upgrades() {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE,
-                AE_ACCELERATION_UPGRADE, AE_OUTPUT_UPGRADE, ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE);
+                AE_ACCELERATION_UPGRADE, AE_CRAFTING_READ_UPGRADE, AE_OUTPUT_UPGRADE, ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE);
     }
 
     private static DeferredHolder<Item, BlockItem> blockItem(String name, DeferredHolder<Block, ? extends Block> block) {

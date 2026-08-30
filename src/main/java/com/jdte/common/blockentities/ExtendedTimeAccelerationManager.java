@@ -55,6 +55,15 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
+    public static void deactivate(TimeAcceleratorBE accelerator) {
+        if (accelerator.getLevel() instanceof ServerLevel level) {
+            LevelState state = LEVELS.get(level);
+            if (state != null) {
+                state.deactivate(accelerator);
+            }
+        }
+    }
+
     public static boolean submitWand(UltimateTimeWandEntity wand, ServerLevel level,
                                      BlockPos target, int requestedTicks) {
         if (wand.isRemoved() || wand.level() != level || requestedTicks <= 0) {
@@ -604,6 +613,12 @@ public final class ExtendedTimeAccelerationManager {
 
         private boolean hasWork() {
             return !submitted.isEmpty() || !submittedWands.isEmpty() || workQueue.hasWork();
+        }
+
+        private void deactivate(TimeAcceleratorBE accelerator) {
+            submitted.remove(accelerator);
+            randomTargets.remove(accelerator);
+            workQueue.retainContributors((target, source) -> source != accelerator);
         }
 
         private void prepare(ServerLevel level, int maxScannedBlocks) {

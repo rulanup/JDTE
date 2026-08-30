@@ -9,6 +9,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControl
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.jdte.common.upgrades.AECraftingReadMachinePolicy;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
@@ -52,12 +53,13 @@ public class TimeFreezerBE extends BaseMachineBE implements FluidMachineBE, Reds
         }
         boolean wantsAnything = timeFreezeEnabled || weatherFreezeEnabled;
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
-        boolean wantFreeze = wantsAnything && isActiveRedstone()
-                && (creative
-                || (energy.extractEnergy(getEnergyCostPerTick(), true) == getEnergyCostPerTick()
-                && fluidTank.getFluidAmount() >= getFluidCostPerTick()));
-        if (wantFreeze) {
-            if (!creative) {
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        AECraftingReadMachinePolicy.MachineWorkDecision decision = AECraftingReadMachinePolicy.freezer(
+                allowed, wantsAnything, isActiveRedstone(), () -> creative
+                        || (energy.extractEnergy(getEnergyCostPerTick(), true) == getEnergyCostPerTick()
+                        && fluidTank.getFluidAmount() >= getFluidCostPerTick()));
+        if (!decision.deactivate()) {
+            if (!creative && decision.consumeResources()) {
                 energy.extractEnergy(getEnergyCostPerTick(), false);
                 fluidTank.drain(getFluidCostPerTick(), IFluidHandler.FluidAction.EXECUTE);
                 setChanged();

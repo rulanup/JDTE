@@ -13,6 +13,7 @@ import com.jdte.common.blocks.LifeSynthesisStructure;
 import com.jdte.common.network.data.LifeSynthesisRunningPayload;
 import com.jdte.common.recipes.LifeSynthesisRecipe;
 import com.jdte.common.recipes.RecipeCacheSignal;
+import com.jdte.common.upgrades.AECraftingReadMachinePolicy;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
@@ -248,7 +249,14 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             // 周期性持久化兜底（能量等杂项状态），本地标记开销可忽略
             setChanged();
         }
-        advanceProductionTicks(1);
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), canRun());
+        if (!decision.runWork()) {
+            if (decision.resetInactiveState()) settlementTicker = 0;
+            return;
+        }
+        advanceProductionTicks(1, true);
     }
 
     @Override
@@ -258,17 +266,29 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
 
     @Override
     public void flushAcceleratedTicks() {
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), canRun());
+        if (!decision.runWork()) {
+            if (decision.resetInactiveState()) {
+                accumulatedAcceleratedTicks = 0;
+                settlementTicker = 0;
+            }
+            return;
+        }
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
-        advanceProductionTicks(ticks);
+        advanceProductionTicks(ticks, true);
     }
 
     private void advanceProductionTicks(int ticks) {
+        advanceProductionTicks(ticks, UpgradeHelper.mayRunWithUpgrades(this));
+    }
+
+    private void advanceProductionTicks(int ticks, boolean allowed) {
+        if (!allowed) return;
         if (ticks <= 0) return;
-        if (!isActiveRedstone() || !canRun()) {
-            settlementTicker = 0;
-            return;
-        }
+        if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) return;
         int interval = JDTEConfig.COMMON.lifeSynthesisVat.settlementInterval.get();
         settlementTicker = saturatingAdd(settlementTicker, ticks);
         if (settlementTicker < interval || level == null || lastSettlementGameTime == level.getGameTime()) return;

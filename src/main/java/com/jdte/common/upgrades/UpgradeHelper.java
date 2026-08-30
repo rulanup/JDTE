@@ -27,6 +27,8 @@ import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
+import com.jdte.common.blockentities.TimeFreezerBE;
+import com.jdte.common.integrations.ae2.AE2CraftingReadNetwork;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.autoioconfig.AutoIoTransferHelper;
 import com.jdte.mixin.EnergyStorageAccessor;
@@ -40,6 +42,9 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 public class UpgradeHelper {
     public static int getFilterSlotsPerUpgrade() {
@@ -82,7 +87,7 @@ public class UpgradeHelper {
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
         if (machine instanceof ICreativeGreenhouse creativeGreenhouse) {
-            return creativeGreenhouse.isSupportedUpgrade(type);
+            return type == UpgradeType.AE_CRAFTING_READ || creativeGreenhouse.isSupportedUpgrade(type);
         }
         if (type == UpgradeType.AE_OUTPUT) {
             return AutoIoTransferHelper.supportsAEOutput(machine);
@@ -90,42 +95,47 @@ public class UpgradeHelper {
         if (machine instanceof MineralExtractorBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.FILTER
-                    || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
                     || type == UpgradeType.FORTUNE || type == UpgradeType.ESSENCE_CONVERSION
-                    || type == UpgradeType.SEED_CONVERSION;
+                    || type == UpgradeType.SEED_CONVERSION || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof LifeSynthesisVatBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof BioFactoryBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof LifeBreederBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.RANGE || type == UpgradeType.FILTER
-                    || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof AdvancedItemCollectorBE) {
-            return type == UpgradeType.RANGE || type == UpgradeType.FILTER;
+            return type == UpgradeType.RANGE || type == UpgradeType.FILTER
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof EntitySuppressorBE || machine instanceof RangeBlockerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
-                    || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof FactoryPackerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof AdvancedEnergyTransmitterBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
                     || type == UpgradeType.CAPACITY || type == UpgradeType.OVERCLOCK
-                    || type == UpgradeType.CREATIVE;
+                    || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         return switch (type) {
             case FLUID_STORAGE -> machine instanceof ClickerT1BE;
@@ -286,6 +296,92 @@ public class UpgradeHelper {
 
     public static boolean hasAEAccelerationUpgrade(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.AE_ACCELERATION) > 0;
+    }
+
+    public static boolean hasAeCraftingReadUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.AE_CRAFTING_READ) > 0;
+    }
+
+    /** Returns whether normal machine work is allowed by the optional AE crafting binding. */
+    public static boolean mayRunWithUpgrades(BaseMachineBE machine) {
+        if (machine == null || !hasAeCraftingReadUpgrade(machine)) {
+            return true;
+        }
+        if (!(machine.getLevel() instanceof net.minecraft.server.level.ServerLevel level)) {
+            return true;
+        }
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return false;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack upgrade = handler.getStackInSlot(slot);
+            if (isUpgrade(upgrade, UpgradeType.AE_CRAFTING_READ)
+                    && AE2CraftingReadNetwork.hasActiveCraftingTask(level, upgrade)) return true;
+        }
+        return false;
+    }
+
+    public static boolean mayRunWithUpgrades(UpgradeItemStackHandler handler, boolean activeCraftingTask) {
+        return handler == null || countUpgrades(handler, UpgradeType.AE_CRAFTING_READ) == 0 || activeCraftingTask;
+    }
+
+    public static boolean mayRunWithUpgrades(UpgradeItemStackHandler handler, long gameTime,
+                                             AE2CraftingReadNetwork.TargetResolver resolver,
+                                             java.util.function.Predicate<ItemStack> isBound) {
+        if (handler == null) return true;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack upgrade = handler.getStackInSlot(slot);
+            if (isUpgrade(upgrade, UpgradeType.AE_CRAFTING_READ)
+                    && isBound.test(upgrade)
+                    && AE2CraftingReadNetwork.hasActiveCraftingTask(upgrade, gameTime, resolver)) return true;
+        }
+        return countUpgrades(handler, UpgradeType.AE_CRAFTING_READ) == 0;
+    }
+
+    /** Returns whether the whole ticker is a safe boundary for the common AE work gate. */
+    public static boolean usesCommonAeTickerGate(BaseMachineBE machine) {
+        return !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+                && !(machine instanceof LifeSynthesisVatBE || machine instanceof MineralExtractorBE)
+                && !(machine instanceof LifeBreederBE || machine instanceof TimeFreezerBE)
+                && !(machine instanceof AdvancedItemCollectorBE)
+                && !(machine instanceof TimeAcceleratorMachine || machine instanceof EntitySuppressorBE)
+                && !(machine instanceof RangeBlockerBE || machine instanceof AdvancedEnergyTransmitterBE)
+                && !(machine instanceof FactoryPackerBE);
+    }
+
+    /** Executes the actual machine ticker while preserving the original redstone-off reset path. */
+    public static void runServerTicker(boolean redstoneActive, BooleanSupplier mayRun,
+                                       boolean overclock, Runnable originalTicker) {
+        runServerTicker(true, redstoneActive, mayRun, overclock, originalTicker);
+    }
+
+    public static void runServerTicker(boolean useCommonGate, boolean redstoneActive, BooleanSupplier mayRun,
+                                       boolean overclock, Runnable originalTicker) {
+        if (!useCommonGate) {
+            originalTicker.run();
+            if (overclock) {
+                originalTicker.run();
+            }
+            return;
+        }
+        if (!redstoneActive) {
+            originalTicker.run();
+            return;
+        }
+        if (!mayRun.getAsBoolean()) {
+            return;
+        }
+        originalTicker.run();
+        if (overclock) {
+            originalTicker.run();
+        }
+    }
+
+    private static int countUpgrades(UpgradeItemStackHandler handler, UpgradeType type) {
+        int count = 0;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (isUpgrade(handler.getStackInSlot(slot), type)) count++;
+        }
+        return count;
     }
 
     public static boolean hasAEOutputUpgrade(BaseMachineBE machine) {

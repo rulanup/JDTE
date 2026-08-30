@@ -16,6 +16,7 @@ import com.jdte.common.greenhouse.GreenhouseMatrixMember;
 import com.jdte.common.greenhouse.GreenhouseMatrixMemberState;
 import com.jdte.common.greenhouse.GreenhouseMatrixProductionProfile;
 import com.jdte.common.greenhouse.GreenhouseMatrixRuntime;
+import com.jdte.common.upgrades.AECraftingReadMachinePolicy;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
@@ -213,11 +214,19 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         }
         super.tickServer();
         UpgradeHelper.syncCapacities(this);
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), canRun());
+        if (!decision.runWork()) {
+            setActiveMask(0);
+            if (decision.resetInactiveState()) settlementTicker = 0;
+            return;
+        }
         if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel
                 && level.getGameTime() % 20L == 0L) {
             GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
         }
-        advanceProductionTicks(1);
+        advanceProductionTicks(1, true);
     }
 
     @Override
@@ -232,9 +241,20 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
             accumulatedAcceleratedTicks = 0;
             return;
         }
+        boolean allowed = UpgradeHelper.mayRunWithUpgrades(this);
+        AECraftingReadMachinePolicy.ProductionDecision decision =
+                AECraftingReadMachinePolicy.productionState(allowed, isActiveRedstone(), canRun());
+        if (!decision.runWork()) {
+            if (decision.resetInactiveState()) {
+                accumulatedAcceleratedTicks = 0;
+                settlementTicker = 0;
+                setActiveMask(0);
+            }
+            return;
+        }
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
-        advanceProductionTicks(ticks);
+        advanceProductionTicks(ticks, true);
     }
 
     @Override
@@ -258,7 +278,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     @Override
     public List<GreenhouseMatrixProductionProfile> captureMatrixProfiles(ServerLevel serverLevel,
                                                                          GreenhouseMatrixRuntime.Effects effects) {
-        if (!isActiveRedstone() || !canRun()) return List.of();
+        if (!AECraftingReadMachinePolicy.production(UpgradeHelper.mayRunWithUpgrades(this), isActiveRedstone()).runWork()) return List.of();
         List<GreenhouseMatrixProductionProfile> profiles = new ArrayList<>();
         long recipeGeneration = GreenhouseCropResolver.cacheGeneration();
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
@@ -298,7 +318,15 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     }
 
     private void advanceProductionTicks(int ticks) {
+        advanceProductionTicks(ticks, UpgradeHelper.mayRunWithUpgrades(this));
+    }
+
+    private void advanceProductionTicks(int ticks, boolean allowed) {
         if (ticks <= 0) return;
+        if (!allowed) {
+            setActiveMask(0);
+            return;
+        }
         if (com.jdte.common.greenhouse.GreenhouseMatrixRuntime.isDisabled(this)) {
             setActiveMask(0);
             return;

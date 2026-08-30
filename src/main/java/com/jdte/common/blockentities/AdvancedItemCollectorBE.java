@@ -10,6 +10,7 @@ import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.integrations.ae2.AdvancedItemCollectorAE2Integration;
+import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
@@ -104,7 +105,8 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
 
     boolean canCollect(ItemStack stack) {
         return !stack.isEmpty() && !isRemoved() && level instanceof ServerLevel
-                && isActiveRedstone() && isStackValidFilter(stack);
+                && isActiveRedstone() && UpgradeHelper.mayRunWithUpgrades(this)
+                && isStackValidFilter(stack);
     }
 
     ItemStack insertCollectedStack(ItemStack stack) {
@@ -112,7 +114,8 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
     }
 
     ItemStack insertCollectedStack(ItemStack stack, boolean simulate) {
-        if (stack.isEmpty() || isRemoved() || !(level instanceof ServerLevel) || !isActiveRedstone()) {
+        if (stack.isEmpty() || isRemoved() || !(level instanceof ServerLevel) || !isActiveRedstone()
+                || !UpgradeHelper.mayRunWithUpgrades(this)) {
             return stack;
         }
         IItemHandler inventory = getAttachedInventory();

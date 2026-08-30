@@ -26,10 +26,11 @@ Standard machines have four upgrade slots and extended machines have eight. Empt
 | Fortune | Adds one vanilla Fortune level per card in Gel Generators and Crystal Incubators; adds 10% average output per card in both Greenhouses | 8 (3 in Greenhouse) |
 | Precision | Crystal Incubator only; harvests through vanilla Silk Touch loot logic and conflicts with Fortune | 1 |
 | AE Acceleration | Time Accelerator tiers only; enables acceleration of AE2 `IGridTickable` devices | 1 |
+| AE Crafting Read | Lets compatible machines read active crafting tasks from a linked AE2 network; pauses when unlinked, offline, or idle | 1 |
 | Looting | Dedicated to Bio Crushers and the Loot Fabricator | 6 |
 | Sharpness | Bio Crusher only; adds five damage per card | 6 |
 
-Overclock and Underclock cannot be installed together. The Creative Upgrade also provides relevant Overclock behavior.
+Overclock and Underclock cannot be installed together. The Creative Upgrade also provides relevant Overclock behavior. The AE Crafting Read Upgrade must first be bound by placing it in an AE2 Wireless Access Point's linking input, then installed in a compatible machine's standard or extended upgrade slot. The machine pauses when unbound, when the access point is unloaded or offline, while the network is booting, or with no crafting task; it runs automatically when a task is available after recovery. AE2 is optional.
 
 ### Time And Extended Machines
 

@@ -34,16 +34,16 @@
 - 修改：`src/main/java/com/jdte/JDTE.java`
 - 测试：`src/test/java/com/jdte/common/upgrades/AECraftingReadUpgradeTest.java`
 
-- [ ] **步骤 1：编写失败测试**
+- [x] **步骤 1：编写失败测试**
 
 测试 facade 的纯状态决策：未绑定、目标未加载、接入点不 active、网络 booting、CPU 非 busy/无 job 返回 false；至少一个 CPU `isBusy()` 且 `getJobStatus()` 非 null 返回 true；同一绑定位置在缓存窗口内复用结果，绑定位置或网格身份变化后重新读取。测试不得依赖 AE2 内部实现。
 
-- [ ] **步骤 2：运行测试确认失败**
+- [x] **步骤 2：运行测试确认失败**
 
 运行：`./gradlew test --tests com.jdte.common.upgrades.AECraftingReadUpgradeTest`
 预期：FAIL，因为 facade 和状态快照尚不存在。
 
-- [ ] **步骤 3：实现最小 facade**
+- [x] **步骤 3：实现最小 facade**
 
 公开一个服务端查询入口，例如：
 
@@ -53,12 +53,12 @@ public static boolean hasActiveCraftingTask(ServerLevel level, ItemStack upgrade
 
 实现只从 `AEComponents.WIRELESS_LINK_TARGET` 读取 `GlobalPos`，通过 `ServerLevel#getLevel` 和已加载方块实体取得 `IWirelessAccessPoint`，检查 `isActive()`、`getGrid()`、`grid.getPathingService().isNetworkBooting()` 和 `grid.getCraftingService().getCpus()`。使用 CPU 的 `isBusy()` 与非空 `getJobStatus()` 判断任务。缓存键至少包含目标 `GlobalPos` 与网格对象身份，缓存值包含结果和过期 tick；所有失败分支返回 false。将 `GridLinkables.register` handler 的 `canLink/link/unlink` 限定为新升级物品，并通过 `AEComponents.WIRELESS_LINK_TARGET` 写入/移除绑定。
 
-- [ ] **步骤 4：运行测试确认通过**
+- [x] **步骤 4：运行测试确认通过**
 
 运行：`./gradlew test --tests com.jdte.common.upgrades.AECraftingReadUpgradeTest`
 预期：PASS；随后运行 `./gradlew compileJava` 验证 AE2 19.2.17 方法签名和 optional 类隔离。
 
-- [ ] **步骤 5：Commit**
+- [x] **步骤 5：Commit**
 
 ```bash
 git add src/main/java/com/jdte/common/integrations/ae2 src/main/java/com/jdte/JDTE.java src/test/java/com/jdte/common/upgrades/AECraftingReadUpgradeTest.java
@@ -77,25 +77,25 @@ git commit -m "feat: add AE crafting status integration"
 - 创建：`src/main/resources/assets/jdte/textures/item/ae_crafting_read_upgrade.png`
 - 测试：`src/test/java/com/jdte/common/upgrades/AECraftingReadUpgradeTest.java`
 
-- [ ] **步骤 1：编写失败测试**
+- [x] **步骤 1：编写失败测试**
 
 断言 `UpgradeType.AE_CRAFTING_READ` 的序列化名为 `ae_crafting_read`、上限为 1，注册物品使用 `UpgradeCardItem`，并且标准/扩展 handler 可接受该卡但第二张被拒绝。
 
-- [ ] **步骤 2：运行测试确认失败**
+- [x] **步骤 2：运行测试确认失败**
 
 运行：`./gradlew test --tests com.jdte.common.upgrades.AECraftingReadUpgradeTest`
 预期：FAIL，因为枚举项、物品注册和资源键尚不存在。
 
-- [ ] **步骤 3：实现注册与资源**
+- [x] **步骤 3：实现注册与资源**
 
 按现有升级卡模式加入 enum、DeferredRegister、`upgrades()` 列表、英文/中文文本、模型和实际 PNG 纹理。兼容性判断只增加该通用卡，不改变现有互斥规则；用现有 `getUpgradeCount`/handler 上限逻辑拒绝重复安装。增加 `UpgradeHelper.hasAeCraftingReadUpgrade(BaseMachineBE)` 或等价纯查询方法，供后续运行入口使用。
 
-- [ ] **步骤 4：运行测试确认通过**
+- [x] **步骤 4：运行测试确认通过**
 
 运行：`./gradlew test --tests com.jdte.common.upgrades.AECraftingReadUpgradeTest && ./gradlew compileJava`
 预期：PASS，资源路径和 Java 编译均成功。
 
-- [ ] **步骤 5：Commit**
+- [x] **步骤 5：Commit**
 
 ```bash
 git add src/main/java/com/jdte/common/upgrades src/main/java/com/jdte/setup/JDTEItems.java src/main/resources/assets/jdte/lang src/main/resources/assets/jdte/models/item/ae_crafting_read_upgrade.json src/main/resources/assets/jdte/textures/item/ae_crafting_read_upgrade.png src/test/java/com/jdte/common/upgrades/AECraftingReadUpgradeTest.java
@@ -110,16 +110,16 @@ git commit -m "feat: register AE crafting read upgrade"
 - 修改：必要的现有 JDT 运行边界 mixin（以编译后的目标方法为准）
 - 测试：`src/test/java/com/jdte/common/upgrades/AECraftingReadUpgradeTest.java` 和一个代表性普通机器测试
 
-- [ ] **步骤 1：编写失败测试**
+- [x] **步骤 1：编写失败测试**
 
 增加一个可注入查询替身，验证：无升级不改变原逻辑；升级未绑定/无任务返回 deny；有任务返回 allow；deny 不会绕过原有红石关闭状态，也不清空机器已有库存/进度；同一 tick 的 overclock 二次调用不会重复消耗资源。
 
-- [ ] **步骤 2：运行测试确认失败**
+- [x] **步骤 2：运行测试确认失败**
 
 运行：`./gradlew test --tests com.jdte.common.upgrades.AECraftingReadUpgradeTest`
 预期：FAIL，因为机器运行入口尚未组合 AE 许可。
 
-- [ ] **步骤 3：实现运行策略接入**
+- [x] **步骤 3：实现运行策略接入**
 
 新增独立策略方法，例如：
 
@@ -132,12 +132,12 @@ public static boolean mayRunWithUpgrades(BaseMachineBE machine) {
 
 实际签名必须遵循现有 handler/attachment 访问方式。不要在基类 HEAD 无条件跳过 `tickServer`；在能量消耗、生成/传输、或现有运行许可目标方法中合并策略，保留 off-state reset。Auto I/O 在机器被许可关闭时不得继续执行，且任何新 hook 都要排除非服务器和不存在的升级 attachment 情况。
 
-- [ ] **步骤 4：运行测试确认通过**
+- [x] **步骤 4：运行测试确认通过**
 
 运行：`./gradlew test --tests com.jdte.common.upgrades.AECraftingReadUpgradeTest && ./gradlew compileJava`
 预期：PASS；确认不改变无升级机器行为。
 
-- [ ] **步骤 5：Commit**
+- [x] **步骤 5：Commit**
 
 ```bash
 git add src/main/java/com/jdte/common/upgrades src/main/java/com/jdte/mixin src/test/java/com/jdte/common/upgrades/AECraftingReadUpgradeTest.java
@@ -154,25 +154,25 @@ git commit -m "feat: gate machine work on AE crafting"
 - 修改：必要的生产/传输机器类（仅当其工作副作用不受任务 3 覆盖）
 - 测试：对应现有测试或新增 `AECraftingReadMachineBehaviorTest.java`
 
-- [ ] **步骤 1：编写失败测试**
+- [x] **步骤 1：编写失败测试**
 
 分别覆盖至少一个状态机入口：无任务时 Greenhouse/Life Synthesis 不 capture、advance、settle 或扣费；Mineral 不推进 transient/flush；Time Freezer 关闭其 active manager；任务恢复后再次允许处理。测试同时断言原有红石 off 的 reset/deactivate 语义仍然成立。
 
-- [ ] **步骤 2：运行测试确认失败**
+- [x] **步骤 2：运行测试确认失败**
 
 运行：`./gradlew test --tests com.jdte.common.upgrades.AECraftingReadMachineBehaviorTest`
 预期：FAIL，因为自有机器尚未调用 AE 运行策略。
 
-- [ ] **步骤 3：在副作用边界接入**
+- [x] **步骤 3：在副作用边界接入**
 
 每台机器保留其原先的红石和资源条件，增加短路条件到实际副作用前：capture/advance/settle、transient/flush、资源扣除、队列提交、外部 manager activate/deactivate。禁止运行时保留进度和输入，不执行自动 I/O；从 deny 恢复后继续原有状态。避免把查询放在会破坏 reset 的最外层 ticker，也避免重复读取网络状态。
 
-- [ ] **步骤 4：运行测试确认通过**
+- [x] **步骤 4：运行测试确认通过**
 
 运行：`./gradlew test --tests com.jdte.common.upgrades.AECraftingReadMachineBehaviorTest && ./gradlew compileJava`
 预期：PASS，四类自有状态机关闭/恢复行为正确。
 
-- [ ] **步骤 5：Commit**
+- [x] **步骤 5：Commit**
 
 ```bash
 git add src/main/java/com/jdte/common/blockentities src/test/java/com/jdte/common/upgrades/AECraftingReadMachineBehaviorTest.java
@@ -186,20 +186,20 @@ git commit -m "feat: gate JDTE state machines on AE crafting"
 - 修改：`src/main/resources/assets/jdte/guides/jdte/guide/_en_us/upgrades.md`
 - 修改：必要时 `README.md`、`README_EN.md`、`CHANGELOG.md`、`AGENTS.md`
 
-- [ ] **步骤 1：更新文档**
+- [x] **步骤 1：更新文档**
 
 说明升级名称、标准/扩展槽兼容性、将升级放入 AE2 Wireless Access Point linking 输入绑定、未绑定/无任务时机器停止、网络恢复后自动继续，以及 AE2 optional 依赖行为。中英文页面保持现有 GuideME 结构。
 
-- [ ] **步骤 2：运行资源与编译验证**
+- [x] **步骤 2：运行资源与编译验证**
 
 运行：`./gradlew compileJava test`
 预期：编译成功，全部 JUnit 测试通过。
 
-- [ ] **步骤 3：检查工作树与资源引用**
+- [x] **步骤 3：检查工作树与资源引用**
 
 运行：`git diff --check` 和资源路径检查，确认模型引用的纹理存在、语言键与物品注册名一致、未修改用户已有无关改动。
 
-- [ ] **步骤 4：Commit**
+- [x] **步骤 4：Commit**
 
 ```bash
 git add src/main/resources/assets/jdte/guides README.md README_EN.md CHANGELOG.md AGENTS.md
@@ -208,9 +208,9 @@ git commit -m "docs: document AE crafting read upgrade"
 
 ## 最终验证
 
-- [ ] `./gradlew compileJava`
-- [ ] `./gradlew test`
-- [ ] `git diff --check`
-- [ ] 检查 AE2 环境和非 AE2 环境的类加载边界
-- [ ] 检查无线接入点绑定/解绑、重启后组件持久化、目标未加载和网络 booting 时均安全返回 false
-- [ ] 检查无升级机器以及原有红石模式行为无回归
+- [x] `./gradlew compileJava`
+- [x] `./gradlew test`
+- [x] `git diff --check`
+- [x] 检查 AE2 环境和非 AE2 环境的类加载边界
+- [x] 检查无线接入点绑定/解绑、重启后组件持久化、目标未加载和网络 booting 时均安全返回 false
+- [x] 检查无升级机器以及原有红石模式行为无回归
