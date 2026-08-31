@@ -329,8 +329,38 @@ public final class ExtendedTimeAccelerationManager {
         if (acceptedWorkTicks <= 0) {
             return Optional.empty();
         }
+        acceptedWorkTicks = largestAffordableWorkTicks(
+                accelerator, request.displayMultiplier(), acceptedWorkTicks);
+        if (acceptedWorkTicks <= 0) {
+            return Optional.empty();
+        }
         return Optional.of(prepareAcceleration(
                 accelerator, request.displayMultiplier(), acceptedWorkTicks));
+    }
+
+    private static int largestAffordableWorkTicks(
+            TimeAcceleratorBE accelerator, int displayMultiplier, int requestedWorkTicks) {
+        PreparedAcceleration requested = prepareAcceleration(
+                accelerator, displayMultiplier, requestedWorkTicks);
+        if (accelerator.hasResources(requested.fluidCost(), requested.energyCost())) {
+            return requestedWorkTicks;
+        }
+
+        int low = 1;
+        int high = requestedWorkTicks - 1;
+        int largestAffordable = 0;
+        while (low <= high) {
+            int candidateWorkTicks = low + (high - low) / 2;
+            PreparedAcceleration candidate = prepareAcceleration(
+                    accelerator, displayMultiplier, candidateWorkTicks);
+            if (accelerator.hasResources(candidate.fluidCost(), candidate.energyCost())) {
+                largestAffordable = candidateWorkTicks;
+                low = candidateWorkTicks + 1;
+            } else {
+                high = candidateWorkTicks - 1;
+            }
+        }
+        return largestAffordable;
     }
 
     private static PreparedAcceleration prepareAcceleration(

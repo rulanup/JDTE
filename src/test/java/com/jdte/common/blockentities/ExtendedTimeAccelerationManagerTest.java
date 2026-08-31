@@ -636,6 +636,27 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
+    void longDurationAdmitsTheLargestWorkBatchThatFitsMachineResources() throws Exception {
+        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(50));
+        try {
+            ResourceLimitedAccelerator accelerator = newResourceLimitedAccelerator();
+            ExtendedTimeAccelerationManager.AccelerationRequest request =
+                    ExtendedTimeAccelerationManager.requestAcceleration(accelerator);
+
+            ExtendedTimeAccelerationManager.PreparedAcceleration accepted =
+                    ExtendedTimeAccelerationManager.prepareAcceptedAcceleration(
+                            accelerator, request, 1_000_000L, 0L).orElseThrow();
+
+            assertEquals(4000, request.workTicks());
+            assertEquals(1000, accepted.workTicks());
+            assertTrue(ExtendedTimeAccelerationManager.payForSubmission(accelerator, accepted));
+            assertEquals(1000, accelerator.consumedWorkTicks);
+        } finally {
+            JDTEConfig.SERVER_SPEC.acceptConfig(null);
+        }
+    }
+
+    @Test
     void zeroRoundedFluidCostStillAccumulatesFractionalCostFromWorkTicks() throws Exception {
         FractionalSettlementAccelerator accelerator = newFractionalSettlementAccelerator();
         ExtendedTimeAccelerationManager.PreparedAcceleration subMillibucketWork =
@@ -668,6 +689,10 @@ class ExtendedTimeAccelerationManagerTest {
 
     private static RecordingAccelerator newRecordingAccelerator() throws Exception {
         return (RecordingAccelerator) unsafe().allocateInstance(RecordingAccelerator.class);
+    }
+
+    private static ResourceLimitedAccelerator newResourceLimitedAccelerator() throws Exception {
+        return (ResourceLimitedAccelerator) unsafe().allocateInstance(ResourceLimitedAccelerator.class);
     }
 
     private static FractionalSettlementAccelerator newFractionalSettlementAccelerator() throws Exception {
@@ -888,6 +913,39 @@ class ExtendedTimeAccelerationManagerTest {
         protected void consumeResources(int workTicks, int energyCost) {
             consumedWorkTicks = workTicks;
             consumedEnergyCost = energyCost;
+        }
+    }
+
+    private static final class ResourceLimitedAccelerator extends TimeAcceleratorBE {
+        private int consumedWorkTicks;
+
+        private ResourceLimitedAccelerator() {
+            super(null, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
+        }
+
+        @Override
+        public int getEffectiveMultiplier() {
+            return 4;
+        }
+
+        @Override
+        protected int getFluidDrainAmount(int workTicks) {
+            return workTicks;
+        }
+
+        @Override
+        protected int getEnergyCost(int workTicks) {
+            return workTicks;
+        }
+
+        @Override
+        protected boolean hasResources(int fluidCost, int energyCost) {
+            return fluidCost <= 1000 && energyCost <= 1000;
+        }
+
+        @Override
+        protected void consumeResources(int workTicks, int energyCost) {
+            consumedWorkTicks = workTicks;
         }
     }
 

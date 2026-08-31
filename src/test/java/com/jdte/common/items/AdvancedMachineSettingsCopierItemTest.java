@@ -2,12 +2,18 @@ package com.jdte.common.items;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.jdte.common.upgrades.UpgradeHelper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.junit.jupiter.api.Test;
@@ -21,6 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AdvancedMachineSettingsCopierItemTest {
+    private static final HolderLookup.Provider REGISTRIES =
+            RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+
     @Test
     void sameTypeMachinePastesParentSettingsAndAllSixAutoIoSides() {
         TrackingCopierItem copier = newTrackingCopier();
@@ -39,6 +48,57 @@ class AdvancedMachineSettingsCopierItemTest {
         assertEquals(7, target.parentSetting);
         assertEquals(0b11_1111, target.inputMask);
         assertEquals(0b10_1010, target.outputMask);
+    }
+
+    @Test
+    void sameTypeMachinePastesInstalledUpgradeCards() {
+        TrackingCopierItem copier = newTrackingCopier();
+        ItemStack stack = new ItemStack(Items.STICK);
+        TestMachine source = new TestMachine("justdirethings:clicker_t1", 7, 0, 0, false);
+        TestMachine target = new TestMachine("justdirethings:clicker_t1", 2, 0, 0, false);
+
+        UpgradeHelper.getUpgradeHandler(source).setStackInSlot(0,
+                new ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
+
+        copier.saveSettings(null, source, stack);
+        copier.loadSettings(null, target, stack);
+
+        assertEquals(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get(),
+                UpgradeHelper.getUpgradeHandler(target).getStackInSlot(0).getItem());
+    }
+
+    @Test
+    void upgradePasteConsumesMatchingCardsFromPlayerInventory() {
+        TrackingCopierItem copier = newTrackingCopier();
+        ItemStack stack = new ItemStack(Items.STICK);
+        TestMachine source = new TestMachine("justdirethings:clicker_t1", 7, 0, 0, false);
+        Inventory inventory = new Inventory(null);
+        copier.inventory = inventory;
+        UpgradeHelper.getUpgradeHandler(source).setStackInSlot(0,
+                new ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
+        copier.saveSettings(null, source, stack);
+        inventory.setItem(0, new ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
+
+        assertTrue(copier.consumeUpgradeCost(null, source, stack, null));
+        assertTrue(inventory.getItem(0).isEmpty());
+    }
+
+    @Test
+    void upgradePasteIsRejectedWithoutAllMatchingCards() {
+        TrackingCopierItem copier = newTrackingCopier();
+        ItemStack stack = new ItemStack(Items.STICK);
+        TestMachine source = new TestMachine("justdirethings:clicker_t1", 7, 0, 0, false);
+        Inventory inventory = new Inventory(null);
+        copier.inventory = inventory;
+        UpgradeHelper.getUpgradeHandler(source).setStackInSlot(0,
+                new ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
+        UpgradeHelper.getUpgradeHandler(source).setStackInSlot(1,
+                new ItemStack(com.jdte.setup.JDTEItems.OVERCLOCK_UPGRADE.get()));
+        copier.saveSettings(null, source, stack);
+        inventory.setItem(0, new ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
+
+        assertFalse(copier.consumeUpgradeCost(null, source, stack, null));
+        assertEquals(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get(), inventory.getItem(0).getItem());
     }
 
     @Test
@@ -118,6 +178,12 @@ class AdvancedMachineSettingsCopierItemTest {
         private static final String PARENT_SETTING_KEY = "testParentSetting";
 
         private int baseLoadCalls;
+        private Inventory inventory;
+
+        private boolean consumeUpgradeCost(net.minecraft.world.level.Level level, BaseMachineBE machine,
+                                            ItemStack stack, Player player) {
+            return super.consumeUpgradeCost(player, level, machine, stack);
+        }
 
         @Override
         protected void saveBaseSettings(net.minecraft.world.level.Level level,
@@ -161,6 +227,16 @@ class AdvancedMachineSettingsCopierItemTest {
             TestMachine testMachine = (TestMachine) machine;
             testMachine.inputMask = inputMask;
             testMachine.outputMask = outputMask;
+        }
+
+        @Override
+        protected HolderLookup.Provider getRegistryAccess(net.minecraft.world.level.Level level) {
+            return REGISTRIES;
+        }
+
+        @Override
+        protected Inventory getPlayerInventory(Player player) {
+            return inventory;
         }
     }
 

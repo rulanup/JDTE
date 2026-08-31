@@ -4,15 +4,25 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.items.MachineSettingsCopier;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
+import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.upgrades.UpgradeItemStackHandler;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.items.ItemStackHandler;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
     public AdvancedMachineSettingsCopierItem() {
@@ -41,6 +51,10 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
             return InteractionResult.PASS;
         }
 
+        if (!consumeUpgradeCost(context.getPlayer(), level, machine, stack)) {
+            return InteractionResult.PASS;
+        }
+
         return super.useOn(context);
     }
 
@@ -59,6 +73,8 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
             } else {
                 AdvancedMachineSettingsCopierData.remove(copiedData);
             }
+
+            saveUpgrades(level, machine, copiedData);
 
             if (hasConfigurableIo(machine)) {
                 AdvancedMachineSettingsCopierData.writeMasks(copiedData,
@@ -90,6 +106,7 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         }
 
         loadBaseSettings(level, blockEntity, stack);
+        loadUpgrades(level, machine, copiedData);
         if (!hasConfigurableIo(machine)) {
             return;
         }
@@ -124,6 +141,118 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
 
     protected void setMasks(BaseMachineBE machine, int inputMask, int outputMask) {
         AutoIoConfigHelper.setMasks(machine, inputMask, outputMask);
+    }
+
+    protected UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
+        return UpgradeHelper.getUpgradeHandler(machine);
+    }
+
+    protected HolderLookup.Provider getRegistryAccess(Level level) {
+        return level == null ? null : level.registryAccess();
+    }
+
+    protected void saveUpgrades(Level level, BaseMachineBE machine, CompoundTag copiedData) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        HolderLookup.Provider registries = getRegistryAccess(level);
+        if (handler == null || registries == null) {
+            AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+            return;
+        }
+
+        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, handler.serializeNBT(registries));
+    }
+
+    protected void loadUpgrades(Level level, BaseMachineBE machine, CompoundTag copiedData) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        HolderLookup.Provider registries = getRegistryAccess(level);
+        if (handler == null || registries == null) {
+            return;
+        }
+
+        AdvancedMachineSettingsCopierData.readUpgrades(copiedData).ifPresent(upgrades -> {
+            handler.deserializeNBT(registries, upgrades);
+            UpgradeHelper.syncCapacities(machine);
+        });
+    }
+
+    /**
+     * Checks and atomically consumes one matching inventory item for every copied upgrade.
+     * A failed check leaves the player's inventory untouched.
+     */
+    protected boolean consumeUpgradeCost(Player player, Level level, BaseMachineBE machine, ItemStack copierStack) {
+        Optional<List<ItemStack>> requiredResult = readRequiredUpgrades(level, machine, copierStack);
+        if (requiredResult.isEmpty()) {
+            return false;
+        }
+
+        List<ItemStack> required = requiredResult.get();
+        if (required.isEmpty()) {
+            return true;
+        }
+        Inventory inventory = getPlayerInventory(player);
+        if (inventory == null) {
+            return false;
+        }
+
+        int[] consumed = new int[inventory.getContainerSize()];
+        for (ItemStack requirement : required) {
+            int matchingSlot = -1;
+            for (int slot = 0; slot < consumed.length; slot++) {
+                ItemStack available = inventory.getItem(slot);
+                if (available.getCount() > consumed[slot]
+                        && ItemStack.isSameItemSameComponents(available, requirement)) {
+                    matchingSlot = slot;
+                    break;
+                }
+            }
+            if (matchingSlot < 0) {
+                return false;
+            }
+            consumed[matchingSlot]++;
+        }
+
+        for (int slot = 0; slot < consumed.length; slot++) {
+            if (consumed[slot] > 0) {
+                inventory.removeItem(slot, consumed[slot]);
+            }
+        }
+        return true;
+    }
+
+    protected Inventory getPlayerInventory(Player player) {
+        return player == null ? null : player.getInventory();
+    }
+
+    private Optional<List<ItemStack>> readRequiredUpgrades(Level level, BaseMachineBE machine, ItemStack copierStack) {
+        if (!copierStack.has(JustDireDataComponents.COPIED_MACHINE_DATA)) {
+            return Optional.of(List.of());
+        }
+
+        CompoundTag copiedData = copierStack.get(JustDireDataComponents.COPIED_MACHINE_DATA).copyTag();
+        Optional<CompoundTag> upgrades = AdvancedMachineSettingsCopierData.readUpgrades(copiedData);
+        if (upgrades.isEmpty()) {
+            return Optional.of(List.of());
+        }
+
+        HolderLookup.Provider registries = getRegistryAccess(level);
+        if (registries == null) {
+            return Optional.empty();
+        }
+
+        try {
+            ItemStackHandler decoded = new ItemStackHandler(0);
+            decoded.deserializeNBT(registries, upgrades.get());
+            List<ItemStack> required = new ArrayList<>();
+            for (int slot = 0; slot < decoded.getSlots(); slot++) {
+                ItemStack upgrade = decoded.getStackInSlot(slot);
+                if (!upgrade.isEmpty()) {
+                    required.add(upgrade.copyWithCount(1));
+                }
+            }
+            return Optional.of(required);
+        } catch (RuntimeException ignored) {
+            return Optional.empty();
+        }
     }
 
     private boolean hasCompatibleType(BaseMachineBE machine, CompoundTag copiedData) {

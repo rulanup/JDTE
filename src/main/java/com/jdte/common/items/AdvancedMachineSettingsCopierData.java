@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public final class AdvancedMachineSettingsCopierData {
     public static final String ROOT_KEY = "jdteAutoIoConfig";
+    public static final String UPGRADES_KEY = "upgrades";
     private static final String MACHINE_TYPE_KEY = "machineType";
     private static final String INPUT_MASK_KEY = "inputMask";
     private static final String OUTPUT_MASK_KEY = "outputMask";
@@ -76,6 +77,21 @@ public final class AdvancedMachineSettingsCopierData {
 
     public static void remove(CompoundTag copiedData) {
         copiedData.remove(ROOT_KEY);
+    }
+
+    public static void writeUpgrades(CompoundTag copiedData, CompoundTag upgrades) {
+        copiedData.put(UPGRADES_KEY, upgrades.copy());
+    }
+
+    public static Optional<CompoundTag> readUpgrades(CompoundTag copiedData) {
+        if (!copiedData.contains(UPGRADES_KEY, Tag.TAG_COMPOUND)) {
+            return Optional.empty();
+        }
+        return Optional.of(copiedData.getCompound(UPGRADES_KEY));
+    }
+
+    public static void clearUpgrades(CompoundTag copiedData) {
+        copiedData.remove(UPGRADES_KEY);
     }
 
     private static CompoundTag getOrCreateRoot(CompoundTag copiedData) {

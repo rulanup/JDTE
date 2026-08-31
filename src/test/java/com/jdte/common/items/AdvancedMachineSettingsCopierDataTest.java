@@ -112,4 +112,17 @@ class AdvancedMachineSettingsCopierDataTest {
 
         assertEquals(Set.of(), copiedData.getAllKeys());
     }
+
+    @Test
+    void storesAndClearsSerializedUpgradeData() {
+        CompoundTag copiedData = new CompoundTag();
+        CompoundTag upgrades = new CompoundTag();
+        upgrades.putInt("Size", 4);
+
+        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, upgrades);
+
+        assertEquals(Optional.of(upgrades), AdvancedMachineSettingsCopierData.readUpgrades(copiedData));
+        AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+        assertEquals(Optional.empty(), AdvancedMachineSettingsCopierData.readUpgrades(copiedData));
+    }
 }

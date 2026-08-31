@@ -2,6 +2,8 @@ package com.jdte.common.recipes;
 
 import appeng.api.ids.AEComponents;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.core.BlockPos;
@@ -11,11 +13,13 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
 import net.minecraft.world.level.Level;
+import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,6 +79,20 @@ class AEExtractionSmithingRecipeTest {
         assertFalse(recipe.isBaseIngredient(new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get())));
         assertFalse(recipe.isAdditionIngredient(ItemStack.EMPTY));
         assertFalse(recipe.isAdditionIngredient(new ItemStack(Items.REDSTONE)));
+    }
+
+    @Test
+    void jsonDecodedRecipeCanBeEncodedForRecipeSync() {
+        AEExtractionSmithingRecipe.Serializer serializer = new AEExtractionSmithingRecipe.Serializer();
+        AEExtractionSmithingRecipe decoded = serializer.codec().codec()
+                .parse(JsonOps.INSTANCE, JsonParser.parseString("{}"))
+                .getOrThrow();
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), REGISTRY_ACCESS);
+        try {
+            serializer.streamCodec().encode(buffer, decoded);
+        } finally {
+            buffer.release();
+        }
     }
 
     private static ItemStack boundUpgrade(GlobalPos link) {

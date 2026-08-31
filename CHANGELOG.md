@@ -2,7 +2,13 @@
 
 ### English
 
-#### v0.6.0-pre2 (Current)
+#### v0.6.0-pre3 (Current)
+- **Fixed**: Advanced Machine Settings Copier now copies installed machine upgrades and requires one matching upgrade item from the player's inventory for every copied card. Pasting is rejected atomically when any required card is missing, so partial consumption cannot occur.
+- **Fixed**: Time Accelerator scheduling now limits each submitted batch to the largest amount affordable with the accelerator's current FE and Time Fluid, preventing resource shortages from discarding otherwise affordable work.
+- **Fixed**: AE Extraction smithing recipe serialization now reuses a stable singleton codec instance for consistent recipe decoding and networking.
+- **Validation**: Added regression coverage for upgrade persistence, inventory costs, atomic rejection, accelerator affordability, and recipe serialization.
+
+#### v0.6.0-pre2
 - **New**: Added modpack content controls. `jdte.content.disabledBlocks` and `disabledRecipes` disable arbitrary block/recipe IDs while preserving registry entries for old saves; disabled machines are hidden, cannot be placed or opened, do not tick, and expose no automation capabilities. Time Accelerator and Time Freezer families also have direct enable switches. Greenhouse, Loot Fabricator, and Bio Factory can independently skip their dynamic JEI recipe generation without disabling data-pack/KubeJS recipes or the machines themselves.
 - **Docs**: Added bilingual `KUBEJS.md` and `KUBEJS_EN.md` guides with complete content-control, Greenhouse, Bio Factory, and Loot Fabricator KubeJS examples and reload guidance.
 - **New**: Added the Repair Talisman (`jdte:repair_talisman`), an Equivalent Exchange-style repair item that works from anywhere in the inventory (main inventory, armor slots, or offhand): every damaged tool, weapon, and armor piece is repaired 5 durability per item per cycle, with a cycle every 4 ticks by default (25 durability/second — much faster than the EE original). Repairs cost FE — 10,000 per durability point by default — drawn from charged energy items in the player's inventory; rate, interval, and cost are configurable under `jdte.repairTalisman` (cost 0 = free), and the talisman carries an enchant glint. Crafted from an Eclipse Alloy block and Time Crystal blocks.
@@ -228,7 +234,14 @@
 
 ### 中文
 
-#### v0.6.0-pre2（当前）
+#### v0.6.0-pre3（当前）
+
+- **修复**：高级机器复制器现在会复制机器内已安装的升级，并要求玩家背包中每张升级卡都有一张匹配物品。缺少任意升级时会原子拒绝粘贴，不会发生部分扣除。
+- **修复**：时间加速器调度现在会根据当前 FE 与时间流体余额，将每批工作限制在可负担的最大数量，避免资源不足时丢弃本可执行的工作。
+- **修复**：AE 提取锻造升级配方序列化现在复用稳定的单例编解码器，确保配方解码与网络同步一致。
+- **验证**：新增升级持久化、背包消耗、原子拒绝、加速器资源负担和配方序列化回归测试。
+
+#### v0.6.0-pre2
 
 - **新增**：添加能量酿造升级（`jdte:energy_brewing_upgrade`），高级炼药机专属升级（最多 1 张）。安装后酿造燃料改由 FE 支付：每次充能消耗可配置的 `energyPerBlazePowder` FE（默认 5,000），提供与一个烈焰粉相同的 20 次酿造，烈焰粉槽随之停用，无需再外接烈焰粉。创造升级会豁免该费用。
 - **文档**：新增中英文 `KUBEJS.md` 与 `KUBEJS_EN.md`，包含内容开关、温室、生物工厂、战利品制造机的完整 KubeJS 示例与重载说明。

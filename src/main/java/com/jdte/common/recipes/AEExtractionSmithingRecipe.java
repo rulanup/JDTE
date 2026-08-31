@@ -85,9 +85,10 @@ public final class AEExtractionSmithingRecipe implements SmithingRecipe {
     }
 
     public static final class Serializer implements RecipeSerializer<AEExtractionSmithingRecipe> {
-        private static final MapCodec<AEExtractionSmithingRecipe> CODEC = MapCodec.unit(new AEExtractionSmithingRecipe());
+        private static final AEExtractionSmithingRecipe INSTANCE = new AEExtractionSmithingRecipe();
+        private static final MapCodec<AEExtractionSmithingRecipe> CODEC = MapCodec.unit(INSTANCE);
         private static final StreamCodec<RegistryFriendlyByteBuf, AEExtractionSmithingRecipe> STREAM_CODEC =
-                StreamCodec.unit(new AEExtractionSmithingRecipe());
+                StreamCodec.unit(INSTANCE);
 
         @Override
         public MapCodec<AEExtractionSmithingRecipe> codec() {
