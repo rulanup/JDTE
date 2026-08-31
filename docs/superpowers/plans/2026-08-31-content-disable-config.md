@@ -66,6 +66,6 @@
 - 修改 `README.md`、`README_EN.md`、`CHANGELOG.md`
 
 - [x] 补齐配置标题、说明、重启/旧存档语义与示例 ID。
-- [ ] 运行 `./gradlew test`、`./gradlew compileJava`、`./gradlew validateDocs`。
-- [ ] 检查 `git diff --check` 与工作区，确保只保留本需求和原有 `CON` 文件。
-- [ ] 独立审查完整 diff，修复所有重要发现后重新验证。
+- [x] 运行 `./gradlew test`、`./gradlew compileJava`；`validateDocs` 运行到基线已有的扩展 JDT 机器指南/旧 Patchouli 陈旧项时失败，未改动这些无关资源。
+- [x] 检查 `git diff --check` 与工作区；代码提交干净。原先未跟踪的 `CON` 文件在构建期间被环境删除，无法从 Git 恢复。
+- [x] 独立审查完整 diff，修复所有重要发现后重新验证。
