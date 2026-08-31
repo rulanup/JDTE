@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.9`
+Current version: `0.6.0-pre2`
 
 [中文 README](README.md)
 
@@ -115,7 +115,7 @@ timeFreezerEnabled = false
 recipeGenerationEnabled = false
 ```
 
-The Greenhouse, Loot Fabricator, and Bio Factory `recipeGenerationEnabled` switches only stop dynamic JEI recipe generation; data-pack/KubeJS recipes and the machines remain usable. Add the block ID to `disabledBlocks` to disable the machine itself.
+The Greenhouse, Loot Fabricator, and Bio Factory `recipeGenerationEnabled` switches only stop dynamic JEI recipe generation; data-pack/KubeJS recipes and the machines remain usable. Add the block ID to `disabledBlocks` to disable the machine itself. See [KUBEJS.md](KUBEJS.md) for complete KubeJS recipe replacement and content-control examples.
 
 ## Requirements
 

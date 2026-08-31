@@ -2,7 +2,7 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.5.9`
+当前版本：`0.6.0-pre2`
 
 [English README](README_EN.md)
 
@@ -116,6 +116,8 @@ recipeGenerationEnabled = false
 ```
 
 Greenhouse、Loot Fabricator 与 Bio Factory 的 `recipeGenerationEnabled` 只关闭动态 JEI 配方生成；数据包/KubeJS 配方和机器本身仍可使用。若要彻底关闭机器，请把方块 ID 加入 `disabledBlocks`。
+
+完整的 KubeJS 配方替换、内容禁用和动态 JEI 配方说明见 [KUBEJS.md](KUBEJS.md)。
 
 ## 安装要求
 

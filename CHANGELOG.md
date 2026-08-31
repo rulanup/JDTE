@@ -2,9 +2,10 @@
 
 ### English
 
-#### v0.6
+#### v0.6.0-pre2 (Current)
 - **New**: Added modpack content controls. `jdte.content.disabledBlocks` and `disabledRecipes` disable arbitrary block/recipe IDs while preserving registry entries for old saves; disabled machines are hidden, cannot be placed or opened, do not tick, and expose no automation capabilities. Time Accelerator and Time Freezer families also have direct enable switches. Greenhouse, Loot Fabricator, and Bio Factory can independently skip their dynamic JEI recipe generation without disabling data-pack/KubeJS recipes or the machines themselves.
-- **New**: Added the Repair Talisman (`jdte:repair_talisman`), an Equivalent Exchange-style repair item that works from anywhere in the inventory (main inventory, armor slots, or offhand): every damaged tool, weapon, and armor piece is repaired 5 durability per item per cycle, with a cycle every 4 ticks by default (25 durability/second — much faster than the EE original). Repairs cost FE — 10,000 per durability point by default — drawn from charged energy items in the player's inventory; rate, interval, and cost are configurable under `jdte.repairTalisman` (cost 0 = free), and the talisman carries an enchant glint. Crafted from an Eclipse Alloy block and Time Crystal blocks..0-pre1 (Current)
+- **Docs**: Added `KUBEJS.md` with complete content-control, Greenhouse, Bio Factory, and Loot Fabricator KubeJS examples and reload guidance.
+- **New**: Added the Repair Talisman (`jdte:repair_talisman`), an Equivalent Exchange-style repair item that works from anywhere in the inventory (main inventory, armor slots, or offhand): every damaged tool, weapon, and armor piece is repaired 5 durability per item per cycle, with a cycle every 4 ticks by default (25 durability/second — much faster than the EE original). Repairs cost FE — 10,000 per durability point by default — drawn from charged energy items in the player's inventory; rate, interval, and cost are configurable under `jdte.repairTalisman` (cost 0 = free), and the talisman carries an enchant glint. Crafted from an Eclipse Alloy block and Time Crystal blocks.
 
 - **New**: Added the Energy Brewing Upgrade (`jdte:energy_brewing_upgrade`), a dedicated Advanced Potion Brewer upgrade (limit 1). While installed, brewing fuel is paid with FE instead of Blaze Powder: each fuel charge consumes the configurable `energyPerBlazePowder` FE (default 5,000) and provides the same 20 brews as one Blaze Powder, the Blaze Powder slot is disabled, and no external Blaze Powder supply is needed. The Creative Upgrade waives the fee.
 
@@ -227,15 +228,18 @@
 
 ### 中文
 
-#### v0.6.0-pre1（当前）
+#### v0.6.0-pre2（当前）
 
 - **新增**：添加能量酿造升级（`jdte:energy_brewing_upgrade`），高级炼药机专属升级（最多 1 张）。安装后酿造燃料改由 FE 支付：每次充能消耗可配置的 `energyPerBlazePowder` FE（默认 5,000），提供与一个烈焰粉相同的 20 次酿造，烈焰粉槽随之停用，无需再外接烈焰粉。创造升级会豁免该费用。
+- **文档**：新增 `KUBEJS.md`，包含内容开关、温室、生物工厂、战利品制造机的完整 KubeJS 示例与重载说明。
 - **新增**：添加修复护符（`jdte:repair_talisman`），一件等价交换风格的修复物品：放在背包任意位置（主背包、盔甲栏或副手）即可工作，全部受损工具、武器与盔甲每件每周期修复 5 点耐久，默认每 4 刻一个周期（每秒 25 点——远快于等价交换原版）。修复消耗 FE——默认每点耐久 10,000 FE，从玩家背包中已充能的能量物品抽取；速率、周期与费用均可在 `jdte.repairTalisman` 配置中调整（费用设 0 为免费），护符自带附魔光效。配方为蚀空合金块与时间水晶块。
 
 - **修复**：物品接收器不再抽取物品类型已被列入黑名单的物品——即使组件级比对无法命中也会按物品类型兜底拒绝。修复了深度怪物学习机器的数据模型（组件随数据积累持续变化）在黑名单中仍被抽走的问题。
 - **变更**：AE 输出升级现可安装到任意 JDT/JDTE 机器（此前仅限已配置物品或流体输出路由的机器），并按默认 5 刻的固定节奏回流产物，可通过新配置 `jdte.aeOutput.returnInterval` 调整。回流物品通过真实 AE2 ME 存储写入，终端、总线与合成供应器都能立即检测到。
 
-- **新增**：生物粉碎机现已兼容龙之研究的稳定刷怪笼。粉碎机放在稳定刷怪笼正上方时，会消费其原生生成周期（尊重档位的玩家需求与延迟时序），按档位生成数量换算掉落与经验流体，并重置刷怪笼计时而不生成实体。与现有的混沌守护者支持一样，依赖可选的龙之研究模组。#### v0.5.9（当前）
+- **新增**：生物粉碎机现已兼容龙之研究的稳定刷怪笼。粉碎机放在稳定刷怪笼正上方时，会消费其原生生成周期（尊重档位的玩家需求与延迟时序），按档位生成数量换算掉落与经验流体，并重置刷怪笼计时而不生成实体。与现有的混沌守护者支持一样，依赖可选的龙之研究模组。
+
+#### v0.5.9
 
 - **新增**：加入 AE 合成读取升级（`jdte:ae_crafting_read_upgrade`）。将卡片放入 AE2 无线访问点的 linking 输入槽完成绑定，再安装到兼容机器的标准或扩展升级槽。绑定的 AE2 网络存在活动合成任务时机器自动运行；未绑定、访问点离线或未加载、网络启动中或没有进行中的合成任务时暂停，网络恢复且出现任务后自动继续。AE2 仍为可选依赖。
 
