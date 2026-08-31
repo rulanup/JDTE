@@ -62,8 +62,8 @@ public record JDTEContentControl(
      */
     public static JDTEContentControl current() {
         ContentConfig config = JDTEConfig.COMMON.content;
-        List<String> blocks = copyValues(config.disabledBlocks.get());
-        List<String> recipes = copyValues(config.disabledRecipes.get());
+        List<? extends String> blocks = config.disabledBlocks.get();
+        List<? extends String> recipes = config.disabledRecipes.get();
         boolean greenhouse = config.greenhouseRecipeGenerationEnabled.get();
         boolean lootFabricator = config.lootFabricatorRecipeGenerationEnabled.get();
         boolean bioFactory = config.bioFactoryRecipeGenerationEnabled.get();
@@ -79,9 +79,9 @@ public record JDTEContentControl(
             snapshot = CURRENT;
             if (snapshot == null || !snapshot.matches(blocks, recipes, greenhouse, lootFabricator, bioFactory,
                     timeAccelerator, timeFreezer)) {
-                snapshot = new Snapshot(blocks, recipes, greenhouse, lootFabricator, bioFactory,
+                snapshot = new Snapshot(copyValues(blocks), copyValues(recipes), greenhouse, lootFabricator, bioFactory,
                         timeAccelerator, timeFreezer,
-                        new JDTEContentControl(parseSelections(blocks), parseSelections(recipes),
+                        new JDTEContentControl(parseSelections(copyValues(blocks)), parseSelections(copyValues(recipes)),
                                 greenhouse, lootFabricator, bioFactory, timeAccelerator, timeFreezer));
                 CURRENT = snapshot;
             }
@@ -223,7 +223,7 @@ public record JDTEContentControl(
     private record Snapshot(List<String> blocks, List<String> recipes, boolean greenhouse,
                             boolean lootFabricator, boolean bioFactory, boolean timeAccelerator,
                             boolean timeFreezer, JDTEContentControl control) {
-        private boolean matches(List<String> blocks, List<String> recipes, boolean greenhouse,
+        private boolean matches(List<? extends String> blocks, List<? extends String> recipes, boolean greenhouse,
                                 boolean lootFabricator, boolean bioFactory, boolean timeAccelerator,
                                 boolean timeFreezer) {
             return this.blocks.equals(blocks) && this.recipes.equals(recipes)
