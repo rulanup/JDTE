@@ -77,6 +77,7 @@ class ContentRecipePolicyTest {
 
         assertTrue(control.isDynamicRecipeGenerationEnabled(
                 JDTEContentControl.DynamicRecipeFamily.GREENHOUSE));
+        assertTrue(control.isRecipeEnabled(id("jdte:jei/greenhouse/minecraft/wheat")));
     }
 
     @Test

@@ -124,7 +124,6 @@ public record JDTEContentControl(
         return matchesAny(disabledRecipes, id)
                 || matchesAny(disabledBlocks, id)
                 || matchesGeneratedFamilyRoot(disabledRecipes, id)
-                || matchesGeneratedFamilyRoot(disabledBlocks, id)
                 || isDisabledTimeRecipe(id);
     }
 
