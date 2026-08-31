@@ -115,7 +115,7 @@ timeFreezerEnabled = false
 recipeGenerationEnabled = false
 ```
 
-The Greenhouse, Loot Fabricator, and Bio Factory `recipeGenerationEnabled` switches only stop dynamic JEI recipe generation; data-pack/KubeJS recipes and the machines remain usable. Add the block ID to `disabledBlocks` to disable the machine itself. See [KUBEJS.md](KUBEJS.md) for complete KubeJS recipe replacement and content-control examples.
+The Greenhouse, Loot Fabricator, and Bio Factory `recipeGenerationEnabled` switches only stop dynamic JEI recipe generation; data-pack/KubeJS recipes and the machines remain usable. Add the block ID to `disabledBlocks` to disable the machine itself. See [KUBEJS_EN.md](KUBEJS_EN.md) for complete English KubeJS recipe replacement and content-control examples.
 
 ## Requirements
 
