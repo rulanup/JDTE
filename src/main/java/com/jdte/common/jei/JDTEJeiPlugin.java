@@ -63,12 +63,10 @@ public class JDTEJeiPlugin implements IModPlugin {
                 && control.isBlockEnabled(JDTE.id("loot_fabricator"))) {
             registration.addRecipeCategories(new LootFabricatorRecipeCategory(guiHelper));
         }
-        if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.GREENHOUSE)
-                && greenhouseBlockEnabled(control)) {
+        if (greenhouseBlockEnabled(control)) {
             registration.addRecipeCategories(new GreenhouseRecipeCategory(guiHelper));
         }
-        if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.BIO_FACTORY)
-                && control.isBlockEnabled(JDTE.id("bio_factory"))) {
+        if (control.isBlockEnabled(JDTE.id("bio_factory"))) {
             registration.addRecipeCategories(new BioFactoryRecipeCategory(guiHelper));
         }
     }
@@ -78,12 +76,10 @@ public class JDTEJeiPlugin implements IModPlugin {
         JDTEContentControl control = JDTEContentControl.current();
         registration.addRecipes(GelGeneratorRecipeCategory.RECIPE_TYPE, GelGeneratorJeiRecipe.getRecipes());
         registration.addRecipes(PotionBrewerRecipeCategory.RECIPE_TYPE, PotionBrewerJeiRecipe.getRecipes());
-        if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.GREENHOUSE)
-                && greenhouseBlockEnabled(control)) {
+        if (greenhouseBlockEnabled(control)) {
             registration.addRecipes(GreenhouseRecipeCategory.RECIPE_TYPE, GreenhouseJeiRecipe.getRecipes());
         }
-        if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.BIO_FACTORY)
-                && control.isBlockEnabled(JDTE.id("bio_factory"))) {
+        if (control.isBlockEnabled(JDTE.id("bio_factory"))) {
             registration.addRecipes(BioFactoryRecipeCategory.RECIPE_TYPE, BioFactoryJeiRecipe.getRecipes());
         }
         registration.addRecipes(LifeSynthesisRecipeCategory.RECIPE_TYPE, LifeSynthesisJeiRecipe.getRecipes());
@@ -122,13 +118,13 @@ public class JDTEJeiPlugin implements IModPlugin {
                 registration.addRecipeCatalyst(machine, LootFabricatorRecipeCategory.RECIPE_TYPE);
             }
         }
-        if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.GREENHOUSE)
-                && greenhouseBlockEnabled(control)) {
+        if (control.isBlockEnabled(JDTE.id("greenhouse"))) {
             registration.addRecipeCatalyst(new ItemStack(JDTEItems.GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
+        }
+        if (control.isBlockEnabled(JDTE.id("large_greenhouse"))) {
             registration.addRecipeCatalyst(new ItemStack(JDTEItems.LARGE_GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
         }
-        if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.BIO_FACTORY)
-                && control.isBlockEnabled(JDTE.id("bio_factory"))) {
+        if (control.isBlockEnabled(JDTE.id("bio_factory"))) {
             registration.addRecipeCatalyst(new ItemStack(JDTEItems.BIO_FACTORY.get()), BioFactoryRecipeCategory.RECIPE_TYPE);
         }
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.LIFE_SYNTHESIS_VAT.get()), LifeSynthesisRecipeCategory.RECIPE_TYPE);
@@ -138,13 +134,13 @@ public class JDTEJeiPlugin implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGenericGuiContainerHandler(BaseMachineScreen.class, new MachineScreenJeiGuiHandler());
         JDTEContentControl control = JDTEContentControl.current();
-        if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.GREENHOUSE)
-                && greenhouseBlockEnabled(control)) {
+        if (control.isBlockEnabled(JDTE.id("greenhouse"))) {
             registration.addRecipeClickArea(GreenhouseScreen.class, 36, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
+        }
+        if (control.isBlockEnabled(JDTE.id("large_greenhouse"))) {
             registration.addRecipeClickArea(LargeGreenhouseScreen.class, 64, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
         }
-        if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.BIO_FACTORY)
-                && control.isBlockEnabled(JDTE.id("bio_factory"))) {
+        if (control.isBlockEnabled(JDTE.id("bio_factory"))) {
             registration.addRecipeClickArea(BioFactoryScreen.class, 35, 6, 32, 12, BioFactoryRecipeCategory.RECIPE_TYPE);
         }
         registration.addRecipeClickArea(LifeSynthesisScreen.class, 112, 7, 28, 12, LifeSynthesisRecipeCategory.RECIPE_TYPE);

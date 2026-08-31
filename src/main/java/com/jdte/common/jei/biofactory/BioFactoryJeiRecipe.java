@@ -23,10 +23,11 @@ public record BioFactoryJeiRecipe(ResourceLocation id, List<ItemStack> specimens
                                   int processTicks, int energy) {
     public static List<BioFactoryJeiRecipe> getRecipes() {
         JDTEContentControl control = JDTEContentControl.current();
-        if (!control.isDynamicRecipeGenerationEnabled(JDTEContentControl.DynamicRecipeFamily.BIO_FACTORY)
-                || !control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "bio_factory"))) {
+        if (!control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "bio_factory"))) {
             return List.of();
         }
+        boolean dynamicGeneration = control.isDynamicRecipeGenerationEnabled(
+                JDTEContentControl.DynamicRecipeFamily.BIO_FACTORY);
         Minecraft minecraft = Minecraft.getInstance();
         var manager = minecraft.level != null ? minecraft.level.getRecipeManager()
                 : minecraft.getConnection() != null ? minecraft.getConnection().getRecipeManager() : null;
@@ -47,7 +48,7 @@ public record BioFactoryJeiRecipe(ResourceLocation id, List<ItemStack> specimens
                     com.jdte.setup.JDTEConfig.COMMON.bioFactoryTimeFluidPerCycle.get(),
                     recipe.processTicks(), recipe.energy()));
         }
-        if (ModList.get().isLoaded("productivebees") && minecraft.level != null) {
+        if (dynamicGeneration && ModList.get().isLoaded("productivebees") && minecraft.level != null) {
             for (var recipe : ProductiveBeesBioFactoryIntegration.getJeiRecipes(
                     minecraft.level, manager)) {
                 if (!control.isRecipeEnabled(recipe.id())) continue;
