@@ -1,12 +1,14 @@
 package com.jdte.client.jei;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
+import com.jdte.JDTE;
 import com.jdte.client.MachineScreenAreaProvider;
 import com.jdte.client.screens.AdvancedPotionBrewerScreen;
 import com.jdte.client.screens.GelGeneratorScreen;
 import com.jdte.client.screens.InfusionMachineScreen;
 import com.jdte.client.screens.LootFabricatorScreen;
 import com.jdte.common.jei.gelgenerator.GelGeneratorRecipeCategory;
+import com.jdte.common.content.JDTEContentControl;
 import com.jdte.common.jei.infusion.InfusionRecipeCategory;
 import com.jdte.common.jei.lootfabricator.LootFabricatorRecipeCategory;
 import com.jdte.common.jei.potionbrewer.PotionBrewerRecipeCategory;
@@ -56,6 +58,12 @@ public final class MachineScreenJeiGuiHandler implements IGuiContainerHandler<Ba
                     PotionBrewerRecipeCategory.RECIPE_TYPE));
         }
         if (screen instanceof LootFabricatorScreen) {
+            JDTEContentControl control = JDTEContentControl.current();
+            if (!control.isDynamicRecipeGenerationEnabled(
+                    JDTEContentControl.DynamicRecipeFamily.LOOT_FABRICATOR)
+                    || !control.isBlockEnabled(JDTE.id("loot_fabricator"))) {
+                return Collections.emptyList();
+            }
             GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
             return List.of(IGuiClickableArea.createBasic(
                     config.getLootFabricatorProgressArrowX(), config.getLootFabricatorProgressArrowY(),

@@ -3,6 +3,7 @@ package com.jdte.setup.config;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class BioFactoryConfig {
+    public final ModConfigSpec.BooleanValue bioFactoryRecipeGenerationEnabled;
     public final ModConfigSpec.IntValue bioFactoryFluidCapacity;
     public final ModConfigSpec.IntValue bioFactoryEnergyCapacity;
     public final ModConfigSpec.IntValue bioFactoryEnergyPerCycle;
@@ -22,6 +23,10 @@ public class BioFactoryConfig {
         builder.comment("Bio Factory Settings")
                 .translation("config.jdte.jdte.bioFactory")
                 .push("bioFactory");
+        bioFactoryRecipeGenerationEnabled = builder
+                .comment("When disabled, dynamic Bio Factory JEI recipes are not generated; data-pack recipes remain available.")
+                .translation("config.jdte.jdte.bioFactory.recipeGenerationEnabled")
+                .define("recipeGenerationEnabled", true);
         bioFactoryFluidCapacity = builder.translation("config.jdte.jdte.bioFactory.fluidCapacity")
                 .defineInRange("fluidCapacity", 64000, 1000, Integer.MAX_VALUE);
         bioFactoryEnergyCapacity = builder.translation("config.jdte.jdte.bioFactory.energyCapacity")

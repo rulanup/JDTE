@@ -3,6 +3,7 @@ package com.jdte.setup.config;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class GreenhouseConfig {
+    public final ModConfigSpec.BooleanValue greenhouseRecipeGenerationEnabled;
     public final ModConfigSpec.IntValue greenhouseFluidCapacity;
     public final ModConfigSpec.IntValue greenhouseEnergyCapacity;
     public final ModConfigSpec.IntValue greenhouseBaseMultiplier;
@@ -25,6 +26,10 @@ public class GreenhouseConfig {
         builder.comment("Greenhouse Settings")
                 .translation("config.jdte.jdte.greenhouse")
                 .push("greenhouse");
+        greenhouseRecipeGenerationEnabled = builder
+                .comment("When disabled, dynamic Greenhouse and Large Greenhouse JEI recipes are not generated; data-pack recipes remain available.")
+                .translation("config.jdte.jdte.greenhouse.recipeGenerationEnabled")
+                .define("recipeGenerationEnabled", true);
         greenhouseFluidCapacity = builder
                 .translation("config.jdte.jdte.greenhouse.fluidCapacity")
                 .defineInRange("fluidCapacity", 64000, 1000, Integer.MAX_VALUE);

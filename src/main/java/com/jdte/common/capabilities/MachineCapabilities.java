@@ -25,6 +25,7 @@ import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
+import com.jdte.common.content.JDTEContentControl;
 import com.jdte.common.blocks.LargeGreenhousePartBlock;
 import com.jdte.common.blocks.LargeMineralExtractorPartBlock;
 import com.jdte.common.blocks.LifeSynthesisPartBlock;
@@ -343,7 +344,21 @@ public final class MachineCapabilities {
     private static void register(RegisterCapabilitiesEvent event, CapabilityKey key,
                                  IBlockCapabilityProvider provider, List<Block> blocks) {
         // provider 与能力类型的匹配由表中 energy()/fluid()/items() 的泛型签名保证
-        event.registerBlock(key.capability, provider, blocks.toArray(Block[]::new));
+        event.registerBlock(key.capability, guarded(provider), blocks.toArray(Block[]::new));
+    }
+
+    /**
+     * Capabilities stay registered for save/registry compatibility, but a disabled
+     * block must not expose automation access while its config is active.
+     */
+    @SuppressWarnings("rawtypes")
+    private static IBlockCapabilityProvider guarded(IBlockCapabilityProvider provider) {
+        return (level, pos, state, be, side) -> {
+            if (state != null && !JDTEContentControl.current().isBlockEnabled(state.getBlock())) {
+                return null;
+            }
+            return provider.getCapability(level, pos, state, be, side);
+        };
     }
 
     // ============================================================

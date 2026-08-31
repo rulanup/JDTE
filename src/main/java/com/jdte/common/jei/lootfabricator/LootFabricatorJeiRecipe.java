@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import com.jdte.client.LootFabricatorLootClientCache;
 import com.jdte.common.utils.LootDropInfo;
+import com.jdte.common.content.JDTEContentControl;
 
 import java.util.Comparator;
 import java.util.List;
@@ -18,6 +19,11 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
     }
 
     public static List<LootFabricatorJeiRecipe> getRecipes() {
+        JDTEContentControl control = JDTEContentControl.current();
+        if (!control.isDynamicRecipeGenerationEnabled(JDTEContentControl.DynamicRecipeFamily.LOOT_FABRICATOR)
+                || !control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "loot_fabricator"))) {
+            return List.of();
+        }
         return LootFabricatorLootClientCache.get().entrySet().stream()
                 .map(entry -> {
                     ItemStack egg = BuiltInRegistries.ITEM.getOptional(entry.getKey()).map(ItemStack::new).orElse(ItemStack.EMPTY);
@@ -32,6 +38,7 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
                         .mapToObj(page -> new LootFabricatorJeiRecipe(recipe.spawnEgg(),
                                 List.copyOf(recipe.possibleDrops().subList(page * 16,
                                         Math.min(recipe.possibleDrops().size(), (page + 1) * 16))), page)))
+                .filter(recipe -> control.isRecipeEnabled(recipe.id()))
                 .sorted(Comparator.comparing(recipe -> BuiltInRegistries.ITEM.getKey(recipe.spawnEgg().getItem()).toString()))
                 .toList();
     }
@@ -44,6 +51,11 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
     }
 
     public static List<ItemStack> getMachines() {
+        JDTEContentControl control = JDTEContentControl.current();
+        if (!control.isDynamicRecipeGenerationEnabled(JDTEContentControl.DynamicRecipeFamily.LOOT_FABRICATOR)
+                || !control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "loot_fabricator"))) {
+            return List.of();
+        }
         return List.of(new ItemStack(JDTEBlocks.LOOT_FABRICATOR.get()));
     }
 }

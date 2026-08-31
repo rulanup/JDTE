@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.content.JDTEContentControl;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -32,6 +33,10 @@ public final class TimeFreezerManager {
 
     public static void register(TimeFreezerBE freezer) {
         if (freezer.getLevel() == null || freezer.getLevel().isClientSide) {
+            return;
+        }
+        if (!JDTEContentControl.current().isBlockEnabled(freezer.getBlockState().getBlock())) {
+            unregister(freezer);
             return;
         }
         REGISTERED.add(freezer);

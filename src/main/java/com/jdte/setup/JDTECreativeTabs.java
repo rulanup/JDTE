@@ -2,7 +2,6 @@ package com.jdte.setup;
 
 import com.jdte.JDTE;
 import com.jdte.common.integrations.ProductiveBeesBioFactoryIntegration;
-import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;

@@ -21,6 +21,8 @@ import com.jdte.common.blockentities.AEOutputManager;
 import com.jdte.common.blockentities.RangeBlockerManager;
 import com.jdte.common.blockentities.TimeFreezerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
+import com.jdte.common.content.JDTEContentControl;
+import com.jdte.common.content.JDTEContentEvents;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.items.UltimatePortalGunItem;
 import com.jdte.common.items.RepairTalismanEvents;
@@ -84,6 +86,7 @@ public class JDTE {
         JDTEFluids.BUCKET_ITEMS.register(modEventBus);
         JDTERecipes.RECIPE_TYPES.register(modEventBus);
         JDTERecipes.RECIPE_SERIALIZERS.register(modEventBus);
+        modEventBus.addListener(JDTEContentEvents::onCreativeTab);
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
@@ -131,6 +134,8 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, RangeBlockerManager::onPlaySoundAtEntity);
         NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, JDTEContentEvents::onBlockPlace);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, JDTEContentEvents::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration::onPlayerLoggedIn);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
@@ -146,8 +151,16 @@ public class JDTE {
         MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
         SpawnEggRecipeSyncPayload payload = new SpawnEggRecipeSyncPayload(
                 MobLootSpawnEggHelper.getRecipeIds(event.getPlayerList().getServer().getResourceManager()));
+        JDTEContentControl content = JDTEContentControl.current();
+        boolean lootFabricatorEnabled = content.isDynamicRecipeGenerationEnabled(
+                JDTEContentControl.DynamicRecipeFamily.LOOT_FABRICATOR)
+                && content.isBlockEnabled(id("loot_fabricator"))
+                && content.isRecipeEnabled(id("loot_fabricator"));
         LootFabricatorLootSyncPayload lootPayload = new LootFabricatorLootSyncPayload(
-                MobLootSpawnEggHelper.getLootDropsBySpawnEgg(event.getPlayerList().getServer().getResourceManager()));
+                lootFabricatorEnabled
+                        ? MobLootSpawnEggHelper.getLootDropsBySpawnEgg(
+                        event.getPlayerList().getServer().getResourceManager())
+                        : java.util.Map.of());
         if (event.getPlayer() != null) {
             PacketDistributor.sendToPlayer(event.getPlayer(), payload);
             PacketDistributor.sendToPlayer(event.getPlayer(), lootPayload);

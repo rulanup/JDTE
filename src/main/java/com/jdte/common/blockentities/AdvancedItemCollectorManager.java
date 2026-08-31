@@ -2,6 +2,7 @@ package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.util.ItemStackKey;
 import com.jdte.common.region.RegionChunkIndex;
+import com.jdte.common.content.JDTEContentControl;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -39,6 +40,10 @@ public final class AdvancedItemCollectorManager {
 
     public static void register(AdvancedItemCollectorBE collector) {
         if (!(collector.getLevel() instanceof ServerLevel level)) return;
+        if (!JDTEContentControl.current().isBlockEnabled(collector.getBlockState().getBlock())) {
+            unregister(collector);
+            return;
+        }
         LevelState state = LEVELS.computeIfAbsent(level, ignored -> new LevelState());
         state.remove(collector);
         AABB area = collector.getAABB(collector.getBlockPos());

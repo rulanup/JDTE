@@ -100,6 +100,23 @@ Unsupported modes are skipped. Senders expose Auto Input only and Receivers expo
 - JEI categories cover the Gel Generator, Infusion Machine, Advanced Potion Brewer, and Loot Fabricator.
 - Optional integrations include FTB Ultimine, AE2/ExtendedAE, Mekanism, Apothic Spawners, Draconic Evolution, and Productive Bees; the latter adds a non-self-breeding Life Fluid Bee, Life Extractor flowering, and 250 mB centrifuge output per comb.
 
+### Modpack Content Controls
+
+`config/jdte/jdte.toml` can disable JDTE content without removing registry IDs. Disabled blocks are hidden from Creative tabs and cannot be newly placed, opened, ticked, or accessed through automation capabilities. Existing blocks remain in old worlds and can still be removed, avoiding missing-registry save damage. `disabledRecipes` accepts exact recipe IDs and directory prefixes; for example, `greenhouse` matches both `jdte:greenhouse` and `jdte:greenhouse/*`.
+
+```toml
+[jdte.content]
+disabledBlocks = ["advanced_item_collector", "bio_factory"]
+disabledRecipes = ["greenhouse"]
+timeAcceleratorEnabled = false
+timeFreezerEnabled = false
+
+[jdte.greenhouse]
+recipeGenerationEnabled = false
+```
+
+The Greenhouse, Loot Fabricator, and Bio Factory `recipeGenerationEnabled` switches only stop dynamic JEI recipe generation; data-pack/KubeJS recipes and the machines remain usable. Add the block ID to `disabledBlocks` to disable the machine itself.
+
 ## Requirements
 
 - Minecraft `1.21.1`

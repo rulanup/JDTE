@@ -2,6 +2,7 @@ package com.jdte.common.blockentities;
 
 import com.jdte.common.region.RegionChunkIndex;
 import com.jdte.common.region.RegionTargetMatcher;
+import com.jdte.common.content.JDTEContentControl;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -30,6 +31,10 @@ public final class EntitySuppressorManager {
 
     public static void register(EntitySuppressorBE suppressor) {
         if (suppressor.getLevel() == null) return;
+        if (!JDTEContentControl.current().isBlockEnabled(suppressor.getBlockState().getBlock())) {
+            unregister(suppressor);
+            return;
+        }
         CachedSuppressor cached = CachedSuppressor.of(suppressor);
         INDEX.add(suppressor.getLevel(), suppressor, cached, cached.area);
     }

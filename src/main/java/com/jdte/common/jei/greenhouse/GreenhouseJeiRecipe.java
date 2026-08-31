@@ -7,6 +7,7 @@ import com.jdte.common.integrations.MysticalAgricultureGreenhouseIntegration;
 import com.jdte.common.recipes.GreenhouseRecipe;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTERecipes;
+import com.jdte.common.content.JDTEContentControl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +26,12 @@ import java.util.Set;
 public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<ItemStack> outputs,
                                   ResourceLocation fluid, int timeFluid, int energy, int growthWork) {
     public static List<GreenhouseJeiRecipe> getRecipes() {
+        JDTEContentControl control = JDTEContentControl.current();
+        if (!control.isDynamicRecipeGenerationEnabled(JDTEContentControl.DynamicRecipeFamily.GREENHOUSE)
+                || (!control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "greenhouse"))
+                && !control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "large_greenhouse")))) {
+            return List.of();
+        }
         Minecraft minecraft = Minecraft.getInstance();
         RecipeManager manager = minecraft.level != null ? minecraft.level.getRecipeManager()
                 : minecraft.getConnection() != null ? minecraft.getConnection().getRecipeManager() : null;
@@ -33,6 +40,7 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
         Set<Item> seen = new HashSet<>();
 
         for (var holder : manager.getAllRecipesFor(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
+            if (!control.isRecipeEnabled(holder.id())) continue;
             GreenhouseRecipe recipe = holder.value();
             for (ItemStack stack : recipe.seed().getItems()) {
                 if (!stack.isEmpty() && seen.add(stack.getItem())) {
@@ -46,10 +54,12 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
             MysticalAgricultureGreenhouseIntegration.getCrops().forEach((item, definition) -> {
                 if (!seen.add(item) || definition.outputs().isEmpty()) return;
                 ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
-                result.add(create(ResourceLocation.fromNamespaceAndPath("jdte",
-                                "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath()),
-                        new ItemStack(item), definition.outputs(), definition.fluid(), definition.timeFluid(),
-                        definition.growthWork()));
+                ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath("jdte",
+                        "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath());
+                if (control.isRecipeEnabled(recipeId)) {
+                    result.add(create(recipeId, new ItemStack(item), definition.outputs(), definition.fluid(),
+                            definition.timeFluid(), definition.growthWork()));
+                }
             });
         }
 
@@ -58,24 +68,30 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
                 if (!seen.add(crop.seed().getItem()) || crop.definition().outputs().isEmpty()) continue;
                 ResourceLocation seedId = BuiltInRegistries.ITEM.getKey(crop.seed().getItem());
                 ResourceLocation recipeId = crop.recipeId();
-                result.add(create(ResourceLocation.fromNamespaceAndPath("jdte",
-                                "jei/greenhouse/botanypots/" + recipeId.getNamespace() + "/"
-                                        + recipeId.getPath() + "/" + seedId.getNamespace() + "/" + seedId.getPath()),
-                        crop.seed(), crop.definition().outputs(), crop.definition().fluid(), crop.definition().timeFluid(),
-                        crop.definition().growthWork()));
+                ResourceLocation displayId = ResourceLocation.fromNamespaceAndPath("jdte",
+                        "jei/greenhouse/botanypots/" + recipeId.getNamespace() + "/"
+                                + recipeId.getPath() + "/" + seedId.getNamespace() + "/" + seedId.getPath());
+                if (control.isRecipeEnabled(displayId)) {
+                    result.add(create(displayId, crop.seed(), crop.definition().outputs(), crop.definition().fluid(),
+                            crop.definition().timeFluid(), crop.definition().growthWork()));
+                }
             }
         }
 
         for (Item item : BuiltInRegistries.ITEM) {
             if (seen.contains(item) || !(item instanceof BlockItem)) continue;
             ItemStack seed = new ItemStack(item);
+            if (!control.isItemEnabled(seed)) continue;
             GreenhouseCropDefinition definition = GreenhouseCropResolver.findGeneric(seed);
             if (definition == null || definition.outputs().isEmpty()) continue;
             seen.add(item);
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
-            result.add(create(ResourceLocation.fromNamespaceAndPath("jdte",
-                    "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath()),
-                    seed, definition.outputs(), definition.fluid(), definition.timeFluid(), definition.growthWork()));
+            ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath("jdte",
+                    "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath());
+            if (control.isRecipeEnabled(recipeId)) {
+                result.add(create(recipeId, seed, definition.outputs(), definition.fluid(), definition.timeFluid(),
+                        definition.growthWork()));
+            }
         }
 
         result.sort(Comparator.comparing(recipe -> BuiltInRegistries.ITEM.getKey(recipe.seed().getItem()).toString()));

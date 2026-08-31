@@ -17,6 +17,7 @@ import appeng.api.util.AECableType;
 import com.glodblock.github.appflux.common.me.key.FluxKey;
 import com.glodblock.github.appflux.common.me.key.type.EnergyType;
 import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
+import com.jdte.common.content.JDTEContentControl;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,6 +72,9 @@ final class AdvancedEnergyTransmitterAE2Integration
         event.registerBlock(
                 AECapabilities.IN_WORLD_GRID_NODE_HOST,
                 (level, pos, state, blockEntity, context) -> {
+                    if (state == null || !JDTEContentControl.current().isBlockEnabled(state.getBlock())) {
+                        return null;
+                    }
                     if (!(blockEntity instanceof AdvancedEnergyTransmitterBE transmitter)) {
                         return null;
                     }

@@ -2,6 +2,7 @@ package com.jdte.common.blockentities;
 
 import com.jdte.common.region.RegionChunkIndex;
 import com.jdte.common.region.RegionTargetMatcher;
+import com.jdte.common.content.JDTEContentControl;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -48,6 +49,10 @@ public final class RangeBlockerManager {
 
     public static void register(RangeBlockerBE blocker) {
         if (blocker.getLevel() == null) return;
+        if (!JDTEContentControl.current().isBlockEnabled(blocker.getBlockState().getBlock())) {
+            unregister(blocker);
+            return;
+        }
         CachedBlocker cached = CachedBlocker.of(blocker);
         INDEX.add(blocker.getLevel(), blocker, cached, cached.area);
     }

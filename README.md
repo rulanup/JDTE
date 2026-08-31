@@ -100,6 +100,23 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 - JEI 提供凝胶发生器、灌注机、高级炼药机和战利品制造机分类。
 - 可选兼容 FTB Ultimine、AE2/ExtendedAE、Mekanism、Apothic Spawners、Draconic Evolution 和 Productive Bees；后者增加不可自繁殖的生命流体蜜蜂、生命提取器授粉和每蜜脾 250 mB 的离心产液链。
 
+### 整合包内容开关
+
+`config/jdte/jdte.toml` 可以在不注销注册 ID 的情况下关闭 JDTE 内容。被禁用的方块不会出现在创造栏，不能新放置、打开、运行或暴露自动化能力；已有世界中的方块会保留且仍可拆除，避免坏档。`disabledRecipes` 同时支持精确配方 ID 和目录前缀，例如 `greenhouse` 会匹配 `jdte:greenhouse` 与 `jdte:greenhouse/*`。
+
+```toml
+[jdte.content]
+disabledBlocks = ["advanced_item_collector", "bio_factory"]
+disabledRecipes = ["greenhouse"]
+timeAcceleratorEnabled = false
+timeFreezerEnabled = false
+
+[jdte.greenhouse]
+recipeGenerationEnabled = false
+```
+
+Greenhouse、Loot Fabricator 与 Bio Factory 的 `recipeGenerationEnabled` 只关闭动态 JEI 配方生成；数据包/KubeJS 配方和机器本身仍可使用。若要彻底关闭机器，请把方块 ID 加入 `disabledBlocks`。
+
 ## 安装要求
 
 - Minecraft `1.21.1`

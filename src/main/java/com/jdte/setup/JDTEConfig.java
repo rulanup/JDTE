@@ -18,6 +18,7 @@ import com.jdte.setup.config.LifeSynthesisVatConfig;
 import com.jdte.setup.config.LootFabricatorConfig;
 import com.jdte.setup.config.MineralExtractorConfig;
 import com.jdte.setup.config.AEOutputConfig;
+import com.jdte.setup.config.ContentConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
 import com.jdte.setup.config.RepairTalismanConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
@@ -74,6 +75,15 @@ public class JDTEConfig {
         public final GreenhouseConfig greenhouse;
         public final LifeSynthesisVatConfig lifeSynthesisVat;
         public final BioFactoryConfig bioFactory;
+        public final ContentConfig content;
+        // Content availability aliases (kept alongside the flattened legacy values above).
+        public final ModConfigSpec.ConfigValue<List<? extends String>> disabledBlocks;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> disabledRecipes;
+        public final ModConfigSpec.BooleanValue timeAcceleratorEnabled;
+        public final ModConfigSpec.BooleanValue timeFreezerEnabled;
+        public final ModConfigSpec.BooleanValue greenhouseRecipeGenerationEnabled;
+        public final ModConfigSpec.BooleanValue lootFabricatorRecipeGenerationEnabled;
+        public final ModConfigSpec.BooleanValue bioFactoryRecipeGenerationEnabled;
         public final LifeBreederConfig lifeBreeder;
         public final GelGeneratorConfig gelGenerator;
         public final GeneratorUpgradeConfig generatorUpgrade;
@@ -350,6 +360,15 @@ public class JDTEConfig {
             upgradeItems = new UpgradeItemsConfig(builder);
             advancedEnergyTransmitter = new AdvancedEnergyTransmitterConfig(builder);
             infusion = new InfusionConfig(builder);
+
+            this.content = new ContentConfig(builder, greenhouse, lootFabricator, bioFactory);
+            this.disabledBlocks = content.disabledBlocks;
+            this.disabledRecipes = content.disabledRecipes;
+            this.timeAcceleratorEnabled = content.timeAcceleratorEnabled;
+            this.timeFreezerEnabled = content.timeFreezerEnabled;
+            this.greenhouseRecipeGenerationEnabled = content.greenhouseRecipeGenerationEnabled;
+            this.lootFabricatorRecipeGenerationEnabled = content.lootFabricatorRecipeGenerationEnabled;
+            this.bioFactoryRecipeGenerationEnabled = content.bioFactoryRecipeGenerationEnabled;
 
             builder.pop();
 

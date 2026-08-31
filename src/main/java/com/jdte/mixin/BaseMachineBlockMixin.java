@@ -5,6 +5,11 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControl
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.blockentities.BioCrusherBE;
+import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
+import com.jdte.common.blockentities.TimeAcceleratorBE;
+import com.jdte.common.blockentities.TimeFreezerBE;
+import com.jdte.common.blockentities.TimeFreezerManager;
+import com.jdte.common.content.JDTEContentControl;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeItemStackHandler;
 import com.jdte.common.utils.DedicatedUpgradeDropHelper;
@@ -47,6 +52,16 @@ public abstract class BaseMachineBlockMixin {
         }
 
         cir.setReturnValue((tickLevel, pos, blockState, blockEntity) -> {
+            if (!JDTEContentControl.current().isBlockEnabled(blockState.getBlock())) {
+                if (blockEntity instanceof TimeAcceleratorBE accelerator) {
+                    ExtendedTimeAccelerationManager.deactivate(accelerator);
+                }
+                if (blockEntity instanceof TimeFreezerBE freezer) {
+                    TimeFreezerManager.deactivate(freezer);
+                }
+                return;
+            }
+
             if (!(blockEntity instanceof BaseMachineBE machine)) {
                 original.tick(tickLevel, pos, blockState, blockEntity);
                 return;

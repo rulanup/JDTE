@@ -3,6 +3,7 @@ package com.jdte.common.blockentities;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.entities.TimeAcceleratorEffectEntity;
 import com.jdte.common.entities.UltimateTimeWandEntity;
+import com.jdte.common.content.JDTEContentControl;
 import com.jdte.common.integrations.ae2.ExtendedTimeAcceleratorAE2Integration;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEConfig;
@@ -50,7 +51,8 @@ public final class ExtendedTimeAccelerationManager {
     }
 
     public static void submit(TimeAcceleratorBE accelerator) {
-        if (accelerator.getLevel() instanceof ServerLevel level && !accelerator.isRemoved()) {
+        if (accelerator.getLevel() instanceof ServerLevel level && !accelerator.isRemoved()
+                && JDTEContentControl.current().isBlockEnabled(accelerator.getBlockState().getBlock())) {
             LEVELS.computeIfAbsent(level, ignored -> new LevelState()).submitted.add(accelerator);
         }
     }
@@ -531,7 +533,8 @@ public final class ExtendedTimeAccelerationManager {
 
         @Override
         public boolean isActive(TimeAcceleratorBE accelerator, ServerLevel level) {
-            return !accelerator.isRemoved() && accelerator.getLevel() == level;
+            return !accelerator.isRemoved() && accelerator.getLevel() == level
+                    && JDTEContentControl.current().isBlockEnabled(accelerator.getBlockState().getBlock());
         }
 
         @Override
