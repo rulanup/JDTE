@@ -1,6 +1,13 @@
 package com.jdte.common.items.machinesettings;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.ClickerT2BE;
+import com.direwolf20.justdirethings.common.blockentities.DropperT2BE;
+import com.direwolf20.justdirethings.common.blockentities.InventoryHolderBE;
+import com.direwolf20.justdirethings.common.blockentities.ParadoxMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE;
+import com.direwolf20.justdirethings.common.blockentities.SensorT2BE;
+import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.common.blockentities.AdvancedBioCrusherBE;
 import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.AdvancedGelGeneratorBE;
@@ -31,12 +38,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
-import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public final class MachineSettingsCodecRegistry {
     private static final MachineSettingsCodec COMMON = new CommonMachineSettingsCodec();
@@ -66,12 +71,12 @@ public final class MachineSettingsCodecRegistry {
         register(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBE.class);
         register(JDTEBlockEntities.ADVANCED_POTION_BREWER.get(), AdvancedPotionBrewerBE.class);
 
-        registerJdtType("ClickerT2BE", "com.direwolf20.justdirethings.common.blockentities.ClickerT2BE");
-        registerJdtType("DropperT2BE", "com.direwolf20.justdirethings.common.blockentities.DropperT2BE");
-        registerJdtType("SensorT2BE", "com.direwolf20.justdirethings.common.blockentities.SensorT2BE");
-        registerJdtType("InventoryHolderBE", "com.direwolf20.justdirethings.common.blockentities.InventoryHolderBE");
-        registerJdtType("PlayerAccessorBE", "com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE");
-        registerJdtType("ParadoxMachineBE", "com.direwolf20.justdirethings.common.blockentities.ParadoxMachineBE");
+        register(Registration.ClickerT2BE.get(), ClickerT2BE.class);
+        register(Registration.DropperT2BE.get(), DropperT2BE.class);
+        register(Registration.SensorT2BE.get(), SensorT2BE.class);
+        register(Registration.InventoryHolderBE.get(), InventoryHolderBE.class);
+        register(Registration.PlayerAccessorBE.get(), PlayerAccessorBE.class);
+        register(Registration.ParadoxMachineBE.get(), ParadoxMachineBE.class);
     }
 
     private MachineSettingsCodecRegistry() {
@@ -92,43 +97,6 @@ public final class MachineSettingsCodecRegistry {
     private static void register(BlockEntityType<?> type, Class<? extends BaseMachineBE> machineClass) {
         ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
         REGISTRY.put(typeId, new RegisteredCodec(machineClass::isInstance, COMMON));
-    }
-
-    private static void registerJdtType(String registrationFieldName, String className) {
-        jdtTypeId(registrationFieldName)
-                .ifPresent(typeId -> registerIfPresent(typeId, className));
-    }
-
-    private static void registerIfPresent(ResourceLocation typeId, String className) {
-        Optional<Class<? extends BaseMachineBE>> machineClass = loadMachineClass(className);
-        machineClass.ifPresent(type -> REGISTRY.put(typeId, new RegisteredCodec(type::isInstance, COMMON)));
-    }
-
-    private static Optional<ResourceLocation> jdtTypeId(String registrationFieldName) {
-        try {
-            Class<?> registrationClass = Class.forName("com.direwolf20.justdirethings.setup.Registration");
-            Field field = registrationClass.getField(registrationFieldName);
-            Object holder = field.get(null);
-            if (!(holder instanceof Supplier<?> supplier)) {
-                return Optional.empty();
-            }
-            Object value = supplier.get();
-            if (!(value instanceof BlockEntityType<?> type)) {
-                return Optional.empty();
-            }
-            return Optional.ofNullable(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type));
-        } catch (ReflectiveOperationException | LinkageError e) {
-            return Optional.empty();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Optional<Class<? extends BaseMachineBE>> loadMachineClass(String className) {
-        try {
-            return Optional.of((Class<? extends BaseMachineBE>) Class.forName(className));
-        } catch (ClassNotFoundException e) {
-            return Optional.empty();
-        }
     }
 
     private record RegisteredCodec(Predicate<BaseMachineBE> machineType, MachineSettingsCodec codec) {
