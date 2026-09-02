@@ -13,5 +13,12 @@ public interface MachineSettingsCodec {
 
     interface PreparedSettings {
         void apply(BaseMachineBE machine);
+
+        /**
+         * Applies filter-only settings after the caller has opted into copying filters.
+         * Normal settings application intentionally leaves these values untouched.
+         */
+        default void applyFilterSettings(BaseMachineBE machine) {
+        }
     }
 }

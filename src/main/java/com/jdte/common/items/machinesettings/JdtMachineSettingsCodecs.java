@@ -16,11 +16,15 @@ import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -52,6 +56,9 @@ final class JdtMachineSettingsCodecs {
     private static final String RENDERED_SLOT_KEY = "renderedSlot";
     private static final String RENDER_PLAYER_KEY = "renderPlayer";
     private static final String FILTER_BASIC_HANDLER_KEY = "filterBasicHandler";
+    private static final String FILTER_NBT_ITEMS_KEY = "Items";
+    private static final String FILTER_NBT_SIZE_KEY = "Size";
+    private static final String FILTER_NBT_SLOT_KEY = "Slot";
     private static final String SIDED_INVENTORY_TYPES_KEY = "sidedInventoryTypes";
     private static final String RENDER_PARADOX_KEY = "renderParadox";
     private static final String PARADOX_TARGET_TYPE_KEY = "paradoxTargetType";
@@ -74,6 +81,7 @@ final class JdtMachineSettingsCodecs {
     private static final int TARGET_EXP_MAX = 1000;
     private static final int RENDERED_SLOT_MIN = 0;
     private static final int RENDERED_SLOT_MAX = 35;
+    private static final int INVENTORY_HOLDER_FILTER_SLOT_COUNT = 41;
     private static final int PLAYER_ACCESSOR_TYPE_MIN = 0;
     private static final int PLAYER_ACCESSOR_TYPE_MAX = 2;
     private static final int PARADOX_TARGET_TYPE_MIN = 0;
@@ -189,7 +197,6 @@ final class JdtMachineSettingsCodecs {
             Optional<Boolean> strongSignal = MachineSettingsCodecSupport.readBoolean(custom, STRONG_SIGNAL_KEY);
             if (!custom.contains(SENSE_AMOUNT_KEY, Tag.TAG_INT)
                     || !custom.contains(EQUALITY_KEY, Tag.TAG_INT)
-                    || !custom.contains(SENSOR_BLOCK_STATE_PROPERTIES_KEY, Tag.TAG_COMPOUND)
                     || senseTarget.isEmpty()
                     || strongSignal.isEmpty()) {
                 return Optional.empty();
@@ -202,15 +209,23 @@ final class JdtMachineSettingsCodecs {
                 return Optional.empty();
             }
 
-            CompoundTag blockStateProperties = custom.getCompound(SENSOR_BLOCK_STATE_PROPERTIES_KEY).copy();
-            if (!isValidSensorBlockStateProperties(blockStateProperties)) {
-                return Optional.empty();
-            }
             return Optional.of(machine -> {
                 machine.sense_target = senseTarget.get();
                 machine.strongSignal = strongSignal.get();
                 machine.senseAmount = senseAmount;
                 machine.equality = equality;
+                machine.markDirtyClient();
+            });
+        }, (custom, registries) -> {
+            if (!custom.contains(SENSOR_BLOCK_STATE_PROPERTIES_KEY, Tag.TAG_COMPOUND)) {
+                return Optional.empty();
+            }
+
+            CompoundTag blockStateProperties = custom.getCompound(SENSOR_BLOCK_STATE_PROPERTIES_KEY).copy();
+            if (!isValidSensorBlockStateProperties(blockStateProperties)) {
+                return Optional.empty();
+            }
+            return Optional.of(machine -> {
                 machine.loadBlockStateProperties(blockStateProperties);
                 machine.markDirtyClient();
             });
@@ -277,7 +292,6 @@ final class JdtMachineSettingsCodecs {
             Optional<Boolean> automatedCompareCounts = MachineSettingsCodecSupport.readBoolean(custom, AUTOMATED_COMPARE_COUNTS_KEY);
             Optional<Boolean> renderPlayer = MachineSettingsCodecSupport.readBoolean(custom, RENDER_PLAYER_KEY);
             if (!custom.contains(RENDERED_SLOT_KEY, Tag.TAG_INT)
-                    || !custom.contains(FILTER_BASIC_HANDLER_KEY, Tag.TAG_COMPOUND)
                     || compareNbt.isEmpty()
                     || filtersOnly.isEmpty()
                     || automatedFiltersOnly.isEmpty()
@@ -292,7 +306,6 @@ final class JdtMachineSettingsCodecs {
                 return Optional.empty();
             }
 
-            CompoundTag filterSettings = custom.getCompound(FILTER_BASIC_HANDLER_KEY).copy();
             return Optional.of(machine -> {
                 machine.compareNBT = compareNbt.get();
                 machine.filtersOnly = filtersOnly.get();
@@ -301,6 +314,18 @@ final class JdtMachineSettingsCodecs {
                 machine.automatedCompareCounts = automatedCompareCounts.get();
                 machine.renderedSlot = renderedSlot;
                 machine.renderPlayer = renderPlayer.get();
+                machine.markDirtyClient();
+            });
+        }, (custom, registries) -> {
+            if (!custom.contains(FILTER_BASIC_HANDLER_KEY, Tag.TAG_COMPOUND)) {
+                return Optional.empty();
+            }
+
+            CompoundTag filterSettings = custom.getCompound(FILTER_BASIC_HANDLER_KEY).copy();
+            if (!isValidInventoryHolderFilterSettings(filterSettings, registries)) {
+                return Optional.empty();
+            }
+            return Optional.of(machine -> {
                 machine.filterBasicHandler.deserializeNBT(registries, filterSettings);
                 machine.rebuildFilterCache();
                 machine.markDirtyClient();
@@ -418,6 +443,40 @@ final class JdtMachineSettingsCodecs {
         return null;
     }
 
+    private static boolean isValidInventoryHolderFilterSettings(CompoundTag filterSettings,
+                                                                 HolderLookup.Provider registries) {
+        if (!filterSettings.contains(FILTER_NBT_SIZE_KEY, Tag.TAG_INT)
+                || filterSettings.getInt(FILTER_NBT_SIZE_KEY) != INVENTORY_HOLDER_FILTER_SLOT_COUNT
+                || !filterSettings.contains(FILTER_NBT_ITEMS_KEY, Tag.TAG_LIST)) {
+            return false;
+        }
+
+        Tag rawItems = filterSettings.get(FILTER_NBT_ITEMS_KEY);
+        if (!(rawItems instanceof ListTag items)) {
+            return false;
+        }
+
+        Set<Integer> usedSlots = new HashSet<>();
+        for (Tag rawEntry : items) {
+            if (!(rawEntry instanceof CompoundTag itemTag)
+                    || !itemTag.contains(FILTER_NBT_SLOT_KEY, Tag.TAG_INT)) {
+                return false;
+            }
+
+            int slot = itemTag.getInt(FILTER_NBT_SLOT_KEY);
+            if (!MachineSettingsCodecSupport.isInRange(
+                    slot, 0, INVENTORY_HOLDER_FILTER_SLOT_COUNT - 1) || !usedSlots.add(slot)) {
+                return false;
+            }
+
+            Optional<ItemStack> parsedStack = ItemStack.parse(registries, itemTag);
+            if (parsedStack.isEmpty() || parsedStack.get().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static boolean isValidSensorBlockStateProperties(CompoundTag blockStateProperties) {
         for (String slotKey : blockStateProperties.getAllKeys()) {
             final int slot;
@@ -438,6 +497,16 @@ final class JdtMachineSettingsCodecs {
                                                                               Encoder<T> encoder,
                                                                               BiFunction<CompoundTag, HolderLookup.Provider,
                                                                                       Optional<Consumer<T>>> decoder) {
+        return typedCodec(machineType, encoder, decoder, (custom, registries) -> Optional.of(machine -> {
+        }));
+    }
+
+    private static <T extends BaseMachineBE> MachineSettingsCodec typedCodec(Class<T> machineType,
+                                                                              Encoder<T> encoder,
+                                                                              BiFunction<CompoundTag, HolderLookup.Provider,
+                                                                                      Optional<Consumer<T>>> decoder,
+                                                                              BiFunction<CompoundTag, HolderLookup.Provider,
+                                                                                      Optional<Consumer<T>>> filterDecoder) {
         return new MachineSettingsCodec() {
             @Override
             public CompoundTag encode(BaseMachineBE machine, HolderLookup.Provider registries) {
@@ -452,16 +521,28 @@ final class JdtMachineSettingsCodecs {
             public Optional<PreparedSettings> decode(CompoundTag custom, HolderLookup.Provider registries) {
                 Optional<PreparedSettings> commonSettings = MachineSettingsCodecRegistry.common().decode(custom, registries);
                 Optional<Consumer<T>> machineSettings = decoder.apply(custom, registries);
-                if (commonSettings.isEmpty() || machineSettings.isEmpty()) {
+                Optional<Consumer<T>> filterSettings = filterDecoder.apply(custom, registries);
+                if (commonSettings.isEmpty() || machineSettings.isEmpty() || filterSettings.isEmpty()) {
                     return Optional.empty();
                 }
 
-                return Optional.of(machine -> {
-                    if (!machineType.isInstance(machine)) {
-                        return;
+                return Optional.of(new PreparedSettings() {
+                    @Override
+                    public void apply(BaseMachineBE machine) {
+                        if (!machineType.isInstance(machine)) {
+                            return;
+                        }
+                        commonSettings.get().apply(machine);
+                        machineSettings.get().accept(machineType.cast(machine));
                     }
-                    commonSettings.get().apply(machine);
-                    machineSettings.get().accept(machineType.cast(machine));
+
+                    @Override
+                    public void applyFilterSettings(BaseMachineBE machine) {
+                        if (!machineType.isInstance(machine)) {
+                            return;
+                        }
+                        filterSettings.get().accept(machineType.cast(machine));
+                    }
                 });
             }
         };

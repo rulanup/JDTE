@@ -22,11 +22,14 @@ import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.ExtendedBioCrusherBE;
 import com.jdte.common.blockentities.ExtendedBlockBreakerBE;
+import com.jdte.common.blockentities.ExtendedBlockPlacerBE;
 import com.jdte.common.blockentities.ExtendedBlockSwapperBE;
 import com.jdte.common.blockentities.ExtendedClickerBE;
 import com.jdte.common.blockentities.ExtendedDropperBE;
 import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
 import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
+import com.jdte.common.blockentities.ExtendedFluidCollectorBE;
+import com.jdte.common.blockentities.ExtendedFluidPlacerBE;
 import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
@@ -43,6 +46,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -52,6 +56,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -244,7 +249,7 @@ class MachineSettingsCodecTest {
     }
 
     @Test
-    void sensorCodecCopiesValuesAndBlockStateProperties() {
+    void sensorCodecCopiesOrdinaryValuesWithoutApplyingBlockStateProperties() {
         var source = MachineSettingsTestFixtures.sensor();
         source.getFilterHandler().setStackInSlot(0, new ItemStack(Items.FURNACE));
         source.sense_target = SensorT1BE.SENSE_TARGET.values()[1];
@@ -254,6 +259,8 @@ class MachineSettingsCodecTest {
         source.addBlockStateProperty(0, MachineSettingsTestFixtures.blockStateProperties());
         var target = MachineSettingsTestFixtures.sensor();
         target.getFilterHandler().setStackInSlot(0, new ItemStack(Items.FURNACE));
+        target.addBlockStateProperty(0, MachineSettingsTestFixtures.blockStateProperties(Direction.WEST));
+        CompoundTag targetBlockStateProperties = target.saveBlockStateProperties();
         target.sense_target = SensorT1BE.SENSE_TARGET.values()[0];
         target.strongSignal = false;
         target.senseAmount = 0;
@@ -265,6 +272,24 @@ class MachineSettingsCodecTest {
         assertEquals(13, target.senseAmount);
         assertEquals(2, target.equality);
         assertTrue(target.strongSignal);
+        assertEquals(targetBlockStateProperties, target.saveBlockStateProperties());
+    }
+
+    @Test
+    void sensorCodecAppliesBlockStatePropertiesOnlyWhenFilterSettingsAreRequested() {
+        var source = MachineSettingsTestFixtures.sensor();
+        source.getFilterHandler().setStackInSlot(0, new ItemStack(Items.FURNACE));
+        source.addBlockStateProperty(0, MachineSettingsTestFixtures.blockStateProperties());
+        var target = MachineSettingsTestFixtures.sensor();
+        target.getFilterHandler().setStackInSlot(0, new ItemStack(Items.FURNACE));
+        target.addBlockStateProperty(0, MachineSettingsTestFixtures.blockStateProperties(Direction.WEST));
+        CompoundTag targetBlockStateProperties = target.saveBlockStateProperties();
+        MachineSettingsCodec.PreparedSettings prepared = preparedSettings(source);
+
+        prepared.apply(target);
+        assertEquals(targetBlockStateProperties, target.saveBlockStateProperties());
+
+        prepared.applyFilterSettings(target);
         assertEquals(source.saveBlockStateProperties(), target.saveBlockStateProperties());
     }
 
@@ -325,7 +350,7 @@ class MachineSettingsCodecTest {
     }
 
     @Test
-    void inventoryHolderCodecCopiesDisplayAndComparisonSettingsWithoutInventory() {
+    void inventoryHolderCodecCopiesOrdinarySettingsWithoutApplyingFilterHandler() {
         InventoryHolderBE source = MachineSettingsTestFixtures.inventoryHolder();
         source.saveSettings(true, true, true, false, false, true, 4);
         source.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIAMOND));
@@ -334,6 +359,7 @@ class MachineSettingsCodecTest {
         ItemStack targetStack = new ItemStack(Items.COBBLESTONE, 3);
         target.getMachineHandler().setStackInSlot(0, targetStack);
         target.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIRT));
+        CompoundTag targetFilterSettings = target.filterBasicHandler.serializeNBT(REGISTRIES);
 
         MachineSettingsTestFixtures.applyCodec(source, target);
 
@@ -344,8 +370,56 @@ class MachineSettingsCodecTest {
         assertFalse(target.automatedCompareCounts);
         assertEquals(4, target.renderedSlot);
         assertTrue(target.renderPlayer);
-        assertEquals(source.filterBasicHandler.serializeNBT(REGISTRIES), target.filterBasicHandler.serializeNBT(REGISTRIES));
+        assertEquals(targetFilterSettings, target.filterBasicHandler.serializeNBT(REGISTRIES));
         assertEquals(targetStack, target.getMachineHandler().getStackInSlot(0));
+    }
+
+    @Test
+    void inventoryHolderCodecAppliesFilterHandlerOnlyWhenFilterSettingsAreRequested() {
+        InventoryHolderBE source = MachineSettingsTestFixtures.inventoryHolder();
+        source.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIAMOND));
+        InventoryHolderBE target = MachineSettingsTestFixtures.inventoryHolder();
+        target.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIRT));
+        CompoundTag targetFilterSettings = target.filterBasicHandler.serializeNBT(REGISTRIES);
+        MachineSettingsCodec.PreparedSettings prepared = preparedSettings(source);
+
+        prepared.apply(target);
+        assertEquals(targetFilterSettings, target.filterBasicHandler.serializeNBT(REGISTRIES));
+
+        prepared.applyFilterSettings(target);
+        assertEquals(source.filterBasicHandler.serializeNBT(REGISTRIES), target.filterBasicHandler.serializeNBT(REGISTRIES));
+    }
+
+    @Test
+    void inventoryHolderCodecRejectsAnInvalidFilterHandlerSizeWithoutMutatingTarget() {
+        assertInventoryHolderFilterSnapshotRejected(filterSettings -> filterSettings.putInt("Size", 40));
+    }
+
+    @Test
+    void inventoryHolderCodecRejectsAnOutOfRangeFilterHandlerSlotWithoutMutatingTarget() {
+        assertInventoryHolderFilterSnapshotRejected(filterSettings ->
+                filterSettings.getList("Items", net.minecraft.nbt.Tag.TAG_COMPOUND).getCompound(0).putInt("Slot", 41));
+    }
+
+    @Test
+    void inventoryHolderCodecRejectsANonCompoundFilterHandlerEntryWithoutMutatingTarget() {
+        assertInventoryHolderFilterSnapshotRejected(filterSettings -> {
+            ListTag entries = new ListTag();
+            entries.add(net.minecraft.nbt.StringTag.valueOf("not-an-item"));
+            filterSettings.put("Items", entries);
+        });
+    }
+
+    @Test
+    void inventoryHolderCodecRejectsAnInvalidFilterHandlerItemWithoutMutatingTarget() {
+        assertInventoryHolderFilterSnapshotRejected(filterSettings -> {
+            CompoundTag invalidItem = new CompoundTag();
+            invalidItem.putInt("Slot", 0);
+            invalidItem.putString("id", "minecraft:not_a_real_item");
+            ListTag entries = new ListTag();
+            entries.add(invalidItem);
+            filterSettings.put("Items", entries);
+        });
     }
 
     @Test
@@ -418,9 +492,12 @@ class MachineSettingsCodecTest {
                 MachineSettingsTestFixtures.paradox(),
                 MachineSettingsTestFixtures.extendedClicker(),
                 MachineSettingsTestFixtures.extendedBlockBreaker(),
+                MachineSettingsTestFixtures.extendedBlockPlacer(),
                 MachineSettingsTestFixtures.extendedBlockSwapper(),
                 MachineSettingsTestFixtures.extendedDropper(),
                 MachineSettingsTestFixtures.extendedSensor(),
+                MachineSettingsTestFixtures.extendedFluidCollector(),
+                MachineSettingsTestFixtures.extendedFluidPlacer(),
                 MachineSettingsTestFixtures.extendedEnergyTransmitter(),
                 MachineSettingsTestFixtures.extendedExperienceHolder());
 
@@ -429,5 +506,44 @@ class MachineSettingsCodecTest {
             assertTrue(MachineSettingsCodecRegistry.find(typeId, machine).isPresent(),
                     () -> "Missing Codec for exact block entity type " + typeId);
         }
+    }
+
+    @Test
+    void registryUsesTheCommonCodecForExtendedBlockPlacer() {
+        ExtendedBlockPlacerBE source = MachineSettingsTestFixtures.extendedBlockPlacer();
+        source.setTickSpeed(9);
+        source.setDirection(Direction.WEST.ordinal());
+        ExtendedBlockPlacerBE target = MachineSettingsTestFixtures.extendedBlockPlacer();
+        target.setTickSpeed(1);
+        target.setDirection(Direction.NORTH.ordinal());
+
+        MachineSettingsTestFixtures.applyCodec(source, target);
+
+        assertEquals(9, target.getTickSpeed());
+        assertEquals(Direction.WEST.ordinal(), target.getDirection());
+    }
+
+    private void assertInventoryHolderFilterSnapshotRejected(Consumer<CompoundTag> tamper) {
+        InventoryHolderBE source = MachineSettingsTestFixtures.inventoryHolder();
+        source.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIAMOND));
+        InventoryHolderBE target = MachineSettingsTestFixtures.inventoryHolder();
+        target.saveSettings(false, false, false, true, true, false, 0);
+        target.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIRT));
+        CompoundTag targetFilterSettings = target.filterBasicHandler.serializeNBT(REGISTRIES);
+        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
+        MachineSettingsCodec codec = MachineSettingsCodecRegistry.find(typeId, source).orElseThrow();
+        CompoundTag encoded = codec.encode(source, REGISTRIES);
+
+        tamper.accept(encoded.getCompound("filterBasicHandler"));
+
+        assertTrue(codec.decode(encoded, REGISTRIES).isEmpty());
+        assertFalse(target.compareNBT);
+        assertEquals(targetFilterSettings, target.filterBasicHandler.serializeNBT(REGISTRIES));
+    }
+
+    private MachineSettingsCodec.PreparedSettings preparedSettings(BaseMachineBE source) {
+        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
+        MachineSettingsCodec codec = MachineSettingsCodecRegistry.find(typeId, source).orElseThrow();
+        return codec.decode(codec.encode(source, REGISTRIES), REGISTRIES).orElseThrow();
     }
 }

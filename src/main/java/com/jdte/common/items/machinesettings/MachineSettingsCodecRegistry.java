@@ -30,11 +30,14 @@ import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.ExtendedBioCrusherBE;
 import com.jdte.common.blockentities.ExtendedBlockBreakerBE;
+import com.jdte.common.blockentities.ExtendedBlockPlacerBE;
 import com.jdte.common.blockentities.ExtendedBlockSwapperBE;
 import com.jdte.common.blockentities.ExtendedClickerBE;
 import com.jdte.common.blockentities.ExtendedDropperBE;
 import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
 import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
+import com.jdte.common.blockentities.ExtendedFluidCollectorBE;
+import com.jdte.common.blockentities.ExtendedFluidPlacerBE;
 import com.jdte.common.blockentities.ExtendedLifeExtractorBE;
 import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
@@ -87,10 +90,13 @@ public final class MachineSettingsCodecRegistry {
         register(JDTEBlockEntities.EXTENDED_CLICKER.get(), ExtendedClickerBE.class, JdtMachineSettingsCodecs.clicker());
         register(JDTEBlockEntities.EXTENDED_BLOCK_BREAKER.get(), ExtendedBlockBreakerBE.class,
                 JdtMachineSettingsCodecs.blockBreaker());
+        register(JDTEBlockEntities.EXTENDED_BLOCK_PLACER.get(), ExtendedBlockPlacerBE.class);
         register(JDTEBlockEntities.EXTENDED_BLOCK_SWAPPER.get(), ExtendedBlockSwapperBE.class,
                 JdtMachineSettingsCodecs.blockSwapper());
         register(JDTEBlockEntities.EXTENDED_DROPPER.get(), ExtendedDropperBE.class, JdtMachineSettingsCodecs.dropper());
         register(JDTEBlockEntities.EXTENDED_SENSOR.get(), ExtendedSensorBE.class, JdtMachineSettingsCodecs.sensor());
+        register(JDTEBlockEntities.EXTENDED_FLUID_COLLECTOR.get(), ExtendedFluidCollectorBE.class);
+        register(JDTEBlockEntities.EXTENDED_FLUID_PLACER.get(), ExtendedFluidPlacerBE.class);
         register(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), ExtendedEnergyTransmitterBE.class,
                 JdtMachineSettingsCodecs.energyTransmitter());
         register(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBE.class,

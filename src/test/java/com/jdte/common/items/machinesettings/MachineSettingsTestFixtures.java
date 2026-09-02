@@ -22,11 +22,14 @@ import com.direwolf20.justdirethings.common.blockentities.ItemCollectorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.ExtendedBioCrusherBE;
 import com.jdte.common.blockentities.ExtendedBlockBreakerBE;
+import com.jdte.common.blockentities.ExtendedBlockPlacerBE;
 import com.jdte.common.blockentities.ExtendedBlockSwapperBE;
 import com.jdte.common.blockentities.ExtendedClickerBE;
 import com.jdte.common.blockentities.ExtendedDropperBE;
 import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
 import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
+import com.jdte.common.blockentities.ExtendedFluidCollectorBE;
+import com.jdte.common.blockentities.ExtendedFluidPlacerBE;
 import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
@@ -241,6 +244,10 @@ public final class MachineSettingsTestFixtures {
         return new ExtendedBlockBreakerBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_BLOCK_BREAKER.get().defaultBlockState());
     }
 
+    public static ExtendedBlockPlacerBE extendedBlockPlacer() {
+        return new ExtendedBlockPlacerBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_BLOCK_PLACER.get().defaultBlockState());
+    }
+
     public static ExtendedBlockSwapperBE extendedBlockSwapper() {
         return new ExtendedBlockSwapperBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get().defaultBlockState());
     }
@@ -251,6 +258,15 @@ public final class MachineSettingsTestFixtures {
 
     public static ExtendedSensorBE extendedSensor() {
         return new ExtendedSensorBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_SENSOR.get().defaultBlockState());
+    }
+
+    public static ExtendedFluidCollectorBE extendedFluidCollector() {
+        return new ExtendedFluidCollectorBE(BlockPos.ZERO,
+                JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get().defaultBlockState());
+    }
+
+    public static ExtendedFluidPlacerBE extendedFluidPlacer() {
+        return new ExtendedFluidPlacerBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_FLUID_PLACER.get().defaultBlockState());
     }
 
     public static ExtendedEnergyTransmitterBE extendedEnergyTransmitter() {
@@ -271,7 +287,12 @@ public final class MachineSettingsTestFixtures {
     }
 
     public static Map<net.minecraft.world.level.block.state.properties.Property<?>, Comparable<?>> blockStateProperties() {
-        return Map.of(BlockStateProperties.HORIZONTAL_FACING, Direction.EAST);
+        return blockStateProperties(Direction.EAST);
+    }
+
+    public static Map<net.minecraft.world.level.block.state.properties.Property<?>, Comparable<?>> blockStateProperties(
+            Direction direction) {
+        return Map.of(BlockStateProperties.HORIZONTAL_FACING, direction);
     }
 
     public static UUID targetOwnerId(AdvancedEnergyTransmitterBE machine) {
