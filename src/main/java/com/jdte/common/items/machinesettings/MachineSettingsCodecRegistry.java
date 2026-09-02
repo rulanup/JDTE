@@ -1,11 +1,21 @@
 package com.jdte.common.items.machinesettings;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE;
+import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT2BE;
+import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT1BE;
+import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT2BE;
+import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT2BE;
+import com.direwolf20.justdirethings.common.blockentities.DropperT1BE;
 import com.direwolf20.justdirethings.common.blockentities.DropperT2BE;
+import com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE;
+import com.direwolf20.justdirethings.common.blockentities.ExperienceHolderBE;
 import com.direwolf20.justdirethings.common.blockentities.InventoryHolderBE;
+import com.direwolf20.justdirethings.common.blockentities.ItemCollectorBE;
 import com.direwolf20.justdirethings.common.blockentities.ParadoxMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE;
+import com.direwolf20.justdirethings.common.blockentities.SensorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.SensorT2BE;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.common.blockentities.AdvancedBioCrusherBE;
@@ -19,8 +29,14 @@ import com.jdte.common.blockentities.BasicTimeAcceleratorBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.ExtendedBioCrusherBE;
+import com.jdte.common.blockentities.ExtendedBlockBreakerBE;
+import com.jdte.common.blockentities.ExtendedBlockSwapperBE;
+import com.jdte.common.blockentities.ExtendedClickerBE;
+import com.jdte.common.blockentities.ExtendedDropperBE;
+import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
 import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
 import com.jdte.common.blockentities.ExtendedLifeExtractorBE;
+import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
@@ -68,15 +84,37 @@ public final class MachineSettingsCodecRegistry {
         register(JDTEBlockEntities.RANGE_BLOCKER.get(), RangeBlockerBE.class);
         register(JDTEBlockEntities.TIME_FREEZER.get(), TimeFreezerBE.class);
         register(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterBE.class);
-        register(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBE.class);
+        register(JDTEBlockEntities.EXTENDED_CLICKER.get(), ExtendedClickerBE.class, JdtMachineSettingsCodecs.clicker());
+        register(JDTEBlockEntities.EXTENDED_BLOCK_BREAKER.get(), ExtendedBlockBreakerBE.class,
+                JdtMachineSettingsCodecs.blockBreaker());
+        register(JDTEBlockEntities.EXTENDED_BLOCK_SWAPPER.get(), ExtendedBlockSwapperBE.class,
+                JdtMachineSettingsCodecs.blockSwapper());
+        register(JDTEBlockEntities.EXTENDED_DROPPER.get(), ExtendedDropperBE.class, JdtMachineSettingsCodecs.dropper());
+        register(JDTEBlockEntities.EXTENDED_SENSOR.get(), ExtendedSensorBE.class, JdtMachineSettingsCodecs.sensor());
+        register(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), ExtendedEnergyTransmitterBE.class,
+                JdtMachineSettingsCodecs.energyTransmitter());
+        register(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBE.class,
+                JdtMachineSettingsCodecs.extendedExperienceHolder());
         register(JDTEBlockEntities.ADVANCED_POTION_BREWER.get(), AdvancedPotionBrewerBE.class);
 
-        register(Registration.ClickerT2BE.get(), ClickerT2BE.class);
-        register(Registration.DropperT2BE.get(), DropperT2BE.class);
-        register(Registration.SensorT2BE.get(), SensorT2BE.class);
-        register(Registration.InventoryHolderBE.get(), InventoryHolderBE.class);
-        register(Registration.PlayerAccessorBE.get(), PlayerAccessorBE.class);
-        register(Registration.ParadoxMachineBE.get(), ParadoxMachineBE.class);
+        register(Registration.ClickerT1BE.get(), ClickerT1BE.class, JdtMachineSettingsCodecs.clicker());
+        register(Registration.ClickerT2BE.get(), ClickerT2BE.class, JdtMachineSettingsCodecs.clicker());
+        register(Registration.DropperT1BE.get(), DropperT1BE.class, JdtMachineSettingsCodecs.dropper());
+        register(Registration.DropperT2BE.get(), DropperT2BE.class, JdtMachineSettingsCodecs.dropper());
+        register(Registration.BlockBreakerT1BE.get(), BlockBreakerT1BE.class, JdtMachineSettingsCodecs.blockBreaker());
+        register(Registration.BlockBreakerT2BE.get(), BlockBreakerT2BE.class, JdtMachineSettingsCodecs.blockBreaker());
+        register(Registration.BlockSwapperT1BE.get(), BlockSwapperT1BE.class, JdtMachineSettingsCodecs.blockSwapper());
+        register(Registration.BlockSwapperT2BE.get(), BlockSwapperT2BE.class, JdtMachineSettingsCodecs.blockSwapper());
+        register(Registration.SensorT1BE.get(), SensorT1BE.class, JdtMachineSettingsCodecs.sensor());
+        register(Registration.SensorT2BE.get(), SensorT2BE.class, JdtMachineSettingsCodecs.sensor());
+        register(Registration.ItemCollectorBE.get(), ItemCollectorBE.class, JdtMachineSettingsCodecs.itemCollector());
+        register(Registration.ExperienceHolderBE.get(), ExperienceHolderBE.class,
+                JdtMachineSettingsCodecs.experienceHolder());
+        register(Registration.EnergyTransmitterBE.get(), EnergyTransmitterBE.class,
+                JdtMachineSettingsCodecs.energyTransmitter());
+        register(Registration.InventoryHolderBE.get(), InventoryHolderBE.class, JdtMachineSettingsCodecs.inventoryHolder());
+        register(Registration.PlayerAccessorBE.get(), PlayerAccessorBE.class, JdtMachineSettingsCodecs.playerAccessor());
+        register(Registration.ParadoxMachineBE.get(), ParadoxMachineBE.class, JdtMachineSettingsCodecs.paradox());
     }
 
     private MachineSettingsCodecRegistry() {
@@ -95,8 +133,13 @@ public final class MachineSettingsCodecRegistry {
     }
 
     private static void register(BlockEntityType<?> type, Class<? extends BaseMachineBE> machineClass) {
+        register(type, machineClass, COMMON);
+    }
+
+    private static void register(BlockEntityType<?> type, Class<? extends BaseMachineBE> machineClass,
+                                 MachineSettingsCodec codec) {
         ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
-        REGISTRY.put(typeId, new RegisteredCodec(machineClass::isInstance, COMMON));
+        REGISTRY.put(typeId, new RegisteredCodec(machineClass::isInstance, codec));
     }
 
     private record RegisteredCodec(Predicate<BaseMachineBE> machineType, MachineSettingsCodec codec) {

@@ -74,4 +74,41 @@ final class MachineSettingsCodecSupport {
     static boolean isValidDirection(int direction) {
         return direction >= 0 && direction < Direction.values().length;
     }
+
+    static boolean isInRange(int value, int minimum, int maximum) {
+        return value >= minimum && value <= maximum;
+    }
+
+    static Optional<Boolean> readBoolean(CompoundTag tag, String key) {
+        if (!tag.contains(key, Tag.TAG_BYTE)) {
+            return Optional.empty();
+        }
+
+        byte value = tag.getByte(key);
+        if (value == 0) {
+            return Optional.of(false);
+        }
+        if (value == 1) {
+            return Optional.of(true);
+        }
+        return Optional.empty();
+    }
+
+    static <E extends Enum<E>> void writeEnum(CompoundTag tag, String key, E value) {
+        if (value != null) {
+            tag.putString(key, value.name());
+        }
+    }
+
+    static <E extends Enum<E>> Optional<E> readEnum(CompoundTag tag, String key, Class<E> enumType) {
+        if (!tag.contains(key, Tag.TAG_STRING)) {
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.of(Enum.valueOf(enumType, tag.getString(key)));
+        } catch (IllegalArgumentException ignored) {
+            return Optional.empty();
+        }
+    }
 }

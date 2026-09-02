@@ -9,11 +9,25 @@ import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.BasicTimeAcceleratorBE;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT2BE;
+import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE;
+import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT2BE;
+import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT1BE;
+import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT2BE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.direwolf20.justdirethings.common.blockentities.DropperT2BE;
+import com.direwolf20.justdirethings.common.blockentities.DropperT1BE;
+import com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE;
+import com.direwolf20.justdirethings.common.blockentities.ExperienceHolderBE;
+import com.direwolf20.justdirethings.common.blockentities.ItemCollectorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
 import com.jdte.common.blockentities.ExtendedBioCrusherBE;
+import com.jdte.common.blockentities.ExtendedBlockBreakerBE;
+import com.jdte.common.blockentities.ExtendedBlockSwapperBE;
+import com.jdte.common.blockentities.ExtendedClickerBE;
+import com.jdte.common.blockentities.ExtendedDropperBE;
+import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
 import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
+import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.direwolf20.justdirethings.common.blockentities.InventoryHolderBE;
@@ -42,11 +56,17 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -66,14 +86,64 @@ public final class MachineSettingsTestFixtures {
                 "justdirethings:clickert2", "ClickerT2BE");
     }
 
+    public static com.direwolf20.justdirethings.common.blockentities.ClickerT1BE clickerT1() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.ClickerT1BE",
+                "justdirethings:clickert1", "ClickerT1BE");
+    }
+
     public static DropperT2BE dropper() {
         return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.DropperT2BE",
                 "justdirethings:droppert2", "DropperT2BE");
     }
 
+    public static DropperT1BE dropperT1() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.DropperT1BE",
+                "justdirethings:droppert1", "DropperT1BE");
+    }
+
+    public static BlockBreakerT1BE blockBreakerT1() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE",
+                "justdirethings:blockbreakert1", "BlockBreakerT1BE");
+    }
+
+    public static BlockBreakerT2BE blockBreakerT2() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.BlockBreakerT2BE",
+                "justdirethings:blockbreakert2", "BlockBreakerT2BE");
+    }
+
+    public static BlockSwapperT1BE blockSwapperT1() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.BlockSwapperT1BE",
+                "justdirethings:blockswappert1", "BlockSwapperT1BE");
+    }
+
+    public static BlockSwapperT2BE blockSwapperT2() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.BlockSwapperT2BE",
+                "justdirethings:blockswappert2", "BlockSwapperT2BE");
+    }
+
     public static SensorT2BE sensor() {
         return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.SensorT2BE",
                 "justdirethings:sensort2", "SensorT2BE");
+    }
+
+    public static com.direwolf20.justdirethings.common.blockentities.SensorT1BE sensorT1() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.SensorT1BE",
+                "justdirethings:sensort1", "SensorT1BE");
+    }
+
+    public static ItemCollectorBE itemCollector() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.ItemCollectorBE",
+                "justdirethings:itemcollector", "ItemCollectorBE");
+    }
+
+    public static ExperienceHolderBE experienceHolder() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.ExperienceHolderBE",
+                "justdirethings:experienceholder", "ExperienceHolderBE");
+    }
+
+    public static EnergyTransmitterBE energyTransmitter() {
+        return createJdtMachine("com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE",
+                "justdirethings:energytransmitter", "EnergyTransmitterBE");
     }
 
     public static InventoryHolderBE inventoryHolder() {
@@ -163,6 +233,31 @@ public final class MachineSettingsTestFixtures {
         return new ExtendedExperienceHolderBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get().defaultBlockState());
     }
 
+    public static ExtendedClickerBE extendedClicker() {
+        return new ExtendedClickerBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_CLICKER.get().defaultBlockState());
+    }
+
+    public static ExtendedBlockBreakerBE extendedBlockBreaker() {
+        return new ExtendedBlockBreakerBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_BLOCK_BREAKER.get().defaultBlockState());
+    }
+
+    public static ExtendedBlockSwapperBE extendedBlockSwapper() {
+        return new ExtendedBlockSwapperBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get().defaultBlockState());
+    }
+
+    public static ExtendedDropperBE extendedDropper() {
+        return new ExtendedDropperBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_DROPPER.get().defaultBlockState());
+    }
+
+    public static ExtendedSensorBE extendedSensor() {
+        return new ExtendedSensorBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_SENSOR.get().defaultBlockState());
+    }
+
+    public static ExtendedEnergyTransmitterBE extendedEnergyTransmitter() {
+        return new ExtendedEnergyTransmitterBE(BlockPos.ZERO,
+                JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get().defaultBlockState());
+    }
+
     public static AdvancedPotionBrewerBE potionBrewer() {
         return new AdvancedPotionBrewerBE(BlockPos.ZERO, JDTEBlocks.ADVANCED_POTION_BREWER.get().defaultBlockState());
     }
@@ -186,6 +281,48 @@ public final class MachineSettingsTestFixtures {
             return (UUID) field.get(machine);
         } catch (ReflectiveOperationException e) {
             throw new AssertionError("Failed to read AdvancedEnergyTransmitterBE owner id", e);
+        }
+    }
+
+    public static Set<BlockPos> energyTransmitterTargets(EnergyTransmitterBE machine) {
+        try {
+            @SuppressWarnings("unchecked")
+            Set<BlockPos> targets = (Set<BlockPos>) getField(EnergyTransmitterBE.class, machine, "blocksToCharge");
+            if (targets != null) {
+                return targets;
+            }
+            Set<BlockPos> initializedTargets = new LinkedHashSet<>();
+            setField(EnergyTransmitterBE.class, machine, "blocksToCharge", initializedTargets);
+            return initializedTargets;
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError("Failed to read EnergyTransmitterBE runtime targets", e);
+        }
+    }
+
+    public static Player runtimePlayer() {
+        try {
+            Field theUnsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafeField.setAccessible(true);
+            sun.misc.Unsafe unsafe = (sun.misc.Unsafe) theUnsafeField.get(null);
+            return (Player) unsafe.allocateInstance(ServerPlayer.class);
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError("Failed to create player runtime sentinel", e);
+        }
+    }
+
+    public static void setExperienceHolderCurrentPlayer(ExperienceHolderBE machine, Player player) {
+        try {
+            setField(ExperienceHolderBE.class, machine, "currentPlayer", player);
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError("Failed to set ExperienceHolderBE current player", e);
+        }
+    }
+
+    public static Player experienceHolderCurrentPlayer(ExperienceHolderBE machine) {
+        try {
+            return (Player) getField(ExperienceHolderBE.class, machine, "currentPlayer");
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError("Failed to read ExperienceHolderBE current player", e);
         }
     }
 
@@ -236,6 +373,7 @@ public final class MachineSettingsTestFixtures {
             setField(net.minecraft.world.level.block.entity.BlockEntity.class, machine, "blockState", block.defaultBlockState());
             setField(BaseMachineBE.class, machine, "direction", 2);
             setField(BaseMachineBE.class, machine, "tickSpeed", 1);
+            initializeFallbackJdtState(machine);
             return (T) machine;
         } catch (ReflectiveOperationException e) {
             throw new AssertionError("Failed to create machine fixture " + className, e);
@@ -272,6 +410,18 @@ public final class MachineSettingsTestFixtures {
         return (BaseMachineBE) unsafe.allocateInstance(machineClass);
     }
 
+    private static void initializeFallbackJdtState(BaseMachineBE machine) throws ReflectiveOperationException {
+        if (machine instanceof com.direwolf20.justdirethings.common.blockentities.SensorT1BE sensor) {
+            setField(com.direwolf20.justdirethings.common.blockentities.SensorT1BE.class, sensor, "positions", new ArrayList<>());
+            setField(com.direwolf20.justdirethings.common.blockentities.SensorT1BE.class, sensor, "blockStateProperties", new HashMap<>());
+            setField(com.direwolf20.justdirethings.common.blockentities.SensorT1BE.class, sensor, "blockStateFilterCache", new HashMap<>());
+        }
+        if (machine instanceof com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE accessor) {
+            setField(com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE.class, accessor, "playerHandlers", new HashMap<>());
+            setField(com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE.class, accessor, "sidedInventoryTypes", new HashMap<>());
+        }
+    }
+
     private static void setField(Class<?> owner, Object target, String fieldName, Object value) throws ReflectiveOperationException {
         Field field = owner.getDeclaredField(fieldName);
         field.setAccessible(true);
@@ -282,5 +432,11 @@ public final class MachineSettingsTestFixtures {
         Field field = owner.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.setInt(target, value);
+    }
+
+    private static Object getField(Class<?> owner, Object target, String fieldName) throws ReflectiveOperationException {
+        Field field = owner.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(target);
     }
 }
