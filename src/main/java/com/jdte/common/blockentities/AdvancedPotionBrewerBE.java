@@ -909,6 +909,41 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         return copy;
     }
 
+    /**
+     * Applies a validated copied recipe-lock configuration without resetting an in-progress brew.
+     */
+    public void applyCopiedRecipeLock(boolean locked, NonNullList<ItemStack> templates) {
+        if (templates == null || templates.size() != TOTAL_SLOTS) {
+            throw new IllegalArgumentException("Expected exactly " + TOTAL_SLOTS + " recipe-lock templates");
+        }
+
+        boolean hasTemplate = false;
+        for (int slot = 0; slot < TOTAL_SLOTS; slot++) {
+            ItemStack template = templates.get(slot);
+            if (template == null || !isRecipeLockedSlot(slot) && !template.isEmpty()) {
+                throw new IllegalArgumentException("Invalid recipe-lock template slot " + slot);
+            }
+            hasTemplate |= !template.isEmpty();
+        }
+        if (locked != hasTemplate) {
+            throw new IllegalArgumentException("Recipe lock and its templates must agree");
+        }
+
+        recipeLocked = locked;
+        clearLockedRecipeTemplates();
+        if (locked) {
+            for (int slot = 0; slot < TOTAL_SLOTS; slot++) {
+                ItemStack template = templates.get(slot);
+                if (!template.isEmpty()) {
+                    lockedRecipeTemplates.set(slot, template.copyWithCount(1));
+                }
+            }
+        }
+        hasValidIngredients = checkIngredients();
+        setChanged();
+        markDirtyClient();
+    }
+
     public void setRecipeLocked(boolean locked) {
         if (locked) {
             recipeLocked = false;

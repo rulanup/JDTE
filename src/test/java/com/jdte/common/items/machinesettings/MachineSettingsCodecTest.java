@@ -11,12 +11,14 @@ import com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE;
 import com.direwolf20.justdirethings.common.blockentities.SensorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT2BE;
+import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.common.blockentities.AdvancedBioCrusherBE;
 import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.AdvancedGelGeneratorBE;
 import com.jdte.common.blockentities.AdvancedLifeExtractorBE;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
+import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
@@ -30,16 +32,20 @@ import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
 import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
 import com.jdte.common.blockentities.ExtendedFluidCollectorBE;
 import com.jdte.common.blockentities.ExtendedFluidPlacerBE;
+import com.jdte.common.blockentities.ExtendedGelGeneratorBE;
 import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
+import com.jdte.common.blockentities.ExtendedTimeFreezerBE;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.LargeMineralExtractorBE;
 import com.jdte.common.blockentities.LifeBreederBE;
+import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.TimeFreezerBE;
+import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -47,16 +53,27 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -521,6 +538,274 @@ class MachineSettingsCodecTest {
 
         assertEquals(9, target.getTickSpeed());
         assertEquals(Direction.WEST.ordinal(), target.getDirection());
+    }
+
+    @Test
+    void multiplierCodecCopiesEveryAdjustableMultiplier() {
+        assertMultiplierCopied(MachineSettingsTestFixtures.advancedTimeAccelerator(),
+                MachineSettingsTestFixtures.advancedTimeAccelerator(), 23,
+                AdvancedTimeAcceleratorBE::setMultiplier, AdvancedTimeAcceleratorBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.extendedTimeAccelerator(),
+                MachineSettingsTestFixtures.extendedTimeAccelerator(), 23,
+                ExtendedTimeAcceleratorBE::setMultiplier, ExtendedTimeAcceleratorBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.crystalIncubator(),
+                MachineSettingsTestFixtures.crystalIncubator(), 23,
+                CrystalIncubatorBE::setMultiplier, CrystalIncubatorBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.greenhouse(),
+                MachineSettingsTestFixtures.greenhouse(), 23,
+                GreenhouseBE::setMultiplier, GreenhouseBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.largeGreenhouse(),
+                MachineSettingsTestFixtures.largeGreenhouse(), 23,
+                LargeGreenhouseBE::setMultiplier, LargeGreenhouseBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.bioFactory(),
+                MachineSettingsTestFixtures.bioFactory(), 23,
+                BioFactoryBE::setMultiplier, BioFactoryBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.lifeBreeder(),
+                MachineSettingsTestFixtures.lifeBreeder(), 23,
+                LifeBreederBE::setMultiplier, LifeBreederBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.lifeSynthesisVat(),
+                MachineSettingsTestFixtures.lifeSynthesisVat(), 23,
+                LifeSynthesisVatBE::setMultiplier, LifeSynthesisVatBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.mineralExtractor(),
+                MachineSettingsTestFixtures.mineralExtractor(), 23,
+                MineralExtractorBE::setMultiplier, MineralExtractorBE::getMultiplier);
+        assertMultiplierCopied(MachineSettingsTestFixtures.largeMineralExtractor(),
+                MachineSettingsTestFixtures.largeMineralExtractor(), 23,
+                LargeMineralExtractorBE::setMultiplier, LargeMineralExtractorBE::getMultiplier);
+    }
+
+    @Test
+    void modeCodecCopiesBreederExtractorCrusherSuppressorAndRangeBlockerModes() {
+        LifeBreederBE breeder = MachineSettingsTestFixtures.lifeBreeder();
+        breeder.setMode(LifeBreederBE.Mode.GROW_ONLY.ordinal());
+        LifeBreederBE breederTarget = MachineSettingsTestFixtures.lifeBreeder();
+        MachineSettingsTestFixtures.applyCodec(breeder, breederTarget);
+        assertEquals(LifeBreederBE.Mode.GROW_ONLY, breederTarget.getMode());
+
+        LifeExtractorBE extractor = MachineSettingsTestFixtures.lifeExtractor();
+        extractor.setMode(LifeExtractorBE.MODE_ALL);
+        LifeExtractorBE extractorTarget = MachineSettingsTestFixtures.lifeExtractor();
+        MachineSettingsTestFixtures.applyCodec(extractor, extractorTarget);
+        assertEquals(LifeExtractorBE.MODE_ALL, extractorTarget.getMode());
+
+        BioCrusherBE crusher = MachineSettingsTestFixtures.bioCrusher();
+        crusher.setMode(BioCrusherBE.MODE_FRIENDLY);
+        BioCrusherBE crusherTarget = MachineSettingsTestFixtures.bioCrusher();
+        MachineSettingsTestFixtures.applyCodec(crusher, crusherTarget);
+        assertEquals(BioCrusherBE.MODE_FRIENDLY, crusherTarget.getMode());
+
+        EntitySuppressorBE suppressor = MachineSettingsTestFixtures.entitySuppressor();
+        suppressor.setSettings(EntitySuppressorBE.Mode.DISABLE_ENTITY_RENDERING.ordinal(),
+                EntitySuppressorBE.Target.NON_LIVING.ordinal(), true);
+        EntitySuppressorBE suppressorTarget = MachineSettingsTestFixtures.entitySuppressor();
+        MachineSettingsTestFixtures.applyCodec(suppressor, suppressorTarget);
+        assertEquals(EntitySuppressorBE.Mode.DISABLE_ENTITY_RENDERING, suppressorTarget.getMode());
+        assertEquals(EntitySuppressorBE.Target.NON_LIVING, suppressorTarget.getTarget());
+        assertTrue(suppressorTarget.isBlacklist());
+
+        RangeBlockerBE blocker = MachineSettingsTestFixtures.rangeBlocker();
+        blocker.setSettings(RangeBlockerBE.Mode.SILENCE.ordinal(),
+                EntitySuppressorBE.Target.SELECTED_TYPES.ordinal(), true);
+        RangeBlockerBE blockerTarget = MachineSettingsTestFixtures.rangeBlocker();
+        MachineSettingsTestFixtures.applyCodec(blocker, blockerTarget);
+        assertEquals(RangeBlockerBE.Mode.SILENCE, blockerTarget.getMode());
+        assertEquals(EntitySuppressorBE.Target.SELECTED_TYPES, blockerTarget.getTarget());
+        assertTrue(blockerTarget.isBlacklist());
+    }
+
+    @Test
+    void toggleCodecCopiesFreezerGelGeneratorAndEnergyTransmitterSettings() {
+        TimeFreezerBE freezer = MachineSettingsTestFixtures.timeFreezer();
+        freezer.setTimeFreezeEnabled(false);
+        freezer.setWeatherFreezeEnabled(true);
+        TimeFreezerBE freezerTarget = MachineSettingsTestFixtures.timeFreezer();
+        freezerTarget.setTimeFreezeEnabled(true);
+        freezerTarget.setWeatherFreezeEnabled(false);
+        MachineSettingsTestFixtures.applyCodec(freezer, freezerTarget);
+        assertFalse(freezerTarget.isTimeFreezeEnabled());
+        assertTrue(freezerTarget.isWeatherFreezeEnabled());
+
+        ExtendedTimeFreezerBE extendedFreezer = MachineSettingsTestFixtures.extendedTimeFreezer();
+        extendedFreezer.setTimeFreezeEnabled(false);
+        extendedFreezer.setWeatherFreezeEnabled(false);
+        ExtendedTimeFreezerBE extendedFreezerTarget = MachineSettingsTestFixtures.extendedTimeFreezer();
+        MachineSettingsTestFixtures.applyCodec(extendedFreezer, extendedFreezerTarget);
+        assertFalse(extendedFreezerTarget.isTimeFreezeEnabled());
+        assertFalse(extendedFreezerTarget.isWeatherFreezeEnabled());
+
+        AdvancedGelGeneratorBE gelGenerator = MachineSettingsTestFixtures.advancedGelGenerator();
+        gelGenerator.setAutoBalanceInputs(true);
+        AdvancedGelGeneratorBE gelGeneratorTarget = MachineSettingsTestFixtures.advancedGelGenerator();
+        MachineSettingsTestFixtures.applyCodec(gelGenerator, gelGeneratorTarget);
+        assertTrue(gelGeneratorTarget.isAutoBalanceInputs());
+
+        ExtendedGelGeneratorBE extendedGelGenerator = MachineSettingsTestFixtures.extendedGelGenerator();
+        extendedGelGenerator.setAutoBalanceInputs(true);
+        ExtendedGelGeneratorBE extendedGelGeneratorTarget = MachineSettingsTestFixtures.extendedGelGenerator();
+        MachineSettingsTestFixtures.applyCodec(extendedGelGenerator, extendedGelGeneratorTarget);
+        assertTrue(extendedGelGeneratorTarget.isAutoBalanceInputs());
+
+        AdvancedEnergyTransmitterBE transmitter = MachineSettingsTestFixtures.advancedEnergyTransmitter();
+        transmitter.setShowParticles(false);
+        AdvancedEnergyTransmitterBE transmitterTarget = MachineSettingsTestFixtures.advancedEnergyTransmitter();
+        MachineSettingsTestFixtures.applyCodec(transmitter, transmitterTarget);
+        assertFalse(transmitterTarget.isShowingParticles());
+    }
+
+    @Test
+    void potionBrewerCodecCopiesLockedTemplatesAndFuelInputWithoutBrewingRuntime() {
+        AdvancedPotionBrewerBE source = MachineSettingsTestFixtures.potionBrewer();
+        NonNullList<ItemStack> templates = NonNullList.withSize(AdvancedPotionBrewerBE.TOTAL_SLOTS, ItemStack.EMPTY);
+        templates.set(AdvancedPotionBrewerBE.INGREDIENT_SLOT, new ItemStack(Items.NETHER_WART));
+        source.applyCopiedRecipeLock(true, templates);
+        source.setFuelInputEnabled(false);
+
+        AdvancedPotionBrewerBE target = MachineSettingsTestFixtures.potionBrewer();
+        target.setFuelInputEnabled(true);
+        target.brewerData.set(0, 8);
+        target.brewerData.set(2, 17);
+        ItemStack targetInput = new ItemStack(Items.POTION);
+        target.getMachineHandler().setStackInSlot(AdvancedPotionBrewerBE.BOTTLE_SLOT_0, targetInput.copy());
+        target.getWaterFluidTank().fill(new FluidStack(Fluids.WATER, 123), IFluidHandler.FluidAction.EXECUTE);
+        target.energyStorage.setEnergy(91);
+
+        MachineSettingsTestFixtures.applyCodec(source, target);
+
+        assertTrue(target.isRecipeLocked());
+        ItemStack copiedTemplate = target.getLockedRecipeTemplate(AdvancedPotionBrewerBE.INGREDIENT_SLOT);
+        assertTrue(ItemStack.isSameItemSameComponents(
+                templates.get(AdvancedPotionBrewerBE.INGREDIENT_SLOT), copiedTemplate));
+        assertEquals(1, copiedTemplate.getCount());
+        assertFalse(target.isFuelInputEnabled());
+        assertEquals(8, target.getBrewProgress());
+        assertEquals(17, target.getFuel());
+        assertTrue(ItemStack.isSameItemSameComponents(targetInput,
+                target.getMachineHandler().getStackInSlot(AdvancedPotionBrewerBE.BOTTLE_SLOT_0)));
+        assertEquals(123, target.getWaterFluidTank().getFluidAmount());
+        assertEquals(91, target.energyStorage.getEnergyStored());
+    }
+
+    @Test
+    void advancedEnergyTransmitterCodecCopiesPlayerBindingAndParticlesWithoutChangingPlacedBy() {
+        UUID boundPlayer = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        UUID targetOwner = UUID.fromString("22222222-2222-2222-2222-222222222222");
+        AdvancedEnergyTransmitterBE source = MachineSettingsTestFixtures.advancedEnergyTransmitter();
+        source.applyCopiedPlayerBinding(Optional.of(boundPlayer), "BoundPlayer");
+        source.setShowParticles(false);
+
+        AdvancedEnergyTransmitterBE target = MachineSettingsTestFixtures.advancedEnergyTransmitter();
+        target.setPlacedBy(targetOwner);
+        MachineSettingsTestFixtures.applyCodec(source, target);
+
+        assertEquals(Optional.of(boundPlayer), target.getBoundPlayerIdForCopy());
+        assertEquals("BoundPlayer", target.getBoundPlayerNameForCopy());
+        assertFalse(target.isShowingParticles());
+        assertEquals(targetOwner, MachineSettingsTestFixtures.targetOwnerId(target));
+    }
+
+    @Test
+    void advancedEnergyTransmitterCodecCanClearAnExistingPlayerBinding() {
+        AdvancedEnergyTransmitterBE source = MachineSettingsTestFixtures.advancedEnergyTransmitter();
+        AdvancedEnergyTransmitterBE target = MachineSettingsTestFixtures.advancedEnergyTransmitter();
+        target.applyCopiedPlayerBinding(Optional.of(
+                UUID.fromString("33333333-3333-3333-3333-333333333333")), "PreviousPlayer");
+
+        MachineSettingsTestFixtures.applyCodec(source, target);
+
+        assertEquals(Optional.empty(), target.getBoundPlayerIdForCopy());
+        assertEquals("", target.getBoundPlayerNameForCopy());
+    }
+
+    @Test
+    void jdteCodecRejectsMalformedSpecializedSettingsBeforeMutatingTarget() {
+        LifeBreederBE source = MachineSettingsTestFixtures.lifeBreeder();
+        source.setMultiplier(7);
+        LifeBreederBE target = MachineSettingsTestFixtures.lifeBreeder();
+        target.setMultiplier(3);
+        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
+        MachineSettingsCodec codec = MachineSettingsCodecRegistry.find(typeId, source).orElseThrow();
+        CompoundTag encoded = codec.encode(source, REGISTRIES);
+        encoded.putString("mode", "not_a_mode");
+
+        assertTrue(codec.decode(encoded, REGISTRIES).isEmpty());
+        assertEquals(3, target.getMultiplier());
+    }
+
+    @Test
+    void jdteCodecRejectsOutOfRangeMultiplierMalformedBindingAndInvalidRecipeTemplate() {
+        LifeBreederBE breeder = MachineSettingsTestFixtures.lifeBreeder();
+        MachineSettingsCodec breederCodec = codecFor(breeder);
+        CompoundTag badMultiplier = breederCodec.encode(breeder, REGISTRIES);
+        badMultiplier.putInt("multiplier", Integer.MAX_VALUE);
+        assertTrue(breederCodec.decode(badMultiplier, REGISTRIES).isEmpty());
+
+        AdvancedEnergyTransmitterBE transmitter = MachineSettingsTestFixtures.advancedEnergyTransmitter();
+        MachineSettingsCodec transmitterCodec = codecFor(transmitter);
+        CompoundTag badBinding = transmitterCodec.encode(transmitter, REGISTRIES);
+        badBinding.putBoolean("hasBoundPlayer", true);
+        badBinding.putString("boundPlayerId", "not-a-uuid");
+        badBinding.putString("boundPlayerName", "BoundPlayer");
+        assertTrue(transmitterCodec.decode(badBinding, REGISTRIES).isEmpty());
+
+        AdvancedPotionBrewerBE brewer = MachineSettingsTestFixtures.potionBrewer();
+        NonNullList<ItemStack> templates = NonNullList.withSize(AdvancedPotionBrewerBE.TOTAL_SLOTS, ItemStack.EMPTY);
+        templates.set(AdvancedPotionBrewerBE.INGREDIENT_SLOT, new ItemStack(Items.NETHER_WART));
+        brewer.applyCopiedRecipeLock(true, templates);
+        MachineSettingsCodec brewerCodec = codecFor(brewer);
+        CompoundTag badTemplate = brewerCodec.encode(brewer, REGISTRIES);
+        badTemplate.getCompound("recipeLockTemplates").put("slot_0",
+                new ItemStack(Items.NETHER_WART).saveOptional(REGISTRIES));
+        assertTrue(brewerCodec.decode(badTemplate, REGISTRIES).isEmpty());
+    }
+
+    @Test
+    void registryCoversEveryCurrentJdteAndJdtBaseMachineTypeExactly() {
+        Set<ResourceLocation> expected = new HashSet<>(JDTEBlockEntities.BLOCK_ENTITIES.getEntries().stream()
+                .map(holder -> typeId(holder.get()))
+                .collect(Collectors.toSet()));
+        expected.addAll(Set.of(
+                typeId(Registration.ItemCollectorBE.get()),
+                typeId(Registration.BlockBreakerT1BE.get()),
+                typeId(Registration.BlockBreakerT2BE.get()),
+                typeId(Registration.BlockPlacerT1BE.get()),
+                typeId(Registration.BlockPlacerT2BE.get()),
+                typeId(Registration.ClickerT1BE.get()),
+                typeId(Registration.ClickerT2BE.get()),
+                typeId(Registration.SensorT1BE.get()),
+                typeId(Registration.SensorT2BE.get()),
+                typeId(Registration.DropperT1BE.get()),
+                typeId(Registration.DropperT2BE.get()),
+                typeId(Registration.GeneratorT1BE.get()),
+                typeId(Registration.GeneratorFluidT1BE.get()),
+                typeId(Registration.EnergyTransmitterBE.get()),
+                typeId(Registration.BlockSwapperT1BE.get()),
+                typeId(Registration.BlockSwapperT2BE.get()),
+                typeId(Registration.PlayerAccessorBE.get()),
+                typeId(Registration.FluidPlacerT1BE.get()),
+                typeId(Registration.FluidPlacerT2BE.get()),
+                typeId(Registration.FluidCollectorT1BE.get()),
+                typeId(Registration.FluidCollectorT2BE.get()),
+                typeId(Registration.ParadoxMachineBE.get()),
+                typeId(Registration.InventoryHolderBE.get()),
+                typeId(Registration.ExperienceHolderBE.get())));
+
+        assertEquals(expected, MachineSettingsCodecRegistry.registeredTypeIds());
+    }
+
+    private static <T extends BaseMachineBE> void assertMultiplierCopied(
+            T source, T target, int expected, BiConsumer<T, Integer> setter, ToIntFunction<T> getter) {
+        setter.accept(source, expected);
+        MachineSettingsTestFixtures.applyCodec(source, target);
+        assertEquals(expected, getter.applyAsInt(target));
+    }
+
+    private static MachineSettingsCodec codecFor(BaseMachineBE machine) {
+        return MachineSettingsCodecRegistry.find(
+                BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType()), machine).orElseThrow();
+    }
+
+    private static ResourceLocation typeId(BlockEntityType<?> type) {
+        return BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
     }
 
     private void assertInventoryHolderFilterSnapshotRejected(Consumer<CompoundTag> tamper) {

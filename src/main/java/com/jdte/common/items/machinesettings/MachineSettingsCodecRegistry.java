@@ -1,54 +1,9 @@
 package com.jdte.common.items.machinesettings;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
-import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE;
-import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT2BE;
-import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT1BE;
-import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT2BE;
-import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
-import com.direwolf20.justdirethings.common.blockentities.ClickerT2BE;
-import com.direwolf20.justdirethings.common.blockentities.DropperT1BE;
-import com.direwolf20.justdirethings.common.blockentities.DropperT2BE;
-import com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE;
-import com.direwolf20.justdirethings.common.blockentities.ExperienceHolderBE;
-import com.direwolf20.justdirethings.common.blockentities.InventoryHolderBE;
-import com.direwolf20.justdirethings.common.blockentities.ItemCollectorBE;
-import com.direwolf20.justdirethings.common.blockentities.ParadoxMachineBE;
-import com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE;
-import com.direwolf20.justdirethings.common.blockentities.SensorT1BE;
-import com.direwolf20.justdirethings.common.blockentities.SensorT2BE;
+import com.direwolf20.justdirethings.common.blockentities.*;
 import com.direwolf20.justdirethings.setup.Registration;
-import com.jdte.common.blockentities.AdvancedBioCrusherBE;
-import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
-import com.jdte.common.blockentities.AdvancedGelGeneratorBE;
-import com.jdte.common.blockentities.AdvancedLifeExtractorBE;
-import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
-import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
-import com.jdte.common.blockentities.BioFactoryBE;
-import com.jdte.common.blockentities.BasicTimeAcceleratorBE;
-import com.jdte.common.blockentities.CrystalIncubatorBE;
-import com.jdte.common.blockentities.EntitySuppressorBE;
-import com.jdte.common.blockentities.ExtendedBioCrusherBE;
-import com.jdte.common.blockentities.ExtendedBlockBreakerBE;
-import com.jdte.common.blockentities.ExtendedBlockPlacerBE;
-import com.jdte.common.blockentities.ExtendedBlockSwapperBE;
-import com.jdte.common.blockentities.ExtendedClickerBE;
-import com.jdte.common.blockentities.ExtendedDropperBE;
-import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
-import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
-import com.jdte.common.blockentities.ExtendedFluidCollectorBE;
-import com.jdte.common.blockentities.ExtendedFluidPlacerBE;
-import com.jdte.common.blockentities.ExtendedLifeExtractorBE;
-import com.jdte.common.blockentities.ExtendedSensorBE;
-import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
-import com.jdte.common.blockentities.GreenhouseBE;
-import com.jdte.common.blockentities.LargeGreenhouseBE;
-import com.jdte.common.blockentities.LargeMineralExtractorBE;
-import com.jdte.common.blockentities.LifeBreederBE;
-import com.jdte.common.blockentities.LifeSynthesisVatBE;
-import com.jdte.common.blockentities.MineralExtractorBE;
-import com.jdte.common.blockentities.RangeBlockerBE;
-import com.jdte.common.blockentities.TimeFreezerBE;
+import com.jdte.common.blockentities.*;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -60,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public final class MachineSettingsCodecRegistry {
@@ -68,26 +24,21 @@ public final class MachineSettingsCodecRegistry {
 
     static {
         register(JDTEBlockEntities.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorBE.class);
-        register(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorBE.class);
-        register(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), ExtendedTimeAcceleratorBE.class);
-        register(JDTEBlockEntities.CRYSTAL_INCUBATOR.get(), CrystalIncubatorBE.class);
-        register(JDTEBlockEntities.GREENHOUSE.get(), GreenhouseBE.class);
-        register(JDTEBlockEntities.LARGE_GREENHOUSE.get(), LargeGreenhouseBE.class);
-        register(JDTEBlockEntities.BIO_FACTORY.get(), BioFactoryBE.class);
-        register(JDTEBlockEntities.LIFE_BREEDER.get(), LifeBreederBE.class);
-        register(JDTEBlockEntities.ADVANCED_LIFE_EXTRACTOR.get(), AdvancedLifeExtractorBE.class);
-        register(JDTEBlockEntities.EXTENDED_LIFE_EXTRACTOR.get(), ExtendedLifeExtractorBE.class);
-        register(JDTEBlockEntities.LIFE_SYNTHESIS_VAT.get(), LifeSynthesisVatBE.class);
-        register(JDTEBlockEntities.MINERAL_EXTRACTOR.get(), MineralExtractorBE.class);
-        register(JDTEBlockEntities.LARGE_MINERAL_EXTRACTOR.get(), LargeMineralExtractorBE.class);
-        register(JDTEBlockEntities.ADVANCED_GEL_GENERATOR.get(), AdvancedGelGeneratorBE.class);
-        register(JDTEBlockEntities.ADVANCED_BIO_CRUSHER.get(), AdvancedBioCrusherBE.class);
-        register(JDTEBlockEntities.EXTENDED_BIO_CRUSHER.get(), ExtendedBioCrusherBE.class);
-        register(JDTEBlockEntities.ENTITY_SUPPRESSOR.get(), EntitySuppressorBE.class);
-        register(JDTEBlockEntities.RANGE_BLOCKER.get(), RangeBlockerBE.class);
-        register(JDTEBlockEntities.TIME_FREEZER.get(), TimeFreezerBE.class);
-        register(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterBE.class);
+        register(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorBE.class,
+                JdteMachineSettingsCodecs.advancedTimeAccelerator());
+        register(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), ExtendedTimeAcceleratorBE.class,
+                JdteMachineSettingsCodecs.extendedTimeAccelerator());
+        register(JDTEBlockEntities.TIME_FREEZER.get(), TimeFreezerBE.class,
+                JdteMachineSettingsCodecs.timeFreezer());
+        register(JDTEBlockEntities.EXTENDED_TIME_FREEZER.get(), ExtendedTimeFreezerBE.class,
+                JdteMachineSettingsCodecs.timeFreezer());
         register(JDTEBlockEntities.EXTENDED_CLICKER.get(), ExtendedClickerBE.class, JdtMachineSettingsCodecs.clicker());
+        register(JDTEBlockEntities.EXTENDED_GENERATOR.get(), ExtendedGeneratorBE.class);
+        register(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBE.class,
+                JdtMachineSettingsCodecs.extendedExperienceHolder());
+        register(JDTEBlockEntities.EXTENDED_FLUID_GENERATOR.get(), ExtendedFluidGeneratorBE.class);
+        register(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), ExtendedEnergyTransmitterBE.class,
+                JdtMachineSettingsCodecs.energyTransmitter());
         register(JDTEBlockEntities.EXTENDED_BLOCK_BREAKER.get(), ExtendedBlockBreakerBE.class,
                 JdtMachineSettingsCodecs.blockBreaker());
         register(JDTEBlockEntities.EXTENDED_BLOCK_PLACER.get(), ExtendedBlockPlacerBE.class);
@@ -97,11 +48,69 @@ public final class MachineSettingsCodecRegistry {
         register(JDTEBlockEntities.EXTENDED_SENSOR.get(), ExtendedSensorBE.class, JdtMachineSettingsCodecs.sensor());
         register(JDTEBlockEntities.EXTENDED_FLUID_COLLECTOR.get(), ExtendedFluidCollectorBE.class);
         register(JDTEBlockEntities.EXTENDED_FLUID_PLACER.get(), ExtendedFluidPlacerBE.class);
-        register(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), ExtendedEnergyTransmitterBE.class,
-                JdtMachineSettingsCodecs.energyTransmitter());
-        register(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBE.class,
-                JdtMachineSettingsCodecs.extendedExperienceHolder());
-        register(JDTEBlockEntities.ADVANCED_POTION_BREWER.get(), AdvancedPotionBrewerBE.class);
+        register(JDTEBlockEntities.ADVANCED_ITEM_COLLECTOR.get(), AdvancedItemCollectorBE.class);
+        register(JDTEBlockEntities.ENTITY_SUPPRESSOR.get(), EntitySuppressorBE.class,
+                JdteMachineSettingsCodecs.entitySuppressor());
+        register(JDTEBlockEntities.RANGE_BLOCKER.get(), RangeBlockerBE.class,
+                JdteMachineSettingsCodecs.rangeBlocker());
+        register(JDTEBlockEntities.FACTORY_PACKER.get(), FactoryPackerBE.class);
+
+        register(JDTEBlockEntities.BASIC_GLUE_ACTIVATOR.get(), BasicGlueActivatorBE.class);
+        register(JDTEBlockEntities.ADVANCED_GLUE_ACTIVATOR.get(), AdvancedGlueActivatorBE.class);
+        register(JDTEBlockEntities.EXTENDED_GLUE_ACTIVATOR.get(), ExtendedGlueActivatorBE.class);
+
+        register(JDTEBlockEntities.ADVANCED_GEL_GENERATOR.get(), AdvancedGelGeneratorBE.class,
+                JdteMachineSettingsCodecs.gelGenerator());
+        register(JDTEBlockEntities.EXTENDED_GEL_GENERATOR.get(), ExtendedGelGeneratorBE.class,
+                JdteMachineSettingsCodecs.gelGenerator());
+
+        register(JDTEBlockEntities.BASIC_FLUID_STABILIZER.get(), BasicFluidStabilizerBE.class);
+        register(JDTEBlockEntities.ADVANCED_FLUID_STABILIZER.get(), AdvancedFluidStabilizerBE.class);
+        register(JDTEBlockEntities.EXTENDED_FLUID_STABILIZER.get(), ExtendedFluidStabilizerBE.class);
+
+        register(JDTEBlockEntities.BASIC_ITEM_SENDER.get(), BasicItemSenderBE.class);
+        register(JDTEBlockEntities.ADVANCED_ITEM_SENDER.get(), AdvancedItemSenderBE.class);
+        register(JDTEBlockEntities.EXTENDED_ITEM_SENDER.get(), ExtendedItemSenderBE.class);
+        register(JDTEBlockEntities.BASIC_FLUID_SENDER.get(), BasicFluidSenderBE.class);
+        register(JDTEBlockEntities.ADVANCED_FLUID_SENDER.get(), AdvancedFluidSenderBE.class);
+        register(JDTEBlockEntities.EXTENDED_FLUID_SENDER.get(), ExtendedFluidSenderBE.class);
+        register(JDTEBlockEntities.BASIC_ITEM_RECEIVER.get(), BasicItemReceiverBE.class);
+        register(JDTEBlockEntities.ADVANCED_ITEM_RECEIVER.get(), AdvancedItemReceiverBE.class);
+        register(JDTEBlockEntities.EXTENDED_ITEM_RECEIVER.get(), ExtendedItemReceiverBE.class);
+        register(JDTEBlockEntities.BASIC_FLUID_RECEIVER.get(), BasicFluidReceiverBE.class);
+        register(JDTEBlockEntities.ADVANCED_FLUID_RECEIVER.get(), AdvancedFluidReceiverBE.class);
+        register(JDTEBlockEntities.EXTENDED_FLUID_RECEIVER.get(), ExtendedFluidReceiverBE.class);
+
+        register(JDTEBlockEntities.CRYSTAL_INCUBATOR.get(), CrystalIncubatorBE.class,
+                JdteMachineSettingsCodecs.crystalIncubator());
+        register(JDTEBlockEntities.GREENHOUSE.get(), GreenhouseBE.class, JdteMachineSettingsCodecs.greenhouse());
+        register(JDTEBlockEntities.LARGE_GREENHOUSE.get(), LargeGreenhouseBE.class,
+                JdteMachineSettingsCodecs.largeGreenhouse());
+        register(JDTEBlockEntities.LIFE_SYNTHESIS_VAT.get(), LifeSynthesisVatBE.class,
+                JdteMachineSettingsCodecs.lifeSynthesisVat());
+        register(JDTEBlockEntities.BIO_FACTORY.get(), BioFactoryBE.class, JdteMachineSettingsCodecs.bioFactory());
+        register(JDTEBlockEntities.LIFE_BREEDER.get(), LifeBreederBE.class,
+                JdteMachineSettingsCodecs.lifeBreeder());
+        register(JDTEBlockEntities.MINERAL_EXTRACTOR.get(), MineralExtractorBE.class,
+                JdteMachineSettingsCodecs.mineralExtractor());
+        register(JDTEBlockEntities.LARGE_MINERAL_EXTRACTOR.get(), LargeMineralExtractorBE.class,
+                JdteMachineSettingsCodecs.mineralExtractor());
+
+        register(JDTEBlockEntities.ADVANCED_LIFE_EXTRACTOR.get(), AdvancedLifeExtractorBE.class,
+                JdteMachineSettingsCodecs.lifeExtractor());
+        register(JDTEBlockEntities.EXTENDED_LIFE_EXTRACTOR.get(), ExtendedLifeExtractorBE.class,
+                JdteMachineSettingsCodecs.lifeExtractor());
+        register(JDTEBlockEntities.ADVANCED_INFUSION_MACHINE.get(), AdvancedInfusionMachineBE.class);
+        register(JDTEBlockEntities.EXTENDED_INFUSION_MACHINE.get(), ExtendedInfusionMachineBE.class);
+        register(JDTEBlockEntities.ADVANCED_POTION_BREWER.get(), AdvancedPotionBrewerBE.class,
+                JdteMachineSettingsCodecs.advancedPotionBrewer());
+        register(JDTEBlockEntities.ADVANCED_BIO_CRUSHER.get(), AdvancedBioCrusherBE.class,
+                JdteMachineSettingsCodecs.bioCrusher());
+        register(JDTEBlockEntities.EXTENDED_BIO_CRUSHER.get(), ExtendedBioCrusherBE.class,
+                JdteMachineSettingsCodecs.bioCrusher());
+        register(JDTEBlockEntities.LOOT_FABRICATOR.get(), LootFabricatorBE.class);
+        register(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterBE.class,
+                JdteMachineSettingsCodecs.advancedEnergyTransmitter());
 
         register(Registration.ClickerT1BE.get(), ClickerT1BE.class, JdtMachineSettingsCodecs.clicker());
         register(Registration.ClickerT2BE.get(), ClickerT2BE.class, JdtMachineSettingsCodecs.clicker());
@@ -109,6 +118,8 @@ public final class MachineSettingsCodecRegistry {
         register(Registration.DropperT2BE.get(), DropperT2BE.class, JdtMachineSettingsCodecs.dropper());
         register(Registration.BlockBreakerT1BE.get(), BlockBreakerT1BE.class, JdtMachineSettingsCodecs.blockBreaker());
         register(Registration.BlockBreakerT2BE.get(), BlockBreakerT2BE.class, JdtMachineSettingsCodecs.blockBreaker());
+        register(Registration.BlockPlacerT1BE.get(), BlockPlacerT1BE.class);
+        register(Registration.BlockPlacerT2BE.get(), BlockPlacerT2BE.class);
         register(Registration.BlockSwapperT1BE.get(), BlockSwapperT1BE.class, JdtMachineSettingsCodecs.blockSwapper());
         register(Registration.BlockSwapperT2BE.get(), BlockSwapperT2BE.class, JdtMachineSettingsCodecs.blockSwapper());
         register(Registration.SensorT1BE.get(), SensorT1BE.class, JdtMachineSettingsCodecs.sensor());
@@ -118,6 +129,12 @@ public final class MachineSettingsCodecRegistry {
                 JdtMachineSettingsCodecs.experienceHolder());
         register(Registration.EnergyTransmitterBE.get(), EnergyTransmitterBE.class,
                 JdtMachineSettingsCodecs.energyTransmitter());
+        register(Registration.GeneratorT1BE.get(), GeneratorT1BE.class);
+        register(Registration.GeneratorFluidT1BE.get(), GeneratorFluidT1BE.class);
+        register(Registration.FluidPlacerT1BE.get(), FluidPlacerT1BE.class);
+        register(Registration.FluidPlacerT2BE.get(), FluidPlacerT2BE.class);
+        register(Registration.FluidCollectorT1BE.get(), FluidCollectorT1BE.class);
+        register(Registration.FluidCollectorT2BE.get(), FluidCollectorT2BE.class);
         register(Registration.InventoryHolderBE.get(), InventoryHolderBE.class, JdtMachineSettingsCodecs.inventoryHolder());
         register(Registration.PlayerAccessorBE.get(), PlayerAccessorBE.class, JdtMachineSettingsCodecs.playerAccessor());
         register(Registration.ParadoxMachineBE.get(), ParadoxMachineBE.class, JdtMachineSettingsCodecs.paradox());
@@ -136,6 +153,10 @@ public final class MachineSettingsCodecRegistry {
             return Optional.empty();
         }
         return Optional.of(registered.codec());
+    }
+
+    static Set<ResourceLocation> registeredTypeIds() {
+        return Set.copyOf(REGISTRY.keySet());
     }
 
     private static void register(BlockEntityType<?> type, Class<? extends BaseMachineBE> machineClass) {

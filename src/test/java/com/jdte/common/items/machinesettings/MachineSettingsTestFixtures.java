@@ -30,8 +30,10 @@ import com.jdte.common.blockentities.ExtendedEnergyTransmitterBE;
 import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
 import com.jdte.common.blockentities.ExtendedFluidCollectorBE;
 import com.jdte.common.blockentities.ExtendedFluidPlacerBE;
+import com.jdte.common.blockentities.ExtendedGelGeneratorBE;
 import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
+import com.jdte.common.blockentities.ExtendedTimeFreezerBE;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.direwolf20.justdirethings.common.blockentities.InventoryHolderBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
@@ -212,6 +214,10 @@ public final class MachineSettingsTestFixtures {
         return new AdvancedGelGeneratorBE(BlockPos.ZERO, JDTEBlocks.ADVANCED_GEL_GENERATOR.get().defaultBlockState());
     }
 
+    public static ExtendedGelGeneratorBE extendedGelGenerator() {
+        return new ExtendedGelGeneratorBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_GEL_GENERATOR.get().defaultBlockState());
+    }
+
     public static AdvancedBioCrusherBE bioCrusher() {
         return new AdvancedBioCrusherBE(BlockPos.ZERO, JDTEBlocks.ADVANCED_BIO_CRUSHER.get().defaultBlockState());
     }
@@ -226,6 +232,10 @@ public final class MachineSettingsTestFixtures {
 
     public static TimeFreezerBE timeFreezer() {
         return new TimeFreezerBE(BlockPos.ZERO, JDTEBlocks.TIME_FREEZER.get().defaultBlockState());
+    }
+
+    public static ExtendedTimeFreezerBE extendedTimeFreezer() {
+        return new ExtendedTimeFreezerBE(BlockPos.ZERO, JDTEBlocks.EXTENDED_TIME_FREEZER.get().defaultBlockState());
     }
 
     public static AdvancedEnergyTransmitterBE advancedEnergyTransmitter() {
@@ -296,13 +306,7 @@ public final class MachineSettingsTestFixtures {
     }
 
     public static UUID targetOwnerId(AdvancedEnergyTransmitterBE machine) {
-        try {
-            Field field = AdvancedEnergyTransmitterBE.class.getDeclaredField("boundPlayerId");
-            field.setAccessible(true);
-            return (UUID) field.get(machine);
-        } catch (ReflectiveOperationException e) {
-            throw new AssertionError("Failed to read AdvancedEnergyTransmitterBE owner id", e);
-        }
+        return machine.placedByUUID;
     }
 
     public static Set<BlockPos> energyTransmitterTargets(EnergyTransmitterBE machine) {
