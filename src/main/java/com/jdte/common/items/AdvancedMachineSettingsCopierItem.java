@@ -4,8 +4,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.items.MachineSettingsCopier;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
-import com.jdte.common.upgrades.UpgradeHelper;
-import com.jdte.common.upgrades.UpgradeItemStackHandler;
+import com.jdte.common.items.machinesettings.MachineUpgradeHandlers;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -18,9 +17,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,35 +140,28 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         AutoIoConfigHelper.setMasks(machine, inputMask, outputMask);
     }
 
-    protected UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
-        return UpgradeHelper.getUpgradeHandler(machine);
-    }
-
     protected HolderLookup.Provider getRegistryAccess(Level level) {
         return level == null ? null : level.registryAccess();
     }
 
     protected void saveUpgrades(Level level, BaseMachineBE machine, CompoundTag copiedData) {
-        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
         HolderLookup.Provider registries = getRegistryAccess(level);
-        if (handler == null || registries == null) {
+        if (registries == null) {
             AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+            AdvancedMachineSettingsCopierData.clearUpgradeHandlers(copiedData);
             return;
         }
-
-        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, handler.serializeNBT(registries));
+        MachineUpgradeHandlers.write(copiedData, machine, registries);
     }
 
     protected void loadUpgrades(Level level, BaseMachineBE machine, CompoundTag copiedData) {
-        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
         HolderLookup.Provider registries = getRegistryAccess(level);
-        if (handler == null || registries == null) {
+        if (registries == null) {
             return;
         }
 
-        AdvancedMachineSettingsCopierData.readUpgrades(copiedData).ifPresent(upgrades -> {
-            handler.deserializeNBT(registries, upgrades);
-            UpgradeHelper.syncCapacities(machine);
+        MachineUpgradeHandlers.prepare(copiedData, machine, registries).ifPresent(prepared -> {
+            prepared.apply(machine);
         });
     }
 
@@ -229,30 +219,13 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         }
 
         CompoundTag copiedData = copierStack.get(JustDireDataComponents.COPIED_MACHINE_DATA).copyTag();
-        Optional<CompoundTag> upgrades = AdvancedMachineSettingsCopierData.readUpgrades(copiedData);
-        if (upgrades.isEmpty()) {
-            return Optional.of(List.of());
-        }
-
         HolderLookup.Provider registries = getRegistryAccess(level);
         if (registries == null) {
             return Optional.empty();
         }
 
-        try {
-            ItemStackHandler decoded = new ItemStackHandler(0);
-            decoded.deserializeNBT(registries, upgrades.get());
-            List<ItemStack> required = new ArrayList<>();
-            for (int slot = 0; slot < decoded.getSlots(); slot++) {
-                ItemStack upgrade = decoded.getStackInSlot(slot);
-                if (!upgrade.isEmpty()) {
-                    required.add(upgrade.copyWithCount(1));
-                }
-            }
-            return Optional.of(required);
-        } catch (RuntimeException ignored) {
-            return Optional.empty();
-        }
+        return MachineUpgradeHandlers.prepare(copiedData, machine, registries)
+                .map(MachineUpgradeHandlers.PreparedHandlers::requiredUpgrades);
     }
 
     private boolean hasCompatibleType(BaseMachineBE machine, CompoundTag copiedData) {
