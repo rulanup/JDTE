@@ -38,8 +38,8 @@ import net.minecraft.sounds.SoundEvents;
 public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
     private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
     private static final ResourceLocation NEXT = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
-    private static final int[] TANK_X = {159, 179, -5, 119};
-    private static final int TANK_Y = -21;
+    private static final int TANK_WIDTH = 18;
+    private static final int TANK_HEIGHT = 72;
     private static final Component SPECIMEN = Component.translatable("jdte.slot.bio_factory_specimen");
     private static final Component FOOD = Component.translatable("jdte.slot.bio_factory_food");
     private static final Component OUTPUT = Component.translatable("jdte.slot.bio_factory_output");
@@ -53,8 +53,8 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
 
     @Override public void setTopSection() {
         var layout = GuiUpgradeLayoutConfig.getInstance();
-        extraWidth = layout.getLootFabricatorExtraWidth();
-        extraHeight = layout.getLootFabricatorExtraHeight();
+        extraWidth = layout.getBioFactoryExtraWidth();
+        extraHeight = layout.getBioFactoryExtraHeight();
     }
 
     @Override protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
@@ -62,15 +62,17 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         renderMachineSlots(graphics);
         renderProgress(graphics);
         BioFactoryBE factory = factoryContainer.getFactory();
-        renderTank(graphics, TANK_X[0], factory.getLifeFluidTank().getFluid(), factoryContainer.getLifeFluid());
-        renderTank(graphics, TANK_X[1], factory.getTimeFluidTank().getFluid(), factoryContainer.getTimeFluid());
-        renderTank(graphics, TANK_X[2], factory.getProcessFluidTank().getFluid(), factoryContainer.getProcessFluid());
-        renderTank(graphics, TANK_X[3], factory.getProductFluidTank().getFluid(), factoryContainer.getProductFluid());
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        renderTank(graphics, layout.getBioFactoryLifeFluidX(), factory.getLifeFluidTank().getFluid(), factoryContainer.getLifeFluid());
+        renderTank(graphics, layout.getBioFactoryTimeFluidX(), factory.getTimeFluidTank().getFluid(), factoryContainer.getTimeFluid());
+        renderTank(graphics, layout.getBioFactoryProcessFluidX(), factory.getProcessFluidTank().getFluid(), factoryContainer.getProcessFluid());
+        renderTank(graphics, layout.getBioFactoryProductFluidX(), factory.getProductFluidTank().getFluid(), factoryContainer.getProductFluid());
         if (factoryContainer.getMaxOutputPage() > 0) {
-            graphics.blit(PREV, getGuiLeft() + 75, getGuiTop() + 53, 0, 0, 12, 12, 12, 12);
-            graphics.blit(NEXT, getGuiLeft() + 105, getGuiTop() + 53, 0, 0, 12, 12, 12, 12);
+            int buttonSize = 12;
+            graphics.blit(PREV, getGuiLeft() + layout.getBioFactoryOutputPrevX(), getGuiTop() + layout.getBioFactoryOutputPrevY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+            graphics.blit(NEXT, getGuiLeft() + layout.getBioFactoryOutputNextX(), getGuiTop() + layout.getBioFactoryOutputNextY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
             graphics.drawString(font, (factoryContainer.getOutputPage() + 1) + "/" + (factoryContainer.getMaxOutputPage() + 1),
-                    getGuiLeft() + 89, getGuiTop() + 55, 0x555555, false);
+                    getGuiLeft() + layout.getBioFactoryOutputPageTextX(), getGuiTop() + layout.getBioFactoryOutputPageTextY(), 0x555555, false);
         }
     }
 
@@ -90,8 +92,9 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
     }
 
     private void renderProgress(GuiGraphics graphics) {
-        int x = getGuiLeft() + 42;
-        int y = getGuiTop() + 7;
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        int x = getGuiLeft() + layout.getBioFactoryProgressArrowX();
+        int y = getGuiTop() + layout.getBioFactoryProgressArrowY();
         int progressWidth = factoryContainer.getProgress() * 24
                 / Math.max(1, factoryContainer.getProcessTicks());
         drawArrow(graphics, x, y, 24, 0xFF2B2B2B);
@@ -119,8 +122,9 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
     }
 
     private void renderTank(GuiGraphics graphics, int relativeX, FluidStack stack, int amount) {
+        var layout = GuiUpgradeLayoutConfig.getInstance();
         int x = getGuiLeft() + relativeX;
-        int y = getGuiTop() + TANK_Y;
+        int y = getGuiTop() + layout.getBioFactoryFluidY();
         graphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
         int height = Math.clamp((int) ((long) amount * 70L / Math.max(1, factoryContainer.getFluidCapacity())), 0, 70);
         if (height > 0 && !stack.isEmpty()) renderFluid(graphics, stack, x + 1, y + 71, 16, height);
@@ -146,14 +150,18 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
     }
 
     @Override public void addRedstoneButtons() {
-        addRenderableWidget(ToggleButtonFactory.REDSTONEBUTTON(getGuiLeft() + 139, getGuiTop() + 37,
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        addRenderableWidget(ToggleButtonFactory.REDSTONEBUTTON(getGuiLeft() + layout.getBioFactoryRedstoneButtonX(),
+                getGuiTop() + layout.getBioFactoryRedstoneButtonY(),
                 redstoneMode.ordinal(), button -> {
                     redstoneMode = MiscHelpers.RedstoneMode.values()[((ToggleButton) button).getTexturePosition()];
                     saveSettings();
                 }));
     }
     @Override public void addTickSpeedButton() {
-        multiplierButton = new NumberButton(getGuiLeft() + 42, getGuiTop() + 38,
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        multiplierButton = new NumberButton(getGuiLeft() + layout.getBioFactoryMultiplierButtonX(),
+                getGuiTop() + layout.getBioFactoryMultiplierButtonY(),
                 24, 12, factoryContainer.getMultiplier(), 1, factoryContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.bio_factory.multiplier"), button ->
                 PacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
@@ -169,9 +177,11 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
 
     @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && factoryContainer.getMaxOutputPage() > 0) {
+            var layout = GuiUpgradeLayoutConfig.getInstance();
+            int buttonSize = 12;
             int page = factoryContainer.getOutputPage();
-            if (MiscTools.inBounds(getGuiLeft() + 75, getGuiTop() + 53, 12, 12, mouseX, mouseY)) page--;
-            else if (MiscTools.inBounds(getGuiLeft() + 105, getGuiTop() + 53, 12, 12, mouseX, mouseY)) page++;
+            if (MiscTools.inBounds(getGuiLeft() + layout.getBioFactoryOutputPrevX(), getGuiTop() + layout.getBioFactoryOutputPrevY(), buttonSize, buttonSize, mouseX, mouseY)) page--;
+            else if (MiscTools.inBounds(getGuiLeft() + layout.getBioFactoryOutputNextX(), getGuiTop() + layout.getBioFactoryOutputNextY(), buttonSize, buttonSize, mouseX, mouseY)) page++;
             else return super.mouseClicked(mouseX, mouseY, button);
             factoryContainer.setOutputPage(page);
             PacketDistributor.sendToServer(new FilterPagePayload(factoryContainer.getOutputPage()));
@@ -188,11 +198,15 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
             else if (factoryContainer.isFoodSlot(hoveredSlot)) graphics.renderTooltip(font, FOOD, mouseX, mouseY);
             else if (factoryContainer.isOutputSlot(hoveredSlot)) graphics.renderTooltip(font, OUTPUT, mouseX, mouseY);
         }
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        int fluidY = layout.getBioFactoryFluidY();
+        int[] fluidXs = {layout.getBioFactoryLifeFluidX(), layout.getBioFactoryTimeFluidX(),
+                layout.getBioFactoryProcessFluidX(), layout.getBioFactoryProductFluidX()};
         String[] keys = {"life_fluid", "time_fluid", "process_fluid", "product_fluid"};
         int[] amounts = {factoryContainer.getLifeFluid(), factoryContainer.getTimeFluid(),
                 factoryContainer.getProcessFluid(), factoryContainer.getProductFluid()};
-        for (int i = 0; i < TANK_X.length; i++) {
-            if (MiscTools.inBounds(getGuiLeft() + TANK_X[i], getGuiTop() + TANK_Y, 18, 72, mouseX, mouseY)) {
+        for (int i = 0; i < fluidXs.length; i++) {
+            if (MiscTools.inBounds(getGuiLeft() + fluidXs[i], getGuiTop() + fluidY, TANK_WIDTH, TANK_HEIGHT, mouseX, mouseY)) {
                 graphics.renderTooltip(font, Component.translatable("jdte.screen.bio_factory." + keys[i],
                         amounts[i], factoryContainer.getFluidCapacity()), mouseX, mouseY);
                 return;

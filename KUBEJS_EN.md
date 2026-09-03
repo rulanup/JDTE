@@ -1,4 +1,4 @@
-# JDTE 0.6.0-pre3: KubeJS and Modpack Content Controls
+# JDTE 0.6.0-pre4: KubeJS and Modpack Content Controls
 
 This guide covers JDTE recipe replacement, recipe disabling, and dynamic JEI recipe switches in KubeJS modpacks. Put KubeJS scripts in the instance's `kubejs/server_scripts/` directory. The JDTE configuration file is `config/jdte/jdte.toml`.
 

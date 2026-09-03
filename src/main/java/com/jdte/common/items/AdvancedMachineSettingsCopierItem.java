@@ -4,12 +4,18 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.items.MachineSettingsCopier;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
-import com.jdte.common.upgrades.UpgradeHelper;
-import com.jdte.common.upgrades.UpgradeItemStackHandler;
+import com.jdte.common.items.machinesettings.MachineSettingsCodec;
+import com.jdte.common.items.machinesettings.MachineSettingsCodecRegistry;
+import com.jdte.common.items.machinesettings.MachineSettingsSnapshot;
+import com.jdte.common.items.machinesettings.MachineUpgradeHandlers;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -18,9 +24,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,16 +50,22 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         }
 
         ItemStack stack = context.getItemInHand();
-        if (!stack.has(JustDireDataComponents.COPIED_MACHINE_DATA)
-                || !hasCompatibleType(machine, stack.get(JustDireDataComponents.COPIED_MACHINE_DATA).copyTag())) {
+        Optional<PreparedPaste> prepared = preparePaste(level, machine, stack);
+        if (prepared.isEmpty()) {
             return InteractionResult.PASS;
         }
 
-        if (!consumeUpgradeCost(context.getPlayer(), level, machine, stack)) {
+        if (!consumeUpgradeCost(context.getPlayer(), prepared.get().requiredUpgrades())) {
             return InteractionResult.PASS;
         }
 
-        return super.useOn(context);
+        prepared.get().apply(this, level, blockEntity, machine, stack);
+        Player player = context.getPlayer();
+        if (player != null) {
+            player.displayClientMessage(Component.translatable("justdirethings.settingspasted"), true);
+            player.playNotifySound(SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -68,23 +78,29 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
 
         if (blockEntity instanceof BaseMachineBE machine) {
             ResourceLocation machineTypeId = getBlockEntityTypeId(machine);
-            if (machineTypeId != null) {
-                AdvancedMachineSettingsCopierData.writeMachineType(copiedData, machineTypeId);
-            } else {
+            if (machineTypeId == null) {
                 AdvancedMachineSettingsCopierData.remove(copiedData);
-            }
-
-            saveUpgrades(level, machine, copiedData);
-
-            if (hasConfigurableIo(machine)) {
-                AdvancedMachineSettingsCopierData.writeMasks(copiedData,
-                        getInputMask(machine),
-                        getOutputMask(machine));
+                AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+                AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+                AdvancedMachineSettingsCopierData.clearUpgradeHandlers(copiedData);
             } else {
-                AdvancedMachineSettingsCopierData.clearMasks(copiedData);
+                AdvancedMachineSettingsCopierData.writeMachineType(copiedData, machineTypeId);
+                saveMachineSettings(level, machine, machineTypeId, copiedData);
+                saveUpgrades(level, machine, copiedData);
+
+                if (hasConfigurableIo(machine)) {
+                    AdvancedMachineSettingsCopierData.writeMasks(copiedData,
+                            getInputMask(machine),
+                            getOutputMask(machine));
+                } else {
+                    AdvancedMachineSettingsCopierData.clearMasks(copiedData);
+                }
             }
         } else {
             AdvancedMachineSettingsCopierData.remove(copiedData);
+            AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+            AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+            AdvancedMachineSettingsCopierData.clearUpgradeHandlers(copiedData);
         }
 
         if (copiedData.isEmpty()) {
@@ -100,19 +116,11 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
             return;
         }
 
-        CompoundTag copiedData = stack.get(JustDireDataComponents.COPIED_MACHINE_DATA).copyTag();
-        if (!hasCompatibleType(machine, copiedData)) {
+        Optional<PreparedPaste> prepared = preparePaste(level, machine, stack);
+        if (prepared.isEmpty()) {
             return;
         }
-
-        loadBaseSettings(level, blockEntity, stack);
-        loadUpgrades(level, machine, copiedData);
-        if (!hasConfigurableIo(machine)) {
-            return;
-        }
-
-        AdvancedMachineSettingsCopierData.readMasks(copiedData)
-                .ifPresent(masks -> setMasks(machine, masks.inputMask(), masks.outputMask()));
+        prepared.get().apply(this, level, blockEntity, machine, stack);
     }
 
     protected void saveBaseSettings(Level level, BlockEntity blockEntity, ItemStack stack) {
@@ -125,6 +133,11 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
 
     protected ResourceLocation getBlockEntityTypeId(BaseMachineBE machine) {
         return BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType());
+    }
+
+    protected Optional<MachineSettingsCodec> getMachineSettingsCodec(ResourceLocation machineType,
+                                                                       BaseMachineBE machine) {
+        return MachineSettingsCodecRegistry.find(machineType, machine);
     }
 
     protected boolean hasConfigurableIo(BaseMachineBE machine) {
@@ -143,35 +156,50 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         AutoIoConfigHelper.setMasks(machine, inputMask, outputMask);
     }
 
-    protected UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
-        return UpgradeHelper.getUpgradeHandler(machine);
-    }
-
     protected HolderLookup.Provider getRegistryAccess(Level level) {
         return level == null ? null : level.registryAccess();
     }
 
     protected void saveUpgrades(Level level, BaseMachineBE machine, CompoundTag copiedData) {
-        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
         HolderLookup.Provider registries = getRegistryAccess(level);
-        if (handler == null || registries == null) {
+        if (registries == null) {
             AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+            AdvancedMachineSettingsCopierData.clearUpgradeHandlers(copiedData);
+            return;
+        }
+        MachineUpgradeHandlers.write(copiedData, machine, registries);
+    }
+
+    private void saveMachineSettings(Level level, BaseMachineBE machine, ResourceLocation machineType,
+                                     CompoundTag copiedData) {
+        HolderLookup.Provider registries = getRegistryAccess(level);
+        if (registries == null) {
+            AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
             return;
         }
 
-        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, handler.serializeNBT(registries));
+        Optional<MachineSettingsCodec> codec = getMachineSettingsCodec(machineType, machine);
+        if (codec.isEmpty()) {
+            AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+            return;
+        }
+
+        try {
+            MachineSettingsSnapshot.write(copiedData, machineType, machine.getTickSpeed(), machine.getDirection(),
+                    codec.get().encode(machine, registries));
+        } catch (RuntimeException ignored) {
+            AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+        }
     }
 
     protected void loadUpgrades(Level level, BaseMachineBE machine, CompoundTag copiedData) {
-        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
         HolderLookup.Provider registries = getRegistryAccess(level);
-        if (handler == null || registries == null) {
+        if (registries == null) {
             return;
         }
 
-        AdvancedMachineSettingsCopierData.readUpgrades(copiedData).ifPresent(upgrades -> {
-            handler.deserializeNBT(registries, upgrades);
-            UpgradeHelper.syncCapacities(machine);
+        MachineUpgradeHandlers.prepare(copiedData, machine, registries).ifPresent(prepared -> {
+            prepared.apply(machine);
         });
     }
 
@@ -185,7 +213,10 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
             return false;
         }
 
-        List<ItemStack> required = requiredResult.get();
+        return consumeUpgradeCost(player, requiredResult.get());
+    }
+
+    private boolean consumeUpgradeCost(Player player, List<ItemStack> required) {
         if (required.isEmpty()) {
             return true;
         }
@@ -228,31 +259,7 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
             return Optional.of(List.of());
         }
 
-        CompoundTag copiedData = copierStack.get(JustDireDataComponents.COPIED_MACHINE_DATA).copyTag();
-        Optional<CompoundTag> upgrades = AdvancedMachineSettingsCopierData.readUpgrades(copiedData);
-        if (upgrades.isEmpty()) {
-            return Optional.of(List.of());
-        }
-
-        HolderLookup.Provider registries = getRegistryAccess(level);
-        if (registries == null) {
-            return Optional.empty();
-        }
-
-        try {
-            ItemStackHandler decoded = new ItemStackHandler(0);
-            decoded.deserializeNBT(registries, upgrades.get());
-            List<ItemStack> required = new ArrayList<>();
-            for (int slot = 0; slot < decoded.getSlots(); slot++) {
-                ItemStack upgrade = decoded.getStackInSlot(slot);
-                if (!upgrade.isEmpty()) {
-                    required.add(upgrade.copyWithCount(1));
-                }
-            }
-            return Optional.of(required);
-        } catch (RuntimeException ignored) {
-            return Optional.empty();
-        }
+        return preparePaste(level, machine, copierStack).map(PreparedPaste::requiredUpgrades);
     }
 
     private boolean hasCompatibleType(BaseMachineBE machine, CompoundTag copiedData) {
@@ -264,5 +271,76 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         return AdvancedMachineSettingsCopierData.readMachineType(copiedData)
                 .map(machineTypeId::equals)
                 .orElse(false);
+    }
+
+    private Optional<PreparedPaste> preparePaste(Level level, BaseMachineBE machine, ItemStack copierStack) {
+        if (!copierStack.has(JustDireDataComponents.COPIED_MACHINE_DATA)) {
+            return Optional.empty();
+        }
+
+        CompoundTag copiedData = copierStack.get(JustDireDataComponents.COPIED_MACHINE_DATA).copyTag();
+        ResourceLocation machineType = getBlockEntityTypeId(machine);
+        HolderLookup.Provider registries = getRegistryAccess(level);
+        if (machineType == null || registries == null || !hasCompatibleType(machine, copiedData)) {
+            return Optional.empty();
+        }
+
+        MachineSettingsCodec.PreparedSettings settings = null;
+        if (copiedData.contains(AdvancedMachineSettingsCopierData.MACHINE_SETTINGS_KEY)) {
+            Optional<MachineSettingsSnapshot> snapshot = MachineSettingsSnapshot.read(copiedData);
+            Optional<MachineSettingsCodec> codec = getMachineSettingsCodec(machineType, machine);
+            if (snapshot.isEmpty() || codec.isEmpty() || !snapshot.get().machineType().equals(machineType)
+                    || !hasMatchingCommonFields(snapshot.get())) {
+                return Optional.empty();
+            }
+            Optional<MachineSettingsCodec.PreparedSettings> decoded = codec.get().decode(snapshot.get().custom(), registries);
+            if (decoded.isEmpty()) {
+                return Optional.empty();
+            }
+            settings = decoded.get();
+        }
+
+        Optional<MachineUpgradeHandlers.PreparedHandlers> upgrades =
+                MachineUpgradeHandlers.prepare(copiedData, machine, registries);
+        if (upgrades.isEmpty()) {
+            return Optional.empty();
+        }
+
+        AdvancedMachineSettingsCopierData.Masks masks = hasConfigurableIo(machine)
+                ? AdvancedMachineSettingsCopierData.readMasks(copiedData).orElse(null)
+                : null;
+        return Optional.of(new PreparedPaste(settings, upgrades.get(), masks));
+    }
+
+    private static boolean hasMatchingCommonFields(MachineSettingsSnapshot snapshot) {
+        CompoundTag custom = snapshot.custom();
+        return custom.contains("tickSpeed", Tag.TAG_INT)
+                && custom.contains("direction", Tag.TAG_INT)
+                && custom.getInt("tickSpeed") == snapshot.tickSpeed()
+                && custom.getInt("direction") == snapshot.direction();
+    }
+
+    private record PreparedPaste(MachineSettingsCodec.PreparedSettings settings,
+                                 MachineUpgradeHandlers.PreparedHandlers upgrades,
+                                 AdvancedMachineSettingsCopierData.Masks masks) {
+        private List<ItemStack> requiredUpgrades() {
+            return upgrades.requiredUpgrades();
+        }
+
+        private void apply(AdvancedMachineSettingsCopierItem copier, Level level, BlockEntity blockEntity,
+                           BaseMachineBE machine, ItemStack copierStack) {
+            copier.loadBaseSettings(level, blockEntity, copierStack);
+            upgrades.apply(machine);
+            if (settings != null) {
+                settings.apply(machine);
+                if (MachineSettingsCopier.getCopyFilter(copierStack)) {
+                    settings.applyFilterSettings(machine);
+                }
+            }
+            if (masks != null) {
+                copier.setMasks(machine, masks.inputMask(), masks.outputMask());
+            }
+            machine.markDirtyClient();
+        }
     }
 }

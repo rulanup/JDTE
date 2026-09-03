@@ -165,13 +165,7 @@ public class UpgradeHelper {
         if (handler == null) {
             return 0;
         }
-        int count = 0;
-        for (int i = 0; i < handler.getSlots(); i++) {
-            if (isUpgrade(handler.getStackInSlot(i), type)) {
-                count++;
-            }
-        }
-        return Math.min(count, type.getMaxPerMachine());
+        return Math.min(handler.getCachedUpgradeCount(type), type.getMaxPerMachine());
     }
 
     public static int getMaxUpgrades(BaseMachineBE machine, UpgradeType type) {

@@ -2,7 +2,21 @@
 
 ### English
 
-#### v0.6.0-pre3 (Current)
+#### v0.6.0-pre4 (Current)
+- **Changed — complete machine configuration copying**: The Advanced Machine Settings Copier now saves a versioned, exact-block-entity snapshot and transfers every supported user-adjustable setting between matching machine types. It continues to honor its area, offset, filter, and redstone toggles while always copying tick speed, internal direction, six-side auto-I/O masks, and machine upgrades.
+- **Changed — JDT machine settings**: Clicker, Dropper, Block Breaker, Block Swapper, Sensor (including block-state filter properties), Item Collector, Experience Holder, Energy Transmitter, Inventory Holder, Player Accessor, and Paradox Machine settings now copy with the machine. Inventories, stored experience, saved world snapshots, and Block Swapper partner coordinates remain local to the target machine.
+- **Changed — JDTE machine settings**: Copier support now includes adjustable multipliers, modes, switches, filters, recipe locks, and player bindings across Time Accelerators, Crystal Incubator, Greenhouses, Bio Factory, Life Breeder, Life Extractor, Mineral Extractors, Life Synthesis Vat, Bio Crusher, Entity Suppressor, Range Blocker, Time Freezers, Gel Generators, Advanced Potion Brewer, Advanced Energy Transmitter, and Extended Experience Holder.
+- **Changed — all upgrade handlers**: Standard and dedicated upgrade slots now round-trip together, including Bio Crusher Looting/Sharpness slots and machine-specific standard handlers used by Bio Factory, Loot Fabricator, and Advanced Potion Brewer. Every copied card must be present in the player's inventory before a paste can proceed.
+- **Safety and compatibility**: Malformed, unsupported, or cross-type snapshots are rejected before the target or player inventory changes. Existing copier data without the new snapshot remains usable for its legacy parent settings, upgrades, and auto-I/O data.
+- **Performance — Bio Factory**: Batched output and tank updates now coalesce client synchronization to at most one block update per server tick, and recipe-cache hits no longer allocate a temporary input list.
+- **Performance — Loot Fabricator**: Per-template Life/Time Fluid, FE, and process-time calculations are cached until inputs, upgrades, or tick speed change. Active output-slot discovery is memoized per game tick, fluid-capacity syncing follows the normal 20-tick cadence, and the temporary Looting weapon is rebuilt only when its enchantment level changes.
+- **Performance — upgrades**: Upgrade-type counts are cached by handler content version, avoiding repeated per-slot scans in energy-cost, capacity, speed, and GUI calculations.
+- **Changed — Bio Factory layout**: Container and screen slot, tank, button, and paging coordinates now come from the shared `gui_layout.json`, using the standard machine-grid alignment. The empty upgrade-slot tooltip reads the Looting limit from the handler constant instead of a hardcoded value.
+- **Fixed — Ultimate Time Wand**: Its render entity now anchors at the target block's base height instead of half a block above it.
+- **Documentation**: Updated the developer reference for cached upgrade counts and Bio Factory/Loot Fabricator behavior, and added the complete Advanced Machine Settings Copier design and implementation plan.
+- **Validation**: Added broad machine-settings codec and copier regression coverage, including exact-type rejection, legacy-data compatibility, dedicated upgrade slots, corrupted-snapshot safety, and non-copying runtime state; added Ultimate Time Wand height persistence coverage.
+
+#### v0.6.0-pre3
 - **Fixed**: Advanced Machine Settings Copier now copies installed machine upgrades and requires one matching upgrade item from the player's inventory for every copied card. Pasting is rejected atomically when any required card is missing, so partial consumption cannot occur.
 - **Fixed**: Time Accelerator scheduling now limits each submitted batch to the largest amount affordable with the accelerator's current FE and Time Fluid, preventing resource shortages from discarding otherwise affordable work.
 - **Fixed**: AE Extraction smithing recipe serialization now reuses a stable singleton codec instance for consistent recipe decoding and networking.
@@ -234,8 +248,7 @@
 
 ### 中文
 
-#### v0.6.0-pre3（当前）
-
+#### v0.6.0-pre3
 - **修复**：高级机器复制器现在会复制机器内已安装的升级，并要求玩家背包中每张升级卡都有一张匹配物品。缺少任意升级时会原子拒绝粘贴，不会发生部分扣除。
 - **修复**：时间加速器调度现在会根据当前 FE 与时间流体余额，将每批工作限制在可负担的最大数量，避免资源不足时丢弃本可执行的工作。
 - **修复**：AE 提取锻造升级配方序列化现在复用稳定的单例编解码器，确保配方解码与网络同步一致。

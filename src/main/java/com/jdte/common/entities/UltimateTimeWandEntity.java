@@ -151,7 +151,7 @@ public class UltimateTimeWandEntity extends Entity {
         entityData.set(TOTAL_TIME, Math.max(0, state.totalTime()));
         entityData.set(REMAINING_TIME, Math.max(0, Math.min(getTotalTime(), state.remainingTime())));
         if (target != null) {
-            moveTo(target.getX() + 0.5D, target.getY() + 0.5D, target.getZ() + 0.5D);
+            moveTo(target.getX() + 0.5D, target.getY(), target.getZ() + 0.5D);
         }
     }
 

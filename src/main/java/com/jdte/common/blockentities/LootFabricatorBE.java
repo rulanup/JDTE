@@ -85,6 +85,18 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     private int progress;
     private int nextInputSlot;
     private int timeFluidCreditUnits;
+    private long activeOutputSlotsTick = Long.MIN_VALUE;
+    private int cachedActiveOutputSlots = BASE_OUTPUT_SLOTS;
+    private boolean costCacheFresh;
+    private int costCacheTickSpeed = -1;
+    private int costCacheUpgradeVersion = -1;
+    private final ItemStack[] costCacheInputs = new ItemStack[INPUT_SLOTS];
+    private final int[] cachedLifeFluidCosts = new int[INPUT_SLOTS];
+    private final int[] cachedTimeFluidCostUnits = new int[INPUT_SLOTS];
+    private int cachedEnergyCost;
+    private int cachedProcessTime = PROCESS_TIME;
+    private ItemStack cachedLootingWeapon = ItemStack.EMPTY;
+    private int cachedWeaponLootingLevel = -1;
     private int syncedProcessTime = PROCESS_TIME;
     private int syncedActiveOutputSlots = BASE_OUTPUT_SLOTS;
     private int syncedLifeFluid;
@@ -179,7 +191,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
 
     @Override public void tickServer() {
         super.tickServer();
-        syncFluidCapacities();
+        if (level != null && level.getGameTime() % 20L == 0L) syncFluidCapacities();
         if (!isActiveRedstone() || !canRun()) {
             resetProgress();
             return;
@@ -187,30 +199,63 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         processLoot();
     }
 
+    /**
+     * Recomputes the per-template fluid/energy costs and the process time only when the
+     * inputs, upgrade set, or tick speed actually changed; the per-tick resource check
+     * below runs against these cached values instead of re-scanning upgrades.
+     */
+    private void refreshCostCache() {
+        if (costCacheFresh && costCacheTickSpeed == tickSpeed
+                && costCacheUpgradeVersion == upgradeHandler.getContentVersion()) {
+            for (int slot = 0; slot < INPUT_SLOTS; slot++) {
+                ItemStack stack = itemHandler.getStackInSlot(slot);
+                if (stack.getCount() != costCacheInputs[slot].getCount()
+                        || !ItemStack.isSameItemSameComponents(stack, costCacheInputs[slot])) {
+                    costCacheFresh = false;
+                    break;
+                }
+            }
+            if (costCacheFresh) return;
+        }
+        costCacheFresh = true;
+        costCacheTickSpeed = tickSpeed;
+        costCacheUpgradeVersion = upgradeHandler.getContentVersion();
+        cachedEnergyCost = getEffectiveEnergyCost();
+        cachedProcessTime = getProcessTime();
+        for (int slot = 0; slot < INPUT_SLOTS; slot++) {
+            ItemStack stack = itemHandler.getStackInSlot(slot);
+            costCacheInputs[slot] = stack.copy();
+            cachedLifeFluidCosts[slot] = stack.isEmpty() ? 0 : getEffectiveLifeFluidCost(stack);
+            cachedTimeFluidCostUnits[slot] = stack.isEmpty() ? 0 : getEffectiveTimeFluidCostUnits(stack);
+        }
+    }
+
     private void processLoot() {
         if (!(level instanceof ServerLevel serverLevel)) return;
-        List<Integer> inputSlots = findInputSlots();
-        int processCount = inputSlots.size();
-        int energyCost = getEffectiveEnergyCost();
-        int lifeFluidCost = inputSlots.stream()
-                .map(slot -> itemHandler.getStackInSlot(slot))
-                .mapToInt(this::getEffectiveLifeFluidCost)
-                .reduce(0, LootFabricatorBE::safeAddCost);
-        int timeFluidCostUnits = inputSlots.stream()
-                .map(slot -> itemHandler.getStackInSlot(slot))
-                .mapToInt(this::getEffectiveTimeFluidCostUnits)
-                .reduce(0, LootFabricatorBE::safeAddCost);
+        refreshCostCache();
+        int processCount = 0;
+        int lifeFluidCost = 0;
+        int timeFluidCostUnits = 0;
+        int lastOccupiedSlot = -1;
+        for (int i = 0; i < INPUT_SLOTS; i++) {
+            int slot = (nextInputSlot + i) % INPUT_SLOTS;
+            if (!isSupportedLootTemplate(itemHandler.getStackInSlot(slot))) continue;
+            lastOccupiedSlot = slot;
+            processCount++;
+            lifeFluidCost = safeAddCost(lifeFluidCost, cachedLifeFluidCosts[slot]);
+            timeFluidCostUnits = safeAddCost(timeFluidCostUnits, cachedTimeFluidCostUnits[slot]);
+        }
         LootFabricatorFluidCost.Settlement requiredTimeFluid =
                 LootFabricatorFluidCost.settle(timeFluidCostUnits, timeFluidCreditUnits);
         if (processCount == 0
                 || lifeFluidTank.getFluidAmount() < lifeFluidCost
                 || timeFluidTank.getFluidAmount() < requiredTimeFluid.drainMb()
-                || !hasEnoughPower(energyCost * processCount)) {
+                || !hasEnoughPower(cachedEnergyCost * processCount)) {
             resetProgress();
             return;
         }
         progress++;
-        if (progress < getProcessTime()) {
+        if (progress < cachedProcessTime) {
             setChanged();
             return;
         }
@@ -219,17 +264,18 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         int successfulProcesses = 0;
         int successfulLifeFluidCost = 0;
         int successfulTimeFluidCostUnits = 0;
-        for (int inputSlot : inputSlots) {
+        for (int i = 0; i < INPUT_SLOTS; i++) {
+            int inputSlot = (nextInputSlot + i) % INPUT_SLOTS;
             ItemStack spawnEgg = itemHandler.getStackInSlot(inputSlot);
+            if (!isSupportedLootTemplate(spawnEgg)) continue;
             List<ItemStack> drops = rollLoot(serverLevel, spawnEgg).stream()
                     .filter(drop -> !drop.isEmpty())
                     .toList();
             if (drops.isEmpty()) continue;
             allDrops.addAll(drops);
             successfulProcesses++;
-            successfulLifeFluidCost = safeAddCost(successfulLifeFluidCost, getEffectiveLifeFluidCost(spawnEgg));
-            successfulTimeFluidCostUnits = safeAddCost(
-                    successfulTimeFluidCostUnits, getEffectiveTimeFluidCostUnits(spawnEgg));
+            successfulLifeFluidCost = safeAddCost(successfulLifeFluidCost, cachedLifeFluidCosts[inputSlot]);
+            successfulTimeFluidCostUnits = safeAddCost(successfulTimeFluidCostUnits, cachedTimeFluidCostUnits[inputSlot]);
         }
         if (successfulProcesses == 0 || allDrops.isEmpty()) {
             resetProgress();
@@ -245,8 +291,8 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
                 successfulTimeFluidCostUnits, timeFluidCreditUnits);
         timeFluidTank.drain(timeFluidSettlement.drainMb(), IFluidHandler.FluidAction.EXECUTE);
         timeFluidCreditUnits = timeFluidSettlement.remainingCreditUnits();
-        extractEnergy(energyCost * successfulProcesses, false);
-        nextInputSlot = (inputSlots.get(inputSlots.size() - 1) + 1) % INPUT_SLOTS;
+        extractEnergy(cachedEnergyCost * successfulProcesses, false);
+        nextInputSlot = (lastOccupiedSlot + 1) % INPUT_SLOTS;
         progress = 0;
         setChanged();
     }
@@ -308,22 +354,17 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     }
 
     private ItemStack createLootingWeapon(ServerLevel level) {
+        int lootingLevel = getLootingLevel();
+        if (lootingLevel == cachedWeaponLootingLevel) return cachedLootingWeapon;
+        cachedWeaponLootingLevel = lootingLevel;
         ItemStack weapon = new ItemStack(Items.DIAMOND_SWORD);
-        if (getLootingLevel() > 0) {
+        if (lootingLevel > 0) {
             ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.LOOTING), getLootingLevel());
+            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.LOOTING), lootingLevel);
             EnchantmentHelper.setEnchantments(weapon, enchantments.toImmutable());
         }
+        cachedLootingWeapon = weapon;
         return weapon;
-    }
-
-    private List<Integer> findInputSlots() {
-        List<Integer> slots = new ArrayList<>();
-        for (int i = 0; i < INPUT_SLOTS; i++) {
-            int slot = (nextInputSlot + i) % INPUT_SLOTS;
-            if (isSupportedLootTemplate(itemHandler.getStackInSlot(slot))) slots.add(slot);
-        }
-        return slots;
     }
 
     private static boolean isSupportedLootTemplate(ItemStack stack) {
@@ -352,12 +393,16 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     }
 
     public int getActiveOutputSlots() {
+        long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
+        if (activeOutputSlotsTick == gameTick) return cachedActiveOutputSlots;
         int configured = BASE_OUTPUT_SLOTS + countCapacity(-1) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int i = 0; i < OUTPUT_SLOTS; i++) {
             if (!itemHandler.getStackInSlot(INPUT_SLOTS + i).isEmpty()) occupied = ((i / 16) + 1) * 16;
         }
-        return Math.min(OUTPUT_SLOTS, Math.max(configured, occupied));
+        cachedActiveOutputSlots = Math.min(OUTPUT_SLOTS, Math.max(configured, occupied));
+        activeOutputSlotsTick = gameTick;
+        return cachedActiveOutputSlots;
     }
     public int getLootingLevel() { return upgradeHandler.getLootingCount(); }
     public int getProcessTime() { return Math.clamp(UpgradeHelper.getEffectiveTickSpeed(this, tickSpeed), 1, MAX_TICK_SPEED); }
@@ -457,5 +502,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
                 tag.getInt("timeFluidCreditUnits"), 0, LootFabricatorFluidCost.UNITS_PER_MB - 1);
         if (!tag.contains("tickspeed") && tag.contains("tickSpeed")) tickSpeed = tag.getInt("tickSpeed");
         tickSpeed = clampRawTickSpeed(tickSpeed);
+        syncFluidCapacities();
+        costCacheFresh = false;
     }
 }

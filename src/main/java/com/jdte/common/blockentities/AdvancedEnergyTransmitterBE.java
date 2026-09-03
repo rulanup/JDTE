@@ -45,6 +45,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class AdvancedEnergyTransmitterBE extends BaseMachineBE
@@ -359,6 +360,31 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
     public String getBoundPlayerName() {
         return boundPlayerName;
+    }
+
+    /**
+     * Returns the configurable player binding without exposing any discovery or transfer state.
+     */
+    public Optional<UUID> getBoundPlayerIdForCopy() {
+        return Optional.ofNullable(boundPlayerId);
+    }
+
+    /**
+     * Returns the configurable player-binding label without resolving the player or touching caches.
+     */
+    public String getBoundPlayerNameForCopy() {
+        return boundPlayerName;
+    }
+
+    /**
+     * Applies a validated copied player binding. Ownership and all stored resources remain local to this machine.
+     */
+    public void applyCopiedPlayerBinding(Optional<UUID> playerId, String playerName) {
+        Optional<UUID> copiedPlayerId = playerId == null ? Optional.empty() : playerId;
+        boundPlayerId = copiedPlayerId.orElse(null);
+        boundPlayerName = boundPlayerId == null || playerName == null ? "" : playerName;
+        invalidateTargets(true);
+        markDirtyClient();
     }
 
     public ServerPlayer getBoundPlayer() {

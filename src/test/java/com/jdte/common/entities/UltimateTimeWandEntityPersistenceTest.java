@@ -1,5 +1,6 @@
 package com.jdte.common.entities;
 
+import com.jdte.setup.JDTEEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import org.junit.jupiter.api.Test;
@@ -25,5 +26,18 @@ class UltimateTimeWandEntityPersistenceTest {
 
         assertEquals(10, merged.exponent());
         assertEquals(500, merged.remainingTime());
+    }
+
+    @Test
+    void placesRenderEntityAtTargetBlockBaseHeight() {
+        UltimateTimeWandEntity entity = new UltimateTimeWandEntity(
+                JDTEEntities.ULTIMATE_TIME_WAND.get(), null);
+        BlockPos target = new BlockPos(4, 5, 6);
+
+        entity.applyWandState(new UltimateTimeWandEntity.WandState(target, 1, 600, 600));
+
+        assertEquals(target.getX() + 0.5D, entity.getX(), 0.0D);
+        assertEquals(target.getY(), entity.getY(), 0.0D);
+        assertEquals(target.getZ() + 0.5D, entity.getZ(), 0.0D);
     }
 }

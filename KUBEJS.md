@@ -1,4 +1,4 @@
-# JDTE 0.6.0-pre3：KubeJS 与整合包内容控制
+# JDTE 0.6.0-pre4：KubeJS 与整合包内容控制
 
 本文说明 JDTE 在 KubeJS 整合包中的配方替换、配方禁用和动态 JEI 配方开关。KubeJS 脚本放在实例的 `kubejs/server_scripts/`，配置文件是 `config/jdte/jdte.toml`。
 

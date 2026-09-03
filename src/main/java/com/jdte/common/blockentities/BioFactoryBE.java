@@ -87,7 +87,9 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 progress = 0;
             }
             setChanged();
-            markDirtyClient();
+            // Coalesced: batched output inserts would otherwise send one block
+            // update per stack; the flag flushes once at the next server tick.
+            clientSyncPending = true;
         }
     };
     private final IItemHandler automationItemHandler = new IItemHandler() {
@@ -174,6 +176,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private int progress;
     private int settlementTicker;
+    private boolean clientSyncPending;
     private int syncedProcessTicks = 600;
     private int syncedOutputSlots = BASE_OUTPUT_SLOTS;
     private int syncedLifeFluid;
@@ -208,6 +211,10 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     @Override public void tickServer() {
         super.tickServer();
+        if (clientSyncPending) {
+            clientSyncPending = false;
+            markDirtyClient();
+        }
         if (level != null && level.getGameTime() % 20L == 0L) syncCapacities();
         if (!isActiveRedstone() || !canRun() || !resolveRecipe()
                 || cachedBee != null && !ProductiveBeesBioFactoryIntegration.canOperate(level, cachedBee)) {
@@ -231,20 +238,20 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private boolean resolveRecipe() {
         ItemStack specimen = itemHandler.getStackInSlot(SPECIMEN_SLOT);
-        List<ItemStack> inputs = getInputStacks();
         Fluid fluid = processFluidTank.getFluid().getFluid();
         if (cacheResolved && ItemStack.isSameItemSameComponents(specimen, cachedSpecimen)
-                && inputsMatchCache(inputs) && fluid == cachedProcessFluid
+                && inputsMatchCache() && fluid == cachedProcessFluid
                 && processFluidTank.getFluidAmount() == cachedProcessFluidAmount) {
             return cachedRecipe != null || cachedBee != null;
         }
         clearRecipeCache();
         cachedSpecimen = specimen.copy();
-        for (int i = 0; i < INPUT_SLOTS; i++) cachedInputs[i] = inputs.get(i).copy();
+        for (int i = 0; i < INPUT_SLOTS; i++) cachedInputs[i] = itemHandler.getStackInSlot(inputStorageSlot(i)).copy();
         cachedProcessFluid = fluid;
         cachedProcessFluidAmount = processFluidTank.getFluidAmount();
         cacheResolved = true;
         if (level == null || specimen.isEmpty()) return false;
+        List<ItemStack> inputs = getInputStacks();
         cachedRecipe = level.getRecipeManager().getAllRecipesFor(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get()).stream()
                 .map(holder -> holder.value())
                 .filter(recipe -> {
@@ -324,7 +331,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         }
         progress = 0;
         setChanged();
-        markDirtyClient();
+        clientSyncPending = true;
     }
 
     private List<ItemStack> createOutputs(double multiplier) {
@@ -497,7 +504,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 Fluid current = getFluid().getFluid();
                 if (current != lastSyncedFluid) {
                     lastSyncedFluid = current;
-                    markDirtyClient();
+                    clientSyncPending = true;
                 }
             }
         };
@@ -522,10 +529,11 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         return inputs;
     }
 
-    private boolean inputsMatchCache(List<ItemStack> inputs) {
+    private boolean inputsMatchCache() {
         for (int i = 0; i < INPUT_SLOTS; i++) {
-            if (!ItemStack.isSameItemSameComponents(inputs.get(i), cachedInputs[i])
-                    || inputs.get(i).getCount() != cachedInputs[i].getCount()) return false;
+            ItemStack input = itemHandler.getStackInSlot(inputStorageSlot(i));
+            if (!ItemStack.isSameItemSameComponents(input, cachedInputs[i])
+                    || input.getCount() != cachedInputs[i].getCount()) return false;
         }
         return true;
     }

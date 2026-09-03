@@ -229,11 +229,12 @@ public final class UpgradeSlotLayoutHelper {
 
         if (baseMachineBE instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
             int current = fabricator.getLootingLevel();
+            int max = com.jdte.common.upgrades.LootFabricatorUpgradeItemStackHandler.MAX_LOOTING;
             lines.add(Component.literal("  ")
                     .append(Component.translatable("item.jdte.looting_upgrade"))
-                    .append(Component.literal(": " + current + "/3"))
+                    .append(Component.literal(": " + current + "/" + max))
                     .copy()
-                    .withStyle(current < 3 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+                    .withStyle(current < max ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
         }
 
         if (baseMachineBE instanceof com.jdte.common.blockentities.BioFactoryBE factory
@@ -255,11 +256,12 @@ public final class UpgradeSlotLayoutHelper {
 
         if (baseMachineBE instanceof com.jdte.common.blockentities.BioFactoryBE factory) {
             int current = factory.getUpgradeHandler().getLootingCount();
+            int max = BioFactoryUpgradeItemStackHandler.MAX_LOOTING;
             lines.add(Component.literal("  ")
                     .append(Component.translatable("item.jdte.looting_upgrade"))
-                    .append(Component.literal(": " + current + "/4"))
+                    .append(Component.literal(": " + current + "/" + max))
                     .copy()
-                    .withStyle(current < 4 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+                    .withStyle(current < max ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
         }
 
         return lines;

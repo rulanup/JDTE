@@ -6,6 +6,7 @@ import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.upgrades.BioFactoryUpgradeItemStackHandler;
 import com.jdte.common.utils.ContainerDataEncoding;
+import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.core.BlockPos;
@@ -19,11 +20,6 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class BioFactoryContainer extends BaseMachineContainer implements FilterPageHolder {
-    public static final int SPECIMEN_X = 15;
-    public static final int INPUT_X = 15;
-    public static final int INPUT_Y = -20;
-    public static final int OUTPUT_X = 79;
-    public static final int OUTPUT_Y = -20;
     private int outputPage;
 
     public BioFactoryContainer(int id, Inventory inventory, FriendlyByteBuf data) { this(id, inventory, data.readBlockPos()); }
@@ -35,14 +31,18 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
 
     @Override public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
-        addSlot(new SpecimenSlot(machineHandler, BioFactoryBE.SPECIMEN_SLOT, SPECIMEN_X, INPUT_Y));
+        var layout = GuiUpgradeLayoutConfig.getInstance();
+        int inputStartY = layout.getBioFactoryInputStartY();
+        addSlot(new SpecimenSlot(machineHandler, BioFactoryBE.SPECIMEN_SLOT,
+                layout.getBioFactorySpecimenX(), layout.getBioFactorySpecimenY()));
         for (int input = 0; input < BioFactoryBE.INPUT_SLOTS; input++) {
             addSlot(new SlotItemHandler(machineHandler, BioFactoryBE.inputStorageSlot(input),
-                    INPUT_X, INPUT_Y + (input + 1) * 18));
+                    layout.getBioFactoryInputStartX(), inputStartY + (input + 1) * layout.getBioFactoryInputSpacing()));
         }
         for (int i = 0; i < BioFactoryBE.BASE_OUTPUT_SLOTS; i++) {
-            addSlot(new OutputSlot(machineHandler, i, OUTPUT_X + (i % 2) * 18,
-                    OUTPUT_Y + (i / 2) * 18, this));
+            addSlot(new OutputSlot(machineHandler, i,
+                    layout.getBioFactoryOutputStartX() + (i % layout.getBioFactoryOutputColumns()) * layout.getBioFactoryOutputSpacing(),
+                    layout.getBioFactoryOutputStartY() + (i / layout.getBioFactoryOutputColumns()) * layout.getBioFactoryOutputSpacing(), this));
         }
     }
 

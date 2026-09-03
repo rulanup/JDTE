@@ -327,5 +327,47 @@
     "output_page_button_size": 12,
     "output_page_text_x": 133,
     "output_page_text_y": 55
+  },
+  "bio_factory_layout": {
+    "comment": "生物工厂相对 JDT 基础机器界面增加的尺寸。",
+    "extra_width": 60,
+    "extra_height": 0
+  },
+  "bio_factory_slots": {
+    "comment": "生物工厂样本槽、材料输入槽和当前页输出槽坐标，均相对于 getGuiLeft()/getGuiTop()。顶行 -21 与其他机器网格对齐；输入槽从样本行下方开始（input_start_y + (input+1)*input_spacing）。",
+    "specimen_x": 15,
+    "specimen_y": -21,
+    "input_start_x": 15,
+    "input_start_y": -21,
+    "input_spacing": 18,
+    "input_count": 3,
+    "output_start_x": 79,
+    "output_start_y": -21,
+    "output_spacing": 18,
+    "output_columns": 2,
+    "output_rows": 4
+  },
+  "bio_factory_fluids": {
+    "comment": "生物工厂四个流体槽（生命/时间/培养/产物）X 坐标与统一的 Y 坐标。",
+    "life_fluid_x": 159,
+    "time_fluid_x": 179,
+    "process_fluid_x": -5,
+    "product_fluid_x": 119,
+    "fluid_y": -21
+  },
+  "bio_factory_widgets": {
+    "comment": "生物工厂进度箭头、速度按钮、红石按钮和输出翻页组件坐标。",
+    "progress_arrow_x": 42,
+    "progress_arrow_y": 7,
+    "multiplier_button_x": 42,
+    "multiplier_button_y": 38,
+    "redstone_button_x": 139,
+    "redstone_button_y": 37,
+    "output_prev_x": 75,
+    "output_prev_y": 53,
+    "output_next_x": 105,
+    "output_next_y": 53,
+    "output_page_text_x": 89,
+    "output_page_text_y": 55
   }
 }

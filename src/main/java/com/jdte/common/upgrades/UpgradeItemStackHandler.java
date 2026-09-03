@@ -5,6 +5,8 @@ import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.AEOutputManager;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,6 +14,9 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
     public static final int SLOT_COUNT = 4;
     public static final int BASE_CLICKER_FLUID_CAPACITY = 8000;
     private final BaseMachineBE machine;
+    private int contentVersion;
+    private int countedVersion = -1;
+    private final int[] typeCounts = new int[UpgradeType.values().length];
 
     public UpgradeItemStackHandler(BaseMachineBE machine) {
         this(machine, SLOT_COUNT);
@@ -20,6 +25,32 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
     protected UpgradeItemStackHandler(BaseMachineBE machine, int slotCount) {
         super(slotCount);
         this.machine = machine;
+    }
+
+    /**
+     * Monotonic counter bumped whenever slot contents may have changed; lets callers
+     * memoize derived values (counts, capacities, costs) without re-scanning slots.
+     */
+    public int getContentVersion() {
+        return contentVersion;
+    }
+
+    /**
+     * Raw per-type upgrade card count, cached until the next content change.
+     * Matches {@link UpgradeHelper#isUpgrade(ItemStack, UpgradeType)} semantics.
+     */
+    public int getCachedUpgradeCount(UpgradeType type) {
+        if (countedVersion != contentVersion) {
+            java.util.Arrays.fill(typeCounts, 0);
+            for (int slot = 0; slot < getSlots(); slot++) {
+                ItemStack stack = getStackInSlot(slot);
+                if (stack.getItem() instanceof UpgradeCardItem upgradeCard) {
+                    typeCounts[upgradeCard.getType().ordinal()]++;
+                }
+            }
+            countedVersion = contentVersion;
+        }
+        return typeCounts[type.ordinal()];
     }
 
     @Override
@@ -74,6 +105,7 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
 
     @Override
     protected void onContentsChanged(int slot) {
+        contentVersion++;
         if (machine != null) {
             UpgradeHelper.syncCapacities(machine);
             UpgradeHelper.trimInactiveFilterSlots(machine);
@@ -87,7 +119,14 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
 
     @Override
     protected void onLoad() {
+        contentVersion++;
         if (machine != null) AEOutputManager.refresh(machine);
+    }
+
+    @Override
+    public void deserializeNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
+        super.deserializeNBT(provider, tag);
+        contentVersion++;
     }
 
     private int countSmelter(int ignoredSlot) {

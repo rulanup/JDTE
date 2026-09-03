@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AdvancedMachineSettingsCopierDataTest {
@@ -124,5 +125,21 @@ class AdvancedMachineSettingsCopierDataTest {
         assertEquals(Optional.of(upgrades), AdvancedMachineSettingsCopierData.readUpgrades(copiedData));
         AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
         assertEquals(Optional.empty(), AdvancedMachineSettingsCopierData.readUpgrades(copiedData));
+    }
+
+    @Test
+    void clearsVersionedMachineSettingsWithoutTouchingLegacyData() {
+        CompoundTag copiedData = new CompoundTag();
+        CompoundTag machineSettings = new CompoundTag();
+        machineSettings.putInt("schemaVersion", 1);
+        copiedData.put(AdvancedMachineSettingsCopierData.MACHINE_SETTINGS_KEY, machineSettings);
+        AdvancedMachineSettingsCopierData.write(copiedData, MACHINE_TYPE, 0b11_1111, 0b10_1010);
+
+        AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+
+        assertFalse(copiedData.contains(AdvancedMachineSettingsCopierData.MACHINE_SETTINGS_KEY));
+        assertEquals(Optional.of(MACHINE_TYPE), AdvancedMachineSettingsCopierData.readMachineType(copiedData));
+        assertEquals(Optional.of(new AdvancedMachineSettingsCopierData.Masks(0b11_1111, 0b10_1010)),
+                AdvancedMachineSettingsCopierData.readMasks(copiedData));
     }
 }

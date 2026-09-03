@@ -395,4 +395,37 @@ public class GuiUpgradeLayoutConfig {
     public int getGreenhouseOutputPageTextX() { return get("greenhouse_widgets", "output_page_text_x", 133); }
     public int getGreenhouseOutputPageTextY() { return get("greenhouse_widgets", "output_page_text_y", 53); }
 
+    // --- Bio factory layout getters ---
+
+    public int getBioFactoryExtraWidth() { return get("bio_factory_layout", "extra_width", 60); }
+    public int getBioFactoryExtraHeight() { return get("bio_factory_layout", "extra_height", 0); }
+    public int getBioFactorySpecimenX() { return get("bio_factory_slots", "specimen_x", 15); }
+    public int getBioFactorySpecimenY() { return get("bio_factory_slots", "specimen_y", -21); }
+    public int getBioFactoryInputStartX() { return get("bio_factory_slots", "input_start_x", 15); }
+    public int getBioFactoryInputStartY() { return get("bio_factory_slots", "input_start_y", -21); }
+    public int getBioFactoryInputSpacing() { return get("bio_factory_slots", "input_spacing", 18); }
+    public int getBioFactoryInputCount() { return get("bio_factory_slots", "input_count", 3); }
+    public int getBioFactoryOutputStartX() { return get("bio_factory_slots", "output_start_x", 79); }
+    public int getBioFactoryOutputStartY() { return get("bio_factory_slots", "output_start_y", -21); }
+    public int getBioFactoryOutputSpacing() { return get("bio_factory_slots", "output_spacing", 18); }
+    public int getBioFactoryOutputColumns() { return get("bio_factory_slots", "output_columns", 2); }
+    public int getBioFactoryOutputRows() { return get("bio_factory_slots", "output_rows", 4); }
+    public int getBioFactoryLifeFluidX() { return get("bio_factory_fluids", "life_fluid_x", 159); }
+    public int getBioFactoryTimeFluidX() { return get("bio_factory_fluids", "time_fluid_x", 179); }
+    public int getBioFactoryProcessFluidX() { return get("bio_factory_fluids", "process_fluid_x", -5); }
+    public int getBioFactoryProductFluidX() { return get("bio_factory_fluids", "product_fluid_x", 119); }
+    public int getBioFactoryFluidY() { return get("bio_factory_fluids", "fluid_y", -21); }
+    public int getBioFactoryProgressArrowX() { return get("bio_factory_widgets", "progress_arrow_x", 42); }
+    public int getBioFactoryProgressArrowY() { return get("bio_factory_widgets", "progress_arrow_y", 7); }
+    public int getBioFactoryMultiplierButtonX() { return get("bio_factory_widgets", "multiplier_button_x", 42); }
+    public int getBioFactoryMultiplierButtonY() { return get("bio_factory_widgets", "multiplier_button_y", 38); }
+    public int getBioFactoryRedstoneButtonX() { return get("bio_factory_widgets", "redstone_button_x", 139); }
+    public int getBioFactoryRedstoneButtonY() { return get("bio_factory_widgets", "redstone_button_y", 37); }
+    public int getBioFactoryOutputPrevX() { return get("bio_factory_widgets", "output_prev_x", 75); }
+    public int getBioFactoryOutputPrevY() { return get("bio_factory_widgets", "output_prev_y", 53); }
+    public int getBioFactoryOutputNextX() { return get("bio_factory_widgets", "output_next_x", 105); }
+    public int getBioFactoryOutputNextY() { return get("bio_factory_widgets", "output_next_y", 53); }
+    public int getBioFactoryOutputPageTextX() { return get("bio_factory_widgets", "output_page_text_x", 89); }
+    public int getBioFactoryOutputPageTextY() { return get("bio_factory_widgets", "output_page_text_y", 55); }
+
 }
