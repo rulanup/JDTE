@@ -36,6 +36,8 @@ dependencies {
     compileOnly "mekanism:Mekanism:${mekanism_version}:generators"
     compileOnly "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    // Inventory Profiles Next integration annotations (compile-only; IPN remains optional)
+    compileOnly "maven.modrinth:inventory-profiles-next:${inventory_profiles_next_version}"
     testRuntimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
     compileOnly "curse.maven:apothic-spawners-986583:7492121"
     compileOnly "curse.maven:brandons-core-231382:${brandons_core_file}"

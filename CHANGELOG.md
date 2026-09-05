@@ -2,7 +2,13 @@
 
 ### English
 
-#### v0.6.0-pre4 (Current)
+#### v0.6.0-pre5 (Current)
+- **Changed — Ultimate Time Wand tooltip**: The Ultimate Time Wand now matches Just Dyna Things' Advanced Time Wand tooltip with its description, mode indicator, standard FE line, and standard Time Fluid line. The active mode is highlighted in green while inactive modes remain gray.
+- **Changed — Potion Brewer JEI**: JEI now expands public brewing-recipe ingredients directly and limits probing to potion-container inputs, avoiding unbounded item Cartesian scans while retaining supported custom brewing outputs.
+- **Compatibility — Inventory Profiles Next**: Mineral Extractor containers now declare their dynamic filter slots to Inventory Profiles Next so external inventory sorting does not rearrange or manage those slots.
+- **Validation**: Added regression coverage for the Advanced Time Wand-compatible tooltip layout, resource ordering, mode components, and language/source contracts.
+
+#### v0.6.0-pre4
 - **Changed — complete machine configuration copying**: The Advanced Machine Settings Copier now saves a versioned, exact-block-entity snapshot and transfers every supported user-adjustable setting between matching machine types. It continues to honor its area, offset, filter, and redstone toggles while always copying tick speed, internal direction, six-side auto-I/O masks, and machine upgrades.
 - **Changed — JDT machine settings**: Clicker, Dropper, Block Breaker, Block Swapper, Sensor (including block-state filter properties), Item Collector, Experience Holder, Energy Transmitter, Inventory Holder, Player Accessor, and Paradox Machine settings now copy with the machine. Inventories, stored experience, saved world snapshots, and Block Swapper partner coordinates remain local to the target machine.
 - **Changed — JDTE machine settings**: Copier support now includes adjustable multipliers, modes, switches, filters, recipe locks, and player bindings across Time Accelerators, Crystal Incubator, Greenhouses, Bio Factory, Life Breeder, Life Extractor, Mineral Extractors, Life Synthesis Vat, Bio Crusher, Entity Suppressor, Range Blocker, Time Freezers, Gel Generators, Advanced Potion Brewer, Advanced Energy Transmitter, and Extended Experience Holder.

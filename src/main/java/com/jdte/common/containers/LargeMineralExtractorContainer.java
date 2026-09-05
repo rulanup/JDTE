@@ -7,7 +7,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import org.anti_ad.mc.ipn.api.IPNSlotsIgnoreForInventoryTypes;
 
+@IPNSlotsIgnoreForInventoryTypes("com.jdte.common.containers.DynamicFilterSlot")
 public final class LargeMineralExtractorContainer extends MineralExtractorContainer {
     public LargeMineralExtractorContainer(int id, Inventory inventory, FriendlyByteBuf data) {
         this(id, inventory, data.readBlockPos());

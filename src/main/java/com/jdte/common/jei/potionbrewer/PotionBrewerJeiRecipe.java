@@ -14,7 +14,6 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.brewing.BrewingRecipe;
 import net.neoforged.neoforge.common.brewing.IBrewingRecipe;
@@ -118,29 +117,64 @@ public record PotionBrewerJeiRecipe(
     }
 
     private static List<Transition> getTransitions(PotionBrewing brewing) {
-        List<ItemStack> inputs = getCandidateInputs(brewing);
-        List<ItemStack> ingredients = getCandidateIngredients(brewing);
         Map<String, TransitionBuilder> transitions = new LinkedHashMap<>();
+        List<ItemStack> sortedItems = sortedItems().stream()
+                .map(item -> single(new ItemStack(item)))
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        List<ItemStack> potionInputs = getPotionContainerInputs(brewing);
+        List<ItemStack> ingredients = getPotionMixIngredients(brewing, sortedItems);
 
-        for (ItemStack input : inputs) {
-            for (ItemStack ingredient : ingredients) {
-                if (!brewing.hasMix(input, ingredient)) {
-                    continue;
+        // Public BrewingRecipe instances expose their ingredients directly. Expanding these
+        // recipes avoids probing every item against every other item in large modpacks.
+        for (IBrewingRecipe recipe : brewing.getRecipes()) {
+            if (!(recipe instanceof BrewingRecipe simpleRecipe)) {
+                continue;
+            }
+            for (ItemStack input : simpleRecipe.getInput().getItems()) {
+                for (ItemStack ingredient : simpleRecipe.getIngredient().getItems()) {
+                    addTransition(transitions, input, ingredient, simpleRecipe.getOutput());
                 }
-                ItemStack output = single(brewing.mix(ingredient, input.copy()));
-                if (output.isEmpty() || ItemStack.isSameItemSameComponents(input, output)) {
-                    continue;
-                }
-
-                String key = stackKey(input) + ">" + stackKey(output);
-                transitions.computeIfAbsent(key, ignored -> new TransitionBuilder(input, output))
-                        .addIngredient(ingredient);
             }
         }
+
+        // Vanilla PotionBrewing mixes are not exposed by the public API. Their inputs are
+        // limited to potion containers, so only probe that small set. Opaque custom recipes
+        // cannot expose their ingredient sets through the public API and are intentionally
+        // omitted from JEI rather than reintroducing an unbounded item Cartesian product.
+        addProbedTransitions(transitions, potionInputs, ingredients, brewing);
 
         return transitions.values().stream()
                 .map(TransitionBuilder::build)
                 .toList();
+    }
+
+    private static void addProbedTransitions(Map<String, TransitionBuilder> transitions,
+                                             List<ItemStack> inputs,
+                                             List<ItemStack> ingredients,
+                                             PotionBrewing brewing) {
+        for (ItemStack input : inputs) {
+            for (ItemStack ingredient : ingredients) {
+                // hasMix takes the input first; mix uses the reverse order.
+                if (!brewing.hasMix(input, ingredient)) {
+                    continue;
+                }
+                addTransition(transitions, input, ingredient, brewing.mix(ingredient, input.copy()));
+            }
+        }
+    }
+
+    private static void addTransition(Map<String, TransitionBuilder> transitions,
+                                      ItemStack input, ItemStack ingredient, ItemStack output) {
+        ItemStack normalizedInput = single(input);
+        ItemStack normalizedOutput = single(output);
+        if (normalizedInput.isEmpty() || normalizedOutput.isEmpty()
+                || ItemStack.isSameItemSameComponents(normalizedInput, normalizedOutput)) {
+            return;
+        }
+        String key = stackKey(normalizedInput) + ">" + stackKey(normalizedOutput);
+        transitions.computeIfAbsent(key, ignored -> new TransitionBuilder(normalizedInput, normalizedOutput))
+                .addIngredient(ingredient);
     }
 
     private static Map<String, List<Transition>> getTransitionsByInput(List<Transition> transitions) {
@@ -152,29 +186,6 @@ public record PotionBrewerJeiRecipe(
         return byInput;
     }
 
-    private static List<ItemStack> getCandidateInputs(PotionBrewing brewing) {
-        Map<String, ItemStack> inputs = new LinkedHashMap<>();
-
-        addPotionContainerInputs(inputs, brewing, Items.POTION);
-        addPotionContainerInputs(inputs, brewing, Items.SPLASH_POTION);
-        addPotionContainerInputs(inputs, brewing, Items.LINGERING_POTION);
-
-        for (Item item : sortedItems()) {
-            ItemStack stack = single(new ItemStack(item));
-            if (!stack.isEmpty() && brewing.isInput(stack)) {
-                addStack(inputs, stack);
-            }
-        }
-
-        for (IBrewingRecipe recipe : brewing.getRecipes()) {
-            if (recipe instanceof BrewingRecipe simpleRecipe) {
-                addIngredientStacks(inputs, simpleRecipe.getInput());
-            }
-        }
-
-        return List.copyOf(inputs.values());
-    }
-
     private static void addPotionContainerInputs(Map<String, ItemStack> inputs, PotionBrewing brewing, Item containerItem) {
         for (Holder<Potion> potion : sortedPotions()) {
             ItemStack stack = single(PotionContents.createItemStack(containerItem, potion));
@@ -184,32 +195,22 @@ public record PotionBrewerJeiRecipe(
         }
     }
 
-    private static List<ItemStack> getCandidateIngredients(PotionBrewing brewing) {
+    private static List<ItemStack> getPotionMixIngredients(PotionBrewing brewing, List<ItemStack> sortedItems) {
         Map<String, ItemStack> ingredients = new LinkedHashMap<>();
-
-        for (Item item : sortedItems()) {
-            ItemStack stack = single(new ItemStack(item));
-            if (!stack.isEmpty() && brewing.isIngredient(stack)) {
+        for (ItemStack stack : sortedItems) {
+            if (brewing.isPotionIngredient(stack) || brewing.isContainerIngredient(stack)) {
                 addStack(ingredients, stack);
             }
         }
-
-        for (IBrewingRecipe recipe : brewing.getRecipes()) {
-            if (recipe instanceof BrewingRecipe simpleRecipe) {
-                addIngredientStacks(ingredients, simpleRecipe.getIngredient());
-            }
-        }
-
         return List.copyOf(ingredients.values());
     }
 
-    private static void addIngredientStacks(Map<String, ItemStack> stacks, Ingredient ingredient) {
-        for (ItemStack stack : ingredient.getItems()) {
-            ItemStack singleStack = single(stack);
-            if (!singleStack.isEmpty()) {
-                addStack(stacks, singleStack);
-            }
-        }
+    private static List<ItemStack> getPotionContainerInputs(PotionBrewing brewing) {
+        Map<String, ItemStack> inputs = new LinkedHashMap<>();
+        addPotionContainerInputs(inputs, brewing, Items.POTION);
+        addPotionContainerInputs(inputs, brewing, Items.SPLASH_POTION);
+        addPotionContainerInputs(inputs, brewing, Items.LINGERING_POTION);
+        return List.copyOf(inputs.values());
     }
 
     private static List<Item> sortedItems() {

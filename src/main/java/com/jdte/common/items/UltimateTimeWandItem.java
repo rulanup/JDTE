@@ -12,6 +12,7 @@ import com.jdte.setup.JDTEDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -192,20 +193,40 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
                                 List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
+        tooltip.add(Component.translatable("justdynathings.advanced_time_wand"));
+        if (stack.has(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get())) {
+            tooltip.add(modeTooltipComponent(getMode(stack)));
+        }
         tooltip.addAll(resourceTooltipComponents(Math.max(0, FluidContainingItem.getAvailableFluid(stack)),
                 configuredFluidCapacity(), Math.max(0, PoweredItem.getAvailableEnergy(stack)),
                 configuredEnergyCapacity()));
     }
 
+    private static Component modeTooltipComponent(UltimateTimeWandData.Mode currentMode) {
+        UltimateTimeWandData.Mode activeMode = currentMode == null
+                ? UltimateTimeWandData.Mode.NORMAL : currentMode;
+        MutableComponent line = Component.literal("[").withStyle(ChatFormatting.GRAY);
+        UltimateTimeWandData.Mode[] modes = UltimateTimeWandData.Mode.values();
+        for (int index = 0; index < modes.length; index++) {
+            if (index > 0) {
+                line.append(Component.literal(" | ").withStyle(ChatFormatting.GRAY));
+            }
+            UltimateTimeWandData.Mode mode = modes[index];
+            line.append(Component.translatable("justdynathings.advanced_time_wand.mode." + mode.serializedName())
+                    .withStyle(mode == activeMode ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+        }
+        return line.append(Component.literal(" ]").withStyle(ChatFormatting.GRAY));
+    }
+
     public static List<Component> resourceTooltipComponents(int currentFluid, int maxFluid,
                                                            int currentEnergy, int maxEnergy) {
         return List.of(
-                Component.translatable("tooltip.jdte.ultimate_time_wand.fluid",
-                        MagicHelpers.formatted(currentFluid), MagicHelpers.formatted(maxFluid))
-                        .withStyle(ChatFormatting.AQUA),
-                Component.translatable("tooltip.jdte.ultimate_time_wand.energy",
+                Component.translatable("justdirethings.festored",
                         MagicHelpers.formatted(currentEnergy), MagicHelpers.formatted(maxEnergy))
-                        .withStyle(ChatFormatting.YELLOW));
+                        .withStyle(ChatFormatting.GREEN),
+                Component.translatable("justdirethings.timefluidamt",
+                        MagicHelpers.formatted(currentFluid), MagicHelpers.formatted(maxFluid))
+                        .withStyle(ChatFormatting.GREEN));
     }
 
     InteractionAction useInteractionTarget(boolean shiftDown) {

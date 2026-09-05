@@ -22,7 +22,9 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import org.anti_ad.mc.ipn.api.IPNSlotsIgnoreForInventoryTypes;
 
+@IPNSlotsIgnoreForInventoryTypes("com.jdte.common.containers.DynamicFilterSlot")
 public class MineralExtractorContainer extends BaseMachineContainer implements FilterPageHolder {
     protected static final int OUTPUT_COLUMNS = 4;
     protected static final int OUTPUT_ROWS = 4;

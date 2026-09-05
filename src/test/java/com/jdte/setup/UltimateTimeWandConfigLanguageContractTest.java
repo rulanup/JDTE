@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.jdte.common.items.UltimateTimeWandData;
 import com.jdte.common.items.UltimateTimeWandItem;
 import com.jdte.setup.JDTEItems;
 import com.direwolf20.justdirethings.setup.Registration;
@@ -109,7 +110,7 @@ class UltimateTimeWandConfigLanguageContractTest {
 
         String source = Files.readString(sourcePath("src/main/java/com/jdte/common/items/UltimateTimeWandItem.java"));
         assertContainsNoDynaReferences(recipeSource);
-        assertContainsNoDynaReferences(source);
+        assertUsesAdvancedTimeWandLanguageKeys(source);
     }
 
     @Test
@@ -121,9 +122,10 @@ class UltimateTimeWandConfigLanguageContractTest {
     }
 
     @Test
-    void tooltipMustShowCurrentFluidAndEnergyResourceValuesInOrder() {
+    void tooltipMustMatchAdvancedTimeWandResourceOrder() {
         UltimateTimeWandItem wand = JDTEItems.ULTIMATE_TIME_WAND.get();
         ItemStack stack = new ItemStack(wand);
+        stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get(), UltimateTimeWandData.Mode.NORMAL.serializedName());
         IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
         assertTrue(fluid != null, "Ultimate Time Wand should expose a fluid capability");
         assertEquals(1_234, fluid.fill(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 1_234),
@@ -134,19 +136,21 @@ class UltimateTimeWandConfigLanguageContractTest {
 
         List<Component> tooltip = new ArrayList<>();
         wand.appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
-        assertEquals(2, tooltip.size());
+        assertEquals(4, tooltip.size());
         String currentFluid = MagicHelpers.formatted(1_234);
         String maximumFluid = MagicHelpers.formatted(wand.getMaxMB());
         String currentEnergy = MagicHelpers.formatted(2_222);
         String maximumEnergy = MagicHelpers.formatted(wand.getMaxEnergy());
-        TranslatableContents fluidLine = (TranslatableContents) tooltip.get(0).getContents();
-        TranslatableContents energyLine = (TranslatableContents) tooltip.get(1).getContents();
-        assertEquals("tooltip.jdte.ultimate_time_wand.fluid", fluidLine.getKey());
-        assertEquals("tooltip.jdte.ultimate_time_wand.energy", energyLine.getKey());
-        assertEquals(currentFluid, fluidLine.getArgs()[0]);
-        assertEquals(maximumFluid, fluidLine.getArgs()[1]);
+        assertEquals("justdynathings.advanced_time_wand",
+                ((TranslatableContents) tooltip.get(0).getContents()).getKey());
+        TranslatableContents energyLine = (TranslatableContents) tooltip.get(2).getContents();
+        TranslatableContents fluidLine = (TranslatableContents) tooltip.get(3).getContents();
+        assertEquals("justdirethings.festored", energyLine.getKey());
+        assertEquals("justdirethings.timefluidamt", fluidLine.getKey());
         assertEquals(currentEnergy, energyLine.getArgs()[0]);
         assertEquals(maximumEnergy, energyLine.getArgs()[1]);
+        assertEquals(currentFluid, fluidLine.getArgs()[0]);
+        assertEquals(maximumFluid, fluidLine.getArgs()[1]);
     }
 
     private static void assertContainsNoDynaReferences(String source) {
@@ -154,6 +158,15 @@ class UltimateTimeWandConfigLanguageContractTest {
         assertFalse(normalized.contains("dyna"), "Dyna references are forbidden");
         assertFalse(normalized.contains("justdynthings"), "Just Dyna Things references are forbidden");
         assertFalse(normalized.contains("justdynathings"), "Just Dynathings references are forbidden");
+    }
+
+    private static void assertUsesAdvancedTimeWandLanguageKeys(String source) {
+        assertTrue(source.contains("justdynathings.advanced_time_wand"),
+                "Tooltip must use Just Dyna Things' Advanced Time Wand description and mode keys");
+        assertTrue(source.contains("justdirethings.festored"),
+                "Tooltip must use JDT's standard FE key");
+        assertTrue(source.contains("justdirethings.timefluidamt"),
+                "Tooltip must use JDT's standard Time Fluid key");
     }
 
     private static void assertGuideContract(String relativeGuidePath) throws IOException {

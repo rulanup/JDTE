@@ -2,6 +2,7 @@ package com.jdte.common.items;
 
 import com.jdte.common.entities.UltimateTimeWandEntity.WandState;
 import com.jdte.setup.JDTEConfig;
+import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
 import com.direwolf20.justdirethings.common.items.interfaces.FluidContainingItem;
 import com.direwolf20.justdirethings.common.items.interfaces.PoweredItem;
@@ -138,28 +139,36 @@ class UltimateTimeWandItemTest {
     }
 
     @Test
-    void appendHoverTextShowsCurrentAndMaximumResourcesInOrder() {
+    void appendHoverTextMatchesAdvancedTimeWandLayout() {
         UltimateTimeWandItem wand = JDTEItems.ULTIMATE_TIME_WAND.get();
         ItemStack stack = new ItemStack(wand);
+        stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get(), UltimateTimeWandData.Mode.NORMAL.serializedName());
         fillFluid(stack, 1_234);
         fillEnergy(stack, 2_222);
 
         List<Component> tooltip = new ArrayList<>();
         wand.appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
 
-        assertEquals(2, tooltip.size());
+        assertEquals(4, tooltip.size());
         String currentFluid = MagicHelpers.formatted(1_234);
         String maximumFluid = MagicHelpers.formatted(wand.getMaxMB());
         String currentEnergy = MagicHelpers.formatted(2_222);
         String maximumEnergy = MagicHelpers.formatted(wand.getMaxEnergy());
-        TranslatableContents fluidLine = (TranslatableContents) tooltip.get(0).getContents();
-        TranslatableContents energyLine = (TranslatableContents) tooltip.get(1).getContents();
-        assertEquals("tooltip.jdte.ultimate_time_wand.fluid", fluidLine.getKey());
-        assertEquals("tooltip.jdte.ultimate_time_wand.energy", energyLine.getKey());
-        assertEquals(currentFluid, fluidLine.getArgs()[0]);
-        assertEquals(maximumFluid, fluidLine.getArgs()[1]);
+        assertEquals("justdynathings.advanced_time_wand", ((TranslatableContents) tooltip.get(0).getContents()).getKey());
+        List<Component> modeParts = tooltip.get(1).getSiblings();
+        assertEquals(8, modeParts.size());
+        assertEquals("justdynathings.advanced_time_wand.mode.normal",
+                ((TranslatableContents) modeParts.get(0).getContents()).getKey());
+        assertEquals("justdynathings.advanced_time_wand.mode.max",
+                ((TranslatableContents) modeParts.get(6).getContents()).getKey());
+        TranslatableContents energyLine = (TranslatableContents) tooltip.get(2).getContents();
+        TranslatableContents fluidLine = (TranslatableContents) tooltip.get(3).getContents();
+        assertEquals("justdirethings.festored", energyLine.getKey());
+        assertEquals("justdirethings.timefluidamt", fluidLine.getKey());
         assertEquals(currentEnergy, energyLine.getArgs()[0]);
         assertEquals(maximumEnergy, energyLine.getArgs()[1]);
+        assertEquals(currentFluid, fluidLine.getArgs()[0]);
+        assertEquals(maximumFluid, fluidLine.getArgs()[1]);
     }
 
     private static void fillFluid(ItemStack stack, int amount) {
