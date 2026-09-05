@@ -88,6 +88,8 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     private long activeOutputSlotsTick = Long.MIN_VALUE;
     private int cachedActiveOutputSlots = BASE_OUTPUT_SLOTS;
     private boolean costCacheFresh;
+    private boolean inputCacheDirty = true;
+    private final boolean[] cachedValidInputs = new boolean[INPUT_SLOTS];
     private int costCacheTickSpeed = -1;
     private int costCacheUpgradeVersion = -1;
     private final ItemStack[] costCacheInputs = new ItemStack[INPUT_SLOTS];
@@ -116,7 +118,11 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             @Override public boolean isItemValid(int slot, ItemStack stack) {
                 return slot < INPUT_SLOTS ? isSupportedLootTemplate(stack) : slot < MACHINE_SLOTS;
             }
-            @Override protected void onContentsChanged(int slot) { setChanged(); }
+            @Override protected void onContentsChanged(int slot) {
+                inputCacheDirty = true;
+                costCacheFresh = false;
+                setChanged();
+            }
         };
         upgradeHandler = new LootFabricatorUpgradeItemStackHandler(this);
         fluidHandler = new IFluidHandler() {
@@ -205,19 +211,12 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
      * below runs against these cached values instead of re-scanning upgrades.
      */
     private void refreshCostCache() {
-        if (costCacheFresh && costCacheTickSpeed == tickSpeed
+        if (costCacheFresh && !inputCacheDirty && costCacheTickSpeed == tickSpeed
                 && costCacheUpgradeVersion == upgradeHandler.getContentVersion()) {
-            for (int slot = 0; slot < INPUT_SLOTS; slot++) {
-                ItemStack stack = itemHandler.getStackInSlot(slot);
-                if (stack.getCount() != costCacheInputs[slot].getCount()
-                        || !ItemStack.isSameItemSameComponents(stack, costCacheInputs[slot])) {
-                    costCacheFresh = false;
-                    break;
-                }
-            }
-            if (costCacheFresh) return;
+            return;
         }
         costCacheFresh = true;
+        inputCacheDirty = false;
         costCacheTickSpeed = tickSpeed;
         costCacheUpgradeVersion = upgradeHandler.getContentVersion();
         cachedEnergyCost = getEffectiveEnergyCost();
@@ -225,6 +224,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         for (int slot = 0; slot < INPUT_SLOTS; slot++) {
             ItemStack stack = itemHandler.getStackInSlot(slot);
             costCacheInputs[slot] = stack.copy();
+            cachedValidInputs[slot] = isSupportedLootTemplate(stack);
             cachedLifeFluidCosts[slot] = stack.isEmpty() ? 0 : getEffectiveLifeFluidCost(stack);
             cachedTimeFluidCostUnits[slot] = stack.isEmpty() ? 0 : getEffectiveTimeFluidCostUnits(stack);
         }
@@ -239,7 +239,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         int lastOccupiedSlot = -1;
         for (int i = 0; i < INPUT_SLOTS; i++) {
             int slot = (nextInputSlot + i) % INPUT_SLOTS;
-            if (!isSupportedLootTemplate(itemHandler.getStackInSlot(slot))) continue;
+            if (!cachedValidInputs[slot]) continue;
             lastOccupiedSlot = slot;
             processCount++;
             lifeFluidCost = safeAddCost(lifeFluidCost, cachedLifeFluidCosts[slot]);
@@ -266,8 +266,8 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         int successfulTimeFluidCostUnits = 0;
         for (int i = 0; i < INPUT_SLOTS; i++) {
             int inputSlot = (nextInputSlot + i) % INPUT_SLOTS;
-            ItemStack spawnEgg = itemHandler.getStackInSlot(inputSlot);
-            if (!isSupportedLootTemplate(spawnEgg)) continue;
+            if (!cachedValidInputs[inputSlot]) continue;
+            ItemStack spawnEgg = costCacheInputs[inputSlot];
             List<ItemStack> drops = rollLoot(serverLevel, spawnEgg).stream()
                     .filter(drop -> !drop.isEmpty())
                     .toList();
@@ -504,5 +504,6 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         tickSpeed = clampRawTickSpeed(tickSpeed);
         syncFluidCapacities();
         costCacheFresh = false;
+        inputCacheDirty = true;
     }
 }

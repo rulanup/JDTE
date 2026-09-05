@@ -72,7 +72,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private final JDTEFluidTank lifeFluidTank = createTank(stack -> stack.is(JDTEFluids.LIFE_FLUID_SOURCE.get()), false);
     private final JDTEFluidTank timeFluidTank = createTank(stack -> stack.getFluid() instanceof TimeFluid, false);
     private final JDTEFluidTank processFluidTank = createTank(stack -> !stack.is(JDTEFluids.LIFE_FLUID_SOURCE.get())
-            && !(stack.getFluid() instanceof TimeFluid), false);
+            && !(stack.getFluid() instanceof TimeFluid), true);
     private final JDTEFluidTank productFluidTank = createTank(stack -> true, false);
     private final ItemStackHandler itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
         @Override public int getSlotLimit(int slot) { return slot == SPECIMEN_SLOT ? 1 : 64; }
@@ -198,6 +198,8 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private ItemStack cachedBeeFood = ItemStack.EMPTY;
     private boolean cachedBeeUsesItemFood;
     private boolean cacheResolved;
+    private long environmentCacheWindow = Long.MIN_VALUE;
+    private boolean cachedBeeCanOperate = true;
     private long activeOutputSlotsTick = Long.MIN_VALUE;
     private int cachedActiveOutputSlots = BASE_OUTPUT_SLOTS;
 
@@ -217,7 +219,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         }
         if (level != null && level.getGameTime() % 20L == 0L) syncCapacities();
         if (!isActiveRedstone() || !canRun() || !resolveRecipe()
-                || cachedBee != null && !ProductiveBeesBioFactoryIntegration.canOperate(level, cachedBee)) {
+                || cachedBee != null && !canCachedBeeOperate()) {
             resetProgress();
             return;
         }
@@ -239,9 +241,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private boolean resolveRecipe() {
         ItemStack specimen = itemHandler.getStackInSlot(SPECIMEN_SLOT);
         Fluid fluid = processFluidTank.getFluid().getFluid();
-        if (cacheResolved && ItemStack.isSameItemSameComponents(specimen, cachedSpecimen)
-                && inputsMatchCache() && fluid == cachedProcessFluid
-                && processFluidTank.getFluidAmount() == cachedProcessFluidAmount) {
+        if (cacheResolved) {
             return cachedRecipe != null || cachedBee != null;
         }
         clearRecipeCache();
@@ -496,12 +496,12 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
             private Fluid lastSyncedFluid = Fluids.EMPTY;
             @Override protected void onContentsChanged() {
                 super.onContentsChanged();
-                if (clearsCache) {
+                Fluid current = getFluid().getFluid();
+                if (clearsCache && current != lastSyncedFluid) {
                     clearRecipeCache();
                     progress = 0;
                 }
                 setChanged();
-                Fluid current = getFluid().getFluid();
                 if (current != lastSyncedFluid) {
                     lastSyncedFluid = current;
                     clientSyncPending = true;
@@ -521,6 +521,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         cachedProcessFluidAmount = 0;
         cachedBeeFood = ItemStack.EMPTY;
         cachedBeeUsesItemFood = false;
+        environmentCacheWindow = Long.MIN_VALUE;
     }
 
     private List<ItemStack> getInputStacks() {
@@ -536,6 +537,16 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                     || input.getCount() != cachedInputs[i].getCount()) return false;
         }
         return true;
+    }
+
+    private boolean canCachedBeeOperate() {
+        if (cachedBee == null || level == null) return true;
+        long window = level.getGameTime() / 20L;
+        if (window != environmentCacheWindow) {
+            environmentCacheWindow = window;
+            cachedBeeCanOperate = ProductiveBeesBioFactoryIntegration.canOperate(level, cachedBee);
+        }
+        return cachedBeeCanOperate;
     }
 
     public static int inputStorageSlot(int logicalSlot) {
