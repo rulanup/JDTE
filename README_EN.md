@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.0-pre5`
+Current version: `0.6.0-pre6`
+
+## What's new in 0.6.0-pre6
+
+This prerelease fixes Generator Upgrade and Extended Energy Transmitter crashes, preserves machine settings on block drops without duplicating separately dropped inventories, and repairs Potion Brewer Blaze Powder automation. Loot Fabricator rolls now reuse a dedicated fake player per dimension, and its JEI previews refresh from live loot tables after LootJS edits. Botany Pots greenhouse discovery uses declared soil ingredients to avoid exhaustive item scans.
+
+The Time Multitool adds a configurable 250 ms hold delay before mining additional targets and vanilla Fortune/Silk Touch eligibility. Ultimate Portal Gun manual destinations now cost 25 mB per block, capped at 25,000 mB in the same dimension, or 500 mB across dimensions.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.0-pre6.md).
 
 [中文 README](README.md)
 
@@ -120,7 +128,7 @@ The Greenhouse, Loot Fabricator, and Bio Factory `recipeGenerationEnabled` switc
 ## Requirements
 
 - Minecraft `1.21.1`
-- NeoForge `21.1.215+`
+- NeoForge `21.1.216+` (development builds use `21.1.233`)
 - Just Dire Things `1.5.7+`
 - Java `21`
 

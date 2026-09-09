@@ -2,7 +2,23 @@
 
 ### English
 
-#### v0.6.0-pre5 (Current)
+#### v0.6.0-pre6 (Current) — 2026-09-09
+
+Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full English details, before/after examples, and upgrade guidance: [pre6 release notes](docs/releases/0.6.0-pre6.md).
+
+- **Generator Upgrade — #13**: Moved the runtime helper out of the reserved Mixin package and made its methods callable by the transformed JDT generator. Installing the card no longer triggers `IllegalClassLoadError` on the next fuel burn. Double ordinary fuel consumption and triple energy output are preserved and exercised through a real `doBurn` regression.
+- **Extended Energy Transmitter — #17/#20**: The machine's own position resolves directly to its energy storage. Removed and non-transmitter targets return no handler before reaching JDT 1.5.7's null-cache path, preventing first-tick placement crashes and stale-target failures.
+- **Machine drops — #11**: Preserve native custom data instead of deleting the whole component: experience, speed, offsets, energy, fluids, filters, Auto I/O, and unknown NBT survive restoration. Strip known inventories, dedicated upgrades, and the Factory Packer package slot only where those contents are separately dropped, preventing duplicate items.
+- **Potion Brewer automation — #12**: New machines enable fuel input by default, and slot 4 accepts all six sides plus unspecified-side access. Saved disabled settings remain effective. Disabling insertion keeps stored fuel visible; bulk powder does not spill into empty ingredient steps. An explicitly locked Strength potion step can still receive powder, and normal ingredient use remains available with fuel input disabled or an Energy Brewing Upgrade installed. Built-in Auto I/O now uses the same validation and adjacent AE2 Pattern Provider protection as external insertion.
+- **Loot Fabricator memory — #19**: Reuse `FakePlayerFactory` instances using one stable, dedicated JDTE identity per server level instead of a random new player for each roll. The temporary main-hand weapon is cleared in `finally`; NeoForge owns cache cleanup on level unload. This bounds connection creation during continuous production without borrowing the machine owner's identity.
+- **Loot Fabricator JEI — #16**: Build previews from live compiled server loot tables on login and `/reload`, including LootJS table edits, nested references, and removals. Empty tables no longer resurrect original JSON drops. Cache encoded tables only within one synchronization, handle nested count providers safely, and replace old visible JEI recipes while retaining stable IDs. Arbitrary callbacks/global loot modifiers are not fully representable in static previews; non-serializable tables can fall back to resource JSON.
+- **Botany Pots performance — #15**: Expand `BasicCrop`'s declared soil ingredients and use the public soil lookup instead of scanning every registered item for each soil/crop pair. Unmatched ordinary crops stop without an exhaustive fallback. Custom crop implementations retain compatibility lookup. This removes the reported expensive path; the older general loading report #7 still requires a complete reproduction environment.
+- **Time Multitool — #18**: Short attacks stay on the first block, with a configurable 250 ms delay before switching to additional targets. Mouse/key release, focus loss, screens, world changes, and hotbar changes reset the client gate. Configure `jdte.timeMultitool.continuousMiningHoldDelayMillis` in `config/jdte/time-accelerator-local.toml` (0-2000; 0 disables the delay). Explicit JDT area abilities remain active. Added vanilla Fortune/Silk Touch eligibility through the mining-loot item tag.
+- **Ultimate Portal Gun — #10**: Manual destinations now cost 25 mB/block, capped at 25,000 mB in the same dimension, or 500 mB across dimensions, down from 1000 mB/block, a 500,000 mB cap, and 1,000,000 mB cross-dimension. The default 1000 B tank remains. Quick-added and previous destinations use JDT pricing; previous-location shots no longer inherit a selected manual slot's cost. Portal Fluid configuration wording is corrected.
+- **Documentation**: Updated current-version metadata, both READMEs, KubeJS guides, developer references, in-game versions, extended machine coverage, and generated bilingual Patchouli pages. Historical release entries remain available.
+- **Validation**: 502 tests, zero failures/skips; document validation of 932 language keys, 61 blocks, and 40 guide pages; JAR and source-JAR builds. No end-to-end claim is made for a full reporter modpack, long-running badpackets testing, or physical client input. #14's supplied Torchmaster crash remains unconfirmed as a JDTE defect.
+
+#### v0.6.0-pre5
 - **Changed — Ultimate Time Wand tooltip**: The Ultimate Time Wand now matches Just Dyna Things' Advanced Time Wand tooltip with its description, mode indicator, standard FE line, and standard Time Fluid line. The active mode is highlighted in green while inactive modes remain gray.
 - **Changed — Potion Brewer JEI**: JEI now expands public brewing-recipe ingredients directly and limits probing to potion-container inputs, avoiding unbounded item Cartesian scans while retaining supported custom brewing outputs.
 - **Compatibility — Inventory Profiles Next**: Mineral Extractor containers now declare their dynamic filter slots to Inventory Profiles Next so external inventory sorting does not rearrange or manage those slots.
@@ -253,6 +269,21 @@
 ---
 
 ### 中文
+
+#### v0.6.0-pre6（当前）— 2026-09-09
+
+详细英文说明、兼容性和升级指南：[pre6 release notes](docs/releases/0.6.0-pre6.md)。
+
+- **修复 — 发电机升级**：辅助类移出 Mixin 专用包，避免煤炭发电器安装发电机升级后在燃烧燃料时崩溃。
+- **修复 — 机器掉落**：保留 JDT 原生的经验、速度、偏移等设置，同时避免将已单独掉出的物品与升级重复保存在方块物品中。
+- **修复 — 扩展无线传电器**：自身能量查询直接使用内部存储；已移除的目标安全返回空值。
+- **修复 — 炼药机自动化**：新机器默认开启燃料输入，索引 4 支持无方向访问；批量烈焰粉不会进入无关材料槽，锁定的力量药水材料仍可补充。内置自动输入遵守燃料开关和升级规则，旧存档的开关设置继续有效。
+- **性能 — Botany Pots**：普通作物仅遍历声明的土壤材料，保留自定义作物兼容后备逻辑，消除普通作物的全物品注册表扫描。
+- **修复 — 战利品 JEI**：数据包同步时读取当前运行时战利品表，支持 LootJS 修改条目后通过 `/reload` 刷新预览及嵌套战利品表。
+- **调整 — 顶级传送枪**：手动坐标同维度为 25 mB/格，上限 25,000 mB；跨维度为 500 mB。快捷保存与返回上一位置继续使用 JDT 计费。
+- **修复 — 战利品制造机内存增长**：通过 NeoForge 假玩家工厂复用每个维度的专用身份，避免每次生产都创建新的假玩家连接。
+- **新增 — 时间工具输入**：短按保持在首个目标，长按默认 250 毫秒后允许转向后续目标；松开绑定的鼠标或键盘按键后重置，可配置等待时间。工具加入原版时运/精准采集适用标签。
+- **文档**：补齐扩展机器指南条目，同步中英文说明和生成的 Patchouli 页面。
 
 #### v0.6.0-pre3
 - **修复**：高级机器复制器现在会复制机器内已安装的升级，并要求玩家背包中每张升级卡都有一张匹配物品。缺少任意升级时会原子拒绝粘贴，不会发生部分扣除。

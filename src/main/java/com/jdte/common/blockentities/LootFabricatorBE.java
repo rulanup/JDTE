@@ -46,9 +46,11 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.fml.ModList;
 import com.jdte.mixin.FluidTankAccessor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -71,6 +73,9 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     public static final int BOSS_COST_MULTIPLIER = 10;
     public static final int ENDER_DRAGON_COST_MULTIPLIER = 100;
     private static final String LOOTING_PLAYER_NAME = "[JDTE Loot Fabricator]";
+    private static final GameProfile LOOTING_PLAYER_PROFILE = new GameProfile(
+            UUID.nameUUIDFromBytes("jdte:loot_fabricator".getBytes(StandardCharsets.UTF_8)),
+            LOOTING_PLAYER_NAME);
 
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
@@ -302,9 +307,9 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         Entity entity = egg.getType(eggStack).create(level);
         if (!(entity instanceof LivingEntity living)) return List.of();
         living.moveTo(getBlockPos().getCenter());
-        // Loot tables read Looting from the attacking entity.  Use a throwaway player
-        // so the temporary sword cannot enter the owner-shared FakePlayer inventory.
-        FakePlayer player = new FakePlayer(level, createLootingProfile());
+        // Loot tables read Looting from the attacking entity. The factory keeps one
+        // dedicated player per level/profile and releases it when that level unloads.
+        FakePlayer player = FakePlayerFactory.get(level, createLootingProfile());
         player.setItemInHand(InteractionHand.MAIN_HAND, createLootingWeapon(level));
         try {
             var damage = level.damageSources().playerAttack(player);
@@ -329,7 +334,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     }
 
     static GameProfile createLootingProfile() {
-        return new GameProfile(UUID.randomUUID(), LOOTING_PLAYER_NAME);
+        return LOOTING_PLAYER_PROFILE;
     }
 
     @Override public boolean canRun() { return true; }

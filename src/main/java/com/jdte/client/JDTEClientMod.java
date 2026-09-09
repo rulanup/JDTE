@@ -28,12 +28,16 @@ public class JDTEClientMod {
         NeoForge.EVENT_BUS.addListener(WrenchScrollHandler::onMouseScroll);
         NeoForge.EVENT_BUS.addListener(FactoryPackageScrollHandler::onMouseScroll);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onInteraction);
+        NeoForge.EVENT_BUS.addListener(TimeMultitoolContinuousMiningClient::onInteraction);
+        NeoForge.EVENT_BUS.addListener(TimeMultitoolContinuousMiningClient::onMouseButton);
+        NeoForge.EVENT_BUS.addListener(TimeMultitoolContinuousMiningClient::onKey);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onRenderLevel);
         NeoForge.EVENT_BUS.addListener(FactoryPackagePreviewClient::onRenderLevel);
         NeoForge.EVENT_BUS.addListener(AreaPreviewRenderBatch::onRenderLevel);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onRenderGui);
         NeoForge.EVENT_BUS.addListener(FactoryPackagePreviewClient::onRenderGui);
         NeoForge.EVENT_BUS.addListener(WrenchAreaSelectionClient::onClientTick);
+        NeoForge.EVENT_BUS.addListener(TimeMultitoolContinuousMiningClient::onClientTick);
         NeoForge.EVENT_BUS.addListener(ScreenEventHandlers::onMouseDragged);
         NeoForge.EVENT_BUS.addListener(ScreenEventHandlers::onMouseReleased);
         NeoForge.EVENT_BUS.addListener(ScreenEventHandlers::onScreenOpening);

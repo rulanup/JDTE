@@ -12,6 +12,10 @@ item_ids:
   - jdte:extended_sensor
   - jdte:extended_fluid_collector
   - jdte:extended_fluid_placer
+  - jdte:extended_generator
+  - jdte:extended_fluid_generator
+  - jdte:extended_experience_holder
+  - jdte:extended_energy_transmitter
 ---
 
 # Extended Advanced Machines
@@ -67,3 +71,27 @@ They can be obtained through crafting or by using <ItemImage id="jdte:extended_u
 ## Extended Time Accelerator
 
 <RecipeFor id="jdte:extended_time_accelerator" />
+
+## Extended Coal Generator
+
+Retains JDT's solid-fuel generation behavior with eight upgrade slots. The Generator Upgrade consumes double fuel for triple energy production.
+
+<RecipeFor id="jdte:extended_generator" />
+
+## Extended Fluid Generator
+
+Retains JDT's fluid-fuel generation behavior with eight upgrade slots.
+
+<RecipeFor id="jdte:extended_fluid_generator" />
+
+## Extended Experience Holder
+
+Collects experience in its area and supplies players according to the target-level and owner settings. Supports experience-fluid interaction.
+
+<RecipeFor id="jdte:extended_experience_holder" />
+
+## Extended Energy Transmitter
+
+Retains JDT's area power distribution, redstone control, and filtering with eight upgrade slots. Its own energy storage participates in power distribution.
+
+<RecipeFor id="jdte:extended_energy_transmitter" />

@@ -11,11 +11,19 @@
     },
     {
       "type": "patchouli:text",
-      "text": "The Time Multitool is based on the Eclipse Alloy Paxel. Without changing tool forms, it performs pickaxe, shovel, axe, and hoe work and accepts compatible original JDT tool upgrades.$(br2)$(bold)Power and tool actions$()$(br2)The tool stores $(bold)500,000 FE$(). Breaking blocks and performing tool actions require enough FE for one break. With insufficient power, mining falls back to hand speed and actions such as tilling or stripping do not run.$(br2)Normal right-click chooses the appropriate action for the target, such as tilling dirt or grass and stripping logs. Sneak-right-click a block to open JDT's tool ability settings.$(br2)$(bold)Time Fluid speed$()"
+      "text": "The Time Multitool is based on the Eclipse Alloy Paxel. Without changing tool forms, it performs pickaxe, shovel, axe, and hoe work and accepts compatible original JDT tool upgrades.$(br2)$(bold)Power and tool actions$()$(br2)The tool stores $(bold)500,000 FE$(). Breaking blocks and performing tool actions require enough FE for one break. With insufficient power, mining falls back to hand speed and actions such as tilling or stripping do not run.$(br2)Normal right-click chooses the appropriate action for the target, such as tilling dirt or grass and stripping logs. Sneak-right-click a block to open JDT's tool ability settings.$(br2)$(bold)Clicks and continuous mining$()"
     },
     {
       "type": "patchouli:text",
-      "text": "The tool also stores $(bold)1000 B (1,000,000 mB) of Time Fluid$(). Sneak-right-click air to cycle through six speed modes:$(br2)$(bold)Mode | Time Fluid per successfully broken block$()$(br)1x | 0 mB$(br)2x | 2 mB$(br)4x | 4 mB$(br)16x | 16 mB$(br)256x | 256 mB$(br)1024x | 1024 mB$(br2)For multi-block abilities such as Hammer or Tree Feller, the tool checks Time Fluid for the whole target batch before it starts. Insufficient fluid makes the entire batch fall back to 1x instead of accelerating the first block for free. FE is still checked through JDT's normal tool rules, and Time Fluid is settled only for blocks that were actually removed.$(br2)$(bold)Crafting$()"
+      "text": "Short attacks stay on the initial block. Hold attack for $(bold)250 ms$() by default to continue onto additional blocks. Releasing the bound mouse button or keyboard key stops mining and resets the next click.$(br2)Adjust $(thing)jdte.timeMultitool.continuousMiningHoldDelayMillis$() in the client config $(thing)jdte/time-accelerator-local.toml$(), accessible from the main menu. Use $(thing)200$() or $(thing)300$() to tune the delay, or $(thing)0$() to allow continuous mining immediately. Explicitly enabled JDT area-mining abilities retain their normal behavior."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The tool is eligible for vanilla $(bold)Fortune$() and $(bold)Silk Touch$() enchanted books through the mining-loot tag. Their vanilla mutual exclusion still applies.$(br2)$(bold)Time Fluid speed$()$(br2)The tool also stores $(bold)1000 B (1,000,000 mB) of Time Fluid$(). Sneak-right-click air to cycle through six speed modes:$(br2)$(bold)Mode | Time Fluid per successfully broken block$()$(br)1x | 0 mB$(br)2x | 2 mB$(br)4x | 4 mB$(br)16x | 16 mB$(br)256x | 256 mB$(br)1024x | 1024 mB"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "For multi-block abilities such as Hammer or Tree Feller, the tool checks Time Fluid for the whole target batch before it starts. Insufficient fluid makes the entire batch fall back to 1x instead of accelerating the first block for free. FE is still checked through JDT's normal tool rules, and Time Fluid is settled only for blocks that were actually removed.$(br2)$(bold)Crafting$()"
     },
     {
       "type": "patchouli:crafting",

@@ -27,7 +27,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Boss spawn eggs have higher fluid costs: Wither and Elder Guardian eggs consume 10x Life Fluid and Time Fluid, while Ender Dragon eggs consume 100x Life Fluid and Time Fluid. Wither eggs fabricate the Wither's core loot, including the Nether Star.$(br2)Redstone control and automatic I/O are supported. Automation inserts only spawn eggs and matching fluids and extracts only from unlocked output slots.$(br2)$(bold)Crafting$()"
+      "text": "Boss spawn eggs have higher fluid costs: Wither and Elder Guardian eggs consume 10x Life Fluid and Time Fluid, while Ender Dragon eggs consume 100x Life Fluid and Time Fluid. Wither eggs fabricate the Wither's core loot, including the Nether Star.$(br2)Redstone control and automatic I/O are supported. Automation inserts only spawn eggs and matching fluids and extracts only from unlocked output slots.$(br2)$(bold)JEI and script reloads$()$(br2)JEI previews read the server's current loot tables. After editing loot-table entries with LootJS, $(thing)/reload$() resynchronizes the preview, including nested tables and removed entries."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Previews show entries that can be identified statically. Arbitrary callbacks or global loot modifiers that execute when loot is rolled cannot be fully represented by this preview.$(br2)$(bold)Crafting$()"
     },
     {
       "type": "patchouli:crafting",

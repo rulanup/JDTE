@@ -293,7 +293,9 @@ public final class AutoIoTransferHelper {
         if (inputEnabled && internalItems != null && routes.hasItemInputs()) {
             IItemHandler externalItems = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, neighborSide);
             if (externalItems != null) {
-                moved |= pullItems(externalItems, internalItems, routes.itemInputs(),
+                IItemHandler input = machine instanceof AdvancedPotionBrewerBE brewer
+                        ? brewer.getAutomationItemHandler(neighborSide.getOpposite()) : internalItems;
+                moved |= pullItems(externalItems, input, routes.itemInputs(),
                         JDTEConfig.COMMON.autoIoItemTransferRate.get());
             }
         }
@@ -455,7 +457,7 @@ public final class AutoIoTransferHelper {
         return new IoRoutes(itemInputs, itemOutputs, fluidInput, fluidOutput);
     }
 
-    private static boolean pullItems(IItemHandler source, ItemStackHandler target, int[] targetSlots, int limit) {
+    private static boolean pullItems(IItemHandler source, IItemHandler target, int[] targetSlots, int limit) {
         int moved = 0;
         for (int sourceSlot = 0; sourceSlot < source.getSlots() && moved < limit; sourceSlot++) {
             ItemStack simulatedExtract = source.extractItem(sourceSlot, limit - moved, true);
@@ -616,7 +618,7 @@ public final class AutoIoTransferHelper {
         }
     }
 
-    private static ItemStack insertIntoSlots(ItemStackHandler target, int[] targetSlots, ItemStack stack, boolean simulate) {
+    private static ItemStack insertIntoSlots(IItemHandler target, int[] targetSlots, ItemStack stack, boolean simulate) {
         ItemStack remainder = stack.copy();
         for (int targetSlot : targetSlots) {
             if (remainder.isEmpty()) {

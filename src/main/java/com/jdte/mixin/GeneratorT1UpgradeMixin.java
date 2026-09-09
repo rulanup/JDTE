@@ -2,6 +2,7 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
 import com.direwolf20.justdirethings.setup.Config;
+import com.jdte.common.items.GeneratorUpgradeHelper;
 import com.jdte.common.items.PortableFuelBurnSpeedHelper;
 import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.world.item.ItemStack;

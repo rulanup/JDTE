@@ -8,9 +8,9 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.0-pre5` |
+| Current version | `0.6.0-pre6` |
 | Minecraft | `1.21.1` |
-| NeoForge | `21.1.215+` |
+| NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
 | Java | `21` |
 
@@ -47,6 +47,20 @@ Major features:
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
 
+## pre6 maintenance contracts
+
+- `MachineDropDataHelper` removes only the known item-storage keys and attachments dropped separately by `onRemove`; retain native settings, experience, energy, fluids, filters, Auto I/O, and unknown machine NBT. Do not strip the entire `CUSTOM_DATA_1` component.
+- Runtime helpers called by transformed mixins belong outside `com.jdte.mixin`. `GeneratorUpgradeHelper` is public in `common/items` so the transformed JDT generator can call it.
+- `ExtendedEnergyTransmitterBE` resolves its own position directly to its energy storage and ignores removed/non-transmitter targets before entering JDT's cache path.
+- Potion Brewer external and built-in Auto I/O share fuel validation. Slot 4 accepts six-sided and unspecified-side access; saved toggle values and Energy Brewing Upgrades remain authoritative. Fuel-mode Blaze Powder only enters an ingredient slot when that step explicitly locks it.
+- Loot Fabricator uses `FakePlayerFactory` with a stable, dedicated JDTE profile per server level, never an owner's identity. Always clear the temporary main-hand weapon in `finally`.
+- Loot JEI synchronization reads the live reloadable loot registry through public codecs, with an encoding cache scoped to one synchronization. `/reload` must refresh edits and nested tables, including removals. Arbitrary runtime callbacks are not a complete static preview.
+- Botany Pots `BasicCrop` soil lookup expands declared soil ingredients; only custom crop implementations use the exhaustive fallback.
+- Time Multitool attack gating is client-only. `jdte.timeMultitool.continuousMiningHoldDelayMillis` defaults to 250 in the existing local CLIENT config, allows 0-2000, and resets on release, focus loss, screen/world changes, and hotbar changes. Existing explicitly enabled JDT area abilities remain active.
+- Manual Ultimate Portal Gun destinations cost 25 mB/block up to 25,000 mB in the same dimension, or 500 mB across dimensions. Quick-added and previous destinations keep JDT pricing.
+
+Detailed English release notes: [0.6.0-pre6](docs/releases/0.6.0-pre6.md).
+
 ## Build and Run
 
 The project uses Gradle with NeoForge ModDev. JDT is resolved through CurseMaven file `7463040`; no machine-specific local jar path is required.
@@ -68,7 +82,7 @@ The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and Produ
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| NeoForge | `21.1.215` | Mod loader and API |
+| NeoForge | `21.1.216+`; dev `21.1.233` | Mod loader and API |
 | Just Dire Things | `1.5.7` | Base machines, interfaces, config, and Time Fluid |
 | GuideME | `21.1.16` | In-game documentation |
 | JEI | `19.27.0.340` | Recipe categories, catalysts, information pages, and GUI click areas |
@@ -427,7 +441,7 @@ Recommended order:
 
 - Added the Time Freezer and Extended Time Freezer machines: they consume configurable Time Fluid per tick (default 100 mB) to freeze their dimension's day/night cycle and weather through a global freeze-target coordinator, support redstone control, 4/8 standard upgrade slots, Creative upgrade waivers, pipe and bucket fluid input, and the permission-4 `/jdte timefreezer list` server command that reports every machine with clickable teleport coordinates.
 
-### v0.5.5 (Current)
+### v0.5.5
 
 - Reworked all Time Accelerators to use a shared managed stacking scheduler with retained virtual ticks, chunk-based target discovery, fixed per-tick execution and scan budgets without MSPT pausing, and AE2 `IGridTickable` support.
 - Balanced tier limits and Time Fluid costs: Basic runs at 16x or 32x with Overclock/Creative, Advanced is adjustable to 64x or runs at 128x with Overclock/Creative, Extended remains adjustable to 512x or runs at 1024x, and Basic/Advanced/Extended use 1x/2x/5x Time Fluid cost rates.

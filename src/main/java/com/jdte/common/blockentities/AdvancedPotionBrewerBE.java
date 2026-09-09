@@ -84,7 +84,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     protected int activeIngredientOrder = -1;
     protected int processedBottleMask = 0;
     protected boolean recipeLocked = false;
-    protected boolean fuelInputEnabled = false;
+    protected boolean fuelInputEnabled = true;
     protected final NonNullList<ItemStack> lockedRecipeTemplates = NonNullList.withSize(TOTAL_SLOTS, ItemStack.EMPTY);
     protected boolean hasValidIngredients = false;
     public final ContainerData brewerData;
@@ -239,7 +239,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
             @Override
             public ItemStack getStackInSlot(int slot) {
-                if (!isValidSlotIndex(slot) || slot == FUEL_SLOT && !canAutomateFuelFrom(accessSide)) {
+                if (!isValidSlotIndex(slot)) {
                     return ItemStack.EMPTY;
                 }
                 return itemHandler.getStackInSlot(slot);
@@ -247,8 +247,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
             @Override
             public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                if (!isValidSlotIndex(slot) || isOutputSlot(slot) || !isValidForMachineSlot(slot, stack)
-                        || slot == FUEL_SLOT && !canAutomateFuelFrom(accessSide)) {
+                if (!isValidForAutomationSlot(slot, stack, accessSide)) {
                     return stack;
                 }
                 return itemHandler.insertItem(slot, stack, simulate);
@@ -269,16 +268,31 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
-                return isValidSlotIndex(slot) && !isOutputSlot(slot) && isValidForMachineSlot(slot, stack)
-                        && (slot != FUEL_SLOT || canAutomateFuelFrom(accessSide));
+                return isValidForAutomationSlot(slot, stack, accessSide);
             }
         };
     }
 
+    private boolean isValidForAutomationSlot(int slot, ItemStack stack, Direction accessSide) {
+        if (!isValidSlotIndex(slot) || isOutputSlot(slot) || !isValidForMachineSlot(slot, stack)) return false;
+        if (slot == FUEL_SLOT) return canAutomateFuelFrom(accessSide);
+        // Exporters usually try ingredient slot 3 before fuel slot 4. Reserve
+        // powder for fuel unless a locked brewing step explicitly requests it.
+        if (isIngredientSlot(slot) && stack.is(Items.BLAZE_POWDER)
+                && fuelInputEnabled && !hasEnergyBrewingUpgrade()) {
+            return recipeLocked && !getLockedRecipeTemplate(slot).isEmpty()
+                    && ItemStack.isSameItemSameComponents(getLockedRecipeTemplate(slot), stack);
+        }
+        return true;
+    }
+
     private boolean canAutomateFuelFrom(Direction accessSide) {
-        if (!fuelInputEnabled || accessSide == null) {
+        if (!fuelInputEnabled) {
             return false;
         }
+        // Unspecified-side access (for example SFM slot targeting) has no
+        // adjacent source block to inspect, but still honors the fuel toggle.
+        if (accessSide == null) return true;
         if (!JDTEConfig.COMMON.potionBrewerRejectPatternProviderFuelInput.get()
                 || level == null || !ModList.get().isLoaded("ae2")) {
             return true;
@@ -1083,7 +1097,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         recipeLocked = tag.getBoolean("recipeLocked");
         fuelInputEnabled = tag.contains("fuelInputEnabled")
                 ? tag.getBoolean("fuelInputEnabled")
-                : tag.contains("fuelInputSide") && tag.getInt("fuelInputSide") >= 0;
+                : !tag.contains("fuelInputSide") || tag.getInt("fuelInputSide") >= 0;
         clearLockedRecipeTemplates();
         if (tag.contains("recipeLockTemplates", Tag.TAG_COMPOUND)) {
             CompoundTag recipeLockTag = tag.getCompound("recipeLockTemplates");

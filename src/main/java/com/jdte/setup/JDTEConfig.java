@@ -26,6 +26,7 @@ import com.jdte.setup.config.TimeAcceleratorConfig;
 import com.jdte.setup.config.TimeAcceleratorLocalConfig;
 import com.jdte.setup.config.TimeAcceleratorServerConfig;
 import com.jdte.setup.config.TimeFreezerConfig;
+import com.jdte.setup.config.TimeMultitoolClientConfig;
 import com.jdte.setup.config.UltimatePortalGunConfig;
 import com.jdte.setup.config.UpgradeItemsConfig;
 import com.jdte.setup.config.UpgradesConfig;
@@ -606,12 +607,14 @@ public class JDTEConfig {
 
     public static class Local {
         public final TimeAcceleratorLocalConfig timeAccelerator;
+        public final TimeMultitoolClientConfig timeMultitool;
 
         public Local(ModConfigSpec.Builder builder) {
-            builder.comment("JDT Extras Local Singleplayer Defaults")
+            builder.comment("JDT Extras Local Client Settings")
                     .translation("config.jdte.jdte.local")
                     .push("jdte");
             timeAccelerator = new TimeAcceleratorLocalConfig(builder);
+            timeMultitool = new TimeMultitoolClientConfig(builder);
             builder.pop();
         }
     }

@@ -32,6 +32,12 @@ Boss spawn eggs have higher fluid costs: Wither and Elder Guardian eggs consume 
 
 Redstone control and automatic I/O are supported. Automation inserts only spawn eggs and matching fluids and extracts only from unlocked output slots.
 
+## JEI and script reloads
+
+JEI previews read the server's current loot tables. After editing loot-table entries with LootJS, `/reload` resynchronizes the preview, including nested tables and removed entries.
+
+Previews show entries that can be identified statically. Arbitrary callbacks or global loot modifiers that execute when loot is rolled cannot be fully represented by this preview.
+
 ## Crafting
 
 <RecipeFor id="jdte:loot_fabricator" />

@@ -210,11 +210,24 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)AE Output Upgrade$()$(br2)Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a machine with item or fluid product outputs to return those products directly to the linked AE network. The access point must remain loaded, online, and have a channel. If the network is unavailable or full, unaccepted products safely remain in the machine."
+      "text": "$(bold)AE Crafting Read Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ae_crafting_read_upgrade",
+      "text": ""
     },
     {
       "type": "patchouli:text",
-      "text": "Machines without a product-output use, such as Clickers, Placers, Droppers, and Senders, reject this upgrade. The limit is one per machine. A Greenhouse Matrix Controller (from the standalone JDTE-Matrix mod) can also use it to return products from every managed Greenhouse."
+      "text": "Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in a compatible machine's standard or extended upgrade slot. The machine reads active crafting tasks from the linked AE2 network and runs automatically while one is present. It pauses when unlinked, when the Wireless Access Point is unloaded or offline, while the network is booting, or when no crafting task is active; it resumes automatically after the network recovers and a task is available. Limited to one per machine. AE2 is an optional dependency, so the upgrade remains inactive when AE2 is not installed.$(br2)$(bold)AE Output Upgrade$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Place the card in the linking input of an AE2 Wireless Access Point screen and retrieve the linked card from its output. Install it in ANY JDT/JDTE machine and products are returned to the linked AE network on a fixed cadence (every 5 ticks by default, configurable with $(thing)jdte.aeOutput.returnInterval$()) through real ME storage writes — terminals, buses, and crafting providers see returned items immediately. The access point must remain loaded, online, and have a channel. If the network is unavailable or full, unaccepted products safely remain in the machine."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The limit is one per machine; machines without output slots simply never return anything. Installing this card disables the machine's regular automatic output so products only flow to AE. A Greenhouse Matrix Controller (from the standalone JDTE-Matrix mod) can also use it to return products from every managed Greenhouse."
     },
     {
       "type": "patchouli:crafting",
@@ -308,6 +321,23 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:sharpness_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Energy Brewing Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:energy_brewing_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Advanced Potion Brewer only, limited to 1. Once installed, brewing fuel is paid with FE: each charge consumes the configured $(thing)energyPerBlazePowder$() FE (default 5,000) and provides the same 20 brews as one Blaze Powder, disabling the Blaze Powder slot so no external Blaze Powder supply is needed. The Creative Upgrade waives the fee."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:energy_brewing_upgrade"
     }
   ],
   "extra_recipe_mappings": {
@@ -323,11 +353,13 @@
     "jdte:fortune_upgrade": 37,
     "jdte:precision_upgrade": 41,
     "jdte:ae_acceleration_upgrade": 45,
+    "jdte:ae_crafting_read_upgrade": 49,
     "jdte:ae_output_upgrade": 0,
-    "jdte:ae_extraction_upgrade": 52,
-    "jdte:essence_conversion_upgrade": 57,
-    "jdte:seed_conversion_upgrade": 61,
-    "jdte:looting_upgrade": 65,
-    "jdte:sharpness_upgrade": 69
+    "jdte:ae_extraction_upgrade": 55,
+    "jdte:essence_conversion_upgrade": 60,
+    "jdte:seed_conversion_upgrade": 64,
+    "jdte:looting_upgrade": 68,
+    "jdte:sharpness_upgrade": 72,
+    "jdte:energy_brewing_upgrade": 76
   }
 }

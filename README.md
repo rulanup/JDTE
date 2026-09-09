@@ -2,9 +2,15 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.0-pre5`
+当前版本：`0.6.0-pre6`
 
 [English README](README_EN.md)
+
+## 0.6.0-pre6 更新
+
+本次预发布修复发电机升级和扩展无线传电器崩溃、机器破坏后的配置丢失、炼药机烈焰粉自动输入以及战利品制造机假玩家内存增长；优化 Botany Pots 的 JEI 土壤查找并同步 LootJS 修改后的战利品表。时间多功能工具新增默认 250 毫秒的长按连续挖掘判定和原版时运/精准采集适用标签，顶级传送枪的手动坐标流体消耗也已降低。
+
+完整英文说明与升级注意事项：[0.6.0-pre6 Release Notes](docs/releases/0.6.0-pre6.md)。
 
 ## 主要功能
 
@@ -122,7 +128,7 @@ Greenhouse、Loot Fabricator 与 Bio Factory 的 `recipeGenerationEnabled` 只�
 ## 安装要求
 
 - Minecraft `1.21.1`
-- NeoForge `21.1.215+`
+- NeoForge `21.1.216+`（开发构建使用 `21.1.233`）
 - Just Dire Things `1.5.7+`
 - Java `21`
 

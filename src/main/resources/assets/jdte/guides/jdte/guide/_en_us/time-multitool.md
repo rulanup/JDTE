@@ -19,6 +19,14 @@ The tool stores **500,000 FE**. Breaking blocks and performing tool actions requ
 
 Normal right-click chooses the appropriate action for the target, such as tilling dirt or grass and stripping logs. Sneak-right-click a block to open JDT's tool ability settings.
 
+## Clicks and continuous mining
+
+Short attacks stay on the initial block. Hold attack for **250 ms** by default to continue onto additional blocks. Releasing the bound mouse button or keyboard key stops mining and resets the next click.
+
+Adjust `jdte.timeMultitool.continuousMiningHoldDelayMillis` in the client config `jdte/time-accelerator-local.toml`, accessible from the main menu. Use `200` or `300` to tune the delay, or `0` to allow continuous mining immediately. Explicitly enabled JDT area-mining abilities retain their normal behavior.
+
+The tool is eligible for vanilla **Fortune** and **Silk Touch** enchanted books through the mining-loot tag. Their vanilla mutual exclusion still applies.
+
 ## Time Fluid speed
 
 The tool also stores **1000 B (1,000,000 mB) of Time Fluid**. Sneak-right-click air to cycle through six speed modes:

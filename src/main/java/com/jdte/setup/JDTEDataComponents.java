@@ -51,7 +51,7 @@ public final class JDTEDataComponents {
                     .cacheEncoding()
                     .build());
 
-    /** 顶级传送枪手动坐标槽位标记（与收藏列表索引对齐；true = 手动坐标，传送固定消耗 10 B）。 */
+    /** 顶级传送枪手动坐标槽位标记（与收藏列表索引对齐；true = 使用手动坐标计费规则）。 */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<Boolean>>> ULTIMATE_PORTAL_GUN_MANUAL_SLOTS =
             DATA_COMPONENTS.register("ultimate_portal_gun_manual_slots",
                     () -> DataComponentType.<List<Boolean>>builder()

@@ -41,6 +41,10 @@ GUIDE_ALIASES = {
     "extended_sensor": "extended-machines",
     "extended_fluid_collector": "extended-machines",
     "extended_fluid_placer": "extended-machines",
+    "extended_generator": "extended-machines",
+    "extended_fluid_generator": "extended-machines",
+    "extended_experience_holder": "extended-machines",
+    "extended_energy_transmitter": "extended-machines",
     "large_mineral_extractor": "mineral-extractor",
 }
 

@@ -159,7 +159,7 @@ public class JDTE {
         LootFabricatorLootSyncPayload lootPayload = new LootFabricatorLootSyncPayload(
                 lootFabricatorEnabled
                         ? MobLootSpawnEggHelper.getLootDropsBySpawnEgg(
-                        event.getPlayerList().getServer().getResourceManager())
+                        event.getPlayerList().getServer().overworld())
                         : java.util.Map.of());
         if (event.getPlayer() != null) {
             PacketDistributor.sendToPlayer(event.getPlayer(), payload);

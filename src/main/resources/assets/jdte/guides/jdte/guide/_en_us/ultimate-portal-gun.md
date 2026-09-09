@@ -19,8 +19,8 @@ The gun has one **1000 B (1,000,000 mB) Portal Fluid tank**. Right-click a Porta
 
 Destinations captured directly from the world continue to use JDT's distance and cross-dimensional pricing. Manually edited coordinate slots use fixed rules:
 
-- Same dimension: 1 B per block, capped at 500 B per shot.
-- Different dimension: a fixed 1000 B, requiring a full tank.
+- Same dimension: 25 mB per block, capped at 25,000 mB per shot.
+- Different dimension: a fixed 500 mB.
 
 ## Destination menu
 

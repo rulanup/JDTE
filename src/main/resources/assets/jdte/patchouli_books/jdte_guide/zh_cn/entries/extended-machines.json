@@ -124,6 +124,38 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:extended_time_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展煤炭发电器$()$(br2)保留 JDT 煤炭发电器的固体燃料逻辑，并提供 8 个升级槽。发电机升级使用双倍燃料换取三倍发电量。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_generator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展流体发电器$()$(br2)保留 JDT 流体发电器的燃料与发电逻辑，并提供 8 个升级槽。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_generator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展经验存储器$()$(br2)收集范围内的经验，并按目标等级与所有者设置向玩家提供经验；支持经验流体交互。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_experience_holder"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)扩展无线传电器$()$(br2)保留 JDT 无线传电器的范围供电、红石与过滤规则，提供 8 个升级槽。它使用自己的能量存储参与供电。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_energy_transmitter"
     }
   ],
   "extra_recipe_mappings": {
@@ -134,6 +166,10 @@
     "jdte:extended_dropper": 5,
     "jdte:extended_sensor": 6,
     "jdte:extended_fluid_collector": 7,
-    "jdte:extended_fluid_placer": 8
+    "jdte:extended_fluid_placer": 8,
+    "jdte:extended_generator": 0,
+    "jdte:extended_fluid_generator": 0,
+    "jdte:extended_experience_holder": 0,
+    "jdte:extended_energy_transmitter": 0
   }
 }

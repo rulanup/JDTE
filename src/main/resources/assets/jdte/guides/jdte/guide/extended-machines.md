@@ -12,6 +12,10 @@ item_ids:
   - jdte:extended_sensor
   - jdte:extended_fluid_collector
   - jdte:extended_fluid_placer
+  - jdte:extended_generator
+  - jdte:extended_fluid_generator
+  - jdte:extended_experience_holder
+  - jdte:extended_energy_transmitter
 ---
 
 # 扩展高级机器
@@ -67,3 +71,27 @@ item_ids:
 ## 扩展时间加速器
 
 <RecipeFor id="jdte:extended_time_accelerator" />
+
+## 扩展煤炭发电器
+
+保留 JDT 煤炭发电器的固体燃料逻辑，并提供 8 个升级槽。发电机升级使用双倍燃料换取三倍发电量。
+
+<RecipeFor id="jdte:extended_generator" />
+
+## 扩展流体发电器
+
+保留 JDT 流体发电器的燃料与发电逻辑，并提供 8 个升级槽。
+
+<RecipeFor id="jdte:extended_fluid_generator" />
+
+## 扩展经验存储器
+
+收集范围内的经验，并按目标等级与所有者设置向玩家提供经验；支持经验流体交互。
+
+<RecipeFor id="jdte:extended_experience_holder" />
+
+## 扩展无线传电器
+
+保留 JDT 无线传电器的范围供电、红石与过滤规则，提供 8 个升级槽。它使用自己的能量存储参与供电。
+
+<RecipeFor id="jdte:extended_energy_transmitter" />

@@ -29,6 +29,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class BotanyPotsGreenhouseIntegration {
     private BotanyPotsGreenhouseIntegration() {
@@ -84,6 +86,39 @@ public final class BotanyPotsGreenhouseIntegration {
     }
 
     private static SoilMatch findCompatibleSoil(Level level, ItemStack seed, Crop crop) {
+        return findCompatibleSoil(crop,
+                soilItem -> findDeclaredSoil(level, seed, crop, soilItem),
+                () -> findCompatibleSoilFallback(level, seed, crop));
+    }
+
+    private static SoilMatch findDeclaredSoil(Level level, ItemStack seed, Crop crop, ItemStack soilItem) {
+        ItemStack seedItem = seed.copyWithCount(1);
+        GreenhouseContext lookup = new GreenhouseContext(level, BlockPos.ZERO, soilItem,
+                seedItem, ItemStack.EMPTY, crop, null, 1);
+        var soilHolder = Soil.getSoil(level, lookup, soilItem);
+        if (soilHolder == null) return null;
+
+        Soil soil = soilHolder.value();
+        GreenhouseContext context = new GreenhouseContext(level, BlockPos.ZERO, soilItem,
+                seedItem, ItemStack.EMPTY, crop, soil, 1);
+        return soil.matches(context, level) && crop.isGrowthSustained(context, level)
+                ? new SoilMatch(soil, soilItem, context)
+                : null;
+    }
+
+    static <T> T findCompatibleSoil(Crop crop, Function<ItemStack, T> declaredSoilLookup,
+                                    Supplier<T> customCropFallback) {
+        if (!(crop instanceof BasicCrop basicCrop)) return customCropFallback.get();
+
+        for (ItemStack candidate : basicCrop.getBasicProperties().soil().getItems()) {
+            if (candidate.isEmpty()) continue;
+            T match = declaredSoilLookup.apply(candidate.copyWithCount(1));
+            if (match != null) return match;
+        }
+        return null;
+    }
+
+    private static SoilMatch findCompatibleSoilFallback(Level level, ItemStack seed, Crop crop) {
         for (var soilHolder : level.getRecipeManager().getAllRecipesFor(Soil.TYPE.get())) {
             Soil soil = soilHolder.value();
             for (var item : BuiltInRegistries.ITEM) {

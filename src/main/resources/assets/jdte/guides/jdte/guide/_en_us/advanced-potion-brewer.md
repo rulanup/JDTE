@@ -74,7 +74,10 @@ This is useful for fixed brewing chains, such as "water bottle -> awkward potion
 ### Item Automation
 
 - Auto input recognizes bottle slots, the blaze powder slot, and ingredient slots.
-- Blaze powder is inserted into the blaze powder slot before ingredient slots.
+- New machines enable external Blaze Powder fuel input by default. Disabling the fuel toggle rejects further insertion while retaining stored fuel. Existing saved toggle settings remain authoritative.
+- The fuel slot keeps index `4` for all six sides and unspecified-side access. Bulk Blaze Powder input fills fuel without spilling into empty ingredient steps.
+- To automate a Strength potion ingredient, place Blaze Powder in the intended ingredient step and lock the recipe first. Powder remains an ordinary brewing ingredient when fuel input is disabled or an Energy Brewing Upgrade is installed.
+- Built-in auto input follows the same fuel toggle and recipe-lock rules. When AE2 pattern-provider fuel protection is enabled, adjacent pattern providers still cannot supply fuel.
 - Auto output extracts only from the three product output slots. It will not extract bottles, ingredients, or blaze powder.
 
 ### Fluid Automation

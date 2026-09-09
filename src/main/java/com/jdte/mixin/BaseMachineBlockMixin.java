@@ -3,7 +3,6 @@ package com.jdte.mixin;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
@@ -13,6 +12,7 @@ import com.jdte.common.content.JDTEContentControl;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeItemStackHandler;
 import com.jdte.common.utils.DedicatedUpgradeDropHelper;
+import com.jdte.common.utils.MachineDropDataHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
@@ -31,11 +31,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BaseMachineBlock.class)
 public abstract class BaseMachineBlockMixin {
     @Inject(method = "getDrops", at = @At("RETURN"))
-    private void jdte$removeMachineDataFromNormalDrops(BlockState state, LootParams.Builder builder,
-                                                       CallbackInfoReturnable<java.util.List<ItemStack>> cir) {
+    private void jdte$removeSeparatelyDroppedItems(BlockState state, LootParams.Builder builder,
+                                                    CallbackInfoReturnable<java.util.List<ItemStack>> cir) {
         for (ItemStack stack : cir.getReturnValue()) {
             if (stack.is(state.getBlock().asItem())) {
-                stack.remove(JustDireDataComponents.CUSTOM_DATA_1);
+                MachineDropDataHelper.removeSeparatelyDroppedItems(stack);
             }
         }
     }

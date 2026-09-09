@@ -15,7 +15,7 @@ public class UltimatePortalGunConfig {
                 .translation("config.jdte.jdte.ultimatePortalGun")
                 .push("ultimatePortalGun");
         ultimatePortalGunFluidCapacity = builder
-                .comment("Time Fluid capacity in mB (1000 B default)")
+                 .comment("Portal Fluid capacity in mB (1000 B default)")
                 .translation("config.jdte.jdte.ultimatePortalGun.fluidCapacity")
                 .defineInRange("fluidCapacity", 1000000, 1000, 100000000);
         ultimatePortalGunEnergyCapacity = builder

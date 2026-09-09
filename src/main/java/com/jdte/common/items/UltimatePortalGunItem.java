@@ -10,6 +10,7 @@ import com.jdte.setup.JDTEDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -22,11 +23,13 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntSupplier;
 
 /**
  * 顶级传送枪：高级传送枪（PortalGunV2）的增强版。
@@ -35,19 +38,19 @@ import java.util.List;
  *     <li>发射机制、能量与传送流体行为完全复用 JDT 高级传送枪。</li>
  *     <li>单个中大型传送流体储罐（1000 B = 1,000,000 mB）。</li>
  *     <li>传送槽位无上限，按 V 打开分页轮盘管理。</li>
- *     <li>编辑槽位可自由选择注册表内任意维度并手动输入坐标；手动坐标槽传送固定消耗 10 B 传送流体。</li>
+ *     <li>编辑槽位可自由选择注册表内任意维度并手动输入坐标；手动坐标槽按距离计费并限制单次消耗。</li>
  * </ul>
  */
 public class UltimatePortalGunItem extends PortalGunV2 {
     /** 1000 B = 1,000,000 mB 传送流体。 */
     public static final int MAX_MB = 1_000_000;
     public static final int SEGMENTS_PER_PAGE = 12;
-    /** 手动坐标槽跨维度传送固定消耗 1000 B = 1,000,000 mB。 */
-    public static final int MANUAL_CROSS_DIMENSION_COST = 1_000_000;
-    /** 手动坐标槽同维度每米 1 B = 1000 mB。 */
-    public static final int MANUAL_PER_BLOCK_COST = 1000;
-    /** 手动坐标槽同维度上限 500 B = 500,000 mB。 */
-    public static final int MANUAL_MAX_DISTANCE_COST = 500_000;
+    /** 手动坐标槽跨维度传送固定消耗 500 mB。 */
+    public static final int MANUAL_CROSS_DIMENSION_COST = 500;
+    /** 手动坐标槽同维度每米 25 mB。 */
+    public static final int MANUAL_PER_BLOCK_COST = 25;
+    /** 手动坐标槽同维度上限 25,000 mB。 */
+    public static final int MANUAL_MAX_DISTANCE_COST = 25_000;
 
     public UltimatePortalGunItem() {
         super();
@@ -220,14 +223,18 @@ public class UltimatePortalGunItem extends PortalGunV2 {
         return InteractionResultHolder.fail(itemStack);
     }
 
-    /** 手动坐标槽固定消耗 10 B；直接添加的槽沿用 JDT 的距离/跨维规则。 */
+    /** 手动坐标槽使用降低后的固定距离价格；直接添加的槽沿用 JDT 的距离/跨维规则。 */
     public static void spawnProjectile(Level level, Player player, ItemStack itemStack, boolean isPrimaryType) {
-        NBTHelpers.PortalDestination portalDestination = player.isShiftKeyDown()
+        boolean previousDestination = player.isShiftKeyDown();
+        NBTHelpers.PortalDestination portalDestination = previousDestination
                 ? PortalGunV2.getPrevious(itemStack) : getSelectedDestination(itemStack);
         if (portalDestination == null || portalDestination.equals(NBTHelpers.PortalDestination.EMPTY)) {
             return;
         }
-        int cost = calculateActualFluidCost((ServerLevel) level, player, itemStack, portalDestination);
+        ServerLevel sourceLevel = (ServerLevel) level;
+        int cost = calculateDestinationFluidCost(
+                itemStack, previousDestination, sourceLevel.dimension(), player.position(), portalDestination,
+                () -> PortalGunV2.calculateFluidCost(sourceLevel, player, portalDestination));
         if (!FluidContainingItem.hasEnoughFluid(itemStack, cost)) {
             player.displayClientMessage(Component.translatable("justdirethings.lowportalfluid"), true);
             player.playNotifySound(SoundEvents.VAULT_INSERT_ITEM_FAIL, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -245,17 +252,25 @@ public class UltimatePortalGunItem extends PortalGunV2 {
         PortalGunV2.setPrevious(player, itemStack);
     }
 
-    private static int calculateActualFluidCost(ServerLevel sourceLevel, Player player, ItemStack stack,
-                                                NBTHelpers.PortalDestination destination) {
+    /** Resolves custom manual-slot pricing while preserving JDT pricing for quick and previous destinations. */
+    public static int calculateDestinationFluidCost(ItemStack stack, boolean previousDestination,
+                                                    ResourceKey<Level> sourceDimension, Vec3 sourcePosition,
+                                                    NBTHelpers.PortalDestination destination,
+                                                    IntSupplier jdtFavoriteCost) {
         int position = PortalGunV2.getFavoritePosition(stack);
-        if (!isManualSlot(stack, position)) {
-            return calculateFluidCost(sourceLevel, player, destination);
+        if (previousDestination || !isManualSlot(stack, position)) {
+            return jdtFavoriteCost.getAsInt();
         }
-        // 手动坐标槽：跨维度 1000 B；同维度 1 B/米，上限 500 B
-        if (!destination.globalVec3().dimension().equals(sourceLevel.dimension())) {
+        return calculateManualFluidCost(sourceDimension, sourcePosition, destination);
+    }
+
+    /** Manual slots cost 500 mB cross-dimension, or 25 mB/block up to 25,000 mB. */
+    public static int calculateManualFluidCost(ResourceKey<Level> sourceDimension, Vec3 sourcePosition,
+                                               NBTHelpers.PortalDestination destination) {
+        if (!destination.globalVec3().dimension().equals(sourceDimension)) {
             return MANUAL_CROSS_DIMENSION_COST;
         }
-        double distance = destination.globalVec3().position().distanceTo(player.position());
+        double distance = destination.globalVec3().position().distanceTo(sourcePosition);
         return Math.min((int) Math.ceil(distance * MANUAL_PER_BLOCK_COST), MANUAL_MAX_DISTANCE_COST);
     }
 

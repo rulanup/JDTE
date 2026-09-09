@@ -15,7 +15,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)Same dimension: 1 B per block, capped at 500 B per shot.$(li)Different dimension: a fixed 1000 B, requiring a full tank.$(br2)$(bold)Destination menu$()$(br2)Hold the gun and press $(bold)V$() to open its paged radial menu. Each page contains 12 slots, and more pages can be added, so there is no fixed destination limit.$(br2)The menu can select a destination, save the current position, clear a slot, or manually enter X/Y/Z coordinates and choose from the server's currently available dimensions. Normal left/right-click and sneaking portal controls remain consistent with the JDT portal gun.$(br2)$(bold)Crafting$()"
+      "text": "$(li)Same dimension: 25 mB per block, capped at 25,000 mB per shot.$(li)Different dimension: a fixed 500 mB.$(br2)$(bold)Destination menu$()$(br2)Hold the gun and press $(bold)V$() to open its paged radial menu. Each page contains 12 slots, and more pages can be added, so there is no fixed destination limit.$(br2)The menu can select a destination, save the current position, clear a slot, or manually enter X/Y/Z coordinates and choose from the server's currently available dimensions. Normal left/right-click and sneaking portal controls remain consistent with the JDT portal gun.$(br2)$(bold)Crafting$()"
     },
     {
       "type": "patchouli:crafting",
