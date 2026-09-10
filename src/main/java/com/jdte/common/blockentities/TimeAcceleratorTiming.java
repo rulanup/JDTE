@@ -9,8 +9,23 @@ public final class TimeAcceleratorTiming {
         return ticks >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) ticks;
     }
 
-    public static int workTicks(int effectiveMultiplier, int durationSeconds) {
-        long work = (long) Math.max(1, effectiveMultiplier) * durationTicks(durationSeconds);
+    public static int additionalCycles(int nominalMultiplier) {
+        return Math.max(0, nominalMultiplier - 1);
+    }
+
+    public static int batchWorkTicks(int multiplier, int durationSeconds) {
+        long work = (long) Math.max(1, multiplier) * durationTicks(durationSeconds);
         return work >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) work;
     }
+
+    public static long pendingWindowCycles(int nominalMultiplier, int durationSeconds,
+                                           long configuredMaximum) {
+        long cycles = additionalCycles(nominalMultiplier);
+        long duration = durationTicks(durationSeconds);
+        long window = cycles > Long.MAX_VALUE / duration
+                ? Long.MAX_VALUE
+                : cycles * duration;
+        return Math.min(Math.max(0L, configuredMaximum), window);
+    }
+
 }

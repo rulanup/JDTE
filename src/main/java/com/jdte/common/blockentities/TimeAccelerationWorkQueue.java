@@ -1,6 +1,7 @@
 package com.jdte.common.blockentities;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -19,17 +20,27 @@ final class TimeAccelerationWorkQueue<S, T> {
         return !pending.isEmpty();
     }
 
-    long highestPendingTicks(Set<T> targets) {
-        long highest = 0L;
-        for (T target : targets) {
-            highest = Math.max(highest, pendingTicks(target));
-        }
-        return highest;
-    }
-
     long pendingTicks(T target) {
         PendingTarget<S> work = pending.get(target);
         return work == null ? 0L : work.virtualTicks;
+    }
+
+    long pendingTicks(T target, S source) {
+        PendingTarget<S> work = pending.get(target);
+        return work == null ? 0L : work.pendingTicks(source);
+    }
+
+    boolean canEnqueueAll(Collection<T> targets, S source, int workTicks, long maxPending) {
+        if (targets.isEmpty() || workTicks <= 0) {
+            return false;
+        }
+        for (T target : targets) {
+            if (!TimeAcceleratorExecutionPolicy.canAdmitFullWork(
+                    workTicks, maxPending, pendingTicks(target, source))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     void retainContributors(BiPredicate<T, S> keepContributor) {
@@ -71,9 +82,9 @@ final class TimeAccelerationWorkQueue<S, T> {
 
     void enqueue(T target, S source, int workTicks, int displayMultiplier, long maxPending) {
         PendingTarget<S> work = pending.get(target);
-        long currentTicks = work == null ? 0L : work.virtualTicks;
-        long available = currentTicks >= maxPending ? 0L : maxPending - currentTicks;
-        if (workTicks <= 0 || (long) workTicks > available) {
+        long contributorPendingTicks = work == null ? 0L : work.pendingTicks(source);
+        if (!TimeAcceleratorExecutionPolicy.canAdmitFullWork(
+                workTicks, maxPending, contributorPendingTicks)) {
             throw new IllegalStateException("Accepted Time Accelerator work exceeds target capacity");
         }
         if (work == null) {
@@ -162,6 +173,11 @@ final class TimeAccelerationWorkQueue<S, T> {
             contribution.virtualTicks += ticks;
             contribution.multiplier = multiplier;
             virtualTicks += ticks;
+        }
+
+        private long pendingTicks(S source) {
+            Contribution contribution = contributions.get(source);
+            return contribution == null ? 0L : contribution.virtualTicks;
         }
 
         private void retainContributors(java.util.function.Predicate<S> keepContributor) {

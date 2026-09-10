@@ -106,7 +106,9 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(AEExtractionPlayerService::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(AEExtractionPlayerService::onTooltip);
         NeoForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
-        NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
+        NeoForge.EVENT_BUS.addListener(
+                EventPriority.LOWEST,
+                ExtendedTimeAccelerationManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
         NeoForge.EVENT_BUS.addListener(com.jdte.common.integrations.ae2.AE2CraftingReadNetwork::onServerStopped);

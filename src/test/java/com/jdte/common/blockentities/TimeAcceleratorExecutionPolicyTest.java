@@ -3,6 +3,8 @@ package com.jdte.common.blockentities;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TimeAcceleratorExecutionPolicyTest {
 
@@ -35,20 +37,9 @@ class TimeAcceleratorExecutionPolicyTest {
     }
 
     @Test
-    void admittedWorkShrinksWhenRequestExceedsPerTargetPendingLimit() {
-        assertEquals(100, TimeAcceleratorExecutionPolicy.admittedWorkTicks(400, 100L, 0L));
-    }
-
-    @Test
-    void admittedWorkUsesTheSmallestCapacitySharedByAllTargets() {
-        assertEquals(5, TimeAcceleratorExecutionPolicy.admittedWorkTicks(40, 100L, 95L));
-        assertEquals(0, TimeAcceleratorExecutionPolicy.admittedWorkTicks(40, 100L, 100L));
-        assertEquals(0, TimeAcceleratorExecutionPolicy.admittedWorkTicks(40, 100L, 120L));
-    }
-
-    @Test
-    void admittedWorkRejectsNonPositiveRequestsOrLimits() {
-        assertEquals(0, TimeAcceleratorExecutionPolicy.admittedWorkTicks(0, 100L, 0L));
-        assertEquals(0, TimeAcceleratorExecutionPolicy.admittedWorkTicks(40, 0L, 0L));
+    void fullAdmissionNeverShrinksTheRequestedBatch() {
+        assertTrue(TimeAcceleratorExecutionPolicy.canAdmitFullWork(40, 100L, 60L));
+        assertFalse(TimeAcceleratorExecutionPolicy.canAdmitFullWork(40, 100L, 61L));
+        assertFalse(TimeAcceleratorExecutionPolicy.canAdmitFullWork(0, 100L, 0L));
     }
 }

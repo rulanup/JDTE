@@ -33,20 +33,22 @@ Standard machines have four upgrade slots and extended machines have eight. Empt
 | Creative | Removes FE cost and includes overclock behavior | 1 |
 | Fortune | Adds one vanilla Fortune level per card in Gel Generators and Crystal Incubators; adds 10% average output per card in both Greenhouses | 8 (3 in Greenhouse) |
 | Precision | Crystal Incubator only; harvests through vanilla Silk Touch loot logic and conflicts with Fortune | 1 |
-| AE Acceleration | Time Accelerator tiers only; enables acceleration of AE2 `IGridTickable` devices | 1 |
+| AE Acceleration | Time Accelerator tiers only; accelerates individual AE2 devices by default or a whole Grid with JDTE-AE | 1 |
 | AE Crafting Read | Lets compatible machines read active crafting tasks from a linked AE2 network; pauses when unlinked, offline, or idle | 1 |
 | AE Extraction | Binds to a Wireless Access Point and refills carried JDT/JDTE FE and fluid items; supports Applied Flux | 1 |
 | Looting | Dedicated to Bio Crushers and the Loot Fabricator | 6 |
 | Sharpness | Bio Crusher only; adds five damage per card | 6 |
 
-Overclock and Underclock cannot be installed together. The Creative Upgrade also provides relevant Overclock behavior. The AE Crafting Read Upgrade must first be bound by placing it in an AE2 Wireless Access Point's linking input, then installed in a compatible machine's standard or extended upgrade slot. The machine pauses when unbound, when the access point is unloaded or offline, while the network is booting, or with no crafting task; it runs automatically when a task is available after recovery. AE2 is optional.
+Overclock and Underclock cannot be installed together. The Creative Upgrade also provides relevant Overclock behavior. The AE Crafting Read Upgrade must first be bound by placing it in an AE2 Wireless Access Point's linking input, then installed in a compatible machine's standard or extended upgrade slot. The machine pauses when unbound, when the access point is unloaded or offline, while the network is booting, or with no crafting task; it runs automatically when a task is available after recovery. AE2 remains optional for the main `jdte` mod; without the JDTE-AE addon, the AE Acceleration Upgrade retains its per-device fallback through `IGridTickable`.
 
 ### Time And Extended Machines
 
 - Basic Time Accelerator: 16x by default or 32x with Overclock/Creative; consumes JDT Time Fluid only.
 - Advanced Time Accelerator: adjustable from 1-64x or 128x with Overclock/Creative; consumes Time Fluid and FE at twice the Basic tier's Time Fluid rate.
 - Extended Time Accelerator: an eight-slot tier adjustable from 1-512x or 1024x with Overclock/Creative; consumes Time Fluid at five times the Basic tier's rate.
-- All three tiers share the managed scheduler. Overlapping multipliers fully stack while chunk target discovery, paid virtual-tick queues, and fixed per-tick execution and scan budgets reduce large-area and multi-machine overhead. Acceleration no longer stops when server MSPT is high. Installing an AE Acceleration Upgrade lets that machine accelerate AE2 `IGridTickable` devices.
+- All three tiers share the managed scheduler. A nominal multiplier includes the target's native tick: one nominal `X` accelerator contributes `X - 1` additional cycles, and overlaps produce `1 + Σ(Xᵢ - 1)`, so two 16x accelerators produce 31x. Ordinary block entities and random-tick targets use chunk discovery, paid pending queues, and fixed per-tick execution and scan budgets; high server MSPT does not pause them, and excess work remains queued.
+- Full AE Grid acceleration requires matching versions of JDTE-AE (`jdte-ae`) and JDTE plus AE2 19.2.17+ on both client and server. Covering any online, fully booted node gives its entire Grid the full multiplier; covering multiple nodes on the same Grid does not count one accelerator more than once.
+- AE Grid work synchronously runs complete Server Start, Level Start, Level End, and Server End lifecycles. Nominal 1024x runs 1023 additional Grid lifecycles per real tick and bypasses the ordinary target budget of 4096 executions, so it can raise server MSPT substantially. Insufficient FE or Time Fluid rejects the whole batch without execution or charge instead of silently reducing the multiplier.
 - The Extended Upgrade converts JDT T2 Clickers, Block Breakers, Block Placers, Block Swappers, Droppers, Sensors, Fluid Collectors, and Fluid Placers into eight-slot variants while preserving machine data.
 
 ### Automation Machines
@@ -132,7 +134,7 @@ The Greenhouse, Loot Fabricator, and Bio Factory `recipeGenerationEnabled` switc
 - Just Dire Things `1.5.7+`
 - Java `21`
 
-Place `jdte-x.x.x.jar` in both the client and server `mods` folders.
+Place `jdte-x.x.x.jar` in both the client and server `mods` folders. Full AE Grid acceleration additionally requires the matching `jdte-ae-x.x.x.jar` and AE2 19.2.17+ on both sides; the main mod alone does not require AE2.
 
 ## Development Build
 

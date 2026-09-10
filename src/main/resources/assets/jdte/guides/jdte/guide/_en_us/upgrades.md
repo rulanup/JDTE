@@ -126,7 +126,9 @@ Crystal Incubator only. It applies vanilla Silk Touch to the simulated harvestin
 
 <ItemImage id="jdte:ae_acceleration_upgrade" scale="2" />
 
-Basic, Advanced, and Extended Time Accelerators only. Allows the accelerator containing this card to accelerate supported AE2 devices through AE2's public `IGridTickable` service. Limited to one per machine; when accelerators overlap, only those containing this card contribute acceleration to AE2 devices.
+Basic, Advanced, and Extended Time Accelerators only, limited to one per machine. AE2 remains optional for the main `jdte` mod; without the JDTE-AE addon, this card retains per-device acceleration through `IGridTickable`.
+
+Full Grid acceleration requires matching versions of JDTE-AE (`jdte-ae`) and JDTE plus AE2 19.2.17+ on both client and server. Reaching any online, fully booted node accelerates its entire Grid, while multiple covered nodes on that Grid do not duplicate one accelerator's contribution. Nominal `X` includes the native tick, so one accelerator contributes `X - 1` and overlaps produce `1 + Σ(Xᵢ - 1)`; nominal 1024x runs 1023 additional complete Grid lifecycles per real tick. Grid work bypasses the ordinary 4096-execution budget and can raise MSPT substantially; insufficient resources reject the whole batch without execution or charge.
 
 <RecipeFor id="jdte:ae_acceleration_upgrade" />
 

@@ -202,7 +202,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Basic, Advanced, and Extended Time Accelerators only. Allows the accelerator containing this card to accelerate supported AE2 devices through AE2's public $(thing)IGridTickable$() service. Limited to one per machine; when accelerators overlap, only those containing this card contribute acceleration to AE2 devices."
+      "text": "Basic, Advanced, and Extended Time Accelerators only, limited to one per machine. AE2 remains optional for the main $(thing)jdte$() mod; without the JDTE-AE addon, this card retains per-device acceleration through $(thing)IGridTickable$()."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Full Grid acceleration requires matching versions of JDTE-AE ($(thing)jdte-ae$()) and JDTE plus AE2 19.2.17+ on both client and server. Reaching any online, fully booted node accelerates its entire Grid, while multiple covered nodes on that Grid do not duplicate one accelerator's contribution. Nominal $(thing)X$() includes the native tick, so one accelerator contributes $(thing)X - 1$() and overlaps produce $(thing)1 + Σ(Xᵢ - 1)$(); nominal 1024x runs 1023 additional complete Grid lifecycles per real tick. Grid work bypasses the ordinary 4096-execution budget and can raise MSPT substantially; insufficient resources reject the whole batch without execution or charge."
     },
     {
       "type": "patchouli:crafting",
@@ -353,13 +357,13 @@
     "jdte:fortune_upgrade": 37,
     "jdte:precision_upgrade": 41,
     "jdte:ae_acceleration_upgrade": 45,
-    "jdte:ae_crafting_read_upgrade": 49,
+    "jdte:ae_crafting_read_upgrade": 50,
     "jdte:ae_output_upgrade": 0,
-    "jdte:ae_extraction_upgrade": 55,
-    "jdte:essence_conversion_upgrade": 60,
-    "jdte:seed_conversion_upgrade": 64,
-    "jdte:looting_upgrade": 68,
-    "jdte:sharpness_upgrade": 72,
-    "jdte:energy_brewing_upgrade": 76
+    "jdte:ae_extraction_upgrade": 56,
+    "jdte:essence_conversion_upgrade": 61,
+    "jdte:seed_conversion_upgrade": 65,
+    "jdte:looting_upgrade": 69,
+    "jdte:sharpness_upgrade": 73,
+    "jdte:energy_brewing_upgrade": 77
   }
 }

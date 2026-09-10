@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.jdte.ae.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "TickHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

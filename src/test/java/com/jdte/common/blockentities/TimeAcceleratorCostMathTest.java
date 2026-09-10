@@ -15,13 +15,10 @@ class TimeAcceleratorCostMathTest {
     }
 
     @Test
-    void configuredDurationIsAppliedBeforeResourceCostCalculation() {
-        int workTicks = TimeAcceleratorTiming.workTicks(4, 5);
-        assertEquals(400, workTicks);
-        assertEquals(
-                TimeAcceleratorCostMath.fluidCost(400, 600, 1.0D, 2.0D),
-                TimeAcceleratorCostMath.fluidCost(workTicks, 600, 1.0D, 2.0D),
-                1.0E-9D);
+    void oneFrameCostUsesOnlyAdditionalCycles() {
+        int workTicks = TimeAcceleratorTiming.additionalCycles(1024);
+        assertEquals(1023, workTicks);
+        assertEquals(102_300, TimeAcceleratorCostMath.energyCost(workTicks, 100));
     }
 
     @Test

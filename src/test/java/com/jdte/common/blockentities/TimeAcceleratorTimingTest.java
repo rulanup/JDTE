@@ -23,15 +23,30 @@ class TimeAcceleratorTimingTest {
     }
 
     @Test
-    void effectiveMultiplierScalesOneSubmission() {
-        assertEquals(960, TimeAcceleratorTiming.workTicks(16, 3));
+    void nominalMultiplierIncludesTheNativeTick() {
+        assertEquals(0, TimeAcceleratorTiming.additionalCycles(1));
+        assertEquals(15, TimeAcceleratorTiming.additionalCycles(16));
+        assertEquals(1023, TimeAcceleratorTiming.additionalCycles(1024));
     }
 
     @Test
-    void configuredDurationIsAppliedBeforeBlockEntityWorkSubmission() throws Exception {
+    void durationOnlyBoundsOrdinaryPendingWork() {
+        assertEquals(20_460L,
+                TimeAcceleratorTiming.pendingWindowCycles(1024, 1, Long.MAX_VALUE));
+        assertEquals(1_000L,
+                TimeAcceleratorTiming.pendingWindowCycles(1024, 60, 1_000L));
+    }
+
+    @Test
+    void legacyBatchWorkRemainsAvailableForProductionMachines() {
+        assertEquals(400, TimeAcceleratorTiming.batchWorkTicks(4, 5));
+    }
+
+    @Test
+    void configuredDurationDoesNotAmplifyBlockEntityWorkSubmission() throws Exception {
         JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
         try {
-            assertEquals(400, newStubAccelerator().getAccelerationWorkTicksForTest(4));
+            assertEquals(3, newStubAccelerator().getAccelerationWorkTicksForTest(4));
         } finally {
             JDTEConfig.SERVER_SPEC.acceptConfig(null);
         }

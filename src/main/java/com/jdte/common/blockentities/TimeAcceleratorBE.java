@@ -178,9 +178,14 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     protected int getAccelerationWorkTicks(int effectiveMultiplier) {
-        return TimeAcceleratorTiming.workTicks(
+        return TimeAcceleratorTiming.additionalCycles(effectiveMultiplier);
+    }
+
+    protected long getAccelerationPendingLimit(int effectiveMultiplier) {
+        return TimeAcceleratorTiming.pendingWindowCycles(
                 effectiveMultiplier,
-                JDTEConfig.SERVER.timeAccelerator.timeAcceleratorAccelerationDurationSeconds.get());
+                JDTEConfig.SERVER.timeAccelerator.timeAcceleratorAccelerationDurationSeconds.get(),
+                JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get());
     }
 
     protected int getFluidDrainAmount(int workTicks) {

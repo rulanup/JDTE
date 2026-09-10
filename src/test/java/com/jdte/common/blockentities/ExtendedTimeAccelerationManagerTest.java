@@ -1,8 +1,10 @@
 package com.jdte.common.blockentities;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import com.jdte.common.acceleration.ExternalTimeAccelerationBackend;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,6 +14,7 @@ import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.HashMap;
@@ -28,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExtendedTimeAccelerationManagerTest {
@@ -96,6 +100,175 @@ class ExtendedTimeAccelerationManagerTest {
     @Test
     void ae2ServiceWithoutOrdinaryTickerIsRejectedWhenDisabled() {
         assertNull(ExtendedTimeAccelerationManager.selectTargetKind(true, false, false));
+    }
+
+    @Test
+    void inactiveExternalTargetNeverFallsBackToVanillaTicker() throws Exception {
+        ExtendedTimeAccelerationManager.TargetKey ordinary = new ExtendedTimeAccelerationManager.TargetKey(
+                serverLevelFixture(), BlockPos.ZERO,
+                ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+
+        var result = ExtendedTimeAccelerationManager.routeExternalTarget(
+                ExternalTimeAccelerationBackend.TargetResolution.inactiveExternal(),
+                () -> Optional.of(ordinary));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void notExternalContinuesOrdinaryClassification() throws Exception {
+        ExtendedTimeAccelerationManager.TargetKey ordinary = new ExtendedTimeAccelerationManager.TargetKey(
+                serverLevelFixture(), BlockPos.ZERO,
+                ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+
+        var result = ExtendedTimeAccelerationManager.routeExternalTarget(
+                ExternalTimeAccelerationBackend.TargetResolution.notExternal(),
+                () -> Optional.of(ordinary));
+
+        assertEquals(ordinary, result.orElseThrow().queuedTarget());
+    }
+
+    @Test
+    void oneAdmissionAndPaymentFansOutToOrdinaryAndDistinctExternalTargets() throws Exception {
+        ServerLevel sourceLevel = serverLevelFixture();
+        ServerLevel targetLevel = serverLevelFixture();
+        BlockPos ordinarySource = new BlockPos(1, 0, 0);
+        BlockPos firstExternalSource = new BlockPos(2, 0, 0);
+        BlockPos secondExternalSource = new BlockPos(3, 0, 0);
+        BlockPos externalTarget = new BlockPos(12, 0, 0);
+        RecordingAccelerator accelerator = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.LevelState state = new ExtendedTimeAccelerationManager.LevelState();
+        TestPreparationAdapter adapter = new TestPreparationAdapter(
+                sourceLevel, targetLevel,
+                Map.of(ordinarySource, fakeBlockEntity(),
+                        firstExternalSource, fakeBlockEntity(),
+                        secondExternalSource, fakeBlockEntity()),
+                firstExternalSource, ordinarySource);
+        adapter.bind(firstExternalSource, targetLevel, externalTarget);
+        adapter.bind(secondExternalSource, targetLevel, externalTarget);
+        adapter.setAe2Enabled(true);
+        adapter.setRequest(16, 15);
+        RecordingExternalBackend backend = new RecordingExternalBackend();
+        TestExternalHandle handle = new TestExternalHandle("grid");
+        backend.resolveAs(externalTarget,
+                ExternalTimeAccelerationBackend.TargetResolution.active(handle));
+
+        state.submitForTest(accelerator);
+        state.prepare(sourceLevel, 64, backend, adapter);
+
+        ExtendedTimeAccelerationManager.TargetKey ordinaryTarget =
+                new ExtendedTimeAccelerationManager.TargetKey(
+                        targetLevel, ordinarySource,
+                        ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        ExtendedTimeAccelerationManager.TargetKey externalFallback =
+                new ExtendedTimeAccelerationManager.TargetKey(
+                        targetLevel, externalTarget,
+                        ExtendedTimeAccelerationManager.TargetKind.AE2_GRID);
+        assertEquals(1, adapter.acceptCalls);
+        assertEquals(1, adapter.payCalls);
+        assertEquals(15, state.pendingTicksForTest(ordinaryTarget));
+        assertEquals(0, state.pendingTicksForTest(externalFallback));
+        assertEquals(1, backend.submissions.size());
+        assertSame(handle, backend.submissions.getFirst().handle());
+        assertEquals(15, backend.submissions.getFirst().additionalCycles());
+        assertFalse(adapter.lastAe2FallbackEnabled);
+    }
+
+    @Test
+    void rejectedAdmissionSubmitsNeitherOrdinaryNorExternalWork() throws Exception {
+        ServerLevel sourceLevel = serverLevelFixture();
+        ServerLevel targetLevel = serverLevelFixture();
+        BlockPos ordinarySource = new BlockPos(1, 0, 0);
+        BlockPos externalSource = new BlockPos(2, 0, 0);
+        BlockPos externalTarget = new BlockPos(12, 0, 0);
+        RecordingAccelerator accelerator = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.LevelState state = new ExtendedTimeAccelerationManager.LevelState();
+        TestPreparationAdapter adapter = new TestPreparationAdapter(
+                sourceLevel, targetLevel,
+                Map.of(ordinarySource, fakeBlockEntity(), externalSource, fakeBlockEntity()),
+                externalSource, ordinarySource);
+        adapter.bind(externalSource, targetLevel, externalTarget);
+        adapter.setAe2Enabled(true);
+        adapter.setRequest(16, 15);
+        adapter.setAccepted(false);
+        RecordingExternalBackend backend = new RecordingExternalBackend();
+        backend.resolveAs(externalTarget, ExternalTimeAccelerationBackend.TargetResolution.active(
+                new TestExternalHandle("grid")));
+
+        state.submitForTest(accelerator);
+        state.prepare(sourceLevel, 64, backend, adapter);
+
+        ExtendedTimeAccelerationManager.TargetKey ordinaryTarget =
+                new ExtendedTimeAccelerationManager.TargetKey(
+                        targetLevel, ordinarySource,
+                        ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY);
+        assertEquals(1, adapter.acceptCalls);
+        assertEquals(0, adapter.payCalls);
+        assertEquals(0, state.pendingTicksForTest(ordinaryTarget));
+        assertTrue(backend.submissions.isEmpty());
+    }
+
+    @Test
+    void filteringHappensBeforeExternalClassification() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        BlockPos source = new BlockPos(1, 0, 0);
+        RecordingAccelerator accelerator = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.LevelState state = new ExtendedTimeAccelerationManager.LevelState();
+        TestPreparationAdapter adapter = new TestPreparationAdapter(
+                level, level, Map.of(source, fakeBlockEntity()), source, source);
+        adapter.setAe2Enabled(true);
+        adapter.setFilterResult(false);
+        RecordingExternalBackend backend = new RecordingExternalBackend();
+        backend.resolveAs(source, ExternalTimeAccelerationBackend.TargetResolution.active(
+                new TestExternalHandle("grid")));
+
+        state.submitForTest(accelerator);
+        state.prepare(level, 64, backend, adapter);
+
+        assertEquals(0, backend.resolveCalls);
+        assertEquals(0, adapter.acceptCalls);
+        assertEquals(0, adapter.payCalls);
+    }
+
+    @Test
+    void framePreparesEveryLevelBeforeOrdinaryAndExternalExecution() throws Exception {
+        ServerLevel level = serverLevelFixture();
+        RecordingExternalBackend backend = new RecordingExternalBackend();
+        TestExternalHandle handle = new TestExternalHandle("grid");
+        backend.resolveAs(BlockPos.ZERO,
+                ExternalTimeAccelerationBackend.TargetResolution.active(handle));
+
+        ExtendedTimeAccelerationManager.runAccelerationFrame(null, backend, List.of(
+                new ExtendedTimeAccelerationManager.FrameWork(
+                        () -> {
+                            backend.events.add("prepare-first");
+                            backend.resolve(level, BlockPos.ZERO);
+                            backend.submit(handle, new Object(), 15);
+                        },
+                        () -> backend.events.add("ordinary-first")),
+                new ExtendedTimeAccelerationManager.FrameWork(
+                        () -> backend.events.add("prepare-second"),
+                        () -> backend.events.add("ordinary-second"))));
+
+        assertEquals(List.of("begin", "prepare-first", "resolve", "submit",
+                        "prepare-second", "ordinary-first", "ordinary-second", "execute", "clear"),
+                backend.events);
+    }
+
+    @Test
+    void openedExternalFrameIsClearedWhenOrdinaryExecutionFails() {
+        RecordingExternalBackend backend = new RecordingExternalBackend();
+
+        assertThrows(IllegalStateException.class,
+                () -> ExtendedTimeAccelerationManager.runAccelerationFrame(null, backend, List.of(
+                        new ExtendedTimeAccelerationManager.FrameWork(
+                                () -> backend.events.add("prepare"),
+                                () -> {
+                                    backend.events.add("ordinary");
+                                    throw new IllegalStateException("expected");
+                                }))));
+
+        assertEquals(List.of("begin", "prepare", "ordinary", "clear"), backend.events);
     }
 
     @Test
@@ -516,7 +689,7 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
-    void managerPreparesResourcesFromConfiguredWorkTicks() throws Exception {
+    void managerPreparesResourcesFromAdditionalCycles() throws Exception {
         JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
         try {
             RecordingAccelerator accelerator = newRecordingAccelerator();
@@ -525,9 +698,9 @@ class ExtendedTimeAccelerationManagerTest {
                     ExtendedTimeAccelerationManager.prepareAcceleration(accelerator);
 
             assertEquals(4, prepared.displayMultiplier());
-            assertEquals(400, prepared.workTicks());
-            assertEquals(400, accelerator.fluidWorkTicks);
-            assertEquals(400, accelerator.energyWorkTicks);
+            assertEquals(3, prepared.workTicks());
+            assertEquals(3, accelerator.fluidWorkTicks);
+            assertEquals(3, accelerator.energyWorkTicks);
             assertEquals(7, prepared.fluidCost());
             assertEquals(11, prepared.energyCost());
         } finally {
@@ -536,7 +709,7 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
-    void managerUsesUpdatedDurationForEachSubmission() throws Exception {
+    void managerIgnoresConfiguredDurationForEachSubmission() throws Exception {
         JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(2));
         try {
             RecordingAccelerator accelerator = newRecordingAccelerator();
@@ -544,16 +717,16 @@ class ExtendedTimeAccelerationManagerTest {
             ExtendedTimeAccelerationManager.PreparedAcceleration prepared =
                     ExtendedTimeAccelerationManager.prepareAcceleration(accelerator);
 
-            assertEquals(160, prepared.workTicks());
-            assertEquals(160, accelerator.fluidWorkTicks);
-            assertEquals(160, accelerator.energyWorkTicks);
+            assertEquals(3, prepared.workTicks());
+            assertEquals(3, accelerator.fluidWorkTicks);
+            assertEquals(3, accelerator.energyWorkTicks);
         } finally {
             JDTEConfig.SERVER_SPEC.acceptConfig(null);
         }
     }
 
     @Test
-    void managerPaymentSeamChecksCostsAndConsumesConfiguredWorkTicks() throws Exception {
+    void managerPaymentSeamChecksCostsAndConsumesAdditionalCycles() throws Exception {
         JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
         try {
             RecordingAccelerator accelerator = newRecordingAccelerator();
@@ -563,7 +736,7 @@ class ExtendedTimeAccelerationManagerTest {
             assertTrue(ExtendedTimeAccelerationManager.payForSubmission(accelerator, prepared));
             assertEquals(7, accelerator.checkedFluidCost);
             assertEquals(11, accelerator.checkedEnergyCost);
-            assertEquals(400, accelerator.consumedWorkTicks);
+            assertEquals(3, accelerator.consumedWorkTicks);
             assertEquals(11, accelerator.consumedEnergyCost);
             assertNotEquals(prepared.fluidCost(), accelerator.consumedWorkTicks);
         } finally {
@@ -572,88 +745,58 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
-    void requestLargerThanMaxPendingChargesAndEnqueuesOnlyAcceptedWork() throws Exception {
-        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
-        try {
-            RecordingAccelerator accelerator = newRecordingAccelerator();
-            ExtendedTimeAccelerationManager.AccelerationRequest request =
-                    ExtendedTimeAccelerationManager.requestAcceleration(accelerator);
-
-            ExtendedTimeAccelerationManager.PreparedAcceleration accepted =
-                    ExtendedTimeAccelerationManager.prepareAcceptedAcceleration(
-                            accelerator, request, 100L, 0L).orElseThrow();
-
-            assertEquals(400, request.workTicks());
-            assertEquals(100, accepted.workTicks());
-            assertEquals(100, accelerator.fluidWorkTicks);
-            assertEquals(100, accelerator.energyWorkTicks);
-            assertTrue(ExtendedTimeAccelerationManager.payForSubmission(accelerator, accepted));
-            assertEquals(100, accelerator.consumedWorkTicks);
-            assertEquals(accepted.workTicks(), accelerator.consumedWorkTicks);
-        } finally {
-            JDTEConfig.SERVER_SPEC.acceptConfig(null);
-        }
-    }
-
-    @Test
-    void nearlyFullTargetChargesAndEnqueuesOnlyItsRemainingCapacity() throws Exception {
-        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
-        try {
-            RecordingAccelerator accelerator = newRecordingAccelerator();
-            ExtendedTimeAccelerationManager.AccelerationRequest request =
-                    ExtendedTimeAccelerationManager.requestAcceleration(accelerator);
-
-            ExtendedTimeAccelerationManager.PreparedAcceleration accepted =
-                    ExtendedTimeAccelerationManager.prepareAcceptedAcceleration(
-                            accelerator, request, 100L, 95L).orElseThrow();
-
-            assertEquals(5, accepted.workTicks());
-            assertEquals(5, accelerator.fluidWorkTicks);
-            assertEquals(5, accelerator.energyWorkTicks);
-            assertTrue(ExtendedTimeAccelerationManager.payForSubmission(accelerator, accepted));
-            assertEquals(5, accelerator.consumedWorkTicks);
-        } finally {
-            JDTEConfig.SERVER_SPEC.acceptConfig(null);
-        }
-    }
-
-    @Test
     void fullTargetRejectsSubmissionBeforeAnyCostIsCalculatedOrPaid() throws Exception {
-        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(5));
-        try {
-            RecordingAccelerator accelerator = newRecordingAccelerator();
-            ExtendedTimeAccelerationManager.AccelerationRequest request =
-                    ExtendedTimeAccelerationManager.requestAcceleration(accelerator);
+        ServerLevel sourceLevel = serverLevelFixture();
+        ServerLevel targetLevel = serverLevelFixture();
+        BlockPos direct = new BlockPos(3, 0, 0);
+        BlockPos proxy = new BlockPos(2, 0, 0);
+        RecordingAccelerator accelerator = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.LevelState state = new ExtendedTimeAccelerationManager.LevelState();
+        TestPreparationAdapter adapter = new TestPreparationAdapter(
+                sourceLevel, targetLevel,
+                Map.of(direct, fakeBlockEntity(),
+                        proxy, fakeProxy(new TimeAccelerationTarget(targetLevel, direct))),
+                proxy, direct);
+        adapter.setPendingLimit(4L);
 
-            assertFalse(ExtendedTimeAccelerationManager.prepareAcceptedAcceleration(
-                    accelerator, request, 100L, 100L).isPresent());
-            assertEquals(0, accelerator.fluidWorkTicks);
-            assertEquals(0, accelerator.energyWorkTicks);
-            assertEquals(0, accelerator.consumedWorkTicks);
-        } finally {
-            JDTEConfig.SERVER_SPEC.acceptConfig(null);
-        }
+        state.submitForTest(accelerator);
+        state.prepare(sourceLevel, 64, adapter);
+        assertEquals(4, state.pendingTicksForTest(new ExtendedTimeAccelerationManager.TargetKey(
+                targetLevel, direct, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY)));
+        assertEquals(1, adapter.acceptCalls);
+        assertEquals(1, adapter.payCalls);
+
+        adapter.resetSubmissionCalls();
+        state.submitForTest(accelerator);
+        state.prepare(sourceLevel, 64, adapter);
+
+        assertEquals(0, adapter.acceptCalls);
+        assertEquals(0, adapter.payCalls);
     }
 
     @Test
-    void longDurationAdmitsTheLargestWorkBatchThatFitsMachineResources() throws Exception {
-        JDTEConfig.SERVER_SPEC.acceptConfig(loadedServerConfig(50));
-        try {
-            ResourceLimitedAccelerator accelerator = newResourceLimitedAccelerator();
-            ExtendedTimeAccelerationManager.AccelerationRequest request =
-                    ExtendedTimeAccelerationManager.requestAcceleration(accelerator);
+    void unaffordableRequestIsRejectedInsteadOfSilentlyShrunk() throws Exception {
+        ResourceLimitedAccelerator accelerator = newResourceLimitedAccelerator();
+        ExtendedTimeAccelerationManager.AccelerationRequest request =
+                new ExtendedTimeAccelerationManager.AccelerationRequest(1024, 1023);
 
-            ExtendedTimeAccelerationManager.PreparedAcceleration accepted =
-                    ExtendedTimeAccelerationManager.prepareAcceptedAcceleration(
-                            accelerator, request, 1_000_000L, 0L).orElseThrow();
+        assertTrue(ExtendedTimeAccelerationManager
+                .prepareAcceptedAcceleration(accelerator, request)
+                .isEmpty());
+        assertEquals(0, accelerator.consumedWorkTicks);
+    }
 
-            assertEquals(4000, request.workTicks());
-            assertEquals(1000, accepted.workTicks());
-            assertTrue(ExtendedTimeAccelerationManager.payForSubmission(accelerator, accepted));
-            assertEquals(1000, accelerator.consumedWorkTicks);
-        } finally {
-            JDTEConfig.SERVER_SPEC.acceptConfig(null);
-        }
+    @Test
+    void fullyAffordableRequestKeepsItsExactSize() throws Exception {
+        RecordingAccelerator accelerator = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.AccelerationRequest request =
+                new ExtendedTimeAccelerationManager.AccelerationRequest(16, 15);
+
+        var prepared = ExtendedTimeAccelerationManager
+                .prepareAcceptedAcceleration(accelerator, request)
+                .orElseThrow();
+
+        assertEquals(15, prepared.workTicks());
     }
 
     @Test
@@ -712,11 +855,18 @@ class ExtendedTimeAccelerationManagerTest {
     private static final class TestPreparationAdapter
             implements ExtendedTimeAccelerationManager.LevelPreparationAdapter {
         private final ServerLevel sourceLevel;
-        private final ServerLevel targetLevel;
         private final Map<BlockPos, BlockEntity> discovered;
         private final BlockPos proxy;
-        private final BlockPos direct;
-        private BlockPos resolvedProxyTarget;
+        private final Map<BlockPos, TimeAccelerationTarget> resolvedTargets = new HashMap<>();
+        private ExtendedTimeAccelerationManager.AccelerationRequest accelerationRequest =
+                new ExtendedTimeAccelerationManager.AccelerationRequest(2, 4);
+        private boolean ae2Enabled;
+        private boolean filterResult = true;
+        private boolean accepted = true;
+        private boolean lastAe2FallbackEnabled;
+        private long pendingLimit = 64L;
+        private int acceptCalls;
+        private int payCalls;
 
         private TestPreparationAdapter(ServerLevel sourceLevel, ServerLevel targetLevel,
                                        Map<BlockPos, BlockEntity> discovered,
@@ -728,15 +878,44 @@ class ExtendedTimeAccelerationManagerTest {
                                        Map<BlockPos, BlockEntity> discovered,
                                        BlockPos proxy, BlockPos direct, BlockPos resolvedProxyTarget) {
             this.sourceLevel = sourceLevel;
-            this.targetLevel = targetLevel;
             this.discovered = discovered;
             this.proxy = proxy;
-            this.direct = direct;
-            this.resolvedProxyTarget = resolvedProxyTarget;
+            bind(proxy, targetLevel, resolvedProxyTarget);
+            bind(direct, targetLevel, direct);
         }
 
         private void rebindProxy(BlockPos target) {
-            resolvedProxyTarget = target;
+            bind(proxy, resolvedTargets.get(proxy).level(), target);
+        }
+
+        private void bind(BlockPos source, ServerLevel level, BlockPos target) {
+            resolvedTargets.put(source.immutable(), new TimeAccelerationTarget(level, target));
+        }
+
+        private void setAe2Enabled(boolean ae2Enabled) {
+            this.ae2Enabled = ae2Enabled;
+        }
+
+        private void setRequest(int displayMultiplier, int workTicks) {
+            accelerationRequest = new ExtendedTimeAccelerationManager.AccelerationRequest(
+                    displayMultiplier, workTicks);
+        }
+
+        private void setAccepted(boolean accepted) {
+            this.accepted = accepted;
+        }
+
+        private void setFilterResult(boolean filterResult) {
+            this.filterResult = filterResult;
+        }
+
+        private void setPendingLimit(long pendingLimit) {
+            this.pendingLimit = pendingLimit;
+        }
+
+        private void resetSubmissionCalls() {
+            acceptCalls = 0;
+            payCalls = 0;
         }
 
         @Override
@@ -751,7 +930,7 @@ class ExtendedTimeAccelerationManagerTest {
 
         @Override
         public ExtendedTimeAccelerationManager.AccelerationRequest request(TimeAcceleratorBE accelerator) {
-            return new ExtendedTimeAccelerationManager.AccelerationRequest(2, 4);
+            return accelerationRequest;
         }
 
         @Override
@@ -761,7 +940,7 @@ class ExtendedTimeAccelerationManagerTest {
 
         @Override
         public boolean ae2Enabled(TimeAcceleratorBE accelerator) {
-            return false;
+            return ae2Enabled;
         }
 
         @Override
@@ -770,52 +949,107 @@ class ExtendedTimeAccelerationManagerTest {
         }
 
         @Override
-        public Optional<ExtendedTimeAccelerationManager.TargetKey> resolveTarget(
-                ServerLevel level, BlockPos pos, boolean ae2Enabled) {
-            if (pos.equals(proxy) || pos.equals(direct)) {
-                return Optional.of(new ExtendedTimeAccelerationManager.TargetKey(
-                        targetLevel, pos.equals(proxy) ? resolvedProxyTarget : direct,
-                        ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY));
-            }
-            return Optional.empty();
+        public Optional<TimeAccelerationTarget> resolveLocation(ServerLevel level, BlockPos pos) {
+            return Optional.ofNullable(resolvedTargets.get(pos));
         }
 
         @Override
-        public net.minecraft.world.level.block.state.BlockState state(
-                ExtendedTimeAccelerationManager.TargetKey target) {
-            return Blocks.STONE.defaultBlockState();
+        public Optional<net.minecraft.world.level.block.state.BlockState> loadedState(
+                ExtendedTimeAccelerationManager.TargetLocation location) {
+            return Optional.of(Blocks.STONE.defaultBlockState());
+        }
+
+        @Override
+        public Optional<ExtendedTimeAccelerationManager.TargetKey> classifyQueued(
+                ExtendedTimeAccelerationManager.TargetLocation location,
+                boolean ae2FallbackEnabled) {
+            lastAe2FallbackEnabled = ae2FallbackEnabled;
+            return Optional.of(new ExtendedTimeAccelerationManager.TargetKey(
+                    location.level(), location.pos(),
+                    ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY));
         }
 
         @Override
         public boolean filter(TimeAcceleratorBE accelerator,
-                              ExtendedTimeAccelerationManager.TargetKey target,
+                              ExtendedTimeAccelerationManager.TargetLocation location,
                               net.minecraft.world.level.block.state.BlockState state) {
-            return true;
+            return filterResult;
         }
 
         @Override
         public Optional<ExtendedTimeAccelerationManager.PreparedAcceleration> accept(
                 TimeAcceleratorBE accelerator,
-                ExtendedTimeAccelerationManager.AccelerationRequest request,
-                long maxPending, long highestPending) {
-            return Optional.of(new ExtendedTimeAccelerationManager.PreparedAcceleration(2, 4, 0, 0));
+                ExtendedTimeAccelerationManager.AccelerationRequest request) {
+            acceptCalls++;
+            return accepted
+                    ? Optional.of(new ExtendedTimeAccelerationManager.PreparedAcceleration(
+                            request.displayMultiplier(), request.workTicks(), 0, 0))
+                    : Optional.empty();
         }
 
         @Override
         public boolean pay(TimeAcceleratorBE accelerator,
                            ExtendedTimeAccelerationManager.PreparedAcceleration prepared) {
+            payCalls++;
             return true;
         }
 
         @Override
-        public long maxPending() {
-            return 64L;
+        public long pendingLimit(TimeAcceleratorBE accelerator, int displayMultiplier) {
+            return pendingLimit;
         }
 
         @Override
         public boolean includeRandomTargets() {
             return false;
         }
+    }
+
+    private static final class RecordingExternalBackend implements ExternalTimeAccelerationBackend {
+        private final Map<BlockPos, TargetResolution> resolutions = new HashMap<>();
+        private final List<String> events = new ArrayList<>();
+        private final List<ExternalSubmission> submissions = new ArrayList<>();
+        private int resolveCalls;
+
+        private void resolveAs(BlockPos pos, TargetResolution resolution) {
+            resolutions.put(pos.immutable(), resolution);
+        }
+
+        @Override
+        public void beginFrame(MinecraftServer server) {
+            events.add("begin");
+        }
+
+        @Override
+        public TargetResolution resolve(ServerLevel level, BlockPos pos) {
+            resolveCalls++;
+            events.add("resolve");
+            return resolutions.getOrDefault(pos, TargetResolution.notExternal());
+        }
+
+        @Override
+        public void submit(TargetHandle target, Object contributor, int additionalCycles) {
+            events.add("submit");
+            submissions.add(new ExternalSubmission(target, contributor, additionalCycles));
+        }
+
+        @Override
+        public void executeFrame(MinecraftServer server) {
+            events.add("execute");
+        }
+
+        @Override
+        public void clearFrame(MinecraftServer server) {
+            events.add("clear");
+        }
+    }
+
+    private record ExternalSubmission(ExternalTimeAccelerationBackend.TargetHandle handle,
+                                      Object contributor, int additionalCycles) {
+    }
+
+    private record TestExternalHandle(String id)
+            implements ExternalTimeAccelerationBackend.TargetHandle {
     }
 
     private static final class MapTargetLookup {
@@ -940,7 +1174,7 @@ class ExtendedTimeAccelerationManagerTest {
 
         @Override
         protected boolean hasResources(int fluidCost, int energyCost) {
-            return fluidCost <= 1000 && energyCost <= 1000;
+            return fluidCost <= 2 && energyCost <= 2;
         }
 
         @Override

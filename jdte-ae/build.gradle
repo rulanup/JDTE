@@ -1,0 +1,148 @@
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'net.neoforged.moddev' version '2.0.137'
+}
+
+import org.gradle.api.Action
+import org.gradle.api.file.FileCopyDetails
+
+class ExpandAddonPropertiesAction implements Action<FileCopyDetails>, Serializable {
+    private final Map<String, ?> properties
+
+    ExpandAddonPropertiesAction(Map<String, ?> properties) {
+        this.properties = new LinkedHashMap<>(properties)
+    }
+
+    @Override
+    void execute(FileCopyDetails details) {
+        details.expand(properties)
+    }
+}
+
+version = rootProject.mod_version
+group = rootProject.mod_group_id
+
+base {
+    archivesName = rootProject.ae_addon_archive_name
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+}
+
+configurations {
+    localRuntime
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+neoForge {
+    version = rootProject.neo_version_dev
+
+    parchment {
+        mappingsVersion = rootProject.parchment_mappings_version
+        minecraftVersion = rootProject.parchment_minecraft_version
+    }
+
+    mods {
+        jdte {
+            sourceSet rootProject.sourceSets.main
+        }
+        jdte_ae {
+            sourceSet sourceSets.main
+        }
+    }
+
+    runs {
+        server {
+            server()
+            programArgument '--nogui'
+            gameDirectory = file('runs/server')
+        }
+    }
+
+    unitTest {
+        enable()
+        testedMod = mods.jdte_ae
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = 'https://maven.neoforged.net/releases' }
+    maven { url = 'https://maven.parchmentmc.org' }
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = "https://cursemaven.com"
+            }
+        }
+        filter {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
+dependencies {
+    implementation project(':')
+    implementation "net.neoforged:neoforge:${rootProject.neo_version}"
+    implementation "org.appliedenergistics:appliedenergistics2:${rootProject.ae2_version}"
+    testImplementation 'com.electronwill.night-config:toml:3.8.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly 'curse.maven:just-dire-things-1002348:7463040'
+    testRuntimeOnly "curse.maven:curios-309927:${rootProject.curios_curse_file}"
+    testRuntimeOnly "curse.maven:glodium-957920:${rootProject.glodium_file}"
+    testRuntimeOnly "de.mari_023:ae2wtlib_api:${rootProject.ae2wtlib_version}"
+    testRuntimeOnly "curse.maven:ex-pattern-provider-892005:${rootProject.extendedae_file}"
+    localRuntime "curse.maven:just-dire-things-1002348:7463040"
+    localRuntime "curse.maven:curios-309927:${rootProject.curios_curse_file}"
+    localRuntime "org.appliedenergistics:appliedenergistics2:${rootProject.ae2_version}"
+    localRuntime "curse.maven:glodium-957920:${rootProject.glodium_file}"
+    localRuntime "de.mari_023:ae2wtlib_api:${rootProject.ae2wtlib_version}"
+    localRuntime "curse.maven:ex-pattern-provider-892005:${rootProject.extendedae_file}"
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            loader_version_range: rootProject.loader_version_range,
+            mod_license: rootProject.mod_license,
+            mod_version: rootProject.mod_version,
+            mod_authors: rootProject.mod_authors,
+            neo_version_range: rootProject.neo_version_range,
+            ae2_version: rootProject.ae2_version,
+            ae_addon_mod_id: rootProject.ae_addon_mod_id,
+            ae_addon_mod_name: rootProject.ae_addon_mod_name,
+            ae_addon_archive_name: rootProject.ae_addon_archive_name,
+            ae_addon_minecraft_version_range: rootProject.ae_addon_minecraft_version_range,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml'], new ExpandAddonPropertiesAction(replaceProperties))
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                "Specification-Title"   : rootProject.ae_addon_mod_id,
+                "Specification-Vendor"  : rootProject.mod_authors,
+                "Specification-Version" : "1",
+                "Implementation-Title"  : project.name,
+                "Implementation-Version": project.version,
+                "Implementation-Vendor" : rootProject.mod_authors
+        ])
+    }
+}

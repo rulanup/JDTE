@@ -1,6 +1,8 @@
 package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.util.MiscTools;
+import com.jdte.common.acceleration.ExternalTimeAccelerationBackend;
+import com.jdte.common.acceleration.ExternalTimeAccelerationBackends;
 import com.jdte.common.entities.TimeAcceleratorEffectEntity;
 import com.jdte.common.entities.UltimateTimeWandEntity;
 import com.jdte.common.content.JDTEContentControl;
@@ -37,8 +39,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public final class ExtendedTimeAccelerationManager {
     private static final TagKey<Block> JDT_TICK_SPEED_DENY = BlockTags.create(
@@ -262,6 +266,36 @@ public final class ExtendedTimeAccelerationManager {
         return target.flatMap(resolved -> classifyTarget(resolved, ae2AccelerationEnabled));
     }
 
+    static Optional<RoutedTarget> routeExternalTarget(
+            ExternalTimeAccelerationBackend.TargetResolution resolution,
+            Supplier<Optional<TargetKey>> queuedClassifier) {
+        Objects.requireNonNull(resolution, "resolution");
+        Objects.requireNonNull(queuedClassifier, "queuedClassifier");
+        return switch (resolution.state()) {
+            case ACTIVE_EXTERNAL -> Optional.of(RoutedTarget.external(resolution.handle()));
+            case INACTIVE_EXTERNAL -> Optional.empty();
+            case NOT_EXTERNAL -> queuedClassifier.get().map(RoutedTarget::queued);
+        };
+    }
+
+    static Optional<DiscoveredTarget> classifyMachineTarget(
+            TargetLocation location, boolean ae2AccelerationEnabled,
+            ExternalTimeAccelerationBackend backend,
+            QueuedTargetClassifier queuedClassifier) {
+        Objects.requireNonNull(location, "location");
+        Objects.requireNonNull(queuedClassifier, "queuedClassifier");
+        if (ae2AccelerationEnabled && backend != null) {
+            return routeExternalTarget(
+                    backend.resolve(location.level(), location.pos()),
+                    () -> queuedClassifier.classify(location, false))
+                    .map(route -> route.isExternal()
+                            ? DiscoveredTarget.external(location, route.externalHandle())
+                            : DiscoveredTarget.queued(route.queuedTarget()));
+        }
+        return queuedClassifier.classify(location, ae2AccelerationEnabled)
+                .map(DiscoveredTarget::queued);
+    }
+
     private static Optional<TargetKey> classifyTarget(TimeAccelerationTarget target,
                                                        boolean ae2AccelerationEnabled) {
         ServerLevel level = target.level();
@@ -279,10 +313,6 @@ public final class ExtendedTimeAccelerationManager {
             TargetKind kind = selectTargetKind(
                     isAE2Target(level, pos, blockEntity), ae2AccelerationEnabled,
                     isBlockEntityTarget(level, blockEntity));
-            if (kind == TargetKind.AE2_GRID
-                    && !MiscTools.isValidTickAccelBlock(level, state, blockEntity)) {
-                return Optional.empty();
-            }
             return kind == null ? Optional.empty() : Optional.of(new TargetKey(level, pos, kind));
         }
         if (!state.hasBlockEntity() && state.isRandomlyTicking()
@@ -310,6 +340,11 @@ public final class ExtendedTimeAccelerationManager {
         BlockEntity get(ServerLevel level, BlockPos pos);
     }
 
+    @FunctionalInterface
+    interface QueuedTargetClassifier {
+        Optional<TargetKey> classify(TargetLocation location, boolean ae2FallbackEnabled);
+    }
+
     static AccelerationRequest requestAcceleration(TimeAcceleratorBE accelerator) {
         int displayMultiplier = accelerator.getEffectiveMultiplier();
         int workTicks = accelerator.getAccelerationWorkTicks(displayMultiplier);
@@ -322,45 +357,15 @@ public final class ExtendedTimeAccelerationManager {
     }
 
     static Optional<PreparedAcceleration> prepareAcceptedAcceleration(
-            TimeAcceleratorBE accelerator, AccelerationRequest request,
-            long maxPendingTicks, long highestPendingTicks) {
-        int acceptedWorkTicks = TimeAcceleratorExecutionPolicy.admittedWorkTicks(
-                request.workTicks(), maxPendingTicks, highestPendingTicks);
-        if (acceptedWorkTicks <= 0) {
+            TimeAcceleratorBE accelerator, AccelerationRequest request) {
+        if (request.workTicks() <= 0) {
             return Optional.empty();
         }
-        acceptedWorkTicks = largestAffordableWorkTicks(
-                accelerator, request.displayMultiplier(), acceptedWorkTicks);
-        if (acceptedWorkTicks <= 0) {
-            return Optional.empty();
-        }
-        return Optional.of(prepareAcceleration(
-                accelerator, request.displayMultiplier(), acceptedWorkTicks));
-    }
-
-    private static int largestAffordableWorkTicks(
-            TimeAcceleratorBE accelerator, int displayMultiplier, int requestedWorkTicks) {
-        PreparedAcceleration requested = prepareAcceleration(
-                accelerator, displayMultiplier, requestedWorkTicks);
-        if (accelerator.hasResources(requested.fluidCost(), requested.energyCost())) {
-            return requestedWorkTicks;
-        }
-
-        int low = 1;
-        int high = requestedWorkTicks - 1;
-        int largestAffordable = 0;
-        while (low <= high) {
-            int candidateWorkTicks = low + (high - low) / 2;
-            PreparedAcceleration candidate = prepareAcceleration(
-                    accelerator, displayMultiplier, candidateWorkTicks);
-            if (accelerator.hasResources(candidate.fluidCost(), candidate.energyCost())) {
-                largestAffordable = candidateWorkTicks;
-                low = candidateWorkTicks + 1;
-            } else {
-                high = candidateWorkTicks - 1;
-            }
-        }
-        return largestAffordable;
+        PreparedAcceleration prepared = prepareAcceleration(
+                accelerator, request.displayMultiplier(), request.workTicks());
+        return accelerator.hasResources(prepared.fluidCost(), prepared.energyCost())
+                ? Optional.of(prepared)
+                : Optional.empty();
     }
 
     private static PreparedAcceleration prepareAcceleration(
@@ -404,33 +409,81 @@ public final class ExtendedTimeAccelerationManager {
         long executionExtra = executionBudget == Long.MAX_VALUE ? 0L : executionBudget % states.size();
         int scanBase = scanBudget / states.size();
         int scanExtra = scanBudget % states.size();
+        ExternalTimeAccelerationBackend backend =
+                ExternalTimeAccelerationBackends.current().orElse(null);
+        List<FrameWork> frameWork = new ArrayList<>(states.size());
         for (int offset = 0; offset < states.size(); offset++) {
             Map.Entry<ServerLevel, LevelState> entry = states.get((startIndex + offset) % states.size());
             int levelScanBudget = scanBase + (offset < scanExtra ? 1 : 0);
             long levelExecutionBudget = executionBudget == Long.MAX_VALUE
                     ? Long.MAX_VALUE
                     : executionBase + (offset < executionExtra ? 1L : 0L);
-            entry.getValue().prepare(entry.getKey(), levelScanBudget);
-            entry.getValue().execute(entry.getKey(), levelExecutionBudget);
+            frameWork.add(new FrameWork(
+                    () -> entry.getValue().prepare(entry.getKey(), levelScanBudget, backend),
+                    () -> entry.getValue().execute(entry.getKey(), levelExecutionBudget)));
+        }
+        runAccelerationFrame(server, backend, frameWork);
+    }
+
+    static void runAccelerationFrame(MinecraftServer server,
+                                     ExternalTimeAccelerationBackend backend,
+                                     List<FrameWork> work) {
+        Objects.requireNonNull(work, "work");
+        boolean frameOpen = false;
+        try {
+            if (backend != null) {
+                backend.beginFrame(server);
+                frameOpen = true;
+            }
+            for (FrameWork item : work) {
+                item.prepare().run();
+            }
+            for (FrameWork item : work) {
+                item.executeOrdinary().run();
+            }
+            if (backend != null) {
+                backend.executeFrame(server);
+            }
+        } finally {
+            if (frameOpen) {
+                backend.clearFrame(server);
+            }
         }
     }
 
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel level) {
-            LEVELS.remove(level);
+            try {
+                ExternalTimeAccelerationBackends.current()
+                        .ifPresent(backend -> backend.onLevelUnload(level));
+            } finally {
+                LEVELS.remove(level);
+            }
         }
     }
 
     public static void onServerStopped(ServerStoppedEvent event) {
         MinecraftServer server = event.getServer();
-        LEVELS.keySet().removeIf(level -> level.getServer() == server);
-        LEVEL_CURSORS.remove(server);
+        try {
+            ExternalTimeAccelerationBackends.current()
+                    .ifPresent(backend -> backend.onServerStopped(server));
+        } finally {
+            LEVELS.keySet().removeIf(level -> level.getServer() == server);
+            LEVEL_CURSORS.remove(server);
+        }
     }
 
     enum TargetKind {
         BLOCK_ENTITY,
         RANDOM_TICK,
         AE2_GRID
+    }
+
+    record TargetLocation(ServerLevel level, BlockPos pos) {
+        TargetLocation {
+            Objects.requireNonNull(level, "level");
+            pos = Objects.requireNonNull(pos, "pos").immutable();
+        }
     }
 
     static record TargetKey(ServerLevel targetLevel, BlockPos pos, TargetKind kind) {
@@ -461,6 +514,55 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
+    record RoutedTarget(TargetKey queuedTarget,
+                        ExternalTimeAccelerationBackend.TargetHandle externalHandle) {
+        RoutedTarget {
+            if ((queuedTarget == null) == (externalHandle == null)) {
+                throw new IllegalArgumentException(
+                        "A routed target must be either queued or external");
+            }
+        }
+
+        static RoutedTarget queued(TargetKey target) {
+            return new RoutedTarget(Objects.requireNonNull(target, "target"), null);
+        }
+
+        static RoutedTarget external(ExternalTimeAccelerationBackend.TargetHandle handle) {
+            return new RoutedTarget(null, Objects.requireNonNull(handle, "handle"));
+        }
+
+        boolean isExternal() {
+            return externalHandle != null;
+        }
+    }
+
+    record DiscoveredTarget(TargetLocation location, TargetKey queuedTarget,
+                            ExternalTimeAccelerationBackend.TargetHandle externalHandle) {
+        DiscoveredTarget {
+            Objects.requireNonNull(location, "location");
+            if ((queuedTarget == null) == (externalHandle == null)) {
+                throw new IllegalArgumentException(
+                        "A discovered target must be either queued or external");
+            }
+        }
+
+        static DiscoveredTarget queued(TargetKey target) {
+            Objects.requireNonNull(target, "target");
+            return new DiscoveredTarget(
+                    new TargetLocation(target.targetLevel(), target.pos()), target, null);
+        }
+
+        static DiscoveredTarget external(
+                TargetLocation location,
+                ExternalTimeAccelerationBackend.TargetHandle handle) {
+            return new DiscoveredTarget(location, null, Objects.requireNonNull(handle, "handle"));
+        }
+
+        boolean isExternal() {
+            return externalHandle != null;
+        }
+    }
+
     record PreparedAcceleration(int displayMultiplier, int workTicks, int fluidCost, int energyCost) {
     }
 
@@ -468,6 +570,13 @@ public final class ExtendedTimeAccelerationManager {
     }
 
     private record WandSubmission(TargetKey target, int workTicks) {
+    }
+
+    record FrameWork(Runnable prepare, Runnable executeOrdinary) {
+        FrameWork {
+            Objects.requireNonNull(prepare, "prepare");
+            Objects.requireNonNull(executeOrdinary, "executeOrdinary");
+        }
     }
 
     private static final class TickBudget {
@@ -491,20 +600,33 @@ public final class ExtendedTimeAccelerationManager {
         private final AABB area;
         private final AccelerationRequest request;
         private final boolean ae2AccelerationEnabled;
-        private final Set<TargetKey> targets = new LinkedHashSet<>();
+        private final ExternalTimeAccelerationBackend externalBackend;
+        private final Set<TargetKey> queuedTargets = new LinkedHashSet<>();
+        private final Map<ExternalTimeAccelerationBackend.TargetHandle, TargetLocation> externalTargets =
+                new LinkedHashMap<>();
 
         private AcceleratorContext(TimeAcceleratorBE accelerator, AABB area,
-                                   AccelerationRequest request, boolean ae2AccelerationEnabled) {
+                                   AccelerationRequest request, boolean ae2AccelerationEnabled,
+                                   ExternalTimeAccelerationBackend externalBackend) {
             this.accelerator = accelerator;
             this.area = area;
             this.request = request;
             this.ae2AccelerationEnabled = ae2AccelerationEnabled;
+            this.externalBackend = externalBackend;
         }
 
         private boolean contains(BlockPos pos) {
             return pos.getX() >= area.minX && pos.getX() < area.maxX
                     && pos.getY() >= area.minY && pos.getY() < area.maxY
                     && pos.getZ() >= area.minZ && pos.getZ() < area.maxZ;
+        }
+
+        private void addTarget(DiscoveredTarget target) {
+            if (target.isExternal()) {
+                externalTargets.putIfAbsent(target.externalHandle(), target.location());
+            } else {
+                queuedTargets.add(target.queuedTarget());
+            }
         }
     }
 
@@ -537,18 +659,20 @@ public final class ExtendedTimeAccelerationManager {
 
         Map<BlockPos, BlockEntity> blockEntities(ServerLevel level, ChunkPos chunkPos);
 
-        Optional<TargetKey> resolveTarget(ServerLevel level, BlockPos pos, boolean ae2Enabled);
+        Optional<TimeAccelerationTarget> resolveLocation(ServerLevel level, BlockPos pos);
 
-        BlockState state(TargetKey target);
+        Optional<BlockState> loadedState(TargetLocation location);
 
-        boolean filter(TimeAcceleratorBE accelerator, TargetKey target, BlockState state);
+        Optional<TargetKey> classifyQueued(TargetLocation location, boolean ae2FallbackEnabled);
 
-        Optional<PreparedAcceleration> accept(TimeAcceleratorBE accelerator, AccelerationRequest request,
-                                              long maxPending, long highestPending);
+        boolean filter(TimeAcceleratorBE accelerator, TargetLocation location, BlockState state);
+
+        Optional<PreparedAcceleration> accept(TimeAcceleratorBE accelerator,
+                                              AccelerationRequest request);
 
         boolean pay(TimeAcceleratorBE accelerator, PreparedAcceleration prepared);
 
-        long maxPending();
+        long pendingLimit(TimeAcceleratorBE accelerator, int displayMultiplier);
 
         default boolean includeRandomTargets() {
             return true;
@@ -589,24 +713,33 @@ public final class ExtendedTimeAccelerationManager {
         }
 
         @Override
-        public Optional<TargetKey> resolveTarget(ServerLevel level, BlockPos pos, boolean ae2Enabled) {
-            return resolveTargetKey(level, pos, ae2Enabled);
+        public Optional<TimeAccelerationTarget> resolveLocation(ServerLevel level, BlockPos pos) {
+            return resolveTimeAccelerationTarget(level, pos);
         }
 
         @Override
-        public BlockState state(TargetKey target) {
-            return getLoadedBlockState(target.targetLevel(), target.pos()).orElse(Blocks.AIR.defaultBlockState());
+        public Optional<BlockState> loadedState(TargetLocation location) {
+            return getLoadedBlockState(location.level(), location.pos());
         }
 
         @Override
-        public boolean filter(TimeAcceleratorBE accelerator, TargetKey target, BlockState state) {
-            return accelerator.isBlockValidFilter(target.targetLevel(), target.pos(), state);
+        public Optional<TargetKey> classifyQueued(TargetLocation location,
+                                                  boolean ae2FallbackEnabled) {
+            return classifyTarget(
+                    new TimeAccelerationTarget(location.level(), location.pos()),
+                    ae2FallbackEnabled);
         }
 
         @Override
-        public Optional<PreparedAcceleration> accept(TimeAcceleratorBE accelerator, AccelerationRequest request,
-                                                     long maxPending, long highestPending) {
-            return prepareAcceptedAcceleration(accelerator, request, maxPending, highestPending);
+        public boolean filter(TimeAcceleratorBE accelerator, TargetLocation location,
+                              BlockState state) {
+            return accelerator.isBlockValidFilter(location.level(), location.pos(), state);
+        }
+
+        @Override
+        public Optional<PreparedAcceleration> accept(TimeAcceleratorBE accelerator,
+                                                     AccelerationRequest request) {
+            return prepareAcceptedAcceleration(accelerator, request);
         }
 
         @Override
@@ -615,8 +748,8 @@ public final class ExtendedTimeAccelerationManager {
         }
 
         @Override
-        public long maxPending() {
-            return JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get();
+        public long pendingLimit(TimeAcceleratorBE accelerator, int displayMultiplier) {
+            return accelerator.getAccelerationPendingLimit(displayMultiplier);
         }
     };
 
@@ -659,11 +792,18 @@ public final class ExtendedTimeAccelerationManager {
             workQueue.retainContributors((target, source) -> source != accelerator);
         }
 
-        private void prepare(ServerLevel level, int maxScannedBlocks) {
-            prepare(level, maxScannedBlocks, SERVER_PREPARATION);
+        private void prepare(ServerLevel level, int maxScannedBlocks,
+                             ExternalTimeAccelerationBackend externalBackend) {
+            prepare(level, maxScannedBlocks, externalBackend, SERVER_PREPARATION);
         }
 
         void prepare(ServerLevel level, int maxScannedBlocks, LevelPreparationAdapter adapter) {
+            prepare(level, maxScannedBlocks, null, adapter);
+        }
+
+        void prepare(ServerLevel level, int maxScannedBlocks,
+                     ExternalTimeAccelerationBackend externalBackend,
+                     LevelPreparationAdapter adapter) {
             TickBudget scanBudget = new TickBudget(maxScannedBlocks);
             long gameTime = adapter.gameTime(level);
             if (gameTime % 200L == 0L) {
@@ -674,7 +814,7 @@ public final class ExtendedTimeAccelerationManager {
             active.addAll(submittedWands.keySet());
             Set<Object> ae2Active = Collections.newSetFromMap(new IdentityHashMap<>());
             ae2Active.addAll(submittedWands.keySet());
-            if (isAE2AccelerationConfigured()) {
+            if (externalBackend == null && isAE2AccelerationConfigured()) {
                 for (TimeAcceleratorBE accelerator : submitted) {
                     if (UpgradeHelper.hasAEAccelerationUpgrade(accelerator)) {
                         ae2Active.add(accelerator);
@@ -706,7 +846,7 @@ public final class ExtendedTimeAccelerationManager {
                 AABB area = adapter.area(accelerator);
                 boolean ae2AccelerationEnabled = adapter.ae2Enabled(accelerator);
                 AcceleratorContext context = new AcceleratorContext(
-                        accelerator, area, request, ae2AccelerationEnabled);
+                        accelerator, area, request, ae2AccelerationEnabled, externalBackend);
                 contexts.add(context);
                 int minChunkX = SectionPos.blockToSectionCoord(Mth.floor(area.minX));
                 int maxChunkX = SectionPos.blockToSectionCoord(Mth.ceil(area.maxX) - 1);
@@ -724,34 +864,50 @@ public final class ExtendedTimeAccelerationManager {
                 discoverBlockEntities(level, byChunk, adapter);
                 if (adapter.includeRandomTargets()) {
                     for (AcceleratorContext context : contexts) {
-                        context.targets.addAll(getRandomTargets(level, context, scanBudget));
+                        context.queuedTargets.addAll(getRandomTargets(level, context, scanBudget));
                     }
                 }
             }
 
-            long maxPending = adapter.maxPending();
             for (AcceleratorContext context : contexts) {
-                reconcilePreparedTargets(workQueue, context.targets, context.accelerator);
-                if (context.targets.isEmpty()) {
+                reconcilePreparedTargets(workQueue, context.queuedTargets, context.accelerator);
+                boolean hasAnyTarget = !context.queuedTargets.isEmpty()
+                        || !context.externalTargets.isEmpty();
+                if (!hasAnyTarget || context.request.workTicks() <= 0) {
                     continue;
                 }
-                long highestPending = workQueue.highestPendingTicks(context.targets);
-                Optional<PreparedAcceleration> accepted = adapter.accept(
-                        context.accelerator, context.request, maxPending, highestPending);
+                long pendingLimit = adapter.pendingLimit(
+                        context.accelerator, context.request.displayMultiplier());
+                if (!context.queuedTargets.isEmpty()
+                        && !workQueue.canEnqueueAll(context.queuedTargets, context.accelerator,
+                        context.request.workTicks(), pendingLimit)) {
+                    continue;
+                }
+                Optional<PreparedAcceleration> accepted =
+                        adapter.accept(context.accelerator, context.request);
                 if (accepted.isEmpty() || !adapter.pay(context.accelerator, accepted.get())) {
                     continue;
                 }
                 PreparedAcceleration prepared = accepted.get();
-                enqueuePreparedTargets(workQueue, context.targets, context.accelerator,
-                        prepared.workTicks(), prepared.displayMultiplier(), maxPending);
+                enqueuePreparedTargets(workQueue, context.queuedTargets, context.accelerator,
+                        prepared.workTicks(), prepared.displayMultiplier(), pendingLimit);
+                if (context.externalBackend != null) {
+                    for (ExternalTimeAccelerationBackend.TargetHandle handle
+                            : context.externalTargets.keySet()) {
+                        context.externalBackend.submit(
+                                handle, context.accelerator, prepared.workTicks());
+                    }
+                }
             }
 
+            long wandPendingLimit = JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get();
             for (Map.Entry<UltimateTimeWandEntity, WandSubmission> entry : submittedWands.entrySet()) {
                 WandSubmission submission = entry.getValue();
-                int accepted = TimeAcceleratorExecutionPolicy.admittedWorkTicks(
-                        submission.workTicks(), maxPending, workQueue.pendingTicks(submission.target()));
+                int accepted = TimeAcceleratorExecutionPolicy.admittedWandWorkTicks(
+                        submission.workTicks(), wandPendingLimit,
+                        workQueue.pendingTicks(submission.target()));
                 if (accepted > 0) {
-                    workQueue.enqueue(submission.target(), entry.getKey(), accepted, 0, maxPending);
+                    workQueue.enqueue(submission.target(), entry.getKey(), accepted, 0, wandPendingLimit);
                     if (submission.target().kind() == TargetKind.AE2_GRID) {
                         wandAe2Targets.add(submission.target());
                     }
@@ -785,15 +941,25 @@ public final class ExtendedTimeAccelerationManager {
                         if (!context.contains(pos)) {
                             continue;
                         }
-                        Optional<TargetKey> target = adapter.resolveTarget(
-                                level, pos, context.ae2AccelerationEnabled);
-                        if (target.isPresent()) {
-                            TargetKey key = target.get();
-                            BlockState state = adapter.state(key);
-                            if (adapter.filter(context.accelerator, key, state)) {
-                                context.targets.add(key);
-                            }
+                        Optional<TimeAccelerationTarget> resolved =
+                                adapter.resolveLocation(level, pos);
+                        if (resolved.isEmpty()) {
+                            continue;
                         }
+                        TargetLocation location = new TargetLocation(
+                                resolved.get().level(), resolved.get().pos());
+                        Optional<BlockState> loadedState = adapter.loadedState(location);
+                        if (loadedState.isEmpty()
+                                || !adapter.filter(
+                                        context.accelerator, location, loadedState.get())) {
+                            continue;
+                        }
+                        classifyMachineTarget(
+                                location,
+                                context.ae2AccelerationEnabled,
+                                context.externalBackend,
+                                adapter::classifyQueued)
+                                .ifPresent(context::addTarget);
                     }
                 }
             }

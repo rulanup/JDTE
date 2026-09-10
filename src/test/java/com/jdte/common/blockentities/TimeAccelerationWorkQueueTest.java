@@ -12,6 +12,8 @@ import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class TimeAccelerationWorkQueueTest {
@@ -177,6 +179,32 @@ class TimeAccelerationWorkQueueTest {
                 });
 
         assertEquals(12, used);
+    }
+
+    @Test
+    void pendingLimitIsPerTargetAndContributor() {
+        TimeAccelerationWorkQueue<Object, String> queue = new TimeAccelerationWorkQueue<>();
+        Object first = new Object();
+        Object second = new Object();
+
+        queue.enqueue("grid", first, 15, 16, 20);
+        queue.enqueue("grid", second, 15, 16, 20);
+
+        assertEquals(15, queue.pendingTicks("grid", first));
+        assertEquals(15, queue.pendingTicks("grid", second));
+        assertEquals(30, queue.pendingTicks("grid"));
+        assertFalse(queue.canEnqueueAll(Set.of("grid"), first, 6, 20));
+        assertTrue(queue.canEnqueueAll(Set.of("grid"), second, 5, 20));
+    }
+
+    @Test
+    void groupAdmissionRejectsWhenAnyOrdinaryTargetIsFull() {
+        TimeAccelerationWorkQueue<Object, String> queue = new TimeAccelerationWorkQueue<>();
+        Object source = new Object();
+        queue.enqueue("full", source, 20, 16, 20);
+
+        assertFalse(queue.canEnqueueAll(Set.of("full", "empty"), source, 15, 20));
+        assertEquals(0, queue.pendingTicks("empty"));
     }
 
     @Test

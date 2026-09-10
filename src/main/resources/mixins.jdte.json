@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractContainerMenuInvoker",
-    "AbstractContainerScreenMixin",
     "BaseMachineBEMixin",
     "BaseMachineBlockMixin",
     "BaseMachineContainerMixin",
@@ -39,6 +38,7 @@
   ],
   "client": [
     "ScreenMixin",
+    "AbstractContainerScreenMixin",
     "BaseMachineScreenAccessor",
     "BaseMachineScreenMixin",
     "BlockEntityRenderDispatcherMixin",

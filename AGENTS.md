@@ -18,7 +18,8 @@ Major features:
 
 - 16 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, and AE Output. Looting and Sharpness are dedicated upgrade items outside UpgradeType.
 - AE Extraction Upgrade (`jdte:ae_extraction_upgrade`): an AE2 Wireless Access Point-bound smithing upgrade that refills carried JDT/JDTE FE and fluid items, with optional Applied Flux integration and conservative empty-universal-tank selection.
-- Basic, Advanced, and Extended Advanced Time Accelerators.
+- Basic, Advanced, and Extended Advanced Time Accelerators with strict native-tick-inclusive multipliers.
+- Optional independent JDTE-AE (`jdte_ae`) addon for complete AE2 Grid lifecycle acceleration, including Molecular Assemblers, crafting services, and compatible AE addons.
 - Time Freezer and Extended Time Freezer machines that consume Time Fluid to freeze a dimension's day/night cycle and weather, plus the permission-4 `/jdte timefreezer list` command for server operators.
 - Ultimate Portal Gun (`jdte:ultimate_portal_gun`): a JDT Advanced Portal Gun enhancement with a 1000 B single large Portal Fluid tank, unlimited teleport slots in a paginated radial menu (V key), manual coordinate editing with full server dimension selection, and per-slot fluid pricing.
 - Big Fluid Tank (`jdte:big_fluid_tank`): a 1000 B fluid tank with JDT Fluid Canister behavior, a fourth fill mode (None / JDT / JDTE / All), and a dedicated Curios `big_fluid_tank` slot.
@@ -72,6 +73,8 @@ Common commands:
 ./gradlew jar
 ./gradlew runClient
 ./gradlew runServer
+./gradlew :jdte-ae:build
+./gradlew :jdte-ae:runServer
 ```
 
 If dependency resolution fails, verify CurseMaven access and the coordinates in `dependencies.gradle` before changing source code.
@@ -84,6 +87,8 @@ The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and Produ
 |------------|---------|---------|
 | NeoForge | `21.1.216+`; dev `21.1.233` | Mod loader and API |
 | Just Dire Things | `1.5.7` | Base machines, interfaces, config, and Time Fluid |
+| Applied Energistics 2 | `19.2.17+` | Optional main-mod integrations; required by the matching JDTE-AE full-grid addon |
+| ExtendedAE | CurseForge `8025439` | Development verification runtime only; never a published JDTE or JDTE-AE hard dependency |
 | GuideME | `21.1.16` | In-game documentation |
 | JEI | `19.27.0.340` | Recipe categories, catalysts, information pages, and GUI click areas |
 | Apothic Spawners | CurseForge `7492121` | Optional spawner cycle and XP compatibility |
@@ -138,6 +143,8 @@ src/main/
     `-- META-INF/neoforge.mods.toml
 ```
 
+The independent `jdte-ae/` Gradle subproject builds `jdte-ae-<version>.jar`. It owns the AE2-specific Grid resolver, lifecycle executor, and `TickHandler#getCurrentTick()` Mixin; the main source set exposes only an AE-neutral acceleration backend SPI.
+
 ## Registration Flow
 
 Core registration is performed from the `JDTE` constructor in this order:
@@ -175,7 +182,7 @@ Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItem
 | `CREATIVE` | `creative` | 1 | Removes FE cost, removes Time Fluid cost for accelerators, and includes overclock behavior |
 | `FORTUNE` | `fortune` | 8 | Gel Generator, Crystal Incubator, and Greenhouse; Greenhouse uses a machine-specific limit of 3 |
 | `PRECISION` | `precision` | 1 | Crystal Incubator only; applies vanilla Silk Touch loot behavior and conflicts with Fortune |
-| `AE_ACCELERATION` | `ae_acceleration` | 1 | Basic, Advanced, and Extended Time Accelerators only; enables AE2 `IGridTickable` acceleration |
+| `AE_ACCELERATION` | `ae_acceleration` | 1 | Basic, Advanced, and Extended Time Accelerators only; enables the optional AE2 per-device fallback or JDTE-AE full-grid acceleration |
 | `AE_CRAFTING_READ` | `ae_crafting_read` | 1 | Compatible machines run only while a linked AE2 network has an active crafting task; optional AE2 integration |
 
 Fortune and Precision are standard `UpgradeType` values restricted to supported production machines; they conflict on the Crystal Incubator like vanilla Fortune and Silk Touch. Looting and Sharpness are dedicated upgrade items and are not members of `UpgradeType`. Bio Crushers accept up to six of each in dedicated slots. The Loot Fabricator uses `LootFabricatorUpgradeItemStackHandler` to allow up to three Looting Upgrades alongside eight standard slots.
@@ -211,7 +218,7 @@ Core behavior:
 - Other `TimeAcceleratorMachine` instances are skipped to prevent recursive acceleration.
 - Only blocks accepted by `MiscTools.isValidTickAccelBlock()` are accelerated.
 - Block entity tickers and random block ticks are invoked repeatedly according to the effective multiplier.
-- FE and Time Fluid are consumed only when acceleration succeeds.
+- FE and Time Fluid are consumed only when the entire requested batch is admitted; insufficient resources reject the batch without charging or silently reducing its multiplier.
 - Filter pages restrict eligible targets.
 
 | Block entity | Inheritance | Default behavior |
@@ -222,7 +229,11 @@ Core behavior:
 
 Advanced defaults include `BASE_ENERGY_CAPACITY = 200000`, `MAX_MULTIPLIER = 64`, and `OVERCLOCK_MULTIPLIER = 128`. FE cost derives from `Config.TIMEWAND_RF_COST`; fluid cost derives from `Config.TIMEWAND_FLUID_COST` and `JDTEConfig.COMMON.timeAcceleratorFluidCostMultiplier`, then applies fixed Basic/Advanced/Extended tier factors of 1x/2x/5x. The base fluid multiplier can be changed with `/jdte timeaccelerator fluidCostMultiplier <value>`.
 
-All three tiers use the shared `ExtendedTimeAccelerationManager`. Active accelerators submit work to a server-post-tick scheduler that discovers loaded block entities through chunk maps, sums overlapping multipliers without discarding contributions, rotates bounded target batches under fixed per-tick execution and scan budgets, and retains paid virtual ticks while their contributing accelerators remain active. High server MSPT no longer pauses acceleration; excess work remains queued instead. Random-ticking targets use a periodically refreshed cache. With one AE Acceleration Upgrade installed, optional AE2 support resolves public in-world grid nodes and invokes their `IGridTickable` services without reflection or mixins; removing the card prunes only that accelerator's retained AE2 contributions. `TimeAcceleratorBE.accelerateArea()` remains as the fallback/reference implementation.
+All three tiers use the shared `ExtendedTimeAccelerationManager`. Nominal `X` includes the native target tick, so each accelerator submits `X - 1` additional cycles and overlaps resolve to `1 + sum(X_i - 1)`; two 16x accelerators therefore produce 31x. Ordinary block entities and random-tick targets are discovered through chunk maps, rotate through bounded batches under fixed per-tick execution and scan budgets, and retain paid virtual ticks only while their contributors remain active. High server MSPT does not pause acceleration; excess ordinary work remains queued. `TimeAcceleratorBE.accelerateArea()` remains the fallback/reference implementation.
+
+The main `jdte` artifact keeps AE2 optional. When no external backend is registered, an AE Acceleration Upgrade uses the public per-device `IGridTickable` fallback, including targets such as a `MolecularAssemblerBlockEntity` that has no vanilla block-entity ticker. `ExternalTimeAccelerationBackend` and `ExternalTimeAccelerationBackends` must remain free of `appeng.*` references. External target resolution is tri-state: an offline or booting AE node is an inactive external target and must not fall through to ordinary ticking.
+
+Full-grid mode requires matching JDTE-AE and JDTE versions plus AE2 19.2.17+ on both client and server. The addon promotes any covered online, booted node to its owning `appeng.me.Grid`, deduplicates multiple covered nodes by Grid identity and contributor identity, and executes `X - 1` synchronous Server Start, Level Start, Level End, and Server End lifecycles per real tick. Thus nominal 1024x executes exactly 1023 extra complete Grid lifecycles. Grid work intentionally bypasses the ordinary default 4096-execution budget and can raise MSPT substantially. The addon must not write AE2's tick counter. Its `TickHandler.getCurrentTick()` Mixin uses a server-thread-local monotonic logical clock: explicit virtual stamps exist only inside lifecycle scopes, while subsequent native observations remain mapped so timestamps never move backward or collide across adjacent frames. The clock resets when its server stops. Grid handles must not survive a frame, and the addon must not access worlds asynchronously or force chunks. Frame ownership, reentry guards, unload/stop cleanup, and temporary scope state must be cleared in `finally`. ExtendedAE is present only on development test/runtime classpaths to verify its assemblers follow this lifecycle; it is not a hard dependency.
 
 ## Extended Machines
 

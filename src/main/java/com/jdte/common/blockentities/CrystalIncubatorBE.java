@@ -93,6 +93,13 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
                 : multiplier;
     }
 
+    @Override
+    protected int getAccelerationWorkTicks(int effectiveMultiplier) {
+        return TimeAcceleratorTiming.batchWorkTicks(
+                effectiveMultiplier,
+                JDTEConfig.SERVER.timeAccelerator.timeAcceleratorAccelerationDurationSeconds.get());
+    }
+
     public int getMultiplier() {
         return multiplier;
     }

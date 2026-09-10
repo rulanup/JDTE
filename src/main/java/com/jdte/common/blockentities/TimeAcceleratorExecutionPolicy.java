@@ -13,12 +13,22 @@ public final class TimeAcceleratorExecutionPolicy {
         return (int) Math.max(0L, Math.min(Integer.MAX_VALUE, request));
     }
 
-    public static int admittedWorkTicks(int requestedWorkTicks, long maxPendingTicks,
-                                        long highestPendingTicks) {
+    public static boolean canAdmitFullWork(int requestedWorkTicks, long maxPendingTicks,
+                                           long contributorPendingTicks) {
+        if (requestedWorkTicks <= 0 || maxPendingTicks <= 0L) {
+            return false;
+        }
+        long pending = Math.max(0L, contributorPendingTicks);
+        return pending <= maxPendingTicks - Math.min(maxPendingTicks, (long) requestedWorkTicks)
+                && (long) requestedWorkTicks <= maxPendingTicks;
+    }
+
+    public static int admittedWandWorkTicks(int requestedWorkTicks, long maxPendingTicks,
+                                            long targetPendingTicks) {
         if (requestedWorkTicks <= 0 || maxPendingTicks <= 0L) {
             return 0;
         }
-        long pending = Math.max(0L, highestPendingTicks);
+        long pending = Math.max(0L, targetPendingTicks);
         if (pending >= maxPendingTicks) {
             return 0;
         }
