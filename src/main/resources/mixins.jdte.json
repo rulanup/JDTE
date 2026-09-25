@@ -34,6 +34,7 @@
     "RecipeManagerMixin",
     "SpawnerMixin",
     "SpawnerMixin$ApothSpawnerMixin",
+    "SpawnerMixin$DraconicSpawnerMixin",
     "TickSpeedPacketMixin"
   ],
   "client": [

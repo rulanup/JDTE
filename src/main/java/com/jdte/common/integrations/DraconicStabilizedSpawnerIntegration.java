@@ -61,13 +61,13 @@ public final class DraconicStabilizedSpawnerIntegration {
      */
     private static int resolveSpawnCount(StabilizedSpawnerLogic logic) {
         try {
-            Object tile = ((StabilizedSpawnerLogicAccessor) logic).jdte$tile();
-            Object managedEnum = tile.getClass().getField("spawnerTier").get(tile);
+            TileStabilizedSpawner tile = ((StabilizedSpawnerLogicAccessor) logic).jdte$tile();
+            Object managedEnum = TileStabilizedSpawner.class.getField("spawnerTier").get(tile);
             Object tier = managedEnum.getClass().getMethod("get").invoke(managedEnum);
             if (tier instanceof TileStabilizedSpawner.SpawnerTier spawnerTier) {
                 return spawnerTier.getSpawnCount();
             }
-        } catch (ReflectiveOperationException | ClassCastException ignored) {
+        } catch (ReflectiveOperationException | ClassCastException | NullPointerException ignored) {
             // 版本差异导致反射失败时退回原版默认数量
         }
         return FALLBACK_SPAWN_COUNT;
