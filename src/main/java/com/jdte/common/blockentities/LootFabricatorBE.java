@@ -330,6 +330,13 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             return applyLootingBonus(level, drops);
         } finally {
             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            discardLootEntity(living);
+        }
+    }
+
+    static void discardLootEntity(Entity entity) {
+        if (entity != null && !entity.isRemoved()) {
+            entity.discard();
         }
     }
 

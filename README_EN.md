@@ -2,15 +2,13 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.0-pre6`
+Current version: `0.6.0`
 
-## What's new in 0.6.0-pre6
+## What's new in 0.6.0
 
-This prerelease fixes Generator Upgrade and Extended Energy Transmitter crashes, preserves machine settings on block drops without duplicating separately dropped inventories, and repairs Potion Brewer Blaze Powder automation. Loot Fabricator rolls now reuse a dedicated fake player per dimension, and its JEI previews refresh from live loot tables after LootJS edits. Botany Pots greenhouse discovery uses declared soil ingredients to avoid exhaustive item scans.
+This release includes the full-grid AE2 acceleration addon, machine-settings and automation stability fixes, transactional Bio Factory output handling, Gel Generator extended conversion support, Loot Fabricator temporary-entity cleanup, and a paginated Ultimate Portal Gun dimension picker.
 
-The Time Multitool adds a configurable 250 ms hold delay before mining additional targets and vanilla Fortune/Silk Touch eligibility. Ultimate Portal Gun manual destinations now cost 25 mB per block, capped at 25,000 mB in the same dimension, or 500 mB across dimensions.
-
-See the [detailed release notes and upgrade guidance](docs/releases/0.6.0-pre6.md).
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.0.md).
 
 [中文 README](README.md)
 
@@ -35,11 +33,15 @@ Standard machines have four upgrade slots and extended machines have eight. Empt
 | Precision | Crystal Incubator only; harvests through vanilla Silk Touch loot logic and conflicts with Fortune | 1 |
 | AE Acceleration | Time Accelerator tiers only; accelerates individual AE2 devices by default or a whole Grid with JDTE-AE | 1 |
 | AE Crafting Read | Lets compatible machines read active crafting tasks from a linked AE2 network; pauses when unlinked, offline, or idle | 1 |
+| AE Output | Installable in any JDTE machine; once bound in a Wireless Access Point it returns item or fluid products directly to that AE network | 1 |
+| Essence Conversion | Greenhouses only; converts harvested essences when they have exactly one essence-only crafting recipe | 1 |
+| Seed Conversion | Greenhouses only; converts harvested copies of the planted Mystical Agriculture seed into its essence | 1 |
 | AE Extraction | Binds to a Wireless Access Point and refills carried JDT/JDTE FE and fluid items; supports Applied Flux | 1 |
-| Looting | Dedicated to Bio Crushers and the Loot Fabricator | 6 |
+| Looting | Dedicated to Bio Crushers, the Loot Fabricator, and the Bio Factory | 6 / 3 / 4 |
 | Sharpness | Bio Crusher only; adds five damage per card | 6 |
+| Energy Brewing | Advanced Potion Brewer only; replaces Blaze Powder fuel with FE and disables the fuel slot while installed | 1 |
 
-Overclock and Underclock cannot be installed together. The Creative Upgrade also provides relevant Overclock behavior. The AE Crafting Read Upgrade must first be bound by placing it in an AE2 Wireless Access Point's linking input, then installed in a compatible machine's standard or extended upgrade slot. The machine pauses when unbound, when the access point is unloaded or offline, while the network is booting, or with no crafting task; it runs automatically when a task is available after recovery. AE2 remains optional for the main `jdte` mod; without the JDTE-AE addon, the AE Acceleration Upgrade retains its per-device fallback through `IGridTickable`.
+Overclock and Underclock cannot be installed together. The Creative Upgrade also provides relevant Overclock behavior. The first sixteen rows above are standard upgrade cards backed by the `UpgradeType` enum; Looting, Sharpness, Energy Brewing, and AE Extraction are dedicated upgrade items whose installation slots and limits are defined by their own machines. The AE Crafting Read Upgrade must first be bound by placing it in an AE2 Wireless Access Point's linking input, then installed in a compatible machine's standard or extended upgrade slot. The machine pauses when unbound, when the access point is unloaded or offline, while the network is booting, or with no crafting task; it runs automatically when a task is available after recovery. AE2 remains optional for the main `jdte` mod; without the JDTE-AE addon, the AE Acceleration Upgrade retains its per-device fallback through `IGridTickable`.
 
 ### Time And Extended Machines
 

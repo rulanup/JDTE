@@ -1,4 +1,4 @@
-# JDTE 0.6.0-pre6：KubeJS 与整合包内容控制
+# JDTE 0.6.0：KubeJS 与整合包内容控制
 
 本文说明 JDTE 在 KubeJS 整合包中的配方替换、配方禁用和动态 JEI 配方开关。KubeJS 脚本放在实例的 `kubejs/server_scripts/`，配置文件是 `config/jdte/jdte.toml`。
 
@@ -132,7 +132,7 @@ ServerEvents.recipes(event => {
 
 从 pre6 开始，登录和 `/reload` 时会从服务端当前编译后的战利品表重建 JEI 预览。LootJS 对表条目的修改、嵌套引用和条目删除均会重新同步，不需要重启客户端；空的运行时战利品表不会重新显示原资源 JSON 的掉落。
 
-预览静态识别可序列化的条目，无法完整表示仅在实际掉落时执行的任意回调或全局战利品修改器。无法序列化的自定义表可能回退到资源 JSON，机器实际产出始终以运行时逻辑为准。详细英文说明见 [pre6 release notes](docs/releases/0.6.0-pre6.md)。
+预览静态识别可序列化的条目，无法完整表示仅在实际掉落时执行的任意回调或全局战利品修改器。无法序列化的自定义表可能回退到资源 JSON，机器实际产出始终以运行时逻辑为准。详细英文说明见 [0.6.0 release notes](docs/releases/0.6.0.md)。
 
 Loot Fabricator 没有可由 `ServerEvents.recipes` 添加的 `jdte:loot_fabricator` 数据配方。它读取服务端战利品表并同步给客户端生成 JEI 条目，所以：
 

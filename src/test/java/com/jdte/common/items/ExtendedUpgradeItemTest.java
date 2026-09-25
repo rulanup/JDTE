@@ -26,6 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExtendedUpgradeItemTest {
     @Test
+    void mapsAdvancedGelGeneratorToExtendedGelGenerator() {
+        assertEquals(JDTEBlocks.EXTENDED_GEL_GENERATOR.get(),
+                ExtendedUpgradeItem.targetFor(JDTEBlocks.ADVANCED_GEL_GENERATOR.get()));
+    }
+
+    @Test
     void mapsOnlyTheFourOrdinaryJdtSources() {
         assertEquals(JDTEBlocks.EXTENDED_GENERATOR.get(),
                 ExtendedUpgradeItem.targetFor(Registration.GeneratorT1.get()));

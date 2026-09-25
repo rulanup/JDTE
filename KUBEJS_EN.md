@@ -1,4 +1,4 @@
-# JDTE 0.6.0-pre6: KubeJS and Modpack Content Controls
+# JDTE 0.6.0: KubeJS and Modpack Content Controls
 
 This guide covers JDTE recipe replacement, recipe disabling, and dynamic JEI recipe switches in KubeJS modpacks. Put KubeJS scripts in the instance's `kubejs/server_scripts/` directory. The JDTE configuration file is `config/jdte/jdte.toml`.
 
@@ -134,7 +134,7 @@ Optional fluid fields are `process_fluid`/`process_fluid_amount` for a culture o
 
 Starting with pre6, the JEI preview is rebuilt from the server's live compiled loot tables on login and `/reload`. LootJS edits to table entries, including nested table changes and removed entries, are reflected without restarting the client. An empty live table remains empty instead of reviving its original resource JSON.
 
-The preview statically identifies serializable entries. Arbitrary callbacks and global loot modifiers that run only during a loot roll cannot be fully represented. Non-serializable custom tables can fall back to their resource JSON; exact runtime drops remain authoritative. For the release's other scripting and automation changes, see the [pre6 release notes](docs/releases/0.6.0-pre6.md).
+The preview statically identifies serializable entries. Arbitrary callbacks and global loot modifiers that run only during a loot roll cannot be fully represented. Non-serializable custom tables can fall back to their resource JSON; exact runtime drops remain authoritative. For the release's other scripting and automation changes, see the [0.6.0 release notes](docs/releases/0.6.0.md).
 
 Loot Fabricator has no `jdte:loot_fabricator` data recipe that can be added with `ServerEvents.recipes`. It reads server-side loot tables and synchronizes generated JEI entries to clients. To disable the whole dynamic category:
 

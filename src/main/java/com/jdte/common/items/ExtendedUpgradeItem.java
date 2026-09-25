@@ -46,6 +46,7 @@ public class ExtendedUpgradeItem extends Item {
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_FLUID_STABILIZER.get(), JDTEBlocks.EXTENDED_FLUID_STABILIZER.get());
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_LIFE_EXTRACTOR.get(), JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get());
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_INFUSION_MACHINE.get(), JDTEBlocks.EXTENDED_INFUSION_MACHINE.get());
+        UPGRADE_MAP.put(JDTEBlocks.ADVANCED_GEL_GENERATOR.get(), JDTEBlocks.EXTENDED_GEL_GENERATOR.get());
     }
 
     public ExtendedUpgradeItem() {

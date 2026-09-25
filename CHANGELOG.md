@@ -2,6 +2,17 @@
 
 ### English
 
+#### v0.6.0 (Current) — 2026-09-25
+
+Formal release of the 0.6.0 feature set for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0 release notes](docs/releases/0.6.0.md).
+
+- **AE2 full-grid acceleration**: Published the matching `jdte-ae` addon for complete Grid lifecycle acceleration, including Molecular Assemblers and compatible lifecycle-driven devices.
+- **Bio Factory reliability**: Completed outputs are persisted transactionally until item and fluid capacity are available, preventing duplicated costs or lost results across blocked output and restart cases.
+- **Machine compatibility**: Added Advanced Gel Generator to Extended Gel Generator conversion support.
+- **Loot Fabricator stability**: Temporary loot entities are explicitly discarded after each roll, preventing accumulation during continuous or accelerated production.
+- **Ultimate Portal Gun usability**: Replaced cyclic dimension switching with a dedicated paginated selector showing eight sorted dimensions per page while preserving unsaved coordinate and name input.
+- **Documentation**: Updated current-version metadata and bilingual in-game guide references to 0.6.0; prerelease notes remain available as historical records.
+
 #### v0.6.0-pre6 (Current) — 2026-09-09
 
 Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full English details, before/after examples, and upgrade guidance: [pre6 release notes](docs/releases/0.6.0-pre6.md).
@@ -272,6 +283,17 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 ---
 
 ### 中文
+
+#### v0.6.0（当前）— 2026-09-25
+
+正式发布 0.6.0，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0 发布说明](docs/releases/0.6.0.md)。
+
+- **AE2 完整 Grid 加速**：正式发布匹配版本的 `jdte-ae` 附属，为分子装配室及兼容生命周期设备提供完整 Grid 加速。
+- **生物工厂可靠性**：输出会在物品和流体容量满足前持久化等待，避免输出受阻或重启时重复扣费、丢失产物。
+- **机器兼容**：补充高级凝胶发生器到扩展凝胶发生器的转换支持。
+- **战利品制造机稳定性**：每次战利品生成完成后显式清理临时生物实体，避免连续运行或时间加速时对象持续累积。
+- **顶级传送枪易用性**：维度切换改为独立分页选择页面，每页显示 8 个排序后的维度，并保留未保存的名称和坐标输入。
+- **文档**：当前版本和双语游戏内指南统一更新为 0.6.0，pre6 说明继续作为历史记录保留。
 
 #### v0.6.0-pre6（当前）— 2026-09-09
 

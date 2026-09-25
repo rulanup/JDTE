@@ -63,6 +63,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     public static final int UPGRADE_SLOTS = 8;
     private static final int GLOBAL_WORK_RATE_MULTIPLIER = 5;
     private static final String REMEMBERED_RECIPE_ENERGY_TAG = "rememberedRecipeEnergy";
+    private static final String PENDING_OUTPUT_TAG = "pendingOutput";
 
     private final BioFactoryEnergyCapacity energyCapacity = new BioFactoryEnergyCapacity();
     private final MachineEnergyStorage energyStorage = new MachineEnergyStorage(getMaxEnergy());
@@ -186,6 +187,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private int syncedFluidCapacity;
     private int syncedProductivity = 100;
     private int multiplier;
+    private BioFactoryPendingOutput pendingOutput;
     private int syncedMultiplier = 1;
     private int syncedMaxMultiplier = 32;
     private BioFactoryRecipe cachedRecipe;
@@ -300,32 +302,61 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         int lifeCost = creative ? 0 : getEffectiveLifeFluidCost();
         boolean lifeBoost = creative || lifeFluidTank.getFluidAmount() >= lifeCost;
         int processCost = getProcessFluidCost();
-        if (!creative && (!hasEnoughPower(energyCost)
+        if (pendingOutput != null) {
+            energyCost = pendingOutput.energyCost();
+            timeCost = pendingOutput.timeCost();
+            lifeCost = pendingOutput.lifeCost();
+            processCost = pendingOutput.processCost();
+            creative = pendingOutput.creative();
+            completedInputSlots = pendingOutput.inputSlots();
+        }
+        if (pendingOutput == null && !creative && (!hasEnoughPower(energyCost)
                 || timeBoost && timeFluidTank.getFluidAmount() < timeCost
                 || lifeBoost && lifeFluidTank.getFluidAmount() < lifeCost
                 || processFluidTank.getFluidAmount() < processCost)) return;
 
-        double multiplier = getProductivityMultiplier()
-                * (lifeBoost ? JDTEConfig.COMMON.bioFactoryLifeYieldMultiplier.get() : 1.0D);
-        List<ItemStack> outputs = createOutputs(multiplier);
-        FluidStack fluidOutput = createFluidOutput(multiplier);
-        if (outputs.isEmpty() && fluidOutput.isEmpty()) {
-            progress = 0;
-            return;
+        int[] completedInputCounts = pendingOutput == null ? null : pendingOutput.inputCounts();
+        if (pendingOutput == null) {
+            double outputMultiplier = getProductivityMultiplier()
+                    * (lifeBoost ? JDTEConfig.COMMON.bioFactoryLifeYieldMultiplier.get() : 1.0D);
+            int[] inputCounts = completedRecipe == null ? null : completedRecipe.inputs().stream()
+                    .mapToInt(input -> Math.max(0, input.count())).toArray();
+            pendingOutput = BioFactoryPendingOutput.of(createOutputs(outputMultiplier), createFluidOutput(outputMultiplier),
+                    energyCost, timeBoost ? timeCost : 0, lifeBoost ? lifeCost : 0, processCost, creative,
+                    completedInputSlots, inputCounts);
+            completedInputCounts = inputCounts;
+            setChanged();
+            if (pendingOutput.items().isEmpty() && pendingOutput.fluid().isEmpty()) {
+                pendingOutput = null;
+                progress = 0;
+                return;
+            }
         }
-        if (!canFit(outputs) || !canFitFluid(fluidOutput)) return;
+        if (!canFit(pendingOutput.items()) || !canFitFluid(pendingOutput.fluid())) return;
 
-        outputs.forEach(this::insertOutput);
-        if (!fluidOutput.isEmpty()) productFluidTank.fill(fluidOutput, IFluidHandler.FluidAction.EXECUTE);
+        pendingOutput.items().forEach(this::insertOutput);
+        if (!pendingOutput.fluid().isEmpty()) {
+            productFluidTank.fill(pendingOutput.fluid(), IFluidHandler.FluidAction.EXECUTE);
+        }
+        pendingOutput = null;
         if (!creative) {
             extractEnergy(energyCost, false);
-            if (timeBoost) timeFluidTank.drain(timeCost, IFluidHandler.FluidAction.EXECUTE);
-            if (lifeBoost) lifeFluidTank.drain(lifeCost, IFluidHandler.FluidAction.EXECUTE);
+            if (timeCost > 0) timeFluidTank.drain(timeCost, IFluidHandler.FluidAction.EXECUTE);
+            if (lifeCost > 0) lifeFluidTank.drain(lifeCost, IFluidHandler.FluidAction.EXECUTE);
             if (processCost > 0) processFluidTank.drain(processCost, IFluidHandler.FluidAction.EXECUTE);
-            if (completedRecipe != null && completedInputSlots != null) {
-                for (int input = 0; input < completedRecipe.inputs().size(); input++) {
-                    int count = completedRecipe.inputs().get(input).count();
-                    if (count > 0) itemHandler.extractItem(inputStorageSlot(completedInputSlots[input]), count, false);
+            if (completedInputSlots != null) {
+                int[] inputCounts = completedInputCounts;
+                if (inputCounts != null) {
+                    for (int input = 0; input < Math.min(completedInputSlots.length, inputCounts.length); input++) {
+                        if (inputCounts[input] > 0) {
+                            itemHandler.extractItem(inputStorageSlot(completedInputSlots[input]), inputCounts[input], false);
+                        }
+                    }
+                } else if (completedRecipe != null) {
+                    for (int input = 0; input < completedRecipe.inputs().size(); input++) {
+                        int count = completedRecipe.inputs().get(input).count();
+                        if (count > 0) itemHandler.extractItem(inputStorageSlot(completedInputSlots[input]), count, false);
+                    }
                 }
             }
         }
@@ -494,10 +525,12 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private JDTEFluidTank createTank(java.util.function.Predicate<FluidStack> validator, boolean clearsCache) {
         return new JDTEFluidTank(getMaxFluidCapacity(), validator) {
             private Fluid lastSyncedFluid = Fluids.EMPTY;
+            private int lastSyncedAmount;
             @Override protected void onContentsChanged() {
                 super.onContentsChanged();
                 Fluid current = getFluid().getFluid();
-                if (clearsCache && current != lastSyncedFluid) {
+                int amount = getFluidAmount();
+                if (clearsCache && (current != lastSyncedFluid || amount != lastSyncedAmount)) {
                     clearRecipeCache();
                     progress = 0;
                 }
@@ -506,6 +539,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                     lastSyncedFluid = current;
                     clientSyncPending = true;
                 }
+                lastSyncedAmount = amount;
             }
         };
     }
@@ -652,6 +686,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         tag.putInt("progress", progress);
         tag.putInt("multiplier", getMultiplier());
         tag.putInt(REMEMBERED_RECIPE_ENERGY_TAG, energyCapacity.rememberedRecipeEnergy());
+        if (pendingOutput != null) tag.put(PENDING_OUTPUT_TAG, pendingOutput.save(provider));
     }
 
     @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
@@ -678,6 +713,9 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         progress = tag.getInt("progress");
         multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")
                 : JDTEConfig.COMMON.bioFactoryDefaultSpeedMultiplier.get();
+        pendingOutput = tag.contains(PENDING_OUTPUT_TAG)
+                ? BioFactoryPendingOutput.load(tag.getCompound(PENDING_OUTPUT_TAG), provider)
+                : null;
         clearRecipeCache();
     }
 

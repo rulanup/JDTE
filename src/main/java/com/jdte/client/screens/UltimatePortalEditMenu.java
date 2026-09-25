@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 public class UltimatePortalEditMenu extends Screen {
     private final ItemStack portalGun;
     private final int slotSelected;
-    private final List<ResourceKey<Level>> dimensions = new ArrayList<>();
+    private final List<ResourceKey<Level>> dimensions;
     private int selectedDimension;
     private EditBox nameField;
     private EditBox xPos;
@@ -37,25 +37,45 @@ public class UltimatePortalEditMenu extends Screen {
     private final Predicate<String> doubleInputValidator = this::isValidDoubleInput;
 
     public UltimatePortalEditMenu(ItemStack itemStack, int slot) {
+        this(itemStack, slot, null, null, null, null, null);
+    }
+
+    UltimatePortalEditMenu(ItemStack itemStack, int slot, ResourceKey<Level> selectedKey,
+                           String name, String x, String y, String z) {
         super(Component.literal(""));
         this.portalGun = itemStack;
         this.slotSelected = slot;
+        this.dimensions = getAvailableDimensions();
+        NBTHelpers.PortalDestination destination = getCurrentDestination();
+        ResourceKey<Level> initialKey = selectedKey != null ? selectedKey : destination.globalVec3().dimension();
+        int index = dimensions.indexOf(initialKey);
+        this.selectedDimension = Math.max(0, index);
+        this.pendingName = name;
+        this.pendingX = x;
+        this.pendingY = y;
+        this.pendingZ = z;
+    }
+
+    private String pendingName;
+    private String pendingX;
+    private String pendingY;
+    private String pendingZ;
+
+    static List<ResourceKey<Level>> getAvailableDimensions() {
+        List<ResourceKey<Level>> available = new ArrayList<>();
         Player player = Minecraft.getInstance().player;
         if (player instanceof net.minecraft.client.player.LocalPlayer localPlayer) {
-            this.dimensions.addAll(localPlayer.connection.levels());
+            available.addAll(localPlayer.connection.levels());
         }
-        // 过滤配置中的传送黑名单维度
         List<? extends String> blacklist = com.jdte.setup.JDTEConfig.COMMON.ultimatePortalGun.teleportDimensionBlacklist.get();
         if (!blacklist.isEmpty()) {
-            this.dimensions.removeIf(key -> blacklist.contains(key.location().toString()));
+            available.removeIf(key -> blacklist.contains(key.location().toString()));
         }
-        if (dimensions.isEmpty()) {
-            dimensions.add(Level.OVERWORLD);
+        if (available.isEmpty()) {
+            available.add(Level.OVERWORLD);
         }
-        this.dimensions.sort(Comparator.comparing(key -> key.location().toString()));
-        NBTHelpers.PortalDestination destination = getCurrentDestination();
-        int index = Math.max(0, dimensions.indexOf(destination.globalVec3().dimension()));
-        this.selectedDimension = index;
+        available.sort(Comparator.comparing(key -> key.location().toString()));
+        return available;
     }
 
     @Override
@@ -85,10 +105,8 @@ public class UltimatePortalEditMenu extends Screen {
         addRenderableWidget(yPos);
         addRenderableWidget(zPos);
 
-        dimensionButton = addRenderableWidget(new ExtendedButton(baseX, baseY + 38, 230, 16, currentDimensionLabel(), button -> {
-            selectedDimension = (selectedDimension + 1) % Math.max(1, dimensions.size());
-            button.setMessage(currentDimensionLabel());
-        }));
+        dimensionButton = addRenderableWidget(new ExtendedButton(baseX, baseY + 38, 230, 16,
+                currentDimensionLabel(), button -> openDimensionSelection()));
 
         ExtendedButton buttonSave = new ExtendedButton(baseX, baseY + 58, 120, 16,
                 Component.translatable("justdirethings.screen.save_close"), (button) -> save());
@@ -112,11 +130,11 @@ public class UltimatePortalEditMenu extends Screen {
 
     private void updateFields() {
         NBTHelpers.PortalDestination destination = getCurrentDestination();
-        this.nameField.setValue(destination.name());
+        this.nameField.setValue(pendingName != null ? pendingName : destination.name());
         Vec3 coords = destination.globalVec3().position();
-        this.xPos.setValue(String.format("%.2f", coords.x));
-        this.yPos.setValue(String.format("%.2f", coords.y));
-        this.zPos.setValue(String.format("%.2f", coords.z));
+        this.xPos.setValue(pendingX != null ? pendingX : String.format("%.2f", coords.x));
+        this.yPos.setValue(pendingY != null ? pendingY : String.format("%.2f", coords.y));
+        this.zPos.setValue(pendingZ != null ? pendingZ : String.format("%.2f", coords.z));
     }
 
     private Component currentDimensionLabel() {
@@ -125,6 +143,12 @@ public class UltimatePortalEditMenu extends Screen {
         }
         ResourceKey<Level> key = dimensions.get(Math.floorMod(selectedDimension, dimensions.size()));
         return Component.translatable("screen.jdte.ultimate_portal_gun.dimension", key.location().toString());
+    }
+
+    private void openDimensionSelection() {
+        Minecraft.getInstance().setScreen(new UltimatePortalDimensionScreen(
+                portalGun, slotSelected, dimensions, selectedDimension,
+                nameField.getValue(), xPos.getValue(), yPos.getValue(), zPos.getValue()));
     }
 
     private boolean isValidDoubleInput(String input) {

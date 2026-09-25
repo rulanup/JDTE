@@ -25,7 +25,7 @@ class AddonMetadataTest {
         Config modsToml = loadModsToml();
 
         assertEquals("jdte_ae", onlyMod(modsToml).get("modId"));
-        assertDependency(modsToml, "jdte", "[0.6.0-pre6]");
+        assertDependency(modsToml, "jdte", "[0.6.0]");
         assertDependency(modsToml, "ae2", "[19.2.17,20)");
         assertDependency(modsToml, "minecraft", "[1.21.1,1.22)");
     }
