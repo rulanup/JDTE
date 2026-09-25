@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.0` |
+| Current version | `0.6.0-fix1` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
@@ -47,7 +47,7 @@ Major features:
 - The Large Mineral Extractor controller occupies the front-center bottom position and owns all state; its other 17 blocks have no block entities and resolve the controller in O(1) from coordinate state. The controller exposes no FE, fluid, or item capability; pipes and active auto I/O are restricted to the structure's outer boundary.
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
-- Hidden client-only easter egg: typing exactly `2i` in chat (message cancelled, never sent) toggles replacement of every JDTE machine slot background with `assets/jdte/textures/gui/easter_egg_2i_slot.png` through `SlotTextureEasterEgg` (`ContainerScreenEvent.Render.Background` overlay; no mixin). Player inventory squares and inactive filter slots are skipped; only menus of `com.jdte.*` block entities are affected.
+- Hidden client-only easter egg: typing exactly `2i` in chat (message cancelled, never sent) toggles filling every JDTE machine slot interior with the 512x512 `assets/jdte/textures/gui/easter_egg_2i_slot.png` through `SlotTextureEasterEgg` and `EasterEggMipmapTexture` (mip chain + trilinear filtering; `ContainerScreenEvent.Render.Background` overlay; no mixin). Player inventory squares and inactive filter slots are skipped; only menus of `com.jdte.*` block entities are affected.
 
 ## pre6 maintenance contracts
 
@@ -58,6 +58,7 @@ Major features:
 - Loot Fabricator uses `FakePlayerFactory` with a stable, dedicated JDTE profile per server level, never an owner's identity. Always clear the temporary main-hand weapon in `finally`.
 - Loot JEI synchronization reads the live reloadable loot registry through public codecs, with an encoding cache scoped to one synchronization. `/reload` must refresh edits and nested tables, including removals. Arbitrary runtime callbacks are not a complete static preview.
 - Botany Pots `BasicCrop` soil lookup expands declared soil ingredients; only custom crop implementations use the exhaustive fallback.
+- Botany Pots JEI crop enumeration is cached per RecipeManager and invalidated through `BotanyPotsGreenhouseIntegration.invalidateCrops()` on recipe sync, `/reload`, client level unload, and server stop. The fallback soil-item memo assumes soil matching never depends on the seed item. Reference the integration class only under `ModList.get().isLoaded("botanypots")` guards — it is an optional-dependency class and crashes mod loading otherwise.
 - Time Multitool attack gating is client-only. `jdte.timeMultitool.continuousMiningHoldDelayMillis` defaults to 250 in the existing local CLIENT config, allows 0-2000, and resets on release, focus loss, screen/world changes, and hotbar changes. Existing explicitly enabled JDT area abilities remain active.
 - Manual Ultimate Portal Gun destinations cost 25 mB/block up to 25,000 mB in the same dimension, or 500 mB across dimensions. Quick-added and previous destinations keep JDT pricing.
 

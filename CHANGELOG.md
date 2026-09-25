@@ -2,12 +2,19 @@
 
 ### English
 
-#### v0.6.0 (Current) — 2026-09-25
+#### v0.6.0-fix1 (Current) — 2026-09-25
+
+Hotfix release for the 0.6.0 line, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0-fix1 release notes](docs/releases/0.6.0-fix1.md).
+
+- **Greenhouse JEI performance**: The Botany Pots crop enumeration is cached per RecipeManager and invalidated on recipe sync, `/reload`, client level unload, and server stop, so JEI rebuilds no longer re-resolve every Botany Pots crop on each world join or `/reload`. The custom-crop soil fallback memoizes every registered item each Soil accepts once per Soil, keeping the original first-match results while removing repeated registry-wide scans.
+- **Fixed — Draconic Stabilized Spawner**: The `StabilizedSpawnerLogic` accessor now declares the exact `TileStabilizedSpawner` field type so the mixin applies; the previous `Object` descriptor matched no candidate, failed mixin application, and crashed on spawner placement. `SpawnerMixin$DraconicSpawnerMixin` is registered in `mixins.jdte.json`, reflection failures fall back to the default spawn count, and a contract test covers the metadata.
+- **Easter egg artwork**: The hidden `2i` slot texture swap now ships the full 512x512 artwork rendered through `EasterEggMipmapTexture` (CPU mip chain 512→16 with trilinear filtering), replacing the 0.6.0 placeholder texture.
+
+#### v0.6.0 — 2026-09-25
 
 Formal release of the 0.6.0 feature set for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0 release notes](docs/releases/0.6.0.md).
 
 - **AE2 full-grid acceleration**: Published the matching `jdte-ae` addon for complete Grid lifecycle acceleration, including Molecular Assemblers and compatible lifecycle-driven devices.
-- **Greenhouse JEI performance**: The Botany Pots crop enumeration is cached per RecipeManager and invalidated on recipe sync, `/reload`, client level unload, and server stop, so JEI rebuilds no longer re-resolve every Botany Pots crop on each world join or `/reload`. The custom-crop soil fallback memoizes every registered item each Soil accepts once per Soil, keeping the original first-match results while removing repeated registry-wide scans.
 - **Hidden easter egg**: Typing exactly `2i` in the chat box (intercepted client-side, never sent) toggles a client-only texture swap that fills every JDTE machine slot interior with a dedicated 512x512 artwork rendered through `EasterEggMipmapTexture` (CPU mip chain 512→16 with trilinear filtering, so the image stays smooth instead of aliased at slot scale); slot borders keep their vanilla look. Sending `2i` again restores the normal slots. Purely visual, per-client, and scoped to menus of JDTE machine block entities; player inventory squares and inactive filter slots keep their vanilla look.
 - **Bio Factory reliability**: Completed outputs are persisted transactionally until item and fluid capacity are available, preventing duplicated costs or lost results across blocked output and restart cases.
 - **Machine compatibility**: Added Advanced Gel Generator to Extended Gel Generator conversion support.
@@ -286,12 +293,19 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.0（当前）— 2026-09-25
+#### v0.6.0-fix1（当前）— 2026-09-25
+
+0.6.0 系列热修复版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0-fix1 发布说明](docs/releases/0.6.0-fix1.md)。
+
+- **温室 JEI 性能**：Botany Pots 作物枚举按 RecipeManager 缓存，并在配方同步、`/reload`、客户端关卡卸载和服务器停止时失效，JEI 重建不再在每次进世界或 `/reload` 时全量重算 Botany Pots 作物。自定义作物的土壤兜底查找改为按 Soil 备忘录化（每个 Soil 只全量扫描一次注册表），保持原首个匹配结果不变。
+- **修复 — Draconic 稳定刷怪笼**：`StabilizedSpawnerLogic` 访问器改为声明确切的 `TileStabilizedSpawner` 字段类型以使 mixin 正常应用；此前 `Object` 描述符匹配不到候选成员，导致 mixin 应用失败、放置刷怪笼即崩溃。`SpawnerMixin$DraconicSpawnerMixin` 已注册进 `mixins.jdte.json`，反射失败时回退默认生成数量，并由契约测试覆盖元数据。
+- **彩蛋材质**：隐藏的 `2i` 槽位贴图切换升级为正式 512x512 材质，经 `EasterEggMipmapTexture`（CPU mipmap 链 512→16 + 三线性过滤）渲染，替换 0.6.0 的占位贴图。
+
+#### v0.6.0 — 2026-09-25
 
 正式发布 0.6.0，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0 发布说明](docs/releases/0.6.0.md)。
 
 - **AE2 完整 Grid 加速**：正式发布匹配版本的 `jdte-ae` 附属，为分子装配室及兼容生命周期设备提供完整 Grid 加速。
-- **温室 JEI 性能**：Botany Pots 作物枚举按 RecipeManager 缓存，并在配方同步、`/reload`、客户端关卡卸载和服务器停止时失效，JEI 重建不再在每次进世界或 `/reload` 时全量重算 Botany Pots 作物。自定义作物的土壤兜底查找改为按 Soil 备忘录化（每个 Soil 只全量扫描一次注册表），保持原首个匹配结果不变。
 - **生物工厂可靠性**：输出会在物品和流体容量满足前持久化等待，避免输出受阻或重启时重复扣费、丢失产物。
 - **机器兼容**：补充高级凝胶发生器到扩展凝胶发生器的转换支持。
 - **战利品制造机稳定性**：每次战利品生成完成后显式清理临时生物实体，避免连续运行或时间加速时对象持续累积。

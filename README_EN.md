@@ -2,7 +2,13 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.0`
+Current version: `0.6.0-fix1`
+
+## What's new in 0.6.0-fix1
+
+Hotfix release: the JEI greenhouse category now caches the Botany Pots crop enumeration per RecipeManager (world joins and `/reload` no longer re-resolve every crop); the Draconic Evolution stabilized spawner interception mixin no longer fails to apply and crash on spawner placement due to an exact-type accessor mismatch; and the hidden `2i` easter egg slot texture is upgraded to the full 512x512 artwork with a CPU mip chain and trilinear filtering.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.0-fix1.md).
 
 ## What's new in 0.6.0
 

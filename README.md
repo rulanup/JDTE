@@ -2,9 +2,15 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.0`
+当前版本：`0.6.0-fix1`
 
 [English README](README_EN.md)
+
+## 0.6.0-fix1 更新
+
+热修复版本：JEI 温室分类改为按 RecipeManager 缓存 Botany Pots 作物枚举（进世界与 `/reload` 重建不再全量重算）；修复 Draconic Evolution 稳定刷怪笼拦截 mixin 因访问器字段类型不匹配导致的应用失败与放置崩溃；`2i` 彩蛋槽位贴图升级为带 mipmap 链与三线性过滤的正式 512x512 材质。
+
+完整英文说明：[0.6.0-fix1 Release Notes](docs/releases/0.6.0-fix1.md)。
 
 ## 0.6.0 更新
 
