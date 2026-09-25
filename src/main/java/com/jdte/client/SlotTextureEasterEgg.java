@@ -19,7 +19,8 @@ import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 
 /**
  * 隐藏彩蛋：在聊天框输入恰好 {@code 2i} 两个字符时切换（消息被拦截，不会发送到服务器）。
- * 开启后所有 JDTE 机器 GUI 的机器槽位背景替换为 {@code easter_egg_2i_slot.png}，再次输入恢复。
+ * 开启后所有 JDTE 机器 GUI 的机器槽位内芯替换为 512x512 高清彩蛋贴图
+ * （经 {@link EasterEggMipmapTexture} 以 mipmap 三线性过滤渲染，槽位原生边框保持不变），再次输入恢复。
  * 纯客户端视觉开关：只覆盖 JDTE 机器方块实体的菜单，玩家背包格与未激活的过滤槽保持原样。
  */
 @EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT)
@@ -28,9 +29,11 @@ public final class SlotTextureEasterEgg {
     private static final ResourceLocation TEXTURE =
             ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/easter_egg_2i_slot.png");
     private static final String JDTE_BE_PACKAGE = "com.jdte.";
-    private static final int SLOT_SIZE = 18;
+    private static final int SLOT_INNER_SIZE = 16;
+    private static final int TEXTURE_SIZE = 512;
 
     private static boolean active;
+    private static boolean textureRegistered;
 
     private SlotTextureEasterEgg() {
     }
@@ -62,6 +65,7 @@ public final class SlotTextureEasterEgg {
                 || !container.baseMachineBE.getClass().getName().startsWith(JDTE_BE_PACKAGE)) {
             return;
         }
+        ensureTextureRegistered();
         GuiGraphics guiGraphics = event.getGuiGraphics();
         int left = screen.getGuiLeft();
         int top = screen.getGuiTop();
@@ -72,7 +76,16 @@ public final class SlotTextureEasterEgg {
             if (slot instanceof DynamicFilterSlot filterSlot && !filterSlot.isActive()) {
                 continue;
             }
-            guiGraphics.blit(TEXTURE, left + slot.x - 1, top + slot.y - 1, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+            guiGraphics.blit(TEXTURE, left + slot.x, top + slot.y, SLOT_INNER_SIZE, SLOT_INNER_SIZE,
+                    0.0F, 0.0F, TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE);
         }
+    }
+
+    private static void ensureTextureRegistered() {
+        if (textureRegistered) {
+            return;
+        }
+        Minecraft.getInstance().getTextureManager().register(TEXTURE, new EasterEggMipmapTexture(TEXTURE));
+        textureRegistered = true;
     }
 }
