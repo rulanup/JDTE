@@ -2,9 +2,15 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.0-fix1`
+当前版本：`0.6.0.1`
 
 [English README](README_EN.md)
+
+## 0.6.0.1 更新
+
+命名规范化版本：统一事件驱动类的语义后缀（`*Events` / `*Manager` / `*Helper` / `*Handler`），运行时 Manager 迁入独立的 `common/manager` 包，JEI 与 Jade 插件归位到 `client/`，`jdte-ae` 附属统一大写 `AE` 缩写，屏幕类 lang key 统一为 `jdte.screen.*` 前缀，`fluidbar.png` 更名 `fluid_bar.png`，并更新模组描述。注册表 ID 与 config 字段名保持不变，存档、数据包与玩家配置完全兼容。
+
+完整英文说明：[0.6.0.1 Release Notes](docs/releases/0.6.0.1.md)。
 
 ## 0.6.0-fix1 更新
 

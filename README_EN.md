@@ -2,7 +2,13 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.0-fix1`
+Current version: `0.6.0.1`
+
+## What's new in 0.6.0.1
+
+Naming-normalization release: event-driven classes now follow unified semantic suffixes (`*Events` / `*Manager` / `*Helper` / `*Handler`), runtime managers moved into a dedicated `common/manager` package, the JEI and Jade plugins moved under `client/`, the `jdte-ae` addon aligned on the uppercase `AE` abbreviation, screen lang keys unified under `jdte.screen.*`, `fluidbar.png` renamed to `fluid_bar.png`, and the mod description refreshed. Registry IDs and config field names are unchanged, so worlds, datapacks, and player configs stay fully compatible.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.0.1.md).
 
 ## What's new in 0.6.0-fix1
 
