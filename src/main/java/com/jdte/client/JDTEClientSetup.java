@@ -9,6 +9,7 @@ import com.jdte.client.renderers.ExtendedExperienceHolderBER;
 import com.jdte.client.renderers.MineralExtractorBER;
 import com.jdte.client.renderers.TimeAcceleratorBER;
 import com.jdte.client.screens.*;
+import com.jdte.common.integrations.BotanyPotsGreenhouseIntegration;
 import com.jdte.common.items.FactoryPackageItem;
 import com.jdte.common.items.LargeFuelCanisterItem;
 import com.jdte.common.items.LargePocketGeneratorItem;
@@ -27,16 +28,25 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 @EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class JDTEClientSetup {
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
+        // Guarded so the optional Botany Pots integration class never loads without the mod, and
+        // registered here so the client-only event class never loads on the dedicated server.
+        if (ModList.get().isLoaded("botanypots")) {
+            NeoForge.EVENT_BUS.addListener((RecipesUpdatedEvent recipesEvent) ->
+                    BotanyPotsGreenhouseIntegration.invalidateCrops());
+        }
         event.enqueueWork(() -> ItemProperties.register(
                 JDTEItems.FACTORY_PACKAGE.get(),
                 ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),

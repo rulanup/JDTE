@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,13 +27,23 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class BotanyPotsGreenhouseIntegration {
+    /** Full crop enumeration, valid only for the RecipeManager instance it was built from. */
+    private static volatile CropCache cropCache;
+    /** Per-Soil matched soil items, valid only for the RecipeManager instance it was built from. */
+    private static volatile SoilItemMemo soilItemMemo;
+
     private BotanyPotsGreenhouseIntegration() {
     }
 
@@ -50,8 +61,18 @@ public final class BotanyPotsGreenhouseIntegration {
     /** Enumerates the concrete planting items exposed by every loaded Botany Pots data recipe. */
     public static List<DiscoveredCrop> getCrops(Level level) {
         if (level == null) return List.of();
+        RecipeManager manager = level.getRecipeManager();
+        CropCache cache = cropCache;
+        if (cache != null && cache.isFor(manager)) return cache.crops();
+        return computeCrops(level, manager);
+    }
+
+    private static synchronized List<DiscoveredCrop> computeCrops(Level level, RecipeManager manager) {
+        CropCache cache = cropCache;
+        if (cache != null && cache.isFor(manager)) return cache.crops();
+
         List<DiscoveredCrop> result = new ArrayList<>();
-        for (var cropHolder : level.getRecipeManager().getAllRecipesFor(Crop.TYPE.get())) {
+        for (var cropHolder : manager.getAllRecipesFor(Crop.TYPE.get())) {
             if (!(cropHolder.value() instanceof BasicCrop basicCrop)) continue;
             for (ItemStack seed : basicCrop.getBasicProperties().input().getItems()) {
                 if (seed.isEmpty()) continue;
@@ -61,7 +82,25 @@ public final class BotanyPotsGreenhouseIntegration {
                 }
             }
         }
-        return List.copyOf(result);
+        List<DiscoveredCrop> crops = List.copyOf(result);
+        cropCache = new CropCache(crops, manager);
+        return crops;
+    }
+
+    /** Drops the cached crop enumeration and soil item memo; the next call recomputes from live recipes. */
+    public static synchronized void invalidateCrops() {
+        cropCache = null;
+        soilItemMemo = null;
+    }
+
+    public static void onLevelUnload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide()) {
+            invalidateCrops();
+        }
+    }
+
+    public static void onServerStopped(ServerStoppedEvent event) {
+        invalidateCrops();
     }
 
     private static GreenhouseCropDefinition createDefinition(Level level, ItemStack seed, Crop crop) {
@@ -119,21 +158,47 @@ public final class BotanyPotsGreenhouseIntegration {
     }
 
     private static SoilMatch findCompatibleSoilFallback(Level level, ItemStack seed, Crop crop) {
-        for (var soilHolder : level.getRecipeManager().getAllRecipesFor(Soil.TYPE.get())) {
+        RecipeManager manager = level.getRecipeManager();
+        for (var soilHolder : manager.getAllRecipesFor(Soil.TYPE.get())) {
             Soil soil = soilHolder.value();
-            for (var item : BuiltInRegistries.ITEM) {
-                ItemStack soilItem = item.getDefaultInstance();
-                if (soilItem.isEmpty()) continue;
+            for (ItemStack soilItem : matchedSoilItems(manager, soilHolder.id(), level, soil, crop)) {
                 GreenhouseContext context = new GreenhouseContext(level, BlockPos.ZERO, soilItem,
                         seed.copyWithCount(1), ItemStack.EMPTY, crop, soil, 1);
-                if (soil.couldMatch(soilItem, context, level)
-                        && soil.matches(context, level)
-                        && crop.isGrowthSustained(context, level)) {
+                if (crop.isGrowthSustained(context, level)) {
                     return new SoilMatch(soil, soilItem.copyWithCount(1), context);
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * Memoizes, per Soil recipe, every registered item the soil accepts, in registry order. Assumes
+     * soil matching does not depend on the seed item (vanilla Botany Pots soils never do), so the
+     * scan runs once per soil and is shared by all crops until the recipes reload. Custom crops then
+     * only pay the {@code crop.isGrowthSustained} check per candidate, preserving the original
+     * soil-order × item-order first-match result.
+     */
+    private static List<ItemStack> matchedSoilItems(RecipeManager manager, ResourceLocation soilId,
+                                                    Level level, Soil soil, Crop crop) {
+        SoilItemMemo memo = soilItemMemo;
+        if (memo == null || !memo.isFor(manager)) {
+            memo = new SoilItemMemo(manager);
+            soilItemMemo = memo;
+        }
+        return memo.itemsBySoilId.computeIfAbsent(soilId, id -> {
+            List<ItemStack> matches = new ArrayList<>();
+            for (var item : BuiltInRegistries.ITEM) {
+                ItemStack soilItem = item.getDefaultInstance();
+                if (soilItem.isEmpty()) continue;
+                GreenhouseContext context = new GreenhouseContext(level, BlockPos.ZERO, soilItem,
+                        ItemStack.EMPTY, ItemStack.EMPTY, crop, soil, 1);
+                if (soil.couldMatch(soilItem, context, level) && soil.matches(context, level)) {
+                    matches.add(soilItem);
+                }
+            }
+            return List.copyOf(matches);
+        });
     }
 
     private static List<ItemStack> getPreviewOutputs(Crop crop, ItemStack seed) {
@@ -200,6 +265,37 @@ public final class BotanyPotsGreenhouseIntegration {
     }
 
     private record SoilMatch(Soil soil, ItemStack soilItem, GreenhouseContext context) {
+    }
+
+    private static final class CropCache {
+        private final WeakReference<RecipeManager> manager;
+        private final List<DiscoveredCrop> crops;
+
+        CropCache(List<DiscoveredCrop> crops, RecipeManager manager) {
+            this.crops = crops;
+            this.manager = new WeakReference<>(manager);
+        }
+
+        boolean isFor(RecipeManager manager) {
+            return this.manager.refersTo(manager);
+        }
+
+        List<DiscoveredCrop> crops() {
+            return crops;
+        }
+    }
+
+    private static final class SoilItemMemo {
+        private final WeakReference<RecipeManager> manager;
+        private final Map<ResourceLocation, List<ItemStack>> itemsBySoilId = new ConcurrentHashMap<>();
+
+        SoilItemMemo(RecipeManager manager) {
+            this.manager = new WeakReference<>(manager);
+        }
+
+        boolean isFor(RecipeManager manager) {
+            return this.manager.refersTo(manager);
+        }
     }
 
     public record DiscoveredCrop(ResourceLocation recipeId, ItemStack seed,

@@ -23,6 +23,7 @@ import com.jdte.common.blockentities.TimeFreezerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.content.JDTEContentControl;
 import com.jdte.common.content.JDTEContentEvents;
+import com.jdte.common.integrations.BotanyPotsGreenhouseIntegration;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.items.UltimatePortalGunItem;
 import com.jdte.common.items.RepairTalismanEvents;
@@ -97,6 +98,10 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
         NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
         NeoForge.EVENT_BUS.addListener(this::clearMineralIndex);
+        if (ModList.get().isLoaded("botanypots")) {
+            NeoForge.EVENT_BUS.addListener(BotanyPotsGreenhouseIntegration::onLevelUnload);
+            NeoForge.EVENT_BUS.addListener(BotanyPotsGreenhouseIntegration::onServerStopped);
+        }
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
         NeoForge.EVENT_BUS.addListener(RepairTalismanEvents::onPlayerTick);
@@ -150,6 +155,9 @@ public class JDTE {
         }
         GreenhouseCropResolver.invalidateCaches();
         RecipeCacheSignal.invalidate();
+        if (ModList.get().isLoaded("botanypots")) {
+            BotanyPotsGreenhouseIntegration.invalidateCrops();
+        }
         MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
         SpawnEggRecipeSyncPayload payload = new SpawnEggRecipeSyncPayload(
                 MobLootSpawnEggHelper.getRecipeIds(event.getPlayerList().getServer().getResourceManager()));
