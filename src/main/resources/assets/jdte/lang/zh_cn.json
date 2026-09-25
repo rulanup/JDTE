@@ -120,6 +120,8 @@
   "jdte.screen.output_slot": "输出槽",
   "jei.jdte.not_consumed": "不消耗",
   "jei.jdte.gel_generator.description": "使用凝胶块和燃料将输入方块转换为物品和流体",
+  "jdte.easteregg.on": "彩蛋已开启：JDTE 机器槽位贴图已替换，再次发送 2i 恢复。",
+  "jdte.easteregg.off": "彩蛋已关闭：JDTE 机器槽位贴图已恢复。",
   "jdte.screen.filter_prev": "上一页",
   "jdte.screen.filter_next": "下一页",
   "jdte.screen.io_config": "自动输入输出配置",

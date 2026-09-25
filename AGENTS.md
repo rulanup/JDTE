@@ -47,6 +47,7 @@ Major features:
 - The Large Mineral Extractor controller occupies the front-center bottom position and owns all state; its other 17 blocks have no block entities and resolve the controller in O(1) from coordinate state. The controller exposes no FE, fluid, or item capability; pipes and active auto I/O are restricted to the structure's outer boundary.
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
+- Hidden client-only easter egg: typing exactly `2i` in chat (message cancelled, never sent) toggles replacement of every JDTE machine slot background with `assets/jdte/textures/gui/easter_egg_2i_slot.png` through `SlotTextureEasterEgg` (`ContainerScreenEvent.Render.Background` overlay; no mixin). Player inventory squares and inactive filter slots are skipped; only menus of `com.jdte.*` block entities are affected.
 
 ## pre6 maintenance contracts
 

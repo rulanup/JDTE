@@ -120,6 +120,8 @@
   "jdte.screen.output_slot": "Output Slot",
   "jei.jdte.not_consumed": "Not Consumed",
   "jei.jdte.gel_generator.description": "Converts input blocks into items and fluids using gel and fuel",
+  "jdte.easteregg.on": "Easter egg ON: JDTE machine slots replaced. Send 2i again to restore.",
+  "jdte.easteregg.off": "Easter egg OFF: JDTE machine slots restored.",
   "jdte.screen.filter_prev": "Previous Page",
   "jdte.screen.filter_next": "Next Page",
   "jdte.screen.io_config": "Auto I/O Config",

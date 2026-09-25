@@ -7,6 +7,7 @@
 Formal release of the 0.6.0 feature set for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0 release notes](docs/releases/0.6.0.md).
 
 - **AE2 full-grid acceleration**: Published the matching `jdte-ae` addon for complete Grid lifecycle acceleration, including Molecular Assemblers and compatible lifecycle-driven devices.
+- **Hidden easter egg**: Typing exactly `2i` in the chat box (intercepted client-side, never sent) toggles a client-only texture swap that replaces every JDTE machine slot background with a dedicated 18x18 artwork. Sending `2i` again restores the normal slots. Purely visual, per-client, and scoped to menus of JDTE machine block entities; player inventory squares and inactive filter slots keep their vanilla look.
 - **Bio Factory reliability**: Completed outputs are persisted transactionally until item and fluid capacity are available, preventing duplicated costs or lost results across blocked output and restart cases.
 - **Machine compatibility**: Added Advanced Gel Generator to Extended Gel Generator conversion support.
 - **Loot Fabricator stability**: Temporary loot entities are explicitly discarded after each roll, preventing accumulation during continuous or accelerated production.
