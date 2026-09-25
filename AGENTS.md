@@ -64,6 +64,16 @@ Major features:
 
 Detailed English release notes: [0.6.0](docs/releases/0.6.0.md).
 
+## Naming conventions
+
+- Event listener classes end in `*Events` (pure static NeoForge handlers), stateful runtime subsystems in `*Manager` (they live under `common/manager`), stateless static utilities in `*Helper`, and input/IO processors in `*Handler`. `common/blockentities` holds only block entities and their direct collaborators; recipe viewer (JEI/EMI) and Jade plugins live under `client/`.
+- Two-letter abbreviations stay uppercase (`AE`, `BE`); new interfaces carry no `I` prefix — `ICreativeGreenhouse` is exempt because it is shared cross-mod API with the JDTE-Matrix addon. `Base*` prefixes mirror upstream JDT naming, and `*ScreenBase` is the established client counterpart.
+- Registry IDs are snake_case with word separators. `eclipsealloy_wrench` and `big_fluid_tank` are grandfathered for save compatibility — do not add new glued or `big_`-prefixed IDs.
+- Lang keys use the `jdte.<domain>.*` namespace-style prefix (`jdte.screen.*`, `jdte.slot.*`); never the reversed `screen.jdte.*` form.
+- Mixin injected members use the `jdte$` prefix in the main mod and `jdteAe$` in the `jdte-ae` addon — one prefix per mod.
+- New JEI display recipe IDs use the `jdte:jei/<machine>/<namespace>/<path>[/page]` item-path scheme; the per-recipe hash scheme in the Infusion, Potion Brewer, and Gel Generator categories is grandfathered.
+- `JDTEContentControl` is the established name of the content-control feature (see the KubeJS guides), not a generic controller.
+
 ## Build and Run
 
 The project uses Gradle with NeoForge ModDev. JDT is resolved through CurseMaven file `7463040`; no machine-specific local jar path is required.

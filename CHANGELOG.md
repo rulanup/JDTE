@@ -2,6 +2,10 @@
 
 ### English
 
+#### Unreleased
+
+- **Naming conventions**: Unified the semantic suffixes of event-driven classes (`*Events` / `*Manager` / `*Helper` / `*Handler`), moved the runtime managers out of `common/blockentities` into a dedicated `common/manager` package, moved the JEI and Jade plugins under `client/`, aligned the `jdte-ae` addon on the uppercase `AE` abbreviation, unified screen lang keys under `jdte.screen.*`, renamed `fluidbar.png` to `fluid_bar.png`, fixed a Chinese character and a redundant "Entity" suffix in `en_us.json`, added the missing `entity.jdte.time_accelerator_effect` translation, and refreshed the mod description. Registry IDs and config field names are unchanged, so worlds, datapacks, and player configs stay fully compatible. The full conventions are codified in AGENTS.md.
+
 #### v0.6.0-fix1 (Current) — 2026-09-25
 
 Hotfix release for the 0.6.0 line, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0-fix1 release notes](docs/releases/0.6.0-fix1.md).
@@ -292,6 +296,10 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 ---
 
 ### 中文
+
+#### 未发布
+
+- **命名规范**：统一事件驱动类的语义后缀（`*Events` / `*Manager` / `*Helper` / `*Handler`），把运行时 Manager 从 `common/blockentities` 迁入独立的 `common/manager` 包，JEI 与 Jade 插件归位到 `client/`，`jdte-ae` 附属统一大写 `AE` 缩写，屏幕类 lang key 统一为 `jdte.screen.*` 前缀，`fluidbar.png` 更名 `fluid_bar.png`，修复 `en_us.json` 中混入的中文字符与冗余的 "Entity" 后缀，补充缺失的 `entity.jdte.time_accelerator_effect` 翻译，并更新模组描述。注册表 ID 与 config 字段名保持不变，存档、数据包与玩家配置完全兼容。完整规范已固化到 AGENTS.md。
 
 #### v0.6.0-fix1（当前）— 2026-09-25
 
