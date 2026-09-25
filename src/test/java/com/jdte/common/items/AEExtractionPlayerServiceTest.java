@@ -1,4 +1,5 @@
 package com.jdte.common.items;
+import com.jdte.common.manager.AEExtractionPlayerManager;
 
 import com.jdte.setup.JDTEDataComponents;
 import net.minecraft.world.item.ItemStack;
@@ -13,7 +14,7 @@ class AEExtractionPlayerServiceTest {
     @Test
     void markedStackIsCollectedOnceByIdentity() {
         ItemStack marked = marked(new ItemStack(Items.STICK));
-        assertEquals(List.of(marked), AEExtractionPlayerService.collectDistinct(
+        assertEquals(List.of(marked), AEExtractionPlayerManager.collectDistinct(
                 List.of(marked, ItemStack.EMPTY, marked), List.of(marked)));
     }
 
@@ -21,7 +22,7 @@ class AEExtractionPlayerServiceTest {
     void unmarkedIsIgnoredAndEqualContentsDifferentInstancesRemain() {
         ItemStack first = marked(new ItemStack(Items.STICK));
         ItemStack second = marked(new ItemStack(Items.STICK));
-        assertEquals(List.of(first, second), AEExtractionPlayerService.collectDistinct(
+        assertEquals(List.of(first, second), AEExtractionPlayerManager.collectDistinct(
                 List.of(new ItemStack(Items.STICK), first), List.of(second)));
     }
 

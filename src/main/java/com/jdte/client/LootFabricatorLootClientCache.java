@@ -1,6 +1,6 @@
 package com.jdte.client;
 
-import com.jdte.common.jei.JDTEJeiPlugin;
+import com.jdte.client.jei.JDTEJeiPlugin;
 import net.minecraft.resources.ResourceLocation;
 import com.jdte.common.utils.LootDropInfo;
 

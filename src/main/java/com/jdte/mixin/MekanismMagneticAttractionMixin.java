@@ -1,6 +1,6 @@
 package com.jdte.mixin;
 
-import com.jdte.common.blockentities.RangeBlockerManager;
+import com.jdte.common.manager.RangeBlockerManager;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.world.entity.item.ItemEntity;
 import org.spongepowered.asm.mixin.Mixin;

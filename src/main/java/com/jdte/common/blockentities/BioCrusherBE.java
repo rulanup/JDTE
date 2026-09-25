@@ -14,7 +14,7 @@ import com.jdte.common.integrations.DraconicEvolutionIntegration;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
-import com.jdte.common.utils.BioCrusherDropCapture;
+import com.jdte.common.utils.BioCrusherDropEvents;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTETags;
@@ -339,13 +339,13 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
                 return 0;
             }
 
-            BioCrusherDropCapture.CaptureResult<Boolean> result = BioCrusherDropCapture.capture(entity, () -> {
+            BioCrusherDropEvents.CaptureResult<Boolean> result = BioCrusherDropEvents.capture(entity, () -> {
                 // Vanilla EnderDragon.hurt() intercepts lethal damage (locks health at 1 and enters the
                 // DYING animation phase, which never finishes outside an end fight), so kill it directly.
                 if (entity instanceof EnderDragon dragon) {
                     createForcedDrops(serverLevel, entity, playerDamage);
                     removeEnderDragon(dragon);
-                    BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, entity, fakePlayer);
+                    BioCrusherDropEvents.captureExperienceIfAbsent(serverLevel, entity, fakePlayer);
                     return true;
                 }
                 if (draconicGuardian && JDTEConfig.COMMON.bioCrusherAllowInstantKillChaosGuardian.get()) {
@@ -363,7 +363,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
                     entity.setHealth(0.0F);
                     entity.die(playerDamage);
                 }
-                BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, entity, fakePlayer);
+                BioCrusherDropEvents.captureExperienceIfAbsent(serverLevel, entity, fakePlayer);
                 return entity.isDeadOrDying() || entity.isRemoved();
             });
 
@@ -642,11 +642,11 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
 
         try {
             DamageSource playerDamage = serverLevel.damageSources().playerAttack(fakePlayer);
-            BioCrusherDropCapture.CaptureResult<Boolean> result = BioCrusherDropCapture.capture(livingEntity, () -> {
+            BioCrusherDropEvents.CaptureResult<Boolean> result = BioCrusherDropEvents.capture(livingEntity, () -> {
                 if (livingEntity instanceof EnderDragon dragon) {
                     createForcedDrops(serverLevel, livingEntity, playerDamage);
                     removeEnderDragon(dragon);
-                    BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, livingEntity, fakePlayer);
+                    BioCrusherDropEvents.captureExperienceIfAbsent(serverLevel, livingEntity, fakePlayer);
                     return true;
                 }
                 livingEntity.hurt(playerDamage, Float.MAX_VALUE);
@@ -658,7 +658,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
                     livingEntity.setHealth(0.0F);
                     livingEntity.die(playerDamage);
                 }
-                BioCrusherDropCapture.captureExperienceIfAbsent(serverLevel, livingEntity, fakePlayer);
+                BioCrusherDropEvents.captureExperienceIfAbsent(serverLevel, livingEntity, fakePlayer);
                 return livingEntity.isDeadOrDying() || livingEntity.isRemoved();
             });
             if (!result.value()) return -1;

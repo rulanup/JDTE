@@ -20,19 +20,19 @@ import java.util.List;
 public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer> {
     private static final String JDT = "justdirethings";
     private static final List<TextureLocalization> MODE_TEXTURES = List.of(
-            texture("textures/item/abilityupgrades/orescanner.png", "screen.jdte.range_blocker.mode.0"),
-            texture("textures/item/abilityupgrades/earthquake.png", "screen.jdte.range_blocker.mode.1"),
-            texture("textures/item/abilityupgrades/mindfog.png", "screen.jdte.range_blocker.mode.2"));
+            texture("textures/item/abilityupgrades/orescanner.png", "jdte.screen.range_blocker.mode.0"),
+            texture("textures/item/abilityupgrades/earthquake.png", "jdte.screen.range_blocker.mode.1"),
+            texture("textures/item/abilityupgrades/mindfog.png", "jdte.screen.range_blocker.mode.2"));
     private static final List<TextureLocalization> LIST_TEXTURES = List.of(
-            texture("textures/gui/buttons/allowlistfalse.png", "screen.jdte.range_blocker.blacklist"),
-            texture("textures/gui/buttons/allowlisttrue.png", "screen.jdte.range_blocker.allowlist"));
+            texture("textures/gui/buttons/allowlistfalse.png", "jdte.screen.range_blocker.blacklist"),
+            texture("textures/gui/buttons/allowlisttrue.png", "jdte.screen.range_blocker.allowlist"));
     private static final List<TextureLocalization> TARGET_TEXTURES = List.of(
-            texture("textures/gui/buttons/mobscanner.png", "screen.jdte.range_blocker.target.0"),
-            texture("textures/gui/buttons/passivemob.png", "screen.jdte.range_blocker.target.1"),
-            texture("textures/gui/buttons/entity-all.png", "screen.jdte.range_blocker.target.2"),
-            texture("textures/gui/buttons/filter-item.png", "screen.jdte.range_blocker.target.3"),
-            texture("textures/gui/buttons/item.png", "screen.jdte.range_blocker.target.4"),
-            texture("textures/gui/buttons/target-both.png", "screen.jdte.range_blocker.target.5"));
+            texture("textures/gui/buttons/mobscanner.png", "jdte.screen.range_blocker.target.0"),
+            texture("textures/gui/buttons/passivemob.png", "jdte.screen.range_blocker.target.1"),
+            texture("textures/gui/buttons/entity-all.png", "jdte.screen.range_blocker.target.2"),
+            texture("textures/gui/buttons/filter-item.png", "jdte.screen.range_blocker.target.3"),
+            texture("textures/gui/buttons/item.png", "jdte.screen.range_blocker.target.4"),
+            texture("textures/gui/buttons/target-both.png", "jdte.screen.range_blocker.target.5"));
 
     private int mode;
     private int target;

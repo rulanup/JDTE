@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TickHandlerMixinIntegrationTest {
     @AfterEach
     void resetClock() {
-        AeVirtualTickContext.reset();
+        AEVirtualTickContext.reset();
     }
 
     @Test
@@ -26,12 +26,12 @@ class TickHandlerMixinIntegrationTest {
         long nativeTick = handler.getCurrentTick();
 
         long virtualTick;
-        try (AeVirtualTickContext.Scope ignored = AeVirtualTickContext.enter(nativeTick, 7)) {
+        try (AEVirtualTickContext.Scope ignored = AEVirtualTickContext.enter(nativeTick, 7)) {
             virtualTick = handler.getCurrentTick();
             assertTrue(virtualTick > nativeTick);
         }
 
-        assertFalse(AeVirtualTickContext.isActive());
+        assertFalse(AEVirtualTickContext.isActive());
         assertEquals(virtualTick, handler.getCurrentTick());
     }
 
@@ -43,15 +43,15 @@ class TickHandlerMixinIntegrationTest {
         ICraftingProvider provider = new EmptyCraftingProvider();
 
         long mountedAt;
-        try (AeVirtualTickContext.Scope ignored =
-                     AeVirtualTickContext.enter(firstFrame, 2)) {
+        try (AEVirtualTickContext.Scope ignored =
+                     AEVirtualTickContext.enter(firstFrame, 2)) {
             providers.addProvider(provider);
             mountedAt = providers.getLastModifiedOnTick();
         }
 
         long removedAt;
-        try (AeVirtualTickContext.Scope ignored =
-                     AeVirtualTickContext.enter(firstFrame + 1L, 1)) {
+        try (AEVirtualTickContext.Scope ignored =
+                     AEVirtualTickContext.enter(firstFrame + 1L, 1)) {
             providers.removeProvider(provider);
             removedAt = providers.getLastModifiedOnTick();
         }

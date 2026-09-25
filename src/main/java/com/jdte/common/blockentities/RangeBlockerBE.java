@@ -1,4 +1,5 @@
 package com.jdte.common.blockentities;
+import com.jdte.common.manager.RangeBlockerManager;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
@@ -109,12 +110,12 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
         RangeBlockerManager.refresh(this);
     }
 
-    AABB getIndexedArea() {
+    public AABB getIndexedArea() {
         if (level != null && level.isClientSide && clientSyncedArea != null) return clientSyncedArea;
         return getAABB(getBlockPos());
     }
 
-    boolean canApplyEffectThisTick() {
+    public boolean canApplyEffectThisTick() {
         if (isRemoved() || level == null || !fieldActive || !isActiveRedstone()
                 || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         if (level.isClientSide || UpgradeHelper.hasCreativeUpgrade(this)) return true;

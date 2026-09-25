@@ -11,7 +11,7 @@ public final class JDTEAE {
     private static final Logger LOGGER = LoggerFactory.getLogger(JDTEAE.class);
 
     public JDTEAE() {
-        ExternalTimeAccelerationBackends.register(AeGridAccelerationBackend.INSTANCE);
+        ExternalTimeAccelerationBackends.register(AEGridAccelerationBackend.INSTANCE);
         LOGGER.info("JDT Extras AE Acceleration loaded; registered AE2 full-grid time acceleration backend");
     }
 }

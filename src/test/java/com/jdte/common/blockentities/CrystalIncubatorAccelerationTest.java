@@ -68,13 +68,13 @@ class CrystalIncubatorAccelerationTest {
         }
 
         @Override
-        protected int getAccelerationWorkTicks(int effectiveMultiplier) {
+        public int getAccelerationWorkTicks(int effectiveMultiplier) {
             recordedMultiplier = effectiveMultiplier;
             return super.getAccelerationWorkTicks(effectiveMultiplier);
         }
 
         @Override
-        protected int getEnergyCost(int workTicks) {
+        public int getEnergyCost(int workTicks) {
             recordedEnergyWorkTicks = workTicks;
             return workTicks + 1;
         }

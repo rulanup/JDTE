@@ -20,9 +20,9 @@ import java.util.List;
 
 public class LifeBreederScreen extends BaseMachineScreen<LifeBreederContainer> {
     private static final List<TextureLocalization> MODE_TEXTURES = List.of(
-            texture("textures/item/abilityupgrades/deathprotection.png", "screen.jdte.life_breeder.mode.0"),
-            texture("textures/gui/buttons/passivemob.png", "screen.jdte.life_breeder.mode.1"),
-            texture("textures/item/abilityupgrades/orexray.png", "screen.jdte.life_breeder.mode.2"));
+            texture("textures/item/abilityupgrades/deathprotection.png", "jdte.screen.life_breeder.mode.0"),
+            texture("textures/gui/buttons/passivemob.png", "jdte.screen.life_breeder.mode.1"),
+            texture("textures/item/abilityupgrades/orexray.png", "jdte.screen.life_breeder.mode.2"));
     private static final Component FEED_TOOLTIP = Component.translatable("jdte.slot.life_breeder_feed");
     private static final Component OUTPUT_TOOLTIP = Component.translatable("jdte.slot.life_breeder_output");
 

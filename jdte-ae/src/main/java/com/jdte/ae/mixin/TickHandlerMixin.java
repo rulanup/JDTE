@@ -1,7 +1,7 @@
 package com.jdte.ae.mixin;
 
 import appeng.hooks.ticking.TickHandler;
-import com.jdte.ae.AeVirtualTickContext;
+import com.jdte.ae.AEVirtualTickContext;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,6 +16,6 @@ public abstract class TickHandlerMixin {
             require = 1,
             remap = false)
     private void jdteAe$overrideCurrentTick(CallbackInfoReturnable<Long> cir) {
-        cir.setReturnValue(AeVirtualTickContext.override(cir.getReturnValue()));
+        cir.setReturnValue(AEVirtualTickContext.override(cir.getReturnValue()));
     }
 }

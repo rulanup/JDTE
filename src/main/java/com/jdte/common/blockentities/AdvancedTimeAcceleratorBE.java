@@ -80,7 +80,7 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     }
 
     @Override
-    protected boolean hasResources(int fluidCost, int energyCost) {
+    public boolean hasResources(int fluidCost, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return true;
         }
@@ -88,7 +88,7 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     }
 
     @Override
-    protected void consumeResources(int workTicks, int energyCost) {
+    public void consumeResources(int workTicks, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return;
         }
@@ -97,7 +97,7 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     }
 
     @Override
-    protected int getEnergyCost(int workTicks) {
+    public int getEnergyCost(int workTicks) {
         return TimeAcceleratorCostMath.energyCost(workTicks, Config.TIMEWAND_RF_COST.get());
     }
 

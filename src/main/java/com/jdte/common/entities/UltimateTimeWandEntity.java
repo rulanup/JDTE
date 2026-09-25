@@ -1,6 +1,6 @@
 package com.jdte.common.entities;
 
-import com.jdte.common.blockentities.ExtendedTimeAccelerationManager;
+import com.jdte.common.manager.ExtendedTimeAccelerationManager;
 import com.jdte.common.items.UltimateTimeWandData;
 import com.jdte.setup.JDTEEntities;
 import net.minecraft.core.BlockPos;

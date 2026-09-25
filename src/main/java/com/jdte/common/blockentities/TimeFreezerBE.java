@@ -1,4 +1,5 @@
 package com.jdte.common.blockentities;
+import com.jdte.common.manager.TimeFreezerManager;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerData;

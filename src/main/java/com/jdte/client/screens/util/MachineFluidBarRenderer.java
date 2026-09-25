@@ -19,7 +19,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class MachineFluidBarRenderer {
-    private static final ResourceLocation FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluidbar.png");
+    private static final ResourceLocation FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
 
     private MachineFluidBarRenderer() {
     }

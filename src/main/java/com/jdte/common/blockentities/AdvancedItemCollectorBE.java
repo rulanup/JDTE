@@ -1,4 +1,5 @@
 package com.jdte.common.blockentities;
+import com.jdte.common.manager.AdvancedItemCollectorManager;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
@@ -103,17 +104,17 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
         return insertCollectedStack(stack);
     }
 
-    boolean canCollect(ItemStack stack) {
+    public boolean canCollect(ItemStack stack) {
         return !stack.isEmpty() && !isRemoved() && level instanceof ServerLevel
                 && isActiveRedstone() && UpgradeHelper.mayRunWithUpgrades(this)
                 && isStackValidFilter(stack);
     }
 
-    ItemStack insertCollectedStack(ItemStack stack) {
+    public ItemStack insertCollectedStack(ItemStack stack) {
         return insertCollectedStack(stack, false);
     }
 
-    ItemStack insertCollectedStack(ItemStack stack, boolean simulate) {
+    public ItemStack insertCollectedStack(ItemStack stack, boolean simulate) {
         if (stack.isEmpty() || isRemoved() || !(level instanceof ServerLevel) || !isActiveRedstone()
                 || !UpgradeHelper.mayRunWithUpgrades(this)) {
             return stack;
@@ -135,7 +136,7 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
         return simulate ? normalRemainder : ItemHandlerHelper.insertItemStacked(inventory, stack, false);
     }
 
-    boolean isAttachedInventoryAt(BlockPos pos) {
+    public boolean isAttachedInventoryAt(BlockPos pos) {
         Direction facing = getBlockState().getValue(BlockStateProperties.FACING);
         return getBlockPos().relative(facing).equals(pos);
     }

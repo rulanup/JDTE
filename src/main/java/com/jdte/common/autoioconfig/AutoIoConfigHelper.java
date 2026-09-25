@@ -19,7 +19,7 @@ import com.jdte.common.blockentities.InfusionMachineBE;
 import com.jdte.common.blockentities.ItemReceiverBE;
 import com.jdte.common.blockentities.ItemSenderBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
-import com.jdte.common.blockentities.MachineOutputManager;
+import com.jdte.common.manager.MachineOutputManager;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.setup.JDTEAttachments;
 

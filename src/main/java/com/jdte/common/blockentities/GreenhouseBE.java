@@ -1,4 +1,6 @@
 package com.jdte.common.blockentities;
+import com.jdte.common.manager.MachineOutputManager;
+import com.jdte.common.manager.AEOutputManager;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerData;

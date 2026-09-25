@@ -1,6 +1,6 @@
 package com.jdte.mixin;
 
-import com.jdte.common.blockentities.EntitySuppressorManager;
+import com.jdte.common.manager.EntitySuppressorManager;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;

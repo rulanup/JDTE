@@ -27,7 +27,7 @@ class AE2TickManagerIntegrationTest {
         ThreadGroup originalServerThreadGroup = Platform.serverThreadGroup;
         Platform.serverThreadGroup = Thread.currentThread().getThreadGroup();
         try {
-            ServerLevel level = AeGridTestFixture.level("overworld");
+            ServerLevel level = AEGridTestFixture.level("overworld");
             AtomicInteger calls = new AtomicInteger();
             List<Integer> observedTicksSinceLastCall = new ArrayList<>();
             IGridNodeListener<Object> listener = (owner, node) -> {
@@ -51,8 +51,8 @@ class AE2TickManagerIntegrationTest {
             markReady(node);
             try {
                 Grid grid = node.getInternalGrid();
-                AeGridVirtualTickExecutor executor = new AeGridVirtualTickExecutor();
-                executor.execute(100L, List.of(new AeGridVirtualTickExecutor.GridWork(
+                AEGridVirtualTickExecutor executor = new AEGridVirtualTickExecutor();
+                executor.execute(100L, List.of(new AEGridVirtualTickExecutor.GridWork(
                         new RealGridTarget(grid, level), 1023)));
 
                 assertEquals(1023, calls.get());
@@ -62,7 +62,7 @@ class AE2TickManagerIntegrationTest {
                 node.destroy();
             }
         } finally {
-            AeVirtualTickContext.reset();
+            AEVirtualTickContext.reset();
             Platform.serverThreadGroup = originalServerThreadGroup;
         }
     }
@@ -74,7 +74,7 @@ class AE2TickManagerIntegrationTest {
     }
 
     private record RealGridTarget(Grid grid, ServerLevel level)
-            implements AeGridVirtualTickExecutor.GridTickTarget {
+            implements AEGridVirtualTickExecutor.GridTickTarget {
         @Override
         public int serialNumber() {
             return grid.getSerialNumber();

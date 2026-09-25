@@ -1,7 +1,7 @@
 package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE;
-import com.jdte.common.blockentities.EntitySuppressorManager;
+import com.jdte.common.manager.EntitySuppressorManager;
 import net.minecraft.core.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

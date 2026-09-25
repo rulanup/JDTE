@@ -86,11 +86,11 @@ public final class UltimateTimeWandTargetRuntime {
         return executor.executeOrdinary(target, admittedTicks);
     }
 
-    static Result executeOrdinary(ServerLevel level, BlockPos pos, int requestedTicks, long remainingBudget) {
+    public static Result executeOrdinary(ServerLevel level, BlockPos pos, int requestedTicks, long remainingBudget) {
         return executeOrdinary(new TimeAccelerationTarget(level, pos), requestedTicks, remainingBudget);
     }
 
-    static Result executeOrdinary(TimeAccelerationTarget target, int requestedTicks, long remainingBudget) {
+    public static Result executeOrdinary(TimeAccelerationTarget target, int requestedTicks, long remainingBudget) {
         int admittedTicks = admit(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), remainingBudget);
         if (admittedTicks <= 0) {
             return Result.noWork();

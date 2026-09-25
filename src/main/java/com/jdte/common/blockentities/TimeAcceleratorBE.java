@@ -1,4 +1,5 @@
 package com.jdte.common.blockentities;
+import com.jdte.common.manager.ExtendedTimeAccelerationManager;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
@@ -103,7 +104,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         }
     }
 
-    protected boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState) {
+    public boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState) {
         if (blockState.getBlock() instanceof LiquidBlock liquidBlock) {
             return isStackValidFilter(liquidBlock);
         }
@@ -154,7 +155,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         }
     }
 
-    protected boolean hasResources(int fluidCost, int energyCost) {
+    public boolean hasResources(int fluidCost, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return true;
         }
@@ -164,7 +165,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         return fluidTank.drain(fluidCost, IFluidHandler.FluidAction.SIMULATE).getAmount() == fluidCost;
     }
 
-    protected void consumeResources(int workTicks, int energyCost) {
+    public void consumeResources(int workTicks, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return;
         }
@@ -177,18 +178,18 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         setChanged();
     }
 
-    protected int getAccelerationWorkTicks(int effectiveMultiplier) {
+    public int getAccelerationWorkTicks(int effectiveMultiplier) {
         return TimeAcceleratorTiming.additionalCycles(effectiveMultiplier);
     }
 
-    protected long getAccelerationPendingLimit(int effectiveMultiplier) {
+    public long getAccelerationPendingLimit(int effectiveMultiplier) {
         return TimeAcceleratorTiming.pendingWindowCycles(
                 effectiveMultiplier,
                 JDTEConfig.SERVER.timeAccelerator.timeAcceleratorAccelerationDurationSeconds.get(),
                 JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get());
     }
 
-    protected int getFluidDrainAmount(int workTicks) {
+    public int getFluidDrainAmount(int workTicks) {
         return TimeAcceleratorCostMath.settleFluid(pendingFluidCost, getFluidCostPerTick(workTicks)).drainMb();
     }
 
@@ -204,7 +205,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         return 1.0D;
     }
 
-    protected int getEnergyCost(int workTicks) {
+    public int getEnergyCost(int workTicks) {
         return 0;
     }
 

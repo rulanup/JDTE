@@ -1,7 +1,7 @@
 package com.jdte.client;
 
 import com.jdte.JDTE;
-import com.jdte.common.blockentities.RangeBlockerManager;
+import com.jdte.common.manager.RangeBlockerManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundManager;

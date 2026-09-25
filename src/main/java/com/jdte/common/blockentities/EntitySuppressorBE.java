@@ -1,4 +1,5 @@
 package com.jdte.common.blockentities;
+import com.jdte.common.manager.EntitySuppressorManager;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
@@ -114,12 +115,12 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
         EntitySuppressorManager.refresh(this);
     }
 
-    AABB getIndexedArea() {
+    public AABB getIndexedArea() {
         if (level != null && level.isClientSide && clientSyncedArea != null) return clientSyncedArea;
         return getAABB(getBlockPos());
     }
 
-    boolean canOperateThisTick() {
+    public boolean canOperateThisTick() {
         if (isRemoved() || level == null || !isActiveRedstone()
                 || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         if (UpgradeHelper.hasCreativeUpgrade(this)) return true;
@@ -139,15 +140,15 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
                 || energy.extractEnergy(getStandardEnergyCost(), true) == getStandardEnergyCost();
     }
 
-    boolean canSuppressParticlesClient() {
+    public boolean canSuppressParticlesClient() {
         return !isRemoved() && particleActive;
     }
 
-    boolean canSuppressEntitiesClient() {
+    public boolean canSuppressEntitiesClient() {
         return !isRemoved() && entitySuppressionActive;
     }
 
-    boolean canSuppressRenderingClient() {
+    public boolean canSuppressRenderingClient() {
         return !isRemoved() && renderingSuppressionActive;
     }
 

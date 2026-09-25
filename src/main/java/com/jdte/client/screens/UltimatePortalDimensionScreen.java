@@ -24,7 +24,7 @@ public final class UltimatePortalDimensionScreen extends Screen {
     public UltimatePortalDimensionScreen(ItemStack portalGun, int slotSelected,
                                          List<ResourceKey<Level>> dimensions, int selectedDimension,
                                          String pendingName, String pendingX, String pendingY, String pendingZ) {
-        super(Component.translatable("screen.jdte.ultimate_portal_gun.dimension_title"));
+        super(Component.translatable("jdte.screen.ultimate_portal_gun.dimension_title"));
         this.portalGun = portalGun;
         this.slotSelected = slotSelected;
         this.dimensions = List.copyOf(dimensions);
@@ -51,13 +51,13 @@ public final class UltimatePortalDimensionScreen extends Screen {
         }
         int navigationY = top + UltimatePortalDimensionPaging.ITEMS_PER_PAGE * 20 + 8;
         addRenderableWidget(new ExtendedButton(left, navigationY, 70, 18,
-                Component.translatable("screen.jdte.ultimate_portal_gun.prev_page"),
+                Component.translatable("jdte.screen.ultimate_portal_gun.prev_page"),
                 button -> changePage(-1)));
         addRenderableWidget(new ExtendedButton(left + 85, navigationY, 70, 18,
-                Component.translatable("screen.jdte.ultimate_portal_gun.back"),
+                Component.translatable("jdte.screen.ultimate_portal_gun.back"),
                 button -> returnToEditor(null)));
         addRenderableWidget(new ExtendedButton(left + 170, navigationY, 70, 18,
-                Component.translatable("screen.jdte.ultimate_portal_gun.next_page"),
+                Component.translatable("jdte.screen.ultimate_portal_gun.next_page"),
                 button -> changePage(1)));
     }
 
@@ -99,7 +99,7 @@ public final class UltimatePortalDimensionScreen extends Screen {
         int top = height / 2 - 108;
         graphics.drawCenteredString(font, title, width / 2, top, 0xFFFFFF);
         graphics.drawCenteredString(font,
-                Component.translatable("screen.jdte.ultimate_portal_gun.page", page + 1,
+                Component.translatable("jdte.screen.ultimate_portal_gun.page", page + 1,
                         UltimatePortalDimensionPaging.pageCount(dimensions.size())),
                 width / 2, top + 160, 0xA0A0A0);
     }

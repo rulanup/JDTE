@@ -35,7 +35,7 @@ public abstract class TimeFreezerScreenBase<T extends BaseMachineContainer> exte
                 })
                 .bounds(centerX - 76, buttonY, 70, 20)
                 .tooltip(net.minecraft.client.gui.components.Tooltip.create(
-                        Component.translatable("screen.jdte.time_freezer.time.toggle")))
+                        Component.translatable("jdte.screen.time_freezer.time.toggle")))
                 .build());
         weatherButton = addRenderableWidget(Button.builder(weatherLabel(), button -> {
                     weatherFreezeEnabled = !weatherFreezeEnabled;
@@ -44,7 +44,7 @@ public abstract class TimeFreezerScreenBase<T extends BaseMachineContainer> exte
                 })
                 .bounds(centerX + 6, buttonY, 70, 20)
                 .tooltip(net.minecraft.client.gui.components.Tooltip.create(
-                        Component.translatable("screen.jdte.time_freezer.weather.toggle")))
+                        Component.translatable("jdte.screen.time_freezer.weather.toggle")))
                 .build());
     }
 
@@ -55,12 +55,12 @@ public abstract class TimeFreezerScreenBase<T extends BaseMachineContainer> exte
 
     private Component timeLabel() {
         return Component.translatable(timeFreezeEnabled
-                ? "screen.jdte.time_freezer.time.enabled" : "screen.jdte.time_freezer.time.disabled");
+                ? "jdte.screen.time_freezer.time.enabled" : "jdte.screen.time_freezer.time.disabled");
     }
 
     private Component weatherLabel() {
         return Component.translatable(weatherFreezeEnabled
-                ? "screen.jdte.time_freezer.weather.enabled" : "screen.jdte.time_freezer.weather.disabled");
+                ? "jdte.screen.time_freezer.weather.enabled" : "jdte.screen.time_freezer.weather.disabled");
     }
 
     private void sendSettings() {

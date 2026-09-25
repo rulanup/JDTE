@@ -2,7 +2,7 @@ package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
-import com.jdte.common.blockentities.AEOutputManager;
+import com.jdte.common.manager.AEOutputManager;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.HolderLookup;

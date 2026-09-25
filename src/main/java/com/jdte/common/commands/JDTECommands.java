@@ -1,7 +1,7 @@
 package com.jdte.common.commands;
 
 import com.jdte.common.blockentities.TimeFreezerBE;
-import com.jdte.common.blockentities.TimeFreezerManager;
+import com.jdte.common.manager.TimeFreezerManager;
 import com.jdte.setup.JDTEConfig;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import net.minecraft.ChatFormatting;

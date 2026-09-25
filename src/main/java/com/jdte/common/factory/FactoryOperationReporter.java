@@ -64,7 +64,7 @@ public final class FactoryOperationReporter {
         debugLog("phase", "cursor=" + host.cursor() + "/" + host.totalWork());
         if (!JDTEConfig.COMMON.factoryPackerChatNotifications.get()) return;
         sendOwnerMessage(level, Component.translatable("message.jdte.factory_packer.operation_phase",
-                Component.translatable("screen.jdte.factory_packer.phase." + phase.ordinal()),
+                Component.translatable("jdte.screen.factory_packer.phase." + phase.ordinal()),
                 Math.max(0, host.cursor()), Math.max(0, host.totalWork())).withStyle(ChatFormatting.GRAY));
     }
 
@@ -77,7 +77,7 @@ public final class FactoryOperationReporter {
                 ? Component.translatable("message.jdte.factory_packer.operation_complete")
                         .withStyle(ChatFormatting.GREEN)
                 : Component.translatable("message.jdte.factory_packer.operation_failed", errorCode,
-                        Component.translatable("screen.jdte.factory_packer.error." + errorCode))
+                        Component.translatable("jdte.screen.factory_packer.error." + errorCode))
                         .withStyle(ChatFormatting.RED);
         sendOwnerMessage(level, result);
     }

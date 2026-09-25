@@ -20,21 +20,21 @@ import java.util.List;
 public class EntitySuppressorScreen extends BaseMachineScreen<EntitySuppressorContainer> {
     private static final String JDT = "justdirethings";
     private static final List<TextureLocalization> MODE_TEXTURES = List.of(
-            texture("textures/item/abilityupgrades/deathprotection.png", "screen.jdte.entity_suppressor.mode.0"),
-            texture("textures/item/abilityupgrades/noai.png", "screen.jdte.entity_suppressor.mode.1"),
-            texture("textures/item/abilityupgrades/waterbreathing.png", "screen.jdte.entity_suppressor.mode.2"),
-            texture("textures/item/abilityupgrades/phase.png", "screen.jdte.entity_suppressor.mode.3"),
-            texture("textures/item/abilityupgrades/orexray.png", "screen.jdte.entity_suppressor.mode.4"));
+            texture("textures/item/abilityupgrades/deathprotection.png", "jdte.screen.entity_suppressor.mode.0"),
+            texture("textures/item/abilityupgrades/noai.png", "jdte.screen.entity_suppressor.mode.1"),
+            texture("textures/item/abilityupgrades/waterbreathing.png", "jdte.screen.entity_suppressor.mode.2"),
+            texture("textures/item/abilityupgrades/phase.png", "jdte.screen.entity_suppressor.mode.3"),
+            texture("textures/item/abilityupgrades/orexray.png", "jdte.screen.entity_suppressor.mode.4"));
     private static final List<TextureLocalization> TARGET_TEXTURES = List.of(
-            texture("textures/gui/buttons/mobscanner.png", "screen.jdte.entity_suppressor.target.0"),
-            texture("textures/gui/buttons/passivemob.png", "screen.jdte.entity_suppressor.target.1"),
-            texture("textures/gui/buttons/entity-all.png", "screen.jdte.entity_suppressor.target.2"),
-            texture("textures/gui/buttons/filter-item.png", "screen.jdte.entity_suppressor.target.3"),
-            texture("textures/gui/buttons/item.png", "screen.jdte.entity_suppressor.target.4"),
-            texture("textures/gui/buttons/target-both.png", "screen.jdte.entity_suppressor.target.5"));
+            texture("textures/gui/buttons/mobscanner.png", "jdte.screen.entity_suppressor.target.0"),
+            texture("textures/gui/buttons/passivemob.png", "jdte.screen.entity_suppressor.target.1"),
+            texture("textures/gui/buttons/entity-all.png", "jdte.screen.entity_suppressor.target.2"),
+            texture("textures/gui/buttons/filter-item.png", "jdte.screen.entity_suppressor.target.3"),
+            texture("textures/gui/buttons/item.png", "jdte.screen.entity_suppressor.target.4"),
+            texture("textures/gui/buttons/target-both.png", "jdte.screen.entity_suppressor.target.5"));
     private static final List<TextureLocalization> LIST_TEXTURES = List.of(
-            texture("textures/gui/buttons/allowlistfalse.png", "screen.jdte.entity_suppressor.blacklist"),
-            texture("textures/gui/buttons/allowlisttrue.png", "screen.jdte.entity_suppressor.allowlist"));
+            texture("textures/gui/buttons/allowlistfalse.png", "jdte.screen.entity_suppressor.blacklist"),
+            texture("textures/gui/buttons/allowlisttrue.png", "jdte.screen.entity_suppressor.allowlist"));
 
     private int mode;
     private int target;

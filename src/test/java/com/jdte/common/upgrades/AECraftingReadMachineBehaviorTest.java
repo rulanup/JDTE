@@ -1,4 +1,5 @@
 package com.jdte.common.upgrades;
+import com.jdte.common.manager.ExtendedTimeAccelerationManager;
 
 import org.junit.jupiter.api.Test;
 

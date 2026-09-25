@@ -121,15 +121,15 @@ public class UltimatePortalRadialMenu extends Screen {
         GrayscaleButton prevButton = new GrayscaleButton(width / 2 - 150, height / 2 - 56, 16, 16,
                 new ToggleButtonFactory.TextureLocalization(
                         ResourceLocation.fromNamespaceAndPath(JustDireThings.MODID, "textures/gui/buttons/mobscanner.png"),
-                        Component.translatable("screen.jdte.ultimate_portal_gun.prev_page")).texture(),
-                Component.translatable("screen.jdte.ultimate_portal_gun.prev_page"), true, (clicked) -> changePage(-1));
+                        Component.translatable("jdte.screen.ultimate_portal_gun.prev_page")).texture(),
+                Component.translatable("jdte.screen.ultimate_portal_gun.prev_page"), true, (clicked) -> changePage(-1));
         addRenderableWidget(prevButton);
 
         GrayscaleButton nextButton = new GrayscaleButton(width / 2 + 140, height / 2 - 56, 16, 16,
                 new ToggleButtonFactory.TextureLocalization(
                         ResourceLocation.fromNamespaceAndPath(JustDireThings.MODID, "textures/gui/buttons/mobscanner.png"),
-                        Component.translatable("screen.jdte.ultimate_portal_gun.next_page")).texture(),
-                Component.translatable("screen.jdte.ultimate_portal_gun.next_page"), true, (clicked) -> changePage(1));
+                        Component.translatable("jdte.screen.ultimate_portal_gun.next_page")).texture(),
+                Component.translatable("jdte.screen.ultimate_portal_gun.next_page"), true, (clicked) -> changePage(1));
         addRenderableWidget(nextButton);
     }
 
@@ -264,7 +264,7 @@ public class UltimatePortalRadialMenu extends Screen {
         }
 
         // 页码
-        String pageLabel = Component.translatable("screen.jdte.ultimate_portal_gun.page", page + 1, pageCount()).getString();
+        String pageLabel = Component.translatable("jdte.screen.ultimate_portal_gun.page", page + 1, pageCount()).getString();
         guiGraphics.drawString(this.font, pageLabel, x - this.font.width(pageLabel) / 2, y - 135, Color.WHITE.getRGB());
     }
 

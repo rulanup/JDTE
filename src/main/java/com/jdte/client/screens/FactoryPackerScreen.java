@@ -32,7 +32,7 @@ public class FactoryPackerScreen extends BaseMachineScreen<FactoryPackerContaine
         startButton = addRenderableWidget(new ToggleButton(getGuiLeft() + 104, getGuiTop() + 18, 16, 16,
                 List.of(new TextureLocalization(
                         ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/positionswap.png"),
-                        Component.translatable("screen.jdte.factory_packer.start"))), 0,
+                        Component.translatable("jdte.screen.factory_packer.start"))), 0,
                 button -> PacketDistributor.sendToServer(new FactoryPackerStartPayload())));
         updateButton();
     }
@@ -74,11 +74,11 @@ public class FactoryPackerScreen extends BaseMachineScreen<FactoryPackerContaine
         FactoryPackerBE.Phase phase = FactoryPackerBE.Phase.values()[
                 Math.floorMod(packerContainer.getPhase(), FactoryPackerBE.Phase.values().length)];
         graphics.drawCenteredString(font,
-                Component.translatable("screen.jdte.factory_packer.phase." + phase.ordinal()),
+                Component.translatable("jdte.screen.factory_packer.phase." + phase.ordinal()),
                 statusX, statusY, 0x606060);
         if (phase == FactoryPackerBE.Phase.IDLE && packerContainer.getErrorCode() > 0) {
             graphics.drawCenteredString(font,
-                    Component.translatable("screen.jdte.factory_packer.failed", packerContainer.getErrorCode()),
+                    Component.translatable("jdte.screen.factory_packer.failed", packerContainer.getErrorCode()),
                     statusX, statusY + 12, 0xB03030);
         }
     }
@@ -91,7 +91,7 @@ public class FactoryPackerScreen extends BaseMachineScreen<FactoryPackerContaine
                 && mouseX >= getGuiLeft() + 59 && mouseX < getGuiLeft() + 119
                 && mouseY >= getGuiTop() + 51 && mouseY < getGuiTop() + 65) {
             graphics.renderTooltip(font,
-                    Component.translatable("screen.jdte.factory_packer.error." + packerContainer.getErrorCode()),
+                    Component.translatable("jdte.screen.factory_packer.error." + packerContainer.getErrorCode()),
                     mouseX, mouseY);
         }
     }

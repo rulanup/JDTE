@@ -1,7 +1,7 @@
-package com.jdte.common.jei;
+package com.jdte.client.jei;
 
 import com.jdte.client.LootFabricatorLootClientCache;
-import com.jdte.common.jei.lootfabricator.LootFabricatorJeiRecipe;
+import com.jdte.client.jei.lootfabricator.LootFabricatorJeiRecipe;
 import com.jdte.common.utils.LootDropInfo;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.runtime.IJeiRuntime;

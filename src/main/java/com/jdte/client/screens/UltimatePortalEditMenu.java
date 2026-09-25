@@ -139,10 +139,10 @@ public class UltimatePortalEditMenu extends Screen {
 
     private Component currentDimensionLabel() {
         if (dimensions.isEmpty()) {
-            return Component.translatable("screen.jdte.ultimate_portal_gun.no_dimensions");
+            return Component.translatable("jdte.screen.ultimate_portal_gun.no_dimensions");
         }
         ResourceKey<Level> key = dimensions.get(Math.floorMod(selectedDimension, dimensions.size()));
-        return Component.translatable("screen.jdte.ultimate_portal_gun.dimension", key.location().toString());
+        return Component.translatable("jdte.screen.ultimate_portal_gun.dimension", key.location().toString());
     }
 
     private void openDimensionSelection() {
@@ -199,9 +199,9 @@ public class UltimatePortalEditMenu extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int baseX = width / 2 - 115;
         int baseY = height / 2 - 50;
-        guiGraphics.drawString(font, Component.translatable("screen.jdte.ultimate_portal_gun.name"),
+        guiGraphics.drawString(font, Component.translatable("jdte.screen.ultimate_portal_gun.name"),
                 baseX, baseY - 11, 0xA0A0A0, false);
-        guiGraphics.drawString(font, Component.translatable("screen.jdte.ultimate_portal_gun.coords"),
+        guiGraphics.drawString(font, Component.translatable("jdte.screen.ultimate_portal_gun.coords"),
                 baseX, baseY + 7, 0xA0A0A0, false);
     }
 }

@@ -1,4 +1,5 @@
 package com.jdte.common.blockentities;
+import com.jdte.common.manager.ExtendedTimeAccelerationManager;
 
 import com.direwolf20.justdirethings.setup.Config;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
@@ -94,7 +95,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    protected int getAccelerationWorkTicks(int effectiveMultiplier) {
+    public int getAccelerationWorkTicks(int effectiveMultiplier) {
         return TimeAcceleratorTiming.batchWorkTicks(
                 effectiveMultiplier,
                 JDTEConfig.SERVER.timeAccelerator.timeAcceleratorAccelerationDurationSeconds.get());
@@ -167,14 +168,14 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    protected int getEnergyCost(int workTicks) {
+    public int getEnergyCost(int workTicks) {
         double cost = workTicks * (double) Config.TIMEWAND_RF_COST.get()
                 * JDTEConfig.COMMON.crystalIncubatorEnergyCostMultiplier.get();
         return (int) Math.min(Integer.MAX_VALUE, Math.max(0.0D, Math.ceil(cost)));
     }
 
     @Override
-    protected boolean hasResources(int fluidCost, int energyCost) {
+    public boolean hasResources(int fluidCost, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return true;
         }
@@ -183,7 +184,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    protected void consumeResources(int workTicks, int energyCost) {
+    public void consumeResources(int workTicks, int energyCost) {
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
             return;
         }
