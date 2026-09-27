@@ -3,14 +3,11 @@ package com.jdte.common.blockentities;
 import com.direwolf20.justdirethings.client.particles.itemparticle.ItemFlowParticleData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
-import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
-import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.ExperienceUtils;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
-import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -35,9 +32,8 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import java.util.List;
 
 public class ExtendedExperienceHolderBE extends BaseMachineBE
-        implements AreaAffectingBE, RedstoneControlledBE, FilterableBE {
+        implements AreaAffectingBE, RedstoneControlledBE {
     protected BlockCapabilityCache<IFluidHandler, Direction> attachedTank;
-    public FilterData filterData = new FilterData();
     public AreaAffectingData areaAffectingData = new AreaAffectingData(
             getBlockState().getValue(BlockStateProperties.FACING).getOpposite());
     public RedstoneControlData redstoneControlData = getDefaultRedstoneData();
@@ -51,7 +47,6 @@ public class ExtendedExperienceHolderBE extends BaseMachineBE
 
     public ExtendedExperienceHolderBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), pos, state);
-        filterData.blockItemFilter = 0;
     }
 
     @Override
@@ -67,16 +62,6 @@ public class ExtendedExperienceHolderBE extends BaseMachineBE
     @Override
     public AreaAffectingData getAreaAffectingData() {
         return areaAffectingData;
-    }
-
-    @Override
-    public FilterData getFilterData() {
-        return filterData;
-    }
-
-    @Override
-    public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
     }
 
     public void changeSettings(Player player, int targetExp, boolean ownerOnly, boolean collectExp, boolean showParticles) {
