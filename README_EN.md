@@ -2,7 +2,13 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.0.1`
+Current version: `0.6.0.2`
+
+## What's new in 0.6.0.2
+
+Performance and stability optimization release: Time Accelerators now feature resource-readiness guards preventing empty idle work and scans when out of fluid or power; machine targets are cached in `MachineTargetCache` with periodic refreshes, cutting over 95% of per-tick chunk iterations; unfiltered accelerators pass blocks in O(1) time without fake players, while configured filters use a local `BlockState` cache; visual effect entities are updated locally by clients to eliminate per-tick packet spam, backed by a `timeAcceleratorEffectsEnabled` toggle and disconnect safety guards.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.0.2.md).
 
 ## What's new in 0.6.0.1
 

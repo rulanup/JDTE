@@ -2,7 +2,14 @@
 
 ### English
 
-#### v0.6.0.1 (Current) — 2026-09-25
+#### v0.6.0.2 (Current) — 2026-09-27
+
+Performance and stability optimization release for the 0.6.0 line, focused on Time Accelerators, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0.2 release notes](docs/releases/0.6.0.2.md).
+
+- **Time Accelerator performance**: `TimeAcceleratorBE` and `AdvancedTimeAcceleratorBE` now guard against submitting empty work when out of Time Fluid or FE power, eliminating all idle tick/chunk scans. Discovered machine targets are now cached in `MachineTargetCache` with periodic refresh (`timeAcceleratorMachineRefreshInterval`, default 20 ticks / 1 second) and instant invalidation on area resize, eliminating 95%+ of per-tick chunk and block entity iterations. Unfiltered accelerators pass blocks immediately in O(1) time without fake player lookups, and configured filters leverage a local `BlockState` decision cache.
+- **Visual effect packet optimization & stability**: Particle overlay lifetimes in `TimeAcceleratorEffectEntity` are now managed locally on the client and renewed at intervals, removing per-tick server packet spam. Added `timeAcceleratorEffectsEnabled` config toggle to fully disable effect entities. Effect packet broadcasts are guarded against disconnect exceptions (`ReportedException: Sending packet`).
+
+#### v0.6.0.1 — 2026-09-25
 
 Naming and package-structure normalization release for the 0.6.0 line, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0.1 release notes](docs/releases/0.6.0.1.md).
 
@@ -299,7 +306,14 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.0.1（当前）— 2026-09-25
+#### v0.6.0.2（当前）— 2026-09-27
+
+0.6.0 系列的时间加速器性能与稳定性优化版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0.2 发布说明](docs/releases/0.6.0.2.md)。
+
+- **时间加速器性能优化**：重写 `TimeAcceleratorBE` 与 `AdvancedTimeAcceleratorBE` 的 `canRun()` 资源就绪检查，在无时间流体或 FE 能量时不再向调度器提交工作，彻底消除空转时的区块扫描与方块实体遍历开销。引入方块实体机器目标缓存 `MachineTargetCache`（由 `timeAcceleratorMachineRefreshInterval` 控制刷新，默认 20 tick / 1 秒，区域变化即刻失效），消除 95% 以上的每 tick 区块迭代。未配置过滤卡的加速器走 O(1) 极速放行，不再调用虚假玩家与 `getCloneItemStack`；已配置过滤卡的加速器增加 `BlockState` 判定缓存。
+- **视觉特效网络包优化与断连防崩**：移除 `TimeAcceleratorEffectEntity` 服务端每 tick 数据包广播，改为客户端本地平滑衰减、服务端按需续期，并提供 `timeAcceleratorEffectsEnabled` 开关可完全禁用特效实体；为特效广播增加安全保护，避免客户端断开连接时的网络异常（`ReportedException: Sending packet`）导致机器停摆或服务端崩溃。
+
+#### v0.6.0.1 — 2026-09-25
 
 0.6.0 系列的命名与包结构规范化版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0.1 发布说明](docs/releases/0.6.0.1.md)。
 
