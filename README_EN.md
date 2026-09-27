@@ -2,7 +2,13 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.0.2`
+Current version: `0.6.0.2-fix1`
+
+## What's new in 0.6.0.2-fix1
+
+Hotfix release: fixes Extended Experience Holder UI display issues. Removed the erroneously implemented `FilterableBE` interface and redundant filter data from `ExtendedExperienceHolderBE`, eliminating overlapping allowlist/NBT buttons with the owner-only and target-level buttons, as well as ghost filter slots that intersected with the experience progress bar.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.0.2-fix1.md).
 
 ## What's new in 0.6.0.2
 

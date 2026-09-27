@@ -2,7 +2,13 @@
 
 ### English
 
-#### v0.6.0.2 (Current) — 2026-09-27
+#### v0.6.0.2-fix1 (Current) — 2026-09-27
+
+Hotfix release addressing Extended Experience Holder UI display issues for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0.2-fix1 release notes](docs/releases/0.6.0.2-fix1.md).
+
+- **Extended Experience Holder**: Removed the redundant `FilterableBE` interface and unused filter data from `ExtendedExperienceHolderBE`. Fixed UI overlap between allowlist/NBT buttons and the owner-only / target level buttons, and eliminated unneeded filter slots that clashed with the experience progress bar.
+
+#### v0.6.0.2 — 2026-09-27
 
 Performance and stability optimization release for the 0.6.0 line, focused on Time Accelerators, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0.2 release notes](docs/releases/0.6.0.2.md).
 
@@ -306,7 +312,13 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.0.2（当前）— 2026-09-27
+#### v0.6.0.2-fix1（当前）— 2026-09-27
+
+修复扩展经验存储器界面显示问题的热修复版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0.2-fix1 发布说明](docs/releases/0.6.0.2-fix1.md)。
+
+- **扩展经验存储器**：移除了 `ExtendedExperienceHolderBE` 中多余的 `FilterableBE` 接口及过滤数据。修复了白名单与 NBT 对比按钮与“仅主人”和“目标等级”按钮重叠的问题，并移除了横穿经验进度条的多余过滤槽位。
+
+#### v0.6.0.2 — 2026-09-27
 
 0.6.0 系列的时间加速器性能与稳定性优化版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0.2 发布说明](docs/releases/0.6.0.2.md)。
 

@@ -2,9 +2,15 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.0.2`
+当前版本：`0.6.0.2-fix1`
 
 [English README](README_EN.md)
+
+## 0.6.0.2-fix1 更新
+
+热修复版本：修复扩展经验存储器界面显示问题。移除了扩展经验存储器方块实体上误实现的 `FilterableBE` 接口与多余的过滤数据，彻底解决了白名单与 NBT 对比按钮同“仅主人”和“目标等级”按钮重叠的问题，并移除了横穿经验条的多余过滤槽位。
+
+完整英文说明：[0.6.0.2-fix1 Release Notes](docs/releases/0.6.0.2-fix1.md)。
 
 ## 0.6.0.2 更新
 
