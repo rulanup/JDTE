@@ -431,6 +431,41 @@ class ExtendedTimeAccelerationManagerTest {
     }
 
     @Test
+    void executeSurvivesEffectSpawnerException() throws Exception {
+        ServerLevel sourceLevel = serverLevelFixture();
+        ServerLevel targetLevel = serverLevelFixture();
+        BlockPos direct = new BlockPos(3, 0, 0);
+        BlockPos proxy = new BlockPos(2, 0, 0);
+        RecordingAccelerator accepted = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.LevelState state = new ExtendedTimeAccelerationManager.LevelState();
+        state.submitForTest(accepted);
+        Map<BlockPos, BlockEntity> discovered = Map.of(
+                direct, fakeBlockEntity(),
+                proxy, fakeProxy(new TimeAccelerationTarget(targetLevel, direct)));
+        ExtendedTimeAccelerationManager.LevelPreparationAdapter adapter = new TestPreparationAdapter(
+                sourceLevel, targetLevel, discovered, proxy, direct);
+        state.prepare(sourceLevel, 64, adapter);
+
+        AtomicInteger calls = new AtomicInteger();
+        CountingCoalesced coalesced = new CountingCoalesced();
+        state.execute(sourceLevel, 64,
+                pending -> Optional.of(new ExtendedTimeAccelerationManager.TargetKey(
+                        targetLevel, direct, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY)),
+                (current, requested, budget) -> {
+                    calls.incrementAndGet();
+                    state.recordCoalescedTarget(coalesced);
+                    return new TimeAccelerationWorkQueue.ExecutionResult(requested, true, false);
+                },
+                (target, contributor) -> contributor == accepted,
+                (target, multiplier) -> {
+                    throw new RuntimeException("Simulated ReportedException: Sending packet");
+                });
+
+        assertEquals(1, calls.get());
+        assertEquals(1, coalesced.flushes);
+    }
+
+    @Test
     void managerPipelineDiscoversEnqueuesAndExecutesFinalTargetOnce() throws Exception {
         ServerLevel level = serverLevelFixture();
         BlockPos proxy = new BlockPos(2, 0, 0);
@@ -819,6 +854,40 @@ class ExtendedTimeAccelerationManagerTest {
         assertEquals(0.0D, accelerator.pendingCost, 1.0E-9D);
     }
 
+    @Test
+    void machineTargetCacheAvoidsRedundantBlockEntityDiscovery() throws Exception {
+        ServerLevel sourceLevel = serverLevelFixture();
+        ServerLevel targetLevel = serverLevelFixture();
+        BlockPos direct = new BlockPos(3, 0, 0);
+        RecordingAccelerator accelerator = newRecordingAccelerator();
+        ExtendedTimeAccelerationManager.LevelState state = new ExtendedTimeAccelerationManager.LevelState();
+        TestPreparationAdapter adapter = new TestPreparationAdapter(
+                sourceLevel, targetLevel,
+                Map.of(direct, fakeBlockEntity()),
+                direct, direct);
+        adapter.setMachineTargetRefreshInterval(20);
+        adapter.setGameTime(100L);
+
+        // First prepare: discovers block entities and caches them
+        state.submitForTest(accelerator);
+        state.prepare(sourceLevel, 64, adapter);
+        assertEquals(1, adapter.blockEntitiesCalls);
+        assertEquals(4, state.pendingTicksForTest(new ExtendedTimeAccelerationManager.TargetKey(
+                targetLevel, direct, ExtendedTimeAccelerationManager.TargetKind.BLOCK_ENTITY)));
+
+        // Second prepare on tick 105: cache still valid, no block entity discovery call!
+        adapter.setGameTime(105L);
+        state.submitForTest(accelerator);
+        state.prepare(sourceLevel, 64, adapter);
+        assertEquals(1, adapter.blockEntitiesCalls);
+
+        // Third prepare on tick 120: cache expired, discovers again
+        adapter.setGameTime(120L);
+        state.submitForTest(accelerator);
+        state.prepare(sourceLevel, 64, adapter);
+        assertEquals(2, adapter.blockEntitiesCalls);
+    }
+
     private static IConfigSpec.ILoadedConfig loadedServerConfig(int durationSeconds) {
         CommentedConfig config = CommentedConfig.inMemory();
         config.set(List.of("jdte", "timeAccelerator", "timeAcceleratorAccelerationDurationSeconds"), durationSeconds);
@@ -924,9 +993,26 @@ class ExtendedTimeAccelerationManagerTest {
             payCalls = 0;
         }
 
+        private long gameTime = 1L;
+        private int machineTargetRefreshInterval = 0;
+        private int blockEntitiesCalls;
+
+        private void setGameTime(long gameTime) {
+            this.gameTime = gameTime;
+        }
+
+        private void setMachineTargetRefreshInterval(int machineTargetRefreshInterval) {
+            this.machineTargetRefreshInterval = machineTargetRefreshInterval;
+        }
+
+        @Override
+        public int machineTargetRefreshInterval() {
+            return machineTargetRefreshInterval;
+        }
+
         @Override
         public long gameTime(ServerLevel level) {
-            return 1L;
+            return gameTime;
         }
 
         @Override
@@ -951,6 +1037,7 @@ class ExtendedTimeAccelerationManagerTest {
 
         @Override
         public Map<BlockPos, BlockEntity> blockEntities(ServerLevel level, net.minecraft.world.level.ChunkPos chunkPos) {
+            blockEntitiesCalls++;
             return chunkPos.x == 0 && chunkPos.z == 0 ? discovered : Map.of();
         }
 

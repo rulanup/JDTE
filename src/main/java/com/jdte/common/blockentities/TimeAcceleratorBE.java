@@ -50,6 +50,11 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     @Override
+    public boolean canRun() {
+        return super.canRun() && (UpgradeHelper.hasCreativeUpgrade(this) || !fluidTank.getFluid().isEmpty());
+    }
+
+    @Override
     public void tickServer() {
         super.tickServer();
         UpgradeHelper.syncCapacities(this);
@@ -104,12 +109,55 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         }
     }
 
-    public boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState) {
-        if (blockState.getBlock() instanceof LiquidBlock liquidBlock) {
-            return isStackValidFilter(liquidBlock);
+    private final java.util.Map<BlockState, Boolean> blockStateFilterCache = new java.util.HashMap<>();
+
+    public boolean hasConfiguredFilter() {
+        FilterBasicHandler handler = getFilterHandler();
+        if (handler == null) {
+            return false;
         }
-        ItemStack blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), serverLevel, blockPos, getFakePlayer(serverLevel));
-        return isStackValidFilter(blockItemStack);
+        int activeSlots = UpgradeHelper.getActiveFilterSlots(this, UpgradeHelper.getBaseFilterSlots(handler));
+        int limit = Math.min(activeSlots, handler.getSlots());
+        for (int i = 0; i < limit; i++) {
+            if (!handler.getStackInSlot(i).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void clearBlockFilterCache() {
+        blockStateFilterCache.clear();
+    }
+
+    public boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState) {
+        if (!hasConfiguredFilter()) {
+            return !filterData.allowlist;
+        }
+        if (filterData.filterCache.isEmpty() && !blockStateFilterCache.isEmpty()) {
+            blockStateFilterCache.clear();
+        }
+        Boolean cached = blockStateFilterCache.get(blockState);
+        if (cached != null) {
+            return cached;
+        }
+
+        boolean result;
+        if (blockState.getBlock() instanceof LiquidBlock liquidBlock) {
+            result = isStackValidFilter(liquidBlock);
+        } else if (!filterData.compareNBT && !blockState.getBlock().asItem().getDefaultInstance().isEmpty()) {
+            result = isStackValidFilter(blockState.getBlock().asItem().getDefaultInstance());
+        } else {
+            ItemStack blockItemStack = blockState.getCloneItemStack(
+                    new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false),
+                    serverLevel, blockPos, getFakePlayer(serverLevel));
+            result = isStackValidFilter(blockItemStack);
+        }
+
+        if (blockStateFilterCache.size() < 512) {
+            blockStateFilterCache.put(blockState, result);
+        }
+        return result;
     }
 
     protected boolean accelerateTarget(ServerLevel serverLevel, BlockPos blockPos, int workTicks, int displayMultiplier) {
@@ -143,15 +191,41 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     private void spawnAccelerationEffect(ServerLevel serverLevel, BlockPos blockPos, int multiplier) {
-        boolean hasEffect = serverLevel.getEntitiesOfClass(
-                com.jdte.common.entities.TimeAcceleratorEffectEntity.class,
-                new net.minecraft.world.phys.AABB(blockPos),
-                e -> true
-        ).isEmpty() == false;
+        if (!areEffectsEnabled()) {
+            return;
+        }
+        if (!serverLevel.hasChunkAt(blockPos)) {
+            return;
+        }
+        try {
+            java.util.List<com.jdte.common.entities.TimeAcceleratorEffectEntity> existing = serverLevel.getEntitiesOfClass(
+                    com.jdte.common.entities.TimeAcceleratorEffectEntity.class,
+                    new net.minecraft.world.phys.AABB(blockPos),
+                    e -> !e.isRemoved()
+            );
 
-        if (!hasEffect) {
-            com.jdte.common.entities.TimeAcceleratorEffectEntity effect = new com.jdte.common.entities.TimeAcceleratorEffectEntity(serverLevel, blockPos, multiplier);
-            serverLevel.addFreshEntity(effect);
+            if (!existing.isEmpty()) {
+                for (com.jdte.common.entities.TimeAcceleratorEffectEntity entity : existing) {
+                    entity.renew(Math.max(1, multiplier), 15);
+                }
+            } else {
+                com.jdte.common.entities.TimeAcceleratorEffectEntity effect =
+                        new com.jdte.common.entities.TimeAcceleratorEffectEntity(serverLevel, blockPos, Math.max(1, multiplier));
+                serverLevel.addFreshEntity(effect);
+            }
+        } catch (Throwable t) {
+            if (t instanceof AssertionError ae) {
+                throw ae;
+            }
+            // Never let rendering/effect entity packet failures crash machine ticking.
+        }
+    }
+
+    private static boolean areEffectsEnabled() {
+        try {
+            return com.jdte.setup.JDTEConfig.COMMON.timeAcceleratorEffectsEnabled.get();
+        } catch (Exception e) {
+            return true;
         }
     }
 
@@ -252,6 +326,12 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     @Override
+    public void setFilterSettings(FilterData settings) {
+        FilterableBE.super.setFilterSettings(settings);
+        clearBlockFilterCache();
+    }
+
+    @Override
     public boolean isDefaultSettings() {
         return super.isDefaultSettings() && fluidTank.getFluid().isEmpty();
     }
@@ -266,6 +346,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
+        clearBlockFilterCache();
         if (tag.contains("fluidTank")) {
             fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
         }

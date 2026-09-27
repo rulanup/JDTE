@@ -115,7 +115,9 @@ public class JDTEConfig {
         public final ModConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
         public final ModConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
         public final ModConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
+        public final ModConfigSpec.IntValue timeAcceleratorMachineRefreshInterval;
         public final ModConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
+        public final ModConfigSpec.BooleanValue timeAcceleratorEffectsEnabled;
         public final ModConfigSpec.IntValue timeAcceleratorBaseFluidCapacity;
         public final ModConfigSpec.DoubleValue timeAcceleratorFluidCostMultiplier;
         public final ModConfigSpec.IntValue ultimateTimeWandFluidCapacity;
@@ -394,7 +396,9 @@ public class JDTEConfig {
             this.timeAcceleratorMaxPendingTicks = timeAccelerator.timeAcceleratorMaxPendingTicks;
             this.timeAcceleratorExecutionBatchSize = timeAccelerator.timeAcceleratorExecutionBatchSize;
             this.timeAcceleratorRandomRefreshInterval = timeAccelerator.timeAcceleratorRandomRefreshInterval;
+            this.timeAcceleratorMachineRefreshInterval = timeAccelerator.timeAcceleratorMachineRefreshInterval;
             this.timeAcceleratorAE2Enabled = timeAccelerator.timeAcceleratorAE2Enabled;
+            this.timeAcceleratorEffectsEnabled = timeAccelerator.timeAcceleratorEffectsEnabled;
             this.timeAcceleratorBaseFluidCapacity = timeAccelerator.timeAcceleratorBaseFluidCapacity;
             this.timeAcceleratorFluidCostMultiplier = timeAccelerator.timeAcceleratorFluidCostMultiplier;
             this.ultimateTimeWandFluidCapacity = timeAccelerator.ultimateTimeWandFluidCapacity;

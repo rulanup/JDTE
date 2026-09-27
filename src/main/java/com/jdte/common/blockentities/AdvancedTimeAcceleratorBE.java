@@ -30,6 +30,11 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
         poweredMachineData = new PoweredMachineContainerData(this);
     }
 
+    @Override
+    public boolean canRun() {
+        return super.canRun() && (UpgradeHelper.hasCreativeUpgrade(this) || energyStorage.getEnergyStored() > 0);
+    }
+
     public int getMultiplier() {
         return multiplier;
     }

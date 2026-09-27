@@ -18,7 +18,9 @@ public class TimeAcceleratorConfig {
     public final ModConfigSpec.LongValue timeAcceleratorMaxPendingTicks;
     public final ModConfigSpec.IntValue timeAcceleratorExecutionBatchSize;
     public final ModConfigSpec.IntValue timeAcceleratorRandomRefreshInterval;
+    public final ModConfigSpec.IntValue timeAcceleratorMachineRefreshInterval;
     public final ModConfigSpec.BooleanValue timeAcceleratorAE2Enabled;
+    public final ModConfigSpec.BooleanValue timeAcceleratorEffectsEnabled;
     public final ModConfigSpec.IntValue ultimateTimeWandFluidCapacity;
     public final ModConfigSpec.IntValue ultimateTimeWandEnergyCapacity;
     public final ModConfigSpec.IntValue ultimateTimeWandDuration;
@@ -88,10 +90,18 @@ public class TimeAcceleratorConfig {
                 .comment("Ticks between random-ticking block target cache refreshes")
                 .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorRandomRefreshInterval")
                 .defineInRange("timeAcceleratorRandomRefreshInterval", 20, 1, 1200);
+        timeAcceleratorMachineRefreshInterval = builder
+                .comment("Ticks between block entity machine target cache refreshes")
+                .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorMachineRefreshInterval")
+                .defineInRange("timeAcceleratorMachineRefreshInterval", 20, 1, 1200);
         timeAcceleratorAE2Enabled = builder
                 .comment("Allow Time Accelerators with an AE Acceleration Upgrade to invoke AE2 IGridTickable services")
                 .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorAE2Enabled")
                 .define("timeAcceleratorAE2Enabled", true);
+        timeAcceleratorEffectsEnabled = builder
+                .comment("Enable visual overlay effect entities on accelerated blocks. Set to false to disable effect entities and reduce network packet traffic.")
+                .translation("config.jdte.jdte.timeAccelerator.timeAcceleratorEffectsEnabled")
+                .define("timeAcceleratorEffectsEnabled", true);
         ultimateTimeWandFluidCapacity = builder
                 .comment("Ultimate Time Wand Time Fluid capacity (mB)")
                 .defineInRange("ultimateTimeWandFluidCapacity", 800000, 1000, 100000000);

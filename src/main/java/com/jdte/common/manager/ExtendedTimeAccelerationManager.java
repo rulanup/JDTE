@@ -635,6 +635,18 @@ public final class ExtendedTimeAccelerationManager {
                 queuedTargets.add(target.queuedTarget());
             }
         }
+
+        private void loadFromCache(MachineTargetCache cache) {
+            queuedTargets.addAll(cache.queuedTargets);
+            externalTargets.putAll(cache.externalTargets);
+        }
+    }
+
+    private static final class MachineTargetCache {
+        private AABB area;
+        private long refreshAt;
+        private List<TargetKey> queuedTargets = List.of();
+        private Map<ExternalTimeAccelerationBackend.TargetHandle, TargetLocation> externalTargets = Map.of();
     }
 
     private static final class RandomTargetCache {
@@ -684,9 +696,18 @@ public final class ExtendedTimeAccelerationManager {
         default boolean includeRandomTargets() {
             return true;
         }
+
+        default int machineTargetRefreshInterval() {
+            return 0;
+        }
     }
 
     private static final LevelPreparationAdapter SERVER_PREPARATION = new LevelPreparationAdapter() {
+        @Override
+        public int machineTargetRefreshInterval() {
+            return JDTEConfig.COMMON.timeAcceleratorMachineRefreshInterval.get();
+        }
+
         @Override
         public long gameTime(ServerLevel level) {
             return level.getGameTime();
@@ -773,6 +794,7 @@ public final class ExtendedTimeAccelerationManager {
         private final Set<CoalescedAcceleratedMachine> coalescedTargets =
                 Collections.newSetFromMap(new IdentityHashMap<>());
         private final Map<TimeAcceleratorBE, RandomTargetCache> randomTargets = new IdentityHashMap<>();
+        private final Map<TimeAcceleratorBE, MachineTargetCache> machineTargets = new IdentityHashMap<>();
         private final Map<TargetKey, Long> nextEffectTick = new LinkedHashMap<>();
 
         void submitForTest(TimeAcceleratorBE accelerator) {
@@ -796,6 +818,7 @@ public final class ExtendedTimeAccelerationManager {
         private void deactivate(TimeAcceleratorBE accelerator) {
             submitted.remove(accelerator);
             randomTargets.remove(accelerator);
+            machineTargets.remove(accelerator);
             workQueue.retainContributors((target, source) -> source != accelerator);
         }
 
@@ -837,6 +860,7 @@ public final class ExtendedTimeAccelerationManager {
             wandAe2Targets.retainAll(currentWandAe2Targets);
             retainActiveContributors(active, ae2Active);
             randomTargets.keySet().removeIf(accelerator -> !active.contains(accelerator));
+            machineTargets.keySet().removeIf(accelerator -> !active.contains(accelerator));
             wandAe2Targets.removeIf(target -> workQueue.pendingTicks(target) <= 0L);
             if (submitted.isEmpty() && submittedWands.isEmpty()) {
                 return;
@@ -844,6 +868,7 @@ public final class ExtendedTimeAccelerationManager {
 
             List<AcceleratorContext> contexts = new ArrayList<>();
             Map<Long, List<AcceleratorContext>> byChunk = new LinkedHashMap<>();
+            int machineRefreshInterval = adapter.machineTargetRefreshInterval();
             for (TimeAcceleratorBE accelerator : submitted) {
                 if (!adapter.isActive(accelerator, level)) {
                     reconcilePreparedTargets(workQueue, List.of(), accelerator);
@@ -855,20 +880,46 @@ public final class ExtendedTimeAccelerationManager {
                 AcceleratorContext context = new AcceleratorContext(
                         accelerator, area, request, ae2AccelerationEnabled, externalBackend);
                 contexts.add(context);
-                int minChunkX = SectionPos.blockToSectionCoord(Mth.floor(area.minX));
-                int maxChunkX = SectionPos.blockToSectionCoord(Mth.ceil(area.maxX) - 1);
-                int minChunkZ = SectionPos.blockToSectionCoord(Mth.floor(area.minZ));
-                int maxChunkZ = SectionPos.blockToSectionCoord(Mth.ceil(area.maxZ) - 1);
-                for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-                    for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                        byChunk.computeIfAbsent(ChunkPos.asLong(chunkX, chunkZ), ignored -> new ArrayList<>()).add(context);
+
+                MachineTargetCache cache = machineTargets.get(accelerator);
+                boolean areaChanged = cache == null || cache.area == null || !cache.area.equals(area);
+                boolean cacheValid = machineRefreshInterval > 0 && !areaChanged && gameTime < cache.refreshAt;
+
+                if (cacheValid) {
+                    context.loadFromCache(cache);
+                } else {
+                    int minChunkX = SectionPos.blockToSectionCoord(Mth.floor(area.minX));
+                    int maxChunkX = SectionPos.blockToSectionCoord(Mth.ceil(area.maxX) - 1);
+                    int minChunkZ = SectionPos.blockToSectionCoord(Mth.floor(area.minZ));
+                    int maxChunkZ = SectionPos.blockToSectionCoord(Mth.ceil(area.maxZ) - 1);
+                    for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+                        for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                            byChunk.computeIfAbsent(ChunkPos.asLong(chunkX, chunkZ), ignored -> new ArrayList<>()).add(context);
+                        }
                     }
                 }
             }
             submitted.clear();
             randomTargets.keySet().removeIf(accelerator -> !adapter.isActive(accelerator, level));
+            machineTargets.keySet().removeIf(accelerator -> !adapter.isActive(accelerator, level));
             if (!contexts.isEmpty()) {
-                discoverBlockEntities(level, byChunk, adapter);
+                if (!byChunk.isEmpty()) {
+                    discoverBlockEntities(level, byChunk, adapter);
+                    if (machineRefreshInterval > 0) {
+                        Set<AcceleratorContext> scanned = Collections.newSetFromMap(new IdentityHashMap<>());
+                        for (List<AcceleratorContext> list : byChunk.values()) {
+                            scanned.addAll(list);
+                        }
+                        for (AcceleratorContext context : scanned) {
+                            MachineTargetCache cache = machineTargets.computeIfAbsent(
+                                    context.accelerator, ignored -> new MachineTargetCache());
+                            cache.area = context.area;
+                            cache.refreshAt = gameTime + machineRefreshInterval;
+                            cache.queuedTargets = List.copyOf(context.queuedTargets);
+                            cache.externalTargets = Map.copyOf(context.externalTargets);
+                        }
+                    }
+                }
                 if (adapter.includeRandomTargets()) {
                     for (AcceleratorContext context : contexts) {
                         context.queuedTargets.addAll(getRandomTargets(level, context, scanBudget));
@@ -1062,7 +1113,14 @@ public final class ExtendedTimeAccelerationManager {
                         },
                         (target, result, displayMultiplier) -> {
                             if (displayMultiplier > 0) {
-                                effectSpawner.accept(target, displayMultiplier);
+                                try {
+                                    effectSpawner.accept(target, displayMultiplier);
+                                } catch (Throwable t) {
+                                    if (t instanceof AssertionError ae) {
+                                        throw ae;
+                                    }
+                                    // Protect the work queue execution loop from any effect spawner failures
+                                }
                             }
                         });
             } finally {
@@ -1105,16 +1163,34 @@ public final class ExtendedTimeAccelerationManager {
         }
 
         private void spawnEffect(TargetKey target, int multiplier) {
-            ServerLevel level = target.targetLevel();
-            BlockPos pos = target.pos();
-            long gameTime = level.getGameTime();
-            if (gameTime < nextEffectTick.getOrDefault(target, Long.MIN_VALUE)) {
+            if (!isEffectsEnabled()) {
                 return;
             }
-            nextEffectTick.put(target, gameTime + 10L);
-            boolean present = !level.getEntitiesOfClass(TimeAcceleratorEffectEntity.class, new AABB(pos), entity -> true).isEmpty();
-            if (!present) {
-                level.addFreshEntity(new TimeAcceleratorEffectEntity(level, pos, Math.max(1, multiplier)));
+            try {
+                ServerLevel level = target.targetLevel();
+                BlockPos pos = target.pos();
+                if (!level.hasChunkAt(pos)) {
+                    return;
+                }
+                long gameTime = level.getGameTime();
+                if (gameTime < nextEffectTick.getOrDefault(target, Long.MIN_VALUE)) {
+                    return;
+                }
+                nextEffectTick.put(target, gameTime + 10L);
+                List<TimeAcceleratorEffectEntity> existing = level.getEntitiesOfClass(
+                        TimeAcceleratorEffectEntity.class, new AABB(pos), entity -> !entity.isRemoved());
+                if (!existing.isEmpty()) {
+                    for (TimeAcceleratorEffectEntity entity : existing) {
+                        entity.renew(Math.max(1, multiplier), 15);
+                    }
+                } else {
+                    level.addFreshEntity(new TimeAcceleratorEffectEntity(level, pos, Math.max(1, multiplier)));
+                }
+            } catch (Throwable t) {
+                if (t instanceof AssertionError ae) {
+                    throw ae;
+                }
+                // Suppress network packet / connection abort exceptions when broadcasting entity updates
             }
         }
 
@@ -1122,5 +1198,13 @@ public final class ExtendedTimeAccelerationManager {
 
     private static boolean isAE2AccelerationConfigured() {
         return AE2_LOADED && JDTEConfig.COMMON.timeAcceleratorAE2Enabled.get();
+    }
+
+    private static boolean isEffectsEnabled() {
+        try {
+            return JDTEConfig.COMMON.timeAcceleratorEffectsEnabled.get();
+        } catch (Exception e) {
+            return true;
+        }
     }
 }
