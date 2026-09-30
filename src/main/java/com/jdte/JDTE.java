@@ -255,6 +255,9 @@ public class JDTE {
                     }
                 },
                 JDTEItems.ULTIMATE_TIME_WAND.get());
+        event.registerItem(Capabilities.ItemHandler.ITEM,
+                (stack, context) -> new com.jdte.common.containers.handlers.UpgradeStorageHandler(stack),
+                JDTEItems.UPGRADE_STORAGE.get());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

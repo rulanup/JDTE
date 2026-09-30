@@ -22,4 +22,12 @@ public class ExtendedEnergyTransmitterBE extends EnergyTransmitterBE implements 
         }
         return super.getTransmitterHandler(blockPos);
     }
+
+    @Override
+    public int fePerTick() {
+        if (com.jdte.common.upgrades.UpgradeHelper.hasEnergyOverloadUpgrade(this)) {
+            return Integer.MAX_VALUE;
+        }
+        return super.fePerTick();
+    }
 }

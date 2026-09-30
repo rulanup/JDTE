@@ -24,6 +24,8 @@ item_ids:
   - jdte:looting_upgrade
   - jdte:sharpness_upgrade
   - jdte:energy_brewing_upgrade
+  - jdte:energy_overload_upgrade
+  - jdte:upgrade_storage
 ---
 
 # 升级卡
@@ -197,3 +199,20 @@ item_ids:
 高级炼药机专用，最多安装 1 张。安装后酿造燃料改由 FE 支付：每次消耗 `energyPerBlazePowder` 配置的 FE（默认 5,000）获得相当于一个烈焰粉的 20 次酿造充能，烈焰粉槽随之停用，无需再外接烈焰粉。创造升级会豁免该费用。
 
 <RecipeFor id="jdte:energy_brewing_upgrade" />
+
+## 能量过载升级
+
+<ItemImage id="jdte:energy_overload_upgrade" scale="2" />
+
+能量传输器专用，最多安装 1 张。安装后取消能量传输器的一切一次性与单刻传输上限：包括单目标传输上限、单刻传输预算和 ME 提取上限，并且在单刻内直接尝试为范围内所有目标供电及充满已绑定玩家的装备。
+
+<RecipeFor id="jdte:energy_overload_upgrade" />
+
+## 升级存储器
+
+<ItemImage id="jdte:upgrade_storage" scale="2" />
+
+专用于收纳 JDTE 与 JDT 升级的便携式存储器具。手持右键即可打开界面，拥有 4×5 共 20 个升级槽位。放入其中的各类升级卡与专用升级可突破通常的堆叠上限，堆叠至 64 个。支持快捷键 Shift-点击存取，内部数据自动实时保存。
+
+<RecipeFor id="jdte:upgrade_storage" />
+

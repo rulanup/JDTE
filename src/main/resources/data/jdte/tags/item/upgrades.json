@@ -1,0 +1,27 @@
+{
+  "replace": false,
+  "values": [
+    "jdte:capacity_upgrade",
+    "jdte:overclock_upgrade",
+    "jdte:underclock_upgrade",
+    "jdte:fluid_upgrade",
+    "jdte:fluid_storage_upgrade",
+    "jdte:generator_upgrade",
+    "jdte:range_upgrade",
+    "jdte:filter_upgrade",
+    "jdte:creative_upgrade",
+    "jdte:fortune_upgrade",
+    "jdte:precision_upgrade",
+    "jdte:ae_acceleration_upgrade",
+    "jdte:ae_crafting_read_upgrade",
+    "jdte:ae_output_upgrade",
+    "jdte:essence_conversion_upgrade",
+    "jdte:seed_conversion_upgrade",
+    "jdte:looting_upgrade",
+    "jdte:sharpness_upgrade",
+    "jdte:energy_brewing_upgrade",
+    "jdte:energy_overload_upgrade",
+    "jdte:ae_extraction_upgrade",
+    "jdte:extended_upgrade"
+  ]
+}

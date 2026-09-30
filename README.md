@@ -2,9 +2,18 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.0.2-fix1`
+当前版本：`0.6.0.3`
 
 [English README](README_EN.md)
+
+## 0.6.0.3 更新
+
+功能更新版本：
+- **升级存储器 (`jdte:upgrade_storage`)**：专用于收纳 JDTE 与 JDT 升级的 4×5 便携式收纳器具，内部槽位支持将各类升级卡堆叠至 64 个，支持 Shift-点击存取与数据实时持久化保存，并提供外部物品能力接口。
+- **能量过载升级 (`jdte:energy_overload_upgrade`)**：能量传输器专用升级（上限 1 张），彻底移除单次传输、单刻预算与 ME 提取上限，单刻内充满范围内的所有目标与绑定玩家装备。
+- **温室作物生长速率一致性修复**：修复了温室中原版作物与神秘农业作物在不同升级与 tick 间隔下的加速不一致问题。
+
+完整英文说明：[0.6.0.3 Release Notes](docs/releases/0.6.0.3.md)。
 
 ## 0.6.0.2-fix1 更新
 

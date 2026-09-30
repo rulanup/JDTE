@@ -60,6 +60,15 @@ public final class JDTEDataComponents {
                             .cacheEncoding()
                             .build());
 
+    /** 升级存储器存储内容组件。 */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<net.minecraft.world.item.component.ItemContainerContents>> UPGRADE_STORAGE_CONTENTS =
+            DATA_COMPONENTS.register("upgrade_storage_contents",
+                    () -> DataComponentType.<net.minecraft.world.item.component.ItemContainerContents>builder()
+                            .persistent(net.minecraft.world.item.component.ItemContainerContents.CODEC)
+                            .networkSynchronized(net.minecraft.world.item.component.ItemContainerContents.STREAM_CODEC)
+                            .cacheEncoding()
+                            .build());
+
     private JDTEDataComponents() {
     }
 }

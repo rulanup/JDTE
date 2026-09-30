@@ -5,6 +5,7 @@ import com.jdte.common.items.AdvancedMachineSettingsCopierItem;
 import com.jdte.common.items.BossEssenceItem;
 import com.jdte.common.items.BigFluidTankItem;
 import com.jdte.common.items.EnergyBrewingUpgradeItem;
+import com.jdte.common.items.EnergyOverloadUpgradeItem;
 import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.FactoryPackageItem;
@@ -19,6 +20,7 @@ import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.TimeMultitoolItem;
 import com.jdte.common.items.UltimateTimeWandItem;
 import com.jdte.common.items.UpgradeCardItem;
+import com.jdte.common.items.UpgradeStorageItem;
 import com.jdte.common.items.AEOutputUpgradeItem;
 import com.jdte.common.items.AEExtractionUpgradeItem;
 import com.jdte.common.items.UltimatePortalGunItem;
@@ -55,6 +57,7 @@ public class JDTEItems {
             ITEMS.register("ae_extraction_upgrade", AEExtractionUpgradeItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> SEED_CONVERSION_UPGRADE = ITEMS.register("seed_conversion_upgrade", () -> new UpgradeCardItem(UpgradeType.SEED_CONVERSION));
     public static final DeferredHolder<Item, ExtendedUpgradeItem> EXTENDED_UPGRADE = ITEMS.register("extended_upgrade", ExtendedUpgradeItem::new);
+    public static final DeferredHolder<Item, UpgradeStorageItem> UPGRADE_STORAGE = ITEMS.register("upgrade_storage", UpgradeStorageItem::new);
     public static final DeferredHolder<Item, EclipseAlloyWrenchItem> ECLIPSEALLOY_WRENCH = ITEMS.register("eclipsealloy_wrench", EclipseAlloyWrenchItem::new);
     public static final DeferredHolder<Item, AdvancedMachineSettingsCopierItem> ADVANCED_MACHINE_SETTINGS_COPIER =
             ITEMS.register("advanced_machine_settings_copier", AdvancedMachineSettingsCopierItem::new);
@@ -172,6 +175,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, LootingUpgradeItem> LOOTING_UPGRADE = ITEMS.register("looting_upgrade", LootingUpgradeItem::new);
     public static final DeferredHolder<Item, SharpnessUpgradeItem> SHARPNESS_UPGRADE = ITEMS.register("sharpness_upgrade", SharpnessUpgradeItem::new);
     public static final DeferredHolder<Item, EnergyBrewingUpgradeItem> ENERGY_BREWING_UPGRADE = ITEMS.register("energy_brewing_upgrade", EnergyBrewingUpgradeItem::new);
+    public static final DeferredHolder<Item, EnergyOverloadUpgradeItem> ENERGY_OVERLOAD_UPGRADE = ITEMS.register("energy_overload_upgrade", EnergyOverloadUpgradeItem::new);
     public static final DeferredHolder<Item, RepairTalismanItem> REPAIR_TALISMAN = ITEMS.register("repair_talisman",
             () -> new RepairTalismanItem(new Item.Properties()));
 

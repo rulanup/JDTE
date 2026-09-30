@@ -4,6 +4,8 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
+import com.jdte.common.items.EnergyBrewingUpgradeItem;
+import com.jdte.common.items.EnergyOverloadUpgradeItem;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
@@ -40,6 +42,8 @@ public final class UpgradeCardInsertionHelper {
         return stack.getItem() instanceof UpgradeCardItem
                 || stack.getItem() instanceof LootingUpgradeItem
                 || stack.getItem() instanceof SharpnessUpgradeItem
+                || stack.getItem() instanceof EnergyOverloadUpgradeItem
+                || stack.getItem() instanceof EnergyBrewingUpgradeItem
                 || BioFactoryUpgradeItemStackHandler.getProductivityTier(stack) > 0;
     }
 
@@ -65,6 +69,8 @@ public final class UpgradeCardInsertionHelper {
         }
 
         if (!(heldStack.getItem() instanceof UpgradeCardItem)
+                && !(heldStack.getItem() instanceof EnergyOverloadUpgradeItem)
+                && !(heldStack.getItem() instanceof EnergyBrewingUpgradeItem)
                 && !(machine instanceof LootFabricatorBE && heldStack.getItem() instanceof LootingUpgradeItem)
                 && !(machine instanceof BioFactoryBE && (heldStack.getItem() instanceof LootingUpgradeItem
                 || BioFactoryUpgradeItemStackHandler.getProductivityTier(heldStack) > 0))) {

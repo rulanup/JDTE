@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "justdirethings:eclipsealloy_ingot"
+    },
+    "O": {
+      "item": "jdte:overclock_upgrade"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "T": {
+      "item": "justdirethings:time_crystal"
+    }
+  },
+  "pattern": [
+    "RTR",
+    "EOE",
+    "RTR"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:energy_overload_upgrade"
+  }
+}

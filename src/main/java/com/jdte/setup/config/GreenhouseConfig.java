@@ -15,6 +15,7 @@ public class GreenhouseConfig {
     public final ModConfigSpec.IntValue greenhouseDefaultGrowthWork;
     public final ModConfigSpec.IntValue greenhouseEnergyPerHarvestV2;
     public final ModConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
+    public final ModConfigSpec.IntValue greenhouseMysticalTierGrowthPercent;
     public final ModConfigSpec.IntValue greenhouseGenericFluidCost;
     public final ModConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
     public final ModConfigSpec.LongValue greenhouseMaxPendingWork;
@@ -65,6 +66,10 @@ public class GreenhouseConfig {
                 .comment("Mystical Agriculture Time Fluid cost is this value multiplied by crop tier squared")
                 .translation("config.jdte.jdte.greenhouse.mysticalBaseFluidCost")
                 .defineInRange("mysticalBaseFluidCost", 25, 1, 1000000);
+        greenhouseMysticalTierGrowthPercent = builder
+                .comment("Mystical Agriculture crop growth work percentage increase per tier above Tier 1")
+                .translation("config.jdte.jdte.greenhouse.mysticalTierGrowthPercent")
+                .defineInRange("mysticalTierGrowthPercent", 50, 0, 10000);
         greenhouseGenericFluidCost = builder
                 .translation("config.jdte.jdte.greenhouse.genericFluidCost")
                 .defineInRange("genericFluidCost", 10, 1, 1000000);

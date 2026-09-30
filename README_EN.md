@@ -2,7 +2,16 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.0.2-fix1`
+Current version: `0.6.0.3`
+
+## What's new in 0.6.0.3
+
+Feature release:
+- **Upgrade Storage (`jdte:upgrade_storage`)**: A portable 4×5 (20 slot) storage container dedicated to JDTE and JDT upgrades. Supports stacking upgrades up to 64 per slot, intuitive Shift-click fast transfers, real-time data persistence, and an `ItemHandler.ITEM` capability.
+- **Energy Overload Upgrade (`jdte:energy_overload_upgrade`)**: Dedicated Energy Transmitter upgrade (limit 1) removing all single-batch, per-tick transfer budgets, and ME energy extraction limits to charge all range targets and bound player inventories in a single tick.
+- **Greenhouse Crop Scaling Fix**: Resolved growth scaling discrepancies between vanilla and Mystical Agriculture crops in the Greenhouse under varying upgrade configurations.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.0.3.md).
 
 ## What's new in 0.6.0.2-fix1
 

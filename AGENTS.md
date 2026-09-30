@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.0.2-fix1` |
+| Current version | `0.6.0.3` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
@@ -16,7 +16,8 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 
 Major features:
 
-- 16 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, and AE Output. Looting and Sharpness are dedicated upgrade items outside UpgradeType.
+- 16 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, and AE Output. Looting and Sharpness are dedicated upgrade items outside UpgradeType. Energy Overload Upgrade (`jdte:energy_overload_upgrade`, limit 1) dedicated to Energy Transmitters removes all single-batch and per-tick transfer limits.
+- Upgrade Storage (`jdte:upgrade_storage`): a handheld 4×5 (20 slot) upgrade case dedicated to JDTE and JDT upgrades that allows storing up to 64 per slot, with real-time component persistence, Shift-click transfers, and `ItemHandler.ITEM` capability.
 - AE Extraction Upgrade (`jdte:ae_extraction_upgrade`): an AE2 Wireless Access Point-bound smithing upgrade that refills carried JDT/JDTE FE and fluid items, with optional Applied Flux integration and conservative empty-universal-tank selection.
 - Basic, Advanced, and Extended Advanced Time Accelerators with strict native-tick-inclusive multipliers.
 - Optional independent JDTE-AE (`jdte_ae`) addon for complete AE2 Grid lifecycle acceleration, including Molecular Assemblers, crafting services, and compatible AE addons.

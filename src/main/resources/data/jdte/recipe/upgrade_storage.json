@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "justdirethings:celestigem"
+    },
+    "E": {
+      "item": "justdirethings:eclipsealloy_ingot"
+    },
+    "S": {
+      "item": "minecraft:chest"
+    }
+  },
+  "pattern": [
+    "ECE",
+    "CSC",
+    "ECE"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:upgrade_storage"
+  }
+}

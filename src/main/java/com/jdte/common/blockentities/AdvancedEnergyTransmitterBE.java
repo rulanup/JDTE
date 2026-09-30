@@ -319,6 +319,10 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         markDirtyClient();
     }
 
+    public boolean hasEnergyOverloadUpgrade() {
+        return UpgradeHelper.hasEnergyOverloadUpgrade(this);
+    }
+
     public enum BindingResult {
         BOUND,
         UNBOUND,
@@ -616,8 +620,14 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         if (player == null) {
             return;
         }
-        long planned = playerCharger.plan(player,
-                JDTEConfig.COMMON.advancedEnergyTransmitterPlayerChargeMaxItemsPerTick.get());
+        boolean overload = hasEnergyOverloadUpgrade();
+        int maxItems = overload
+                ? Integer.MAX_VALUE
+                : JDTEConfig.COMMON.advancedEnergyTransmitterPlayerChargeMaxItemsPerTick.get();
+        int maxCalls = overload
+                ? 16
+                : JDTEConfig.COMMON.advancedEnergyTransmitterPlayerChargeMaxCallsPerItem.get();
+        long planned = playerCharger.plan(player, maxItems);
         if (planned <= 0L) {
             return;
         }
@@ -631,8 +641,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
                 ? planned
                 : AdvancedEnergyTransmitterScheduler.saturatingAdd(
                         energyStorage.getEnergyStored(), networkEnergyReserve);
-        long transferred = playerCharger.charge(available,
-                JDTEConfig.COMMON.advancedEnergyTransmitterPlayerChargeMaxCallsPerItem.get());
+        long transferred = playerCharger.charge(available, maxCalls);
         if (!creative && transferred > 0L) {
             consumePreparedEnergy(transferred);
         }
@@ -671,10 +680,13 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     private void providePower(ServerLevel serverLevel, long operationMultiplier) {
+        boolean overload = hasEnergyOverloadUpgrade();
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
-        long transferBudget = effectiveBudget(
-                JDTEConfig.COMMON.advancedEnergyTransmitterTransferBudgetPerTick.get(),
-                operationMultiplier);
+        long transferBudget = overload
+                ? Long.MAX_VALUE
+                : effectiveBudget(
+                        JDTEConfig.COMMON.advancedEnergyTransmitterTransferBudgetPerTick.get(),
+                        operationMultiplier);
         if (transferBudget <= 0L || targets.isEmpty()) {
             returnNetworkEnergyReserve();
             lastAttemptedTargets = 0;
@@ -684,7 +696,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
         int targetCount = targets.size();
         int attemptBudget = AdvancedEnergyTransmitterScheduler.attemptBudget(targetCount,
-                JDTEConfig.COMMON.advancedEnergyTransmitterMaxTargetsPerTick.get());
+                overload ? targetCount : JDTEConfig.COMMON.advancedEnergyTransmitterMaxTargetsPerTick.get());
         int startIndex = AdvancedEnergyTransmitterScheduler.normalizeCursor(targetCursor, targetCount);
         int attempted = 0;
         int plannedCount = 0;
@@ -706,7 +718,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             }
 
             int remainingBudget = AdvancedEnergyTransmitterScheduler.clampToInt(transferBudget - plannedTotal);
-            int perTargetLimit = JDTEConfig.COMMON.advancedEnergyTransmitterMaxTransferPerTarget.get();
+            int perTargetLimit = overload ? 0 : JDTEConfig.COMMON.advancedEnergyTransmitterMaxTransferPerTarget.get();
             int offered = perTargetLimit <= 0
                     ? remainingBudget : Math.min(remainingBudget, perTargetLimit);
             long demand = draconicInjector
@@ -804,9 +816,11 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         available = AdvancedEnergyTransmitterScheduler.saturatingAdd(
                 energyStorage.getEnergyStored(), networkEnergyReserve);
         missing = Math.max(0L, plannedDemand - available);
-        long meLimit = effectiveBudget(
-                JDTEConfig.COMMON.advancedEnergyTransmitterMeExtractionLimitPerTick.get(),
-                operationMultiplier);
+        long meLimit = hasEnergyOverloadUpgrade()
+                ? Long.MAX_VALUE
+                : effectiveBudget(
+                        JDTEConfig.COMMON.advancedEnergyTransmitterMeExtractionLimitPerTick.get(),
+                        operationMultiplier);
         long request = Math.min(missing, meLimit);
         if (request <= 0L) {
             return;

@@ -342,6 +342,40 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:energy_brewing_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Energy Overload Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:energy_overload_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Energy Transmitters only, limited to 1. Once installed, removes all single-batch and per-tick transfer limits from the Energy Transmitter: including per-target limits, per-tick transfer budgets, and ME extraction limits, directly attempting all targets in range and fully charging bound player equipment in a single tick."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:energy_overload_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Upgrade Storage$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:upgrade_storage",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A portable case dedicated to storing JDTE and JDT upgrades. Right-click to open a 4×5 grid of 20 upgrade slots. Upgrades stored inside can stack up to 64, bypassing the normal single-item stack limitation. Supports Shift-click fast transfer and automatically persists stored contents."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:upgrade_storage"
     }
   ],
   "extra_recipe_mappings": {
@@ -364,6 +398,8 @@
     "jdte:seed_conversion_upgrade": 65,
     "jdte:looting_upgrade": 69,
     "jdte:sharpness_upgrade": 73,
-    "jdte:energy_brewing_upgrade": 77
+    "jdte:energy_brewing_upgrade": 77,
+    "jdte:energy_overload_upgrade": 81,
+    "jdte:upgrade_storage": 85
   }
 }

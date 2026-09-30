@@ -24,6 +24,8 @@ item_ids:
   - jdte:looting_upgrade
   - jdte:sharpness_upgrade
   - jdte:energy_brewing_upgrade
+  - jdte:energy_overload_upgrade
+  - jdte:upgrade_storage
 ---
 
 # Upgrade Cards
@@ -197,3 +199,20 @@ Exclusive to the Bio Crusher. Increases attack damage. Each upgrade adds 5 damag
 Advanced Potion Brewer only, limited to 1. Once installed, brewing fuel is paid with FE: each charge consumes the configured `energyPerBlazePowder` FE (default 5,000) and provides the same 20 brews as one Blaze Powder, disabling the Blaze Powder slot so no external Blaze Powder supply is needed. The Creative Upgrade waives the fee.
 
 <RecipeFor id="jdte:energy_brewing_upgrade" />
+
+## Energy Overload Upgrade
+
+<ItemImage id="jdte:energy_overload_upgrade" scale="2" />
+
+Energy Transmitters only, limited to 1. Once installed, removes all single-batch and per-tick transfer limits from the Energy Transmitter: including per-target limits, per-tick transfer budgets, and ME extraction limits, directly attempting all targets in range and fully charging bound player equipment in a single tick.
+
+<RecipeFor id="jdte:energy_overload_upgrade" />
+
+## Upgrade Storage
+
+<ItemImage id="jdte:upgrade_storage" scale="2" />
+
+A portable case dedicated to storing JDTE and JDT upgrades. Right-click to open a 4×5 grid of 20 upgrade slots. Upgrades stored inside can stack up to 64, bypassing the normal single-item stack limitation. Supports Shift-click fast transfer and automatically persists stored contents.
+
+<RecipeFor id="jdte:upgrade_storage" />
+

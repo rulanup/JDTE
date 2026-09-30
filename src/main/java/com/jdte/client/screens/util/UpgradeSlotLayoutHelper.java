@@ -227,6 +227,24 @@ public final class UpgradeSlotLayoutHelper {
                     .withStyle(current == 0 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
         }
 
+        if (UpgradeHelper.isEnergyTransmitter(baseMachineBE)) {
+            int current = UpgradeHelper.hasEnergyOverloadUpgrade(baseMachineBE) ? 1 : 0;
+            lines.add(Component.literal("  ")
+                    .append(Component.translatable("item.jdte.energy_overload_upgrade"))
+                    .append(Component.literal(": " + current + "/1"))
+                    .copy()
+                    .withStyle(current == 0 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+        }
+
+        if (baseMachineBE instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE brewer) {
+            int current = brewer.hasEnergyBrewingUpgrade() ? 1 : 0;
+            lines.add(Component.literal("  ")
+                    .append(Component.translatable("item.jdte.energy_brewing_upgrade"))
+                    .append(Component.literal(": " + current + "/1"))
+                    .copy()
+                    .withStyle(current == 0 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
+        }
+
         if (baseMachineBE instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
             int current = fabricator.getLootingLevel();
             int max = com.jdte.common.upgrades.LootFabricatorUpgradeItemStackHandler.MAX_LOOTING;

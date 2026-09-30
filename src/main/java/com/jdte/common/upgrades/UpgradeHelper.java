@@ -1,6 +1,7 @@
 package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
+import com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE;
 import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
 import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
@@ -8,6 +9,8 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
+import com.jdte.common.items.EnergyBrewingUpgradeItem;
+import com.jdte.common.items.EnergyOverloadUpgradeItem;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.jdte.common.blockentities.AdvancedItemCollectorBE;
@@ -68,7 +71,32 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgrade(ItemStack stack) {
-        return stack.getItem() instanceof UpgradeCardItem || isSmelterUpgrade(stack);
+        return stack.getItem() instanceof UpgradeCardItem
+                || isSmelterUpgrade(stack)
+                || isEnergyOverloadUpgrade(stack)
+                || isEnergyBrewingUpgrade(stack);
+    }
+
+    public static boolean isEnergyBrewingUpgrade(ItemStack stack) {
+        return stack.getItem() instanceof EnergyBrewingUpgradeItem;
+    }
+
+    public static boolean isEnergyOverloadUpgrade(ItemStack stack) {
+        return stack.getItem() instanceof EnergyOverloadUpgradeItem;
+    }
+
+    public static boolean hasEnergyOverloadUpgrade(BaseMachineBE machine) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return false;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (isEnergyOverloadUpgrade(handler.getStackInSlot(slot))) return true;
+        }
+        return false;
+    }
+
+    public static boolean isEnergyTransmitter(BaseMachineBE machine) {
+        return machine instanceof EnergyTransmitterBE
+                || machine instanceof AdvancedEnergyTransmitterBE;
     }
 
     public static boolean isSmelterUpgrade(ItemStack stack) {

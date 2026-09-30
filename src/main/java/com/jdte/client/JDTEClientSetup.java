@@ -114,6 +114,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.LARGE_POCKET_GENERATOR.get(), LargePocketGeneratorScreen::new);
         event.register(JDTEMenus.LARGE_POTION_CANISTER.get(), LargePotionCanisterScreen::new);
         event.register(JDTEMenus.LARGE_FUEL_CANISTER.get(), LargeFuelCanisterScreen::new);
+        event.register(JDTEMenus.UPGRADE_STORAGE.get(), UpgradeStorageScreen::new);
 
         // Glue Activators
         event.register(JDTEMenus.BASIC_GLUE_ACTIVATOR.get(), BasicGlueActivatorScreen::new);

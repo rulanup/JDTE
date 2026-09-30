@@ -25,6 +25,9 @@ public final class GreenhouseCropResolver {
 
     public static void invalidateCaches() {
         cacheGeneration++;
+        if (ModList.get().isLoaded("mysticalagriculture")) {
+            MysticalAgricultureGreenhouseIntegration.invalidateCaches();
+        }
     }
 
     public static GreenhouseCropDefinition findGeneric(ItemStack seed) {

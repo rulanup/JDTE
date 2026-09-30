@@ -29,13 +29,19 @@ public final class MysticalAgricultureGreenhouseIntegration {
         return Map.copyOf(CROPS_BY_SEED);
     }
 
+    public static synchronized void invalidateCaches() {
+        initialized = false;
+        CROPS_BY_SEED.clear();
+    }
+
     private static synchronized void ensureInitialized() {
         if (initialized) {
             return;
         }
         initialized = true;
         int baseFluid = JDTEConfig.COMMON.greenhouseMysticalBaseFluidCost.get();
-        int growthWork = JDTEConfig.COMMON.greenhouseDefaultGrowthWork.get();
+        int baseGrowthWork = JDTEConfig.COMMON.greenhouseDefaultGrowthWork.get();
+        int tierGrowthPercent = JDTEConfig.COMMON.greenhouseMysticalTierGrowthPercent.get();
         for (Crop crop : MysticalAgricultureAPI.getCropRegistry().getCrops()) {
             if (!crop.isEnabled() || crop.getSeedsItem() == null || crop.getEssenceItem() == null
                     || crop.getCropBlock() == null) {
@@ -43,6 +49,8 @@ public final class MysticalAgricultureGreenhouseIntegration {
             }
             int tier = Math.max(1, crop.getTier().getValue());
             int fluidCost = Math.min(Integer.MAX_VALUE, baseFluid * tier * tier);
+            long scaledWork = (long) baseGrowthWork * (100L + (long) (tier - 1) * tierGrowthPercent) / 100L;
+            int growthWork = (int) Math.min(Integer.MAX_VALUE, Math.max(1L, scaledWork));
             CROPS_BY_SEED.put(crop.getSeedsItem(), new GreenhouseCropDefinition(
                     java.util.List.of(new ItemStack(crop.getEssenceItem())),
                     BuiltInRegistries.BLOCK.getKey(crop.getCropBlock()),

@@ -59,6 +59,8 @@ public class JDTEMenus {
             "large_potion_canister", () -> IMenuTypeExtension.create(LargePotionCanisterContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<LargeFuelCanisterContainer>> LARGE_FUEL_CANISTER = MENUS.register(
             "large_fuel_canister", () -> IMenuTypeExtension.create(LargeFuelCanisterContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<UpgradeStorageContainer>> UPGRADE_STORAGE = MENUS.register(
+            "upgrade_storage", () -> IMenuTypeExtension.create(UpgradeStorageContainer::new));
 
     // Glue Activator
     public static final DeferredHolder<MenuType<?>, MenuType<BasicGlueActivatorContainer>> BASIC_GLUE_ACTIVATOR = MENUS.register(

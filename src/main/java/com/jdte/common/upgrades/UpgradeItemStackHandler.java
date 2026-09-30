@@ -63,6 +63,9 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         if (machine instanceof MineralExtractorBE && UpgradeHelper.isSmelterUpgrade(stack)) {
             return countSmelter(slot) == 0;
         }
+        if (UpgradeHelper.isEnergyOverloadUpgrade(stack)) {
+            return UpgradeHelper.isEnergyTransmitter(machine) && countEnergyOverload(slot) == 0;
+        }
         if (!(stack.getItem() instanceof UpgradeCardItem upgradeCard)) {
             return false;
         }
@@ -133,6 +136,16 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         int count = 0;
         for (int slot = 0; slot < getSlots(); slot++) {
             if (slot != ignoredSlot && UpgradeHelper.isSmelterUpgrade(getStackInSlot(slot))) count++;
+        }
+        return count;
+    }
+
+    private int countEnergyOverload(int ignoredSlot) {
+        int count = 0;
+        for (int slot = 0; slot < getSlots(); slot++) {
+            if (slot != ignoredSlot && UpgradeHelper.isEnergyOverloadUpgrade(getStackInSlot(slot))) {
+                count++;
+            }
         }
         return count;
     }

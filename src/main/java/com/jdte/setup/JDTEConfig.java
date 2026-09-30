@@ -256,6 +256,7 @@ public class JDTEConfig {
         public final ModConfigSpec.IntValue greenhouseDefaultGrowthWork;
         public final ModConfigSpec.IntValue greenhouseEnergyPerHarvestV2;
         public final ModConfigSpec.IntValue greenhouseMysticalBaseFluidCost;
+        public final ModConfigSpec.IntValue greenhouseMysticalTierGrowthPercent;
         public final ModConfigSpec.IntValue greenhouseGenericFluidCost;
         public final ModConfigSpec.IntValue greenhouseMaxHarvestsPerSettlementV2;
         public final ModConfigSpec.LongValue greenhouseMaxPendingWork;
@@ -526,6 +527,7 @@ public class JDTEConfig {
             this.greenhouseDefaultGrowthWork = greenhouse.greenhouseDefaultGrowthWork;
             this.greenhouseEnergyPerHarvestV2 = greenhouse.greenhouseEnergyPerHarvestV2;
             this.greenhouseMysticalBaseFluidCost = greenhouse.greenhouseMysticalBaseFluidCost;
+            this.greenhouseMysticalTierGrowthPercent = greenhouse.greenhouseMysticalTierGrowthPercent;
             this.greenhouseGenericFluidCost = greenhouse.greenhouseGenericFluidCost;
             this.greenhouseMaxHarvestsPerSettlementV2 = greenhouse.greenhouseMaxHarvestsPerSettlementV2;
             this.greenhouseMaxPendingWork = greenhouse.greenhouseMaxPendingWork;

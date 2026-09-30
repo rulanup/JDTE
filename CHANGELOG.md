@@ -2,7 +2,15 @@
 
 ### English
 
-#### v0.6.0.2-fix1 (Current) — 2026-09-27
+#### v0.6.0.3 (Current) — 2026-09-30
+
+Feature release introducing the Upgrade Storage and Energy Overload Upgrade, along with greenhouse crop scaling improvements, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0.3 release notes](docs/releases/0.6.0.3.md).
+
+- **Upgrade Storage (`jdte:upgrade_storage`)**: Dedicated 20-slot (5×4) portable storage case exclusively for JDT and JDTE upgrade cards. Allows upgrades to stack up to 64 per slot, with custom GUI, anti-nesting protection, smart quick-move, and full item capability support.
+- **Energy Overload Upgrade (`jdte:energy_overload_upgrade`)**: Dedicated upgrade for Advanced and Extended Energy Transmitters (limit 1) that lifts the per-tick transfer cap and ME extraction budget, enabling unlimited batch energy distribution.
+- **Greenhouse crop growth uniformity**: Fixed inconsistent growth scaling between vanilla crops and Mystical Agriculture crops under speed and upgrade acceleration.
+
+#### v0.6.0.2-fix1 — 2026-09-27
 
 Hotfix release addressing Extended Experience Holder UI display issues for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0.2-fix1 release notes](docs/releases/0.6.0.2-fix1.md).
 
@@ -312,7 +320,15 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.0.2-fix1（当前）— 2026-09-27
+#### v0.6.0.3（当前）— 2026-09-30
+
+引入升级存储器与能量过载升级、并统一温室作物生长缩放的功能更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0.3 发布说明](docs/releases/0.6.0.3.md)。
+
+- **升级存储器 (`jdte:upgrade_storage`)**：专为 JDT 及 JDTE 升级卡设计的 20 格（5×4）便携式存储容器。内部升级卡支持单格最高 64 堆叠，具备独立定制 GUI、防嵌套保护、智能快速移动与完整的物品 Capability 支持。
+- **能量过载升级 (`jdte:energy_overload_upgrade`)**：高级与扩展能量传输器专属升级（限装 1 张），彻底取消单 tick 传输上限与 ME 提取配额限制，支持单 tick 内无上限瞬时倾泻能量。
+- **温室作物生长速率一致性修复**：修复温室大棚中原版作物与神秘农业作物在加速与升级加成下生长速率不一致的问题，统一了二者的推进尺度与倍率计算。
+
+#### v0.6.0.2-fix1 — 2026-09-27
 
 修复扩展经验存储器界面显示问题的热修复版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0.2-fix1 发布说明](docs/releases/0.6.0.2-fix1.md)。
 

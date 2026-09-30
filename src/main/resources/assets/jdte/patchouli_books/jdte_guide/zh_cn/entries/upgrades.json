@@ -326,6 +326,40 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:energy_brewing_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)能量过载升级$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:energy_overload_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "能量传输器专用，最多安装 1 张。安装后取消能量传输器的一切一次性与单刻传输上限：包括单目标传输上限、单刻传输预算和 ME 提取上限，并且在单刻内直接尝试为范围内所有目标供电及充满已绑定玩家的装备。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:energy_overload_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)升级存储器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:upgrade_storage",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "专用于收纳 JDTE 与 JDT 升级的便携式存储器具。手持右键即可打开界面，拥有 4×5 共 20 个升级槽位。放入其中的各类升级卡与专用升级可突破通常的堆叠上限，堆叠至 64 个。支持快捷键 Shift-点击存取，内部数据自动实时保存。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:upgrade_storage"
     }
   ],
   "extra_recipe_mappings": {
@@ -348,6 +382,8 @@
     "jdte:seed_conversion_upgrade": 61,
     "jdte:looting_upgrade": 65,
     "jdte:sharpness_upgrade": 69,
-    "jdte:energy_brewing_upgrade": 73
+    "jdte:energy_brewing_upgrade": 73,
+    "jdte:energy_overload_upgrade": 77,
+    "jdte:upgrade_storage": 81
   }
 }
