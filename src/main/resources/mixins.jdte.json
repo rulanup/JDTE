@@ -35,7 +35,9 @@
     "SpawnerMixin",
     "SpawnerMixin$ApothSpawnerMixin",
     "SpawnerMixin$DraconicSpawnerMixin",
-    "TickSpeedPacketMixin"
+    "TickSpeedPacketMixin",
+    "EntityAccelerationMobMixin",
+    "EntityAccelerationLivingEntityMixin"
   ],
   "client": [
     "ScreenMixin",

@@ -91,6 +91,8 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorScreen::new);
         event.register(JDTEMenus.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorScreen::new);
         event.register(JDTEMenus.EXTENDED_TIME_ACCELERATOR.get(), ExtendedTimeAcceleratorScreen::new);
+        event.register(JDTEMenus.ADVANCED_ENTITY_ACCELERATOR.get(), AdvancedEntityAcceleratorScreen::new);
+        event.register(JDTEMenus.EXTENDED_ENTITY_ACCELERATOR.get(), ExtendedEntityAcceleratorScreen::new);
         event.register(JDTEMenus.TIME_FREEZER.get(), TimeFreezerScreen::new);
         event.register(JDTEMenus.EXTENDED_TIME_FREEZER.get(), ExtendedTimeFreezerScreen::new);
 
@@ -115,6 +117,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.LARGE_POTION_CANISTER.get(), LargePotionCanisterScreen::new);
         event.register(JDTEMenus.LARGE_FUEL_CANISTER.get(), LargeFuelCanisterScreen::new);
         event.register(JDTEMenus.UPGRADE_STORAGE.get(), UpgradeStorageScreen::new);
+        event.register(JDTEMenus.ADVANCED_UPGRADE_STORAGE.get(), AdvancedUpgradeStorageScreen::new);
 
         // Glue Activators
         event.register(JDTEMenus.BASIC_GLUE_ACTIVATOR.get(), BasicGlueActivatorScreen::new);
@@ -197,6 +200,8 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ENTITY_ACCELERATOR.get(), TimeAcceleratorBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_ENTITY_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerEntityRenderer(JDTEEntities.TIME_ACCELERATOR_EFFECT.get(), TimeAcceleratorEffectRenderer::new);
         event.registerEntityRenderer(JDTEEntities.ULTIMATE_TIME_WAND.get(), UltimateTimeWandRenderer::new);
 

@@ -2,12 +2,21 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.0.3`
+Current version: `0.6.1.0`
+
+## What's new in 0.6.1.0
+
+Feature release:
+- **Advanced Upgrade Storage (`jdte:advanced_upgrade_storage`)**: Enhanced 6×6 (36 slot) upgrade case with 64-stacking per slot and Curios support. While carried in player inventory or equipped in Curios, opening any JDT/JDTE machine interface automatically docks a live interactive 6×6 upgrade panel, allowing direct 1-click and Shift-click transfers between storage and machine slots.
+- **Entity Acceleration Upgrade (`jdte:entity_acceleration_upgrade`)**: Dedicated Ultimate Time Wand smithing/crafting upgrade allowing players to right-click living entities to accelerate them directly while automatically suspending target AI and navigation.
+- **Advanced & Extended Entity Accelerators (`jdte:advanced_entity_accelerator`, `jdte:extended_entity_accelerator`)**: Machines consuming Time Fluid and FE to accelerate living entities (`LivingEntity`) in a configured area with 1-64x speed (1-512x for Extended, up to 1024x overclocked). Automatically suspends entity AI, pathfinding, and mob pushing collisions during accelerated ticks to ensure stable biological ticking without erratic movement; supports ghost spawn egg filtering and automatically excludes players.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.1.0.md).
 
 ## What's new in 0.6.0.3
 
 Feature release:
-- **Upgrade Storage (`jdte:upgrade_storage`)**: A portable 4×5 (20 slot) storage container dedicated to JDTE and JDT upgrades. Supports stacking upgrades up to 64 per slot, intuitive Shift-click fast transfers, real-time data persistence, and an `ItemHandler.ITEM` capability.
+- **Upgrade Storage (`jdte:upgrade_storage`)**: Portable storage case dedicated to JDTE and JDT upgrades with a 4×5 (20 slot) grid. Supports stacking upgrades up to 64 per slot, intuitive Shift-click fast transfers, real-time data persistence, and an `ItemHandler.ITEM` capability.
 - **Energy Overload Upgrade (`jdte:energy_overload_upgrade`)**: Dedicated Energy Transmitter upgrade (limit 1) removing all single-batch, per-tick transfer budgets, and ME energy extraction limits to charge all range targets and bound player inventories in a single tick.
 - **Greenhouse Crop Scaling Fix**: Resolved growth scaling discrepancies between vanilla and Mystical Agriculture crops in the Greenhouse under varying upgrade configurations.
 
@@ -82,6 +91,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 - Advanced Time Accelerator: adjustable from 1-64x or 128x with Overclock/Creative; consumes Time Fluid and FE at twice the Basic tier's Time Fluid rate.
 - Extended Time Accelerator: an eight-slot tier adjustable from 1-512x or 1024x with Overclock/Creative; consumes Time Fluid at five times the Basic tier's rate.
 - All three tiers share the managed scheduler. A nominal multiplier includes the target's native tick: one nominal `X` accelerator contributes `X - 1` additional cycles, and overlaps produce `1 + Σ(Xᵢ - 1)`, so two 16x accelerators produce 31x. Ordinary block entities and random-tick targets use chunk discovery, paid pending queues, and fixed per-tick execution and scan budgets; high server MSPT does not pause them, and excess work remains queued.
+- Advanced & Extended Entity Accelerators: machines consuming Time Fluid and FE to directly accelerate living entities (`LivingEntity`) in a configurable area with adjustable multiplier 1-64x (Extended tier 1-512x, up to 1024x overclocked). Automatically suspends entity AI pathfinding, navigation, and pushing physics during accelerated extra ticks to ensure stable biological ticking without erratic movement; supports ghost spawn egg filtering and automatically excludes players.
 - Full AE Grid acceleration requires matching versions of JDTE-AE (`jdte-ae`) and JDTE plus AE2 19.2.17+ on both client and server. Covering any online, fully booted node gives its entire Grid the full multiplier; covering multiple nodes on the same Grid does not count one accelerator more than once.
 - AE Grid work synchronously runs complete Server Start, Level Start, Level End, and Server End lifecycles. Nominal 1024x runs 1023 additional Grid lifecycles per real tick and bypasses the ordinary target budget of 4096 executions, so it can raise server MSPT substantially. Insufficient FE or Time Fluid rejects the whole batch without execution or charge instead of silently reducing the multiplier.
 - The Extended Upgrade converts JDT T2 Clickers, Block Breakers, Block Placers, Block Swappers, Droppers, Sensors, Fluid Collectors, and Fluid Placers into eight-slot variants while preserving machine data.

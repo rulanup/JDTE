@@ -143,6 +143,8 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, JDTEContentEvents::onBlockPlace);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, JDTEContentEvents::onRightClickBlock);
+        NeoForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onEntityTickPost);
+        NeoForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration::onPlayerLoggedIn);
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
@@ -258,6 +260,9 @@ public class JDTE {
         event.registerItem(Capabilities.ItemHandler.ITEM,
                 (stack, context) -> new com.jdte.common.containers.handlers.UpgradeStorageHandler(stack),
                 JDTEItems.UPGRADE_STORAGE.get());
+        event.registerItem(Capabilities.ItemHandler.ITEM,
+                (stack, context) -> new com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler(stack),
+                JDTEItems.ADVANCED_UPGRADE_STORAGE.get());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

@@ -3,6 +3,7 @@ package com.jdte.common.network;
 import com.jdte.JDTE;
 import com.jdte.common.network.data.AdvancedEnergyTransmitterPayload;
 import com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload;
+import com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload;
 import com.jdte.common.network.data.AutoIoConfigPayload;
 import com.jdte.common.network.data.AutoIoConfigSyncPayload;
 import com.jdte.common.network.data.BioCrusherPayload;
@@ -38,6 +39,7 @@ import com.jdte.common.network.data.LifeBreederModePayload;
 import com.jdte.common.network.data.LifeSynthesisRunningPayload;
 import com.jdte.common.network.handler.AdvancedEnergyTransmitterPacket;
 import com.jdte.common.network.handler.AdvancedEnergyTransmitterBindingPacket;
+import com.jdte.common.network.handler.AdvancedUpgradeStorageActionPacket;
 import com.jdte.common.network.handler.EntitySuppressorPacket;
 import com.jdte.common.network.handler.EntitySuppressorSyncPacket;
 import com.jdte.common.network.handler.ExtendedExperienceHolderPacket;
@@ -125,5 +127,8 @@ public class JDTEPacketHandler {
                 LifeBreederModePacket::handle);
         registrar.playToClient(LifeSynthesisRunningPayload.TYPE, LifeSynthesisRunningPayload.STREAM_CODEC,
                 LifeSynthesisRunningPacket::handle);
+        registrar.playToServer(AdvancedUpgradeStorageActionPayload.TYPE,
+                AdvancedUpgradeStorageActionPayload.STREAM_CODEC,
+                AdvancedUpgradeStorageActionPacket::handle);
     }
 }

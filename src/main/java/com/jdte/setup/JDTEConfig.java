@@ -6,6 +6,7 @@ import com.jdte.setup.config.AdvancedPotionBrewerConfig;
 import com.jdte.setup.config.BioCrusherConfig;
 import com.jdte.setup.config.BioFactoryConfig;
 import com.jdte.setup.config.CrystalIncubatorConfig;
+import com.jdte.setup.config.EntityAcceleratorConfig;
 import com.jdte.setup.config.EntitySuppressorConfig;
 import com.jdte.setup.config.FactoryPackerConfig;
 import com.jdte.setup.config.GelGeneratorConfig;
@@ -58,6 +59,7 @@ public class JDTEConfig {
     public static class Common {
         public final UpgradesConfig upgrades;
         public final TimeAcceleratorConfig timeAccelerator;
+        public final EntityAcceleratorConfig entityAccelerator;
         public final TimeFreezerConfig timeFreezer;
         public final UltimatePortalGunConfig ultimatePortalGun;
         public final BioCrusherConfig bioCrusher;
@@ -340,6 +342,7 @@ public class JDTEConfig {
 
             upgrades = new UpgradesConfig(builder);
             timeAccelerator = new TimeAcceleratorConfig(builder);
+            entityAccelerator = new EntityAcceleratorConfig(builder);
             timeFreezer = new TimeFreezerConfig(builder);
             ultimatePortalGun = new UltimatePortalGunConfig(builder);
             bioCrusher = new BioCrusherConfig(builder);

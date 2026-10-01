@@ -231,6 +231,8 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.ADVANCED_TIME_ACCELERATOR, energy(POWERED_ENERGY), fluid(TIME_ACCELERATOR_TANK)),
             machine(JDTEBlocks.EXTENDED_TIME_ACCELERATOR, energy(POWERED_ENERGY), fluid(TIME_ACCELERATOR_TANK)),
             machine(JDTEBlocks.CRYSTAL_INCUBATOR, energy(POWERED_ENERGY), fluid(TIME_ACCELERATOR_TANK), items(MACHINE_ITEMS)),
+            machine(JDTEBlocks.ADVANCED_ENTITY_ACCELERATOR, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),
+            machine(JDTEBlocks.EXTENDED_ENTITY_ACCELERATOR, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),
 
             // --- 时间定格器 ---
             machine(JDTEBlocks.TIME_FREEZER, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),

@@ -19,6 +19,7 @@ item_ids:
   - jdte:ae_crafting_read_upgrade
   - jdte:ae_output_upgrade
   - jdte:ae_extraction_upgrade
+  - jdte:entity_acceleration_upgrade
   - jdte:essence_conversion_upgrade
   - jdte:seed_conversion_upgrade
   - jdte:looting_upgrade
@@ -26,6 +27,7 @@ item_ids:
   - jdte:energy_brewing_upgrade
   - jdte:energy_overload_upgrade
   - jdte:upgrade_storage
+  - jdte:advanced_upgrade_storage
 ---
 
 # 升级卡
@@ -160,6 +162,16 @@ item_ids:
 
 <RecipeFor id="jdte:ae_extraction_upgrade_apply" />
 
+## 实体加速升级
+
+<ItemImage id="jdte:entity_acceleration_upgrade" scale="2" />
+
+仅限顶级时间手杖。安装后，手杖不仅可以加速方块，还可以右键加速实体。在锻造台或工作台中与顶级时间手杖组合，或者直接在物品栏中手持该升级右键顶级时间手杖即可安装。
+
+加速实体时，实体的 AI 不加速，确保生物不会因超高速产生寻路计算拥堵、超速移动或异常攻击，而实体的生命周期、生长（幼年到成年）、繁殖冷却、药水效果及产出计时等均按设定倍率加速生效。
+
+<RecipeFor id="jdte:entity_acceleration_upgrade" />
+
 ## 精华转化升级
 
 <ItemImage id="jdte:essence_conversion_upgrade" scale="2" />
@@ -215,4 +227,13 @@ item_ids:
 专用于收纳 JDTE 与 JDT 升级的便携式存储器具。手持右键即可打开界面，拥有 4×5 共 20 个升级槽位。放入其中的各类升级卡与专用升级可突破通常的堆叠上限，堆叠至 64 个。支持快捷键 Shift-点击存取，内部数据自动实时保存。
 
 <RecipeFor id="jdte:upgrade_storage" />
+
+## 高级升级存储器
+
+<ItemImage id="jdte:advanced_upgrade_storage" scale="2" />
+
+高级升级收纳器具。右键打开 6×6 共 36 格的升级存储空间，内部各槽位均支持将升级卡堆叠至 64 个。当玩家携带该物品时，打开任何 JDT 或 JDTE 机器界面都会在侧边显示当前存储的所有升级卡。玩家可以通过点击直接将升级卡放入机器中、拿取到光标或取回背包，无需反复开关容器即可无缝配置机器升级。
+
+<RecipeFor id="jdte:advanced_upgrade_storage" />
+
 

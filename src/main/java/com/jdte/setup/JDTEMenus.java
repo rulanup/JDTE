@@ -17,6 +17,10 @@ public class JDTEMenus {
             "advanced_time_accelerator", () -> IMenuTypeExtension.create(AdvancedTimeAcceleratorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedTimeAcceleratorContainer>> EXTENDED_TIME_ACCELERATOR = MENUS.register(
             "extended_time_accelerator", () -> IMenuTypeExtension.create(ExtendedTimeAcceleratorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedEntityAcceleratorContainer>> ADVANCED_ENTITY_ACCELERATOR = MENUS.register(
+            "advanced_entity_accelerator", () -> IMenuTypeExtension.create(AdvancedEntityAcceleratorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedEntityAcceleratorContainer>> EXTENDED_ENTITY_ACCELERATOR = MENUS.register(
+            "extended_entity_accelerator", () -> IMenuTypeExtension.create(ExtendedEntityAcceleratorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<TimeFreezerContainer>> TIME_FREEZER = MENUS.register(
             "time_freezer", () -> IMenuTypeExtension.create(TimeFreezerContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedTimeFreezerContainer>> EXTENDED_TIME_FREEZER = MENUS.register(
@@ -61,6 +65,8 @@ public class JDTEMenus {
             "large_fuel_canister", () -> IMenuTypeExtension.create(LargeFuelCanisterContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<UpgradeStorageContainer>> UPGRADE_STORAGE = MENUS.register(
             "upgrade_storage", () -> IMenuTypeExtension.create(UpgradeStorageContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedUpgradeStorageContainer>> ADVANCED_UPGRADE_STORAGE = MENUS.register(
+            "advanced_upgrade_storage", () -> IMenuTypeExtension.create(AdvancedUpgradeStorageContainer::new));
 
     // Glue Activator
     public static final DeferredHolder<MenuType<?>, MenuType<BasicGlueActivatorContainer>> BASIC_GLUE_ACTIVATOR = MENUS.register(

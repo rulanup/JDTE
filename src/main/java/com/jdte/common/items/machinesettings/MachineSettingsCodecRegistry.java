@@ -28,6 +28,10 @@ public final class MachineSettingsCodecRegistry {
                 JdteMachineSettingsCodecs.advancedTimeAccelerator());
         register(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), ExtendedTimeAcceleratorBE.class,
                 JdteMachineSettingsCodecs.extendedTimeAccelerator());
+        register(JDTEBlockEntities.ADVANCED_ENTITY_ACCELERATOR.get(), AdvancedEntityAcceleratorBE.class,
+                JdteMachineSettingsCodecs.advancedEntityAccelerator());
+        register(JDTEBlockEntities.EXTENDED_ENTITY_ACCELERATOR.get(), ExtendedEntityAcceleratorBE.class,
+                JdteMachineSettingsCodecs.extendedEntityAccelerator());
         register(JDTEBlockEntities.TIME_FREEZER.get(), TimeFreezerBE.class,
                 JdteMachineSettingsCodecs.timeFreezer());
         register(JDTEBlockEntities.EXTENDED_TIME_FREEZER.get(), ExtendedTimeFreezerBE.class,

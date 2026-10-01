@@ -26,6 +26,9 @@ public class TimeAcceleratorPacket {
             if (container instanceof BaseMachineContainer machineContainer && machineContainer.baseMachineBE instanceof AdvancedTimeAcceleratorBE accelerator) {
                 accelerator.setMultiplier(payload.multiplier());
             } else if (container instanceof BaseMachineContainer machineContainer
+                    && machineContainer.baseMachineBE instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE entityAccelerator) {
+                entityAccelerator.setMultiplier(payload.multiplier());
+            } else if (container instanceof BaseMachineContainer machineContainer
                     && machineContainer.baseMachineBE instanceof CrystalIncubatorBE incubator) {
                 incubator.setMultiplier(payload.multiplier());
             } else if (container instanceof BaseMachineContainer machineContainer

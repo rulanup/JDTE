@@ -16,6 +16,10 @@ public class JDTEBlockEntities {
             "advanced_time_accelerator", () -> BlockEntityType.Builder.of(AdvancedTimeAcceleratorBE::new, JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedTimeAcceleratorBE>> EXTENDED_TIME_ACCELERATOR = BLOCK_ENTITIES.register(
             "extended_time_accelerator", () -> BlockEntityType.Builder.of(ExtendedTimeAcceleratorBE::new, JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedEntityAcceleratorBE>> ADVANCED_ENTITY_ACCELERATOR = BLOCK_ENTITIES.register(
+            "advanced_entity_accelerator", () -> BlockEntityType.Builder.of(AdvancedEntityAcceleratorBE::new, JDTEBlocks.ADVANCED_ENTITY_ACCELERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedEntityAcceleratorBE>> EXTENDED_ENTITY_ACCELERATOR = BLOCK_ENTITIES.register(
+            "extended_entity_accelerator", () -> BlockEntityType.Builder.of(ExtendedEntityAcceleratorBE::new, JDTEBlocks.EXTENDED_ENTITY_ACCELERATOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TimeFreezerBE>> TIME_FREEZER = BLOCK_ENTITIES.register(
             "time_freezer", () -> BlockEntityType.Builder.of(TimeFreezerBE::new, JDTEBlocks.TIME_FREEZER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedTimeFreezerBE>> EXTENDED_TIME_FREEZER = BLOCK_ENTITIES.register(

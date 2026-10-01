@@ -2,12 +2,14 @@ package com.jdte.common.items.machinesettings;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
+import com.jdte.common.blockentities.AdvancedEntityAcceleratorBE;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.CrystalIncubatorBE;
 import com.jdte.common.blockentities.EntitySuppressorBE;
+import com.jdte.common.blockentities.ExtendedEntityAcceleratorBE;
 import com.jdte.common.blockentities.ExtendedTimeAcceleratorBE;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.common.blockentities.GreenhouseBE;
@@ -69,6 +71,18 @@ final class JdteMachineSettingsCodecs {
         return multiplier(ExtendedTimeAcceleratorBE.class, ExtendedTimeAcceleratorBE::getMultiplier,
                 ExtendedTimeAcceleratorBE::setMultiplier,
                 () -> JDTEConfig.COMMON.extendedTimeAcceleratorMaxMultiplier.get());
+    }
+
+    static MachineSettingsCodec advancedEntityAccelerator() {
+        return multiplier(AdvancedEntityAcceleratorBE.class, AdvancedEntityAcceleratorBE::getMultiplier,
+                AdvancedEntityAcceleratorBE::setMultiplier,
+                () -> JDTEConfig.COMMON.entityAccelerator.advancedMaxMultiplier.get());
+    }
+
+    static MachineSettingsCodec extendedEntityAccelerator() {
+        return multiplier(ExtendedEntityAcceleratorBE.class, ExtendedEntityAcceleratorBE::getMultiplier,
+                ExtendedEntityAcceleratorBE::setMultiplier,
+                () -> JDTEConfig.COMMON.entityAccelerator.extendedMaxMultiplier.get());
     }
 
     static MachineSettingsCodec crystalIncubator() {

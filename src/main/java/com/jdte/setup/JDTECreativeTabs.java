@@ -27,8 +27,10 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get());
                 output.accept(JDTEItems.AE_OUTPUT_UPGRADE.get());
                 output.accept(JDTEItems.AE_EXTRACTION_UPGRADE.get());
+                output.accept(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
                 output.accept(JDTEItems.UPGRADE_STORAGE.get());
+                output.accept(JDTEItems.ADVANCED_UPGRADE_STORAGE.get());
         output.accept(JDTEItems.ECLIPSEALLOY_WRENCH.get());
         output.accept(JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get());
         output.accept(JDTEItems.TIME_FLUID_CATALYST.get());
@@ -47,6 +49,8 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());
                 output.accept(JDTEItems.ADVANCED_TIME_ACCELERATOR.get());
                 output.accept(JDTEItems.EXTENDED_TIME_ACCELERATOR.get());
+                output.accept(JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get());
+                output.accept(JDTEItems.EXTENDED_ENTITY_ACCELERATOR.get());
 
                 // Time Freezers
                 output.accept(JDTEItems.TIME_FREEZER.get());

@@ -40,4 +40,10 @@ public class JDTEAttachments {
 
     public static final Supplier<AttachmentType<LifeAppleData>> LIFE_APPLE_DATA = ATTACHMENT_TYPES.register(
             "life_apple_data", () -> AttachmentType.serializable(LifeAppleData::new).build());
+
+    public static final Supplier<AttachmentType<com.jdte.common.entities.EntityAccelerationData>> ENTITY_ACCELERATION_DATA = ATTACHMENT_TYPES.register(
+            "entity_acceleration_data", () -> AttachmentType.builder(com.jdte.common.entities.EntityAccelerationData::new)
+                    .serialize(com.jdte.common.entities.EntityAccelerationData.CODEC)
+                    .sync(com.jdte.common.entities.EntityAccelerationData.STREAM_CODEC)
+                    .build());
 }

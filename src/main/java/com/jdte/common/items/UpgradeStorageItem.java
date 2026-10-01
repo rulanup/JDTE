@@ -56,6 +56,9 @@ public class UpgradeStorageItem extends Item {
         if (item instanceof AEExtractionUpgradeItem) {
             return true;
         }
+        if (item instanceof EntityAccelerationUpgradeItem) {
+            return true;
+        }
         if (item instanceof ExtendedUpgradeItem) {
             return true;
         }
@@ -63,6 +66,26 @@ public class UpgradeStorageItem extends Item {
             return true;
         }
         return stack.is(UPGRADES_TAG);
+    }
+
+    public static ItemStack findStorage(Player player) {
+        if (player == null) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack main = player.getMainHandItem();
+        if (main.getItem() instanceof UpgradeStorageItem && !(main.getItem() instanceof AdvancedUpgradeStorageItem)) {
+            return main;
+        }
+        ItemStack off = player.getOffhandItem();
+        if (off.getItem() instanceof UpgradeStorageItem && !(off.getItem() instanceof AdvancedUpgradeStorageItem)) {
+            return off;
+        }
+        for (ItemStack stack : player.getInventory().items) {
+            if (!stack.isEmpty() && stack.getItem() instanceof UpgradeStorageItem && !(stack.getItem() instanceof AdvancedUpgradeStorageItem)) {
+                return stack;
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     @Override

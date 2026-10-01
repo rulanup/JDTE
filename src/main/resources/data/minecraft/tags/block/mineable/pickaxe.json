@@ -3,6 +3,8 @@
   "values": [
     "jdte:basic_time_accelerator",
     "jdte:advanced_time_accelerator",
+    "jdte:advanced_entity_accelerator",
+    "jdte:extended_entity_accelerator",
     "jdte:life_breeder",
     "jdte:mineral_extractor",
     "jdte:large_mineral_extractor",

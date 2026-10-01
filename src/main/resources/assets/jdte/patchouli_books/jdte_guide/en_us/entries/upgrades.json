@@ -260,6 +260,23 @@
     },
     {
       "type": "patchouli:text",
+      "text": "$(bold)Entity Acceleration Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:entity_acceleration_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Exclusive to the Ultimate Time Wand. Once installed, the wand can accelerate entities in addition to blocks. It can be installed in a smithing table, crafting table, or directly by right-clicking the upgrade onto the Ultimate Time Wand in the inventory.$(br2)While accelerated, the entity's AI is not accelerated, preventing excessive pathfinding lag, erratic movement, or rapid attacks. Entity life timers, growth (baby to adult), breeding cooldowns, potion effects, and production timers advance at the full accelerated rate."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:entity_acceleration_upgrade"
+    },
+    {
+      "type": "patchouli:text",
       "text": "$(bold)Essence Conversion Upgrade$()"
     },
     {
@@ -376,6 +393,23 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:upgrade_storage"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Upgrade Storage$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_upgrade_storage",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An advanced portable case for JDTE and JDT upgrades. Right-click to open a 6×6 grid of 36 upgrade slots, each supporting stacking up to 64. When carried by the player, opening any JDT or JDTE machine interface displays a dedicated side panel showing all stored upgrades. Players can directly transfer upgrades into the machine with a single click, pick them up to the cursor, or withdraw them to inventory, seamlessly managing machine upgrades without leaving the machine interface."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_upgrade_storage"
     }
   ],
   "extra_recipe_mappings": {
@@ -394,12 +428,14 @@
     "jdte:ae_crafting_read_upgrade": 50,
     "jdte:ae_output_upgrade": 0,
     "jdte:ae_extraction_upgrade": 56,
-    "jdte:essence_conversion_upgrade": 61,
-    "jdte:seed_conversion_upgrade": 65,
-    "jdte:looting_upgrade": 69,
-    "jdte:sharpness_upgrade": 73,
-    "jdte:energy_brewing_upgrade": 77,
-    "jdte:energy_overload_upgrade": 81,
-    "jdte:upgrade_storage": 85
+    "jdte:entity_acceleration_upgrade": 61,
+    "jdte:essence_conversion_upgrade": 65,
+    "jdte:seed_conversion_upgrade": 69,
+    "jdte:looting_upgrade": 73,
+    "jdte:sharpness_upgrade": 77,
+    "jdte:energy_brewing_upgrade": 81,
+    "jdte:energy_overload_upgrade": 85,
+    "jdte:upgrade_storage": 89,
+    "jdte:advanced_upgrade_storage": 93
   }
 }

@@ -125,6 +125,10 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void jdte$mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+        if (com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.mouseClicked((BaseMachineScreen<?>) (Object) this, mouseX, mouseY, button)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (button != 0) return;
 
         if (jdte$hasIoConfigTarget()) {
@@ -189,6 +193,10 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         areas.add(new Rect2i(topSectionLeft, topSectionTop - 20, topSectionWidth, topSectionHeight + 20));
         areas.addAll(UpgradeSlotLayoutHelper.getPanelAreas(jdte$getUpgradeSlots(), getGuiLeft(), getGuiTop()));
         areas.addAll(jdte$getAutoIoConfigExtraAreas());
+        Rect2i storageArea = com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.getPanelArea((BaseMachineScreen<?>) (Object) this);
+        if (storageArea != null) {
+            areas.add(storageArea);
+        }
         return List.copyOf(areas);
     }
 
@@ -472,5 +480,17 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                             AutoIoConfigHelper.supportsOutput(baseMachineBE))).withStyle(ChatFormatting.GRAY)
             )), mouseX, mouseY);
         }
+    }
+
+    @Inject(method = "renderBg", at = @At("TAIL"))
+    private void jdte$renderAdvancedUpgradeStorageBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+        com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.renderBg(
+                guiGraphics, (BaseMachineScreen<?>) (Object) this, SOCIALBACKGROUND, mouseX, mouseY, partialTicks);
+    }
+
+    @Inject(method = "renderTooltip", at = @At("TAIL"))
+    private void jdte$renderAdvancedUpgradeStorageTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+        com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.renderTooltip(
+                guiGraphics, (BaseMachineScreen<?>) (Object) this, font, mouseX, mouseY);
     }
 }

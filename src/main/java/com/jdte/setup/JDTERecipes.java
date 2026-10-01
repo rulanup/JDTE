@@ -55,4 +55,10 @@ public class JDTERecipes {
 
     public static final Supplier<LargePortableContainerRecipe.Serializer> LARGE_PORTABLE_CONTAINER_RECIPE_SERIALIZER =
             RECIPE_SERIALIZERS.register("large_portable_container", LargePortableContainerRecipe.Serializer::new);
+
+    public static final Supplier<com.jdte.common.recipes.EntityAccelerationSmithingRecipe.Serializer> ENTITY_ACCELERATION_SMITHING_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register("entity_acceleration_smithing", com.jdte.common.recipes.EntityAccelerationSmithingRecipe.Serializer::new);
+
+    public static final Supplier<com.jdte.common.recipes.UltimateTimeWandUpgradeRecipe.Serializer> ULTIMATE_TIME_WAND_UPGRADE_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register("ultimate_time_wand_entity_upgrade", com.jdte.common.recipes.UltimateTimeWandUpgradeRecipe.Serializer::new);
 }

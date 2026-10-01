@@ -2,7 +2,15 @@
 
 ### English
 
-#### v0.6.0.3 (Current) — 2026-09-30
+#### v0.6.1.0 (Current) — 2026-10-01
+
+Feature release introducing the Advanced Upgrade Storage with interactive machine panel docking, Entity Acceleration Upgrade for the Ultimate Time Wand, and Advanced and Extended Entity Accelerators, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.1.0 release notes](docs/releases/0.6.1.0.md).
+
+- **Advanced Upgrade Storage (`jdte:advanced_upgrade_storage`)**: Enhanced 36-slot (6×6) upgrade case for JDT and JDTE upgrade cards with 64-stacking, Curios slot support (`curios:curio`), and anti-nesting protection. While carried in player inventory or equipped in Curios, opening any JDT/JDTE machine menu automatically docks an interactive 6×6 upgrade panel, allowing direct 1-click and Shift-click transfers between storage and machine upgrade slots.
+- **Entity Accelerators (`jdte:advanced_entity_accelerator`, `jdte:extended_entity_accelerator`)**: Advanced and Extended machines consuming Time Fluid and FE to accelerate living entities (`LivingEntity`) within their configured area. Automatically suspends entity AI pathfinding, navigation, and mob pushing collisions during accelerated extra ticks to enable smooth biological ticking without erratic movement. Features ghost spawn egg filtering and automatic player exclusion.
+- **Entity Acceleration Upgrade (`jdte:entity_acceleration_upgrade`)**: Dedicated smithing/crafting upgrade for the Ultimate Time Wand, enabling direct right-click entity acceleration with AI suppression.
+
+#### v0.6.0.3 — 2026-09-30
 
 Feature release introducing the Upgrade Storage and Energy Overload Upgrade, along with greenhouse crop scaling improvements, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.0.3 release notes](docs/releases/0.6.0.3.md).
 
@@ -49,7 +57,7 @@ Formal release of the 0.6.0 feature set for Minecraft 1.21.1, NeoForge 21.1.216+
 - **Ultimate Portal Gun usability**: Replaced cyclic dimension switching with a dedicated paginated selector showing eight sorted dimensions per page while preserving unsaved coordinate and name input.
 - **Documentation**: Updated current-version metadata and bilingual in-game guide references to 0.6.0; prerelease notes remain available as historical records.
 
-#### v0.6.0-pre6 (Current) — 2026-09-09
+#### v0.6.0-pre6 — 2026-09-09
 
 Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full English details, before/after examples, and upgrade guidance: [pre6 release notes](docs/releases/0.6.0-pre6.md).
 
@@ -320,11 +328,19 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.0.3（当前）— 2026-09-30
+#### v0.6.1.0（当前）— 2026-10-01
+
+引入高级升级存储器与机器面板侧栏吸附、时间手杖实体加速升级、以及高级与扩展实体加速器的功能更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.1.0 发布说明](docs/releases/0.6.1.0.md)。
+
+- **高级升级存储器 (`jdte:advanced_upgrade_storage`)**：专为 JDT 及 JDTE 升级卡设计的 36 格（6×6）增强型便携存储容器，支持单格最高 64 堆叠、防嵌套保护与 Curios 饰品栏穿戴。玩家背包或饰品栏携带时，打开任意 JDT/JDTE 机器界面会自动在界面旁吸附展开 6×6 升级管理面板，支持左键、Shift-左键等方式在存储器与机器升级槽之间直接无缝双向转移升级卡。
+- **实体加速器与扩展实体加速器 (`jdte:advanced_entity_accelerator`, `jdte:extended_entity_accelerator`)**：新增高级与扩展实体加速器，消耗时间流体与 FE 能量直接加速设定范围内的生物实体（LivingEntity）。加速子 tick 期间自动挂起抑制实体的 AI 寻路、位移和碰撞推挤，使实体平稳加速内部成长、繁殖、药效等生物 tick 而不发生狂躁乱窜。支持幽灵刷怪蛋黑白名单过滤，并自动排除玩家。
+- **实体加速升级 (`jdte:entity_acceleration_upgrade`)**：时间手杖（顶级）专属锻造/合成升级卡，安装后可右键直接加速生物实体，加速期间目标生物 AI 自动静止挂起。
+
+#### v0.6.0.3 — 2026-09-30
 
 引入升级存储器与能量过载升级、并统一温室作物生长缩放的功能更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.0.3 发布说明](docs/releases/0.6.0.3.md)。
 
-- **升级存储器 (`jdte:upgrade_storage`)**：专为 JDT 及 JDTE 升级卡设计的 20 格（5×4）便携式存储容器。内部升级卡支持单格最高 64 堆叠，具备独立定制 GUI、防嵌套保护、智能快速移动与完整的物品 Capability 支持。
+- **升级存储器 (`jdte:upgrade_storage`)**：专为 JDT 及 JDTE 升级卡设计的便携式存储容器，提供 20 格（5×4），内部升级卡支持单格最高 64 堆叠，具备独立定制 GUI、防嵌套保护、智能快速移动与完整的物品 Capability 支持。
 - **能量过载升级 (`jdte:energy_overload_upgrade`)**：高级与扩展能量传输器专属升级（限装 1 张），彻底取消单 tick 传输上限与 ME 提取配额限制，支持单 tick 内无上限瞬时倾泻能量。
 - **温室作物生长速率一致性修复**：修复温室大棚中原版作物与神秘农业作物在加速与升级加成下生长速率不一致的问题，统一了二者的推进尺度与倍率计算。
 
@@ -366,7 +382,7 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 - **顶级传送枪易用性**：维度切换改为独立分页选择页面，每页显示 8 个排序后的维度，并保留未保存的名称和坐标输入。
 - **文档**：当前版本和双语游戏内指南统一更新为 0.6.0，pre6 说明继续作为历史记录保留。
 
-#### v0.6.0-pre6（当前）— 2026-09-09
+#### v0.6.0-pre6— 2026-09-09
 
 详细英文说明、兼容性和升级指南：[pre6 release notes](docs/releases/0.6.0-pre6.md)。
 

@@ -19,6 +19,7 @@ item_ids:
   - jdte:ae_crafting_read_upgrade
   - jdte:ae_output_upgrade
   - jdte:ae_extraction_upgrade
+  - jdte:entity_acceleration_upgrade
   - jdte:essence_conversion_upgrade
   - jdte:seed_conversion_upgrade
   - jdte:looting_upgrade
@@ -26,6 +27,7 @@ item_ids:
   - jdte:energy_brewing_upgrade
   - jdte:energy_overload_upgrade
   - jdte:upgrade_storage
+  - jdte:advanced_upgrade_storage
 ---
 
 # Upgrade Cards
@@ -160,6 +162,16 @@ Empty universal containers are not selected as fluid targets. Only tanks with ex
 
 <RecipeFor id="jdte:ae_extraction_upgrade_apply" />
 
+## Entity Acceleration Upgrade
+
+<ItemImage id="jdte:entity_acceleration_upgrade" scale="2" />
+
+Exclusive to the Ultimate Time Wand. Once installed, the wand can accelerate entities in addition to blocks. It can be installed in a smithing table, crafting table, or directly by right-clicking the upgrade onto the Ultimate Time Wand in the inventory.
+
+While accelerated, the entity's AI is not accelerated, preventing excessive pathfinding lag, erratic movement, or rapid attacks. Entity life timers, growth (baby to adult), breeding cooldowns, potion effects, and production timers advance at the full accelerated rate.
+
+<RecipeFor id="jdte:entity_acceleration_upgrade" />
+
 ## Essence Conversion Upgrade
 
 <ItemImage id="jdte:essence_conversion_upgrade" scale="2" />
@@ -215,4 +227,12 @@ Energy Transmitters only, limited to 1. Once installed, removes all single-batch
 A portable case dedicated to storing JDTE and JDT upgrades. Right-click to open a 4×5 grid of 20 upgrade slots. Upgrades stored inside can stack up to 64, bypassing the normal single-item stack limitation. Supports Shift-click fast transfer and automatically persists stored contents.
 
 <RecipeFor id="jdte:upgrade_storage" />
+
+## Advanced Upgrade Storage
+
+<ItemImage id="jdte:advanced_upgrade_storage" scale="2" />
+
+An advanced portable case for JDTE and JDT upgrades. Right-click to open a 6×6 grid of 36 upgrade slots, each supporting stacking up to 64. When carried by the player, opening any JDT or JDTE machine interface displays a dedicated side panel showing all stored upgrades. Players can directly transfer upgrades into the machine with a single click, pick them up to the cursor, or withdraw them to inventory, seamlessly managing machine upgrades without leaving the machine interface.
+
+<RecipeFor id="jdte:advanced_upgrade_storage" />
 

@@ -244,6 +244,23 @@
     },
     {
       "type": "patchouli:text",
+      "text": "$(bold)实体加速升级$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:entity_acceleration_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "仅限顶级时间手杖。安装后，手杖不仅可以加速方块，还可以右键加速实体。在锻造台或工作台中与顶级时间手杖组合，或者直接在物品栏中手持该升级右键顶级时间手杖即可安装。$(br2)加速实体时，实体的 AI 不加速，确保生物不会因超高速产生寻路计算拥堵、超速移动或异常攻击，而实体的生命周期、生长（幼年到成年）、繁殖冷却、药水效果及产出计时等均按设定倍率加速生效。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:entity_acceleration_upgrade"
+    },
+    {
+      "type": "patchouli:text",
       "text": "$(bold)精华转化升级$()"
     },
     {
@@ -360,6 +377,23 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:upgrade_storage"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)高级升级存储器$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_upgrade_storage",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "高级升级收纳器具。右键打开 6×6 共 36 格的升级存储空间，内部各槽位均支持将升级卡堆叠至 64 个。当玩家携带该物品时，打开任何 JDT 或 JDTE 机器界面都会在侧边显示当前存储的所有升级卡。玩家可以通过点击直接将升级卡放入机器中、拿取到光标或取回背包，无需反复开关容器即可无缝配置机器升级。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_upgrade_storage"
     }
   ],
   "extra_recipe_mappings": {
@@ -378,12 +412,14 @@
     "jdte:ae_crafting_read_upgrade": 49,
     "jdte:ae_output_upgrade": 0,
     "jdte:ae_extraction_upgrade": 53,
-    "jdte:essence_conversion_upgrade": 57,
-    "jdte:seed_conversion_upgrade": 61,
-    "jdte:looting_upgrade": 65,
-    "jdte:sharpness_upgrade": 69,
-    "jdte:energy_brewing_upgrade": 73,
-    "jdte:energy_overload_upgrade": 77,
-    "jdte:upgrade_storage": 81
+    "jdte:entity_acceleration_upgrade": 57,
+    "jdte:essence_conversion_upgrade": 61,
+    "jdte:seed_conversion_upgrade": 65,
+    "jdte:looting_upgrade": 69,
+    "jdte:sharpness_upgrade": 73,
+    "jdte:energy_brewing_upgrade": 77,
+    "jdte:energy_overload_upgrade": 81,
+    "jdte:upgrade_storage": 85,
+    "jdte:advanced_upgrade_storage": 89
   }
 }

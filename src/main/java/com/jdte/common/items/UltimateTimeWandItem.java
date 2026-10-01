@@ -194,12 +194,62 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                                 List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(Component.translatable("justdynathings.advanced_time_wand"));
+        if (hasEntityAcceleration(stack)) {
+            tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.entity_acceleration_installed")
+                    .withStyle(ChatFormatting.GOLD));
+        }
         if (stack.has(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get())) {
             tooltip.add(modeTooltipComponent(getMode(stack)));
         }
         tooltip.addAll(resourceTooltipComponents(Math.max(0, FluidContainingItem.getAvailableFluid(stack)),
                 configuredFluidCapacity(), Math.max(0, PoweredItem.getAvailableEnergy(stack)),
                 configuredEnergyCapacity()));
+    }
+
+    public static boolean hasEntityAcceleration(ItemStack stack) {
+        return stack.getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), false);
+    }
+
+    public static void setEntityAcceleration(ItemStack stack, boolean enabled) {
+        stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), enabled);
+    }
+
+    @Override
+    public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack other, net.minecraft.world.inventory.Slot slot,
+                                            net.minecraft.world.inventory.ClickAction action, Player player,
+                                            net.minecraft.world.entity.SlotAccess access) {
+        if (action != net.minecraft.world.inventory.ClickAction.SECONDARY) {
+            return false;
+        }
+        if (other.is(com.jdte.setup.JDTEItems.ENTITY_ACCELERATION_UPGRADE.get()) && !hasEntityAcceleration(stack)) {
+            setEntityAcceleration(stack, true);
+            other.shrink(1);
+            if (player != null) {
+                player.playSound(SoundEvents.ARMOR_EQUIP_NETHERITE.value(), 1.0F, 1.2F);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public InteractionResult interactLivingEntity(ItemStack stack, Player player, net.minecraft.world.entity.LivingEntity interactionTarget, InteractionHand hand) {
+        if (!hasEntityAcceleration(stack)) {
+            if (!player.level().isClientSide()) {
+                player.displayClientMessage(
+                        Component.translatable("message.jdte.ultimate_time_wand.requires_entity_acceleration")
+                                .withStyle(ChatFormatting.RED), true);
+            }
+            return InteractionResult.FAIL;
+        }
+
+        Level level = player.level();
+        if (level.isClientSide() || !(level instanceof ServerLevel serverLevel)) {
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        }
+
+        return applyToEntityTarget(serverLevel, player, stack, interactionTarget)
+                ? InteractionResult.SUCCESS : InteractionResult.FAIL;
     }
 
     private static Component modeTooltipComponent(UltimateTimeWandData.Mode currentMode) {
@@ -355,6 +405,125 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 existing.applyWandState(before);
             } else if (created != null) {
                 created.discard();
+            }
+        }
+
+        @Override
+        public boolean commitResources() {
+            return preparedResources != null && preparedResources.commit(stack);
+        }
+    }
+
+    public static boolean isValidEntityTarget(net.minecraft.world.entity.Entity entity) {
+        return entity != null
+                && entity.isAlive()
+                && !entity.isRemoved()
+                && !(entity instanceof Player)
+                && !(entity instanceof UltimateTimeWandEntity)
+                && !(entity instanceof com.jdte.common.entities.TimeAcceleratorEffectEntity);
+    }
+
+    public static boolean applyToEntityTarget(ServerLevel level, Player player, ItemStack stack, net.minecraft.world.entity.Entity target) {
+        if (!isValidEntityTarget(target)) {
+            player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.invalid_target")
+                    .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        com.jdte.common.entities.EntityAccelerationData existingData = target.hasData(com.jdte.setup.JDTEAttachments.ENTITY_ACCELERATION_DATA)
+                ? target.getData(com.jdte.setup.JDTEAttachments.ENTITY_ACCELERATION_DATA) : null;
+        UltimateTimeWandEntity.WandState before = existingData == null || !existingData.isActive()
+                ? UltimateTimeWandData.initialState(target.blockPosition(), 0, configuredDuration())
+                : new UltimateTimeWandEntity.WandState(target.blockPosition(), existingData.getExponent(), existingData.getTotalTime(), existingData.getRemainingTime());
+
+        UltimateTimeWandData.Mode mode = getMode(stack);
+        int finalExponent = UltimateTimeWandData.addStep(before.exponent(), mode);
+        if (finalExponent <= before.exponent()) {
+            player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.max_multiplier")
+                    .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        int multiplier = UltimateTimeWandData.multiplierForExponent(finalExponent);
+        UltimateTimeWandData.FluidSettlement fluidSettlement = UltimateTimeWandData.settleFluid(
+                pendingFluid(stack), fluidCost(multiplier),
+                keepsFractionalFluidSettlement());
+        int energyCost = UltimateTimeWandData.saturatingEnergyCost(multiplier, scaledEnergyBaseCost());
+        UltimateTimeWandData.OperationResult operation = planWithResources(
+                player, stack, before, mode, fluidSettlement.drainMb(), energyCost);
+        if (!operation.success()) {
+            player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.insufficient_resources")
+                    .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        boolean creative = player.getAbilities().instabuild;
+        EntityCommitPort commitPort = new EntityCommitPort(target, stack, before);
+        if (!creative && !hasFluidForSettlement(stack, fluidSettlement)) {
+            player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.insufficient_resources")
+                    .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+        if (!commitIfTargetValid(true, creative, operation, commitPort).success()) {
+            return false;
+        }
+        if (!creative) {
+            stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_PENDING_FLUID.get(), fluidSettlement.remainingCost());
+        }
+        level.playSound(null, target.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.6F, 1.2F);
+        level.sendParticles(net.minecraft.core.particles.ParticleTypes.ENCHANT,
+                target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ(),
+                20, target.getBbWidth() * 0.5D, target.getBbHeight() * 0.25D, target.getBbWidth() * 0.5D, 0.1D);
+        return true;
+    }
+
+    private static final class EntityCommitPort implements CommitPort {
+        private final net.minecraft.world.entity.Entity target;
+        private final ItemStack stack;
+        private final UltimateTimeWandEntity.WandState before;
+        private ItemStackComponentTransaction preparedResources;
+
+        private EntityCommitPort(net.minecraft.world.entity.Entity target, ItemStack stack, UltimateTimeWandEntity.WandState before) {
+            this.target = target;
+            this.stack = stack;
+            this.before = before;
+        }
+
+        @Override
+        public boolean prepareResources(UltimateTimeWandData.OperationResult operation) {
+            preparedResources = ItemStackComponentTransaction.prepare(stack, staged -> {
+                if (operation.fluidCost() > 0) {
+                    IFluidHandlerItem fluid = staged.getCapability(Capabilities.FluidHandler.ITEM);
+                    if (fluid == null || fluid.drain(operation.fluidCost(), IFluidHandler.FluidAction.EXECUTE).getAmount()
+                            != operation.fluidCost()) {
+                        return false;
+                    }
+                }
+                if (operation.energyCost() > 0) {
+                    IEnergyStorage energy = staged.getCapability(Capabilities.EnergyStorage.ITEM);
+                    if (energy == null || energy.extractEnergy(operation.energyCost(), false) != operation.energyCost()) {
+                        return false;
+                    }
+                }
+                return true;
+            }).orElse(null);
+            return preparedResources != null;
+        }
+
+        @Override
+        public boolean applyEntity(UltimateTimeWandEntity.WandState after) {
+            target.setData(com.jdte.setup.JDTEAttachments.ENTITY_ACCELERATION_DATA,
+                    new com.jdte.common.entities.EntityAccelerationData(after.exponent(), after.totalTime(), after.remainingTime()));
+            return true;
+        }
+
+        @Override
+        public void rollbackEntity() {
+            if (before.remainingTime() > 0) {
+                target.setData(com.jdte.setup.JDTEAttachments.ENTITY_ACCELERATION_DATA,
+                        new com.jdte.common.entities.EntityAccelerationData(before.exponent(), before.totalTime(), before.remainingTime()));
+            } else {
+                target.removeData(com.jdte.setup.JDTEAttachments.ENTITY_ACCELERATION_DATA);
             }
         }
 

@@ -12,6 +12,8 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, BasicTimeAcceleratorBlock> BASIC_TIME_ACCELERATOR = BLOCKS.register("basic_time_accelerator", BasicTimeAcceleratorBlock::new);
     public static final DeferredHolder<Block, AdvancedTimeAcceleratorBlock> ADVANCED_TIME_ACCELERATOR = BLOCKS.register("advanced_time_accelerator", AdvancedTimeAcceleratorBlock::new);
     public static final DeferredHolder<Block, ExtendedTimeAcceleratorBlock> EXTENDED_TIME_ACCELERATOR = BLOCKS.register("extended_time_accelerator", ExtendedTimeAcceleratorBlock::new);
+    public static final DeferredHolder<Block, AdvancedEntityAcceleratorBlock> ADVANCED_ENTITY_ACCELERATOR = BLOCKS.register("advanced_entity_accelerator", AdvancedEntityAcceleratorBlock::new);
+    public static final DeferredHolder<Block, ExtendedEntityAcceleratorBlock> EXTENDED_ENTITY_ACCELERATOR = BLOCKS.register("extended_entity_accelerator", ExtendedEntityAcceleratorBlock::new);
     public static final DeferredHolder<Block, TimeFreezerBlock> TIME_FREEZER = BLOCKS.register("time_freezer", TimeFreezerBlock::new);
     public static final DeferredHolder<Block, ExtendedTimeFreezerBlock> EXTENDED_TIME_FREEZER = BLOCKS.register("extended_time_freezer", ExtendedTimeFreezerBlock::new);
     public static final DeferredHolder<Block, ExtendedClickerBlock> EXTENDED_CLICKER = BLOCKS.register("extended_clicker", ExtendedClickerBlock::new);

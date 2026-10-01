@@ -97,10 +97,27 @@ public abstract class BaseMachineContainerMixin {
         ItemStack originalStack = currentStack.copy();
 
         if (fromUpgradeSlot) {
-            // 从升级槽移到玩家背包
-            if (!moveItemStackTo(currentStack, upgradeEnd, container.slots.size(), true)) {
-                cir.setReturnValue(ItemStack.EMPTY);
-                return;
+            ItemStack advStorage = com.jdte.common.items.AdvancedUpgradeStorageItem.findStorage(player);
+            if (!advStorage.isEmpty()) {
+                com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler advHandler =
+                        new com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler(advStorage);
+                ItemStack remainder = net.neoforged.neoforge.items.ItemHandlerHelper.insertItem(advHandler, currentStack, false);
+                currentStack.setCount(remainder.getCount());
+            }
+            if (!currentStack.isEmpty()) {
+                ItemStack normStorage = com.jdte.common.items.UpgradeStorageItem.findStorage(player);
+                if (!normStorage.isEmpty()) {
+                    com.jdte.common.containers.handlers.UpgradeStorageHandler normHandler =
+                            new com.jdte.common.containers.handlers.UpgradeStorageHandler(normStorage);
+                    ItemStack remainder = net.neoforged.neoforge.items.ItemHandlerHelper.insertItem(normHandler, currentStack, false);
+                    currentStack.setCount(remainder.getCount());
+                }
+            }
+            if (!currentStack.isEmpty()) {
+                if (!moveItemStackTo(currentStack, upgradeEnd, container.slots.size(), true)) {
+                    cir.setReturnValue(ItemStack.EMPTY);
+                    return;
+                }
             }
         } else {
             // 从玩家背包移到升级槽（只移动1个）

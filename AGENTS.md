@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.0.3` |
+| Current version | `0.6.1.0` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
@@ -18,8 +18,10 @@ Major features:
 
 - 16 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, and AE Output. Looting and Sharpness are dedicated upgrade items outside UpgradeType. Energy Overload Upgrade (`jdte:energy_overload_upgrade`, limit 1) dedicated to Energy Transmitters removes all single-batch and per-tick transfer limits.
 - Upgrade Storage (`jdte:upgrade_storage`): a handheld 4×5 (20 slot) upgrade case dedicated to JDTE and JDT upgrades that allows storing up to 64 per slot, with real-time component persistence, Shift-click transfers, and `ItemHandler.ITEM` capability.
+- Advanced Upgrade Storage (`jdte:advanced_upgrade_storage`): an enhanced 6×6 (36 slot) upgrade case for JDTE and JDT upgrades (stacking up to 64 per slot) with real-time component persistence, Curios slot support, `ItemHandler.ITEM` capability, and an in-screen side panel on all JDT/JDTE machine menus enabling direct upgrade insertion, withdrawal, cursor transfers, and bidirectional Shift-click machine synchronization.
 - AE Extraction Upgrade (`jdte:ae_extraction_upgrade`): an AE2 Wireless Access Point-bound smithing upgrade that refills carried JDT/JDTE FE and fluid items, with optional Applied Flux integration and conservative empty-universal-tank selection.
 - Basic, Advanced, and Extended Advanced Time Accelerators with strict native-tick-inclusive multipliers.
+- Advanced Entity Accelerator (`jdte:advanced_entity_accelerator`) and Extended Entity Accelerator (`jdte:extended_entity_accelerator`): machines that consume Time Fluid and FE to directly accelerate living entities in a configured area, suppressing entity AI, navigation, and pushing physics during extra ticks, with ghost spawn egg filtering and selective upgrade support.
 - Optional independent JDTE-AE (`jdte_ae`) addon for complete AE2 Grid lifecycle acceleration, including Molecular Assemblers, crafting services, and compatible AE addons.
 - Time Freezer and Extended Time Freezer machines that consume Time Fluid to freeze a dimension's day/night cycle and weather, plus the permission-4 `/jdte timefreezer list` command for server operators.
 - Ultimate Portal Gun (`jdte:ultimate_portal_gun`): a JDT Advanced Portal Gun enhancement with a 1000 B single large Portal Fluid tank, unlimited teleport slots in a paginated radial menu (V key), manual coordinate editing with full server dimension selection, and per-slot fluid pricing.

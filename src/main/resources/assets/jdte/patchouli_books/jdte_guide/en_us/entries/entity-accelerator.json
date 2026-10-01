@@ -1,0 +1,58 @@
+{
+  "name": "Entity Accelerator",
+  "icon": "jdte:advanced_entity_accelerator",
+  "category": "jdte:time_energy",
+  "sortnum": 230,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Entity Accelerators consume Time Fluid and FE energy to directly accelerate living entities ($(thing)LivingEntity$()) within their configured area.$(br2)$(bold)Advanced Entity Accelerator$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_entity_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The advanced tier entity accelerator powered by Time Fluid and FE energy.$(br2)$(li)Adjustable multiplier: 1x - 64x$(li)With Overclock or Creative Upgrade: 128x$(li)Upgrade slots: 4 standard slots$(li)Supports ghost spawn egg filtering and automatically excludes players"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_entity_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Entity Accelerator$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_entity_accelerator",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An extended tier of the Advanced Entity Accelerator with 8 upgrade slots. Obtained by right-clicking an Advanced Entity Accelerator with an Extended Upgrade.$(br2)$(li)Adjustable multiplier: 1x - 512x$(li)With Overclock or Creative Upgrade: 1024x$(li)Supports 8 upgrade slots for additional upgrade cards$(li)Higher entity throughput per tick"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_entity_accelerator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mechanics$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(bold)AI and Movement Suppression$(): During accelerated extra ticks, entity AI pathfinding, travel physics, and mob pushing collisions are automatically suppressed. This prevents glitchy high-speed movement while allowing biological and internal ticking (such as growth, breeding cooldowns, potion effects, etc.) to progress rapidly.$(li)$(bold)Entity Filtering$(): Configure allowed or denied entity types by placing ghost spawn eggs in the filter slot. Supports allowlist and denylist toggles. Players are automatically excluded from acceleration.$(li)$(bold)Resource Consumption$(): Consumes JDT Time Fluid and FE energy. If resources are insufficient to cover the whole batch, work is"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "rejected without consumption.$(li)$(bold)Supported Upgrades$():$(li)$(bold)Capacity Upgrade$(): Increases energy and fluid capacity.$(li)$(bold)Fluid Upgrade$(): Multiplies Time Fluid storage.$(li)$(bold)Range Upgrade$(): Expands the operational bounding area.$(li)$(bold)Filter Upgrade$(): Adds extra filter pages for more entity types.$(li)$(bold)Overclock / Creative Upgrade$(): Unlocks peak acceleration multipliers; Creative waives both FE and Time Fluid costs.$(li)$(bold)Underclock Upgrade$(): Locks to low speed with reduced energy cost.$(li)$(bold)AE Crafting Read Upgrade$(): Operates only when the linked AE2 network has active crafting jobs."
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_entity_accelerator": 1,
+    "jdte:extended_entity_accelerator": 5
+  }
+}

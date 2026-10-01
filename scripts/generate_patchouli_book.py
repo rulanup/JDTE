@@ -70,7 +70,7 @@ CATEGORIES = (
         "time_energy",
         "jdte:advanced_time_accelerator",
         20,
-        ("time-accelerator", "time-freezer", "advanced-energy-transmitter"),
+        ("time-accelerator", "entity-accelerator", "time-freezer", "advanced-energy-transmitter"),
         {"zh_cn": "时间与能源", "en_us": "Time & Energy"},
         {
             "zh_cn": "时间流体、时间控制和能源传输。",
