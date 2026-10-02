@@ -148,9 +148,14 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         } else if (!filterData.compareNBT && !blockState.getBlock().asItem().getDefaultInstance().isEmpty()) {
             result = isStackValidFilter(blockState.getBlock().asItem().getDefaultInstance());
         } else {
-            ItemStack blockItemStack = blockState.getCloneItemStack(
-                    new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false),
-                    serverLevel, blockPos, getFakePlayer(serverLevel));
+            ItemStack blockItemStack;
+            try {
+                blockItemStack = blockState.getCloneItemStack(
+                        new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false),
+                        serverLevel, blockPos, getFakePlayer(serverLevel));
+            } catch (Throwable t) {
+                blockItemStack = blockState.getBlock().asItem().getDefaultInstance();
+            }
             result = isStackValidFilter(blockItemStack);
         }
 

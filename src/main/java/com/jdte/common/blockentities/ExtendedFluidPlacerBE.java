@@ -12,6 +12,7 @@ import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
@@ -58,7 +59,13 @@ public class ExtendedFluidPlacerBE extends FluidPlacerT1BE implements PoweredMac
     public boolean isBlockPosValid(BlockPos pos, FakePlayer fakePlayer) {
         if (!super.isBlockPosValid(pos, fakePlayer)) return false;
         BlockState targetState = level.getBlockState(pos.relative(getDirectionValue()));
-        return isStackValidFilter(targetState.getCloneItemStack(
-                new BlockHitResult(Vec3.ZERO, getDirectionValue(), pos, false), level, pos, null));
+        ItemStack cloneStack;
+        try {
+            cloneStack = targetState.getCloneItemStack(
+                    new BlockHitResult(Vec3.ZERO, getDirectionValue(), pos, false), level, pos, fakePlayer);
+        } catch (Throwable t) {
+            cloneStack = targetState.getBlock().asItem().getDefaultInstance();
+        }
+        return isStackValidFilter(cloneStack);
     }
 }

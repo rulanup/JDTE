@@ -28,6 +28,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -41,6 +42,7 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -258,6 +260,68 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     @Override
     public FilterData getFilterData() {
         return filterData;
+    }
+
+    @Override
+    public void setFilterSettings(FilterData settings) {
+        FilterableBE.super.setFilterSettings(settings);
+        clearBlockFilterCache();
+    }
+
+    public boolean hasConfiguredFilter() {
+        FilterBasicHandler handler = getFilterHandler();
+        if (handler == null) {
+            return false;
+        }
+        int activeSlots = UpgradeHelper.getActiveFilterSlots(this, UpgradeHelper.getBaseFilterSlots(handler));
+        int limit = Math.min(activeSlots, handler.getSlots());
+        for (int i = 0; i < limit; i++) {
+            if (!handler.getStackInSlot(i).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private final Map<BlockState, Boolean> blockStateFilterCache = new HashMap<>();
+
+    public void clearBlockFilterCache() {
+        blockStateFilterCache.clear();
+    }
+
+    public boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos pos, BlockState state) {
+        if (!hasConfiguredFilter()) {
+            return !filterData.allowlist;
+        }
+        if (filterData.filterCache.isEmpty() && !blockStateFilterCache.isEmpty()) {
+            blockStateFilterCache.clear();
+        }
+        Boolean cached = blockStateFilterCache.get(state);
+        if (cached != null) {
+            return cached;
+        }
+
+        boolean result;
+        if (state.getBlock() instanceof LiquidBlock liquidBlock) {
+            result = isStackValidFilter(liquidBlock);
+        } else if (!filterData.compareNBT && !state.getBlock().asItem().getDefaultInstance().isEmpty()) {
+            result = isStackValidFilter(state.getBlock().asItem().getDefaultInstance());
+        } else {
+            ItemStack blockItemStack;
+            try {
+                blockItemStack = state.getCloneItemStack(
+                        new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false),
+                        serverLevel, pos, getFakePlayer(serverLevel));
+            } catch (Throwable t) {
+                blockItemStack = state.getBlock().asItem().getDefaultInstance();
+            }
+            result = isStackValidFilter(blockItemStack);
+        }
+
+        if (blockStateFilterCache.size() < 512) {
+            blockStateFilterCache.put(state, result);
+        }
+        return result;
     }
 
     @Override
@@ -532,10 +596,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
                 && blockEntity instanceof AdvancedEnergyTransmitterBE) {
             return;
         }
-        ItemStack filterStack = state.getCloneItemStack(
-                new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false),
-                serverLevel, pos, null);
-        if (!isStackValidFilter(filterStack)) {
+        if (!isBlockValidFilter(serverLevel, pos, state)) {
             return;
         }
 
@@ -877,6 +938,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     private void invalidateTargets(boolean discardCurrentTargets) {
+        clearBlockFilterCache();
         settingsFingerprint = Integer.MIN_VALUE;
         nextTargetRefreshTick = 0;
         scanActive = false;
@@ -899,6 +961,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
     @Override
     public void setRemoved() {
+        clearBlockFilterCache();
         targets.clear();
         pendingTargets.clear();
         pendingReceiverIdentities.clear();

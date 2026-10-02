@@ -15,6 +15,7 @@ import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -70,9 +71,15 @@ public class ExtendedBlockBreakerBE extends BlockBreakerT1BE implements PoweredM
 
         BlockState state = level.getBlockState(pos);
         if (filterData.blockItemFilter == 0) {
-            return isStackValidFilter(state.getCloneItemStack(
-                    new BlockHitResult(Vec3.ZERO, net.minecraft.core.Direction.UP, pos, false),
-                    level, pos, fakePlayer));
+            ItemStack cloneStack;
+            try {
+                cloneStack = state.getCloneItemStack(
+                        new BlockHitResult(Vec3.ZERO, net.minecraft.core.Direction.UP, pos, false),
+                        level, pos, fakePlayer);
+            } catch (Throwable t) {
+                cloneStack = state.getBlock().asItem().getDefaultInstance();
+            }
+            return isStackValidFilter(cloneStack);
         }
         var tool = getTool();
         for (var drop : Block.getDrops(state, (net.minecraft.server.level.ServerLevel) level, pos,

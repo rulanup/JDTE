@@ -52,9 +52,11 @@ class ExtendedJdtMachineBehaviorTest {
         assertEquals(transmitterId, JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.getId());
         assertEquals(transmitterId, JDTEMenus.EXTENDED_ENERGY_TRANSMITTER.getId());
 
-        assertInstanceOf(AdvancedEnergyTransmitterBE.class,
-                JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get().newBlockEntity(
-                        BlockPos.ZERO, JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get().defaultBlockState()));
+        var advancedEntity = JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get().newBlockEntity(
+                BlockPos.ZERO, JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get().defaultBlockState());
+        assertInstanceOf(AdvancedEnergyTransmitterBE.class, advancedEntity);
+        AdvancedEnergyTransmitterBE advanced = (AdvancedEnergyTransmitterBE) advancedEntity;
+        assertFalse(advanced.hasConfiguredFilter());
     }
 
     @Test

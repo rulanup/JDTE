@@ -13,6 +13,7 @@ import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
@@ -48,7 +49,14 @@ public class ExtendedBlockSwapperBE extends BlockSwapperT1BE implements PoweredM
     public boolean isBlockPosValid(ServerLevel serverLevel, BlockPos pos) {
         if (!super.isBlockPosValid(serverLevel, pos)) return false;
         BlockState state = serverLevel.getBlockState(pos);
-        return state.isAir() || isStackValidFilter(state.getBlock().getCloneItemStack(serverLevel, pos, state));
+        if (state.isAir()) return true;
+        ItemStack cloneStack;
+        try {
+            cloneStack = state.getBlock().getCloneItemStack(serverLevel, pos, state);
+        } catch (Throwable t) {
+            cloneStack = state.getBlock().asItem().getDefaultInstance();
+        }
+        return isStackValidFilter(cloneStack);
     }
 
     @Override
