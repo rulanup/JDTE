@@ -134,6 +134,12 @@ public class JDTEBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedLifeExtractorBE>> EXTENDED_LIFE_EXTRACTOR = BLOCK_ENTITIES.register(
             "extended_life_extractor", () -> BlockEntityType.Builder.of(ExtendedLifeExtractorBE::new, JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get()).build(null));
 
+    // Bio Extractor
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedBioExtractorBE>> ADVANCED_BIO_EXTRACTOR = BLOCK_ENTITIES.register(
+            "advanced_bio_extractor", () -> BlockEntityType.Builder.of(AdvancedBioExtractorBE::new, JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedBioExtractorBE>> EXTENDED_BIO_EXTRACTOR = BLOCK_ENTITIES.register(
+            "extended_bio_extractor", () -> BlockEntityType.Builder.of(ExtendedBioExtractorBE::new, JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get()).build(null));
+
     // Infusion Machine
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedInfusionMachineBE>> ADVANCED_INFUSION_MACHINE = BLOCK_ENTITIES.register(
             "advanced_infusion_machine", () -> BlockEntityType.Builder.of(AdvancedInfusionMachineBE::new, JDTEBlocks.ADVANCED_INFUSION_MACHINE.get()).build(null));
@@ -155,4 +161,10 @@ public class JDTEBlockEntities {
     // Advanced Energy Transmitter
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedEnergyTransmitterBE>> ADVANCED_ENERGY_TRANSMITTER = BLOCK_ENTITIES.register(
             "advanced_energy_transmitter", () -> BlockEntityType.Builder.of(AdvancedEnergyTransmitterBE::new, JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get()).build(null));
+
+    // Fluid Mixer
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedFluidMixerBE>> ADVANCED_FLUID_MIXER = BLOCK_ENTITIES.register(
+            "advanced_fluid_mixer", () -> BlockEntityType.Builder.of(AdvancedFluidMixerBE::new, JDTEBlocks.ADVANCED_FLUID_MIXER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedFluidMixerBE>> EXTENDED_FLUID_MIXER = BLOCK_ENTITIES.register(
+            "extended_fluid_mixer", () -> BlockEntityType.Builder.of(ExtendedFluidMixerBE::new, JDTEBlocks.EXTENDED_FLUID_MIXER.get()).build(null));
 }

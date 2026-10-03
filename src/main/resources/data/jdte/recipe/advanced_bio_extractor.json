@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": { "item": "jdte:advanced_life_extractor" },
+    "S": { "item": "minecraft:shears" },
+    "B": { "item": "minecraft:bucket" },
+    "D": { "item": "minecraft:diamond" },
+    "R": { "item": "minecraft:redstone_block" }
+  },
+  "pattern": [
+    "SDB",
+    "RER",
+    "BDS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_bio_extractor"
+  }
+}

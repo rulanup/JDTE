@@ -61,4 +61,28 @@ public class JDTERecipes {
 
     public static final Supplier<com.jdte.common.recipes.UltimateTimeWandUpgradeRecipe.Serializer> ULTIMATE_TIME_WAND_UPGRADE_RECIPE_SERIALIZER =
             RECIPE_SERIALIZERS.register("ultimate_time_wand_entity_upgrade", com.jdte.common.recipes.UltimateTimeWandUpgradeRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<com.jdte.common.recipes.FluidMixerRecipe>> FLUID_MIXER_RECIPE_TYPE = RECIPE_TYPES.register(
+            "fluid_mixer", () -> RecipeType.simple(com.jdte.JDTE.id("fluid_mixer")));
+
+    public static final Supplier<com.jdte.common.recipes.FluidMixerRecipe.Serializer> FLUID_MIXER_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
+            "fluid_mixer", com.jdte.common.recipes.FluidMixerRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<com.jdte.common.recipes.LootFabricatorRecipe>> LOOT_FABRICATOR_RECIPE_TYPE = RECIPE_TYPES.register(
+            "loot_fabricator", () -> RecipeType.simple(com.jdte.JDTE.id("loot_fabricator")));
+
+    public static final Supplier<com.jdte.common.recipes.LootFabricatorRecipe.Serializer> LOOT_FABRICATOR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
+            "loot_fabricator", com.jdte.common.recipes.LootFabricatorRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<com.jdte.common.recipes.LifeExtractorRecipe>> LIFE_EXTRACTOR_RECIPE_TYPE = RECIPE_TYPES.register(
+            "life_extractor", () -> RecipeType.simple(com.jdte.JDTE.id("life_extractor")));
+
+    public static final Supplier<com.jdte.common.recipes.LifeExtractorRecipe.Serializer> LIFE_EXTRACTOR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
+            "life_extractor", com.jdte.common.recipes.LifeExtractorRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<com.jdte.common.recipes.BioExtractorRecipe>> BIO_EXTRACTOR_RECIPE_TYPE = RECIPE_TYPES.register(
+            "bio_extractor", () -> RecipeType.simple(com.jdte.JDTE.id("bio_extractor")));
+
+    public static final Supplier<com.jdte.common.recipes.BioExtractorRecipe.Serializer> BIO_EXTRACTOR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
+            "bio_extractor", com.jdte.common.recipes.BioExtractorRecipe.Serializer::new);
 }

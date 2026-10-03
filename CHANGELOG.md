@@ -2,7 +2,16 @@
 
 ### English
 
-#### v0.6.1.0 (Current) — 2026-10-01
+#### v0.6.2.0 (Current) — 2026-10-03
+
+Feature and maintenance release introducing Bio Extractor machines, Fluid Mixer GUI redesign and documentation, Advanced Upgrade Storage multi-item pagination, and dependency decoupling fixes, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.2.0 release notes](docs/releases/0.6.2.0.md).
+
+- **Bio Extractors (`jdte:advanced_bio_extractor`, `jdte:extended_bio_extractor`)**: Machines that consume FE to automatically extract drops and fluids from living entities within range (e.g., cow milking into internal tanks, sheep shearing retaining fleece dye colors, chicken eggs, squid ink), featuring entity cooldown tracking, ghost filter support, and overclock/underclock speed scaling.
+- **Fluid Mixer UI & Recipe Overhaul (`jdte:fluid_mixer`)**: Completely redesigned machine screen with streamlined central progress arrow (`mixer_arrow.png`), top-centered catalyst slot at `(94, 14)`, clear tooltips for Input Tank A/B and Output Tank, updated JEI recipe viewer alignment, and full Patchouli and GuideME documentation entries.
+- **Advanced Upgrade Storage Pagination**: Added interactive footer pager controls `[ < ]  X / Y  [ > ]` to the docked side-panel when carrying multiple Advanced Upgrade Storages across inventory and Curios slots, enabling quick switching between cases; Shift-clicking from machine slots cascades into subsequent storages when the current one is full.
+- **Ultimate Time Wand DYNA Decoupling Fix**: Fixed an issue where the Ultimate Time Wand failed to function properly when JustDynaThings was not installed.
+
+#### v0.6.1.0 — 2026-10-01
 
 Feature release introducing the Advanced Upgrade Storage with interactive machine panel docking, Entity Acceleration Upgrade for the Ultimate Time Wand, and Advanced and Extended Entity Accelerators, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.1.0 release notes](docs/releases/0.6.1.0.md).
 
@@ -328,7 +337,16 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.1.0（当前）— 2026-10-01
+#### v0.6.2.0（当前）— 2026-10-03
+
+引入生物提取器系列、流体混合器界面与文档重构、高级升级存储器多物品翻页支持与依赖解耦修复的功能与维护更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.2.0 发布说明](docs/releases/0.6.2.0.md)。
+
+- **生物提取器与扩展生物提取器 (`jdte:advanced_bio_extractor`, `jdte:extended_bio_extractor`)**：消耗 FE 能量对设定范围内的生物实体（如牛挤奶、剪羊毛保留染色、鸡产蛋、鱿鱼墨囊等）进行生物产物与流体提取，内置实体冷却机制与幽灵刷怪蛋过滤支持，可用扩展升级卡进行方块升级。
+- **流体混合器界面与配方重构 (`jdte:fluid_mixer`)**：重绘混合器 GUI 界面与进度指示箭头（`mixer_arrow.png`），将催化剂槽位优化至中心正上方垂直对齐，提供明确的左右输入罐与产物罐悬停提示，同步对齐 JEI 配方显示与点击区域，并补全 Patchouli 与 GuideME 手册条目。
+- **高级升级存储器多物品翻页支持**：当玩家背包或饰品栏中携带多个高级升级存储器时，机器侧栏面板底部新增翻页控制控件 `[ < ]  X / Y  [ > ]`，支持即时切换不同存储器；机器升级槽 Shift-点击向存储器转移升级卡时，当前存储器满载会自动顺延存入下一个未满的存储器。
+- **顶级时间手杖 DYNA 解耦修复**：修复在未安装 JustDynaThings 时顶级时间手杖无法正常使用的依赖问题。
+
+#### v0.6.1.0 — 2026-10-01
 
 引入高级升级存储器与机器面板侧栏吸附、时间手杖实体加速升级、以及高级与扩展实体加速器的功能更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.1.0 发布说明](docs/releases/0.6.1.0.md)。
 

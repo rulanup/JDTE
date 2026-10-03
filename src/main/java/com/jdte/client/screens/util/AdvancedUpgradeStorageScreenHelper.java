@@ -11,6 +11,8 @@ import com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler;
 import com.jdte.common.items.AdvancedUpgradeStorageItem;
 import com.jdte.common.items.EnergyBrewingUpgradeItem;
 import com.jdte.common.items.EnergyOverloadUpgradeItem;
+import com.jdte.common.items.MixingUpgradeItem;
+import com.jdte.common.blockentities.FluidMixerBE;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
@@ -51,8 +53,10 @@ public final class AdvancedUpgradeStorageScreenHelper {
     public static final int PANEL_WIDTH = PANEL_PADDING * 2 + COLUMNS * SLOT_SIZE; // 120
     public static final int PANEL_HEIGHT = HEADER_HEIGHT + ROWS * SLOT_SIZE + PANEL_PADDING; // 130
     public static final int TAB_SIZE = 22;
+    public static final int FOOTER_HEIGHT = 16;
 
     private static boolean expanded = true;
+    private static int currentStorageIndex = 0;
     private static ItemStack cachedIconStack = ItemStack.EMPTY;
 
     private AdvancedUpgradeStorageScreenHelper() {
@@ -64,6 +68,18 @@ public final class AdvancedUpgradeStorageScreenHelper {
 
     public static void setExpanded(boolean state) {
         expanded = state;
+    }
+
+    public static int getCurrentStorageIndex() {
+        return currentStorageIndex;
+    }
+
+    public static void setCurrentStorageIndex(int index) {
+        currentStorageIndex = index;
+    }
+
+    public static int getPanelHeight(int totalStorages) {
+        return PANEL_HEIGHT + (totalStorages > 1 ? FOOTER_HEIGHT : 0);
     }
 
     private static ItemStack getIconStack() {
@@ -78,15 +94,15 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (player == null) {
             return null;
         }
-        ItemStack storageStack = AdvancedUpgradeStorageItem.findStorage(player);
-        if (storageStack.isEmpty()) {
+        List<ItemStack> storages = AdvancedUpgradeStorageItem.findAllStorages(player);
+        if (storages.isEmpty()) {
             return null;
         }
 
         int upgradeSlots = UpgradeSlotStorage.getUpgradeSlots(screen.getMenu());
         int[] pos = calculatePosition(screen, upgradeSlots);
         int w = expanded ? PANEL_WIDTH : TAB_SIZE;
-        int h = expanded ? PANEL_HEIGHT : TAB_SIZE;
+        int h = expanded ? getPanelHeight(storages.size()) : TAB_SIZE;
         return new Rect2i(pos[0], pos[1], w, h);
     }
 
@@ -110,10 +126,18 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (player == null) {
             return;
         }
-        ItemStack storageStack = AdvancedUpgradeStorageItem.findStorage(player);
-        if (storageStack.isEmpty()) {
+        List<ItemStack> storages = AdvancedUpgradeStorageItem.findAllStorages(player);
+        if (storages.isEmpty()) {
             return;
         }
+        int totalStorages = storages.size();
+        if (currentStorageIndex >= totalStorages) {
+            currentStorageIndex = Math.max(0, totalStorages - 1);
+        }
+        if (currentStorageIndex < 0) {
+            currentStorageIndex = 0;
+        }
+        ItemStack storageStack = storages.get(currentStorageIndex);
 
         int upgradeSlots = UpgradeSlotStorage.getUpgradeSlots(screen.getMenu());
         int[] pos = calculatePosition(screen, upgradeSlots);
@@ -131,7 +155,8 @@ public final class AdvancedUpgradeStorageScreenHelper {
         }
 
         // Draw main panel background
-        guiGraphics.blitSprite(socialBackground, panelX, panelY, PANEL_WIDTH, PANEL_HEIGHT);
+        int panelHeight = getPanelHeight(totalStorages);
+        guiGraphics.blitSprite(socialBackground, panelX, panelY, PANEL_WIDTH, panelHeight);
 
         // Header icon, title, and collapse button
         guiGraphics.renderItem(getIconStack(), panelX + 3, panelY);
@@ -180,6 +205,34 @@ public final class AdvancedUpgradeStorageScreenHelper {
                 }
             }
         }
+
+        // Pagination footer
+        if (totalStorages > 1) {
+            int footerY = startY + ROWS * SLOT_SIZE + 2;
+            int btnW = 12;
+            int btnH = 12;
+            int prevX = panelX + 16;
+            int nextX = panelX + PANEL_WIDTH - 16 - btnW;
+
+            boolean prevDisabled = (currentStorageIndex <= 0);
+            boolean prevHovered = !prevDisabled && MiscTools.inBounds(prevX, footerY, btnW, btnH, mouseX, mouseY);
+            int prevBg = prevDisabled ? 0x30222222 : (prevHovered ? 0x80555555 : 0x50333333);
+            int prevFg = prevDisabled ? 0x666666 : (prevHovered ? 0xFFFFFF : 0xCCCCCC);
+            guiGraphics.fill(prevX, footerY, prevX + btnW, footerY + btnH, prevBg);
+            guiGraphics.drawString(font, "<", prevX + 3, footerY + 2, prevFg, false);
+
+            String pageStr = (currentStorageIndex + 1) + " / " + totalStorages;
+            int textW = font.width(pageStr);
+            int textX = panelX + (PANEL_WIDTH - textW) / 2;
+            guiGraphics.drawString(font, pageStr, textX, footerY + 2, 0xFFE080, false);
+
+            boolean nextDisabled = (currentStorageIndex >= totalStorages - 1);
+            boolean nextHovered = !nextDisabled && MiscTools.inBounds(nextX, footerY, btnW, btnH, mouseX, mouseY);
+            int nextBg = nextDisabled ? 0x30222222 : (nextHovered ? 0x80555555 : 0x50333333);
+            int nextFg = nextDisabled ? 0x666666 : (nextHovered ? 0xFFFFFF : 0xCCCCCC);
+            guiGraphics.fill(nextX, footerY, nextX + btnW, footerY + btnH, nextBg);
+            guiGraphics.drawString(font, ">", nextX + 3, footerY + 2, nextFg, false);
+        }
     }
 
     public static void renderTooltip(GuiGraphics guiGraphics, BaseMachineScreen<?> screen, Font font, int mouseX, int mouseY) {
@@ -187,10 +240,18 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (player == null) {
             return;
         }
-        ItemStack storageStack = AdvancedUpgradeStorageItem.findStorage(player);
-        if (storageStack.isEmpty()) {
+        List<ItemStack> storages = AdvancedUpgradeStorageItem.findAllStorages(player);
+        if (storages.isEmpty()) {
             return;
         }
+        int totalStorages = storages.size();
+        if (currentStorageIndex >= totalStorages) {
+            currentStorageIndex = Math.max(0, totalStorages - 1);
+        }
+        if (currentStorageIndex < 0) {
+            currentStorageIndex = 0;
+        }
+        ItemStack storageStack = storages.get(currentStorageIndex);
 
         int upgradeSlots = UpgradeSlotStorage.getUpgradeSlots(screen.getMenu());
         int[] pos = calculatePosition(screen, upgradeSlots);
@@ -211,13 +272,29 @@ public final class AdvancedUpgradeStorageScreenHelper {
             return;
         }
 
+        int startX = panelX + PANEL_PADDING;
+        int startY = panelY + HEADER_HEIGHT;
+
+        if (totalStorages > 1) {
+            int footerY = startY + ROWS * SLOT_SIZE + 2;
+            int btnW = 12;
+            int btnH = 12;
+            int prevX = panelX + 16;
+            int nextX = panelX + PANEL_WIDTH - 16 - btnW;
+            if (MiscTools.inBounds(prevX, footerY, btnW, btnH, mouseX, mouseY) && currentStorageIndex > 0) {
+                guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.advanced_upgrade_storage.prev_page"), mouseX, mouseY);
+                return;
+            }
+            if (MiscTools.inBounds(nextX, footerY, btnW, btnH, mouseX, mouseY) && currentStorageIndex < totalStorages - 1) {
+                guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.advanced_upgrade_storage.next_page"), mouseX, mouseY);
+                return;
+            }
+        }
+
         AdvancedUpgradeStorageHandler storageHandler = new AdvancedUpgradeStorageHandler(storageStack);
         BaseMachineBE baseMachineBE = screen.getMenu().baseMachineBE;
         ItemStack carried = screen.getMenu().getCarried();
         boolean hasAllowedCarried = !carried.isEmpty() && UpgradeStorageItem.isAllowedUpgrade(carried);
-
-        int startX = panelX + PANEL_PADDING;
-        int startY = panelY + HEADER_HEIGHT;
 
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLUMNS; c++) {
@@ -285,10 +362,18 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (player == null) {
             return false;
         }
-        ItemStack storageStack = AdvancedUpgradeStorageItem.findStorage(player);
-        if (storageStack.isEmpty()) {
+        List<ItemStack> storages = AdvancedUpgradeStorageItem.findAllStorages(player);
+        if (storages.isEmpty()) {
             return false;
         }
+        int totalStorages = storages.size();
+        if (currentStorageIndex >= totalStorages) {
+            currentStorageIndex = Math.max(0, totalStorages - 1);
+        }
+        if (currentStorageIndex < 0) {
+            currentStorageIndex = 0;
+        }
+        ItemStack storageStack = storages.get(currentStorageIndex);
 
         int upgradeSlots = UpgradeSlotStorage.getUpgradeSlots(screen.getMenu());
         int[] pos = calculatePosition(screen, upgradeSlots);
@@ -315,6 +400,29 @@ public final class AdvancedUpgradeStorageScreenHelper {
         int startX = panelX + PANEL_PADDING;
         int startY = panelY + HEADER_HEIGHT;
 
+        // Footer pagination clicks
+        if (totalStorages > 1) {
+            int footerY = startY + ROWS * SLOT_SIZE + 2;
+            int btnW = 12;
+            int btnH = 12;
+            int prevX = panelX + 16;
+            int nextX = panelX + PANEL_WIDTH - 16 - btnW;
+            if (MiscTools.inBounds(prevX, footerY, btnW, btnH, mouseX, mouseY)) {
+                if (currentStorageIndex > 0) {
+                    currentStorageIndex--;
+                    playClickSound();
+                    return true;
+                }
+            }
+            if (MiscTools.inBounds(nextX, footerY, btnW, btnH, mouseX, mouseY)) {
+                if (currentStorageIndex < totalStorages - 1) {
+                    currentStorageIndex++;
+                    playClickSound();
+                    return true;
+                }
+            }
+        }
+
         if (MiscTools.inBounds(startX, startY, COLUMNS * SLOT_SIZE, ROWS * SLOT_SIZE, mouseX, mouseY)) {
             int col = (int) (mouseX - startX) / SLOT_SIZE;
             int row = (int) (mouseY - startY) / SLOT_SIZE;
@@ -328,7 +436,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
                     int action = (button == 1)
                             ? AdvancedUpgradeStorageActionPayload.ACTION_DEPOSIT_CURSOR_ONE
                             : AdvancedUpgradeStorageActionPayload.ACTION_DEPOSIT_CURSOR;
-                    PacketDistributor.sendToServer(new AdvancedUpgradeStorageActionPayload(action, slotIndex));
+                    PacketDistributor.sendToServer(new AdvancedUpgradeStorageActionPayload(action, slotIndex, currentStorageIndex));
                     playClickSound();
                     return true;
                 }
@@ -344,7 +452,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
                                 ? AdvancedUpgradeStorageActionPayload.ACTION_PICKUP_CURSOR
                                 : AdvancedUpgradeStorageActionPayload.ACTION_INSERT_ONE;
                     }
-                    PacketDistributor.sendToServer(new AdvancedUpgradeStorageActionPayload(action, slotIndex));
+                    PacketDistributor.sendToServer(new AdvancedUpgradeStorageActionPayload(action, slotIndex, currentStorageIndex));
                     playClickSound();
                     return true;
                 }
@@ -352,7 +460,8 @@ public final class AdvancedUpgradeStorageScreenHelper {
             return true;
         }
 
-        return MiscTools.inBounds(panelX, panelY, PANEL_WIDTH, PANEL_HEIGHT, mouseX, mouseY);
+        int panelHeight = getPanelHeight(totalStorages);
+        return MiscTools.inBounds(panelX, panelY, PANEL_WIDTH, panelHeight, mouseX, mouseY);
     }
 
     private static void playClickSound() {
@@ -436,6 +545,9 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (stack.getItem() instanceof EnergyBrewingUpgradeItem) {
             return (machine instanceof AdvancedPotionBrewerBE brewer && brewer.hasEnergyBrewingUpgrade()) ? 1 : 0;
         }
+        if (stack.getItem() instanceof MixingUpgradeItem) {
+            return UpgradeHelper.hasMixingUpgrade(machine) ? 1 : 0;
+        }
         if (stack.getItem() instanceof LootingUpgradeItem) {
             if (machine instanceof BioCrusherBE crusher) {
                 int count = 0;
@@ -473,6 +585,9 @@ public final class AdvancedUpgradeStorageScreenHelper {
         }
         if (stack.getItem() instanceof EnergyBrewingUpgradeItem) {
             return (machine instanceof AdvancedPotionBrewerBE) ? 1 : 0;
+        }
+        if (stack.getItem() instanceof MixingUpgradeItem) {
+            return (machine instanceof FluidMixerBE) ? 1 : 0;
         }
         if (stack.getItem() instanceof LootingUpgradeItem) {
             if (machine instanceof BioCrusherBE) {

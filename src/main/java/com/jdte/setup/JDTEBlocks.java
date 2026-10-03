@@ -83,6 +83,10 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, AdvancedLifeExtractorBlock> ADVANCED_LIFE_EXTRACTOR = BLOCKS.register("advanced_life_extractor", AdvancedLifeExtractorBlock::new);
     public static final DeferredHolder<Block, ExtendedLifeExtractorBlock> EXTENDED_LIFE_EXTRACTOR = BLOCKS.register("extended_life_extractor", ExtendedLifeExtractorBlock::new);
 
+    // Bio Extractor
+    public static final DeferredHolder<Block, AdvancedBioExtractorBlock> ADVANCED_BIO_EXTRACTOR = BLOCKS.register("advanced_bio_extractor", AdvancedBioExtractorBlock::new);
+    public static final DeferredHolder<Block, ExtendedBioExtractorBlock> EXTENDED_BIO_EXTRACTOR = BLOCKS.register("extended_bio_extractor", ExtendedBioExtractorBlock::new);
+
     // Infusion Machine
     public static final DeferredHolder<Block, AdvancedInfusionMachineBlock> ADVANCED_INFUSION_MACHINE = BLOCKS.register("advanced_infusion_machine", AdvancedInfusionMachineBlock::new);
     public static final DeferredHolder<Block, ExtendedInfusionMachineBlock> EXTENDED_INFUSION_MACHINE = BLOCKS.register("extended_infusion_machine", ExtendedInfusionMachineBlock::new);
@@ -97,4 +101,8 @@ public class JDTEBlocks {
 
     // Advanced Energy Transmitter
     public static final DeferredHolder<Block, AdvancedEnergyTransmitterBlock> ADVANCED_ENERGY_TRANSMITTER = BLOCKS.register("advanced_energy_transmitter", AdvancedEnergyTransmitterBlock::new);
+
+    // Fluid Mixer
+    public static final DeferredHolder<Block, AdvancedFluidMixerBlock> ADVANCED_FLUID_MIXER = BLOCKS.register("advanced_fluid_mixer", AdvancedFluidMixerBlock::new);
+    public static final DeferredHolder<Block, ExtendedFluidMixerBlock> EXTENDED_FLUID_MIXER = BLOCKS.register("extended_fluid_mixer", ExtendedFluidMixerBlock::new);
 }

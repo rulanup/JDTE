@@ -11,6 +11,9 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.jdte.common.items.EnergyBrewingUpgradeItem;
 import com.jdte.common.items.EnergyOverloadUpgradeItem;
+import com.jdte.common.items.MixingUpgradeItem;
+import com.jdte.common.blockentities.BioExtractorBE;
+import com.jdte.common.blockentities.FluidMixerBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.jdte.common.blockentities.AdvancedItemCollectorBE;
@@ -74,7 +77,21 @@ public class UpgradeHelper {
         return stack.getItem() instanceof UpgradeCardItem
                 || isSmelterUpgrade(stack)
                 || isEnergyOverloadUpgrade(stack)
-                || isEnergyBrewingUpgrade(stack);
+                || isEnergyBrewingUpgrade(stack)
+                || isMixingUpgrade(stack);
+    }
+
+    public static boolean isMixingUpgrade(ItemStack stack) {
+        return stack.getItem() instanceof MixingUpgradeItem;
+    }
+
+    public static boolean hasMixingUpgrade(BaseMachineBE machine) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return false;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (isMixingUpgrade(handler.getStackInSlot(slot))) return true;
+        }
+        return false;
     }
 
     public static boolean isEnergyBrewingUpgrade(ItemStack stack) {
@@ -171,6 +188,19 @@ public class UpgradeHelper {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
                     || type == UpgradeType.CAPACITY || type == UpgradeType.OVERCLOCK
                     || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
+        }
+        if (machine instanceof BioExtractorBE) {
+            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.UNDERCLOCK
+                    || type == UpgradeType.RANGE || type == UpgradeType.FILTER
+                    || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ
+                    || type == UpgradeType.AE_OUTPUT;
+        }
+        if (machine instanceof FluidMixerBE) {
+            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.UNDERCLOCK
+                    || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ
+                    || type == UpgradeType.AE_OUTPUT;
         }
         return switch (type) {
             case FLUID_STORAGE -> machine instanceof ClickerT1BE;

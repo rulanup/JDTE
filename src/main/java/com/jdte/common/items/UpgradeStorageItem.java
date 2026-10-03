@@ -53,6 +53,9 @@ public class UpgradeStorageItem extends Item {
         if (item instanceof EnergyOverloadUpgradeItem) {
             return true;
         }
+        if (item instanceof MixingUpgradeItem) {
+            return true;
+        }
         if (item instanceof AEExtractionUpgradeItem) {
             return true;
         }

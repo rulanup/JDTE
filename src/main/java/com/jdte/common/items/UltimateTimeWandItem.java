@@ -193,7 +193,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
                                 List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("justdynathings.advanced_time_wand"));
+        tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand").withStyle(ChatFormatting.GRAY));
         if (hasEntityAcceleration(stack)) {
             tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.entity_acceleration_installed")
                     .withStyle(ChatFormatting.GOLD));
@@ -262,7 +262,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 line.append(Component.literal(" | ").withStyle(ChatFormatting.GRAY));
             }
             UltimateTimeWandData.Mode mode = modes[index];
-            line.append(Component.translatable("justdynathings.advanced_time_wand.mode." + mode.serializedName())
+            line.append(Component.translatable("tooltip.jdte.ultimate_time_wand.mode." + mode.serializedName())
                     .withStyle(mode == activeMode ? ChatFormatting.GREEN : ChatFormatting.GRAY));
         }
         return line.append(Component.literal(" ]").withStyle(ChatFormatting.GRAY));

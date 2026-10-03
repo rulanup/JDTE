@@ -18,4 +18,11 @@ public final class AdvancedUpgradeStorageCuriosSources {
         }
         return ItemStack.EMPTY;
     }
+
+    public static java.util.List<ItemStack> findAll(Player player, Predicate<ItemStack> predicate) {
+        if (CURIOS_AVAILABLE) {
+            return AdvancedUpgradeStorageCuriosIntegration.findAll(player, predicate);
+        }
+        return java.util.List.of();
+    }
 }

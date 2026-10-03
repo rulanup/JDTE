@@ -25,6 +25,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.SHARPNESS_UPGRADE.get());
                 output.accept(JDTEItems.ENERGY_BREWING_UPGRADE.get());
                 output.accept(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get());
+                output.accept(JDTEItems.MIXING_UPGRADE.get());
                 output.accept(JDTEItems.AE_OUTPUT_UPGRADE.get());
                 output.accept(JDTEItems.AE_EXTRACTION_UPGRADE.get());
                 output.accept(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
@@ -122,6 +123,10 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.LIFE_APPLE.get());
                 output.accept(JDTEFluids.LIFE_FLUID_BUCKET.get());
 
+                // Bio Extractor
+                output.accept(JDTEItems.ADVANCED_BIO_EXTRACTOR.get());
+                output.accept(JDTEItems.EXTENDED_BIO_EXTRACTOR.get());
+
                 // Infusion Machine
                 output.accept(JDTEItems.ADVANCED_INFUSION_MACHINE.get());
                 output.accept(JDTEItems.EXTENDED_INFUSION_MACHINE.get());
@@ -134,6 +139,10 @@ public class JDTECreativeTabs {
 
                 // Advanced Energy Transmitter
                 output.accept(JDTEItems.ADVANCED_ENERGY_TRANSMITTER.get());
+
+                // Fluid Mixer
+                output.accept(JDTEItems.ADVANCED_FLUID_MIXER.get());
+                output.accept(JDTEItems.EXTENDED_FLUID_MIXER.get());
 
                 // Boss Essences
                 output.accept(JDTEItems.WITHER_ESSENCE.get());

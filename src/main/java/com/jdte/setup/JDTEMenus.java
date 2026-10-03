@@ -144,6 +144,12 @@ public class JDTEMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedLifeExtractorContainer>> EXTENDED_LIFE_EXTRACTOR = MENUS.register(
             "extended_life_extractor", () -> IMenuTypeExtension.create(ExtendedLifeExtractorContainer::new));
 
+    // Bio Extractor
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedBioExtractorContainer>> ADVANCED_BIO_EXTRACTOR = MENUS.register(
+            "advanced_bio_extractor", () -> IMenuTypeExtension.create(AdvancedBioExtractorContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedBioExtractorContainer>> EXTENDED_BIO_EXTRACTOR = MENUS.register(
+            "extended_bio_extractor", () -> IMenuTypeExtension.create(ExtendedBioExtractorContainer::new));
+
     // Infusion Machine
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedInfusionMachineContainer>> ADVANCED_INFUSION_MACHINE = MENUS.register(
             "advanced_infusion_machine", () -> IMenuTypeExtension.create(AdvancedInfusionMachineContainer::new));
@@ -165,4 +171,10 @@ public class JDTEMenus {
     // Advanced Energy Transmitter
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedEnergyTransmitterContainer>> ADVANCED_ENERGY_TRANSMITTER = MENUS.register(
             "advanced_energy_transmitter", () -> IMenuTypeExtension.create(AdvancedEnergyTransmitterContainer::new));
+
+    // Fluid Mixer
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedFluidMixerContainer>> ADVANCED_FLUID_MIXER = MENUS.register(
+            "advanced_fluid_mixer", () -> IMenuTypeExtension.create(AdvancedFluidMixerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExtendedFluidMixerContainer>> EXTENDED_FLUID_MIXER = MENUS.register(
+            "extended_fluid_mixer", () -> IMenuTypeExtension.create(ExtendedFluidMixerContainer::new));
 }

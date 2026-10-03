@@ -62,7 +62,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         areaAffectingData.xRadius = BASE_RADIUS;
         areaAffectingData.yRadius = BASE_RADIUS;
         areaAffectingData.zRadius = BASE_RADIUS;
-        fluidTank = new JDTEFluidTank(getMaxMB(), f -> f.is(JDTEFluids.LIFE_FLUID_SOURCE.get()));
+        fluidTank = new JDTEFluidTank(getMaxMB(), f -> true);
         fluidContainerData = new FluidContainerData(this);
         lifeExtractorData = new ContainerData() {
             @Override
@@ -163,6 +163,18 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
             float currentHealth = livingEntity.getHealth();
             if (currentHealth <= 0) continue;
 
+            com.jdte.common.recipes.LifeExtractorRecipe recipe = findRecipe(livingEntity);
+            if (recipe != null) {
+                FluidStack out = recipe.outputFluid();
+                if (fluidTank.fill(out, IFluidHandler.FluidAction.SIMULATE) < out.getAmount()) {
+                    continue;
+                }
+                fluidTank.fill(out, IFluidHandler.FluidAction.EXECUTE);
+                entity.discard();
+                processed++;
+                break;
+            }
+
             double fluidProduced = calculateLifeFluid(currentHealth) * getFluidBonusMultiplier();
             double loss = getFluidLossMultiplier();
             if (loss > 0) {
@@ -238,6 +250,17 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
             case MODE_ALL -> true;
             default -> false;
         };
+    }
+
+    public com.jdte.common.recipes.LifeExtractorRecipe findRecipe(LivingEntity entity) {
+        if (level == null) return null;
+        for (net.minecraft.world.item.crafting.RecipeHolder<com.jdte.common.recipes.LifeExtractorRecipe> holder :
+                level.getRecipeManager().getAllRecipesFor(com.jdte.setup.JDTERecipes.LIFE_EXTRACTOR_RECIPE_TYPE.get())) {
+            if (holder.value().matches(entity.getType())) {
+                return holder.value();
+            }
+        }
+        return null;
     }
 
     private boolean isHostileTarget(Entity entity) {

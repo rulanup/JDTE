@@ -8,6 +8,7 @@ import com.jdte.client.LootFabricatorLootClientCache;
 import com.jdte.common.utils.LootDropInfo;
 import com.jdte.common.content.JDTEContentControl;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -24,7 +25,8 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
                 || !control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "loot_fabricator"))) {
             return List.of();
         }
-        return LootFabricatorLootClientCache.get().entrySet().stream()
+        List<LootFabricatorJeiRecipe> list = new ArrayList<>();
+        list.addAll(LootFabricatorLootClientCache.get().entrySet().stream()
                 .map(entry -> {
                     ItemStack egg = BuiltInRegistries.ITEM.getOptional(entry.getKey()).map(ItemStack::new).orElse(ItemStack.EMPTY);
                     List<DisplayDrop> drops = entry.getValue().stream()
@@ -38,9 +40,51 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
                         .mapToObj(page -> new LootFabricatorJeiRecipe(recipe.spawnEgg(),
                                 List.copyOf(recipe.possibleDrops().subList(page * 16,
                                         Math.min(recipe.possibleDrops().size(), (page + 1) * 16))), page)))
+                .toList());
+
+        net.minecraft.world.item.crafting.RecipeManager rm = getRecipeManager();
+        if (rm != null) {
+            for (net.minecraft.world.item.crafting.RecipeHolder<com.jdte.common.recipes.LootFabricatorRecipe> holder :
+                    rm.getAllRecipesFor(com.jdte.setup.JDTERecipes.LOOT_FABRICATOR_RECIPE_TYPE.get())) {
+                com.jdte.common.recipes.LootFabricatorRecipe customRecipe = holder.value();
+                List<DisplayDrop> drops = customRecipe.outputs().stream()
+                        .map(out -> new DisplayDrop(out.stack(), (int) (out.chance() >= 1.0F ? out.stack().getCount() : 0),
+                                out.stack().getCount(),
+                                out.chance() >= 1.0F ? "100%" : String.format("%.0f%%", out.chance() * 100.0F)))
+                        .toList();
+                for (ItemStack inputStack : customRecipe.input().getItems()) {
+                    if (!inputStack.isEmpty() && !drops.isEmpty()) {
+                        int pageCount = (drops.size() + 15) / 16;
+                        for (int page = 0; page < pageCount; page++) {
+                            List<DisplayDrop> pageDrops = List.copyOf(drops.subList(page * 16, Math.min(drops.size(), (page + 1) * 16)));
+                            list.add(new LootFabricatorJeiRecipe(inputStack, pageDrops, page));
+                        }
+                    }
+                }
+            }
+        }
+
+        return list.stream()
                 .filter(recipe -> control.isRecipeEnabled(recipe.id()))
                 .sorted(Comparator.comparing(recipe -> BuiltInRegistries.ITEM.getKey(recipe.spawnEgg().getItem()).toString()))
                 .toList();
+    }
+
+    private static net.minecraft.world.item.crafting.RecipeManager getRecipeManager() {
+        try {
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc == null) {
+                return null;
+            }
+            if (mc.level != null) {
+                return mc.level.getRecipeManager();
+            }
+            if (mc.hasSingleplayerServer() && mc.getSingleplayerServer() != null) {
+                return mc.getSingleplayerServer().getRecipeManager();
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
     }
 
     private static java.util.Optional<DisplayDrop> toDisplayDrop(LootDropInfo drop) {

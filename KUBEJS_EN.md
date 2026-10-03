@@ -130,37 +130,144 @@ ServerEvents.recipes(event => {
 
 Optional fluid fields are `process_fluid`/`process_fluid_amount` for a culture or flowering fluid and `output_fluid`/`output_fluid_amount` for a fluid product. A recipe may have item outputs, a fluid output, or both. `chance` is between `0.0` and `1.0` and defaults to `1.0`. The legacy `food`/`food_count` fields are still accepted, but new scripts should use `inputs`.
 
-## 5. The Correct Loot Fabricator Approach
+## 5. Loot Fabricator Recipes
 
-Starting with pre6, the JEI preview is rebuilt from the server's live compiled loot tables on login and `/reload`. LootJS edits to table entries, including nested table changes and removed entries, are reflected without restarting the client. An empty live table remains empty instead of reviving its original resource JSON.
+Loot Fabricator supports two modes simultaneously:
+1. **Dynamic Loot Table Mode**: By default, automatically inspects server-side compiled entity loot tables to determine drops and probabilities.
+2. **KubeJS Custom Recipes (`jdte:loot_fabricator`)**: You can now define explicit loot recipes via `ServerEvents.recipes`, specifying custom input items/tags (such as spawn eggs or specialized cores), drop lists, fluids, and power:
 
-The preview statically identifies serializable entries. Arbitrary callbacks and global loot modifiers that run only during a loot roll cannot be fully represented. Non-serializable custom tables can fall back to their resource JSON; exact runtime drops remain authoritative. For the release's other scripting and automation changes, see the [0.6.0 release notes](docs/releases/0.6.0.md).
-
-Loot Fabricator has no `jdte:loot_fabricator` data recipe that can be added with `ServerEvents.recipes`. It reads server-side loot tables and synchronizes generated JEI entries to clients. To disable the whole dynamic category:
-
-```toml
-[jdte.lootFabricator]
-recipeGenerationEnabled = false
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:loot_fabricator',
+    input: { item: 'minecraft:zombie_spawn_egg' },
+    outputs: [
+      { item: { id: 'minecraft:rotten_flesh', count: 4 }, chance: 1.0 },
+      { item: { id: 'minecraft:iron_ingot', count: 1 }, chance: 0.25 }
+    ],
+    life_fluid: 20,
+    time_fluid: 1,
+    energy: 5000,
+    process_ticks: 20
+  }).id('my_pack:loot_fabricator/custom_zombie')
+})
 ```
 
-To hide one mob and all of its output pages instead:
+Field reference:
+- `input`: Input item (supports `{ item: '...' }` or `{ tag: '...' }`).
+- `outputs`: List of outputs with `item` (`id` and `count`) and `chance` (`0.0-1.0`).
+- `life_fluid`: Life Fluid consumed in mB per craft (default 20).
+- `time_fluid`: Time Fluid consumed in mB per craft (default 1).
+- `energy`: FE consumed per craft (default 5000).
+- `process_ticks`: Base craft time in ticks (default 20).
 
-```toml
-[jdte.content]
-disabledRecipes = [
-  "jdte:jei/loot_fabricator/minecraft/ender_dragon"
-]
+## 6. Bio Extractor Recipes
+
+The Advanced and Extended Bio Extractors scan for living entities within their configured area, extracting fluids (e.g. milk) or items (e.g. wool, feathers, eggs, ink sacs) while applying entity cooldowns and optional damage.
+
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:bio_extractor',
+    entity: 'minecraft:cow',
+    output_fluid: {
+      id: 'minecraft:milk',
+      amount: 1000
+    },
+    output_items: [],
+    energy: 5000,
+    cooldown: 600,
+    damage: 0.0
+  }).id('my_pack:bio_extractor/cow_milk')
+
+  // Example shearing wool (sheep sheared state is updated; regrows wool after grazing)
+  event.custom({
+    type: 'jdte:bio_extractor',
+    entity: 'minecraft:sheep',
+    output_items: [
+      { item: { id: 'minecraft:white_wool', count: 2 }, chance: 1.0 }
+    ],
+    energy: 3000,
+    cooldown: 1200,
+    damage: 0.0
+  }).id('my_pack:bio_extractor/sheep_wool')
+})
 ```
 
-Do not use `event.remove({ output: ... })` to remove Loot Fabricator dynamic JEI entries. That event only handles recipes that actually exist as loaded data resources.
+Field reference:
+- `entity`: Target entity ID (e.g. `'minecraft:cow'`).
+- `output_fluid`: Optional fluid output with `id` and `amount`.
+- `output_items`: Optional list of items with `item` (`id` and `count`) and `chance`.
+- `energy`: FE consumed per extraction.
+- `cooldown`: Cooldown ticks applied to the entity (600 = 30s).
+- `damage`: Damage dealt to the entity per extraction (float, default 0.0).
 
-## 6. Recommended Script Layout
+## 7. Infusion Machine and Life Extractor Recipes
+
+### Infusion Machine (`jdte:infusion`)
+Fully supports KubeJS recipes: removed mandatory `"id"` field constraints from the JSON codec, fully compatible with item tags and stack counts, and accurately reports result items to JEI:
+
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:infusion',
+    input: { tag: 'c:ingots/iron', count: 4 },
+    fluid_type: 'jdte:life_fluid_source',
+    fluid_amount: 500,
+    result: { id: 'minecraft:echo_shard', count: 1 },
+    energy: 10000,
+    time: 100
+  }).id('my_pack:infusion/iron_to_echo')
+})
+```
+
+### Life Extractor (`jdte:life_extractor`)
+Now supports custom recipes defining fluid and energy extraction for specific entities:
+
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:life_extractor',
+    entity: 'minecraft:warden',
+    fluid: { id: 'justdirethings:time_fluid_source', amount: 2000 },
+    energy: 50000,
+    process_ticks: 200,
+    damage: 10.0
+  }).id('my_pack:life_extractor/warden')
+})
+```
+
+## 8. Fluid Mixer Recipes
+
+The Fluid Mixer combines two input fluids and one item into an output fluid:
+
+```js
+ServerEvents.recipes(event => {
+  event.custom({
+    type: 'jdte:fluid_mixer',
+    fluid_input_a: { id: 'jdte:life_fluid_source', amount: 500 },
+    fluid_input_b: { id: 'minecraft:milk', amount: 500 },
+    item_input: {
+      ingredient: { item: 'minecraft:cactus' },
+      count: 1
+    },
+    output: { id: 'justdirethings:time_fluid_source', amount: 250 },
+    process_ticks: 100,
+    energy: 5000
+  }).id('my_pack:fluid_mixer/time_fluid')
+})
+```
+
+## 9. Recommended Script Layout
 
 ```text
 kubejs/
 └─ server_scripts/
    ├─ jdte_greenhouse.js
    ├─ jdte_bio_factory.js
+   ├─ jdte_bio_extractor.js
+   ├─ jdte_loot_fabricator.js
+   ├─ jdte_infusion.js
    └─ jdte_recipe_cleanup.js
 ```
 

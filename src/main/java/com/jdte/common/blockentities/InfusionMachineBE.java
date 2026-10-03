@@ -171,7 +171,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
         if (recipe != null) {
             return new InfusionProcess(
                     recipe.getOutput(),
-                    recipe.getInput().getCount(),
+                    recipe.getInputCount(),
                     recipe.getFluidInput().getAmount(),
                     recipe.getEnergyCost());
         }

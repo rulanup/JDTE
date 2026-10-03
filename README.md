@@ -2,9 +2,19 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.1.0`
+当前版本：`0.6.2.0`
 
 [English README](README_EN.md)
+
+## 0.6.2.0 更新
+
+功能与维护更新版本：
+- **高级生物提取器与扩展生物提取器 (`jdte:advanced_bio_extractor`, `jdte:extended_bio_extractor`)**：消耗 FE 能量对设定范围内的生物实体（如牛挤奶、羊剪羊毛保留羊毛染色、鸡产蛋、鱿鱼墨囊等）进行生物产物与流体提取，内置实体冷却跟踪机制与幽灵刷怪蛋过滤支持，可用扩展升级卡进行方块升级。
+- **流体混合器界面与配方重构 (`jdte:fluid_mixer`)**：重绘混合器 GUI 界面与进度指示箭头（`mixer_arrow.png`），将催化剂槽位优化至中心正上方垂直对齐，提供明确的左右输入罐与产物罐悬停提示，同步对齐 JEI 配方显示与点击区域，并补全 Patchouli 与 GuideME 手册条目。
+- **高级升级存储器多物品翻页支持**：当玩家背包或饰品栏中携带多个高级升级存储器时，机器侧栏面板底部新增翻页控制控件 `[ < ]  X / Y  [ > ]`，支持即时切换不同存储器；机器升级槽 Shift-点击向存储器转移升级卡时，当前存储器满载会自动顺延存入下一个未满的存储器。
+- **顶级时间手杖 DYNA 解耦修复**：修复在未安装 JustDynaThings 时顶级时间手杖无法正常使用的依赖问题。
+
+完整英文说明：[0.6.2.0 Release Notes](docs/releases/0.6.2.0.md)。
 
 ## 0.6.1.0 更新
 

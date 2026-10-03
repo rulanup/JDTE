@@ -1,0 +1,48 @@
+{
+  "name": "流体混合器",
+  "icon": "jdte:advanced_fluid_mixer",
+  "category": "jdte:biology_life",
+  "sortnum": 1550,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "流体混合器消耗 FE 能量，将两种输入流体（输入罐 A 与输入罐 B）以及可选的物品催化剂混合，合成输出目标流体。$(br2)原生支持数据包自定义配方（$(thing)jdte:fluid_mixer$()），在安装通用机械（Mekanism）模组时，还会自动读取并支持 Mekanism 的化学灌注机与颜料混合机配方。$(br2)$(bold)变体$()$(br2)$(bold)机器 | 升级槽 | 能量容量 | 储罐容量$()$(br)高级流体混合器 | 4+1 | 100,000 FE | 3 × 8,000 mB$(br)扩展流体混合器 | 8+1 | 200,000 FE | 3 × 8,000 mB"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)结构与布局$()$(br2)$(li)$(bold)输入罐 A（左侧）$()：基础容量 8,000 mB$(li)$(bold)输入罐 B（右侧）$()：基础容量 8,000 mB$(li)$(bold)物品催化剂槽（中间）$()：1 个物品槽，放置配方所需催化剂$(li)$(bold)输出罐（居中下方）$()：基础容量 8,000 mB，接收混合产物流体$(br2)$(bold)混合升级与并行$()$(br2)流体混合器拥有 1 个专属升级槽，可安装 $(bold)混合升级$()（上限 1 张）。安装后启用并行混合模式，单次处理会自动计算最大可用原料与空间，批量处理多倍配方产出。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_fluid_mixer",
+      "text": "高级流体混合器基础版本，拥有 4 个标准升级槽与 1 个专属混合升级槽。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_fluid_mixer"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_mixer",
+      "text": "扩展流体混合器，拥有 8 个标准升级槽。可通过扩展升级右键高级流体混合器获得。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_mixer"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:mixing_upgrade",
+      "text": "混合升级：仅流体混合器可用。启用并行混合模式，批量加速流体生产。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:mixing_upgrade"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_fluid_mixer": 2,
+    "jdte:extended_fluid_mixer": 4,
+    "jdte:mixing_upgrade": 6
+  }
+}

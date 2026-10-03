@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.1.0` |
+| Current version | `0.6.2.0` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
@@ -41,6 +41,7 @@ Major features:
 - Red-windowed 3×3×2 Life Synthesis Vat with one controller, 17 stateless structure parts, three data-driven recipe tiers, pending-queue backpressure, direct-neighbor distillation priority, Time Fluid doubling boost, and a client-rendered progress liquid column.
 - Factory Packer with UUID-backed portable packages, populated block entities, entity trees, scheduled ticks, horizontal rotation, internal-link remapping, cached actual-block previews, public AE2 move strategies, Logistics Networks node recovery, Mekanism fission-reactor quiescing and radioactive-transmitter preservation, dependent multiblock teardown handling, bounded live-source recapture, asynchronous compressed storage, rollback, restart recovery, and actionable blacklist reports.
 - Advanced and Extended Bio Crushers, Life Extractors, and Infusion Machines.
+- Advanced Bio Extractor (`jdte:advanced_bio_extractor`) and Extended Bio Extractor (`jdte:extended_bio_extractor`): machines that scan for living entities in a configured area and extract fluids (e.g. milk) and item drops (e.g. wool sheared with color retention, feathers, eggs, ink sacs) with entity cooldown tracking, optional entity damage, upgrade support, and data-driven recipes.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains, plus the dedicated Energy Brewing Upgrade (`jdte:energy_brewing_upgrade`, limit 1) that replaces Blaze Powder fuel with FE (`energyPerBlazePowder` per 20-brew charge, Creative-waived) and disables the fuel slot while installed.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
 - Mineral Survey snapshots, the Mineral Extractor, and the 3×3×2 Large Mineral Extractor, backed by a reload-built biome ore index, public-codec world-generation analysis, datapack overrides, fixed-point weighted batch production, dual fluids, smelting, filtering, paged outputs, and coalesced work up to 64x. The large tier merges four surveys and accumulates base work four times faster through one shared production pipeline.

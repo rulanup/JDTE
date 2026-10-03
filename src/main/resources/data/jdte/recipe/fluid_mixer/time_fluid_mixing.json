@@ -1,0 +1,23 @@
+{
+  "type": "jdte:fluid_mixer",
+  "fluid_input_a": {
+    "id": "jdte:life_fluid_source",
+    "amount": 500
+  },
+  "fluid_input_b": {
+    "id": "minecraft:milk",
+    "amount": 500
+  },
+  "item_input": {
+    "ingredient": {
+      "item": "minecraft:cactus"
+    },
+    "count": 1
+  },
+  "output": {
+    "id": "justdirethings:time_fluid_source",
+    "amount": 250
+  },
+  "process_ticks": 100,
+  "energy": 5000
+}

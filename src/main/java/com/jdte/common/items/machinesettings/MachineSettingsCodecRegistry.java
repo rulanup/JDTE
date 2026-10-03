@@ -116,6 +116,11 @@ public final class MachineSettingsCodecRegistry {
         register(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterBE.class,
                 JdteMachineSettingsCodecs.advancedEnergyTransmitter());
 
+        register(JDTEBlockEntities.ADVANCED_BIO_EXTRACTOR.get(), AdvancedBioExtractorBE.class);
+        register(JDTEBlockEntities.EXTENDED_BIO_EXTRACTOR.get(), ExtendedBioExtractorBE.class);
+        register(JDTEBlockEntities.ADVANCED_FLUID_MIXER.get(), AdvancedFluidMixerBE.class);
+        register(JDTEBlockEntities.EXTENDED_FLUID_MIXER.get(), ExtendedFluidMixerBE.class);
+
         register(Registration.ClickerT1BE.get(), ClickerT1BE.class, JdtMachineSettingsCodecs.clicker());
         register(Registration.ClickerT2BE.get(), ClickerT2BE.class, JdtMachineSettingsCodecs.clicker());
         register(Registration.DropperT1BE.get(), DropperT1BE.class, JdtMachineSettingsCodecs.dropper());

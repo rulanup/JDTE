@@ -2,7 +2,17 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.1.0`
+Current version: `0.6.2.0`
+
+## What's new in 0.6.2.0
+
+Feature & maintenance release:
+- **Advanced & Extended Bio Extractors (`jdte:advanced_bio_extractor`, `jdte:extended_bio_extractor`)**: Machines that consume FE to extract biological fluids and item drops (e.g. cow milking into internal tanks, sheep shearing with accurate dye colors, chicken eggs, squid ink) from living entities in a configured area. Includes entity cooldown management, ghost spawn egg filtering, and in-world tier conversion via Extended Upgrade cards.
+- **Fluid Mixer UI & Recipe Overhaul (`jdte:fluid_mixer`)**: Redesigned machine GUI with streamlined central progress arrow (`mixer_arrow.png`), relocated catalyst slot to `(94, 14)` for clean vertical alignment, explicit tooltips for Tank A/B/Output, fully aligned JEI recipe displays, and complete Patchouli & GuideME documentation.
+- **Advanced Upgrade Storage Multi-Storage Pagination**: When carrying multiple Advanced Upgrade Storages across inventory and Curios slots, the docked machine side-panel now features footer pagination controls `[ < ]  X / Y  [ > ]` for quick switching; Shift-clicking from machine slots cascades smoothly into subsequent storages when the current one is full.
+- **Ultimate Time Wand DYNA Decoupling Fix**: Resolved an issue where the Ultimate Time Wand failed to function properly when JustDynaThings was not installed.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.2.0.md).
 
 ## What's new in 0.6.1.0
 

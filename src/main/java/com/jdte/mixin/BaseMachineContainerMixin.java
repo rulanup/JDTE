@@ -97,8 +97,11 @@ public abstract class BaseMachineContainerMixin {
         ItemStack originalStack = currentStack.copy();
 
         if (fromUpgradeSlot) {
-            ItemStack advStorage = com.jdte.common.items.AdvancedUpgradeStorageItem.findStorage(player);
-            if (!advStorage.isEmpty()) {
+            java.util.List<ItemStack> advStorages = com.jdte.common.items.AdvancedUpgradeStorageItem.findAllStorages(player);
+            for (ItemStack advStorage : advStorages) {
+                if (currentStack.isEmpty()) {
+                    break;
+                }
                 com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler advHandler =
                         new com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler(advStorage);
                 ItemStack remainder = net.neoforged.neoforge.items.ItemHandlerHelper.insertItem(advHandler, currentStack, false);

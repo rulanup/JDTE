@@ -26,4 +26,22 @@ final class AdvancedUpgradeStorageCuriosIntegration {
                 })
                 .orElse(ItemStack.EMPTY);
     }
+
+    static java.util.List<ItemStack> findAll(Player player, Predicate<ItemStack> predicate) {
+        return CuriosApi.getCuriosInventory(player)
+                .map(handler -> {
+                    java.util.List<ItemStack> list = new java.util.ArrayList<>();
+                    for (var stacksHandler : handler.getCurios().values()) {
+                        var stacks = stacksHandler.getStacks();
+                        for (int slot = 0; slot < stacks.getSlots(); slot++) {
+                            ItemStack stack = stacks.getStackInSlot(slot);
+                            if (!stack.isEmpty() && predicate.test(stack)) {
+                                list.add(stack);
+                            }
+                        }
+                    }
+                    return list;
+                })
+                .orElse(java.util.List.of());
+    }
 }

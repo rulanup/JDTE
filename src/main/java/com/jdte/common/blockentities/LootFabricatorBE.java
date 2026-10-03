@@ -50,6 +50,11 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.fml.ModList;
 import com.jdte.mixin.FluidTankAccessor;
 
+import com.jdte.common.recipes.BioFactoryOutput;
+import com.jdte.common.recipes.LootFabricatorRecipe;
+import com.jdte.setup.JDTERecipes;
+import net.minecraft.world.item.crafting.RecipeHolder;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -230,8 +235,9 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             ItemStack stack = itemHandler.getStackInSlot(slot);
             costCacheInputs[slot] = stack.copy();
             cachedValidInputs[slot] = isSupportedLootTemplate(stack);
-            cachedLifeFluidCosts[slot] = stack.isEmpty() ? 0 : getEffectiveLifeFluidCost(stack);
-            cachedTimeFluidCostUnits[slot] = stack.isEmpty() ? 0 : getEffectiveTimeFluidCostUnits(stack);
+            LootFabricatorRecipe recipe = findRecipe(stack);
+            cachedLifeFluidCosts[slot] = stack.isEmpty() ? 0 : (recipe != null ? applyLootingFluidCostIncrease(recipe.lifeFluid(), getLootingLevel()) : getEffectiveLifeFluidCost(stack));
+            cachedTimeFluidCostUnits[slot] = stack.isEmpty() ? 0 : (recipe != null ? applyLootingFluidCostIncrease(recipe.timeFluid(), getLootingLevel()) : getEffectiveTimeFluidCostUnits(stack));
         }
     }
 
@@ -303,6 +309,19 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     }
 
     private List<ItemStack> rollLoot(ServerLevel level, ItemStack eggStack) {
+        LootFabricatorRecipe recipe = findRecipe(eggStack);
+        if (recipe != null) {
+            List<ItemStack> drops = new ArrayList<>();
+            double lootingMult = 1.0 + getLootingLevel() * 0.5;
+            for (BioFactoryOutput output : recipe.outputs()) {
+                ItemStack rolled = output.roll(level.random, lootingMult);
+                if (!rolled.isEmpty()) {
+                    drops.add(rolled);
+                }
+            }
+            return drops;
+        }
+        if (!(eggStack.getItem() instanceof SpawnEggItem)) return List.of();
         SpawnEggItem egg = (SpawnEggItem) eggStack.getItem();
         Entity entity = egg.getType(eggStack).create(level);
         if (!(entity instanceof LivingEntity living)) return List.of();
@@ -379,7 +398,19 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         return weapon;
     }
 
-    private static boolean isSupportedLootTemplate(ItemStack stack) {
+    public LootFabricatorRecipe findRecipe(ItemStack stack) {
+        if (level == null || stack.isEmpty()) return null;
+        for (RecipeHolder<LootFabricatorRecipe> holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.LOOT_FABRICATOR_RECIPE_TYPE.get())) {
+            if (holder.value().matches(stack)) {
+                return holder.value();
+            }
+        }
+        return null;
+    }
+
+    private boolean isSupportedLootTemplate(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        if (findRecipe(stack) != null) return true;
         if (!(stack.getItem() instanceof SpawnEggItem)) return false;
         return !BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(PRODUCTIVE_BEES_CONFIGURABLE_EGG);
     }

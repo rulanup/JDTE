@@ -1,0 +1,15 @@
+{
+  "type": "jdte:bio_extractor",
+  "entity": "minecraft:bee",
+  "output_items": [
+    {
+      "item": {
+        "id": "minecraft:honeycomb",
+        "count": 1
+      },
+      "chance": 0.5
+    }
+  ],
+  "energy": 3000,
+  "cooldown": 2400
+}

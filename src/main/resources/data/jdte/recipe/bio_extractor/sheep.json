@@ -1,0 +1,15 @@
+{
+  "type": "jdte:bio_extractor",
+  "entity": "minecraft:sheep",
+  "output_items": [
+    {
+      "item": {
+        "id": "minecraft:white_wool",
+        "count": 2
+      },
+      "chance": 1.0
+    }
+  ],
+  "energy": 3000,
+  "cooldown": 1200
+}

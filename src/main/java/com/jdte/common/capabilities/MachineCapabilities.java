@@ -166,6 +166,10 @@ public final class MachineCapabilities {
             (level, pos, state, be, side) -> be instanceof ExtendedBioCrusherBE crusher ? crusher.getOutputItemHandler() : null;
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> LIFE_EXTRACTOR_TANK =
             (level, pos, state, be, side) -> be instanceof LifeExtractorBE extractor ? extractor.getFluidTank() : null;
+    private static final IBlockCapabilityProvider<IFluidHandler, Direction> BIO_EXTRACTOR_TANK =
+            (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioExtractorBE extractor ? extractor.getFluidTank() : null;
+    private static final IBlockCapabilityProvider<IItemHandler, Direction> BIO_EXTRACTOR_ITEMS =
+            (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioExtractorBE extractor ? extractor.getAutomationItemHandler() : null;
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> INFUSION_MACHINE_TANK =
             (level, pos, state, be, side) -> be instanceof InfusionMachineBE infusion ? infusion.getFluidTank() : null;
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> LOOT_FABRICATOR_FLUID =
@@ -206,6 +210,8 @@ public final class MachineCapabilities {
     private static final IBlockCapabilityProvider<IFluidHandler, Direction> CLICKER_FLUID =
             (level, pos, state, be, side) -> be instanceof ClickerT1BE clicker && UpgradeHelper.hasFluidStorageUpgrade(clicker)
                     ? UpgradeHelper.getClickerFluidTank(clicker) : null;
+    private static final IBlockCapabilityProvider<IFluidHandler, Direction> FLUID_MIXER_FLUID =
+            (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.FluidMixerBE mixer ? mixer.getCombinedFluidHandler() : null;
 
     // ============================================================
     // 机器能力表：一行一台机器。energy/fluid/items 均为 null 表示无该能力。
@@ -277,6 +283,10 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.ADVANCED_LIFE_EXTRACTOR, energy(POWERED_ENERGY), fluid(LIFE_EXTRACTOR_TANK)),
             machine(JDTEBlocks.EXTENDED_LIFE_EXTRACTOR, energy(POWERED_ENERGY), fluid(LIFE_EXTRACTOR_TANK)),
 
+            // --- 生物提取机 ---
+            machine(JDTEBlocks.ADVANCED_BIO_EXTRACTOR, energy(POWERED_ENERGY), fluid(BIO_EXTRACTOR_TANK), items(BIO_EXTRACTOR_ITEMS)),
+            machine(JDTEBlocks.EXTENDED_BIO_EXTRACTOR, energy(POWERED_ENERGY), fluid(BIO_EXTRACTOR_TANK), items(BIO_EXTRACTOR_ITEMS)),
+
             // --- 注入机 ---
             machine(JDTEBlocks.ADVANCED_INFUSION_MACHINE, energy(POWERED_ENERGY), fluid(INFUSION_MACHINE_TANK), items(MACHINE_ITEMS)),
             machine(JDTEBlocks.EXTENDED_INFUSION_MACHINE, energy(POWERED_ENERGY), fluid(INFUSION_MACHINE_TANK), items(MACHINE_ITEMS)),
@@ -305,7 +315,15 @@ public final class MachineCapabilities {
             // --- Energy Transmitters ---
             machine(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER,
                     energy(EXTENDED_TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS)),
-            machine(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER, energy(TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS))
+            machine(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER, energy(TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS)),
+
+            // --- 流体混合器 ---
+            machine(JDTEBlocks.ADVANCED_FLUID_MIXER, energy(POWERED_ENERGY), fluid(FLUID_MIXER_FLUID), items(MACHINE_ITEMS)),
+            machine(JDTEBlocks.EXTENDED_FLUID_MIXER, energy(POWERED_ENERGY), fluid(FLUID_MIXER_FLUID), items(MACHINE_ITEMS)),
+
+            // --- 生物提取机 ---
+            machine(JDTEBlocks.ADVANCED_BIO_EXTRACTOR, energy(POWERED_ENERGY), fluid(BIO_EXTRACTOR_TANK), items(BIO_EXTRACTOR_ITEMS)),
+            machine(JDTEBlocks.EXTENDED_BIO_EXTRACTOR, energy(POWERED_ENERGY), fluid(BIO_EXTRACTOR_TANK), items(BIO_EXTRACTOR_ITEMS))
     );
 
     /** 跨越 jdte 自身机器表的注册（如 Clicker 流体同时作用于 JDT 的 Clicker T1/T2）。 */

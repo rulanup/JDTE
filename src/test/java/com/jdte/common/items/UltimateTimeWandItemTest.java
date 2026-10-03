@@ -154,12 +154,12 @@ class UltimateTimeWandItemTest {
         String maximumFluid = MagicHelpers.formatted(wand.getMaxMB());
         String currentEnergy = MagicHelpers.formatted(2_222);
         String maximumEnergy = MagicHelpers.formatted(wand.getMaxEnergy());
-        assertEquals("justdynathings.advanced_time_wand", ((TranslatableContents) tooltip.get(0).getContents()).getKey());
+        assertEquals("tooltip.jdte.ultimate_time_wand", ((TranslatableContents) tooltip.get(0).getContents()).getKey());
         List<Component> modeParts = tooltip.get(1).getSiblings();
         assertEquals(8, modeParts.size());
-        assertEquals("justdynathings.advanced_time_wand.mode.normal",
+        assertEquals("tooltip.jdte.ultimate_time_wand.mode.normal",
                 ((TranslatableContents) modeParts.get(0).getContents()).getKey());
-        assertEquals("justdynathings.advanced_time_wand.mode.max",
+        assertEquals("tooltip.jdte.ultimate_time_wand.mode.max",
                 ((TranslatableContents) modeParts.get(6).getContents()).getKey());
         TranslatableContents energyLine = (TranslatableContents) tooltip.get(2).getContents();
         TranslatableContents fluidLine = (TranslatableContents) tooltip.get(3).getContents();

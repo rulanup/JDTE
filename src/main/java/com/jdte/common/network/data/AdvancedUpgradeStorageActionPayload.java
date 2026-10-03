@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public record AdvancedUpgradeStorageActionPayload(int action, int slotIndex) implements CustomPacketPayload {
+public record AdvancedUpgradeStorageActionPayload(int action, int slotIndex, int storageIndex) implements CustomPacketPayload {
     public static final Type<AdvancedUpgradeStorageActionPayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "advanced_upgrade_storage_action"));
 
@@ -18,6 +18,10 @@ public record AdvancedUpgradeStorageActionPayload(int action, int slotIndex) imp
     public static final int ACTION_DEPOSIT_CURSOR = 4;
     public static final int ACTION_DEPOSIT_CURSOR_ONE = 5;
 
+    public AdvancedUpgradeStorageActionPayload(int action, int slotIndex) {
+        this(action, slotIndex, 0);
+    }
+
     @Override
     public Type<AdvancedUpgradeStorageActionPayload> type() {
         return TYPE;
@@ -26,6 +30,7 @@ public record AdvancedUpgradeStorageActionPayload(int action, int slotIndex) imp
     public static final StreamCodec<FriendlyByteBuf, AdvancedUpgradeStorageActionPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, AdvancedUpgradeStorageActionPayload::action,
             ByteBufCodecs.INT, AdvancedUpgradeStorageActionPayload::slotIndex,
+            ByteBufCodecs.INT, AdvancedUpgradeStorageActionPayload::storageIndex,
             AdvancedUpgradeStorageActionPayload::new
     );
 }

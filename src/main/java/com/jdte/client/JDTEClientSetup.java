@@ -179,6 +179,14 @@ public class JDTEClientSetup {
 
         // Advanced Energy Transmitter
         event.register(JDTEMenus.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterScreen::new);
+
+        // Fluid Mixer
+        event.register(JDTEMenus.ADVANCED_FLUID_MIXER.get(), AdvancedFluidMixerScreen::new);
+        event.register(JDTEMenus.EXTENDED_FLUID_MIXER.get(), ExtendedFluidMixerScreen::new);
+
+        // Bio Extractor
+        event.register(JDTEMenus.ADVANCED_BIO_EXTRACTOR.get(), AdvancedBioExtractorScreen::new);
+        event.register(JDTEMenus.EXTENDED_BIO_EXTRACTOR.get(), ExtendedBioExtractorScreen::new);
     }
 
     @SubscribeEvent
@@ -270,5 +278,9 @@ public class JDTEClientSetup {
 
         // Advanced Energy Transmitter
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterBER::new);
+
+        // Bio Extractor - 使用AreaAffectingBER渲染区域
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_BIO_EXTRACTOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BIO_EXTRACTOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
     }
 }

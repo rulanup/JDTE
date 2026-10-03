@@ -52,6 +52,7 @@ class UltimateTimeWandConfigLanguageContractTest {
     private static final List<String> REQUIRED_KEYS = List.of(
             "entity.jdte.ultimate_time_wand",
             "item.jdte.ultimate_time_wand",
+            "tooltip.jdte.ultimate_time_wand",
             "tooltip.jdte.ultimate_time_wand.mode.normal",
             "tooltip.jdte.ultimate_time_wand.mode.x2",
             "tooltip.jdte.ultimate_time_wand.mode.x4",
@@ -77,7 +78,7 @@ class UltimateTimeWandConfigLanguageContractTest {
 
         JsonObject english = readJson(ENGLISH);
         JsonObject chinese = readJson(CHINESE);
-        assertEquals(19, REQUIRED_KEYS.size(), "The contract must cover exactly 19 keys");
+        assertEquals(20, REQUIRED_KEYS.size(), "The contract must cover exactly 20 keys");
 
         for (String key : REQUIRED_KEYS) {
             assertTrue(english.has(key), () -> "Missing en_us key: " + key);
@@ -110,7 +111,7 @@ class UltimateTimeWandConfigLanguageContractTest {
 
         String source = Files.readString(sourcePath("src/main/java/com/jdte/common/items/UltimateTimeWandItem.java"));
         assertContainsNoDynaReferences(recipeSource);
-        assertUsesAdvancedTimeWandLanguageKeys(source);
+        assertContainsNoDynaReferences(source);
     }
 
     @Test
@@ -141,7 +142,7 @@ class UltimateTimeWandConfigLanguageContractTest {
         String maximumFluid = MagicHelpers.formatted(wand.getMaxMB());
         String currentEnergy = MagicHelpers.formatted(2_222);
         String maximumEnergy = MagicHelpers.formatted(wand.getMaxEnergy());
-        assertEquals("justdynathings.advanced_time_wand",
+        assertEquals("tooltip.jdte.ultimate_time_wand",
                 ((TranslatableContents) tooltip.get(0).getContents()).getKey());
         TranslatableContents energyLine = (TranslatableContents) tooltip.get(2).getContents();
         TranslatableContents fluidLine = (TranslatableContents) tooltip.get(3).getContents();
@@ -158,15 +159,6 @@ class UltimateTimeWandConfigLanguageContractTest {
         assertFalse(normalized.contains("dyna"), "Dyna references are forbidden");
         assertFalse(normalized.contains("justdynthings"), "Just Dyna Things references are forbidden");
         assertFalse(normalized.contains("justdynathings"), "Just Dynathings references are forbidden");
-    }
-
-    private static void assertUsesAdvancedTimeWandLanguageKeys(String source) {
-        assertTrue(source.contains("justdynathings.advanced_time_wand"),
-                "Tooltip must use Just Dyna Things' Advanced Time Wand description and mode keys");
-        assertTrue(source.contains("justdirethings.festored"),
-                "Tooltip must use JDT's standard FE key");
-        assertTrue(source.contains("justdirethings.timefluidamt"),
-                "Tooltip must use JDT's standard Time Fluid key");
     }
 
     private static void assertGuideContract(String relativeGuidePath) throws IOException {

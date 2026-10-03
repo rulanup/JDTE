@@ -16,6 +16,12 @@ import com.jdte.client.jei.biofactory.BioFactoryJeiRecipe;
 import com.jdte.client.jei.biofactory.BioFactoryRecipeCategory;
 import com.jdte.client.jei.lifesynthesis.LifeSynthesisJeiRecipe;
 import com.jdte.client.jei.lifesynthesis.LifeSynthesisRecipeCategory;
+import com.jdte.client.jei.bioextractor.BioExtractorJeiRecipe;
+import com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory;
+import com.jdte.client.jei.fluidmixer.FluidMixerJeiRecipe;
+import com.jdte.client.jei.fluidmixer.FluidMixerRecipeCategory;
+import com.jdte.client.screens.AdvancedFluidMixerScreen;
+import com.jdte.client.screens.ExtendedFluidMixerScreen;
 import com.jdte.client.screens.GreenhouseScreen;
 import com.jdte.client.screens.LargeGreenhouseScreen;
 import com.jdte.client.screens.BioFactoryScreen;
@@ -57,7 +63,9 @@ public class JDTEJeiPlugin implements IModPlugin {
                 new GelGeneratorRecipeCategory(guiHelper),
                 new InfusionRecipeCategory(guiHelper),
                 new PotionBrewerRecipeCategory(guiHelper),
-                new LifeSynthesisRecipeCategory(guiHelper)
+                new LifeSynthesisRecipeCategory(guiHelper),
+                new FluidMixerRecipeCategory(guiHelper),
+                new BioExtractorRecipeCategory(guiHelper)
         );
         if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.LOOT_FABRICATOR)
                 && control.isBlockEnabled(JDTE.id("loot_fabricator"))) {
@@ -83,6 +91,8 @@ public class JDTEJeiPlugin implements IModPlugin {
             registration.addRecipes(BioFactoryRecipeCategory.RECIPE_TYPE, BioFactoryJeiRecipe.getRecipes());
         }
         registration.addRecipes(LifeSynthesisRecipeCategory.RECIPE_TYPE, LifeSynthesisJeiRecipe.getRecipes());
+        registration.addRecipes(FluidMixerRecipeCategory.RECIPE_TYPE, FluidMixerJeiRecipe.getRecipes());
+        registration.addRecipes(BioExtractorRecipeCategory.RECIPE_TYPE, BioExtractorJeiRecipe.getRecipes());
         if (dynamicEnabled(control, JDTEContentControl.DynamicRecipeFamily.LOOT_FABRICATOR)
                 && control.isBlockEnabled(JDTE.id("loot_fabricator"))) {
             java.util.List<LootFabricatorJeiRecipe> lootFabricatorRecipes = LootFabricatorJeiRecipe.getRecipes();
@@ -128,6 +138,12 @@ public class JDTEJeiPlugin implements IModPlugin {
             registration.addRecipeCatalyst(new ItemStack(JDTEItems.BIO_FACTORY.get()), BioFactoryRecipeCategory.RECIPE_TYPE);
         }
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.LIFE_SYNTHESIS_VAT.get()), LifeSynthesisRecipeCategory.RECIPE_TYPE);
+        for (ItemStack machine : FluidMixerJeiRecipe.getMachines()) {
+            registration.addRecipeCatalyst(machine, FluidMixerRecipeCategory.RECIPE_TYPE);
+        }
+        for (ItemStack machine : BioExtractorJeiRecipe.getMachines()) {
+            registration.addRecipeCatalyst(machine, BioExtractorRecipeCategory.RECIPE_TYPE);
+        }
     }
 
     @Override
@@ -144,6 +160,8 @@ public class JDTEJeiPlugin implements IModPlugin {
             registration.addRecipeClickArea(BioFactoryScreen.class, 35, 6, 32, 12, BioFactoryRecipeCategory.RECIPE_TYPE);
         }
         registration.addRecipeClickArea(LifeSynthesisScreen.class, 112, 7, 28, 12, LifeSynthesisRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeClickArea(AdvancedFluidMixerScreen.class, com.jdte.client.screens.FluidMixerScreen.ARROW_X, com.jdte.client.screens.FluidMixerScreen.ARROW_Y, com.jdte.client.screens.FluidMixerScreen.ARROW_WIDTH, com.jdte.client.screens.FluidMixerScreen.ARROW_HEIGHT, FluidMixerRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeClickArea(ExtendedFluidMixerScreen.class, com.jdte.client.screens.FluidMixerScreen.ARROW_X, com.jdte.client.screens.FluidMixerScreen.ARROW_Y, com.jdte.client.screens.FluidMixerScreen.ARROW_WIDTH, com.jdte.client.screens.FluidMixerScreen.ARROW_HEIGHT, FluidMixerRecipeCategory.RECIPE_TYPE);
     }
 
     @Override

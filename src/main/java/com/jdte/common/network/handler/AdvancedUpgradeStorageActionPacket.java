@@ -35,7 +35,7 @@ public final class AdvancedUpgradeStorageActionPacket {
             if (baseMachineBE == null) {
                 return;
             }
-            ItemStack storageStack = AdvancedUpgradeStorageItem.findStorage(player);
+            ItemStack storageStack = AdvancedUpgradeStorageItem.findStorage(player, payload.storageIndex());
             if (storageStack.isEmpty()) {
                 return;
             }

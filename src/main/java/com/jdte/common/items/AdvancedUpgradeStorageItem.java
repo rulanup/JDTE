@@ -24,24 +24,53 @@ public class AdvancedUpgradeStorageItem extends UpgradeStorageItem {
         super();
     }
 
-    public static ItemStack findStorage(Player player) {
+    public static List<ItemStack> findAllStorages(Player player) {
         if (player == null) {
-            return ItemStack.EMPTY;
+            return List.of();
         }
+        List<ItemStack> list = new java.util.ArrayList<>();
         ItemStack main = player.getMainHandItem();
         if (main.getItem() instanceof AdvancedUpgradeStorageItem) {
-            return main;
+            list.add(main);
         }
         ItemStack off = player.getOffhandItem();
-        if (off.getItem() instanceof AdvancedUpgradeStorageItem) {
-            return off;
+        if (off.getItem() instanceof AdvancedUpgradeStorageItem && !containsIdentity(list, off)) {
+            list.add(off);
         }
         for (ItemStack stack : player.getInventory().items) {
-            if (!stack.isEmpty() && stack.getItem() instanceof AdvancedUpgradeStorageItem) {
-                return stack;
+            if (!stack.isEmpty() && stack.getItem() instanceof AdvancedUpgradeStorageItem && !containsIdentity(list, stack)) {
+                list.add(stack);
             }
         }
-        return AdvancedUpgradeStorageCuriosSources.find(player, stack -> stack.getItem() instanceof AdvancedUpgradeStorageItem);
+        List<ItemStack> curiosList = AdvancedUpgradeStorageCuriosSources.findAll(player, stack -> stack.getItem() instanceof AdvancedUpgradeStorageItem);
+        for (ItemStack stack : curiosList) {
+            if (!stack.isEmpty() && !containsIdentity(list, stack)) {
+                list.add(stack);
+            }
+        }
+        return list;
+    }
+
+    private static boolean containsIdentity(List<ItemStack> list, ItemStack target) {
+        for (ItemStack s : list) {
+            if (s == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static ItemStack findStorage(Player player, int index) {
+        List<ItemStack> storages = findAllStorages(player);
+        if (storages.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        int clamped = Math.max(0, Math.min(index, storages.size() - 1));
+        return storages.get(clamped);
+    }
+
+    public static ItemStack findStorage(Player player) {
+        return findStorage(player, 0);
     }
 
     @Override

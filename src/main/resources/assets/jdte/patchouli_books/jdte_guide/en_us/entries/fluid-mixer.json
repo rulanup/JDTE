@@ -1,0 +1,48 @@
+{
+  "name": "Fluid Mixer",
+  "icon": "jdte:advanced_fluid_mixer",
+  "category": "jdte:biology_life",
+  "sortnum": 1550,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Fluid Mixer consumes FE to mix two input fluids (Tank A and Tank B) along with an optional item catalyst, outputting a new target fluid. It natively supports custom datapack recipes ($(thing)jdte:fluid_mixer$()) and Mekanism Chemical Infuser and Pigment Mixer recipes when Mekanism is present. $(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrades | Energy | Tanks$()$(br)Advanced Fluid Mixer | 4+1 | 100k FE | 3 × 8k mB$(br)Extended Fluid Mixer | 8+1 | 200k FE | 3 × 8k mB"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Layout$()$(br2)$(li)$(bold)Input Tank A (Left)$(): Base capacity 8,000 mB$(li)$(bold)Input Tank B (Right)$(): Base capacity 8,000 mB$(li)$(bold)Catalyst Slot (Center)$(): 1 slot for optional item catalyst$(li)$(bold)Output Tank (Bottom)$(): Base capacity 8,000 mB for outputs$(br2)$(bold)Mixing Upgrade$()$(br2)A dedicated upgrade slot accepts 1 $(bold)Mixing Upgrade$(). When installed, enables parallel processing to produce multiple batches in a single cycle."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_fluid_mixer",
+      "text": "The standard Advanced Fluid Mixer with 4 standard upgrade slots and 1 Mixing Upgrade slot."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_fluid_mixer"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:extended_fluid_mixer",
+      "text": "The Extended Fluid Mixer with 8 standard upgrade slots. Upgraded from an Advanced Fluid Mixer with an Extended Upgrade."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:extended_fluid_mixer"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:mixing_upgrade",
+      "text": "Mixing Upgrade: Dedicated to Fluid Mixers. Enables parallel batch mixing."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:mixing_upgrade"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_fluid_mixer": 2,
+    "jdte:extended_fluid_mixer": 4,
+    "jdte:mixing_upgrade": 6
+  }
+}

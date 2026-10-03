@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": { "item": "minecraft:cauldron" },
+    "B": { "item": "minecraft:bucket" },
+    "G": { "item": "minecraft:gold_ingot" },
+    "R": { "item": "minecraft:redstone" },
+    "F": { "item": "jdte:fluid_upgrade" }
+  },
+  "pattern": [
+    "GRG",
+    "BCB",
+    "GFG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:advanced_fluid_mixer"
+  }
+}

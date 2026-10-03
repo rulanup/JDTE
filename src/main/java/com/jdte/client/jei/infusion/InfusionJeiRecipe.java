@@ -49,7 +49,16 @@ public record InfusionJeiRecipe(
         if (recipeManager != null) {
             for (RecipeHolder<InfusionRecipe> holder : recipeManager.getAllRecipesFor(JDTERecipes.INFUSION_RECIPE_TYPE.get())) {
                 InfusionRecipe recipe = holder.value();
-                addRecipe(recipes, seen, recipe.getInput(), recipe.getFluidInput(), recipe.getOutput(), recipe.getEnergyCost());
+                ItemStack[] items = recipe.getIngredient().getItems();
+                if (items.length > 0) {
+                    for (ItemStack item : items) {
+                        ItemStack displayInput = item.copy();
+                        displayInput.setCount(recipe.getInputCount());
+                        addRecipe(recipes, seen, displayInput, recipe.getFluidInput(), recipe.getOutput(), recipe.getEnergyCost());
+                    }
+                } else {
+                    addRecipe(recipes, seen, recipe.getInput(), recipe.getFluidInput(), recipe.getOutput(), recipe.getEnergyCost());
+                }
             }
         }
 

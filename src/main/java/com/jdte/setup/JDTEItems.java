@@ -7,6 +7,7 @@ import com.jdte.common.items.BigFluidTankItem;
 import com.jdte.common.items.EnergyBrewingUpgradeItem;
 import com.jdte.common.items.EnergyOverloadUpgradeItem;
 import com.jdte.common.items.EntityAccelerationUpgradeItem;
+import com.jdte.common.items.MixingUpgradeItem;
 import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.FactoryPackageItem;
@@ -150,6 +151,10 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> EXTENDED_LIFE_EXTRACTOR = ITEMS.register("extended_life_extractor", () -> new BlockItem(JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, LifeAppleItem> LIFE_APPLE = ITEMS.register("life_apple", LifeAppleItem::new);
 
+    // Bio Extractor
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_BIO_EXTRACTOR = ITEMS.register("advanced_bio_extractor", () -> new BlockItem(JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_BIO_EXTRACTOR = ITEMS.register("extended_bio_extractor", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get(), new Item.Properties()));
+
     // Infusion Machine
     public static final DeferredHolder<Item, BlockItem> ADVANCED_INFUSION_MACHINE = ITEMS.register("advanced_infusion_machine", () -> new BlockItem(JDTEBlocks.ADVANCED_INFUSION_MACHINE.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_INFUSION_MACHINE = ITEMS.register("extended_infusion_machine", () -> new BlockItem(JDTEBlocks.EXTENDED_INFUSION_MACHINE.get(), new Item.Properties()));
@@ -164,6 +169,10 @@ public class JDTEItems {
 
     // Advanced Energy Transmitter
     public static final DeferredHolder<Item, BlockItem> ADVANCED_ENERGY_TRANSMITTER = ITEMS.register("advanced_energy_transmitter", () -> new BlockItem(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get(), new Item.Properties()));
+
+    // Fluid Mixer
+    public static final DeferredHolder<Item, BlockItem> ADVANCED_FLUID_MIXER = ITEMS.register("advanced_fluid_mixer", () -> new BlockItem(JDTEBlocks.ADVANCED_FLUID_MIXER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_MIXER = ITEMS.register("extended_fluid_mixer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_MIXER.get(), new Item.Properties()));
 
     // Boss Essences
     public static final DeferredHolder<Item, BossEssenceItem> WITHER_ESSENCE = ITEMS.register("wither_essence", BossEssenceItem::new);
@@ -181,6 +190,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, SharpnessUpgradeItem> SHARPNESS_UPGRADE = ITEMS.register("sharpness_upgrade", SharpnessUpgradeItem::new);
     public static final DeferredHolder<Item, EnergyBrewingUpgradeItem> ENERGY_BREWING_UPGRADE = ITEMS.register("energy_brewing_upgrade", EnergyBrewingUpgradeItem::new);
     public static final DeferredHolder<Item, EnergyOverloadUpgradeItem> ENERGY_OVERLOAD_UPGRADE = ITEMS.register("energy_overload_upgrade", EnergyOverloadUpgradeItem::new);
+    public static final DeferredHolder<Item, MixingUpgradeItem> MIXING_UPGRADE = ITEMS.register("mixing_upgrade", MixingUpgradeItem::new);
     public static final DeferredHolder<Item, EntityAccelerationUpgradeItem> ENTITY_ACCELERATION_UPGRADE = ITEMS.register("entity_acceleration_upgrade", EntityAccelerationUpgradeItem::new);
     public static final DeferredHolder<Item, RepairTalismanItem> REPAIR_TALISMAN = ITEMS.register("repair_talisman",
             () -> new RepairTalismanItem(new Item.Properties()));

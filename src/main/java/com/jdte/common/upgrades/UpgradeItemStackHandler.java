@@ -2,6 +2,7 @@ package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
+import com.jdte.common.blockentities.FluidMixerBE;
 import com.jdte.common.manager.AEOutputManager;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
@@ -65,6 +66,9 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         }
         if (UpgradeHelper.isEnergyOverloadUpgrade(stack)) {
             return UpgradeHelper.isEnergyTransmitter(machine) && countEnergyOverload(slot) == 0;
+        }
+        if (UpgradeHelper.isMixingUpgrade(stack)) {
+            return machine instanceof FluidMixerBE && countMixingUpgrade(slot) == 0;
         }
         if (!(stack.getItem() instanceof UpgradeCardItem upgradeCard)) {
             return false;
@@ -144,6 +148,16 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         int count = 0;
         for (int slot = 0; slot < getSlots(); slot++) {
             if (slot != ignoredSlot && UpgradeHelper.isEnergyOverloadUpgrade(getStackInSlot(slot))) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int countMixingUpgrade(int ignoredSlot) {
+        int count = 0;
+        for (int slot = 0; slot < getSlots(); slot++) {
+            if (slot != ignoredSlot && UpgradeHelper.isMixingUpgrade(getStackInSlot(slot))) {
                 count++;
             }
         }
