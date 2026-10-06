@@ -91,6 +91,10 @@ public final class UltimateTimeWandTargetRuntime {
     }
 
     public static Result executeOrdinary(TimeAccelerationTarget target, int requestedTicks, long remainingBudget) {
+        BlockEntity blockEntity = target.level().getBlockEntity(target.pos());
+        if (blockEntity instanceof CoalescedAcceleratedMachine) {
+            return executeBlockEntity(target.level(), target.pos(), blockEntity, requestedTicks);
+        }
         int admittedTicks = admit(requestedTicks, JDTEConfig.COMMON.timeAcceleratorExecutionBatchSize.get(), remainingBudget);
         if (admittedTicks <= 0) {
             return Result.noWork();
@@ -119,12 +123,37 @@ public final class UltimateTimeWandTargetRuntime {
             return Result.invalid();
         }
         if (blockEntity instanceof CoalescedAcceleratedMachine coalesced) {
-            coalesced.accumulateAcceleratedTicks(requestedTicks);
+            int multiplier = 1;
+            if (blockEntity instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE machine) {
+                multiplier = com.jdte.common.upgrades.UpgradeHelper.getExecutionMultiplier(machine);
+                if (multiplier <= 0) {
+                    return new Result(requestedTicks, true, true, null);
+                }
+            }
+            long totalWorkTicks = (long) requestedTicks * multiplier;
+            coalesced.accumulateAcceleratedTicks((int) Math.min(Integer.MAX_VALUE, totalWorkTicks));
             return new Result(requestedTicks, true, false, coalesced);
         }
 
         int executed = 0;
+        int idleStreak = 0;
         for (; executed < requestedTicks && !blockEntity.isRemoved(); executed++) {
+            if (blockEntity instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE machine) {
+                if (machine instanceof com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE redstone
+                        && !redstone.isActiveRedstoneTestOnly()) {
+                    break;
+                }
+                if (!com.jdte.common.upgrades.UpgradeHelper.mayRunWithUpgrades(machine)) {
+                    break;
+                }
+                if (!machine.canRun()) {
+                    if (++idleStreak >= 2) {
+                        break;
+                    }
+                } else {
+                    idleStreak = 0;
+                }
+            }
             ticker.tick(level, pos, blockEntity.getBlockState(), blockEntity);
         }
         return new Result(executed, true, false, null);

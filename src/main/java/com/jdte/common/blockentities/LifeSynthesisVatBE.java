@@ -256,7 +256,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             if (decision.resetInactiveState()) settlementTicker = 0;
             return;
         }
-        advanceProductionTicks(1, true);
+        advanceProductionTicks(1, allowed, false);
     }
 
     @Override
@@ -278,20 +278,20 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
         }
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
-        advanceProductionTicks(ticks, true);
+        advanceProductionTicks(ticks, true, true);
     }
 
     private void advanceProductionTicks(int ticks) {
-        advanceProductionTicks(ticks, UpgradeHelper.mayRunWithUpgrades(this));
+        advanceProductionTicks(ticks, UpgradeHelper.mayRunWithUpgrades(this), false);
     }
 
-    private void advanceProductionTicks(int ticks, boolean allowed) {
+    private void advanceProductionTicks(int ticks, boolean allowed, boolean isAccelerated) {
         if (!allowed) return;
         if (ticks <= 0) return;
         if (!AECraftingReadMachinePolicy.production(allowed, isActiveRedstone()).runWork()) return;
         int interval = JDTEConfig.COMMON.lifeSynthesisVat.settlementInterval.get();
         settlementTicker = saturatingAdd(settlementTicker, ticks);
-        if (settlementTicker < interval || level == null || lastSettlementGameTime == level.getGameTime()) return;
+        if (settlementTicker < interval || level == null || (!isAccelerated && lastSettlementGameTime == level.getGameTime())) return;
         int completedSettlements = Math.max(1, settlementTicker / interval);
         int elapsed = completedSettlements * interval;
         settlementTicker -= elapsed;

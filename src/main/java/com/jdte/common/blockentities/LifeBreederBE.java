@@ -54,7 +54,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, PoweredMachineBE,
-        FluidMachineBE, FilterableBE, RedstoneControlledBE, ExtendedUpgradeMachine {
+        FluidMachineBE, FilterableBE, RedstoneControlledBE, ExtendedUpgradeMachine, CoalescedAcceleratedMachine {
     public static final int FEED_SLOTS = 4;
     public static final int OUTPUT_START_SLOT = FEED_SLOTS;
     public static final int OUTPUT_SLOTS = 8;
@@ -145,6 +145,51 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         multiplier = JDTEConfig.COMMON.lifeBreederDefaultSpeedMultiplier.get();
     }
 
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone()
+                || !AECraftingReadMachinePolicy.production(UpgradeHelper.mayRunWithUpgrades(this), true).runWork()) {
+            return;
+        }
+        processAcceleratedBreeding(ticks);
+    }
+
+    protected void processAcceleratedBreeding(int ticks) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        int interval = Math.max(1, JDTEConfig.COMMON.lifeBreederProcessingInterval.get());
+        long totalProgress = (long) cycleTicker + ticks;
+        long cycles = totalProgress / interval;
+        cycleTicker = (int) (totalProgress % interval);
+        if (cycles <= 0) {
+            setChanged();
+            return;
+        }
+
+        int maxCycles = (int) Math.min(cycles, 32);
+        boolean anyChanged = false;
+        for (int i = 0; i < maxCycles; i++) {
+            boolean changed = executeOneBreederCycle(serverLevel);
+            anyChanged |= changed;
+            if (!changed) {
+                break;
+            }
+        }
+        if (anyChanged) {
+            setChanged();
+        }
+    }
+
     @Override public void tickServer() {
         super.tickServer();
         if (!isActiveRedstone()) return;
@@ -153,6 +198,11 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         cycleTicker = 0;
         if (!(level instanceof ServerLevel serverLevel)) return;
 
+        boolean changed = executeOneBreederCycle(serverLevel);
+        if (changed) setChanged();
+    }
+
+    private boolean executeOneBreederCycle(ServerLevel serverLevel) {
         UpgradeHelper.syncCapacities(this);
         boolean changed = collectDrops(serverLevel);
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
@@ -160,8 +210,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         boolean needsGrowth = mode != Mode.BREED_ONLY;
         boolean needsBreeding = mode != Mode.GROW_ONLY && hasAnyFeed();
         if (!hasResources || !needsGrowth && !needsBreeding) {
-            if (changed) setChanged();
-            return;
+            return changed;
         }
 
         refreshEntityFilterCache();
@@ -171,7 +220,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
                 animal -> animal.isAlive() && isAllowedByEntityFilter(animal), animals, inspectLimit);
         if (needsGrowth) changed |= accelerateAges(animals);
         if (needsBreeding) changed |= breedAnimals(serverLevel, animals);
-        if (changed) setChanged();
+        return changed;
     }
 
     private boolean accelerateAges(List<AgeableMob> animals) {

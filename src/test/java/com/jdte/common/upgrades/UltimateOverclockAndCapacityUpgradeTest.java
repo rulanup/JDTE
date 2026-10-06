@@ -37,6 +37,36 @@ class UltimateOverclockAndCapacityUpgradeTest {
     }
 
     @Test
+    void executionMultiplierAndAccelerationForCoalescedMachine() {
+        com.jdte.common.blockentities.AdvancedEnergyTransmitterBE transmitter =
+                new com.jdte.common.blockentities.AdvancedEnergyTransmitterBE(
+                        net.minecraft.core.BlockPos.ZERO,
+                        com.jdte.setup.JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get().defaultBlockState());
+        UpgradeItemStackHandler handler = UpgradeHelper.getUpgradeHandler(transmitter);
+        assertNotNull(handler);
+
+        // Default multiplier is 1
+        assertEquals(1, UpgradeHelper.getExecutionMultiplier(transmitter));
+
+        // Overclock multiplier is 2
+        handler.setStackInSlot(0, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.OVERCLOCK_UPGRADE.get()));
+        assertEquals(2, UpgradeHelper.getExecutionMultiplier(transmitter));
+
+        // Ultimate Overclock multiplier is 10
+        handler.setStackInSlot(0, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get()));
+        assertEquals(10, UpgradeHelper.getExecutionMultiplier(transmitter));
+
+        // 32768X acceleration with Ultimate Overclock receives 327,680 ticks
+        int multiplier = UpgradeHelper.getExecutionMultiplier(transmitter);
+        int requestedTicks = 32768;
+        long totalTicks = (long) requestedTicks * multiplier;
+        assertEquals(327680L, totalTicks);
+
+        transmitter.accumulateAcceleratedTicks((int) totalTicks);
+        assertDoesNotThrow(transmitter::flushAcceleratedTicks);
+    }
+
+    @Test
     void resourcesAndContractsHonored() throws IOException {
         // 1. Crafting Recipes
         JsonObject ultOverclockRecipe = read("src/main/resources/data/jdte/recipe/ultimate_overclock_upgrade.json");
@@ -79,6 +109,10 @@ class UltimateOverclockAndCapacityUpgradeTest {
             assertTrue(lang.has("tooltip.jdte.ultimate_capacity"), locale + " missing tooltip.jdte.ultimate_capacity");
             assertTrue(lang.has("tooltip.jdte.ultimate_time_wand.ultimate_overclock_installed"),
                     locale + " missing tooltip.jdte.ultimate_time_wand.ultimate_overclock_installed");
+            assertTrue(lang.has("config.jade.plugin_jdte.greenhouse_status"),
+                    locale + " missing config.jade.plugin_jdte.greenhouse_status");
+            assertTrue(lang.has("jade.jdte.greenhouse.ultimate_capacity_warning"),
+                    locale + " missing jade.jdte.greenhouse.ultimate_capacity_warning");
         }
 
         // 6. GuideME Documentation
@@ -89,6 +123,36 @@ class UltimateOverclockAndCapacityUpgradeTest {
         String enGuide = Files.readString(source("src/main/resources/assets/jdte/guides/jdte/guide/_en_us/upgrades.md"), StandardCharsets.UTF_8);
         assertTrue(enGuide.contains("jdte:ultimate_overclock_upgrade"), "GuideME en_us missing ultimate_overclock_upgrade");
         assertTrue(enGuide.contains("jdte:ultimate_capacity_upgrade"), "GuideME en_us missing ultimate_capacity_upgrade");
+    }
+
+    @Test
+    void greenhouseJadeWarningCondition() {
+        com.jdte.common.blockentities.GreenhouseBE greenhouse =
+                new com.jdte.common.blockentities.GreenhouseBE(
+                        net.minecraft.core.BlockPos.ZERO,
+                        com.jdte.setup.JDTEBlocks.GREENHOUSE.get().defaultBlockState());
+        UpgradeItemStackHandler handler = UpgradeHelper.getUpgradeHandler(greenhouse);
+        assertNotNull(handler);
+
+        // Initially no upgrades: no warning
+        assertFalse(UpgradeHelper.hasUltimateOverclock(greenhouse));
+        assertFalse(UpgradeHelper.hasUltimateCapacity(greenhouse));
+
+        // Add Ultimate Overclock: warning should trigger
+        handler.setStackInSlot(0, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get()));
+        assertTrue(UpgradeHelper.hasUltimateOverclock(greenhouse));
+        assertFalse(UpgradeHelper.hasUltimateCapacity(greenhouse));
+        assertFalse(UpgradeHelper.hasCreativeUpgrade(greenhouse));
+
+        // Add normal Capacity: warning should STILL trigger (normal capacity is not sufficient)
+        handler.setStackInSlot(1, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
+        assertTrue(UpgradeHelper.hasUltimateOverclock(greenhouse));
+        assertFalse(UpgradeHelper.hasUltimateCapacity(greenhouse));
+
+        // Add Ultimate Capacity: warning resolves
+        handler.setStackInSlot(2, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
+        assertTrue(UpgradeHelper.hasUltimateOverclock(greenhouse));
+        assertTrue(UpgradeHelper.hasUltimateCapacity(greenhouse));
     }
 
     private static Path source(String path) {

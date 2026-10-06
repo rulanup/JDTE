@@ -296,10 +296,14 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         transientAcceleratedWork = MineralProductionEngine.accumulateWork(
                 transientAcceleratedWork, ticks,
                 saturatingMultiply(BASE_PRODUCTION_MULTIPLIER, baseWorkPerTick()), maxPendingWork());
-        settle();
+        settle(true);
     }
 
     private void settle() {
+        settle(false);
+    }
+
+    private void settle(boolean isAccelerated) {
         settlementTicker = 0;
         if (!(level instanceof ServerLevel serverLevel)) return;
         long gameTime = serverLevel.getGameTime();
@@ -307,7 +311,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
             settlementBudgetGameTime = gameTime;
             settledCyclesThisGameTime = 0L;
         }
-        long maxCycles = JDTEConfig.COMMON.mineralExtractor.maxCyclesPerSettlement.get();
+        long maxCycles = isAccelerated ? Long.MAX_VALUE : JDTEConfig.COMMON.mineralExtractor.maxCyclesPerSettlement.get();
         long remainingCycleBudget = Math.max(0L, maxCycles - settledCyclesThisGameTime);
         if (remainingCycleBudget <= 0L) return;
         refreshMineralCache(serverLevel);

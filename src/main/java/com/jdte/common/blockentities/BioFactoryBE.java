@@ -49,7 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE, ExtendedUpgradeMachine {
+public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE, ExtendedUpgradeMachine, CoalescedAcceleratedMachine {
     public static final int SPECIMEN_SLOT = 0;
     public static final int FOOD_SLOT = 1;
     public static final int OUTPUT_START_SLOT = 2;
@@ -238,6 +238,48 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
             return;
         }
         completeCycle();
+    }
+
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun() || !resolveRecipe()
+                || cachedBee != null && !canCachedBeeOperate()) {
+            return;
+        }
+        processAcceleratedTicks(ticks);
+    }
+
+    protected void processAcceleratedTicks(int ticks) {
+        int speed = getSpeedMultiplier();
+        long addedProgress = (long) ticks * speed;
+        long totalProgress = (long) progress + addedProgress;
+        int processTicks = Math.max(1, getCurrentProcessTicks());
+        long cycles = totalProgress / processTicks;
+        progress = (int) (totalProgress % processTicks);
+        if (cycles <= 0) {
+            setChanged();
+            return;
+        }
+
+        int maxCycles = (int) Math.min(cycles, 128);
+        for (int i = 0; i < maxCycles; i++) {
+            completeCycle();
+            if (pendingOutput != null) {
+                break;
+            }
+        }
+        setChanged();
     }
 
     private boolean resolveRecipe() {

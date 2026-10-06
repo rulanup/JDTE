@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffectingBE, PoweredMachineBE,
-        FluidMachineBE, FilterableBE, RedstoneControlledBE {
+        FluidMachineBE, FilterableBE, RedstoneControlledBE, CoalescedAcceleratedMachine {
 
     public static final String COOLDOWN_KEY = "jdte:bio_cooldown";
     public static final int OVERCLOCK_SCAN_INTERVAL = 5;
@@ -244,6 +244,46 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
         areaAffectingData.zRadius = Math.min(areaAffectingData.zRadius, maxRadius);
     }
 
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun()) {
+            return;
+        }
+        processAcceleratedBio(ticks);
+    }
+
+    protected void processAcceleratedBio(int ticks) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        int interval = Math.max(1, getExtractInterval());
+        long totalProgress = (long) tickCounter + ticks;
+        long cycles = totalProgress / interval;
+        tickCounter = (int) (totalProgress % interval);
+        if (cycles <= 0) {
+            setChanged();
+            return;
+        }
+
+        int maxCycles = (int) Math.min(cycles, 64);
+        for (int i = 0; i < maxCycles; i++) {
+            int processed = executeOneExtractCycle(serverLevel);
+            if (processed == 0) {
+                break;
+            }
+        }
+        setChanged();
+    }
+
     protected void extractBio() {
         tickCounter++;
         if (tickCounter < getExtractInterval()) {
@@ -252,7 +292,10 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
         tickCounter = 0;
 
         if (!(level instanceof ServerLevel serverLevel)) return;
+        executeOneExtractCycle(serverLevel);
+    }
 
+    protected int executeOneExtractCycle(ServerLevel serverLevel) {
         AABB area = getAABB(getBlockPos());
         boolean hasFilterUpgrade = UpgradeHelper.countUpgrades(this, UpgradeType.FILTER) > 0;
         int maxEntities = getMaxEntitiesPerTick();
@@ -321,6 +364,7 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
         if (processed > 0) {
             setChanged();
         }
+        return processed;
     }
 
     protected boolean isValidTarget(Entity entity, boolean hasFilterUpgrade) {

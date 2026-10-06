@@ -60,7 +60,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE {
+public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE, CoalescedAcceleratedMachine {
     private static final ResourceLocation PRODUCTIVE_BEES_CONFIGURABLE_EGG =
             ResourceLocation.fromNamespaceAndPath("productivebees", "spawn_egg_configurable_bee");
     public static final int INPUT_SLOTS = 4;
@@ -241,6 +241,78 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         }
     }
 
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun()) {
+            return;
+        }
+        processAcceleratedLoot(ticks);
+    }
+
+    private boolean hasFreeOutputSpace() {
+        int active = getActiveOutputSlots();
+        for (int i = 0; i < active; i++) {
+            ItemStack stack = itemHandler.getStackInSlot(INPUT_SLOTS + i);
+            if (stack.isEmpty() || stack.getCount() < stack.getMaxStackSize()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void processAcceleratedLoot(int ticks) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        refreshCostCache();
+        int processTime = Math.max(1, cachedProcessTime);
+        long totalProgress = (long) progress + ticks;
+        long batches = totalProgress / processTime;
+        progress = (int) (totalProgress % processTime);
+        if (batches <= 0) {
+            setChanged();
+            return;
+        }
+
+        int maxBatches = (int) Math.min(batches, 128);
+        for (int b = 0; b < maxBatches; b++) {
+            if (!hasFreeOutputSpace()) break;
+            int processCount = 0;
+            int lifeFluidCost = 0;
+            int timeFluidCostUnits = 0;
+            int lastOccupiedSlot = -1;
+            for (int i = 0; i < INPUT_SLOTS; i++) {
+                int slot = (nextInputSlot + i) % INPUT_SLOTS;
+                if (!cachedValidInputs[slot]) continue;
+                lastOccupiedSlot = slot;
+                processCount++;
+                lifeFluidCost = safeAddCost(lifeFluidCost, cachedLifeFluidCosts[slot]);
+                timeFluidCostUnits = safeAddCost(timeFluidCostUnits, cachedTimeFluidCostUnits[slot]);
+            }
+            LootFabricatorFluidCost.Settlement requiredTimeFluid =
+                    LootFabricatorFluidCost.settle(timeFluidCostUnits, timeFluidCreditUnits);
+            if (processCount == 0
+                    || lifeFluidTank.getFluidAmount() < lifeFluidCost
+                    || timeFluidTank.getFluidAmount() < requiredTimeFluid.drainMb()
+                    || !hasEnoughPower(cachedEnergyCost * processCount)) {
+                break;
+            }
+            if (!executeOneLootCycle(serverLevel, processCount, lifeFluidCost, timeFluidCostUnits, lastOccupiedSlot)) {
+                break;
+            }
+        }
+        setChanged();
+    }
+
     private void processLoot() {
         if (!(level instanceof ServerLevel serverLevel)) return;
         refreshCostCache();
@@ -271,6 +343,10 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             return;
         }
 
+        executeOneLootCycle(serverLevel, processCount, lifeFluidCost, timeFluidCostUnits, lastOccupiedSlot);
+    }
+
+    private boolean executeOneLootCycle(ServerLevel serverLevel, int processCount, int lifeFluidCost, int timeFluidCostUnits, int lastOccupiedSlot) {
         List<ItemStack> allDrops = new ArrayList<>();
         int successfulProcesses = 0;
         int successfulLifeFluidCost = 0;
@@ -290,11 +366,11 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         }
         if (successfulProcesses == 0 || allDrops.isEmpty()) {
             resetProgress();
-            return;
+            return false;
         }
         if (!canFitAll(allDrops)) {
             resetProgress();
-            return;
+            return false;
         }
         allDrops.forEach(this::insertOutput);
         lifeFluidTank.drain(successfulLifeFluidCost, IFluidHandler.FluidAction.EXECUTE);
@@ -306,6 +382,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         nextInputSlot = (lastOccupiedSlot + 1) % INPUT_SLOTS;
         progress = 0;
         setChanged();
+        return true;
     }
 
     private List<ItemStack> rollLoot(ServerLevel level, ItemStack eggStack) {

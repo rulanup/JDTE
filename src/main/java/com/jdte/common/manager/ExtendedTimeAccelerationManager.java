@@ -245,12 +245,28 @@ public final class ExtendedTimeAccelerationManager {
         }
     }
 
+    static boolean isCoalescedTarget(TargetKey key) {
+        if (key == null || key.kind() != TargetKind.BLOCK_ENTITY) {
+            return false;
+        }
+        try {
+            if (key.targetLevel() == null || key.pos() == null) {
+                return false;
+            }
+            BlockEntity be = key.targetLevel().getBlockEntity(key.pos());
+            return be instanceof CoalescedAcceleratedMachine;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
     static <S> long executePendingTargets(TimeAccelerationWorkQueue<S, TargetKey> queue,
                                           long maxExecutions, int batchSize,
                                           java.util.function.BiPredicate<TargetKey, S> keepContributor,
                                           TimeAccelerationWorkQueue.Executor<TargetKey> executor,
                                           TimeAccelerationWorkQueue.ExecutionListener<TargetKey> listener) {
-        return queue.execute(maxExecutions, batchSize, keepContributor, executor, listener);
+        return queue.execute(maxExecutions, batchSize, keepContributor,
+                ExtendedTimeAccelerationManager::isCoalescedTarget, executor, listener);
     }
 
     static Set<TargetKey> resolveDistinctTargetKeys(ServerLevel level, Collection<BlockPos> sources,

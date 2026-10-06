@@ -97,10 +97,16 @@ final class TimeAccelerationWorkQueue<S, T> {
     }
 
     long execute(long maxExecutions, int batchSize, Executor<T> executor, ExecutionListener<T> listener) {
-        return execute(maxExecutions, batchSize, (target, source) -> true, executor, listener);
+        return execute(maxExecutions, batchSize, (target, source) -> true, target -> false, executor, listener);
     }
 
     long execute(long maxExecutions, int batchSize, BiPredicate<T, S> keepContributor,
+                 Executor<T> executor, ExecutionListener<T> listener) {
+        return execute(maxExecutions, batchSize, keepContributor, target -> false, executor, listener);
+    }
+
+    long execute(long maxExecutions, int batchSize, BiPredicate<T, S> keepContributor,
+                 java.util.function.Predicate<T> isCoalesced,
                  Executor<T> executor, ExecutionListener<T> listener) {
         long executedThisTick = 0L;
         while (!queue.isEmpty() && executedThisTick < maxExecutions) {
@@ -115,9 +121,11 @@ final class TimeAccelerationWorkQueue<S, T> {
                 pending.remove(target);
                 continue;
             }
-            long remainingBudget = maxExecutions - executedThisTick;
-            int requested = TimeAcceleratorExecutionPolicy.requestedTicks(
-                    work.virtualTicks, batchSize, remainingBudget);
+            boolean coalesced = isCoalesced != null && isCoalesced.test(target);
+            long remainingBudget = coalesced ? Long.MAX_VALUE : (maxExecutions - executedThisTick);
+            int requested = coalesced
+                    ? (int) Math.min(Integer.MAX_VALUE, work.virtualTicks)
+                    : TimeAcceleratorExecutionPolicy.requestedTicks(work.virtualTicks, batchSize, remainingBudget);
             ExecutionResult result = executor.execute(target, requested, remainingBudget);
             if (!result.valid()) {
                 pending.remove(target);
@@ -128,7 +136,7 @@ final class TimeAccelerationWorkQueue<S, T> {
                 break;
             }
 
-            executedThisTick += result.executed();
+            executedThisTick += coalesced ? Math.min(batchSize, result.executed()) : result.executed();
             int displayMultiplier = work.displayMultiplier();
             work.consume(result.executed());
             listener.onExecuted(target, result, displayMultiplier);

@@ -2,7 +2,15 @@
 
 ### English
 
-#### v0.6.3.0 (Current) — 2026-10-06
+#### v0.6.3.1 (Current) — 2026-10-07
+
+Performance and maintenance release optimizing JDTE machines for 32768X wand acceleration, resolving Crystal Incubator time acceleration, and adding Jade fluid capacity warnings for the Greenhouse and Large Greenhouse, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.3.1 release notes](docs/releases/0.6.3.1.md).
+
+- **Native 32768X & Extreme Wand Acceleration Optimization**: Implemented and refined `CoalescedAcceleratedMachine` across all JDTE production and processing machines (Bio Crushers, Bio Extractors, Bio Factory, Fluid Mixer, Gel Generator, Infusion Machines, Life Breeder, Life Extractor, Loot Fabricator, Advanced Potion Brewer, and Crystal Incubator). Batches acceleration cycles, verifies resources, checks output space, and eliminates tick lag and stutter under 32768X wand speed; machines with Ultimate Overclock Upgrade smoothly receive 1-tick / 10-iteration acceleration benefits.
+- **Crystal Incubator Time Acceleration Fix**: Resolved an issue where the Crystal Incubator could not be accelerated by Time Accelerators or Time Wands due to `TimeAcceleratorMachine` anti-nesting checks. The marker is now isolated to real time accelerators, and the incubator implements `CoalescedAcceleratedMachine` with up to 64 cycles/tick batch growth and harvest and 10x growth acceleration under Ultimate Overclock.
+- **Greenhouse & Large Greenhouse Jade Fluid Warning**: Displays an in-game Jade HUD warning when an Ultimate Overclock Upgrade is installed without sufficient capacity upgrades, alerting players that Time Fluid capacity is too low to sustain accelerated operation.
+
+#### v0.6.3.0 — 2026-10-06
 
 Feature and maintenance release introducing Mineral Extractor JEI integration and network synchronization, modded ore world-generation recognition improvements, Ultimate Overclock Upgrade, Ultimate Capacity Upgrade, 32768X wand acceleration, and full GuideME and Patchouli in-game documentation, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.3.0 release notes](docs/releases/0.6.3.0.md).
 
@@ -347,7 +355,15 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.3.0（当前）— 2026-10-06
+#### v0.6.3.1（当前）— 2026-10-07
+
+为 JDTE 机器提供原生 32768X 极速加速优化与合并加速引擎、修复水晶培育机时间加速问题、并在 Jade 中为大棚提供流体供给容量预警的性能与维护更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.3.1 发布说明](docs/releases/0.6.3.1.md)。
+
+- **JDTE 机器原生 32768X 极速加速优化与合并加速引擎**：为全部 JDTE 生产与处理机器（生物粉碎机、生物提取机、生物反应厂、流体混合器、凝胶发生器、注魔机、生命繁殖器、生命提取机、战利品制造机、高级炼药机、水晶培育机等）完善 `CoalescedAcceleratedMachine` 合并加速队列处理体系。在接收顶级时间法杖（最高 32768X）极速加速时，通过合并 Tick 循环、资源预检、产物槽容量探测及批次平滑消费，避免海量微小调用造成的卡顿掉帧；安装顶级超频升级时，在 1 Tick / 10 次执行的基础上平滑享受极速加速收益。
+- **水晶培育机时间加速修复与防递归保护拆分**：修复水晶培育机无法被时间加速器和时间法杖加速的问题。将防递归套娃标记 `TimeAcceleratorMachine` 精确限定于时间加速器本体，水晶培育机接入合并加速管道并支持单 Tick 最多 64 循环批处理与顶级超频 10x 催熟。
+- **温室大棚 / 大型温室大棚 Jade 提示与流体供给预警**：当大棚安装顶级超频升级但未安装足够容量升级时，在 Jade HUD 中提供直观提示（时间流体容量不足以支撑顶级超频的高额流体消耗），方便玩家排查停机原因。
+
+#### v0.6.3.0 — 2026-10-06
 
 引入矿物提取机 JEI 集成与网络同步、模组矿物世界生成特征识别与兼容增强、顶级超频升级、顶级容量升级、时间手杖 32768X 加速、以及 GuideME 与 Patchouli 游戏内向导手册完整文档的功能与维护更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.3.0 发布说明](docs/releases/0.6.3.0.md)。
 

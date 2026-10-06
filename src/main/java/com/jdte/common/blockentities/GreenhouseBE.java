@@ -228,7 +228,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
                 && level.getGameTime() % 20L == 0L) {
             GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler);
         }
-        advanceProductionTicks(1, true);
+        advanceProductionTicks(1, allowed, false);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         }
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
-        advanceProductionTicks(ticks, true);
+        advanceProductionTicks(ticks, true, true);
     }
 
     @Override
@@ -320,10 +320,10 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     }
 
     private void advanceProductionTicks(int ticks) {
-        advanceProductionTicks(ticks, UpgradeHelper.mayRunWithUpgrades(this));
+        advanceProductionTicks(ticks, UpgradeHelper.mayRunWithUpgrades(this), false);
     }
 
-    private void advanceProductionTicks(int ticks, boolean allowed) {
+    private void advanceProductionTicks(int ticks, boolean allowed, boolean isAccelerated) {
         if (ticks <= 0) return;
         if (!allowed) {
             setActiveMask(0);
@@ -357,7 +357,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
 
         int interval = JDTEConfig.COMMON.greenhouseSettlementInterval.get();
         settlementTicker = saturatingAdd(settlementTicker, ticks);
-        if (settlementTicker < interval || level == null || lastSettlementGameTime == level.getGameTime()) return;
+        if (settlementTicker < interval || level == null || (!isAccelerated && lastSettlementGameTime == level.getGameTime())) return;
         int completedSettlements = Math.max(1, settlementTicker / interval);
         int elapsed = completedSettlements * interval;
         settlementTicker -= elapsed;

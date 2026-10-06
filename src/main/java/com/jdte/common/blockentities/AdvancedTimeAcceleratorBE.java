@@ -14,7 +14,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements PoweredMachineBE {
+public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements PoweredMachineBE, TimeAcceleratorMachine {
     public final MachineEnergyStorage energyStorage;
     public final PoweredMachineContainerData poweredMachineData;
     private int multiplier;

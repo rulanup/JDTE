@@ -63,7 +63,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneControlledBE, AreaAffectingBE, FluidMachineBE {
+public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneControlledBE, AreaAffectingBE, FluidMachineBE, CoalescedAcceleratedMachine {
     public static final int MODE_HOSTILE = 0;
     public static final int MODE_FRIENDLY = 1;
     public static final int MODE_ALL = 2;
@@ -265,6 +265,50 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         areaAffectingData.zRadius = Math.min(areaAffectingData.zRadius, maxRadius);
     }
 
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun()) {
+            return;
+        }
+        processAcceleratedCrushing(ticks);
+    }
+
+    protected void processAcceleratedCrushing(int ticks) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        int interval = Math.max(1, getExtractInterval());
+        long totalProgress = (long) tickCounter + ticks;
+        long cycles = totalProgress / interval;
+        tickCounter = (int) (totalProgress % interval);
+        if (cycles <= 0) {
+            setChanged();
+            return;
+        }
+
+        int energyCost = getEffectiveEnergyCost();
+        int maxCycles = (int) Math.min(cycles, 64);
+        for (int i = 0; i < maxCycles; i++) {
+            if (energyCost > 0 && !UpgradeHelper.hasCreativeUpgrade(this) && !hasEnoughPower(energyCost)) {
+                break;
+            }
+            int processed = executeOneCrushCycle(serverLevel, energyCost);
+            if (processed == 0) {
+                break;
+            }
+        }
+        setChanged();
+    }
+
     protected void processCrushing() {
         tickCounter++;
         if (tickCounter < getExtractInterval()) {
@@ -279,6 +323,10 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
             return;
         }
 
+        executeOneCrushCycle(serverLevel, energyCost);
+    }
+
+    protected int executeOneCrushCycle(ServerLevel serverLevel, int energyCost) {
         AABB area = getAABB(getBlockPos());
         int processed = 0;
         int maxEntities = getMaxEntitiesPerTick();
@@ -307,6 +355,7 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         if (processed > 0) {
             setChanged();
         }
+        return processed;
     }
 
     protected boolean isValidTarget(Entity entity) {

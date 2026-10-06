@@ -41,7 +41,7 @@ import java.util.List;
  * 消耗 FE 驱动混合过程，支持 JDTE 自有 datapack 配方和可选 Mekanism Chemical Infuser 配方。</p>
  */
 public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachineBE, FluidMachineBE,
-        RedstoneControlledBE {
+        RedstoneControlledBE, CoalescedAcceleratedMachine {
     public static final int CATALYST_SLOT = 0;
     public static final int TOTAL_SLOTS = 1;
     public static final int BASE_FLUID_CAPACITY = 8000;
@@ -357,9 +357,84 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         setChanged();
     }
 
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun()) {
+            return;
+        }
+        processAcceleratedMixing(ticks);
+    }
+
+    protected void processAcceleratedMixing(int ticks) {
+        if (!(level instanceof ServerLevel)) return;
+        FluidStack tankAFluid = inputTankA.getFluid();
+        FluidStack tankBFluid = inputTankB.getFluid();
+        ItemStack catalyst = itemHandler.getStackInSlot(CATALYST_SLOT);
+        FluidMixerRecipe recipe = findRecipe(tankAFluid, tankBFluid, catalyst);
+        if (recipe == null || !recipe.hasEnoughFluids(tankAFluid, tankBFluid)) {
+            resetProgress();
+            return;
+        }
+        FluidStack outputResult = recipe.output();
+        if (!canOutputFluid(outputResult)) {
+            return;
+        }
+        int energyCost = getEffectiveEnergyCost(recipe.energy());
+        if (energyCost > 0 && !hasEnoughPower(energyCost)) {
+            return;
+        }
+        this.cachedRecipe = recipe;
+        int maxTicks = getEffectiveProcessTicks(recipe);
+        long totalProgress = (long) progress + ticks;
+        long batches = totalProgress / maxTicks;
+        progress = (int) (totalProgress % maxTicks);
+        if (batches <= 0) {
+            setChanged();
+            return;
+        }
+
+        int maxParallel = calculateMaxParallel(recipe, tankAFluid, tankBFluid, catalyst, energyCost);
+        int parallel = (int) Math.min(batches, maxParallel);
+        if (parallel <= 0) {
+            return;
+        }
+
+        int totalDrainA = recipe.getDrainA(tankAFluid) * parallel;
+        int totalDrainB = recipe.getDrainB(tankBFluid) * parallel;
+        int totalEnergy = energyCost * parallel;
+        int totalOutputAmount = outputResult.getAmount() * parallel;
+
+        if (!UpgradeHelper.hasCreativeUpgrade(this)) {
+            inputTankA.drain(totalDrainA, IFluidHandler.FluidAction.EXECUTE);
+            inputTankB.drain(totalDrainB, IFluidHandler.FluidAction.EXECUTE);
+            if (recipe.itemInput().isPresent()) {
+                int itemDrain = recipe.itemInput().get().count() * parallel;
+                catalyst.shrink(itemDrain);
+                itemHandler.setStackInSlot(CATALYST_SLOT, catalyst);
+            }
+            if (totalEnergy > 0) {
+                extractEnergy(totalEnergy, false);
+            }
+        }
+
+        outputTank.fill(outputResult.copyWithAmount(totalOutputAmount), IFluidHandler.FluidAction.EXECUTE);
+        setChanged();
+    }
+
     public int getEffectiveProcessTicks(FluidMixerRecipe recipe) {
         if (recipe == null) return 0;
-        if (UpgradeHelper.hasCreativeUpgrade(this) || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0) {
+        if (UpgradeHelper.hasCreativeUpgrade(this) || UpgradeHelper.hasOverclock(this)) {
             return 1;
         }
         if (UpgradeHelper.countUpgrades(this, UpgradeType.UNDERCLOCK) > 0) {

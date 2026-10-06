@@ -43,7 +43,7 @@ import java.util.ConcurrentModificationException;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE {
+public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE, CoalescedAcceleratedMachine {
     public static final int BOTTLE_SLOT_0 = 0;
     public static final int BOTTLE_SLOT_1 = 1;
     public static final int BOTTLE_SLOT_2 = 2;
@@ -432,6 +432,51 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         } else {
             resetBrewProgress();
         }
+    }
+
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone()) {
+            return;
+        }
+        processAcceleratedBrewing(ticks);
+    }
+
+    protected void processAcceleratedBrewing(int ticks) {
+        if (!(level instanceof ServerLevel)) return;
+        int stepTime = Math.max(1, activeBrewTime > 0 ? activeBrewTime : BREW_TIME);
+        long totalProgress = (long) brewProgress + ticks;
+        long cycles = totalProgress / stepTime;
+        brewProgress = (int) (totalProgress % stepTime);
+        if (cycles <= 0) {
+            setChanged();
+            return;
+        }
+
+        int maxCycles = (int) Math.min(cycles, 128);
+        for (int i = 0; i < maxCycles; i++) {
+            brewProgress = activeBrewTime;
+            try {
+                brew();
+            } catch (ConcurrentModificationException ignored) {
+                break;
+            }
+            if (!hasValidIngredients && activeIngredientOrder < 0 && !sequenceActive) {
+                break;
+            }
+        }
+        setChanged();
     }
 
     protected void brew() {

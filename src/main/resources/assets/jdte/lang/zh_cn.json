@@ -101,6 +101,8 @@
   "jade.jdte.installed_upgrades": "已安装升级",
   "config.jade.plugin_jdte.installed_upgrades": "已安装升级",
   "config.jade.plugin_jdte.mineral_extractor_status": "矿物提取机状态",
+  "config.jade.plugin_jdte.greenhouse_status": "温室大棚状态",
+  "jade.jdte.greenhouse.ultimate_capacity_warning": "[警告] 顶级超频时间流体消耗极高，普通容量无法满足需求，需要安装顶级容量升级！",
   "jade.jdte.mineral_extractor.speed": "提取倍率：%sx / %sx",
   "jade.jdte.energy": "能量：%s / %s FE",
   "item.jdte.guide": "JDT Extras 指南",

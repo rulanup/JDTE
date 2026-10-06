@@ -101,6 +101,8 @@
   "jade.jdte.installed_upgrades": "Installed Upgrades",
   "config.jade.plugin_jdte.installed_upgrades": "Installed Upgrades",
   "config.jade.plugin_jdte.mineral_extractor_status": "Mineral Extractor Status",
+  "config.jade.plugin_jdte.greenhouse_status": "Greenhouse Status",
+  "jade.jdte.greenhouse.ultimate_capacity_warning": "[Warning] Ultimate Overclock Time Fluid consumption exceeds standard capacity. Ultimate Capacity Upgrade required!",
   "jade.jdte.mineral_extractor.speed": "Extraction Multiplier: %sx / %sx",
   "jade.jdte.energy": "Energy: %s / %s FE",
   "item.jdte.guide": "JDT Extras Guide",

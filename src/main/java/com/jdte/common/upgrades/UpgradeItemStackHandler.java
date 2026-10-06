@@ -78,10 +78,10 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         if (!UpgradeHelper.isUpgradeCompatible(machine, type)) {
             return false;
         }
-        if (type.isSpeedUpgrade() && hasOppositeSpeedUpgrade(type)) {
+        if (type.isSpeedUpgrade() && hasOppositeSpeedUpgrade(type, slot)) {
             return false;
         }
-        if (hasConflictingHarvestUpgrade(type)) {
+        if (hasConflictingHarvestUpgrade(type, slot)) {
             return false;
         }
 
@@ -177,25 +177,25 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         return count;
     }
 
-    private boolean hasOppositeSpeedUpgrade(UpgradeType type) {
+    private boolean hasOppositeSpeedUpgrade(UpgradeType type, int slot) {
         if (type == UpgradeType.UNDERCLOCK) {
-            return count(UpgradeType.OVERCLOCK, -1) > 0 || count(UpgradeType.ULTIMATE_OVERCLOCK, -1) > 0;
+            return count(UpgradeType.OVERCLOCK, slot) > 0 || count(UpgradeType.ULTIMATE_OVERCLOCK, slot) > 0;
         }
         if (type == UpgradeType.OVERCLOCK) {
-            return count(UpgradeType.UNDERCLOCK, -1) > 0 || count(UpgradeType.ULTIMATE_OVERCLOCK, -1) > 0;
+            return count(UpgradeType.UNDERCLOCK, slot) > 0 || count(UpgradeType.ULTIMATE_OVERCLOCK, slot) > 0;
         }
         if (type == UpgradeType.ULTIMATE_OVERCLOCK) {
-            return count(UpgradeType.UNDERCLOCK, -1) > 0 || count(UpgradeType.OVERCLOCK, -1) > 0;
+            return count(UpgradeType.UNDERCLOCK, slot) > 0 || count(UpgradeType.OVERCLOCK, slot) > 0;
         }
         return false;
     }
 
-    private boolean hasConflictingHarvestUpgrade(UpgradeType type) {
+    private boolean hasConflictingHarvestUpgrade(UpgradeType type, int slot) {
         if (type == UpgradeType.FORTUNE) {
-            return count(UpgradeType.PRECISION, -1) > 0;
+            return count(UpgradeType.PRECISION, slot) > 0;
         }
         if (type == UpgradeType.PRECISION) {
-            return count(UpgradeType.FORTUNE, -1) > 0;
+            return count(UpgradeType.FORTUNE, slot) > 0;
         }
         return false;
     }

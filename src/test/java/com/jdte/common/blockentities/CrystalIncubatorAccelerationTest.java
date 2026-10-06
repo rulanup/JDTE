@@ -13,8 +13,43 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CrystalIncubatorAccelerationTest {
+
+    @Test
+    void crystalIncubatorIsNotTimeAcceleratorMachineAndIsCoalesced() throws Exception {
+        RecordingCrystalIncubator incubator =
+                (RecordingCrystalIncubator) unsafe().allocateInstance(RecordingCrystalIncubator.class);
+
+        // Crystal Incubator must NOT be a TimeAcceleratorMachine (which skips acceleration)
+        assertFalse(TimeAcceleratorMachine.class.isAssignableFrom(CrystalIncubatorBE.class),
+                "CrystalIncubatorBE must not implement TimeAcceleratorMachine so it can be accelerated");
+
+        // Crystal Incubator must be a CoalescedAcceleratedMachine
+        assertTrue(incubator instanceof CoalescedAcceleratedMachine,
+                "CrystalIncubatorBE must implement CoalescedAcceleratedMachine for batched acceleration");
+
+        // Real Time Accelerators must still implement TimeAcceleratorMachine
+        assertTrue(TimeAcceleratorMachine.class.isAssignableFrom(BasicTimeAcceleratorBE.class));
+        assertTrue(TimeAcceleratorMachine.class.isAssignableFrom(AdvancedTimeAcceleratorBE.class));
+        assertTrue(TimeAcceleratorMachine.class.isAssignableFrom(ExtendedTimeAcceleratorBE.class));
+        assertTrue(TimeAcceleratorMachine.class.isAssignableFrom(AdvancedEntityAcceleratorBE.class));
+        assertTrue(TimeAcceleratorMachine.class.isAssignableFrom(ExtendedEntityAcceleratorBE.class));
+    }
+
+    @Test
+    void crystalIncubatorAccumulatesAcceleratedTicks() throws Exception {
+        RecordingCrystalIncubator incubator =
+                (RecordingCrystalIncubator) unsafe().allocateInstance(RecordingCrystalIncubator.class);
+
+        assertEquals(0, incubator.accumulatedAcceleratedTicks);
+        incubator.accumulateAcceleratedTicks(100);
+        assertEquals(100, incubator.accumulatedAcceleratedTicks);
+        incubator.accumulateAcceleratedTicks(200);
+        assertEquals(300, incubator.accumulatedAcceleratedTicks);
+    }
 
     @Test
     void standardEnergyCostUsesCrystalIncubatorBatchWorkTicks() throws Exception {

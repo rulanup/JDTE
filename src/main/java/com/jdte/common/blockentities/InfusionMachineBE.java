@@ -35,7 +35,10 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMachineBE, RedstoneControlledBE {
+import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
+import com.jdte.common.upgrades.UpgradeType;
+
+public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMachineBE, RedstoneControlledBE, CoalescedAcceleratedMachine {
     public static final int INPUT_SLOT = 0;
     public static final int OUTPUT_SLOT = 1;
     public static final int TOTAL_SLOTS = 2;
@@ -163,6 +166,123 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
         }
 
         progress = 0;
+        setChanged();
+    }
+
+    public int getEnergyStored() {
+        if (this instanceof PoweredMachineBE poweredMachine && poweredMachine.getEnergyStorage() != null) {
+            return poweredMachine.getEnergyStorage().getEnergyStored();
+        }
+        return 0;
+    }
+
+    public int getEffectiveProcessTime() {
+        if (UpgradeHelper.hasCreativeUpgrade(this) || UpgradeHelper.hasOverclock(this)) {
+            return 1;
+        }
+        if (UpgradeHelper.hasUndercLock(this)) {
+            return 40;
+        }
+        return PROCESS_TIME;
+    }
+
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun()) {
+            return;
+        }
+        processAcceleratedInfusion(ticks);
+    }
+
+    protected void processAcceleratedInfusion(int ticks) {
+        if (!(level instanceof ServerLevel)) return;
+
+        ItemStack inputStack = itemHandler.getStackInSlot(INPUT_SLOT);
+        FluidStack tankFluid = fluidTank.getFluid();
+
+        if (inputStack.isEmpty() || tankFluid.isEmpty()) {
+            resetProgress();
+            return;
+        }
+
+        InfusionProcess process = findProcess(inputStack, tankFluid);
+        if (process == null) {
+            resetProgress();
+            return;
+        }
+
+        ItemStack result = process.output();
+        if (!canOutput(result)) {
+            resetProgress();
+            return;
+        }
+
+        int energyCost = getEffectiveEnergyCost(process.energyCost());
+        if (energyCost > 0 && !UpgradeHelper.hasCreativeUpgrade(this) && !hasEnoughPower(energyCost)) {
+            resetProgress();
+            return;
+        }
+
+        int processTime = getEffectiveProcessTime();
+        long totalProgress = (long) progress + ticks;
+        long batches = totalProgress / processTime;
+        progress = (int) (totalProgress % processTime);
+        if (batches <= 0) {
+            setChanged();
+            return;
+        }
+
+        int maxBatches;
+        if (UpgradeHelper.hasCreativeUpgrade(this)) {
+            ItemStack output = itemHandler.getStackInSlot(OUTPUT_SLOT);
+            int availableOutputSpace = output.isEmpty() ? result.getMaxStackSize() : (result.getMaxStackSize() - output.getCount());
+            maxBatches = result.getCount() > 0 ? (availableOutputSpace / result.getCount()) : (int) Math.min(Integer.MAX_VALUE, batches);
+        } else {
+            int inputBatches = process.inputAmount() > 0 ? (inputStack.getCount() / process.inputAmount()) : Integer.MAX_VALUE;
+            int fluidBatches = process.fluidAmount() > 0 ? (tankFluid.getAmount() / process.fluidAmount()) : Integer.MAX_VALUE;
+            int energyBatches = energyCost > 0 ? (getEnergyStored() / energyCost) : Integer.MAX_VALUE;
+            ItemStack output = itemHandler.getStackInSlot(OUTPUT_SLOT);
+            int availableOutputSpace = output.isEmpty() ? result.getMaxStackSize() : (result.getMaxStackSize() - output.getCount());
+            int outputBatches = result.getCount() > 0 ? (availableOutputSpace / result.getCount()) : Integer.MAX_VALUE;
+            maxBatches = Math.min(Math.min(inputBatches, fluidBatches), Math.min(energyBatches, outputBatches));
+        }
+
+        int parallel = (int) Math.min(batches, maxBatches);
+        if (parallel <= 0) {
+            setChanged();
+            return;
+        }
+
+        if (!UpgradeHelper.hasCreativeUpgrade(this)) {
+            inputStack.shrink(process.inputAmount() * parallel);
+            itemHandler.setStackInSlot(INPUT_SLOT, inputStack);
+            fluidTank.drain(process.fluidAmount() * parallel, IFluidHandler.FluidAction.EXECUTE);
+            if (energyCost > 0) {
+                extractEnergy(energyCost * parallel, false);
+            }
+        }
+
+        ItemStack outputStack = itemHandler.getStackInSlot(OUTPUT_SLOT);
+        if (outputStack.isEmpty()) {
+            outputStack = result.copy();
+            outputStack.setCount(result.getCount() * parallel);
+            itemHandler.setStackInSlot(OUTPUT_SLOT, outputStack);
+        } else {
+            outputStack.grow(result.getCount() * parallel);
+            itemHandler.setStackInSlot(OUTPUT_SLOT, outputStack);
+        }
+
         setChanged();
     }
 

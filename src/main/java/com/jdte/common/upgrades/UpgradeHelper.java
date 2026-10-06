@@ -352,11 +352,35 @@ public class UpgradeHelper {
     public static boolean usesLockedDelay(BaseMachineBE machine) {
         return !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof BioFactoryBE) && !(machine instanceof LifeBreederBE)
-                && !(machine instanceof LifeSynthesisVatBE) && !(machine instanceof MineralExtractorBE);
+                && !(machine instanceof LifeSynthesisVatBE) && !(machine instanceof MineralExtractorBE)
+                && !(machine instanceof CrystalIncubatorBE);
     }
 
     public static boolean hasUltimateOverclock(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.ULTIMATE_OVERCLOCK) > 0;
+    }
+
+    /**
+     * Returns the execution multiplier for machine work per tick.
+     * With Ultimate Overclock, machines execute 10 times per tick.
+     * With standard Overclock or Creative, machines execute 2 times per tick.
+     * When redstone is inactive, returns 0.
+     */
+    public static int getExecutionMultiplier(BaseMachineBE machine) {
+        if (machine == null) {
+            return 1;
+        }
+        if (machine instanceof com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE redstoneControlled
+                && !redstoneControlled.isActiveRedstoneTestOnly()) {
+            return 0;
+        }
+        if (hasUltimateOverclock(machine)) {
+            return 10;
+        }
+        if (hasOverclock(machine) && countUpgrades(machine, UpgradeType.UNDERCLOCK) == 0) {
+            return 2;
+        }
+        return 1;
     }
 
     public static boolean hasUltimateCapacity(BaseMachineBE machine) {
@@ -430,7 +454,8 @@ public class UpgradeHelper {
                 && !(machine instanceof AdvancedItemCollectorBE)
                 && !(machine instanceof TimeAcceleratorMachine || machine instanceof EntitySuppressorBE)
                 && !(machine instanceof RangeBlockerBE || machine instanceof AdvancedEnergyTransmitterBE)
-                && !(machine instanceof FactoryPackerBE);
+                && !(machine instanceof FactoryPackerBE)
+                && !(machine instanceof CrystalIncubatorBE);
     }
 
     /** Executes the actual machine ticker while preserving the original redstone-off reset path. */

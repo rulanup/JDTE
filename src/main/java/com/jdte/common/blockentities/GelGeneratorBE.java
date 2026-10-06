@@ -42,7 +42,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.slf4j.Logger;
 
-public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMachineBE, FilterableBE, RedstoneControlledBE, FluidMachineBE, BaseFilterMachine {
+public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMachineBE, FilterableBE, RedstoneControlledBE, FluidMachineBE, BaseFilterMachine, CoalescedAcceleratedMachine {
     public static final int GEL_SLOT = 0;
     public static final int FOOD_SLOT = 1;
     public static final int INPUT_START_SLOT = 2;
@@ -252,6 +252,44 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
         }
     }
 
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun()) {
+            return;
+        }
+        processAcceleratedConversion(ticks);
+    }
+
+    protected void processAcceleratedConversion(int ticks) {
+        int maxProgress = Math.max(1, getConversionProgressMax());
+        long totalProgress = (long) conversionProgress + ticks;
+        long cycles = totalProgress / maxProgress;
+        conversionProgress = (int) (totalProgress % maxProgress);
+        if (cycles <= 0) {
+            setChanged();
+            return;
+        }
+
+        int maxCycles = (int) Math.min(cycles, 256);
+        for (int i = 0; i < maxCycles; i++) {
+            if (!executeOneConversionCycle()) {
+                break;
+            }
+        }
+        setChanged();
+    }
+
     protected void processConversion() {
         ItemStack gelStack = itemHandler.getStackInSlot(GEL_SLOT);
         ItemStack foodStack = itemHandler.getStackInSlot(FOOD_SLOT);
@@ -306,6 +344,52 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
             return;
         }
 
+        executeOneConversionCycle();
+        conversionProgress = 0;
+        setChanged();
+    }
+
+    private boolean executeOneConversionCycle() {
+        ItemStack gelStack = itemHandler.getStackInSlot(GEL_SLOT);
+        ItemStack foodStack = itemHandler.getStackInSlot(FOOD_SLOT);
+        int gelTier;
+        JustDynaThingsGooIntegration.GooType dynaGooType;
+        try {
+            gelTier = getGelTier(gelStack);
+            dynaGooType = getDynaGooType(gelStack);
+        } catch (Throwable e) {
+            return false;
+        }
+        boolean freeOperation = UpgradeHelper.hasCreativeUpgrade(this)
+                || dynaGooType == JustDynaThingsGooIntegration.GooType.CREATIVE;
+        if (gelTier <= 0 || (!freeOperation
+                && dynaGooType == JustDynaThingsGooIntegration.GooType.NONE
+                && !hasFuel(foodStack, gelStack))) {
+            return false;
+        }
+
+        if (!hasConvertibleWork(gelTier)) {
+            return false;
+        }
+
+        int operationEnergyCost;
+        int gooEnergyCost;
+        try {
+            operationEnergyCost = freeOperation ? 0 : getStandardEnergyCost();
+            gooEnergyCost = freeOperation ? 0 : getDynaGooEnergyCost(gelStack);
+        } catch (Throwable e) {
+            return false;
+        }
+        long requiredEnergy = (long) operationEnergyCost + gooEnergyCost;
+        if (requiredEnergy > 0) {
+            if (requiredEnergy > Integer.MAX_VALUE || !hasEnoughPower((int) requiredEnergy)) {
+                return false;
+            }
+            if (gooEnergyCost > 0) {
+                extractEnergy(gooEnergyCost, false);
+            }
+        }
+
         int itemConversions = 0;
         boolean fluidConverted = false;
         try {
@@ -313,9 +397,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
             fluidConverted = convertFluid(gelTier);
         } catch (Throwable e) {
             LOGGER.warn("[JDTE] GelGenerator conversion failed tier={}: {}", gelTier, e.toString());
-            conversionProgress = 0;
-            setChanged();
-            return;
+            return false;
         }
         if (itemConversions > 0 || fluidConverted) {
             if (operationEnergyCost > 0) {
@@ -324,9 +406,9 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
             if (!freeOperation && dynaGooType == JustDynaThingsGooIntegration.GooType.NONE) {
                 consumeFuel();
             }
+            return true;
         }
-        conversionProgress = 0;
-        setChanged();
+        return false;
     }
 
     private boolean hasFuel(ItemStack foodStack, ItemStack gelStack) {

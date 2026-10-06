@@ -6,7 +6,7 @@ import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class BasicTimeAcceleratorBE extends TimeAcceleratorBE {
+public class BasicTimeAcceleratorBE extends TimeAcceleratorBE implements TimeAcceleratorMachine {
     public BasicTimeAcceleratorBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.BASIC_TIME_ACCELERATOR.get(), pos, state);
     }

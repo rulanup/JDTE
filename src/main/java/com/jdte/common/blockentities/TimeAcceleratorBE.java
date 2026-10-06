@@ -34,7 +34,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
-public abstract class TimeAcceleratorBE extends BaseMachineBE implements RedstoneControlledBE, AreaAffectingBE, FluidMachineBE, FilterableBE, TimeAcceleratorMachine, BaseFilterMachine {
+public abstract class TimeAcceleratorBE extends BaseMachineBE implements RedstoneControlledBE, AreaAffectingBE, FluidMachineBE, FilterableBE, BaseFilterMachine {
     public final FluidContainerData fluidContainerData;
     public final JDTEFluidTank fluidTank;
     public RedstoneControlData redstoneControlData = new RedstoneControlData();

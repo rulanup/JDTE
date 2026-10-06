@@ -35,7 +35,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-public abstract class LifeExtractorBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, FluidMachineBE {
+public abstract class LifeExtractorBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, FluidMachineBE, CoalescedAcceleratedMachine {
     public static final int MODE_HOSTILE = 0;
     public static final int MODE_FRIENDLY = 1;
     public static final int MODE_ALL = 2;
@@ -128,6 +128,50 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         areaAffectingData.zRadius = Math.min(areaAffectingData.zRadius, maxRadius);
     }
 
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun()) {
+            return;
+        }
+        processAcceleratedLife(ticks);
+    }
+
+    protected void processAcceleratedLife(int ticks) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        int interval = Math.max(1, getExtractInterval());
+        long totalProgress = (long) tickCounter + ticks;
+        long cycles = totalProgress / interval;
+        tickCounter = (int) (totalProgress % interval);
+        if (cycles <= 0) {
+            setChanged();
+            return;
+        }
+
+        int energyCost = getEffectiveEnergyCost();
+        int maxCycles = (int) Math.min(cycles, 64);
+        for (int i = 0; i < maxCycles; i++) {
+            if (energyCost > 0 && !UpgradeHelper.hasCreativeUpgrade(this) && !hasEnoughPower(energyCost)) {
+                break;
+            }
+            int processed = executeOneExtractCycle(serverLevel, energyCost);
+            if (processed == 0) {
+                break;
+            }
+        }
+        setChanged();
+    }
+
     protected void extractLife() {
         tickCounter++;
         if (tickCounter < getExtractInterval()) {
@@ -142,9 +186,13 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
             return;
         }
 
+        executeOneExtractCycle(serverLevel, energyCost);
+    }
+
+    protected int executeOneExtractCycle(ServerLevel serverLevel, int energyCost) {
         flushPendingLifeFluid();
         if (pendingLifeFluid >= 1.0D) {
-            return;
+            return 0;
         }
 
         AABB area = getAABB(getBlockPos());
@@ -201,6 +249,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         if (processed > 0) {
             setChanged();
         }
+        return processed;
     }
 
     public static double calculateLifeFluid(double health) {

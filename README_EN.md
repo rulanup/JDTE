@@ -2,7 +2,16 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.3.0`
+Current version: `0.6.3.1`
+
+## What's new in 0.6.3.1
+
+Feature & maintenance release:
+- **Native 32768X & Extreme Wand Acceleration Optimization for JDTE Machines**: Overhauled and expanded `CoalescedAcceleratedMachine` batch execution across all JDTE production and processing machines (Bio Crushers, Bio Extractors, Bio Factory, Fluid Mixer, Gel Generator, Infusion Machines, Life Breeder, Life Extractor, Loot Fabricator, Advanced Potion Brewer, and Crystal Incubator). When receiving extreme acceleration from the Ultimate Time Wand (up to 32768X) or time accelerators, machines batch operations, pre-check energy and fluids, probe output capacity, and smoothly consume resources without frame drops or CPU lag; machines with Ultimate Overclock Upgrade smoothly receive 1-tick / 10-iteration acceleration benefits.
+- **Crystal Incubator Time Acceleration Fix**: Fixed a bug where the Crystal Incubator could not be accelerated by Time Accelerators or Time Wands. The anti-nesting `TimeAcceleratorMachine` marker has been precisely scoped to real time accelerators, while the Crystal Incubator now implements `CoalescedAcceleratedMachine` with up to 64 cycles/tick batch growth and harvest and 10x growth acceleration under Ultimate Overclock.
+- **Greenhouse & Large Greenhouse Jade Fluid Warning**: When a Greenhouse or Large Greenhouse has an Ultimate Overclock Upgrade installed without sufficient capacity upgrades, Jade displays a clear warning status explaining that Time Fluid capacity is insufficient to support Ultimate Overclock fluid consumption.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.3.1.md).
 
 ## What's new in 0.6.3.0
 

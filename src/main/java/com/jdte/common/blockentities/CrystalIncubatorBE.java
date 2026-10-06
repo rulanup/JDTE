@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpgradeMachine, PoweredMachineBE {
+public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpgradeMachine, PoweredMachineBE, CoalescedAcceleratedMachine {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final double AE2_GROWTH_ACCELERATOR_INTERVAL_TICKS = 10.0D;
     private static final double REGULAR_GROWTH_REFERENCE_MULTIPLIER = 8.0D;
@@ -89,6 +89,9 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
     @Override
     public int getEffectiveMultiplier() {
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.crystalIncubatorOverclockMultiplier.get() * 10;
+        }
         return UpgradeHelper.hasOverclock(this)
                 ? JDTEConfig.COMMON.crystalIncubatorOverclockMultiplier.get()
                 : multiplier;
@@ -165,6 +168,65 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             ExtendedTimeAccelerationManager.consumePreparedResources(this, prepared);
             harvestMatureCrystals(serverLevel);
         }
+    }
+
+    protected int accumulatedAcceleratedTicks = 0;
+
+    @Override
+    public void accumulateAcceleratedTicks(int ticks) {
+        if (ticks > 0) {
+            accumulatedAcceleratedTicks = (int) Math.min(Integer.MAX_VALUE, (long) accumulatedAcceleratedTicks + ticks);
+        }
+    }
+
+    @Override
+    public void flushAcceleratedTicks() {
+        int ticks = accumulatedAcceleratedTicks;
+        accumulatedAcceleratedTicks = 0;
+        if (ticks <= 0 || !isActiveRedstone() || !canRun() || !UpgradeHelper.mayRunWithUpgrades(this)) {
+            return;
+        }
+        processAcceleratedTicks(ticks);
+    }
+
+    protected void processAcceleratedTicks(int ticks) {
+        if (!(level instanceof ServerLevel serverLevel) || !hasOutputSpace()) {
+            return;
+        }
+        updateBuddingCache(serverLevel);
+        if (buddingPositions.isEmpty()) {
+            return;
+        }
+        int maxCycles = Math.min(ticks, 64);
+        for (int i = 0; i < maxCycles; i++) {
+            harvestMatureCrystals(serverLevel);
+            if (!hasOutputSpace()) {
+                break;
+            }
+            ExtendedTimeAccelerationManager.PreparedAcceleration prepared =
+                    ExtendedTimeAccelerationManager.prepareAcceleration(this);
+            if (!hasResources(prepared.fluidCost(), prepared.energyCost())) {
+                break;
+            }
+            boolean processed = growCachedBudding(
+                    serverLevel, prepared.workTicks(), prepared.energyCost(), prepared.fluidCost());
+            if (processed) {
+                ExtendedTimeAccelerationManager.consumePreparedResources(this, prepared);
+                harvestMatureCrystals(serverLevel);
+            } else {
+                break;
+            }
+        }
+    }
+
+    private boolean hasOutputSpace() {
+        for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
+            ItemStack stack = outputHandler.getStackInSlot(slot);
+            if (stack.isEmpty() || stack.getCount() < outputHandler.getSlotLimit(slot)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
