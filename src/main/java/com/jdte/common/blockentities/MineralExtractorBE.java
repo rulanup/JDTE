@@ -608,8 +608,9 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     protected long baseWorkPerTick() { return 1L; }
     public boolean isSurveySlot(int slot) { return slot >= 0 && slot < surveySlotCount(); }
     public int getActiveOutputSlots() {
-        int configured = BASE_OUTPUT_SLOTS
-                + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
+        int configured = UpgradeHelper.hasUltimateCapacity(this)
+                ? OUTPUT_SLOTS
+                : BASE_OUTPUT_SLOTS + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
             if (!itemHandler.getStackInSlot(outputStartSlot() + slot).isEmpty()) occupied = slot + 1;
@@ -619,6 +620,11 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     public int getOutputSlotLimit() {
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (gameTick != Long.MIN_VALUE && outputSlotLimitTick == gameTick) return cachedOutputSlotLimit;
+        if (UpgradeHelper.hasUltimateCapacity(this)) {
+            cachedOutputSlotLimit = 64;
+            outputSlotLimitTick = gameTick;
+            return 64;
+        }
         int upgrades = UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY);
         cachedOutputSlotLimit = upgrades <= 0
                 ? BASE_OUTPUT_STACK_LIMIT
@@ -636,6 +642,9 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         markDirtyClient();
     }
     public int getMaxSelectableMultiplier() {
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.mineralExtractor.overclockMaxMultiplier.get() * 10;
+        }
         return UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this)
                 ? JDTEConfig.COMMON.mineralExtractor.overclockMaxMultiplier.get()
                 : JDTEConfig.COMMON.mineralExtractor.maxMultiplier.get();

@@ -2,7 +2,17 @@
 
 ### English
 
-#### v0.6.2.0 (Current) — 2026-10-03
+#### v0.6.3.0 (Current) — 2026-10-06
+
+Feature and maintenance release introducing Mineral Extractor JEI integration and network synchronization, modded ore world-generation recognition improvements, Ultimate Overclock Upgrade, Ultimate Capacity Upgrade, 32768X wand acceleration, and full GuideME and Patchouli in-game documentation, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.3.0 release notes](docs/releases/0.6.3.0.md).
+
+- **Mineral Extractor JEI Integration & Network Sync (`jdte:mineral_extractor`)**: Added a dedicated JEI recipe category for the Mineral Extractor and Large Mineral Extractor, displaying surveyed biomes, extractable ores, base chances, and smelting outputs. Server-side biome ore survey index is automatically synchronized to clients on connect and `/reload` via network packets to ensure accurate JEI viewing in multiplayer.
+- **Modded Ore Feature Detection & Compatibility**: Overhauled world-generation feature analysis to recognize modded ores including Mekanism (`ResizableOreFeatureConfig`), BiomeModifiers, and dynamic Codec fallbacks, ensuring all modded ore veins are reliably indexed and extractable.
+- **Ultimate Overclock Upgrade (`jdte:ultimate_overclock_upgrade`)**: High-tier overclock upgrade (limit 1). Locks machine delay to 1 tick and executes 10 times per tick at 50x power consumption. Can also be applied to the Ultimate Time Wand via crafting or smithing to boost maximum acceleration up to 32768X.
+- **Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`)**: High-tier capacity upgrade (limit 1). Provides a 50x capacity upgrade multiplier, massively scaling machine FE capacity, fluid capacity, and maximizing output inventory space.
+- **GuideME & Patchouli In-Game Documentation**: Added comprehensive documentation in both English and Simplified Chinese across GuideME and Patchouli guide books for the new upgrades and Ultimate Time Wand acceleration modes.
+
+#### v0.6.2.0 — 2026-10-03
 
 Feature and maintenance release introducing Bio Extractor machines, Fluid Mixer GUI redesign and documentation, Advanced Upgrade Storage multi-item pagination, and dependency decoupling fixes, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.2.0 release notes](docs/releases/0.6.2.0.md).
 
@@ -337,7 +347,17 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.2.0（当前）— 2026-10-03
+#### v0.6.3.0（当前）— 2026-10-06
+
+引入矿物提取机 JEI 集成与网络同步、模组矿物世界生成特征识别与兼容增强、顶级超频升级、顶级容量升级、时间手杖 32768X 加速、以及 GuideME 与 Patchouli 游戏内向导手册完整文档的功能与维护更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.3.0 发布说明](docs/releases/0.6.3.0.md)。
+
+- **矿物提取机 JEI 集成与网络同步 (`jdte:mineral_extractor`)**：新增矿物提取机 JEI 配方分类，支持查阅所有生物群系中可提取的矿物、基础生成概率与烧炼产物。服务端群系矿物清单在数据包加载与 `/reload` 时自动通过网络包同步至客户端，确保多人联机环境下 JEI 显示完全准确。
+- **模组矿物特征识别与兼容增强**：重构矿物特征解析引擎，全面兼容识别 Mekanism（`ResizableOreFeatureConfig`）等各类模组矿脉配置，结合反射解析与动态 JSON Codec 兜底，完美识别模组生成的深层与稀有矿脉。
+- **顶级超频升级 (`jdte:ultimate_overclock_upgrade`)**：全新顶级升级卡（限装 1 张）。放入机器时将工作延迟锁定为 1 tick，单 tick 内高速运行 10 次，耗电倍率提升至 50 倍；亦可通过合成或锻造打在顶级时间手杖上，将手杖最大加速倍率提升至 32768X。
+- **顶级容量升级 (`jdte:ultimate_capacity_upgrade`)**：全新顶级升级卡（限装 1 张）。提供等同于 50 倍容量升级效果，极大扩充机器 FE 能量上限、流体存储上限，并解锁最大产物槽位容量。
+- **GuideME 与 Patchouli 游戏内向导手册文档补全**：全面完善升级卡与顶级时间手杖的中文和英文版游戏内向导与手册条目。
+
+#### v0.6.2.0 — 2026-10-03
 
 引入生物提取器系列、流体混合器界面与文档重构、高级升级存储器多物品翻页支持与依赖解耦修复的功能与维护更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.2.0 发布说明](docs/releases/0.6.2.0.md)。
 

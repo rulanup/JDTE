@@ -109,7 +109,7 @@ public class UltimateTimeWandEntity extends Entity {
     }
 
     public void merge(int exponentStep) {
-        applyState(merge(state(), exponentStep, UltimateTimeWandData.MAX_EXPONENT));
+        applyState(merge(state(), exponentStep, UltimateTimeWandData.ULTIMATE_MAX_EXPONENT));
     }
 
     /** Applies a fully planned state or restores the prior state after a failed item transaction. */
@@ -147,7 +147,7 @@ public class UltimateTimeWandEntity extends Entity {
 
     private void applyState(WandState state) {
         target = state.target();
-        entityData.set(EXPONENT, Math.max(0, Math.min(UltimateTimeWandData.MAX_EXPONENT, state.exponent())));
+        entityData.set(EXPONENT, Math.max(0, Math.min(UltimateTimeWandData.ULTIMATE_MAX_EXPONENT, state.exponent())));
         entityData.set(TOTAL_TIME, Math.max(0, state.totalTime()));
         entityData.set(REMAINING_TIME, Math.max(0, Math.min(getTotalTime(), state.remainingTime())));
         if (target != null) {

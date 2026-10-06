@@ -16,7 +16,9 @@ public enum UpgradeType {
     AE_CRAFTING_READ("ae_crafting_read", 1),
     AE_OUTPUT("ae_output", 1),
     ESSENCE_CONVERSION("essence_conversion", 1),
-    SEED_CONVERSION("seed_conversion", 1);
+    SEED_CONVERSION("seed_conversion", 1),
+    ULTIMATE_OVERCLOCK("ultimate_overclock", 1),
+    ULTIMATE_CAPACITY("ultimate_capacity", 1);
 
     private final String serializedName;
     private final int maxPerMachine;
@@ -35,7 +37,7 @@ public enum UpgradeType {
     }
 
     public boolean isSpeedUpgrade() {
-        return this == OVERCLOCK || this == UNDERCLOCK;
+        return this == OVERCLOCK || this == UNDERCLOCK || this == ULTIMATE_OVERCLOCK;
     }
 
     public boolean isCreativeUpgrade() {

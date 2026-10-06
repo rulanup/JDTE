@@ -160,8 +160,9 @@ public abstract class BioCrusherBE extends BaseMachineBE implements RedstoneCont
         if (!hasOutputInventory()) {
             return 0;
         }
-        int configuredSlots = BASE_OUTPUT_SLOT_COUNT
-                + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * getOutputSlotsPerCapacityUpgrade();
+        int configuredSlots = UpgradeHelper.hasUltimateCapacity(this)
+                ? getMaxOutputSlotCount()
+                : BASE_OUTPUT_SLOT_COUNT + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * getOutputSlotsPerCapacityUpgrade();
         return Math.clamp(Math.max(configuredSlots, getOccupiedOutputSlotCount()), BASE_OUTPUT_SLOT_COUNT, getMaxOutputSlotCount());
     }
 

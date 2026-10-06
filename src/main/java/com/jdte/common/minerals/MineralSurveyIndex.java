@@ -8,6 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -22,9 +24,25 @@ public final class MineralSurveyIndex {
 
     public static synchronized void rebuild(MinecraftServer server) {
         Registry<Biome> biomes = server.registryAccess().registryOrThrow(Registries.BIOME);
+        try {
+            var modifierRegistry = server.registryAccess().registry(NeoForgeRegistries.Keys.BIOME_MODIFIERS);
+            if (modifierRegistry.isPresent()) {
+                List<BiomeModifier> modifiers = modifierRegistry.get().holders().map(Holder::value).toList();
+                for (Holder.Reference<Biome> biomeHolder : biomes.holders().toList()) {
+                    try {
+                        biomeHolder.value().modifiableBiomeInfo()
+                                .applyBiomeModifiers(biomeHolder, modifiers, server.registryAccess());
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
         Map<ResourceLocation, List<MineralEntry>> profiles = new java.util.LinkedHashMap<>();
         for (Map.Entry<ResourceKey<Biome>, Biome> entry : biomes.entrySet()) {
-            Holder<Biome> holder = biomes.wrapAsHolder(entry.getValue());
+            Holder<Biome> holder = biomes.getHolder(entry.getKey())
+                    .map(h -> (Holder<Biome>) h)
+                    .orElseGet(() -> biomes.wrapAsHolder(entry.getValue()));
             ResourceLocation biomeId = entry.getKey().location();
             List<MineralEntry> minerals = new java.util.ArrayList<>(
                     MineralFeatureAnalyzer.analyze(holder, DEFAULT_MAX_ENTRIES));
@@ -41,7 +59,24 @@ public final class MineralSurveyIndex {
             if (!minerals.isEmpty()) profiles.put(biomeId, minerals);
         }
         Map<ResourceLocation, List<MineralEntry>> immutableProfiles = Map.copyOf(profiles);
-        SERVERS.put(server, new Snapshot(immutableProfiles, fingerprint(immutableProfiles)));
+        Map<ResourceLocation, ResourceLocation> biomeDimensions = new java.util.HashMap<>();
+        try {
+            for (ServerLevel level : server.getAllLevels()) {
+                ResourceLocation dimId = level.dimension().location();
+                for (Holder<Biome> b : level.getChunkSource().getGenerator().getBiomeSource().possibleBiomes()) {
+                    b.unwrapKey().ifPresent(key -> biomeDimensions.putIfAbsent(key.location(), dimId));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        long version = fingerprint(immutableProfiles);
+        Map<ResourceLocation, MineralSurveyData> surveys = new java.util.LinkedHashMap<>();
+        for (Map.Entry<ResourceLocation, List<MineralEntry>> p : immutableProfiles.entrySet()) {
+            ResourceLocation biomeId = p.getKey();
+            ResourceLocation dimId = biomeDimensions.getOrDefault(biomeId, ResourceLocation.withDefaultNamespace("overworld"));
+            surveys.put(biomeId, MineralSurveyData.create(version, biomeId, dimId, p.getValue()));
+        }
+        SERVERS.put(server, new Snapshot(immutableProfiles, Map.copyOf(surveys), version));
     }
 
     public static synchronized Profile profile(ServerLevel level, Holder<Biome> biome) {
@@ -55,6 +90,14 @@ public final class MineralSurveyIndex {
 
     public static synchronized List<MineralEntry> get(ServerLevel level, Holder<Biome> biome) {
         return profile(level, biome).entries();
+    }
+
+    public static synchronized List<MineralSurveyData> surveys(MinecraftServer server) {
+        return List.copyOf(snapshot(server).surveys().values());
+    }
+
+    public static synchronized Map<ResourceLocation, List<MineralEntry>> profiles(MinecraftServer server) {
+        return snapshot(server).profiles();
     }
 
     public static synchronized long version(MinecraftServer server) {
@@ -129,6 +172,9 @@ public final class MineralSurveyIndex {
         }
     }
 
-    private record Snapshot(Map<ResourceLocation, List<MineralEntry>> profiles, long version) {
+    private record Snapshot(
+            Map<ResourceLocation, List<MineralEntry>> profiles,
+            Map<ResourceLocation, MineralSurveyData> surveys,
+            long version) {
     }
 }

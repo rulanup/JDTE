@@ -699,6 +699,9 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
 
     public boolean isActive() { return activeMask != 0; }
     public int getMultiplier() {
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get() * 10;
+        }
         if (UpgradeHelper.hasOverclock(this)) {
             return JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get();
         }
@@ -713,14 +716,21 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         }
     }
     public int getMaxSelectableMultiplier() {
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get() * 10;
+        }
         return UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this)
                 ? JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get()
                 : JDTEConfig.COMMON.greenhouseMaxSpeedMultiplier.get();
     }
     public int getEffectiveEnergyPerHarvest() {
-        return UpgradeHelper.hasCreativeUpgrade(this) ? 0
-                : com.jdte.common.greenhouse.GreenhouseMatrixRuntime.applyEfficiency(this,
+        if (UpgradeHelper.hasCreativeUpgrade(this)) return 0;
+        int base = com.jdte.common.greenhouse.GreenhouseMatrixRuntime.applyEfficiency(this,
                 JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get());
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return (int) Math.min(Integer.MAX_VALUE, (long) base * 50L);
+        }
+        return base;
     }
     private int getEffectiveFluidPerHarvest(int slot, GreenhouseCropDefinition definition) {
         int reducedBase = Math.max(1, (definition.timeFluid()
@@ -738,8 +748,9 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
         if (isClientSide()) return Math.max(BASE_OUTPUT_SLOTS, syncedActiveOutputSlots);
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (gameTick != Long.MIN_VALUE && activeOutputSlotsTick == gameTick) return cachedActiveOutputSlots;
-        int configured = BASE_OUTPUT_SLOTS
-                + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
+        int configured = UpgradeHelper.hasUltimateCapacity(this)
+                ? OUTPUT_SLOTS
+                : BASE_OUTPUT_SLOTS + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int i = 0; i < OUTPUT_SLOTS; i++) {
             if (!itemHandler.getStackInSlot(OUTPUT_START_SLOT + i).isEmpty()) occupied = i + 1;

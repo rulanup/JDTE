@@ -23,6 +23,8 @@
     "jdte:energy_overload_upgrade",
     "jdte:ae_extraction_upgrade",
     "jdte:entity_acceleration_upgrade",
-    "jdte:extended_upgrade"
+    "jdte:extended_upgrade",
+    "jdte:ultimate_capacity_upgrade",
+    "jdte:ultimate_overclock_upgrade"
   ]
 }

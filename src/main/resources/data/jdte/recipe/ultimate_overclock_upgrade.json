@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "justdirethings:eclipsealloy_ingot"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    },
+    "O": {
+      "item": "jdte:overclock_upgrade"
+    },
+    "T": {
+      "item": "justdirethings:time_crystal"
+    }
+  },
+  "pattern": [
+    "TET",
+    "NON",
+    "TET"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jdte:ultimate_overclock_upgrade"
+  }
+}

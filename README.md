@@ -2,9 +2,20 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.2.0`
+当前版本：`0.6.3.0`
 
 [English README](README_EN.md)
+
+## 0.6.3.0 更新
+
+功能与维护更新版本：
+- **矿物提取机 JEI 集成与网络同步**：在 JEI 中新增矿物提取机配方分类，清晰展示所有生物群系的可开采矿物、基础生成概率与烧炼产物。服务端群系矿物清单数据包加载及重载时自动向客户端网络同步。
+- **模组矿物特征识别与兼容增强**：重构矿物特征解析引擎，全面支持 Mekanism（`ResizableOreFeatureConfig`）等模组的自定义矿物特征，结合反射解析与 JSON Codec 兜底，完美识别模组生成的各类深层与稀有矿脉。
+- **顶级超频升级 (`jdte:ultimate_overclock_upgrade`)**：全新顶级升级卡（限 1 张）。放入机器时将机器工作延迟锁定为 1 tick，单 tick 内高速运行 10 次，耗电倍率提升至 50 倍；亦可打在顶级时间手杖上，将手杖最大加速倍率提升至 32768X。
+- **顶级容量升级 (`jdte:ultimate_capacity_upgrade`)**：全新顶级升级卡（限 1 张）。提供等同于 50 倍容量升级效果，极大扩充机器 FE 能量上限、流体存储上限，并解锁最大产物槽位容量。
+- **GuideME 与 Patchouli 游戏内手册文档补全**：全面完善升级卡与顶级时间手杖的中文和英文版游戏内向导与手册条目。
+
+完整英文说明：[0.6.3.0 Release Notes](docs/releases/0.6.3.0.md)。
 
 ## 0.6.2.0 更新
 

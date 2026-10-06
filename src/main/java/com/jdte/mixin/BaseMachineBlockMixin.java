@@ -72,9 +72,11 @@ public abstract class BaseMachineBlockMixin {
                 redstoneControlled.evaluateRedstone();
                 redstoneActive = redstoneControlled.isActiveRedstoneTestOnly();
             }
+            boolean ultimateOverclock = redstoneActive && UpgradeHelper.hasUltimateOverclock(machine);
             boolean overclock = redstoneActive && UpgradeHelper.shouldRunOverclock(machine);
+            int executions = ultimateOverclock ? 10 : (overclock ? 2 : 1);
             UpgradeHelper.runServerTicker(UpgradeHelper.usesCommonAeTickerGate(machine), redstoneActive,
-                    () -> UpgradeHelper.mayRunWithUpgrades(machine), overclock,
+                    () -> UpgradeHelper.mayRunWithUpgrades(machine), executions,
                     () -> original.tick(tickLevel, pos, blockState, blockEntity));
         });
     }

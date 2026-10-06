@@ -26,6 +26,8 @@ item_ids:
   - jdte:sharpness_upgrade
   - jdte:energy_brewing_upgrade
   - jdte:energy_overload_upgrade
+  - jdte:ultimate_capacity_upgrade
+  - jdte:ultimate_overclock_upgrade
   - jdte:upgrade_storage
   - jdte:advanced_upgrade_storage
 ---
@@ -44,6 +46,14 @@ item_ids:
 
 <RecipeFor id="jdte:capacity_upgrade" />
 
+## 顶级容量升级
+
+<ItemImage id="jdte:ultimate_capacity_upgrade" scale="2" />
+
+每台机器最多安装 1 张。单个升级提供相当于 50 倍容量升级的效果，成倍扩充机器的能量存储与流体存储容量，并在大型温室、生物粉碎机、矿物提取机等机器上将有效输出槽位拉满至最大上限（单槽上限 64）。
+
+<RecipeFor id="jdte:ultimate_capacity_upgrade" />
+
 ## 超频升级
 
 <ItemImage id="jdte:overclock_upgrade" scale="2" />
@@ -51,6 +61,18 @@ item_ids:
 强制机器以 1 tick 间隔运行，并且每 tick 执行两次操作。耗电量变为 3 倍。
 
 <RecipeFor id="jdte:overclock_upgrade" />
+
+## 顶级超频升级
+
+<ItemImage id="jdte:ultimate_overclock_upgrade" scale="2" />
+
+每台机器最多安装 1 张，与普通超频升级和降频升级互斥。
+
+放入机器时，强制机器以 1 tick 间隔运行，且每 tick 执行 10 次操作。单次操作耗电量增加为基础能耗的 50 倍。
+
+亦可打在**顶级时间手杖**上（直接在背包中右键手杖或通过工作台合成），使其加速倍率上限从原先的 1024X（10 阶）提升至 **32768X**（15 阶）。
+
+<RecipeFor id="jdte:ultimate_overclock_upgrade" />
 
 ## 降频升级
 

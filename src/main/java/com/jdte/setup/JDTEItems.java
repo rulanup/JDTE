@@ -20,6 +20,7 @@ import com.jdte.common.items.MineralSurveyItem;
 import com.jdte.common.items.RepairTalismanItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
 import com.jdte.common.items.TimeMultitoolItem;
+import com.jdte.common.items.UltimateOverclockUpgradeItem;
 import com.jdte.common.items.UltimateTimeWandItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.items.UpgradeStorageItem;
@@ -56,6 +57,8 @@ public class JDTEItems {
     public static final DeferredHolder<Item, UpgradeCardItem> AE_CRAFTING_READ_UPGRADE = ITEMS.register("ae_crafting_read_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_CRAFTING_READ));
     public static final DeferredHolder<Item, UpgradeCardItem> AE_OUTPUT_UPGRADE = ITEMS.register("ae_output_upgrade", AEOutputUpgradeItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> ESSENCE_CONVERSION_UPGRADE = ITEMS.register("essence_conversion_upgrade", () -> new UpgradeCardItem(UpgradeType.ESSENCE_CONVERSION));
+    public static final DeferredHolder<Item, UpgradeCardItem> ULTIMATE_CAPACITY_UPGRADE = ITEMS.register("ultimate_capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_CAPACITY));
+    public static final DeferredHolder<Item, UltimateOverclockUpgradeItem> ULTIMATE_OVERCLOCK_UPGRADE = ITEMS.register("ultimate_overclock_upgrade", UltimateOverclockUpgradeItem::new);
     public static final DeferredHolder<Item, AEExtractionUpgradeItem> AE_EXTRACTION_UPGRADE =
             ITEMS.register("ae_extraction_upgrade", AEExtractionUpgradeItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> SEED_CONVERSION_UPGRADE = ITEMS.register("seed_conversion_upgrade", () -> new UpgradeCardItem(UpgradeType.SEED_CONVERSION));
@@ -195,10 +198,11 @@ public class JDTEItems {
     public static final DeferredHolder<Item, RepairTalismanItem> REPAIR_TALISMAN = ITEMS.register("repair_talisman",
             () -> new RepairTalismanItem(new Item.Properties()));
 
-    public static List<DeferredHolder<Item, UpgradeCardItem>> upgrades() {
+    public static List<DeferredHolder<Item, ? extends UpgradeCardItem>> upgrades() {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE,
-                AE_ACCELERATION_UPGRADE, AE_CRAFTING_READ_UPGRADE, AE_OUTPUT_UPGRADE, ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE);
+                AE_ACCELERATION_UPGRADE, AE_CRAFTING_READ_UPGRADE, AE_OUTPUT_UPGRADE, ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE,
+                ULTIMATE_CAPACITY_UPGRADE, ULTIMATE_OVERCLOCK_UPGRADE);
     }
 
     private static DeferredHolder<Item, BlockItem> blockItem(String name, DeferredHolder<Block, ? extends Block> block) {

@@ -46,11 +46,16 @@ class UltimateTimeWandDataTest {
     }
 
     @Test
-    void exponentAndMultiplierAreClampedToTen() {
+    void exponentAndMultiplierAreClamped() {
         assertEquals(1, multiplierForExponent(-1));
-        assertEquals(1024, multiplierForExponent(11));
+        assertEquals(1024, multiplierForExponent(10));
+        assertEquals(32768, multiplierForExponent(15));
+        assertEquals(32768, multiplierForExponent(16));
         assertEquals(10, UltimateTimeWandData.addStep(9, Mode.X2));
         assertEquals(10, UltimateTimeWandData.addStep(Integer.MAX_VALUE, Mode.MAX));
+        assertEquals(11, UltimateTimeWandData.addStep(9, Mode.X2, UltimateTimeWandData.ULTIMATE_MAX_EXPONENT));
+        assertEquals(15, UltimateTimeWandData.addStep(14, Mode.X2, UltimateTimeWandData.ULTIMATE_MAX_EXPONENT));
+        assertEquals(15, UltimateTimeWandData.addStep(Integer.MAX_VALUE, Mode.MAX, UltimateTimeWandData.ULTIMATE_MAX_EXPONENT));
     }
 
     @Test

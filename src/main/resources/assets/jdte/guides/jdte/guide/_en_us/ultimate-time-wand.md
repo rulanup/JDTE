@@ -24,7 +24,14 @@ Sneak-right-click air or a block to cycle through four modes:
 | 4x | 4 |
 | Max | 10 |
 
-Normal right-click on a valid target creates a request; right-clicking a target with an existing request adds its exponent. The effect is capped at **1024×**, and reaching the cap does not consume resources. The wand accelerates JDT-approved tickable blocks and directly accelerates AE2 devices that expose the `IGridTickable` service.
+Normal right-click on a valid target creates a request; right-clicking a target with an existing request adds its exponent. By default, the effect is capped at **1024×**; when upgraded with the **Ultimate Overclock Upgrade**, the acceleration ceiling increases up to **32768×** (Max mode instantly selects the current ceiling). Reaching the cap does not consume resources. The wand accelerates JDT-approved tickable blocks and directly accelerates AE2 devices that expose the `IGridTickable` service.
+
+## Upgrades
+
+The Ultimate Time Wand supports two dedicated upgrades that can be applied by right-clicking the upgrade onto the wand in the inventory, or through a crafting table or smithing table:
+
+- **Entity Acceleration Upgrade** (`jdte:entity_acceleration_upgrade`): Allows right-clicking living entities to accelerate them. Entity AI and navigation physics are suppressed during accelerated extra ticks to eliminate lag, while lifecycles, growth, breeding cooldowns, and status effect timers progress at full accelerated speed.
+- **Ultimate Overclock Upgrade** (`jdte:ultimate_overclock_upgrade`): Unlocks ultimate acceleration potential, raising the wand's maximum acceleration multiplier from 1024X (exponent 10) up to **32768X** (exponent 15).
 
 ## Resources and server safety
 

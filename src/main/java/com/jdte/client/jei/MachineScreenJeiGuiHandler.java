@@ -7,10 +7,12 @@ import com.jdte.client.screens.AdvancedPotionBrewerScreen;
 import com.jdte.client.screens.GelGeneratorScreen;
 import com.jdte.client.screens.InfusionMachineScreen;
 import com.jdte.client.screens.LootFabricatorScreen;
+import com.jdte.client.screens.MineralExtractorScreen;
 import com.jdte.client.jei.gelgenerator.GelGeneratorRecipeCategory;
 import com.jdte.common.content.JDTEContentControl;
 import com.jdte.client.jei.infusion.InfusionRecipeCategory;
 import com.jdte.client.jei.lootfabricator.LootFabricatorRecipeCategory;
+import com.jdte.client.jei.mineralextractor.MineralExtractorRecipeCategory;
 import com.jdte.client.jei.potionbrewer.PotionBrewerRecipeCategory;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
@@ -69,6 +71,21 @@ public final class MachineScreenJeiGuiHandler implements IGuiContainerHandler<Ba
                     config.getLootFabricatorProgressArrowX(), config.getLootFabricatorProgressArrowY(),
                     PROGRESS_WIDTH, PROGRESS_HEIGHT,
                     LootFabricatorRecipeCategory.RECIPE_TYPE));
+        }
+        if (screen instanceof MineralExtractorScreen extractorScreen) {
+            JDTEContentControl control = JDTEContentControl.current();
+            if (!control.isBlockEnabled(JDTE.id("mineral_extractor"))
+                    && !control.isBlockEnabled(JDTE.id("large_mineral_extractor"))) {
+                return Collections.emptyList();
+            }
+            GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
+            boolean large = extractorScreen.getMenu().getSurveySlotCount() > 1;
+            int progressX = large ? config.getLargeMineralExtractorProgressX() : config.getMineralExtractorProgressX();
+            int progressY = large ? config.getLargeMineralExtractorProgressY() : config.getMineralExtractorProgressY();
+            return List.of(IGuiClickableArea.createBasic(
+                    progressX, progressY,
+                    28, 9,
+                    MineralExtractorRecipeCategory.RECIPE_TYPE));
         }
         return Collections.emptyList();
     }

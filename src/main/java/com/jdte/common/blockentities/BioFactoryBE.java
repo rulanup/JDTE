@@ -458,10 +458,13 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private int getSpeedMultiplier() {
         boolean creative = UpgradeHelper.countUpgrades(this, UpgradeType.CREATIVE) > 0;
-        boolean overclocked = creative || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0;
-        int selectedMultiplier = overclocked
+        boolean ultimateOverclock = UpgradeHelper.hasUltimateOverclock(this);
+        boolean overclocked = creative || ultimateOverclock || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0;
+        int selectedMultiplier = ultimateOverclock
+                ? JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get() * 10
+                : (overclocked
                 ? JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get()
-                : Math.clamp(multiplier, 1, JDTEConfig.COMMON.bioFactoryMaxSpeedMultiplier.get());
+                : Math.clamp(multiplier, 1, JDTEConfig.COMMON.bioFactoryMaxSpeedMultiplier.get()));
         int acceleratedMultiplier = creative || timeFluidTank.getFluidAmount() >= getEffectiveTimeFluidCost()
                 ? selectedMultiplier
                 : 1;
@@ -609,7 +612,9 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (activeOutputSlotsTick == gameTick) return cachedActiveOutputSlots;
 
-        int configured = BASE_OUTPUT_SLOTS + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
+        int configured = UpgradeHelper.hasUltimateCapacity(this)
+                ? OUTPUT_SLOTS
+                : BASE_OUTPUT_SLOTS + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int i = 0; i < OUTPUT_SLOTS; i++) {
             if (!itemHandler.getStackInSlot(OUTPUT_START_SLOT + i).isEmpty()) occupied = ((i / 8) + 1) * 8;

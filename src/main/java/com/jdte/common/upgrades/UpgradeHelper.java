@@ -142,29 +142,29 @@ public class UpgradeHelper {
             return true;
         }
         if (machine instanceof MineralExtractorBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.FILTER
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.FILTER
                     || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE
                     || type == UpgradeType.FORTUNE || type == UpgradeType.ESSENCE_CONVERSION
                     || type == UpgradeType.SEED_CONVERSION || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof LifeSynthesisVatBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE
                     || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof BioFactoryBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE
                     || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof LifeBreederBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.RANGE || type == UpgradeType.FILTER
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.RANGE || type == UpgradeType.FILTER
                     || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof AdvancedItemCollectorBE) {
@@ -173,32 +173,33 @@ public class UpgradeHelper {
         }
         if (machine instanceof EntitySuppressorBE || machine instanceof RangeBlockerBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
-                    || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.CREATIVE
                     || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof SelectiveUpgradeMachine selective) {
             return selective.isUpgradeAllowed(type);
         }
         if (machine instanceof FactoryPackerBE) {
-            return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
+            return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE
                     || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof AdvancedEnergyTransmitterBE) {
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER
-                    || type == UpgradeType.CAPACITY || type == UpgradeType.OVERCLOCK
+                    || type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK
                     || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
         }
         if (machine instanceof BioExtractorBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.UNDERCLOCK
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.UNDERCLOCK
                     || type == UpgradeType.RANGE || type == UpgradeType.FILTER
                     || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ
                     || type == UpgradeType.AE_OUTPUT;
         }
         if (machine instanceof FluidMixerBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.UNDERCLOCK
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.UNDERCLOCK
                     || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ
                     || type == UpgradeType.AE_OUTPUT;
         }
@@ -286,11 +287,24 @@ public class UpgradeHelper {
     }
 
     public static int adjustEnergyCapacity(BaseMachineBE machine, int original) {
-        return multiplyByPowersOfTwo(original, countUpgrades(machine, UpgradeType.CAPACITY));
+        if (original <= 0) return original;
+        int capacityUpgrades = countUpgrades(machine, UpgradeType.CAPACITY);
+        int ultimateCapacity = countUpgrades(machine, UpgradeType.ULTIMATE_CAPACITY);
+        if (ultimateCapacity > 0) {
+            long result = (long) original * 50L * (1L << capacityUpgrades);
+            return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
+        }
+        return multiplyByPowersOfTwo(original, capacityUpgrades);
     }
 
     public static int adjustFluidCapacity(BaseMachineBE machine, int original) {
+        if (original <= 0) return original;
         int upgrades = countUpgrades(machine, UpgradeType.CAPACITY) + countUpgrades(machine, UpgradeType.FLUID);
+        int ultimateCapacity = countUpgrades(machine, UpgradeType.ULTIMATE_CAPACITY);
+        if (ultimateCapacity > 0) {
+            long result = (long) original * 50L * (1L << upgrades);
+            return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
+        }
         return multiplyByPowersOfTwo(original, upgrades);
     }
 
@@ -300,6 +314,10 @@ public class UpgradeHelper {
         }
         if (hasCreativeUpgrade(machine)) {
             return 0;
+        }
+        if (hasUltimateOverclock(machine)) {
+            long result = (long) original * 50L;
+            return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
         }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
             return Math.max(1, (int) Math.ceil(original * JDTEConfig.COMMON.underclockEnergyMultiplier.get()));
@@ -315,7 +333,7 @@ public class UpgradeHelper {
         if (!usesLockedDelay(machine)) {
             return original;
         }
-        if (hasCreativeUpgrade(machine)) {
+        if (hasCreativeUpgrade(machine) || hasUltimateOverclock(machine)) {
             return 1;
         }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
@@ -337,8 +355,16 @@ public class UpgradeHelper {
                 && !(machine instanceof LifeSynthesisVatBE) && !(machine instanceof MineralExtractorBE);
     }
 
+    public static boolean hasUltimateOverclock(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ULTIMATE_OVERCLOCK) > 0;
+    }
+
+    public static boolean hasUltimateCapacity(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ULTIMATE_CAPACITY) > 0;
+    }
+
     public static boolean hasOverclock(BaseMachineBE machine) {
-        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasCreativeUpgrade(machine);
+        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasUltimateOverclock(machine) || hasCreativeUpgrade(machine);
     }
 
     public static boolean hasUndercLock(BaseMachineBE machine) {
@@ -410,14 +436,18 @@ public class UpgradeHelper {
     /** Executes the actual machine ticker while preserving the original redstone-off reset path. */
     public static void runServerTicker(boolean redstoneActive, BooleanSupplier mayRun,
                                        boolean overclock, Runnable originalTicker) {
-        runServerTicker(true, redstoneActive, mayRun, overclock, originalTicker);
+        runServerTicker(true, redstoneActive, mayRun, overclock ? 2 : 1, originalTicker);
     }
 
     public static void runServerTicker(boolean useCommonGate, boolean redstoneActive, BooleanSupplier mayRun,
                                        boolean overclock, Runnable originalTicker) {
+        runServerTicker(useCommonGate, redstoneActive, mayRun, overclock ? 2 : 1, originalTicker);
+    }
+
+    public static void runServerTicker(boolean useCommonGate, boolean redstoneActive, BooleanSupplier mayRun,
+                                       int executions, Runnable originalTicker) {
         if (!useCommonGate) {
-            originalTicker.run();
-            if (overclock) {
+            for (int i = 0; i < executions; i++) {
                 originalTicker.run();
             }
             return;
@@ -429,8 +459,7 @@ public class UpgradeHelper {
         if (!mayRun.getAsBoolean()) {
             return;
         }
-        originalTicker.run();
-        if (overclock) {
+        for (int i = 0; i < executions; i++) {
             originalTicker.run();
         }
     }
@@ -493,7 +522,13 @@ public class UpgradeHelper {
             return 0;
         }
         int upgrades = countUpgrades(machine, UpgradeType.CAPACITY) + countUpgrades(machine, UpgradeType.FLUID);
-        return multiplyByPowersOfTwo(UpgradeItemStackHandler.BASE_CLICKER_FLUID_CAPACITY, upgrades);
+        int ultimateCapacity = countUpgrades(machine, UpgradeType.ULTIMATE_CAPACITY);
+        int base = UpgradeItemStackHandler.BASE_CLICKER_FLUID_CAPACITY;
+        if (ultimateCapacity > 0) {
+            long result = (long) base * 50L * (1L << upgrades);
+            return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
+        }
+        return multiplyByPowersOfTwo(base, upgrades);
     }
 
     public static void syncCapacities(BaseMachineBE machine) {

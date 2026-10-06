@@ -22,7 +22,9 @@ public final class UltimateTimeWandUpgradeRecipe extends CustomRecipe {
     @Override
     public boolean matches(CraftingInput input, Level level) {
         boolean foundWand = false;
-        boolean foundUpgrade = false;
+        boolean foundEntityUpgrade = false;
+        boolean foundOverclockUpgrade = false;
+        ItemStack wand = ItemStack.EMPTY;
 
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
@@ -30,31 +32,56 @@ public final class UltimateTimeWandUpgradeRecipe extends CustomRecipe {
                 continue;
             }
             if (stack.is(JDTEItems.ULTIMATE_TIME_WAND.get())) {
-                if (foundWand || stack.getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), false)) {
+                if (foundWand) {
                     return false;
                 }
                 foundWand = true;
+                wand = stack;
             } else if (stack.is(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get())) {
-                if (foundUpgrade) {
+                if (foundEntityUpgrade) {
                     return false;
                 }
-                foundUpgrade = true;
+                foundEntityUpgrade = true;
+            } else if (stack.is(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get())) {
+                if (foundOverclockUpgrade) {
+                    return false;
+                }
+                foundOverclockUpgrade = true;
             } else {
                 return false;
             }
         }
 
-        return foundWand && foundUpgrade;
+        if (!foundWand || (!foundEntityUpgrade && !foundOverclockUpgrade)) {
+            return false;
+        }
+
+        boolean canApplyEntity = foundEntityUpgrade && !wand.getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), false);
+        boolean canApplyOverclock = foundOverclockUpgrade && !wand.getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_ULTIMATE_OVERCLOCK.get(), false);
+
+        if (foundEntityUpgrade && !canApplyEntity) {
+            return false;
+        }
+        if (foundOverclockUpgrade && !canApplyOverclock) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
         ItemStack wand = ItemStack.EMPTY;
+        boolean hasEntityUpgrade = false;
+        boolean hasOverclockUpgrade = false;
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
             if (stack.is(JDTEItems.ULTIMATE_TIME_WAND.get())) {
                 wand = stack;
-                break;
+            } else if (stack.is(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get())) {
+                hasEntityUpgrade = true;
+            } else if (stack.is(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get())) {
+                hasOverclockUpgrade = true;
             }
         }
         if (wand.isEmpty()) {
@@ -62,7 +89,12 @@ public final class UltimateTimeWandUpgradeRecipe extends CustomRecipe {
         }
 
         ItemStack result = wand.copyWithCount(1);
-        result.set(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), true);
+        if (hasEntityUpgrade) {
+            result.set(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), true);
+        }
+        if (hasOverclockUpgrade) {
+            result.set(JDTEDataComponents.ULTIMATE_TIME_WAND_ULTIMATE_OVERCLOCK.get(), true);
+        }
         return result;
     }
 

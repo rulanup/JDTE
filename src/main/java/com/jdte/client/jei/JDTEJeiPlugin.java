@@ -20,6 +20,8 @@ import com.jdte.client.jei.bioextractor.BioExtractorJeiRecipe;
 import com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory;
 import com.jdte.client.jei.fluidmixer.FluidMixerJeiRecipe;
 import com.jdte.client.jei.fluidmixer.FluidMixerRecipeCategory;
+import com.jdte.client.jei.mineralextractor.MineralExtractorJeiRecipe;
+import com.jdte.client.jei.mineralextractor.MineralExtractorRecipeCategory;
 import com.jdte.client.screens.AdvancedFluidMixerScreen;
 import com.jdte.client.screens.ExtendedFluidMixerScreen;
 import com.jdte.client.screens.GreenhouseScreen;
@@ -49,6 +51,8 @@ public class JDTEJeiPlugin implements IModPlugin {
     private static boolean infusionRecipesRegistered;
     private static java.util.List<LootFabricatorJeiRecipe> visibleLootFabricatorRecipes = java.util.List.of();
     private static boolean lootFabricatorRecipesRegistered;
+    private static java.util.List<MineralExtractorJeiRecipe> visibleMineralExtractorRecipes = java.util.List.of();
+    private static boolean mineralExtractorRecipesRegistered;
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -77,6 +81,9 @@ public class JDTEJeiPlugin implements IModPlugin {
         if (control.isBlockEnabled(JDTE.id("bio_factory"))) {
             registration.addRecipeCategories(new BioFactoryRecipeCategory(guiHelper));
         }
+        if (mineralExtractorBlockEnabled(control)) {
+            registration.addRecipeCategories(new MineralExtractorRecipeCategory(guiHelper));
+        }
     }
 
     @Override
@@ -99,6 +106,12 @@ public class JDTEJeiPlugin implements IModPlugin {
             registration.addRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, lootFabricatorRecipes);
             visibleLootFabricatorRecipes = lootFabricatorRecipes;
             lootFabricatorRecipesRegistered = !lootFabricatorRecipes.isEmpty();
+        }
+        if (mineralExtractorBlockEnabled(control)) {
+            java.util.List<MineralExtractorJeiRecipe> mineralExtractorRecipes = MineralExtractorJeiRecipe.getRecipes();
+            registration.addRecipes(MineralExtractorRecipeCategory.RECIPE_TYPE, mineralExtractorRecipes);
+            visibleMineralExtractorRecipes = mineralExtractorRecipes;
+            mineralExtractorRecipesRegistered = !mineralExtractorRecipes.isEmpty();
         }
         registration.addIngredientInfo(JDTEItems.LIFE_APPLE.get(),
                 Component.translatable("jei.jdte.life_apple.info"));
@@ -144,6 +157,12 @@ public class JDTEJeiPlugin implements IModPlugin {
         for (ItemStack machine : BioExtractorJeiRecipe.getMachines()) {
             registration.addRecipeCatalyst(machine, BioExtractorRecipeCategory.RECIPE_TYPE);
         }
+        if (control.isBlockEnabled(JDTE.id("mineral_extractor"))) {
+            registration.addRecipeCatalyst(new ItemStack(JDTEItems.MINERAL_EXTRACTOR.get()), MineralExtractorRecipeCategory.RECIPE_TYPE);
+        }
+        if (control.isBlockEnabled(JDTE.id("large_mineral_extractor"))) {
+            registration.addRecipeCatalyst(new ItemStack(JDTEItems.LARGE_MINERAL_EXTRACTOR.get()), MineralExtractorRecipeCategory.RECIPE_TYPE);
+        }
     }
 
     @Override
@@ -169,6 +188,7 @@ public class JDTEJeiPlugin implements IModPlugin {
         runtime = jeiRuntime;
         refreshSpawnEggRecipes();
         refreshLootFabricatorRecipes();
+        refreshMineralExtractorRecipes();
     }
 
     @Override
@@ -178,6 +198,9 @@ public class JDTEJeiPlugin implements IModPlugin {
         infusionRecipesRegistered = false;
         visibleLootFabricatorRecipes = java.util.List.of();
         lootFabricatorRecipesRegistered = false;
+        visibleMineralExtractorRecipes = java.util.List.of();
+        mineralExtractorRecipesRegistered = false;
+        com.jdte.client.MineralSurveyClientCache.reset();
     }
 
     public static void refreshSpawnEggRecipes() {
@@ -248,5 +271,38 @@ public class JDTEJeiPlugin implements IModPlugin {
     private static boolean greenhouseBlockEnabled(JDTEContentControl control) {
         return control.isBlockEnabled(JDTE.id("greenhouse"))
                 || control.isBlockEnabled(JDTE.id("large_greenhouse"));
+    }
+
+    public static void refreshMineralExtractorRecipes() {
+        if (runtime == null || !com.jdte.client.MineralSurveyClientCache.isSynced()) return;
+        JDTEContentControl control = JDTEContentControl.current();
+        if (!mineralExtractorBlockEnabled(control)) {
+            if (mineralExtractorRecipesRegistered && !visibleMineralExtractorRecipes.isEmpty()) {
+                runtime.getRecipeManager().hideRecipes(MineralExtractorRecipeCategory.RECIPE_TYPE,
+                        visibleMineralExtractorRecipes);
+            }
+            visibleMineralExtractorRecipes = java.util.List.of();
+            mineralExtractorRecipesRegistered = false;
+            return;
+        }
+        java.util.List<MineralExtractorJeiRecipe> current = MineralExtractorJeiRecipe.getRecipes();
+        if (!mineralExtractorRecipesRegistered) {
+            runtime.getRecipeManager().addRecipes(MineralExtractorRecipeCategory.RECIPE_TYPE, current);
+            visibleMineralExtractorRecipes = current;
+            mineralExtractorRecipesRegistered = true;
+            return;
+        }
+        java.util.List<MineralExtractorJeiRecipe> removed = visibleMineralExtractorRecipes.stream()
+                .filter(recipe -> !current.contains(recipe)).toList();
+        java.util.List<MineralExtractorJeiRecipe> added = current.stream()
+                .filter(recipe -> !visibleMineralExtractorRecipes.contains(recipe)).toList();
+        if (!removed.isEmpty()) runtime.getRecipeManager().hideRecipes(MineralExtractorRecipeCategory.RECIPE_TYPE, removed);
+        if (!added.isEmpty()) runtime.getRecipeManager().addRecipes(MineralExtractorRecipeCategory.RECIPE_TYPE, added);
+        visibleMineralExtractorRecipes = current;
+    }
+
+    private static boolean mineralExtractorBlockEnabled(JDTEContentControl control) {
+        return control.isBlockEnabled(JDTE.id("mineral_extractor"))
+                || control.isBlockEnabled(JDTE.id("large_mineral_extractor"));
     }
 }

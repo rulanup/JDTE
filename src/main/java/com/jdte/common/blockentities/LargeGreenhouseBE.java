@@ -771,12 +771,18 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     private ProductionSettings currentProductionSettings() {
         boolean creative = UpgradeHelper.countUpgrades(this, UpgradeType.CREATIVE) > 0;
-        boolean overclocked = creative || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0;
-        int effectiveMultiplier = overclocked
+        boolean ultimateOverclock = UpgradeHelper.hasUltimateOverclock(this);
+        boolean overclocked = creative || ultimateOverclock || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0;
+        int effectiveMultiplier = ultimateOverclock
+                ? JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get() * 10
+                : (overclocked
                 ? JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get()
-                : Math.clamp(multiplier, 1, JDTEConfig.COMMON.greenhouseMaxSpeedMultiplier.get());
-        int energyPerHarvest = creative ? 0 : com.jdte.common.greenhouse.GreenhouseMatrixRuntime.applyEfficiency(this,
+                : Math.clamp(multiplier, 1, JDTEConfig.COMMON.greenhouseMaxSpeedMultiplier.get()));
+        int baseEnergy = com.jdte.common.greenhouse.GreenhouseMatrixRuntime.applyEfficiency(this,
                 JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get());
+        int energyPerHarvest = creative ? 0 : (ultimateOverclock
+                ? (int) Math.min(Integer.MAX_VALUE, (long) baseEnergy * 50L)
+                : baseEnergy);
         int fortuneLevel = Math.min(3, UpgradeHelper.countUpgrades(this, UpgradeType.FORTUNE));
         return new ProductionSettings(effectiveMultiplier, creative, energyPerHarvest, fortuneLevel);
     }
@@ -785,6 +791,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     }
 
     public int getMultiplier() {
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get() * 10;
+        }
         if (UpgradeHelper.hasOverclock(this)) {
             return JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get();
         }
@@ -799,12 +808,20 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         }
     }
     public int getMaxSelectableMultiplier() {
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get() * 10;
+        }
         return UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this)
                 ? JDTEConfig.COMMON.greenhouseOverclockMaxSpeedMultiplier.get()
                 : JDTEConfig.COMMON.greenhouseMaxSpeedMultiplier.get();
     }
     public int getEffectiveEnergyPerHarvest() {
-        return UpgradeHelper.hasCreativeUpgrade(this) ? 0 : JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get();
+        if (UpgradeHelper.hasCreativeUpgrade(this)) return 0;
+        int base = JDTEConfig.COMMON.greenhouseEnergyPerHarvestV2.get();
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return (int) Math.min(Integer.MAX_VALUE, (long) base * 50L);
+        }
+        return base;
     }
     private int getEffectiveFluidPerHarvest(int slot, GreenhouseCropDefinition definition) {
         int reducedBase = Math.max(1, (definition.timeFluid()
@@ -823,8 +840,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (activeOutputSlotsTick == gameTick) return cachedActiveOutputSlots;
 
-        int configured = BASE_OUTPUT_SLOTS
-                + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
+        int configured = UpgradeHelper.hasUltimateCapacity(this)
+                ? OUTPUT_SLOTS
+                : BASE_OUTPUT_SLOTS + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int i = 0; i < OUTPUT_SLOTS; i++) {
             if (!itemHandler.getStackInSlot(OUTPUT_START_SLOT + i).isEmpty()) occupied = i + 1;
@@ -836,6 +854,11 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     public int getOutputSlotLimit() {
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (gameTick != Long.MIN_VALUE && outputSlotLimitTick == gameTick) return cachedOutputSlotLimit;
+        if (UpgradeHelper.hasUltimateCapacity(this)) {
+            cachedOutputSlotLimit = 64;
+            outputSlotLimitTick = gameTick;
+            return 64;
+        }
         int upgrades = UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY);
         cachedOutputSlotLimit = upgrades <= 0
                 ? BASE_OUTPUT_STACK_LIMIT

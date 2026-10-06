@@ -538,6 +538,9 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
     }
 
     private int getEffectiveSpeedMultiplier() {
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.lifeSynthesisVat.overclockMaxSpeedMultiplier.get() * 10;
+        }
         return UpgradeHelper.hasOverclock(this)
                 ? JDTEConfig.COMMON.lifeSynthesisVat.overclockMaxSpeedMultiplier.get()
                 : Math.clamp(multiplier, 1, JDTEConfig.COMMON.lifeSynthesisVat.maxSpeedMultiplier.get());
@@ -559,6 +562,9 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
 
     public int getMaxSelectableMultiplier() {
         if (isClientSide()) return Math.max(1, syncedMaxMultiplier);
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.lifeSynthesisVat.overclockMaxSpeedMultiplier.get() * 10;
+        }
         return UpgradeHelper.hasOverclock(this)
                 ? JDTEConfig.COMMON.lifeSynthesisVat.overclockMaxSpeedMultiplier.get()
                 : JDTEConfig.COMMON.lifeSynthesisVat.maxSpeedMultiplier.get();

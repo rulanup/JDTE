@@ -15,7 +15,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Normal right-click on a valid target creates a request; right-clicking a target with an existing request adds its exponent. The effect is capped at $(bold)1024×$(), and reaching the cap does not consume resources. The wand accelerates JDT-approved tickable blocks and directly accelerates AE2 devices that expose the $(thing)IGridTickable$() service.$(br2)$(bold)Resources and server safety$()$(br2)For each stack, the server validates the target and calculates resource costs before it writes the new request state. Insufficient Time Fluid or FE, an invalid target, a target already at the maximum multiplier, or a failed server commit never consumes resources."
+      "text": "Normal right-click on a valid target creates a request; right-clicking a target with an existing request adds its exponent. By default, the effect is capped at $(bold)1024×$(); when upgraded with the Ultimate Overclock Upgrade, the ceiling increases to $(bold)32768×$(). The wand supports directly installing the Entity Acceleration Upgrade and Ultimate Overclock Upgrade by right-clicking them onto the wand in inventory. The wand accelerates JDT-approved tickable blocks and directly accelerates AE2 devices that expose the $(thing)IGridTickable$() service.$(br2)$(bold)Resources and server safety$()$(br2)For each stack, the server validates the target and calculates resource costs before it writes the new request state. Insufficient Time Fluid or FE, an invalid target, a target already at the maximum multiplier, or a failed server commit never consumes resources."
     },
     {
       "type": "patchouli:text",

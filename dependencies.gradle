@@ -34,6 +34,7 @@ dependencies {
     }
     compileOnly "mekanism:Mekanism:${mekanism_version}"
     compileOnly "mekanism:Mekanism:${mekanism_version}:generators"
+    testCompileOnly "mekanism:Mekanism:${mekanism_version}"
     compileOnly "me.desht.pneumaticcraft:pneumaticcraft-repressurized:${pneumaticcraft_version}"
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
     // Inventory Profiles Next integration annotations (compile-only; IPN remains optional)

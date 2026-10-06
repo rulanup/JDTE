@@ -178,8 +178,16 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
     }
 
     private boolean hasOppositeSpeedUpgrade(UpgradeType type) {
-        UpgradeType opposite = type == UpgradeType.OVERCLOCK ? UpgradeType.UNDERCLOCK : UpgradeType.OVERCLOCK;
-        return count(opposite, -1) > 0;
+        if (type == UpgradeType.UNDERCLOCK) {
+            return count(UpgradeType.OVERCLOCK, -1) > 0 || count(UpgradeType.ULTIMATE_OVERCLOCK, -1) > 0;
+        }
+        if (type == UpgradeType.OVERCLOCK) {
+            return count(UpgradeType.UNDERCLOCK, -1) > 0 || count(UpgradeType.ULTIMATE_OVERCLOCK, -1) > 0;
+        }
+        if (type == UpgradeType.ULTIMATE_OVERCLOCK) {
+            return count(UpgradeType.UNDERCLOCK, -1) > 0 || count(UpgradeType.OVERCLOCK, -1) > 0;
+        }
+        return false;
     }
 
     private boolean hasConflictingHarvestUpgrade(UpgradeType type) {

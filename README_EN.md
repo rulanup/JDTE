@@ -2,7 +2,18 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.2.0`
+Current version: `0.6.3.0`
+
+## What's new in 0.6.3.0
+
+Feature & maintenance release:
+- **Mineral Extractor JEI Integration & Network Sync**: Added a dedicated JEI recipe category for the Mineral Extractor and Large Mineral Extractor, displaying extractable ores, base chances, and smelting outputs for every biome. The server-side biome mineral survey index is automatically synchronized to clients on connect and `/reload`.
+- **Modded Ore Feature Detection & Compatibility**: Overhauled the world-generation feature analyzer to recognize modded ores including Mekanism (`ResizableOreFeatureConfig`), BiomeModifiers, and JSON Codec fallbacks, ensuring all modded ore veins are correctly indexed and extractable.
+- **Ultimate Overclock Upgrade (`jdte:ultimate_overclock_upgrade`)**: High-tier overclock upgrade (limit 1). Locks machine delay to 1 tick, executes 10 times per tick at 50x power consumption; can also be applied to the Ultimate Time Wand to increase maximum acceleration up to 32768X.
+- **Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`)**: High-tier capacity upgrade (limit 1). Provides a 50x capacity upgrade multiplier, massively scaling machine FE capacity, fluid capacity, and unlocking maximum output inventory space.
+- **GuideME & Patchouli In-Game Documentation**: Added comprehensive documentation in both English and Simplified Chinese for new upgrade cards and the Ultimate Time Wand.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.3.0.md).
 
 ## What's new in 0.6.2.0
 

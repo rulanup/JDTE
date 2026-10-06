@@ -49,6 +49,7 @@ import com.jdte.common.recipes.GreenhouseCropResolver;
 import com.jdte.common.recipes.RecipeCacheSignal;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
+import com.jdte.common.network.data.MineralSurveySyncPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.EventPriority;
@@ -173,12 +174,20 @@ public class JDTE {
                         ? MobLootSpawnEggHelper.getLootDropsBySpawnEgg(
                         event.getPlayerList().getServer().overworld())
                         : java.util.Map.of());
+        boolean mineralExtractorEnabled = content.isBlockEnabled(id("mineral_extractor"))
+                || content.isBlockEnabled(id("large_mineral_extractor"));
+        MineralSurveySyncPayload mineralPayload = new MineralSurveySyncPayload(
+                mineralExtractorEnabled
+                        ? MineralSurveyIndex.surveys(event.getPlayerList().getServer())
+                        : java.util.List.of());
         if (event.getPlayer() != null) {
             PacketDistributor.sendToPlayer(event.getPlayer(), payload);
             PacketDistributor.sendToPlayer(event.getPlayer(), lootPayload);
+            PacketDistributor.sendToPlayer(event.getPlayer(), mineralPayload);
         } else {
             PacketDistributor.sendToAllPlayers(payload);
             PacketDistributor.sendToAllPlayers(lootPayload);
+            PacketDistributor.sendToAllPlayers(mineralPayload);
         }
     }
 

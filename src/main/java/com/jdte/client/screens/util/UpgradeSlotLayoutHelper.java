@@ -287,10 +287,16 @@ public final class UpgradeSlotLayoutHelper {
 
     private static boolean hasOppositeSpeedUpgrade(BaseMachineBE baseMachineBE, UpgradeType type) {
         if (type == UpgradeType.OVERCLOCK) {
-            return UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.UNDERCLOCK) > 0;
+            return UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.UNDERCLOCK) > 0
+                    || UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.ULTIMATE_OVERCLOCK) > 0;
+        }
+        if (type == UpgradeType.ULTIMATE_OVERCLOCK) {
+            return UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.UNDERCLOCK) > 0
+                    || UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.OVERCLOCK) > 0;
         }
         if (type == UpgradeType.UNDERCLOCK) {
-            return UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.OVERCLOCK) > 0;
+            return UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.OVERCLOCK) > 0
+                    || UpgradeHelper.countUpgrades(baseMachineBE, UpgradeType.ULTIMATE_OVERCLOCK) > 0;
         }
         return false;
     }

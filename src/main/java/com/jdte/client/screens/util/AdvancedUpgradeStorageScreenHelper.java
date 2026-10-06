@@ -511,10 +511,16 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (stack.getItem() instanceof UpgradeCardItem card) {
             UpgradeType type = card.getType();
             if (type == UpgradeType.OVERCLOCK) {
-                return UpgradeHelper.countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0;
+                return UpgradeHelper.countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0
+                        || UpgradeHelper.countUpgrades(machine, UpgradeType.ULTIMATE_OVERCLOCK) > 0;
+            }
+            if (type == UpgradeType.ULTIMATE_OVERCLOCK) {
+                return UpgradeHelper.countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0
+                        || UpgradeHelper.countUpgrades(machine, UpgradeType.OVERCLOCK) > 0;
             }
             if (type == UpgradeType.UNDERCLOCK) {
-                return UpgradeHelper.countUpgrades(machine, UpgradeType.OVERCLOCK) > 0;
+                return UpgradeHelper.countUpgrades(machine, UpgradeType.OVERCLOCK) > 0
+                        || UpgradeHelper.countUpgrades(machine, UpgradeType.ULTIMATE_OVERCLOCK) > 0;
             }
         }
         return false;

@@ -19,7 +19,7 @@ public class ExtendedBioExtractorBE extends BioExtractorBE implements ExtendedUp
 
     @Override
     protected int getMaxEntitiesPerTick() {
-        if (UpgradeHelper.hasCreativeUpgrade(this) || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0) {
+        if (UpgradeHelper.hasCreativeUpgrade(this) || UpgradeHelper.hasOverclock(this)) {
             return 8;
         }
         return 4;

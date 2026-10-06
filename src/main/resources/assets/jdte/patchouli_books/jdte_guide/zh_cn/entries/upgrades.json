@@ -394,6 +394,40 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:advanced_upgrade_storage"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)顶级容量升级$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_capacity_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "每台机器最多安装 1 张。提供相当于 50 倍容量升级的效果，成倍提升机器能量和流体容量，并在大型温室、生物粉碎机、矿物提取机等机器上将有效输出槽位拉满至最大上限（单槽上限 64）。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_capacity_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)顶级超频升级$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_overclock_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "每台机器最多安装 1 张，与普通超频和降频互斥。放入机器时强制 1 刻运行且每刻运行 10 次，耗电量增加至 50 倍。亦可打在顶级时间手杖上，使其最高可调节至 32768X 加速。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_overclock_upgrade"
     }
   ],
   "extra_recipe_mappings": {
@@ -420,6 +454,8 @@
     "jdte:energy_brewing_upgrade": 77,
     "jdte:energy_overload_upgrade": 81,
     "jdte:upgrade_storage": 85,
-    "jdte:advanced_upgrade_storage": 89
+    "jdte:advanced_upgrade_storage": 89,
+    "jdte:ultimate_capacity_upgrade": 93,
+    "jdte:ultimate_overclock_upgrade": 97
   }
 }

@@ -26,6 +26,8 @@ item_ids:
   - jdte:sharpness_upgrade
   - jdte:energy_brewing_upgrade
   - jdte:energy_overload_upgrade
+  - jdte:ultimate_capacity_upgrade
+  - jdte:ultimate_overclock_upgrade
   - jdte:upgrade_storage
   - jdte:advanced_upgrade_storage
 ---
@@ -44,6 +46,14 @@ Doubles the machine's FE capacity and fluid capacity. Stacks up to 3 times.
 
 <RecipeFor id="jdte:capacity_upgrade" />
 
+## Ultimate Capacity Upgrade
+
+<ItemImage id="jdte:ultimate_capacity_upgrade" scale="2" />
+
+Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, and maximizing output slots and capacity limits in machines like the Large Greenhouse, Bio Crusher, and Mineral Extractor.
+
+<RecipeFor id="jdte:ultimate_capacity_upgrade" />
+
 ## Overclock Upgrade
 
 <ItemImage id="jdte:overclock_upgrade" scale="2" />
@@ -51,6 +61,18 @@ Doubles the machine's FE capacity and fluid capacity. Stacks up to 3 times.
 Forces the machine to run at 1 tick intervals and perform two operations per tick. Energy consumption becomes 3x.
 
 <RecipeFor id="jdte:overclock_upgrade" />
+
+## Ultimate Overclock Upgrade
+
+<ItemImage id="jdte:ultimate_overclock_upgrade" scale="2" />
+
+Max 1 per machine; mutually exclusive with Overclock and Underclock Upgrades.
+
+When placed in a machine, forces it to run at a 1-tick delay and execute 10 times per tick. Energy consumption is increased to 50x base cost.
+
+Can also be applied to the **Ultimate Time Wand** (by right-clicking the wand in inventory or crafting together in a crafting grid) to raise its maximum acceleration ceiling from 1024X (exponent 10) up to **32768X** (exponent 15).
+
+<RecipeFor id="jdte:ultimate_overclock_upgrade" />
 
 ## Underclock Upgrade
 

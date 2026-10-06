@@ -410,6 +410,40 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:advanced_upgrade_storage"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Ultimate Capacity Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_capacity_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, and maximizing output slots and capacity limits in machines like the Large Greenhouse, Bio Crusher, and Mineral Extractor."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_capacity_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Ultimate Overclock Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_overclock_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Max 1 per machine; mutually exclusive with Overclock and Underclock. Forces the machine to run at a 1-tick delay and execute 10 times per tick, with 50x energy consumption. Can also be applied to the Ultimate Time Wand to increase maximum acceleration up to 32768X."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_overclock_upgrade"
     }
   ],
   "extra_recipe_mappings": {
@@ -436,6 +470,8 @@
     "jdte:energy_brewing_upgrade": 81,
     "jdte:energy_overload_upgrade": 85,
     "jdte:upgrade_storage": 89,
-    "jdte:advanced_upgrade_storage": 93
+    "jdte:advanced_upgrade_storage": 93,
+    "jdte:ultimate_capacity_upgrade": 97,
+    "jdte:ultimate_overclock_upgrade": 101
   }
 }

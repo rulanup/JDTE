@@ -102,7 +102,8 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 ? UltimateTimeWandData.initialState(pos, 0, configuredDuration())
                 : existing.state();
         UltimateTimeWandData.Mode mode = getMode(stack);
-        int finalExponent = UltimateTimeWandData.addStep(before.exponent(), mode);
+        int maxExponent = getMaxExponent(stack);
+        int finalExponent = UltimateTimeWandData.addStep(before.exponent(), mode, maxExponent);
         if (finalExponent <= before.exponent()) {
             return false;
         }
@@ -113,7 +114,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 keepsFractionalFluidSettlement());
         int energyCost = UltimateTimeWandData.saturatingEnergyCost(multiplier, scaledEnergyBaseCost());
         UltimateTimeWandData.OperationResult operation = planWithResources(
-                player, stack, before, mode, fluidSettlement.drainMb(), energyCost);
+                player, stack, before, mode, fluidSettlement.drainMb(), energyCost, maxExponent);
         if (!operation.success()) {
             return false;
         }
@@ -194,6 +195,10 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                                 List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand").withStyle(ChatFormatting.GRAY));
+        if (hasUltimateOverclock(stack)) {
+            tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.ultimate_overclock_installed")
+                    .withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
         if (hasEntityAcceleration(stack)) {
             tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.entity_acceleration_installed")
                     .withStyle(ChatFormatting.GOLD));
@@ -214,6 +219,18 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), enabled);
     }
 
+    public static boolean hasUltimateOverclock(ItemStack stack) {
+        return stack.getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_ULTIMATE_OVERCLOCK.get(), false);
+    }
+
+    public static void setUltimateOverclock(ItemStack stack, boolean enabled) {
+        stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_ULTIMATE_OVERCLOCK.get(), enabled);
+    }
+
+    public static int getMaxExponent(ItemStack stack) {
+        return hasUltimateOverclock(stack) ? UltimateTimeWandData.ULTIMATE_MAX_EXPONENT : UltimateTimeWandData.MAX_EXPONENT;
+    }
+
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack other, net.minecraft.world.inventory.Slot slot,
                                             net.minecraft.world.inventory.ClickAction action, Player player,
@@ -223,6 +240,14 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         }
         if (other.is(com.jdte.setup.JDTEItems.ENTITY_ACCELERATION_UPGRADE.get()) && !hasEntityAcceleration(stack)) {
             setEntityAcceleration(stack, true);
+            other.shrink(1);
+            if (player != null) {
+                player.playSound(SoundEvents.ARMOR_EQUIP_NETHERITE.value(), 1.0F, 1.2F);
+            }
+            return true;
+        }
+        if (other.is(com.jdte.setup.JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get()) && !hasUltimateOverclock(stack)) {
+            setUltimateOverclock(stack, true);
             other.shrink(1);
             if (player != null) {
                 player.playSound(SoundEvents.ARMOR_EQUIP_NETHERITE.value(), 1.0F, 1.2F);
@@ -296,12 +321,12 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
     private static UltimateTimeWandData.OperationResult planWithResources(
             Player player, ItemStack stack, UltimateTimeWandEntity.WandState state, UltimateTimeWandData.Mode mode,
-            int fluidCost, int energyCost) {
+            int fluidCost, int energyCost, int maxExponent) {
         if (player.getAbilities().instabuild) {
-            return UltimateTimeWandData.planOperation(state, mode, fluidCost, energyCost);
+            return UltimateTimeWandData.planOperation(state, mode, fluidCost, energyCost, maxExponent);
         }
         return UltimateTimeWandData.applyIfAffordable(state, mode,
-                FluidContainingItem.getAvailableFluid(stack), PoweredItem.getAvailableEnergy(stack), fluidCost, energyCost);
+                FluidContainingItem.getAvailableFluid(stack), PoweredItem.getAvailableEnergy(stack), fluidCost, energyCost, maxExponent);
     }
 
     static CommitOutcome commitIfTargetValid(boolean targetValid, boolean creative,
@@ -437,7 +462,8 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 : new UltimateTimeWandEntity.WandState(target.blockPosition(), existingData.getExponent(), existingData.getTotalTime(), existingData.getRemainingTime());
 
         UltimateTimeWandData.Mode mode = getMode(stack);
-        int finalExponent = UltimateTimeWandData.addStep(before.exponent(), mode);
+        int maxExponent = getMaxExponent(stack);
+        int finalExponent = UltimateTimeWandData.addStep(before.exponent(), mode, maxExponent);
         if (finalExponent <= before.exponent()) {
             player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.max_multiplier")
                     .withStyle(ChatFormatting.RED), true);
@@ -450,7 +476,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
                 keepsFractionalFluidSettlement());
         int energyCost = UltimateTimeWandData.saturatingEnergyCost(multiplier, scaledEnergyBaseCost());
         UltimateTimeWandData.OperationResult operation = planWithResources(
-                player, stack, before, mode, fluidSettlement.drainMb(), energyCost);
+                player, stack, before, mode, fluidSettlement.drainMb(), energyCost, maxExponent);
         if (!operation.success()) {
             player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.insufficient_resources")
                     .withStyle(ChatFormatting.RED), true);

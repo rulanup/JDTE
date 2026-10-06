@@ -56,10 +56,12 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
 
     public static final Set<UpgradeType> ALLOWED_UPGRADES = Set.of(
             UpgradeType.CAPACITY,
+            UpgradeType.ULTIMATE_CAPACITY,
             UpgradeType.FLUID,
             UpgradeType.RANGE,
             UpgradeType.FILTER,
             UpgradeType.OVERCLOCK,
+            UpgradeType.ULTIMATE_OVERCLOCK,
             UpgradeType.UNDERCLOCK,
             UpgradeType.CREATIVE,
             UpgradeType.AE_CRAFTING_READ

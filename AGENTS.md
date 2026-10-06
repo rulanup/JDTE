@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.2.0` |
+| Current version | `0.6.3.0` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
@@ -16,7 +16,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 
 Major features:
 
-- 16 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, and AE Output. Looting and Sharpness are dedicated upgrade items outside UpgradeType. Energy Overload Upgrade (`jdte:energy_overload_upgrade`, limit 1) dedicated to Energy Transmitters removes all single-batch and per-tick transfer limits.
+- 18 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, AE Output, Ultimate Overclock, and Ultimate Capacity. Ultimate Overclock Upgrade (`jdte:ultimate_overclock_upgrade`, limit 1) locks machine delay to 1 tick, runs 10 times per tick at 50x power, and can be applied to the Ultimate Time Wand to increase maximum acceleration up to 32768X. Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`, limit 1) provides 50x capacity upgrade multiplier, scaling machine energy/fluid capacity and maximizing output slots. Looting and Sharpness are dedicated upgrade items outside UpgradeType. Energy Overload Upgrade (`jdte:energy_overload_upgrade`, limit 1) dedicated to Energy Transmitters removes all single-batch and per-tick transfer limits.
 - Upgrade Storage (`jdte:upgrade_storage`): a handheld 4×5 (20 slot) upgrade case dedicated to JDTE and JDT upgrades that allows storing up to 64 per slot, with real-time component persistence, Shift-click transfers, and `ItemHandler.ITEM` capability.
 - Advanced Upgrade Storage (`jdte:advanced_upgrade_storage`): an enhanced 6×6 (36 slot) upgrade case for JDTE and JDT upgrades (stacking up to 64 per slot) with real-time component persistence, Curios slot support, `ItemHandler.ITEM` capability, and an in-screen side panel on all JDT/JDTE machine menus enabling direct upgrade insertion, withdrawal, cursor transfers, and bidirectional Shift-click machine synchronization.
 - AE Extraction Upgrade (`jdte:ae_extraction_upgrade`): an AE2 Wireless Access Point-bound smithing upgrade that refills carried JDT/JDTE FE and fluid items, with optional Applied Flux integration and conservative empty-universal-tank selection.
@@ -44,7 +44,7 @@ Major features:
 - Advanced Bio Extractor (`jdte:advanced_bio_extractor`) and Extended Bio Extractor (`jdte:extended_bio_extractor`): machines that scan for living entities in a configured area and extract fluids (e.g. milk) and item drops (e.g. wool sheared with color retention, feathers, eggs, ink sacs) with entity cooldown tracking, optional entity damage, upgrade support, and data-driven recipes.
 - Advanced Potion Brewer with ordered six-step brewing, recipe locking, auto I/O, and JEI brewing chains, plus the dedicated Energy Brewing Upgrade (`jdte:energy_brewing_upgrade`, limit 1) that replaces Blaze Powder fuel with FE (`energyPerBlazePowder` per 20-brew charge, Creative-waived) and disables the fuel slot while installed.
 - Loot Fabricator using spawn egg templates, Life Fluid, Time Fluid, and FE to produce mob loot.
-- Mineral Survey snapshots, the Mineral Extractor, and the 3×3×2 Large Mineral Extractor, backed by a reload-built biome ore index, public-codec world-generation analysis, datapack overrides, fixed-point weighted batch production, dual fluids, smelting, filtering, paged outputs, and coalesced work up to 64x. The large tier merges four surveys and accumulates base work four times faster through one shared production pipeline.
+- Mineral Survey snapshots, the Mineral Extractor, and the 3×3×2 Large Mineral Extractor, backed by a reload-built biome ore index, NeoForge BiomeModifier evaluation, multi-step world-generation feature analysis supporting modded ore configs (such as Mekanism's `ResizableOreFeatureConfig` and JSON codec fallbacks), datapack overrides, fixed-point weighted batch production, dual fluids, smelting, filtering, paged outputs, network-synced surveys, JEI category integration, and coalesced work up to 64x. The large tier merges four surveys and accumulates base work four times faster through one shared production pipeline.
 - Eclipse Alloy Wrench for rotation, NBT-preserving machine pickup, reusable two-corner selection, Ctrl-scroll face resizing, and optional FTB Ultimine bulk operations.
 - Repair Talisman (`jdte:repair_talisman`): an Equivalent Exchange-style talisman that repairs every damaged item on the player (inventory, armor, offhand) by a configurable amount per cycle (default 5 durability every 4 ticks), drawing FE from charged energy items in the player's inventory at a configurable cost per durability (default 10,000 FE, 0 = free), with `jdte.repairTalisman` config controls.
 - Permanent Life Apple progression and JEI categories for machine recipes.
@@ -66,7 +66,7 @@ Major features:
 - Time Multitool attack gating is client-only. `jdte.timeMultitool.continuousMiningHoldDelayMillis` defaults to 250 in the existing local CLIENT config, allows 0-2000, and resets on release, focus loss, screen/world changes, and hotbar changes. Existing explicitly enabled JDT area abilities remain active.
 - Manual Ultimate Portal Gun destinations cost 25 mB/block up to 25,000 mB in the same dimension, or 500 mB across dimensions. Quick-added and previous destinations keep JDT pricing.
 
-Detailed English release notes: [0.6.0](docs/releases/0.6.0.md).
+Detailed English release notes: [0.6.3.0](docs/releases/0.6.3.0.md).
 
 ## Naming conventions
 

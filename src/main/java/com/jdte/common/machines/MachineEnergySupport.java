@@ -29,6 +29,7 @@ public class MachineEnergySupport {
 
     public int standardCost() {
         if (UpgradeHelper.hasCreativeUpgrade(machine)) return 0;
+        if (UpgradeHelper.hasUltimateOverclock(machine)) return (int) Math.min(Integer.MAX_VALUE, (long) baseCost * 50L);
         if (UpgradeHelper.countUpgrades(machine, UpgradeType.OVERCLOCK) > 0) return baseCost * 3;
         return baseCost;
     }
