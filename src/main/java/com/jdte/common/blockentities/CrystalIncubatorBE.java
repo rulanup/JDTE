@@ -201,7 +201,12 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
         for (int i = 0; i < maxCycles; i++) {
             harvestMatureCrystals(serverLevel);
             if (!hasOutputSpace()) {
-                break;
+                if (UpgradeHelper.hasAEOutputUpgrade(this)) {
+                    com.jdte.common.manager.AEOutputManager.flush(serverLevel, this);
+                }
+                if (!hasOutputSpace()) {
+                    break;
+                }
             }
             ExtendedTimeAccelerationManager.PreparedAcceleration prepared =
                     ExtendedTimeAccelerationManager.prepareAcceleration(this);
@@ -213,6 +218,9 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             if (processed) {
                 ExtendedTimeAccelerationManager.consumePreparedResources(this, prepared);
                 harvestMatureCrystals(serverLevel);
+                if (UpgradeHelper.hasAdvancedAEOutputUpgrade(this)) {
+                    com.jdte.common.manager.AEOutputManager.flush(serverLevel, this);
+                }
             } else {
                 break;
             }

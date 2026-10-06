@@ -422,7 +422,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, and maximizing output slots and capacity limits in machines like the Large Greenhouse, Bio Crusher, and Mineral Extractor."
+      "text": "Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, maximizing output slots in supported machines, and expanding Greenhouse single-slot stacking up to 6,400,000."
     },
     {
       "type": "patchouli:crafting",
@@ -461,6 +461,7 @@
     "jdte:ae_acceleration_upgrade": 45,
     "jdte:ae_crafting_read_upgrade": 50,
     "jdte:ae_output_upgrade": 0,
+    "jdte:advanced_ae_output_upgrade": 0,
     "jdte:ae_extraction_upgrade": 56,
     "jdte:entity_acceleration_upgrade": 61,
     "jdte:essence_conversion_upgrade": 65,

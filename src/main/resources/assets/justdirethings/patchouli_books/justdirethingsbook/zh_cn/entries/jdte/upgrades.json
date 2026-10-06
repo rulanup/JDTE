@@ -309,6 +309,7 @@
     "jdte:ae_acceleration_upgrade": 45,
     "jdte:ae_crafting_read_upgrade": 49,
     "jdte:ae_output_upgrade": 0,
+    "jdte:advanced_ae_output_upgrade": 0,
     "jdte:essence_conversion_upgrade": 53,
     "jdte:seed_conversion_upgrade": 57,
     "jdte:looting_upgrade": 61,

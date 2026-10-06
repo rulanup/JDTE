@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.3.1` |
+| Current version | `0.6.3.2` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
@@ -16,7 +16,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 
 Major features:
 
-- 18 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, AE Output, Ultimate Overclock, and Ultimate Capacity. Ultimate Overclock Upgrade (`jdte:ultimate_overclock_upgrade`, limit 1) locks machine delay to 1 tick, runs 10 times per tick at 50x power, and can be applied to the Ultimate Time Wand to increase maximum acceleration up to 32768X. Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`, limit 1) provides 50x capacity upgrade multiplier, scaling machine energy/fluid capacity and maximizing output slots. Looting and Sharpness are dedicated upgrade items outside UpgradeType. Energy Overload Upgrade (`jdte:energy_overload_upgrade`, limit 1) dedicated to Energy Transmitters removes all single-batch and per-tick transfer limits.
+- 19 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, AE Output, Advanced AE Output, Ultimate Overclock, and Ultimate Capacity. Advanced AE Output Upgrade (`jdte:advanced_ae_output_upgrade`, limit 1) extracts up to Integer.MAX_VALUE items and fluids directly to a linked AE2 network, running up to 10 extractions per tick and interleaving flushes during Ultimate Overclock execution. Ultimate Overclock Upgrade (`jdte:ultimate_overclock_upgrade`, limit 1) locks machine delay to 1 tick, runs 10 times per tick at 50x power, and can be applied to the Ultimate Time Wand to increase maximum acceleration up to 32768X. Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`, limit 1) provides 50x capacity upgrade multiplier, scaling machine energy/fluid capacity, maximizing output slots, and expanding Greenhouse/Large Greenhouse output slot stacking to 6,400,000. Looting and Sharpness are dedicated upgrade items outside UpgradeType. Energy Overload Upgrade (`jdte:energy_overload_upgrade`, limit 1) dedicated to Energy Transmitters removes all single-batch and per-tick transfer limits.
 - Upgrade Storage (`jdte:upgrade_storage`): a handheld 4×5 (20 slot) upgrade case dedicated to JDTE and JDT upgrades that allows storing up to 64 per slot, with real-time component persistence, Shift-click transfers, and `ItemHandler.ITEM` capability.
 - Advanced Upgrade Storage (`jdte:advanced_upgrade_storage`): an enhanced 6×6 (36 slot) upgrade case for JDTE and JDT upgrades (stacking up to 64 per slot) with real-time component persistence, Curios slot support, `ItemHandler.ITEM` capability, and an in-screen side panel on all JDT/JDTE machine menus enabling direct upgrade insertion, withdrawal, cursor transfers, and bidirectional Shift-click machine synchronization.
 - AE Extraction Upgrade (`jdte:ae_extraction_upgrade`): an AE2 Wireless Access Point-bound smithing upgrade that refills carried JDT/JDTE FE and fluid items, with optional Applied Flux integration and conservative empty-universal-tank selection.
@@ -66,7 +66,7 @@ Major features:
 - Time Multitool attack gating is client-only. `jdte.timeMultitool.continuousMiningHoldDelayMillis` defaults to 250 in the existing local CLIENT config, allows 0-2000, and resets on release, focus loss, screen/world changes, and hotbar changes. Existing explicitly enabled JDT area abilities remain active.
 - Manual Ultimate Portal Gun destinations cost 25 mB/block up to 25,000 mB in the same dimension, or 500 mB across dimensions. Quick-added and previous destinations keep JDT pricing.
 
-Detailed English release notes: [0.6.3.1](docs/releases/0.6.3.1.md).
+Detailed English release notes: [0.6.3.2](docs/releases/0.6.3.2.md).
 
 ## Naming conventions
 
@@ -200,6 +200,12 @@ Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItem
 | `PRECISION` | `precision` | 1 | Crystal Incubator only; applies vanilla Silk Touch loot behavior and conflicts with Fortune |
 | `AE_ACCELERATION` | `ae_acceleration` | 1 | Basic, Advanced, and Extended Time Accelerators only; enables the optional AE2 per-device fallback or JDTE-AE full-grid acceleration |
 | `AE_CRAFTING_READ` | `ae_crafting_read` | 1 | Compatible machines run only while a linked AE2 network has an active crafting task; optional AE2 integration |
+| `AE_OUTPUT` | `ae_output` | 1 | Flushes machine output items and fluids directly to a linked AE2 network; conflicts with Advanced AE Output |
+| `ADVANCED_AE_OUTPUT` | `advanced_ae_output` | 1 | Flushes up to Integer.MAX_VALUE items and fluids directly to a linked AE2 network 10 times per tick; conflicts with standard AE Output |
+| `ESSENCE_CONVERSION` | `essence_conversion` | 1 | Converts generated mob essences |
+| `SEED_CONVERSION` | `seed_conversion` | 1 | Converts seed outputs |
+| `ULTIMATE_OVERCLOCK` | `ultimate_overclock` | 1 | Locks machine delay to 1 tick and runs 10 times per tick at 50x power |
+| `ULTIMATE_CAPACITY` | `ultimate_capacity` | 1 | 50x capacity multiplier for machine energy and fluid; expands Greenhouse stacking to 6,400,000 |
 
 Fortune and Precision are standard `UpgradeType` values restricted to supported production machines; they conflict on the Crystal Incubator like vanilla Fortune and Silk Touch. Looting and Sharpness are dedicated upgrade items and are not members of `UpgradeType`. Bio Crushers accept up to six of each in dedicated slots. The Loot Fabricator uses `LootFabricatorUpgradeItemStackHandler` to allow up to three Looting Upgrades alongside eight standard slots.
 

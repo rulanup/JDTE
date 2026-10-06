@@ -406,7 +406,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "每台机器最多安装 1 张。提供相当于 50 倍容量升级的效果，成倍提升机器能量和流体容量，并在大型温室、生物粉碎机、矿物提取机等机器上将有效输出槽位拉满至最大上限（单槽上限 64）。"
+      "text": "每台机器最多安装 1 张。提供相当于 50 倍容量升级的效果，成倍提升机器能量和流体容量，并在生物粉碎机、矿物提取机等机器上将有效输出槽位拉满至最大上限；在温室与大型温室中，单槽产物堆叠上限将提升至 6,400,000。"
     },
     {
       "type": "patchouli:crafting",
@@ -445,6 +445,7 @@
     "jdte:ae_acceleration_upgrade": 45,
     "jdte:ae_crafting_read_upgrade": 49,
     "jdte:ae_output_upgrade": 0,
+    "jdte:advanced_ae_output_upgrade": 0,
     "jdte:ae_extraction_upgrade": 53,
     "jdte:entity_acceleration_upgrade": 57,
     "jdte:essence_conversion_upgrade": 61,

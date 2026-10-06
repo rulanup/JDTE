@@ -2,7 +2,14 @@
 
 ### English
 
-#### v0.6.3.1 (Current) — 2026-10-07
+#### v0.6.3.2 (Current) — 2026-10-07
+
+Feature and throughput release introducing the Advanced AE Output Upgrade with extreme batch extraction and expanding Greenhouse single-slot product stacking to 6,400,000 under the Ultimate Capacity Upgrade, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.3.2 release notes](docs/releases/0.6.3.2.md).
+
+- **Advanced AE Output Upgrade (`jdte:advanced_ae_output_upgrade`)**: High-tier ME export upgrade (limit 1, mutually exclusive with standard AE Output Upgrade). Binds to an AE2 Wireless Access Point to extract items and fluids directly to a linked ME network. Fluid extraction budget is expanded to `Integer.MAX_VALUE` (up from 64,000 mB). Performs up to 10 extraction passes per tick in server post-tick processing (1T 10 extractions), and interleaves flush operations between Ultimate Overclock machine execution cycles to clear buffers continuously and prevent throughput stalls under extreme speeds.
+- **Greenhouse & Large Greenhouse Stacking Expanded to 6,400,000**: When equipped with the Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`), the output slot stack limit for both the Greenhouse and Large Greenhouse is expanded from 64 to **6,400,000** items per slot, eliminating storage bottlenecks in massive-scale farming setups.
+
+#### v0.6.3.1 — 2026-10-07
 
 Performance and maintenance release optimizing JDTE machines for 32768X wand acceleration, resolving Crystal Incubator time acceleration, and adding Jade fluid capacity warnings for the Greenhouse and Large Greenhouse, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.3.1 release notes](docs/releases/0.6.3.1.md).
 
@@ -355,7 +362,14 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.3.1（当前）— 2026-10-07
+#### v0.6.3.2（当前）— 2026-10-07
+
+引入高级 AE 输出升级与极速批处理抽取机制，并将温室与大型温室在顶级容量升级下的单槽堆叠上限大幅提升至 6,400,000 的功能与吞吐优化更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.3.2 发布说明](docs/releases/0.6.3.2.md)。
+
+- **高级 AE 输出升级 (`jdte:advanced_ae_output_upgrade`)**：全新高级 ME 输出升级卡（限装 1 张，与标准 AE 输出互斥）。绑定 AE2 无线访问点后直接抽取产物至 ME 网络，单次流体抽取预算提升至 21.47 亿 mB（`Integer.MAX_VALUE`）；服务端每 Tick 执行最多 10 次抽取迭代（1T 抽 10 次），并在顶级超频机器执行循环中即时交替刷新抽取，彻底解决极限自动化下的产物堆积与停机瓶颈。
+- **温室大棚与大型温室单槽堆叠拉升至 6,400,000**：安装顶级容量升级（`jdte:ultimate_capacity_upgrade`）后，温室大棚与大型温室大棚的单槽产物堆叠上限飞跃扩展至 **6,400,000**，完美匹配顶级超频与极端时间加速下的超大规模自动化农业生产。
+
+#### v0.6.3.1 — 2026-10-07
 
 为 JDTE 机器提供原生 32768X 极速加速优化与合并加速引擎、修复水晶培育机时间加速问题、并在 Jade 中为大棚提供流体供给容量预警的性能与维护更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.3.1 发布说明](docs/releases/0.6.3.1.md)。
 

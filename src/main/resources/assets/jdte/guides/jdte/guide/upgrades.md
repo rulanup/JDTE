@@ -18,6 +18,7 @@ item_ids:
   - jdte:ae_acceleration_upgrade
   - jdte:ae_crafting_read_upgrade
   - jdte:ae_output_upgrade
+  - jdte:advanced_ae_output_upgrade
   - jdte:ae_extraction_upgrade
   - jdte:entity_acceleration_upgrade
   - jdte:essence_conversion_upgrade
@@ -50,7 +51,7 @@ item_ids:
 
 <ItemImage id="jdte:ultimate_capacity_upgrade" scale="2" />
 
-每台机器最多安装 1 张。单个升级提供相当于 50 倍容量升级的效果，成倍扩充机器的能量存储与流体存储容量，并在大型温室、生物粉碎机、矿物提取机等机器上将有效输出槽位拉满至最大上限（单槽上限 64）。
+每台机器最多安装 1 张。单个升级提供相当于 50 倍容量升级的效果，成倍扩充机器的能量存储与流体存储容量，并在生物粉碎机、矿物提取机等机器上将有效输出槽位拉满至最大上限；在温室与大型温室中，更可将单槽产物堆叠上限飞跃提升至 6,400,000。
 
 <RecipeFor id="jdte:ultimate_capacity_upgrade" />
 
@@ -171,6 +172,16 @@ item_ids:
 每台机器最多安装 1 张；没有产物槽的机器装卡后不会回流。安装此卡的机器会停用常规自动输出，产物只走 AE。温室矩阵控制器（位于独立的 JDTE-Matrix 模组中）也支持此升级，并会回传所有受管理温室的产物。
 
 <RecipeFor id="jdte:ae_output_upgrade" />
+
+## 高级 AE 输出升级
+
+<ItemImage id="jdte:advanced_ae_output_upgrade" scale="2" />
+
+在 AE 输出升级的基础上，结合蚀空合金锭、下界之星与时间水晶合成的极致输出升级。同样在 AE2 无线访问点 UI 中绑定后安装至机器中。
+
+与标准 AE 输出升级相比，高级版本将单次流体抽取上限提升至极大值（21.47 亿 mB），并且在每 1 Tick 内高速连续执行 10 次抽取回传（与顶级超频升级 1T/10 次完美同步，或在极速时间法杖加速期间防爆仓实时回传），彻底解决大批量极速自动化下的产物积压与停工瓶颈。每台机器最多安装 1 张，与标准 AE 输出升级互斥。
+
+<RecipeFor id="jdte:advanced_ae_output_upgrade" />
 
 ## AE 提取升级
 

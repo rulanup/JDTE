@@ -77,7 +77,12 @@ public abstract class BaseMachineBlockMixin {
             int executions = ultimateOverclock ? 10 : (overclock ? 2 : 1);
             UpgradeHelper.runServerTicker(UpgradeHelper.usesCommonAeTickerGate(machine), redstoneActive,
                     () -> UpgradeHelper.mayRunWithUpgrades(machine), executions,
-                    () -> original.tick(tickLevel, pos, blockState, blockEntity));
+                    () -> {
+                        original.tick(tickLevel, pos, blockState, blockEntity);
+                        if (UpgradeHelper.hasAdvancedAEOutputUpgrade(machine) && tickLevel instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                            com.jdte.common.manager.AEOutputManager.flush(serverLevel, machine);
+                        }
+                    });
         });
     }
 

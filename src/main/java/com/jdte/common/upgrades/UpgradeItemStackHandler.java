@@ -84,6 +84,9 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         if (hasConflictingHarvestUpgrade(type, slot)) {
             return false;
         }
+        if (type.isAeOutputUpgrade() && hasConflictingAeOutputUpgrade(type, slot)) {
+            return false;
+        }
 
         return count(type, slot) < UpgradeHelper.getMaxUpgrades(machine, type);
     }
@@ -196,6 +199,16 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         }
         if (type == UpgradeType.PRECISION) {
             return count(UpgradeType.FORTUNE, slot) > 0;
+        }
+        return false;
+    }
+
+    private boolean hasConflictingAeOutputUpgrade(UpgradeType type, int slot) {
+        if (type == UpgradeType.AE_OUTPUT) {
+            return count(UpgradeType.ADVANCED_AE_OUTPUT, slot) > 0;
+        }
+        if (type == UpgradeType.ADVANCED_AE_OUTPUT) {
+            return count(UpgradeType.AE_OUTPUT, slot) > 0;
         }
         return false;
     }

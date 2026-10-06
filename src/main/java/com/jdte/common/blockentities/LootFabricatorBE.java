@@ -285,7 +285,12 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
 
         int maxBatches = (int) Math.min(batches, 128);
         for (int b = 0; b < maxBatches; b++) {
-            if (!hasFreeOutputSpace()) break;
+            if (!hasFreeOutputSpace()) {
+                if (UpgradeHelper.hasAEOutputUpgrade(this)) {
+                    com.jdte.common.manager.AEOutputManager.flush(serverLevel, this);
+                }
+                if (!hasFreeOutputSpace()) break;
+            }
             int processCount = 0;
             int lifeFluidCost = 0;
             int timeFluidCostUnits = 0;
@@ -308,6 +313,9 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             }
             if (!executeOneLootCycle(serverLevel, processCount, lifeFluidCost, timeFluidCostUnits, lastOccupiedSlot)) {
                 break;
+            }
+            if (UpgradeHelper.hasAdvancedAEOutputUpgrade(this)) {
+                com.jdte.common.manager.AEOutputManager.flush(serverLevel, this);
             }
         }
         setChanged();

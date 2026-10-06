@@ -18,6 +18,7 @@ item_ids:
   - jdte:ae_acceleration_upgrade
   - jdte:ae_crafting_read_upgrade
   - jdte:ae_output_upgrade
+  - jdte:advanced_ae_output_upgrade
   - jdte:ae_extraction_upgrade
   - jdte:entity_acceleration_upgrade
   - jdte:essence_conversion_upgrade
@@ -50,7 +51,7 @@ Doubles the machine's FE capacity and fluid capacity. Stacks up to 3 times.
 
 <ItemImage id="jdte:ultimate_capacity_upgrade" scale="2" />
 
-Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, and maximizing output slots and capacity limits in machines like the Large Greenhouse, Bio Crusher, and Mineral Extractor.
+Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, maximizing output slots in supported machines, and expanding Greenhouse and Large Greenhouse single-slot stacking up to 6,400,000.
 
 <RecipeFor id="jdte:ultimate_capacity_upgrade" />
 
@@ -171,6 +172,16 @@ Place the card in the linking input of an AE2 Wireless Access Point screen and r
 The limit is one per machine; machines without output slots simply never return anything. Installing this card disables the machine's regular automatic output so products only flow to AE. A Greenhouse Matrix Controller (from the standalone JDTE-Matrix mod) can also use it to return products from every managed Greenhouse.
 
 <RecipeFor id="jdte:ae_output_upgrade" />
+
+## Advanced AE Output Upgrade
+
+<ItemImage id="jdte:advanced_ae_output_upgrade" scale="2" />
+
+An advanced iteration of the AE Output Upgrade crafted with an AE Output Upgrade, Eclipse Alloy Ingot, Nether Star, and Time Crystal. Like the standard card, bind it in the linking slot of an AE2 Wireless Access Point before installation.
+
+Compared to the standard upgrade, the Advanced tier increases the per-operation fluid extraction budget to maximum integer capacity (2.14 billion mB) and performs 10 extraction passes per tick. This aligns perfectly with the 1-tick / 10-iteration throughput of the Ultimate Overclock Upgrade and high-speed wand acceleration, eliminating output bottlenecks at extreme scales. Limit 1 per machine; conflicts with standard AE Output Upgrade.
+
+<RecipeFor id="jdte:advanced_ae_output_upgrade" />
 
 ## AE Extraction Upgrade
 

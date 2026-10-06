@@ -18,7 +18,10 @@ public final class AEOutputNetwork {
     }
 
     public static void registerLinkable() {
-        if (AVAILABLE) AEOutputNetworkIntegration.registerLinkable(JDTEItems.AE_OUTPUT_UPGRADE.get());
+        if (AVAILABLE) {
+            AEOutputNetworkIntegration.registerLinkable(JDTEItems.AE_OUTPUT_UPGRADE.get());
+            AEOutputNetworkIntegration.registerLinkable(JDTEItems.ADVANCED_AE_OUTPUT_UPGRADE.get());
+        }
     }
 
     public static boolean isLinked(ItemStack upgrade) {

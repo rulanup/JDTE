@@ -54,6 +54,7 @@ class UpgradeStorageTest {
         assertTrue(UpgradeStorageItem.isAllowedUpgrade(new ItemStack(JDTEItems.AE_ACCELERATION_UPGRADE.get())));
         assertTrue(UpgradeStorageItem.isAllowedUpgrade(new ItemStack(JDTEItems.AE_CRAFTING_READ_UPGRADE.get())));
         assertTrue(UpgradeStorageItem.isAllowedUpgrade(new ItemStack(JDTEItems.AE_OUTPUT_UPGRADE.get())));
+        assertTrue(UpgradeStorageItem.isAllowedUpgrade(new ItemStack(JDTEItems.ADVANCED_AE_OUTPUT_UPGRADE.get())));
         assertTrue(UpgradeStorageItem.isAllowedUpgrade(new ItemStack(JDTEItems.ESSENCE_CONVERSION_UPGRADE.get())));
         assertTrue(UpgradeStorageItem.isAllowedUpgrade(new ItemStack(JDTEItems.SEED_CONVERSION_UPGRADE.get())));
 

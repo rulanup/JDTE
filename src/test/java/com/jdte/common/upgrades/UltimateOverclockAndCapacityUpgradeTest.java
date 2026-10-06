@@ -155,6 +155,32 @@ class UltimateOverclockAndCapacityUpgradeTest {
         assertTrue(UpgradeHelper.hasUltimateCapacity(greenhouse));
     }
 
+    @Test
+    void greenhouseOutputSlotLimitWithUltimateCapacity() {
+        com.jdte.common.blockentities.GreenhouseBE greenhouse =
+                new com.jdte.common.blockentities.GreenhouseBE(
+                        net.minecraft.core.BlockPos.ZERO,
+                        com.jdte.setup.JDTEBlocks.GREENHOUSE.get().defaultBlockState());
+        assertEquals(64, greenhouse.getOutputSlotLimit());
+
+        UpgradeItemStackHandler handler = UpgradeHelper.getUpgradeHandler(greenhouse);
+        handler.setStackInSlot(0, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
+        assertEquals(2048, greenhouse.getOutputSlotLimit());
+
+        handler.setStackInSlot(1, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
+        assertEquals(6_400_000, greenhouse.getOutputSlotLimit());
+
+        com.jdte.common.blockentities.LargeGreenhouseBE largeGreenhouse =
+                new com.jdte.common.blockentities.LargeGreenhouseBE(
+                        net.minecraft.core.BlockPos.ZERO,
+                        com.jdte.setup.JDTEBlocks.LARGE_GREENHOUSE.get().defaultBlockState());
+        assertEquals(64, largeGreenhouse.getOutputSlotLimit());
+
+        UpgradeItemStackHandler largeHandler = UpgradeHelper.getUpgradeHandler(largeGreenhouse);
+        largeHandler.setStackInSlot(0, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
+        assertEquals(6_400_000, largeGreenhouse.getOutputSlotLimit());
+    }
+
     private static Path source(String path) {
         Path current = Path.of("").toAbsolutePath();
         while (current != null) {

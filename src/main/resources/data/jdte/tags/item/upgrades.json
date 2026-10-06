@@ -15,6 +15,7 @@
     "jdte:ae_acceleration_upgrade",
     "jdte:ae_crafting_read_upgrade",
     "jdte:ae_output_upgrade",
+    "jdte:advanced_ae_output_upgrade",
     "jdte:essence_conversion_upgrade",
     "jdte:seed_conversion_upgrade",
     "jdte:looting_upgrade",

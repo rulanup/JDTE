@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.3.1`
+Current version: `0.6.3.2`
+
+## What's new in 0.6.3.2
+
+Feature & maintenance release:
+- **Advanced AE Output Upgrade (`jdte:advanced_ae_output_upgrade`)**: Brand new upgrade card (limit 1, mutually exclusive with standard AE Output Upgrade). Binds to an AE2 Wireless Access Point to dump items and fluids directly into the ME network. Elevates single fluid extraction limit to 2.147 billion mB (`Integer.MAX_VALUE`), runs up to 10 extraction cycles per tick (1T 10 extractions), and interleaves flush operations between Ultimate Overclock machine executions to completely eliminate output buffer blockage under extreme speeds.
+- **Greenhouse & Large Greenhouse Stacking Expanded to 6,400,000**: The Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`) now drastically expands single-slot product stacking in the Greenhouse and Large Greenhouse up to **6,400,000**, providing unlimited room for ultra-high-throughput agricultural automation.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.3.2.md).
 
 ## What's new in 0.6.3.1
 

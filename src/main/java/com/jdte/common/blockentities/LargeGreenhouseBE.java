@@ -63,6 +63,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     public static final int OUTPUT_SLOTS_PER_CAPACITY = 16;
     public static final int BASE_OUTPUT_STACK_LIMIT = 64;
     public static final int FIRST_CAPACITY_STACK_LIMIT = 2048;
+    public static final int ULTIMATE_CAPACITY_STACK_LIMIT = 6_400_000;
     public static final int UPGRADE_SLOTS = 8;
     public static final int TOTAL_SLOTS = INPUT_SLOTS + OUTPUT_SLOTS;
     private static final int LEGACY_INPUT_SLOTS = 9;
@@ -855,9 +856,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (gameTick != Long.MIN_VALUE && outputSlotLimitTick == gameTick) return cachedOutputSlotLimit;
         if (UpgradeHelper.hasUltimateCapacity(this)) {
-            cachedOutputSlotLimit = 64;
+            cachedOutputSlotLimit = ULTIMATE_CAPACITY_STACK_LIMIT;
             outputSlotLimitTick = gameTick;
-            return 64;
+            return cachedOutputSlotLimit;
         }
         int upgrades = UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY);
         cachedOutputSlotLimit = upgrades <= 0

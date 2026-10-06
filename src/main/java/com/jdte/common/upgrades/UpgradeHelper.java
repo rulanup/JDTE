@@ -137,7 +137,7 @@ public class UpgradeHelper {
         if (machine instanceof ICreativeGreenhouse creativeGreenhouse) {
             return type == UpgradeType.AE_CRAFTING_READ || creativeGreenhouse.isSupportedUpgrade(type);
         }
-        if (type == UpgradeType.AE_OUTPUT) {
+        if (type == UpgradeType.AE_OUTPUT || type == UpgradeType.ADVANCED_AE_OUTPUT) {
             // AE 返回升级：任意 JDTE 机器均可安装；无输出路由的机器装上后不回流
             return true;
         }
@@ -195,13 +195,13 @@ public class UpgradeHelper {
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.UNDERCLOCK
                     || type == UpgradeType.RANGE || type == UpgradeType.FILTER
                     || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ
-                    || type == UpgradeType.AE_OUTPUT;
+                    || type == UpgradeType.AE_OUTPUT || type == UpgradeType.ADVANCED_AE_OUTPUT;
         }
         if (machine instanceof FluidMixerBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.UNDERCLOCK
                     || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ
-                    || type == UpgradeType.AE_OUTPUT;
+                    || type == UpgradeType.AE_OUTPUT || type == UpgradeType.ADVANCED_AE_OUTPUT;
         }
         return switch (type) {
             case FLUID_STORAGE -> machine instanceof ClickerT1BE;
@@ -212,7 +212,7 @@ public class UpgradeHelper {
             case PRECISION -> machine instanceof CrystalIncubatorBE;
             case AE_ACCELERATION -> machine instanceof BasicTimeAcceleratorBE
                     || machine instanceof AdvancedTimeAcceleratorBE;
-            case AE_OUTPUT -> true;
+            case AE_OUTPUT, ADVANCED_AE_OUTPUT -> true;
             case ESSENCE_CONVERSION -> machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
             case SEED_CONVERSION -> machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
             default -> true;
@@ -498,17 +498,24 @@ public class UpgradeHelper {
     }
 
     public static boolean hasAEOutputUpgrade(BaseMachineBE machine) {
-        return countUpgrades(machine, UpgradeType.AE_OUTPUT) > 0;
+        return countUpgrades(machine, UpgradeType.AE_OUTPUT) > 0
+                || countUpgrades(machine, UpgradeType.ADVANCED_AE_OUTPUT) > 0;
+    }
+
+    public static boolean hasAdvancedAEOutputUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ADVANCED_AE_OUTPUT) > 0;
     }
 
     public static ItemStack getAEOutputUpgrade(BaseMachineBE machine) {
         UpgradeItemStackHandler handler = getUpgradeHandler(machine);
         if (handler == null) return ItemStack.EMPTY;
+        ItemStack fallback = ItemStack.EMPTY;
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             ItemStack stack = handler.getStackInSlot(slot);
-            if (isUpgrade(stack, UpgradeType.AE_OUTPUT)) return stack;
+            if (isUpgrade(stack, UpgradeType.ADVANCED_AE_OUTPUT)) return stack;
+            if (fallback.isEmpty() && isUpgrade(stack, UpgradeType.AE_OUTPUT)) fallback = stack;
         }
-        return ItemStack.EMPTY;
+        return fallback;
     }
 
     public static boolean hasEssenceConversionUpgrade(BaseMachineBE machine) {
