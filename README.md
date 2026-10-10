@@ -2,9 +2,17 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.3.2`
+当前版本：`0.6.3.3`
 
 [English README](README_EN.md)
+
+## 0.6.3.3 更新
+
+功能与维护更新版本：
+- **生物工厂顶级容量单槽堆叠至 6,400,000 (`jdte:bio_factory`)**：安装顶级容量升级（`jdte:ultimate_capacity_upgrade`）后，生物工厂单槽产物堆叠上限扩展至 **6,400,000** 并支持紧凑数字渲染显示，彻底解决高生产力与极速时间加速下的产物槽堆满停机瓶颈。
+- **生物工厂顶级超频倍率与 GUI 同步修复**：修复生物工厂在安装顶级超频升级时，界面（GUI）中显示的倍率未锁定为 640（仍显示为 1~64）导致界面显示与内部实际运行速率不一致的问题。将倍率计算对齐温室标准，安装顶级超频时将倍率锁定为 640（普通超频锁定为 64）并实时同步至界面按钮。
+
+完整英文说明：[0.6.3.3 Release Notes](docs/releases/0.6.3.3.md)。
 
 ## 0.6.3.2 更新
 

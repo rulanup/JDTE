@@ -32,6 +32,7 @@ import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
+import com.jdte.client.screens.util.GreenhouseSlotCountRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 
@@ -49,6 +50,15 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
     public BioFactoryScreen(BioFactoryContainer container, Inventory inventory, Component title) {
         super(container, inventory, title);
         factoryContainer = container;
+    }
+
+    @Override
+    protected void renderSlotContents(GuiGraphics graphics, ItemStack stack, Slot slot, String countLabel) {
+        if (factoryContainer.isOutputSlot(slot) && stack.getCount() > 1) {
+            GreenhouseSlotCountRenderer.render(graphics, font, stack, slot, imageWidth, countLabel);
+            return;
+        }
+        super.renderSlotContents(graphics, stack, slot, countLabel);
     }
 
     @Override public void setTopSection() {

@@ -181,6 +181,46 @@ class UltimateOverclockAndCapacityUpgradeTest {
         assertEquals(6_400_000, largeGreenhouse.getOutputSlotLimit());
     }
 
+    @Test
+    void bioFactoryOutputSlotLimitWithUltimateCapacity() {
+        com.jdte.common.blockentities.BioFactoryBE bioFactory =
+                new com.jdte.common.blockentities.BioFactoryBE(
+                        net.minecraft.core.BlockPos.ZERO,
+                        com.jdte.setup.JDTEBlocks.BIO_FACTORY.get().defaultBlockState());
+        assertEquals(64, bioFactory.getOutputSlotLimit());
+
+        UpgradeItemStackHandler handler = UpgradeHelper.getUpgradeHandler(bioFactory);
+        handler.setStackInSlot(0, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
+        assertEquals(64, bioFactory.getOutputSlotLimit());
+
+        handler.setStackInSlot(1, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
+        assertEquals(6_400_000, bioFactory.getOutputSlotLimit());
+        assertEquals(6_400_000, bioFactory.getMachineHandler().getSlotLimit(com.jdte.common.blockentities.BioFactoryBE.OUTPUT_START_SLOT));
+    }
+
+    @Test
+    void bioFactoryMultiplierWithUltimateOverclock() {
+        com.jdte.common.blockentities.BioFactoryBE bioFactory =
+                new com.jdte.common.blockentities.BioFactoryBE(
+                        net.minecraft.core.BlockPos.ZERO,
+                        com.jdte.setup.JDTEBlocks.BIO_FACTORY.get().defaultBlockState());
+        assertEquals(1, bioFactory.getMultiplier());
+        assertEquals(32, bioFactory.getMaxSelectableMultiplier());
+
+        UpgradeItemStackHandler handler = UpgradeHelper.getUpgradeHandler(bioFactory);
+        handler.setStackInSlot(0, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.OVERCLOCK_UPGRADE.get()));
+        assertEquals(64, bioFactory.getMaxSelectableMultiplier());
+        assertEquals(64, bioFactory.getMultiplier());
+
+        handler.setStackInSlot(0, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get()));
+        assertEquals(640, bioFactory.getMaxSelectableMultiplier());
+        assertEquals(640, bioFactory.getMultiplier());
+
+        handler.setStackInSlot(0, net.minecraft.world.item.ItemStack.EMPTY);
+        assertEquals(32, bioFactory.getMaxSelectableMultiplier());
+        assertEquals(1, bioFactory.getMultiplier());
+    }
+
     private static Path source(String path) {
         Path current = Path.of("").toAbsolutePath();
         while (current != null) {

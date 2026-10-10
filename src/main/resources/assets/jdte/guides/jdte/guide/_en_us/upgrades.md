@@ -51,7 +51,7 @@ Doubles the machine's FE capacity and fluid capacity. Stacks up to 3 times.
 
 <ItemImage id="jdte:ultimate_capacity_upgrade" scale="2" />
 
-Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, maximizing output slots in supported machines, and expanding Greenhouse and Large Greenhouse single-slot stacking up to 6,400,000.
+Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, maximizing output slots in supported machines, and expanding Greenhouse, Large Greenhouse, and Bio Factory single-slot stacking up to 6,400,000.
 
 <RecipeFor id="jdte:ultimate_capacity_upgrade" />
 

@@ -163,10 +163,17 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
         @Override public ItemStack getItem() { return active() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY; }
         @Override public boolean hasItem() { return !getItem().isEmpty(); }
         @Override public void set(ItemStack stack) {
-            if (active()) ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
+            if (active()) {
+                ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
+                setChanged();
+            }
         }
         @Override public void initialize(ItemStack stack) { set(stack); }
         @Override public ItemStack remove(int amount) { return active() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY; }
+        @Override public int getMaxStackSize() { return active() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0; }
+        @Override public int getMaxStackSize(ItemStack stack) {
+            return active() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
+        }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
         @Override public boolean mayPickup(Player player) { return active() && !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty(); }
         private boolean active() { return getSlotIndex() < BioFactoryBE.OUTPUT_START_SLOT + container.getData(2, BioFactoryBE.BASE_OUTPUT_SLOTS); }

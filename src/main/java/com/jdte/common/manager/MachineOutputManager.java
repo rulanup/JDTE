@@ -1,4 +1,5 @@
 package com.jdte.common.manager;
+import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.GreenhouseBE;
@@ -63,6 +64,9 @@ public final class MachineOutputManager {
         }
         if (machine instanceof MineralExtractorBE extractor) {
             return new OutputRange(extractor.outputStartSlot(), extractor.getActiveOutputSlots());
+        }
+        if (machine instanceof BioFactoryBE factory) {
+            return new OutputRange(BioFactoryBE.OUTPUT_START_SLOT, factory.getActiveOutputSlots());
         }
         return null;
     }

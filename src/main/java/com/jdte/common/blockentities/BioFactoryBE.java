@@ -47,6 +47,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import com.jdte.common.manager.MachineOutputManager;
 import java.util.List;
 
 public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE, ExtendedUpgradeMachine, CoalescedAcceleratedMachine {
@@ -61,6 +62,8 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     public static final int INPUT_SLOTS = 3;
     public static final int TOTAL_SLOTS = TERTIARY_INPUT_SLOT + 1;
     public static final int UPGRADE_SLOTS = 8;
+    public static final int BASE_OUTPUT_STACK_LIMIT = 64;
+    public static final int ULTIMATE_CAPACITY_STACK_LIMIT = 6_400_000;
     private static final int GLOBAL_WORK_RATE_MULTIPLIER = 5;
     private static final String REMEMBERED_RECIPE_ENERGY_TAG = "rememberedRecipeEnergy";
     private static final String PENDING_OUTPUT_TAG = "pendingOutput";
@@ -76,16 +79,38 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
             && !(stack.getFluid() instanceof TimeFluid), true);
     private final JDTEFluidTank productFluidTank = createTank(stack -> true, false);
     private final ItemStackHandler itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
-        @Override public int getSlotLimit(int slot) { return slot == SPECIMEN_SLOT ? 1 : 64; }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
+        @Override
+        public int getSlotLimit(int slot) {
+            if (slot == SPECIMEN_SLOT) return 1;
+            if (slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + OUTPUT_SLOTS) {
+                return getOutputSlotLimit();
+            }
+            return super.getSlotLimit(slot);
+        }
+
+        @Override
+        public int getStackLimit(int slot, ItemStack stack) {
+            if (slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + OUTPUT_SLOTS) {
+                return getOutputSlotLimit();
+            }
+            return super.getStackLimit(slot, stack);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
             if (slot == SPECIMEN_SLOT) return isValidSpecimen(stack);
             if (isInputStorageSlot(slot)) return true;
             return slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + OUTPUT_SLOTS;
         }
-        @Override protected void onContentsChanged(int slot) {
+
+        @Override
+        protected void onContentsChanged(int slot) {
             if (slot == SPECIMEN_SLOT || isInputStorageSlot(slot)) {
                 clearRecipeCache();
                 progress = 0;
+            }
+            if (slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + OUTPUT_SLOTS) {
+                MachineOutputManager.submit(BioFactoryBE.this, slot);
             }
             setChanged();
             // Coalesced: batched output inserts would otherwise send one block
@@ -124,6 +149,25 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
             int output = slot - 1 - INPUT_SLOTS;
             return output >= 0 && output < getActiveOutputSlots() ? OUTPUT_START_SLOT + output : -1;
         }
+    };
+    private final IItemHandler internalOutputHandler = new IItemHandler() {
+        @Override public int getSlots() { return getActiveOutputSlots(); }
+        @Override public ItemStack getStackInSlot(int slot) {
+            return valid(slot) ? itemHandler.getStackInSlot(OUTPUT_START_SLOT + slot) : ItemStack.EMPTY;
+        }
+        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return valid(slot) ? itemHandler.insertItem(OUTPUT_START_SLOT + slot, stack, simulate) : stack;
+        }
+        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return valid(slot) ? itemHandler.extractItem(OUTPUT_START_SLOT + slot, amount, simulate) : ItemStack.EMPTY;
+        }
+        @Override public int getSlotLimit(int slot) {
+            return valid(slot) ? itemHandler.getSlotLimit(OUTPUT_START_SLOT + slot) : 0;
+        }
+        @Override public boolean isItemValid(int slot, ItemStack stack) {
+            return valid(slot) && itemHandler.isItemValid(OUTPUT_START_SLOT + slot, stack);
+        }
+        private boolean valid(int slot) { return slot >= 0 && slot < getSlots(); }
     };
     private final IFluidHandler inputFluidHandler = new InputFluidHandler();
     private final IFluidHandler outputFluidHandler = new OutputFluidHandler();
@@ -204,6 +248,8 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private boolean cachedBeeCanOperate = true;
     private long activeOutputSlotsTick = Long.MIN_VALUE;
     private int cachedActiveOutputSlots = BASE_OUTPUT_SLOTS;
+    private long outputSlotLimitTick = Long.MIN_VALUE;
+    private int cachedOutputSlotLimit = BASE_OUTPUT_STACK_LIMIT;
 
     public BioFactoryBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.BIO_FACTORY.get(), pos, state);
@@ -467,12 +513,16 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     private boolean canFit(List<ItemStack> outputs) {
-        ItemStackHandler copy = new ItemStackHandler(getActiveOutputSlots());
+        int limit = getOutputSlotLimit();
+        ItemStackHandler copy = new ItemStackHandler(getActiveOutputSlots()) {
+            @Override public int getSlotLimit(int slot) { return limit; }
+            @Override public int getStackLimit(int slot, ItemStack stack) { return limit; }
+        };
         for (int i = 0; i < copy.getSlots(); i++) copy.setStackInSlot(i, itemHandler.getStackInSlot(OUTPUT_START_SLOT + i).copy());
         for (ItemStack output : outputs) {
             ItemStack remaining = output.copy();
             while (!remaining.isEmpty()) {
-                int count = Math.min(remaining.getCount(), remaining.getMaxStackSize());
+                int count = (int) Math.min(remaining.getCount(), limit);
                 ItemStack part = remaining.copyWithCount(count);
                 if (!ItemHandlerHelper.insertItemStacked(copy, part, false).isEmpty()) return false;
                 remaining.shrink(count);
@@ -487,26 +537,20 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private void insertOutput(ItemStack output) {
         ItemStack remaining = output.copy();
+        int limit = getOutputSlotLimit();
         while (!remaining.isEmpty()) {
-            int count = Math.min(remaining.getCount(), remaining.getMaxStackSize());
+            int count = (int) Math.min(remaining.getCount(), limit);
             ItemStack part = remaining.copyWithCount(count);
-            for (int slot = 0; slot < getActiveOutputSlots() && !part.isEmpty(); slot++) {
-                part = itemHandler.insertItem(OUTPUT_START_SLOT + slot, part, false);
-            }
-            remaining.shrink(count - part.getCount());
-            if (!part.isEmpty()) break;
+            ItemStack leftover = ItemHandlerHelper.insertItemStacked(internalOutputHandler, part, false);
+            int inserted = count - leftover.getCount();
+            remaining.shrink(inserted);
+            if (!leftover.isEmpty()) break;
         }
     }
 
     private int getSpeedMultiplier() {
         boolean creative = UpgradeHelper.countUpgrades(this, UpgradeType.CREATIVE) > 0;
-        boolean ultimateOverclock = UpgradeHelper.hasUltimateOverclock(this);
-        boolean overclocked = creative || ultimateOverclock || UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0;
-        int selectedMultiplier = ultimateOverclock
-                ? JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get() * 10
-                : (overclocked
-                ? JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get()
-                : Math.clamp(multiplier, 1, JDTEConfig.COMMON.bioFactoryMaxSpeedMultiplier.get()));
+        int selectedMultiplier = getMultiplier();
         int acceleratedMultiplier = creative || timeFluidTank.getFluidAmount() >= getEffectiveTimeFluidCost()
                 ? selectedMultiplier
                 : 1;
@@ -530,6 +574,15 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     public int getMultiplier() {
+        if (isClientSide()) {
+            return Math.max(1, syncedMultiplier);
+        }
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get() * 10;
+        }
+        if (UpgradeHelper.hasOverclock(this)) {
+            return JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get();
+        }
         return Math.clamp(multiplier, 1, getMaxSelectableMultiplier());
     }
 
@@ -543,6 +596,12 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     public int getMaxSelectableMultiplier() {
+        if (isClientSide()) {
+            return Math.max(1, syncedMaxMultiplier);
+        }
+        if (UpgradeHelper.hasUltimateOverclock(this)) {
+            return JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get() * 10;
+        }
         return UpgradeHelper.hasOverclock(this) || UpgradeHelper.hasCreativeUpgrade(this)
                 ? JDTEConfig.COMMON.bioFactoryOverclockMaxSpeedMultiplier.get()
                 : JDTEConfig.COMMON.bioFactoryMaxSpeedMultiplier.get();
@@ -666,11 +725,26 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         return cachedActiveOutputSlots;
     }
 
+    public int getOutputSlotLimit() {
+        long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
+        if (gameTick != Long.MIN_VALUE && outputSlotLimitTick == gameTick) return cachedOutputSlotLimit;
+        if (UpgradeHelper.hasUltimateCapacity(this)) {
+            cachedOutputSlotLimit = ULTIMATE_CAPACITY_STACK_LIMIT;
+            outputSlotLimitTick = gameTick;
+            return cachedOutputSlotLimit;
+        }
+        cachedOutputSlotLimit = BASE_OUTPUT_STACK_LIMIT;
+        outputSlotLimitTick = gameTick;
+        return cachedOutputSlotLimit;
+    }
+
     public int getMaxFluidCapacity() {
         return UpgradeHelper.adjustFluidCapacity(this, JDTEConfig.COMMON.bioFactoryFluidCapacity.get());
     }
 
     private void syncCapacities() {
+        outputSlotLimitTick = Long.MIN_VALUE;
+        activeOutputSlotsTick = Long.MIN_VALUE;
         int fluidCapacity = getMaxFluidCapacity();
         syncTank(lifeFluidTank, fluidCapacity);
         syncTank(timeFluidTank, fluidCapacity);

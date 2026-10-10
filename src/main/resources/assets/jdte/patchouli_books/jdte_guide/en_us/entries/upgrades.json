@@ -422,7 +422,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, maximizing output slots in supported machines, and expanding Greenhouse single-slot stacking up to 6,400,000."
+      "text": "Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, maximizing output slots in supported machines, and expanding Greenhouse and Bio Factory single-slot stacking up to 6,400,000."
     },
     {
       "type": "patchouli:crafting",

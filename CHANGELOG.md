@@ -2,7 +2,14 @@
 
 ### English
 
-#### v0.6.3.2 (Current) — 2026-10-07
+#### v0.6.3.3 (Current) — 2026-10-10
+
+Feature and maintenance release expanding Bio Factory output product stacking to 6,400,000 under the Ultimate Capacity Upgrade and synchronizing Bio Factory Ultimate Overclock speed multipliers with the GUI, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.3.3 release notes](docs/releases/0.6.3.3.md).
+
+- **Bio Factory Stacking Expanded to 6,400,000 (`jdte:bio_factory`)**: When equipped with the Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`), the output slot stack limit for the Bio Factory is expanded from 64 to **6,400,000** items per slot with compact slot count rendering, preventing output stalls under high productivity and time acceleration.
+- **Bio Factory Ultimate Overclock GUI & Multiplier Alignment**: Fixed an issue where the Bio Factory's displayed speed multiplier and selectable maximum in the GUI remained unchanged (1~64) when an Ultimate Overclock Upgrade was installed instead of locking to 640. Aligned `getMultiplier()`, `getMaxSelectableMultiplier()`, and `getSpeedMultiplier()` with Greenhouse behavior, locking the multiplier to 640 under Ultimate Overclock (and 64 under standard Overclock) and synchronizing directly to the screen's speed button.
+
+#### v0.6.3.2 — 2026-10-07
 
 Feature and throughput release introducing the Advanced AE Output Upgrade with extreme batch extraction and expanding Greenhouse single-slot product stacking to 6,400,000 under the Ultimate Capacity Upgrade, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.3.2 release notes](docs/releases/0.6.3.2.md).
 
@@ -362,7 +369,14 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.3.2（当前）— 2026-10-07
+#### v0.6.3.3（当前）— 2026-10-10
+
+将生物工厂在顶级容量升级下的单槽产物堆叠上限大幅提升至 6,400,000，并对齐修复生物工厂顶级超频倍率与 GUI 界面同步的功能与维护更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.3.3 发布说明](docs/releases/0.6.3.3.md)。
+
+- **生物工厂单槽产物堆叠拉升至 6,400,000 (`jdte:bio_factory`)**：安装顶级容量升级（`jdte:ultimate_capacity_upgrade`）后，生物工厂单槽产物堆叠上限扩展至 **6,400,000** 并支持紧凑数字显示，彻底解决高生产力与极速加速下的产物槽堆满停机瓶颈。
+- **生物工厂顶级超频界面与倍率同步修复**：修复生物工厂安装顶级超频升级后，界面（GUI）中显示的倍率与最大可选倍率未锁定为 640（仍显示为 1~64）导致界面显示与内部实际运行速率不一致的问题。将 `getMultiplier()`、`getMaxSelectableMultiplier()` 与 `getSpeedMultiplier()` 对齐温室标准，安装顶级超频时将倍率锁定为 640（普通超频锁定为 64）并实时同步至界面按钮。
+
+#### v0.6.3.2 — 2026-10-07
 
 引入高级 AE 输出升级与极速批处理抽取机制，并将温室与大型温室在顶级容量升级下的单槽堆叠上限大幅提升至 6,400,000 的功能与吞吐优化更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.3.2 发布说明](docs/releases/0.6.3.2.md)。
 

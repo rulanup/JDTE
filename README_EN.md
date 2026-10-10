@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.3.2`
+Current version: `0.6.3.3`
+
+## What's new in 0.6.3.3
+
+Feature & maintenance release:
+- **Bio Factory Stacking Expanded to 6,400,000 (`jdte:bio_factory`)**: The Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`) now scales output slot stacking in the Bio Factory up to **6,400,000** items per slot with compact slot count rendering, preventing output stalls under high productivity and time acceleration.
+- **Bio Factory Ultimate Overclock GUI & Multiplier Alignment**: Aligned the Bio Factory's speed multiplier and GUI button with Greenhouse standards. Installing an Ultimate Overclock Upgrade locks `getMultiplier()` and `getMaxSelectableMultiplier()` to 640 (standard Overclock locks to 64), resolving the discrepancy where the GUI previously remained at 1~64 while internal processing ran at 640x.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.3.3.md).
 
 ## What's new in 0.6.3.2
 
