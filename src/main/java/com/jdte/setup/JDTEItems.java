@@ -118,6 +118,10 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> LARGE_MINERAL_EXTRACTOR = ITEMS.register("large_mineral_extractor",
             () -> new BlockItem(JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get(), new Item.Properties()));
 
+    public static final DeferredHolder<Item, BlockItem> XINGYE_FUMO = ITEMS.register("xingye_fumo", () -> new BlockItem(JDTEBlocks.XINGYE_FUMO.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> CAINIAOYO_FUMO = ITEMS.register("cainiaoyo_fumo", () -> new BlockItem(JDTEBlocks.CAINIAOYO_FUMO.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> MAIQILIN_FUMO = ITEMS.register("maiqilin_fumo", () -> new BlockItem(JDTEBlocks.MAIQILIN_FUMO.get(), new Item.Properties()));
+
     // Glue Activator
     public static final DeferredHolder<Item, BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ADVANCED_GLUE_ACTIVATOR = ITEMS.register("advanced_glue_activator", () -> new BlockItem(JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get(), new Item.Properties()));

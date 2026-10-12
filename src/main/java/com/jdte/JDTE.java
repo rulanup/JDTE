@@ -75,6 +75,8 @@ public class JDTE {
         modContainer.registerConfig(ModConfig.Type.CLIENT, JDTEConfig.LOCAL_SPEC, JDTE.MODID + "/time-accelerator-local.toml");
         modContainer.registerConfig(ModConfig.Type.SERVER, JDTEConfig.SERVER_SPEC, JDTE.MODID + "/time-accelerator-server.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);
+        modEventBus.addListener(com.jdte.datagen.JDTEDataGenerators::gatherData);
+        JDTEBlocks.BLOCK_TYPES.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
         JDTEDataComponents.DATA_COMPONENTS.register(modEventBus);
         JDTEBlockEntities.BLOCK_ENTITIES.register(modEventBus);

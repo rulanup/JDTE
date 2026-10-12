@@ -1003,5 +1003,8 @@
   "config.jdte.jdte.repairTalisman.energyPerDurability.desc": "FE consumed per durability point repaired, drawn from charged energy items in the player's inventory; 0 makes repairs free",
   "config.jdte.jdte.aeOutput": "AE Output Upgrade Settings",
   "config.jdte.jdte.aeOutput.returnInterval": "Return Interval (ticks)",
-  "config.jdte.jdte.aeOutput.returnInterval.desc": "Ticks between AE return flushes on machines with the AE Output Upgrade installed"
+  "config.jdte.jdte.aeOutput.returnInterval.desc": "Ticks between AE return flushes on machines with the AE Output Upgrade installed",
+  "block.jdte.xingye_fumo": "Xingye Fumo",
+  "block.jdte.cainiaoyo_fumo": "Cainiaoyo Fumo",
+  "block.jdte.maiqilin_fumo": "Maiqilin Fumo"
 }

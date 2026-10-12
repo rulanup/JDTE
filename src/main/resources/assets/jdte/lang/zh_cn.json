@@ -1003,5 +1003,8 @@
   "config.jdte.jdte.repairTalisman.energyPerDurability.desc": "每修复 1 点耐久从玩家背包中已充能的能量物品抽取的 FE；设为 0 时免费修复",
   "config.jdte.jdte.aeOutput": "AE 返回升级设置",
   "config.jdte.jdte.aeOutput.returnInterval": "返回间隔（刻）",
-  "config.jdte.jdte.aeOutput.returnInterval.desc": "安装 AE 返回升级的机器两次向 AE 回流产物之间的间隔刻数"
+  "config.jdte.jdte.aeOutput.returnInterval.desc": "安装 AE 返回升级的机器两次向 AE 回流产物之间的间隔刻数",
+  "block.jdte.xingye_fumo": "星野玩偶",
+  "block.jdte.cainiaoyo_fumo": "菜鸟哟玩偶",
+  "block.jdte.maiqilin_fumo": "麦麒麟玩偶"
 }

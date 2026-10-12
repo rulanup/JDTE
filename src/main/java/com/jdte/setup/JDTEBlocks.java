@@ -1,6 +1,8 @@
 package com.jdte.setup;
 
 import com.jdte.JDTE;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.registries.Registries;
 import com.jdte.common.blocks.*;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -8,6 +10,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class JDTEBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(JDTE.MODID);
+    public static final DeferredRegister<MapCodec<? extends Block>> BLOCK_TYPES =
+            DeferredRegister.create(Registries.BLOCK_TYPE, JDTE.MODID);
+    public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<DecorativeFumoBlock>> DECORATIVE_FUMO_CODEC =
+            BLOCK_TYPES.register("decorative_fumo", () -> DecorativeFumoBlock.CODEC);
 
     public static final DeferredHolder<Block, BasicTimeAcceleratorBlock> BASIC_TIME_ACCELERATOR = BLOCKS.register("basic_time_accelerator", BasicTimeAcceleratorBlock::new);
     public static final DeferredHolder<Block, AdvancedTimeAcceleratorBlock> ADVANCED_TIME_ACCELERATOR = BLOCKS.register("advanced_time_accelerator", AdvancedTimeAcceleratorBlock::new);
@@ -43,6 +49,9 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, MineralExtractorBlock> MINERAL_EXTRACTOR = BLOCKS.register("mineral_extractor", MineralExtractorBlock::new);
     public static final DeferredHolder<Block, LargeMineralExtractorBlock> LARGE_MINERAL_EXTRACTOR = BLOCKS.register("large_mineral_extractor", LargeMineralExtractorBlock::new);
     public static final DeferredHolder<Block, LargeMineralExtractorPartBlock> LARGE_MINERAL_EXTRACTOR_PART = BLOCKS.register("large_mineral_extractor_part", LargeMineralExtractorPartBlock::new);
+    public static final DeferredHolder<Block, DecorativeFumoBlock> XINGYE_FUMO = BLOCKS.register("xingye_fumo", DecorativeFumoBlock::new);
+    public static final DeferredHolder<Block, DecorativeFumoBlock> CAINIAOYO_FUMO = BLOCKS.register("cainiaoyo_fumo", DecorativeFumoBlock::new);
+    public static final DeferredHolder<Block, DecorativeFumoBlock> MAIQILIN_FUMO = BLOCKS.register("maiqilin_fumo", DecorativeFumoBlock::new);
 
     // Tiered Solar Panels
     // Glue Activator

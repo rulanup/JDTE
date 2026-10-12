@@ -112,6 +112,9 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.LIFE_BREEDER.get());
                 output.accept(JDTEItems.MINERAL_EXTRACTOR.get());
                 output.accept(JDTEItems.LARGE_MINERAL_EXTRACTOR.get());
+                output.accept(JDTEItems.XINGYE_FUMO.get());
+                output.accept(JDTEItems.CAINIAOYO_FUMO.get());
+                output.accept(JDTEItems.MAIQILIN_FUMO.get());
 
                 // Fluid Receivers
                 output.accept(JDTEItems.BASIC_FLUID_RECEIVER.get());

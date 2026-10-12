@@ -46,6 +46,8 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
+sourceSets.main.resources.srcDir('src/generated/resources')
+
 sourceSets {
     clientRuntime {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
@@ -84,6 +86,13 @@ neoForge {
         server {
             server()
             programArgument '--nogui'
+        }
+
+        data {
+            data()
+            programArguments.addAll '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', file('src/main/resources').absolutePath
         }
     }
 
