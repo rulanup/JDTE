@@ -67,8 +67,8 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         if (UpgradeHelper.isEnergyOverloadUpgrade(stack)) {
             return UpgradeHelper.isEnergyTransmitter(machine) && countEnergyOverload(slot) == 0;
         }
-        if (UpgradeHelper.isMixingUpgrade(stack)) {
-            return machine instanceof FluidMixerBE && countMixingUpgrade(slot) == 0;
+        if (UpgradeHelper.isMixingUpgrade(stack) || UpgradeHelper.isUltimateMixingParallelUpgrade(stack)) {
+            return machine instanceof FluidMixerBE && countMixingParallelUpgrade(slot) == 0;
         }
         if (!(stack.getItem() instanceof UpgradeCardItem upgradeCard)) {
             return false;
@@ -157,10 +157,12 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         return count;
     }
 
-    private int countMixingUpgrade(int ignoredSlot) {
+    private int countMixingParallelUpgrade(int ignoredSlot) {
         int count = 0;
         for (int slot = 0; slot < getSlots(); slot++) {
-            if (slot != ignoredSlot && UpgradeHelper.isMixingUpgrade(getStackInSlot(slot))) {
+            ItemStack stack = getStackInSlot(slot);
+            if (slot != ignoredSlot && (UpgradeHelper.isMixingUpgrade(stack)
+                    || UpgradeHelper.isUltimateMixingParallelUpgrade(stack))) {
                 count++;
             }
         }

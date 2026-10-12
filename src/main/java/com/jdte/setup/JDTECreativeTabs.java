@@ -26,6 +26,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ENERGY_BREWING_UPGRADE.get());
                 output.accept(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get());
                 output.accept(JDTEItems.MIXING_UPGRADE.get());
+                output.accept(JDTEItems.ULTIMATE_MIXING_PARALLEL_UPGRADE.get());
                 output.accept(JDTEItems.AE_OUTPUT_UPGRADE.get());
                 output.accept(JDTEItems.AE_EXTRACTION_UPGRADE.get());
                 output.accept(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());

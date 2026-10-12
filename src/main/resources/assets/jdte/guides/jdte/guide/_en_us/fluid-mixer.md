@@ -7,11 +7,12 @@ item_ids:
   - jdte:advanced_fluid_mixer
   - jdte:extended_fluid_mixer
   - jdte:mixing_upgrade
+  - jdte:ultimate_mixing_parallel_upgrade
 ---
 
 # Fluid Mixer
 
-The Fluid Mixer consumes FE to mix two input fluids (Tank A and Tank B) along with an optional item catalyst, outputting a new target fluid.
+The Fluid Mixer consumes FE to mix one or two input fluids (Tank A and Tank B) along with an optional item catalyst, outputting a new target fluid.
 
 It natively supports custom datapack recipes (`jdte:fluid_mixer`). When the Mekanism mod is installed, it also automatically discovers and supports Chemical Infuser and Pigment Mixer recipes.
 
@@ -40,10 +41,11 @@ It natively supports custom datapack recipes (`jdte:fluid_mixer`). When the Meka
 
 ## Mixing Upgrade & Parallel Processing
 
-The Fluid Mixer features a dedicated upgrade slot that accepts the **Mixing Upgrade** (limit: 1).
+The Fluid Mixer features a dedicated upgrade slot that accepts either the **Mixing Parallel Upgrade** or **Ultimate Mixing Parallel Upgrade** (one total; they are mutually exclusive).
 
 - **Uninstalled**: Processes 1 standard recipe batch per cycle.
-- **Installed**: Enables **Parallel Mixing Mode**. The machine calculates the maximum possible batches based on current inputs, remaining output tank space, and available FE, processing all ingredients in a single cycle.
+- **Mixing Parallel Upgrade**: Processes at most 8 batches in parallel.
+- **Ultimate Mixing Parallel Upgrade**: Raises the parallel limit to 2,147,483,647. Both upgrades still respect available ingredients, output space, and FE.
 
 ## Upgrade Effects
 
@@ -54,7 +56,8 @@ The Fluid Mixer features a dedicated upgrade slot that accepts the **Mixing Upgr
 | Overclock | Locks speed to 1 tick, runs twice per tick, triples energy cost |
 | Underclock | Locks speed to 40 ticks, reduces energy cost to 20% |
 | Creative | Eliminates FE cost and applies Overclock speed |
-| Mixing | Dedicated slot (max 1), enables parallel batch mixing |
+| Mixing Parallel | Dedicated slot, up to 8 parallel batches |
+| Ultimate Mixing Parallel | Mutually exclusive dedicated upgrade, up to 2,147,483,647 parallel batches |
 | AE Crafting Read | Only operates when a bound AE2 network has active crafting jobs |
 | AE Output | Automatically exports outputs to a bound AE2 network |
 
@@ -62,7 +65,7 @@ The Fluid Mixer features a dedicated upgrade slot that accepts the **Mixing Upgr
 
 | Input Fluid A | Input Fluid B | Item Catalyst | Output Fluid | Process Ticks | Energy |
 |---------------|---------------|---------------|--------------|---------------|--------|
-| Life Fluid 500 mB | Milk 500 mB | Cactus ×1 | Time Fluid 250 mB | 100 ticks (5s) | 5,000 FE |
+| Water 1,000 mB | — | Time Fluid Catalyst ×1 | Time Fluid 250 mB | 100 ticks (5s) | 5,000 FE |
 
 ## Mekanism Integration
 
@@ -87,8 +90,18 @@ Extended variant of the Advanced Fluid Mixer with 8 upgrade slots. Can be upgrad
 
 <RecipeFor id="jdte:extended_fluid_mixer" />
 
-### Mixing Upgrade
+### Mixing Parallel Upgrade
 
 <ItemImage id="jdte:mixing_upgrade" scale="2" />
 
+Processes at most 8 batches in parallel.
+
 <RecipeFor id="jdte:mixing_upgrade" />
+
+### Ultimate Mixing Parallel Upgrade
+
+<ItemImage id="jdte:ultimate_mixing_parallel_upgrade" scale="2" />
+
+Raises the parallel limit to 2,147,483,647 batches.
+
+<RecipeFor id="jdte:ultimate_mixing_parallel_upgrade" />

@@ -8,6 +8,7 @@ import com.jdte.common.items.EnergyBrewingUpgradeItem;
 import com.jdte.common.items.EnergyOverloadUpgradeItem;
 import com.jdte.common.items.EntityAccelerationUpgradeItem;
 import com.jdte.common.items.MixingUpgradeItem;
+import com.jdte.common.items.UltimateMixingParallelUpgradeItem;
 import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.items.ExtendedUpgradeItem;
 import com.jdte.common.items.FactoryPackageItem;
@@ -196,6 +197,8 @@ public class JDTEItems {
     public static final DeferredHolder<Item, EnergyBrewingUpgradeItem> ENERGY_BREWING_UPGRADE = ITEMS.register("energy_brewing_upgrade", EnergyBrewingUpgradeItem::new);
     public static final DeferredHolder<Item, EnergyOverloadUpgradeItem> ENERGY_OVERLOAD_UPGRADE = ITEMS.register("energy_overload_upgrade", EnergyOverloadUpgradeItem::new);
     public static final DeferredHolder<Item, MixingUpgradeItem> MIXING_UPGRADE = ITEMS.register("mixing_upgrade", MixingUpgradeItem::new);
+    public static final DeferredHolder<Item, UltimateMixingParallelUpgradeItem> ULTIMATE_MIXING_PARALLEL_UPGRADE =
+            ITEMS.register("ultimate_mixing_parallel_upgrade", UltimateMixingParallelUpgradeItem::new);
     public static final DeferredHolder<Item, EntityAccelerationUpgradeItem> ENTITY_ACCELERATION_UPGRADE = ITEMS.register("entity_acceleration_upgrade", EntityAccelerationUpgradeItem::new);
     public static final DeferredHolder<Item, RepairTalismanItem> REPAIR_TALISMAN = ITEMS.register("repair_talisman",
             () -> new RepairTalismanItem(new Item.Properties()));

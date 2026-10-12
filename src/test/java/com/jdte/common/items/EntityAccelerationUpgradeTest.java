@@ -141,24 +141,27 @@ class EntityAccelerationUpgradeTest {
         ItemStack baseUpgraded = new ItemStack(JDTEItems.ULTIMATE_TIME_WAND.get());
         UltimateTimeWandItem.setEntityAcceleration(baseUpgraded, true);
         ItemStack baseBasicWand = new ItemStack(Registration.TimeWand.get());
-        ItemStack dummyAddition = ItemStack.EMPTY;
+        ItemStack catalyst = new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get());
 
         // Valid input
-        SmithingRecipeInput validInput = new SmithingRecipeInput(template, baseUnupgraded, dummyAddition);
+        SmithingRecipeInput validInput = new SmithingRecipeInput(template, baseUnupgraded, catalyst);
         assertTrue(recipe.matches(validInput, null));
 
         ItemStack result = recipe.assemble(validInput, null);
         assertEquals(JDTEItems.ULTIMATE_TIME_WAND.get(), result.getItem());
         assertTrue(UltimateTimeWandItem.hasEntityAcceleration(result));
 
+        // The smithing recipe requires its catalyst in the addition slot.
+        assertFalse(recipe.matches(new SmithingRecipeInput(template, baseUnupgraded, ItemStack.EMPTY), null));
+
         // Already upgraded ultimate wand -> false
-        assertFalse(recipe.matches(new SmithingRecipeInput(template, baseUpgraded, dummyAddition), null));
+        assertFalse(recipe.matches(new SmithingRecipeInput(template, baseUpgraded, catalyst), null));
 
         // Basic Time Wand -> strictly false
-        assertFalse(recipe.matches(new SmithingRecipeInput(template, baseBasicWand, dummyAddition), null));
+        assertFalse(recipe.matches(new SmithingRecipeInput(template, baseBasicWand, catalyst), null));
 
         // Invalid template -> false
-        assertFalse(recipe.matches(new SmithingRecipeInput(new ItemStack(Items.STICK), baseUnupgraded, dummyAddition), null));
+        assertFalse(recipe.matches(new SmithingRecipeInput(new ItemStack(Items.STICK), baseUnupgraded, catalyst), null));
     }
 
     @Test

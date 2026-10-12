@@ -1,16 +1,12 @@
 {
   "type": "jdte:fluid_mixer",
   "fluid_input_a": {
-    "id": "jdte:life_fluid_source",
-    "amount": 500
-  },
-  "fluid_input_b": {
-    "id": "minecraft:milk",
-    "amount": 500
+    "id": "minecraft:water",
+    "amount": 1000
   },
   "item_input": {
     "ingredient": {
-      "item": "minecraft:cactus"
+      "item": "jdte:time_fluid_catalyst"
     },
     "count": 1
   },

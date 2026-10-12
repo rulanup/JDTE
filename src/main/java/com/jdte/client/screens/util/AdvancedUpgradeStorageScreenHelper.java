@@ -12,6 +12,7 @@ import com.jdte.common.items.AdvancedUpgradeStorageItem;
 import com.jdte.common.items.EnergyBrewingUpgradeItem;
 import com.jdte.common.items.EnergyOverloadUpgradeItem;
 import com.jdte.common.items.MixingUpgradeItem;
+import com.jdte.common.items.UltimateMixingParallelUpgradeItem;
 import com.jdte.common.blockentities.FluidMixerBE;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
@@ -551,8 +552,12 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (stack.getItem() instanceof EnergyBrewingUpgradeItem) {
             return (machine instanceof AdvancedPotionBrewerBE brewer && brewer.hasEnergyBrewingUpgrade()) ? 1 : 0;
         }
+        if (stack.getItem() instanceof UltimateMixingParallelUpgradeItem) {
+            return UpgradeHelper.hasUltimateMixingParallelUpgrade(machine) ? 1 : 0;
+        }
         if (stack.getItem() instanceof MixingUpgradeItem) {
-            return UpgradeHelper.hasMixingUpgrade(machine) ? 1 : 0;
+            return UpgradeHelper.hasMixingUpgrade(machine)
+                    && !UpgradeHelper.hasUltimateMixingParallelUpgrade(machine) ? 1 : 0;
         }
         if (stack.getItem() instanceof LootingUpgradeItem) {
             if (machine instanceof BioCrusherBE crusher) {
@@ -592,7 +597,8 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (stack.getItem() instanceof EnergyBrewingUpgradeItem) {
             return (machine instanceof AdvancedPotionBrewerBE) ? 1 : 0;
         }
-        if (stack.getItem() instanceof MixingUpgradeItem) {
+        if (stack.getItem() instanceof MixingUpgradeItem
+                || stack.getItem() instanceof UltimateMixingParallelUpgradeItem) {
             return (machine instanceof FluidMixerBE) ? 1 : 0;
         }
         if (stack.getItem() instanceof LootingUpgradeItem) {

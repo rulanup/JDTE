@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.3.3` |
+| Current version | `0.6.4.0` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
@@ -16,6 +16,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 
 Major features:
 
+- Fluid Mixer (jdte:fluid_mixer) supports water plus Time Fluid Catalyst recipes and dedicated Mixing Parallel Upgrades (up to 8, or 2,147,483,647 with the Ultimate tier).
 - 19 standard UpgradeType cards: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Essence Conversion, Seed Conversion, AE Acceleration, AE Crafting Read, AE Output, Advanced AE Output, Ultimate Overclock, and Ultimate Capacity. Advanced AE Output Upgrade (`jdte:advanced_ae_output_upgrade`, limit 1) extracts up to Integer.MAX_VALUE items and fluids directly to a linked AE2 network, running up to 10 extractions per tick and interleaving flushes during Ultimate Overclock execution. Ultimate Overclock Upgrade (`jdte:ultimate_overclock_upgrade`, limit 1) locks machine delay to 1 tick, runs 10 times per tick at 50x power, and can be applied to the Ultimate Time Wand to increase maximum acceleration up to 32768X. Ultimate Capacity Upgrade (`jdte:ultimate_capacity_upgrade`, limit 1) provides 50x capacity upgrade multiplier, scaling machine energy/fluid capacity, maximizing output slots, and expanding Greenhouse/Large Greenhouse/Bio Factory output slot stacking to 6,400,000. Looting and Sharpness are dedicated upgrade items outside UpgradeType. Energy Overload Upgrade (`jdte:energy_overload_upgrade`, limit 1) dedicated to Energy Transmitters removes all single-batch and per-tick transfer limits.
 - Upgrade Storage (`jdte:upgrade_storage`): a handheld 4×5 (20 slot) upgrade case dedicated to JDTE and JDT upgrades that allows storing up to 64 per slot, with real-time component persistence, Shift-click transfers, and `ItemHandler.ITEM` capability.
 - Advanced Upgrade Storage (`jdte:advanced_upgrade_storage`): an enhanced 6×6 (36 slot) upgrade case for JDTE and JDT upgrades (stacking up to 64 per slot) with real-time component persistence, Curios slot support, `ItemHandler.ITEM` capability, and an in-screen side panel on all JDT/JDTE machine menus enabling direct upgrade insertion, withdrawal, cursor transfers, and bidirectional Shift-click machine synchronization.
@@ -66,7 +67,7 @@ Major features:
 - Time Multitool attack gating is client-only. `jdte.timeMultitool.continuousMiningHoldDelayMillis` defaults to 250 in the existing local CLIENT config, allows 0-2000, and resets on release, focus loss, screen/world changes, and hotbar changes. Existing explicitly enabled JDT area abilities remain active.
 - Manual Ultimate Portal Gun destinations cost 25 mB/block up to 25,000 mB in the same dimension, or 500 mB across dimensions. Quick-added and previous destinations keep JDT pricing.
 
-Detailed English release notes: [0.6.3.3](docs/releases/0.6.3.3.md).
+Detailed English release notes: [0.6.4.0](docs/releases/0.6.4.0.md).
 
 ## Naming conventions
 

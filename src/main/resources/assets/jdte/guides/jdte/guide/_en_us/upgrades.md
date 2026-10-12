@@ -199,7 +199,7 @@ Empty universal containers are not selected as fluid targets. Only tanks with ex
 
 <ItemImage id="jdte:entity_acceleration_upgrade" scale="2" />
 
-Exclusive to the Ultimate Time Wand. Once installed, the wand can accelerate entities in addition to blocks. It can be installed in a smithing table, crafting table, or directly by right-clicking the upgrade onto the Ultimate Time Wand in the inventory.
+Exclusive to the Ultimate Time Wand. Once installed, the wand can accelerate entities in addition to blocks. Install it in a smithing table with this upgrade as the template, the Ultimate Time Wand as the base, and a Time Fluid Catalyst as the addition, or right-click the upgrade onto the wand in the inventory.
 
 While accelerated, the entity's AI is not accelerated, preventing excessive pathfinding lag, erratic movement, or rapid attacks. Entity life timers, growth (baby to adult), breeding cooldowns, potion effects, and production timers advance at the full accelerated rate.
 

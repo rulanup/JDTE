@@ -96,12 +96,14 @@ public class FluidMixerRecipeCategory implements IRecipeCategory<FluidMixerJeiRe
                     .addItemStacks(recipe.itemInputs());
         }
 
-        // 输入流体 B
-        builder.addSlot(RecipeIngredientRole.INPUT, TANK_B_X + 1, TANK_B_Y + 1)
-                .setBackground(fluidBarBackground, -1, -1)
-                .setOverlay(fluidBarOverlay, -1, -1)
-                .setFluidRenderer(recipe.fluidInputB().getAmount(), false, FLUID_INNER_WIDTH, FLUID_INNER_HEIGHT)
-                .addFluidStack(recipe.fluidInputB().getFluid(), recipe.fluidInputB().getAmount());
+        // 单流体配方不显示空的输入罐 B
+        if (!recipe.fluidInputB().isEmpty()) {
+            builder.addSlot(RecipeIngredientRole.INPUT, TANK_B_X + 1, TANK_B_Y + 1)
+                    .setBackground(fluidBarBackground, -1, -1)
+                    .setOverlay(fluidBarOverlay, -1, -1)
+                    .setFluidRenderer(recipe.fluidInputB().getAmount(), false, FLUID_INNER_WIDTH, FLUID_INNER_HEIGHT)
+                    .addFluidStack(recipe.fluidInputB().getFluid(), recipe.fluidInputB().getAmount());
+        }
 
         // 输出流体
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_TANK_X + 1, OUTPUT_TANK_Y + 1)

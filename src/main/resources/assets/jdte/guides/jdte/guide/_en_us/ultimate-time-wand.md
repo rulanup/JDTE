@@ -30,7 +30,7 @@ Normal right-click on a valid target creates a request; right-clicking a target 
 
 The Ultimate Time Wand supports two dedicated upgrades that can be applied by right-clicking the upgrade onto the wand in the inventory, or through a crafting table or smithing table:
 
-- **Entity Acceleration Upgrade** (`jdte:entity_acceleration_upgrade`): Allows right-clicking living entities to accelerate them. Entity AI and navigation physics are suppressed during accelerated extra ticks to eliminate lag, while lifecycles, growth, breeding cooldowns, and status effect timers progress at full accelerated speed.
+- **Entity Acceleration Upgrade** (`jdte:entity_acceleration_upgrade`): Apply it in a smithing table with the upgrade as the template, the Ultimate Time Wand as the base, and a Time Fluid Catalyst as the addition, or right-click to install it directly. The wand can then accelerate living entities. Entity AI and navigation physics are suppressed during accelerated extra ticks to eliminate lag, while lifecycles, growth, breeding cooldowns, and status effect timers progress at full accelerated speed.
 - **Ultimate Overclock Upgrade** (`jdte:ultimate_overclock_upgrade`): Unlocks ultimate acceleration potential, raising the wand's maximum acceleration multiplier from 1024X (exponent 10) up to **32768X** (exponent 15).
 
 ## Resources and server safety

@@ -9,6 +9,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControl
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.recipes.FluidMixerRecipe;
+import com.jdte.common.recipes.FluidMixerParallelLimit;
 import com.jdte.common.recipes.RecipeCacheSignal;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
@@ -445,22 +446,18 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
 
     /**
      * 计算当前输入原料、输出空间与能量所支持的最大并行混合倍数。
-     * 未安装混合升级时固定返回 1。
+     * 常规升级最多并行 8 批，顶级升级上限为 Integer.MAX_VALUE。
      */
     protected int calculateMaxParallel(FluidMixerRecipe recipe, FluidStack tankA, FluidStack tankB,
                                        ItemStack catalyst, int singleEnergyCost) {
-        if (!UpgradeHelper.hasMixingUpgrade(this)) {
-            return 1;
-        }
-
         int drainA = recipe.getDrainA(tankA);
         int drainB = recipe.getDrainB(tankB);
-        if (drainA <= 0 || drainB <= 0) {
-            return 1;
+        if (drainA < 0 || drainB < 0 || (drainA == 0 && drainB == 0)) {
+            return 0;
         }
 
-        int maxA = tankA.getAmount() / drainA;
-        int maxB = tankB.getAmount() / drainB;
+        int maxA = drainA == 0 ? Integer.MAX_VALUE : tankA.getAmount() / drainA;
+        int maxB = drainB == 0 ? Integer.MAX_VALUE : tankB.getAmount() / drainB;
         int maxParallel = Math.min(maxA, maxB);
 
         if (recipe.itemInput().isPresent()) {
@@ -487,7 +484,10 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
             maxParallel = Math.min(maxParallel, maxEnergy);
         }
 
-        return Math.max(0, maxParallel);
+        return FluidMixerParallelLimit.apply(
+                Math.max(0, maxParallel),
+                UpgradeHelper.hasMixingUpgrade(this),
+                UpgradeHelper.hasUltimateMixingParallelUpgrade(this));
     }
 
     private FluidMixerRecipe findRecipe(FluidStack tankA, FluidStack tankB, ItemStack catalyst) {

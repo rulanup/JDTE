@@ -63,6 +63,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     public static final int OUTPUT_SLOTS_PER_CAPACITY = 16;
     public static final int BASE_OUTPUT_STACK_LIMIT = 64;
     public static final int FIRST_CAPACITY_STACK_LIMIT = 2048;
+    public static final int ULTIMATE_CAPACITY_STACK_LIMIT = 6_400_000;
     public static final int TOTAL_SLOTS = OUTPUT_START_SLOT + OUTPUT_SLOTS;
     public static final int UPGRADE_SLOTS = 8;
     public static final int BASE_PRODUCTION_MULTIPLIER = 64;
@@ -174,6 +175,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     private long cachedIndexVersion = Long.MIN_VALUE;
     private int cachedFilterFingerprint;
     private boolean cachedSmelterUpgrade;
+    private boolean mineralCacheValid;
     private boolean surveySource;
     private boolean staleSurvey;
     private boolean cachedSourceHadEntries;
@@ -407,6 +409,9 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         int filterFingerprint = computeFilterFingerprint();
         boolean smelterUpgrade = UpgradeHelper.hasSmelterUpgrade(this);
         long indexVersion = MineralSurveyIndex.version(serverLevel.getServer());
+        if (mineralCacheValid && cachedIndexVersion == indexVersion
+                && cachedFilterFingerprint == filterFingerprint && cachedSmelterUpgrade == smelterUpgrade) return;
+
         ResourceLocation biomeId;
         List<MineralEntry> sourceEntries;
         List<MineralEntry> surveyedEntries = new ArrayList<>();
@@ -433,9 +438,6 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
             surveySource = false;
             staleSurvey = false;
         }
-        if (Objects.equals(cachedBiomeId, biomeId) && cachedIndexVersion == indexVersion
-                && cachedFilterFingerprint == filterFingerprint && cachedSmelterUpgrade == smelterUpgrade
-                && !cachedEntries.isEmpty()) return;
         cachedBiomeId = biomeId;
         cachedIndexVersion = indexVersion;
         cachedFilterFingerprint = filterFingerprint;
@@ -443,6 +445,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         cachedSourceHadEntries = !sourceEntries.isEmpty();
         cachedEntries = MineralProductionEngine.select(sourceEntries, this::allowedByFilter);
         cachedProductionStacks = buildProductionStackCache(serverLevel, cachedEntries, smelterUpgrade);
+        mineralCacheValid = true;
         if (cachedEntries.isEmpty() && !sourceEntries.isEmpty()) setState(State.FILTERED);
         markDirtyClient();
     }
@@ -578,6 +581,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         cachedIndexVersion = Long.MIN_VALUE;
         cachedEntries = List.of();
         cachedProductionStacks = Map.of();
+        mineralCacheValid = false;
     }
 
     private boolean canUseTimeFluid() {
@@ -625,9 +629,9 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (gameTick != Long.MIN_VALUE && outputSlotLimitTick == gameTick) return cachedOutputSlotLimit;
         if (UpgradeHelper.hasUltimateCapacity(this)) {
-            cachedOutputSlotLimit = 64;
+            cachedOutputSlotLimit = ULTIMATE_CAPACITY_STACK_LIMIT;
             outputSlotLimitTick = gameTick;
-            return 64;
+            return ULTIMATE_CAPACITY_STACK_LIMIT;
         }
         int upgrades = UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY);
         cachedOutputSlotLimit = upgrades <= 0

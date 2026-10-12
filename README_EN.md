@@ -2,7 +2,16 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.3.3`
+Current version: `0.6.4.0`
+
+## What's new in 0.6.4.0
+
+Feature & maintenance release:
+- **Fluid Mixer Time Fluid Recipe & Parallel Upgrades**: Time Fluid production now consumes water and a Time Fluid Catalyst. The Mixing Parallel Upgrade supports up to 8 parallel operations, and the Ultimate Mixing Parallel Upgrade supports up to 2,147,483,647, subject to available inputs, output space, and power.
+- **Ultimate Time Wand Smithing & AE Pattern Fix**: Corrected the entity-acceleration upgrade smithing recipe for the Ultimate Time Wand so it can be represented by AE crafting patterns.
+- **Mineral Extractor Ultimate Capacity**: Increased the output stack limit to 6,400,000 with the Ultimate Capacity Upgrade and fixed empty mineral-cache handling.
+
+See the [detailed release notes and upgrade guidance](docs/releases/0.6.4.0.md).
 
 ## What's new in 0.6.3.3
 

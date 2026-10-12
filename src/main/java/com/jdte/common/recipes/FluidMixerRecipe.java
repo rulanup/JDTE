@@ -21,7 +21,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.Optional;
 
 /**
- * 流体混合器配方：两种流体输入 + 可选物品催化剂 → 流体输出。
+ * 流体混合器配方：一种或两种流体输入 + 可选物品催化剂 → 流体输出。
  * 物品催化剂在混合过程中被消耗。
  */
 public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
@@ -124,7 +124,7 @@ public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
 
         private static final MapCodec<FluidMixerRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 FluidStack.CODEC.fieldOf("fluid_input_a").forGetter(FluidMixerRecipe::fluidInputA),
-                FluidStack.CODEC.fieldOf("fluid_input_b").forGetter(FluidMixerRecipe::fluidInputB),
+                FluidStack.CODEC.optionalFieldOf("fluid_input_b", FluidStack.EMPTY).forGetter(FluidMixerRecipe::fluidInputB),
                 InputItem.CODEC.optionalFieldOf("item_input").forGetter(FluidMixerRecipe::itemInput),
                 FluidStack.CODEC.fieldOf("output").forGetter(FluidMixerRecipe::output),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("process_ticks").forGetter(FluidMixerRecipe::processTicks),
@@ -142,7 +142,9 @@ public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
                 @Override
                 public FluidMixerRecipe decode(RegistryFriendlyByteBuf buffer) {
                     FluidStack a = FLUID_STACK_CODEC.decode(buffer);
-                    FluidStack b = FLUID_STACK_CODEC.decode(buffer);
+                    FluidStack b = ByteBufCodecs.BOOL.decode(buffer)
+                            ? FLUID_STACK_CODEC.decode(buffer)
+                            : FluidStack.EMPTY;
                     boolean hasItem = ByteBufCodecs.BOOL.decode(buffer);
                     Optional<InputItem> item = hasItem
                             ? Optional.of(InputItem.STREAM_CODEC.decode(buffer))
@@ -156,7 +158,10 @@ public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
                 @Override
                 public void encode(RegistryFriendlyByteBuf buffer, FluidMixerRecipe recipe) {
                     FLUID_STACK_CODEC.encode(buffer, recipe.fluidInputA());
-                    FLUID_STACK_CODEC.encode(buffer, recipe.fluidInputB());
+                    ByteBufCodecs.BOOL.encode(buffer, !recipe.fluidInputB().isEmpty());
+                    if (!recipe.fluidInputB().isEmpty()) {
+                        FLUID_STACK_CODEC.encode(buffer, recipe.fluidInputB());
+                    }
                     ByteBufCodecs.BOOL.encode(buffer, recipe.itemInput().isPresent());
                     recipe.itemInput().ifPresent(item -> InputItem.STREAM_CODEC.encode(buffer, item));
                     FLUID_STACK_CODEC.encode(buffer, recipe.output());

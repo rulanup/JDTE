@@ -2,7 +2,11 @@
 
 ### English
 
-#### v0.6.3.3 (Current) — 2026-10-10
+#### v0.6.4.0 (Current) — 2026-10-12
+
+Feature and maintenance release for Minecraft 1.21.1, NeoForge 21.1.216+, Just Dire Things 1.5.7+, and Java 21. Time Fluid mixing now uses water and a Time Fluid Catalyst; new mixing parallel upgrades provide up to 8 or 2,147,483,647 parallel operations. Fixed Ultimate Time Wand entity-upgrade smithing and AE pattern compatibility, and expanded Mineral Extractor output stacking to 6,400,000 under the Ultimate Capacity Upgrade. Full details: [0.6.4.0 release notes](docs/releases/0.6.4.0.md).
+
+#### v0.6.3.3 — 2026-10-10
 
 Feature and maintenance release expanding Bio Factory output product stacking to 6,400,000 under the Ultimate Capacity Upgrade and synchronizing Bio Factory Ultimate Overclock speed multipliers with the GUI, for Minecraft 1.21.1, NeoForge 21.1.216+, JDT 1.5.7+, and Java 21. Full details: [0.6.3.3 release notes](docs/releases/0.6.3.3.md).
 
@@ -369,7 +373,15 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.3.3（当前）— 2026-10-10
+#### v0.6.4.0（当前）— 2026-10-12
+
+功能与维护更新版本：时间流体改为使用水和时间流体催化剂制作；新增最多 8 并行的混合升级和最多 2,147,483,647 并行的顶级混合并行升级；修复顶级时间手杖实体加速升级锻造配方及 AE 样板兼容；顶级容量升级下矿物提取机产物堆叠上限提升至 6,400,000。适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.4.0 发布说明](docs/releases/0.6.4.0.md)。
+
+- **流体混合器配方与并行升级**：时间流体配方改为水加时间流体催化剂；普通混合并行升级上限为 8，顶级混合并行升级上限为 2,147,483,647。
+- **顶级时间手杖锻造与 AE 样板修复**：修复实体加速升级的锻造配方定义，支持 AE 合成样板正确识别。
+- **矿物提取机顶级容量**：安装顶级容量升级后，单槽产物堆叠上限为 6,400,000，并修复矿物缓存空结果处理。
+
+#### v0.6.3.3 — 2026-10-10
 
 将生物工厂在顶级容量升级下的单槽产物堆叠上限大幅提升至 6,400,000，并对齐修复生物工厂顶级超频倍率与 GUI 界面同步的功能与维护更新版本，适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.3.3 发布说明](docs/releases/0.6.3.3.md)。
 

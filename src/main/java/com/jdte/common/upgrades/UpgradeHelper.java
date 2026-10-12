@@ -12,6 +12,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.jdte.common.items.EnergyBrewingUpgradeItem;
 import com.jdte.common.items.EnergyOverloadUpgradeItem;
 import com.jdte.common.items.MixingUpgradeItem;
+import com.jdte.common.items.UltimateMixingParallelUpgradeItem;
 import com.jdte.common.blockentities.BioExtractorBE;
 import com.jdte.common.blockentities.FluidMixerBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
@@ -78,7 +79,8 @@ public class UpgradeHelper {
                 || isSmelterUpgrade(stack)
                 || isEnergyOverloadUpgrade(stack)
                 || isEnergyBrewingUpgrade(stack)
-                || isMixingUpgrade(stack);
+                || isMixingUpgrade(stack)
+                || isUltimateMixingParallelUpgrade(stack);
     }
 
     public static boolean isMixingUpgrade(ItemStack stack) {
@@ -89,7 +91,21 @@ public class UpgradeHelper {
         UpgradeItemStackHandler handler = getUpgradeHandler(machine);
         if (handler == null) return false;
         for (int slot = 0; slot < handler.getSlots(); slot++) {
-            if (isMixingUpgrade(handler.getStackInSlot(slot))) return true;
+            if (isMixingUpgrade(handler.getStackInSlot(slot))
+                    || isUltimateMixingParallelUpgrade(handler.getStackInSlot(slot))) return true;
+        }
+        return false;
+    }
+
+    public static boolean isUltimateMixingParallelUpgrade(ItemStack stack) {
+        return stack.getItem() instanceof UltimateMixingParallelUpgradeItem;
+    }
+
+    public static boolean hasUltimateMixingParallelUpgrade(BaseMachineBE machine) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return false;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (isUltimateMixingParallelUpgrade(handler.getStackInSlot(slot))) return true;
         }
         return false;
     }

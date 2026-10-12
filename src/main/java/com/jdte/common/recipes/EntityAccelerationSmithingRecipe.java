@@ -8,20 +8,30 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SmithingRecipe;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
+import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 import net.minecraft.world.level.Level;
 
-public final class EntityAccelerationSmithingRecipe implements SmithingRecipe {
+public final class EntityAccelerationSmithingRecipe extends SmithingTransformRecipe {
+    private static final Ingredient TEMPLATE = Ingredient.of(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
+    private static final Ingredient BASE = Ingredient.of(JDTEItems.ULTIMATE_TIME_WAND.get());
+    private static final Ingredient ADDITION = Ingredient.of(JDTEItems.TIME_FLUID_CATALYST.get());
+
+    public EntityAccelerationSmithingRecipe() {
+        super(TEMPLATE, BASE, ADDITION, ItemStack.EMPTY);
+    }
+
     @Override
     public boolean matches(SmithingRecipeInput input, Level level) {
-        return input.template().is(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get())
-                && input.template().getCount() == 1
+        return input.template().getCount() == 1
                 && input.base().getCount() == 1
+                && input.addition().getCount() == 1
+                && isTemplateIngredient(input.template())
                 && isBaseIngredient(input.base())
-                && input.addition().isEmpty();
+                && isAdditionIngredient(input.addition());
     }
 
     @Override
@@ -32,11 +42,6 @@ public final class EntityAccelerationSmithingRecipe implements SmithingRecipe {
         ItemStack result = input.base().copyWithCount(1);
         result.set(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), true);
         return result;
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
     }
 
     @Override
@@ -70,7 +75,7 @@ public final class EntityAccelerationSmithingRecipe implements SmithingRecipe {
 
     @Override
     public boolean isAdditionIngredient(ItemStack stack) {
-        return false;
+        return stack.is(JDTEItems.TIME_FLUID_CATALYST.get());
     }
 
     public static final class Serializer implements RecipeSerializer<EntityAccelerationSmithingRecipe> {
