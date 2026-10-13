@@ -337,22 +337,27 @@ public final class MineralFeatureAnalyzer {
                 }
             }
 
-            JsonElement encoded = PlacementModifier.CODEC.encodeStart(JsonOps.INSTANCE, modifier)
-                    .result().orElse(null);
-            if (!(encoded instanceof JsonObject object)) continue;
-            if (object.has("retro_gen") && object.get("retro_gen").getAsBoolean()) {
-                return PlacementEstimate.DISABLED;
-            }
-            String type = object.has("type") ? object.get("type").getAsString() : "";
-            if (type.endsWith("count")) {
-                attempts = saturatingMultiply(ATTEMPT_SCALE,
-                        Math.max(1L, estimateIntProvider(object.get("count"))));
-            } else if (type.endsWith("rarity_filter") && object.has("chance")) {
-                attempts = Math.max(1L, ATTEMPT_SCALE / Math.max(1, object.get("chance").getAsInt()));
-            } else if (type.endsWith("height_range") && object.has("height")) {
-                HeightBounds bounds = readHeightBounds(object.getAsJsonObject("height"));
-                minY = bounds.minY();
-                maxY = bounds.maxY();
+            try {
+                JsonElement encoded = PlacementModifier.CODEC.encodeStart(JsonOps.INSTANCE, modifier)
+                        .result().orElse(null);
+                if (!(encoded instanceof JsonObject object)) continue;
+                if (object.has("retro_gen") && object.get("retro_gen").getAsBoolean()) {
+                    return PlacementEstimate.DISABLED;
+                }
+                String type = object.has("type") ? object.get("type").getAsString() : "";
+                if (type.endsWith("count")) {
+                    attempts = saturatingMultiply(ATTEMPT_SCALE,
+                            Math.max(1L, estimateIntProvider(object.get("count"))));
+                } else if (type.endsWith("rarity_filter") && object.has("chance")) {
+                    attempts = Math.max(1L, ATTEMPT_SCALE / Math.max(1, object.get("chance").getAsInt()));
+                } else if (type.endsWith("height_range") && object.has("height")) {
+                    HeightBounds bounds = readHeightBounds(object.getAsJsonObject("height"));
+                    minY = bounds.minY();
+                    maxY = bounds.maxY();
+                }
+            } catch (RuntimeException ignored) {
+                // Runtime-only mod modifiers may report a type whose codec targets another class.
+                // Optional placement metadata must not abort the mineral index or player login.
             }
         }
         return new PlacementEstimate(attempts, minY, maxY, false);

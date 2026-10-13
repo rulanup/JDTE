@@ -195,6 +195,81 @@ class MineralFeatureAnalyzerTest {
         assertEquals(32, emerald.maxY());
     }
 
+    @Test
+    void runtimeOnlyModifiersPreserveOtherPlacementEstimatesAndFollowingFeatures() {
+        OreConfiguration ironConfig = new OreConfiguration(List.of(
+                OreConfiguration.target(new BlockMatchTest(Blocks.STONE), Blocks.IRON_ORE.defaultBlockState())
+        ), 9);
+        OreConfiguration goldConfig = new OreConfiguration(List.of(
+                OreConfiguration.target(new BlockMatchTest(Blocks.STONE), Blocks.GOLD_ORE.defaultBlockState())
+        ), 4);
+        PlacedFeature goldPlaced = new PlacedFeature(
+                Holder.direct(new ConfiguredFeature<>(Feature.ORE, goldConfig)),
+                List.of(CountPlacement.of(2)));
+
+        // Infinity's runtime-only modifier reports a vanilla type whose codec casts
+        // its input to a different class. Cover both rarity and count dispatch.
+        for (PlacementModifierType<?> type : List.of(PlacementModifierType.RARITY_FILTER, PlacementModifierType.COUNT)) {
+            PlacementModifier runtimeOnly = new RuntimeOnlyPlacementModifier(type);
+            PlacementModifier count = CountPlacement.of(5);
+            PlacementModifier height = HeightRangePlacement.uniform(
+                    VerticalAnchor.absolute(-16), VerticalAnchor.absolute(64));
+            for (List<PlacementModifier> modifiers : List.of(
+                    List.of(runtimeOnly, count, height),
+                    List.of(count, runtimeOnly, height),
+                    List.of(count, height, runtimeOnly))) {
+                PlacedFeature ironPlaced = new PlacedFeature(
+                        Holder.direct(new ConfiguredFeature<>(Feature.ORE, ironConfig)), modifiers);
+                Biome biome = createBiomeWithFeatures(GenerationStep.Decoration.UNDERGROUND_ORES,
+                        List.of(ironPlaced, goldPlaced));
+                List<MineralEntry> minerals = MineralFeatureAnalyzer.analyze(Holder.direct(biome), 64);
+
+                assertEquals(2, minerals.size());
+                MineralEntry iron = findEntry(minerals, "minecraft:iron_ore");
+                assertNotNull(iron);
+                assertEquals(45_000_000L, iron.weight());
+                assertEquals(-16, iron.minY());
+                assertEquals(64, iron.maxY());
+                assertEquals(MineralEntry.Confidence.ESTIMATED, iron.confidence());
+                assertEquals(8_000_000L, findEntry(minerals, "minecraft:gold_ore").weight());
+            }
+        }
+    }
+
+    @Test
+    void disabledAndRetrogenFeaturesStillSkipAfterAnIncompatibleCodec() {
+        OreConfiguration config = new OreConfiguration(List.of(
+                OreConfiguration.target(new BlockMatchTest(Blocks.STONE), Blocks.DIAMOND_ORE.defaultBlockState())
+        ), 4);
+        for (PlacementModifier disabled : List.of(
+                new MockDisableablePlacement(false, () -> false),
+                new MockDisableablePlacement(true, () -> true))) {
+            PlacedFeature placed = new PlacedFeature(
+                    Holder.direct(new ConfiguredFeature<>(Feature.ORE, config)),
+                    List.of(new RuntimeOnlyPlacementModifier(PlacementModifierType.RARITY_FILTER),
+                            disabled, CountPlacement.of(1)));
+            Biome biome = createBiomeWithFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed);
+            assertTrue(MineralFeatureAnalyzer.analyze(Holder.direct(biome), 64).isEmpty());
+        }
+    }
+
+    @Test
+    void vanillaRarityFiltersStillContributeTheirChance() {
+        OreConfiguration config = new OreConfiguration(List.of(
+                OreConfiguration.target(new BlockMatchTest(Blocks.STONE), Blocks.EMERALD_ORE.defaultBlockState())
+        ), 9);
+        PlacedFeature placed = new PlacedFeature(
+                Holder.direct(new ConfiguredFeature<>(Feature.ORE, config)),
+                List.of(RarityFilter.onAverageOnceEvery(4),
+                        HeightRangePlacement.uniform(VerticalAnchor.absolute(0), VerticalAnchor.absolute(32))));
+        Biome biome = createBiomeWithFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed);
+        List<MineralEntry> minerals = MineralFeatureAnalyzer.analyze(Holder.direct(biome), 64);
+        assertEquals(1, minerals.size());
+        assertEquals(2_250_000L, minerals.getFirst().weight());
+        assertEquals(0, minerals.getFirst().minY());
+        assertEquals(32, minerals.getFirst().maxY());
+    }
+
     private static Biome createBiomeWithFeature(GenerationStep.Decoration step, PlacedFeature placed) {
         return createBiomeWithFeatures(step, List.of(placed));
     }
@@ -265,6 +340,27 @@ class MineralFeatureAnalyzerTest {
         @Override
         public boolean place(FeaturePlaceContext<MockJsonOnlyOreConfig> context) {
             return false;
+        }
+    }
+
+    private static final class RuntimeOnlyPlacementModifier extends PlacementModifier {
+        private final PlacementModifierType<?> reportedType;
+
+        private RuntimeOnlyPlacementModifier(PlacementModifierType<?> reportedType) {
+            this.reportedType = reportedType;
+        }
+
+        @Override
+        public java.util.stream.Stream<net.minecraft.core.BlockPos> getPositions(
+                net.minecraft.world.level.levelgen.placement.PlacementContext context,
+                net.minecraft.util.RandomSource random,
+                net.minecraft.core.BlockPos pos) {
+            return java.util.stream.Stream.of(pos);
+        }
+
+        @Override
+        public PlacementModifierType<?> type() {
+            return reportedType;
         }
     }
 
