@@ -22,6 +22,7 @@ import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEMenus;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -47,6 +48,9 @@ public class JDTEClientSetup {
             NeoForge.EVENT_BUS.addListener((RecipesUpdatedEvent recipesEvent) ->
                     BotanyPotsGreenhouseIntegration.invalidateCrops());
         }
+        event.enqueueWork(() -> LegacyTexturePackExporter.exportIfMissing(
+                Minecraft.getInstance().gameDirectory.toPath(),
+                () -> JDTE.class.getResourceAsStream(LegacyTexturePackExporter.PACK_RESOURCE)));
         event.enqueueWork(() -> ItemProperties.register(
                 JDTEItems.FACTORY_PACKAGE.get(),
                 ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),
