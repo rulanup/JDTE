@@ -2,9 +2,19 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.4.0`
+当前版本：`0.6.4.1`
 
 [English README](README_EN.md)
+
+## 0.6.4.1 更新
+
+材质与装饰内容更新：
+
+- **物品材质更新**：替换升级卡、工具、工厂包裹和 Boss 精华等物品的材质，保留精华动画。
+- **旧版材质包**：客户端启动时自动将 `JDTE-Legacy-Textures.zip` 释放到 `resourcepacks` 文件夹，默认不启用，已有同名文件不会被覆盖。
+- **可选玩偶方块**：新增星野、菜鸟哟和麦麒麟玩偶，支持水平朝向放置和挖掘回收。默认从创造物品栏、创造搜索与 JEI 中隐藏；在 `config/jdte/jdte.toml` 的 `[jdte.content]` 下设置 `showFumoDolls = true`，重新进入世界后显示。
+
+完整英文说明：[0.6.4.1 Release Notes](docs/releases/0.6.4.1.md)。
 
 ## 0.6.4.0 更新
 

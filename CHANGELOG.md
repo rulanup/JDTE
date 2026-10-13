@@ -2,7 +2,11 @@
 
 ### English
 
-#### v0.6.4.0 (Current) — 2026-10-12
+#### v0.6.4.1 (Current) — 2026-10-13
+
+Texture and decoration release for Minecraft 1.21.1, NeoForge 21.1.216+, Just Dire Things 1.5.7+, and Java 21. Refreshes item textures, exports an optional legacy resource pack without enabling or overwriting it, and adds three decorative fumo blocks hidden by default behind `jdte.content.showFumoDolls`. Full details: [0.6.4.1 release notes](docs/releases/0.6.4.1.md).
+
+#### v0.6.4.0 — 2026-10-12
 
 Feature and maintenance release for Minecraft 1.21.1, NeoForge 21.1.216+, Just Dire Things 1.5.7+, and Java 21. Time Fluid mixing now uses water and a Time Fluid Catalyst; new mixing parallel upgrades provide up to 8 or 2,147,483,647 parallel operations. Fixed Ultimate Time Wand entity-upgrade smithing and AE pattern compatibility, and expanded Mineral Extractor output stacking to 6,400,000 under the Ultimate Capacity Upgrade. Full details: [0.6.4.0 release notes](docs/releases/0.6.4.0.md).
 
@@ -373,7 +377,11 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.4.0（当前）— 2026-10-12
+#### v0.6.4.1（当前）— 2026-10-13
+
+适用于 Minecraft 1.21.1、NeoForge 21.1.216+、Just Dire Things 1.5.7+ 和 Java 21 的材质与装饰内容更新。更新物品材质，并自动释放默认不启用、不覆盖已有文件的旧版材质包；新增三种玩偶方块，默认隐藏，通过 `jdte.content.showFumoDolls` 配置开启显示。完整说明：[0.6.4.1 Release Notes](docs/releases/0.6.4.1.md)。
+
+#### v0.6.4.0 — 2026-10-12
 
 功能与维护更新版本：时间流体改为使用水和时间流体催化剂制作；新增最多 8 并行的混合升级和最多 2,147,483,647 并行的顶级混合并行升级；修复顶级时间手杖实体加速升级锻造配方及 AE 样板兼容；顶级容量升级下矿物提取机产物堆叠上限提升至 6,400,000。适用于 Minecraft 1.21.1、NeoForge 21.1.216+、JDT 1.5.7+ 和 Java 21。完整说明：[0.6.4.0 发布说明](docs/releases/0.6.4.0.md)。
 
