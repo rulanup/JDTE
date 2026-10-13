@@ -2,7 +2,16 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.4.1`
+Current version: `0.6.4.2`
+
+## What's new in 0.6.4.2
+
+Compatibility fix:
+
+- **Infinity world login fix**: Fixed the `ClassCastException` caused by Infinity 2.7.3's custom placement modifier during mineral scanning, which could prevent players from joining a world ([#21](https://github.com/rulanup/JDTE/issues/21)).
+- **Resilient mineral scanning**: Unreadable placement metadata is skipped while preserving other ore entries, count and height estimates, and disabled/retrogen filtering.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.4.2.md).
 
 ## What's new in 0.6.4.1
 

@@ -2,11 +2,13 @@
 
 ### English
 
-#### Unreleased
+#### v0.6.4.2 (Current) — 2026-10-13
 
 - Fixed world login failures with Infinity 2.7.3 when a runtime-only placement modifier reports an incompatible codec. Mineral analysis now skips unreadable placement metadata while preserving other count/height estimates, ore entries and disabled-feature checks. [#21](https://github.com/rulanup/JDTE/issues/21)
 
-#### v0.6.4.1 (Current) — 2026-10-13
+Full details: [0.6.4.2 release notes](docs/releases/0.6.4.2.md).
+
+#### v0.6.4.1 — 2026-10-13
 
 Texture and decoration release for Minecraft 1.21.1, NeoForge 21.1.216+, Just Dire Things 1.5.7+, and Java 21. Refreshes item textures, exports an optional legacy resource pack without enabling or overwriting it, and adds three decorative fumo blocks hidden by default behind `jdte.content.showFumoDolls`. Full details: [0.6.4.1 release notes](docs/releases/0.6.4.1.md).
 
@@ -381,11 +383,13 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### 未发布
+#### v0.6.4.2（当前）— 2026-10-13
 
 - 修复与 Infinity 2.7.3 同时使用时，自定义放置修饰器的 Codec 类型不匹配导致玩家无法进入世界的问题。矿物分析会跳过无法读取的放置元数据，保留其它次数和高度估算、矿石条目及禁用特征检查。[#21](https://github.com/rulanup/JDTE/issues/21)
 
-#### v0.6.4.1（当前）— 2026-10-13
+完整说明：[0.6.4.2 发布说明](docs/releases/0.6.4.2.md)。
+
+#### v0.6.4.1 — 2026-10-13
 
 适用于 Minecraft 1.21.1、NeoForge 21.1.216+、Just Dire Things 1.5.7+ 和 Java 21 的材质与装饰内容更新。更新物品材质，并自动释放默认不启用、不覆盖已有文件的旧版材质包；新增三种玩偶方块，默认隐藏，通过 `jdte.content.showFumoDolls` 配置开启显示。完整说明：[0.6.4.1 Release Notes](docs/releases/0.6.4.1.md)。
 

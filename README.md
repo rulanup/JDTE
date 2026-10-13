@@ -2,9 +2,18 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.4.1`
+当前版本：`0.6.4.2`
 
 [English README](README_EN.md)
+
+## 0.6.4.2 更新
+
+兼容性修复：
+
+- **Infinity 世界登录修复**：修复 Infinity 2.7.3 的自定义放置修饰器在矿物扫描时触发 `ClassCastException`，导致玩家无法进入世界的问题（[#21](https://github.com/rulanup/JDTE/issues/21)）。
+- **矿物扫描容错**：跳过无法读取的修饰器元数据，保留其余矿物条目、次数和高度估算，以及禁用和重生成过滤。
+
+完整英文说明：[0.6.4.2 Release Notes](docs/releases/0.6.4.2.md)。
 
 ## 0.6.4.1 更新
 
