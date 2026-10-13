@@ -628,7 +628,7 @@
   "config.jdte.jdte.content.timeAcceleratorEnabled": "启用时间加速器",
   "config.jdte.jdte.content.timeAcceleratorEnabled.desc": "关闭后，初级/高级/扩展时间加速器仍保留注册 ID 以兼容存档，但不能放置、打开或运行。",
   "config.jdte.jdte.content.showFumoDolls": "显示玩偶",
-  "config.jdte.jdte.content.showFumoDolls.desc": "在创造物品栏、创造搜索和 JEI 中显示星野、菜鸟哟和麦麒麟玩偶，默认关闭。修改后需要重新进入世界。",
+  "config.jdte.jdte.content.showFumoDolls.desc": "在创造物品栏、创造搜索和 JEI 中显示星野、云游玩和麦淇淋玩偶，默认关闭。修改后需要重新进入世界。",
   "config.jdte.jdte.content.timeFreezerEnabled": "启用时间定格器",
   "config.jdte.jdte.content.timeFreezerEnabled.desc": "关闭后，时间定格器与扩展时间定格器仍保留注册 ID 以兼容存档，但不能放置、打开或运行。",
   "jdte.screen.greenhouse.multiplier": "温室速度",
@@ -1007,6 +1007,6 @@
   "config.jdte.jdte.aeOutput.returnInterval": "返回间隔（刻）",
   "config.jdte.jdte.aeOutput.returnInterval.desc": "安装 AE 返回升级的机器两次向 AE 回流产物之间的间隔刻数",
   "block.jdte.xingye_fumo": "星野玩偶",
-  "block.jdte.cainiaoyo_fumo": "菜鸟哟玩偶",
-  "block.jdte.maiqilin_fumo": "麦麒麟玩偶"
+  "block.jdte.cainiaoyo_fumo": "云游玩玩偶",
+  "block.jdte.maiqilin_fumo": "麦淇淋玩偶"
 }

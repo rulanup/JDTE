@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class JDTEFumoResourcesTest {
     private static final Map<String, String> FUMOS = Map.of(
             "xingye_fumo", "星野玩偶",
-            "cainiaoyo_fumo", "菜鸟哟玩偶",
-            "maiqilin_fumo", "麦麒麟玩偶");
+            "cainiaoyo_fumo", "云游玩玩偶",
+            "maiqilin_fumo", "麦淇淋玩偶");
     private static final Set<String> FACINGS = Set.of("facing=north", "facing=east", "facing=south", "facing=west");
 
     @Test

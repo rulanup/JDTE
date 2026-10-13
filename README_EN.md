@@ -10,7 +10,7 @@ Texture and decoration update:
 
 - **Refreshed item textures**: Updated upgrade cards, tools, factory packages and boss essences, including animated essence textures.
 - **Optional legacy textures**: Client startup exports `JDTE-Legacy-Textures.zip` to `resourcepacks`. The pack is not enabled automatically, and an existing file is preserved.
-- **Optional fumo blocks**: Added Xingye, Cainiaoyo and Maiqilin decorative dolls with horizontal placement and self drops. They are hidden from creative tabs, creative search and JEI by default. Set `showFumoDolls = true` under `[jdte.content]` in `config/jdte/jdte.toml`, then reopen the world to show them.
+- **Optional fumo blocks**: Added Xingye, Yunyouwan and Maiqilin decorative dolls with horizontal placement and self drops. They are hidden from creative tabs, creative search and JEI by default. Set `showFumoDolls = true` under `[jdte.content]` in `config/jdte/jdte.toml`, then reopen the world to show them.
 
 See the [detailed release notes and installation guidance](docs/releases/0.6.4.1.md).
 

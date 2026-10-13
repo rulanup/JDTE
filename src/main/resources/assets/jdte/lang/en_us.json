@@ -628,7 +628,7 @@
   "config.jdte.jdte.content.timeAcceleratorEnabled": "Enable Time Accelerators",
   "config.jdte.jdte.content.timeAcceleratorEnabled.desc": "When disabled, Basic, Advanced, and Extended Time Accelerators remain registered for save compatibility but cannot be placed, opened, or run.",
   "config.jdte.jdte.content.showFumoDolls": "Show Fumo Dolls",
-  "config.jdte.jdte.content.showFumoDolls.desc": "Show Xingye, Cainiaoyo and Maiqilin dolls in creative tabs, creative search and JEI. Disabled by default. Reopen the world after changing this option.",
+  "config.jdte.jdte.content.showFumoDolls.desc": "Show Xingye, Yunyouwan and Maiqilin dolls in creative tabs, creative search and JEI. Disabled by default. Reopen the world after changing this option.",
   "config.jdte.jdte.content.timeFreezerEnabled": "Enable Time Freezers",
   "config.jdte.jdte.content.timeFreezerEnabled.desc": "When disabled, Time Freezer and Extended Time Freezer remain registered for save compatibility but cannot be placed, opened, or run.",
   "jdte.screen.greenhouse.multiplier": "Greenhouse Speed",
@@ -1007,6 +1007,6 @@
   "config.jdte.jdte.aeOutput.returnInterval": "Return Interval (ticks)",
   "config.jdte.jdte.aeOutput.returnInterval.desc": "Ticks between AE return flushes on machines with the AE Output Upgrade installed",
   "block.jdte.xingye_fumo": "Xingye Fumo",
-  "block.jdte.cainiaoyo_fumo": "Cainiaoyo Fumo",
+  "block.jdte.cainiaoyo_fumo": "Yunyouwan Fumo",
   "block.jdte.maiqilin_fumo": "Maiqilin Fumo"
 }
