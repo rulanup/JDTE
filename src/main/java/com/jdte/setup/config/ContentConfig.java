@@ -13,6 +13,7 @@ public class ContentConfig {
     public final ModConfigSpec.BooleanValue bioFactoryRecipeGenerationEnabled;
     public final ModConfigSpec.BooleanValue timeAcceleratorEnabled;
     public final ModConfigSpec.BooleanValue timeFreezerEnabled;
+    public final ModConfigSpec.BooleanValue showFumoDolls;
 
     public ContentConfig(ModConfigSpec.Builder builder, GreenhouseConfig greenhouse,
                          LootFabricatorConfig lootFabricator, BioFactoryConfig bioFactory) {
@@ -37,6 +38,11 @@ public class ContentConfig {
                 .comment("When disabled, all Time Freezer blocks and their bundled crafting recipes remain registered but cannot be used.")
                 .translation("config.jdte.jdte.content.timeFreezerEnabled")
                 .define("timeFreezerEnabled", true);
+        showFumoDolls = builder
+                .comment("Show decorative fumo dolls in creative tabs, creative search and JEI. Reopen the world after changing this option.")
+                .translation("config.jdte.jdte.content.showFumoDolls")
+                .worldRestart()
+                .define("showFumoDolls", false);
         builder.pop();
 
         greenhouseRecipeGenerationEnabled = greenhouse.greenhouseRecipeGenerationEnabled;

@@ -6,7 +6,11 @@ import com.jdte.common.minerals.MineralEntry;
 import com.jdte.common.minerals.MineralSurveyData;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.runtime.IJeiRuntime;
+import mezz.jei.api.runtime.IIngredientManager;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemStack;
+import mezz.jei.api.constants.VanillaTypes;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -39,9 +43,25 @@ class MineralExtractorJeiReloadTest {
                     else throw new AssertionError("Unexpected JEI operation: " + method);
                     return null;
                 });
+        IIngredientManager ingredients = (IIngredientManager) Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class<?>[]{IIngredientManager.class}, (proxy, method, args) -> {
+                    if (!method.getName().equals("removeIngredientsAtRuntime")) {
+                        throw new AssertionError("Unexpected ingredient operation: " + method);
+                    }
+                    assertSame(VanillaTypes.ITEM_STACK, args[0]);
+                    List<ItemStack> hidden = (List<ItemStack>) args[1];
+                    assertEquals(Set.of(ResourceLocation.parse("jdte:xingye_fumo"),
+                                    ResourceLocation.parse("jdte:cainiaoyo_fumo"),
+                                    ResourceLocation.parse("jdte:maiqilin_fumo")),
+                            hidden.stream().map(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()))
+                                    .collect(java.util.stream.Collectors.toSet()),
+                            "Only the three dolls are hidden by default");
+                    return null;
+                });
         IJeiRuntime runtime = (IJeiRuntime) Proxy.newProxyInstance(getClass().getClassLoader(),
                 new Class<?>[]{IJeiRuntime.class}, (proxy, method, args) -> {
                     if (method.getName().equals("getRecipeManager")) return manager;
+                    if (method.getName().equals("getIngredientManager")) return ingredients;
                     throw new AssertionError("Unexpected runtime operation: " + method);
                 });
 

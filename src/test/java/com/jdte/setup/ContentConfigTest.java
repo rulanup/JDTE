@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ContentConfigTest {
@@ -18,6 +19,9 @@ class ContentConfigTest {
         assertTrue(JDTEConfig.COMMON.content.disabledRecipes.get().isEmpty());
         assertTrue(JDTEConfig.COMMON.content.timeAcceleratorEnabled.get());
         assertTrue(JDTEConfig.COMMON.content.timeFreezerEnabled.get());
+        assertFalse(JDTEConfig.COMMON.content.showFumoDolls.get());
+        assertEquals(List.of("jdte", "content", "showFumoDolls"),
+                JDTEConfig.COMMON.content.showFumoDolls.getPath());
         assertTrue(JDTEContentControl.current().isDynamicRecipeGenerationEnabled(
                 JDTEContentControl.DynamicRecipeFamily.GREENHOUSE));
         assertEquals(List.of("jdte", "content", "disabledBlocks"),

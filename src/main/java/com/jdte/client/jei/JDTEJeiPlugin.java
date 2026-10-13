@@ -30,6 +30,7 @@ import com.jdte.client.screens.BioFactoryScreen;
 import com.jdte.client.screens.LifeSynthesisScreen;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import mezz.jei.api.IModPlugin;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -40,6 +41,7 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
+import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEItems;
 import com.jdte.common.content.JDTEContentControl;
 
@@ -186,6 +188,13 @@ public class JDTEJeiPlugin implements IModPlugin {
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         runtime = jeiRuntime;
+        if (!JDTEConfig.COMMON.content.showFumoDolls.get()) {
+            jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK,
+                    java.util.List.of(
+                            new ItemStack(JDTEItems.XINGYE_FUMO.get()),
+                            new ItemStack(JDTEItems.CAINIAOYO_FUMO.get()),
+                            new ItemStack(JDTEItems.MAIQILIN_FUMO.get())));
+        }
         refreshSpawnEggRecipes();
         refreshLootFabricatorRecipes();
         refreshMineralExtractorRecipes();

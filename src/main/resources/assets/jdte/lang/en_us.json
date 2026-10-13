@@ -627,6 +627,8 @@
   "config.jdte.jdte.content.disabledRecipes.desc": "Recipe ids or directory prefixes to disable. A missing namespace means jdte; greenhouse also matches greenhouse/wheat and other descendants.",
   "config.jdte.jdte.content.timeAcceleratorEnabled": "Enable Time Accelerators",
   "config.jdte.jdte.content.timeAcceleratorEnabled.desc": "When disabled, Basic, Advanced, and Extended Time Accelerators remain registered for save compatibility but cannot be placed, opened, or run.",
+  "config.jdte.jdte.content.showFumoDolls": "Show Fumo Dolls",
+  "config.jdte.jdte.content.showFumoDolls.desc": "Show Xingye, Cainiaoyo and Maiqilin dolls in creative tabs, creative search and JEI. Disabled by default. Reopen the world after changing this option.",
   "config.jdte.jdte.content.timeFreezerEnabled": "Enable Time Freezers",
   "config.jdte.jdte.content.timeFreezerEnabled.desc": "When disabled, Time Freezer and Extended Time Freezer remain registered for save compatibility but cannot be placed, opened, or run.",
   "jdte.screen.greenhouse.multiplier": "Greenhouse Speed",
