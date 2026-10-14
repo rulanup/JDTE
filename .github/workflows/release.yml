@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag, such as v0.6.4.3
+        required: true
+        type: string
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+    paths:
+      - .github/workflows/release.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jdte-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      REQUESTED_TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select and verify the tagged source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$REQUESTED_TAG" ]]; then
+            release_tag="$REQUESTED_TAG"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            release_tag="${GITHUB_REF#refs/tags/}"
+          else
+            release_version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+            release_tag="v${release_version}"
+          fi
+          [[ "$release_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git checkout --detach "$release_tag"
+          release_version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          [[ "$release_tag" == "v${release_version}" ]]
+          test -f "docs/releases/${release_version}.md"
+          printf 'RELEASE_TAG=%s\nRELEASE_VERSION=%s\n' "$release_tag" "$release_version" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build both mods and run all tests
+        run: bash gradlew build --no-daemon --max-workers=2
+
+      - name: Prepare release assets and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          asset_dir="build/release/${RELEASE_VERSION}"
+          mkdir -p "$asset_dir"
+          cp "build/libs/jdte-${RELEASE_VERSION}.jar" "$asset_dir/"
+          cp "build/libs/jdte-${RELEASE_VERSION}-sources.jar" "$asset_dir/"
+          cp "jdte-ae/build/libs/jdte-ae-${RELEASE_VERSION}.jar" "$asset_dir/"
+          cp "jdte-ae/build/libs/jdte-ae-${RELEASE_VERSION}-sources.jar" "$asset_dir/"
+          (cd "$asset_dir" && sha256sum ./*.jar > "SHA256SUMS-${RELEASE_VERSION}.txt")
+
+      - name: Upload and verify release assets before publishing
+        shell: bash
+        run: |
+          set -euo pipefail
+          asset_dir="build/release/${RELEASE_VERSION}"
+          if gh release view "$RELEASE_TAG" --json isDraft > "$RUNNER_TEMP/jdte-release.json"; then
+            python3 -c 'import json,sys; assert json.load(open(sys.argv[1]))["isDraft"], "Refusing to overwrite a published release"' "$RUNNER_TEMP/jdte-release.json"
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft \
+              --title "JDT Extras ${RELEASE_TAG}" --notes-file "docs/releases/${RELEASE_VERSION}.md"
+          fi
+          gh release edit "$RELEASE_TAG" --notes-file "docs/releases/${RELEASE_VERSION}.md"
+          gh release upload "$RELEASE_TAG" "$asset_dir"/*.jar "$asset_dir/SHA256SUMS-${RELEASE_VERSION}.txt" --clobber
+          verify_dir="$RUNNER_TEMP/jdte-release-verification"
+          mkdir -p "$verify_dir"
+          gh release download "$RELEASE_TAG" --dir "$verify_dir"
+          cmp "$asset_dir/SHA256SUMS-${RELEASE_VERSION}.txt" "$verify_dir/SHA256SUMS-${RELEASE_VERSION}.txt"
+          (cd "$verify_dir" && sha256sum -c "SHA256SUMS-${RELEASE_VERSION}.txt")
+          gh release edit "$RELEASE_TAG" --draft=false --latest
+
+      - name: Preserve build reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build-reports
+          path: |
+            build/reports/
+            jdte-ae/build/reports/
