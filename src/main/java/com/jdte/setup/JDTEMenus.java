@@ -23,6 +23,8 @@ public class JDTEMenus {
             "extended_entity_accelerator", () -> IMenuTypeExtension.create(ExtendedEntityAcceleratorContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<TimeFreezerContainer>> TIME_FREEZER = MENUS.register(
             "time_freezer", () -> IMenuTypeExtension.create(TimeFreezerContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<ChargedLightningRodContainer>> CHARGED_LIGHTNING_ROD = MENUS.register(
+            "charged_lightning_rod", () -> IMenuTypeExtension.create(ChargedLightningRodContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedTimeFreezerContainer>> EXTENDED_TIME_FREEZER = MENUS.register(
             "extended_time_freezer", () -> IMenuTypeExtension.create(ExtendedTimeFreezerContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<ExtendedClickerContainer>> EXTENDED_CLICKER = MENUS.register(

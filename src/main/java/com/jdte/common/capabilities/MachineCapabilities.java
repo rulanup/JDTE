@@ -242,6 +242,7 @@ public final class MachineCapabilities {
 
             // --- 时间定格器 ---
             machine(JDTEBlocks.TIME_FREEZER, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),
+            machine(JDTEBlocks.CHARGED_LIGHTNING_ROD, energy(POWERED_ENERGY)),
             machine(JDTEBlocks.EXTENDED_TIME_FREEZER, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),
 
             // --- 胶水激活器 ---

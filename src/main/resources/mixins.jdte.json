@@ -27,6 +27,7 @@
     "PocketGeneratorFuelMultiplierMixin",
     "HelpersRemoveBlockMixin",
     "LevelTicksAccessor",
+    "LightningBoltEffectsMixin",
     "MekanismMagneticAttractionMixin",
     "ParadoxEnergyCostMixin",
     "PoweredMachineDefaultMaxEnergyMixin",

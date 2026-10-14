@@ -22,6 +22,8 @@ public class JDTEBlockEntities {
             "extended_entity_accelerator", () -> BlockEntityType.Builder.of(ExtendedEntityAcceleratorBE::new, JDTEBlocks.EXTENDED_ENTITY_ACCELERATOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TimeFreezerBE>> TIME_FREEZER = BLOCK_ENTITIES.register(
             "time_freezer", () -> BlockEntityType.Builder.of(TimeFreezerBE::new, JDTEBlocks.TIME_FREEZER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ChargedLightningRodBE>> CHARGED_LIGHTNING_ROD = BLOCK_ENTITIES.register(
+            "charged_lightning_rod", () -> BlockEntityType.Builder.of(ChargedLightningRodBE::new, JDTEBlocks.CHARGED_LIGHTNING_ROD.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedTimeFreezerBE>> EXTENDED_TIME_FREEZER = BLOCK_ENTITIES.register(
             "extended_time_freezer", () -> BlockEntityType.Builder.of(ExtendedTimeFreezerBE::new, JDTEBlocks.EXTENDED_TIME_FREEZER.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtendedClickerBE>> EXTENDED_CLICKER = BLOCK_ENTITIES.register(

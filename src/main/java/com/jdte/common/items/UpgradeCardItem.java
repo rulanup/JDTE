@@ -32,7 +32,9 @@ public class UpgradeCardItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.jdte." + type.getSerializedName()).withStyle(ChatFormatting.GRAY));
+        String tooltipKey = type == UpgradeType.THUNDERSTORM ? "jdte.tooltip.thunderstorm_upgrade"
+                : "tooltip.jdte." + type.getSerializedName();
+        tooltip.add(Component.translatable(tooltipKey).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.jdte.max", type.getMaxPerMachine()).withStyle(ChatFormatting.DARK_GRAY));
     }
 }

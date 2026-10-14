@@ -98,6 +98,7 @@ public class JDTEClientSetup {
         event.register(JDTEMenus.ADVANCED_ENTITY_ACCELERATOR.get(), AdvancedEntityAcceleratorScreen::new);
         event.register(JDTEMenus.EXTENDED_ENTITY_ACCELERATOR.get(), ExtendedEntityAcceleratorScreen::new);
         event.register(JDTEMenus.TIME_FREEZER.get(), TimeFreezerScreen::new);
+        event.register(JDTEMenus.CHARGED_LIGHTNING_ROD.get(), ChargedLightningRodScreen::new);
         event.register(JDTEMenus.EXTENDED_TIME_FREEZER.get(), ExtendedTimeFreezerScreen::new);
 
         // Extended Machines

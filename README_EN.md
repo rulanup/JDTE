@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.4.2`
+Current version: `0.6.4.3`
+
+## What's new in 0.6.4.3
+
+- **Charged Lightning Rod** (`jdte:charged_lightning_rod`): Generates full vanilla lightning with AE2LT's natural-lightning recognition marker. Requires a thunderstorm by default and uses 10,000 FE per strike at a 10-second interval.
+- **Thunderstorm Upgrade** (`jdte:thunderstorm_upgrade`): A machine-specific card, limited to one, that allows operation in other weather and dimensions.
+- **Overclocking and controls**: Standard Overclock uses 40,000 FE per strike at up to 5 strikes/tick; Ultimate Overclock uses 100,000 FE per strike at up to 50 strikes/tick. Independent rendering and sound buttons retain gameplay effects and AE2LT recognition.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.4.3.md).
 
 ## What's new in 0.6.4.2
 

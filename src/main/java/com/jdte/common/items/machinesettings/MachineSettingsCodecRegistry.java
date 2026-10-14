@@ -36,6 +36,8 @@ public final class MachineSettingsCodecRegistry {
                 JdteMachineSettingsCodecs.timeFreezer());
         register(JDTEBlockEntities.EXTENDED_TIME_FREEZER.get(), ExtendedTimeFreezerBE.class,
                 JdteMachineSettingsCodecs.timeFreezer());
+        register(JDTEBlockEntities.CHARGED_LIGHTNING_ROD.get(), ChargedLightningRodBE.class,
+                JdteMachineSettingsCodecs.chargedLightningRod());
         register(JDTEBlockEntities.EXTENDED_CLICKER.get(), ExtendedClickerBE.class, JdtMachineSettingsCodecs.clicker());
         register(JDTEBlockEntities.EXTENDED_GENERATOR.get(), ExtendedGeneratorBE.class);
         register(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBE.class,

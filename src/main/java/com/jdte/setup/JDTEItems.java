@@ -3,6 +3,7 @@ package com.jdte.setup;
 import com.jdte.JDTE;
 import com.jdte.common.items.AdvancedMachineSettingsCopierItem;
 import com.jdte.common.items.BossEssenceItem;
+import com.jdte.common.items.ChargedLightningRodItem;
 import com.jdte.common.items.BigFluidTankItem;
 import com.jdte.common.items.EnergyBrewingUpgradeItem;
 import com.jdte.common.items.EnergyOverloadUpgradeItem;
@@ -46,6 +47,7 @@ public class JDTEItems {
 
     public static final DeferredHolder<Item, UpgradeCardItem> CAPACITY_UPGRADE = ITEMS.register("capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.CAPACITY));
     public static final DeferredHolder<Item, UpgradeCardItem> OVERCLOCK_UPGRADE = ITEMS.register("overclock_upgrade", () -> new UpgradeCardItem(UpgradeType.OVERCLOCK));
+    public static final DeferredHolder<Item, UpgradeCardItem> THUNDERSTORM_UPGRADE = ITEMS.register("thunderstorm_upgrade", () -> new UpgradeCardItem(UpgradeType.THUNDERSTORM));
     public static final DeferredHolder<Item, UpgradeCardItem> UNDERCLOCK_UPGRADE = ITEMS.register("underclock_upgrade", () -> new UpgradeCardItem(UpgradeType.UNDERCLOCK));
     public static final DeferredHolder<Item, UpgradeCardItem> FLUID_UPGRADE = ITEMS.register("fluid_upgrade", () -> new UpgradeCardItem(UpgradeType.FLUID));
     public static final DeferredHolder<Item, UpgradeCardItem> FLUID_STORAGE_UPGRADE = ITEMS.register("fluid_storage_upgrade", () -> new UpgradeCardItem(UpgradeType.FLUID_STORAGE));
@@ -105,6 +107,7 @@ public class JDTEItems {
     public static final DeferredHolder<Item, BlockItem> ADVANCED_ITEM_COLLECTOR = ITEMS.register("advanced_item_collector", () -> new BlockItem(JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> ENTITY_SUPPRESSOR = ITEMS.register("entity_suppressor", () -> new BlockItem(JDTEBlocks.ENTITY_SUPPRESSOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> RANGE_BLOCKER = ITEMS.register("range_blocker", () -> new BlockItem(JDTEBlocks.RANGE_BLOCKER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, ChargedLightningRodItem> CHARGED_LIGHTNING_ROD = ITEMS.register("charged_lightning_rod", () -> new ChargedLightningRodItem(JDTEBlocks.CHARGED_LIGHTNING_ROD.get()));
     public static final DeferredHolder<Item, BlockItem> CRYSTAL_INCUBATOR = ITEMS.register("crystal_incubator", () -> new BlockItem(JDTEBlocks.CRYSTAL_INCUBATOR.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> GREENHOUSE = ITEMS.register("greenhouse", () -> new BlockItem(JDTEBlocks.GREENHOUSE.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> LARGE_GREENHOUSE = ITEMS.register("large_greenhouse",
@@ -212,7 +215,7 @@ public class JDTEItems {
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE,
                 AE_ACCELERATION_UPGRADE, AE_CRAFTING_READ_UPGRADE, AE_OUTPUT_UPGRADE, ADVANCED_AE_OUTPUT_UPGRADE,
                 ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE,
-                ULTIMATE_CAPACITY_UPGRADE, ULTIMATE_OVERCLOCK_UPGRADE);
+                ULTIMATE_CAPACITY_UPGRADE, ULTIMATE_OVERCLOCK_UPGRADE, THUNDERSTORM_UPGRADE);
     }
 
     private static DeferredHolder<Item, BlockItem> blockItem(String name, DeferredHolder<Block, ? extends Block> block) {

@@ -3,6 +3,7 @@
   "values": [
     "jdte:capacity_upgrade",
     "jdte:overclock_upgrade",
+    "jdte:thunderstorm_upgrade",
     "jdte:underclock_upgrade",
     "jdte:fluid_upgrade",
     "jdte:fluid_storage_upgrade",

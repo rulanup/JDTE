@@ -37,6 +37,7 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, AdvancedItemCollectorBlock> ADVANCED_ITEM_COLLECTOR = BLOCKS.register("advanced_item_collector", AdvancedItemCollectorBlock::new);
     public static final DeferredHolder<Block, EntitySuppressorBlock> ENTITY_SUPPRESSOR = BLOCKS.register("entity_suppressor", EntitySuppressorBlock::new);
     public static final DeferredHolder<Block, RangeBlockerBlock> RANGE_BLOCKER = BLOCKS.register("range_blocker", RangeBlockerBlock::new);
+    public static final DeferredHolder<Block, ChargedLightningRodBlock> CHARGED_LIGHTNING_ROD = BLOCKS.register("charged_lightning_rod", ChargedLightningRodBlock::new);
     public static final DeferredHolder<Block, CrystalIncubatorBlock> CRYSTAL_INCUBATOR = BLOCKS.register("crystal_incubator", CrystalIncubatorBlock::new);
     public static final DeferredHolder<Block, GreenhouseBlock> GREENHOUSE = BLOCKS.register("greenhouse", GreenhouseBlock::new);
     public static final DeferredHolder<Block, LargeGreenhouseBlock> LARGE_GREENHOUSE = BLOCKS.register("large_greenhouse", LargeGreenhouseBlock::new);

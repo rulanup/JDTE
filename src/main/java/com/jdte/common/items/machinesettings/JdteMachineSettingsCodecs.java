@@ -20,6 +20,7 @@ import com.jdte.common.blockentities.LifeSynthesisVatBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.TimeFreezerBE;
+import com.jdte.common.blockentities.ChargedLightningRodBE;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -45,6 +46,8 @@ final class JdteMachineSettingsCodecs {
     private static final String BLACKLIST_KEY = "blacklist";
     private static final String TIME_FREEZE_ENABLED_KEY = "timeFreezeEnabled";
     private static final String WEATHER_FREEZE_ENABLED_KEY = "weatherFreezeEnabled";
+    private static final String RENDER_LIGHTNING_KEY = "renderLightning";
+    private static final String PLAY_LIGHTNING_SOUND_KEY = "playLightningSound";
     private static final String AUTO_BALANCE_INPUTS_KEY = "autoBalanceInputs";
     private static final String SHOW_PARTICLES_KEY = "showParticles";
     private static final String HAS_BOUND_PLAYER_KEY = "hasBoundPlayer";
@@ -187,6 +190,18 @@ final class JdteMachineSettingsCodecs {
             }
             return Optional.of(machine -> machine.setSettings(
                     mode.get().ordinal(), target.get().ordinal(), blacklist.get()));
+        });
+    }
+
+    static MachineSettingsCodec chargedLightningRod() {
+        return typedCodec(ChargedLightningRodBE.class, (machine, ignoredRegistries, custom) -> {
+            custom.putBoolean(RENDER_LIGHTNING_KEY, machine.isLightningRenderEnabled());
+            custom.putBoolean(PLAY_LIGHTNING_SOUND_KEY, machine.isLightningSoundEnabled());
+        }, (custom, registries) -> {
+            Optional<Boolean> render = MachineSettingsCodecSupport.readBoolean(custom, RENDER_LIGHTNING_KEY);
+            Optional<Boolean> sound = MachineSettingsCodecSupport.readBoolean(custom, PLAY_LIGHTNING_SOUND_KEY);
+            if (render.isEmpty() || sound.isEmpty()) return Optional.empty();
+            return Optional.of(machine -> machine.setLightningEffects(render.get(), sound.get()));
         });
     }
 

@@ -2,7 +2,15 @@
 
 ### English
 
-#### v0.6.4.2 (Current) — 2026-10-13
+#### v0.6.4.3 (Current) — 2026-10-14
+
+- Added the Charged Lightning Rod with 10,000 FE strikes, thunderstorm gating, a dedicated Thunderstorm Upgrade, and full vanilla lightning tagged for AE2LT recognition.
+- Added machine-specific Overclock (40,000 FE/strike, up to 5 strikes/tick) and Ultimate Overclock (100,000 FE/strike, up to 50 strikes/tick) rates, with independent synced lightning rendering and sound controls.
+- Registered FE input and a 10,000,000 FE base buffer; retained per-strike charging, persistent settings, and a per-world-tick batch limit.
+
+Full details: [0.6.4.3 release notes](docs/releases/0.6.4.3.md).
+
+#### v0.6.4.2 — 2026-10-13
 
 - Fixed world login failures with Infinity 2.7.3 when a runtime-only placement modifier reports an incompatible codec. Mineral analysis now skips unreadable placement metadata while preserving other count/height estimates, ore entries and disabled-feature checks. [#21](https://github.com/rulanup/JDTE/issues/21)
 
@@ -383,7 +391,15 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.4.2（当前）— 2026-10-13
+#### v0.6.4.3（当前）— 2026-10-14
+
+- 新增带电引雷针：每道闪电消耗 10,000 FE，默认要求雷暴天气，支持专用雷暴升级，生成带 AE2LT 识别标记的完整原版闪电。
+- 新增机器专用超频规则：普通超频 40,000 FE/道、每 tick 最多 5 道；顶级超频 100,000 FE/道、每 tick 最多 50 道。界面支持独立、同步的闪电渲染和声音开关。
+- 注册 FE 输入和 10,000,000 FE 基础储能，按成功生成的闪电逐次扣电，并保存设置、限制每个世界 tick 的工作批次。
+
+完整说明：[0.6.4.3 发布说明](docs/releases/0.6.4.3.md)。
+
+#### v0.6.4.2 — 2026-10-13
 
 - 修复与 Infinity 2.7.3 同时使用时，自定义放置修饰器的 Codec 类型不匹配导致玩家无法进入世界的问题。矿物分析会跳过无法读取的放置元数据，保留其它次数和高度估算、矿石条目及禁用特征检查。[#21](https://github.com/rulanup/JDTE/issues/21)
 

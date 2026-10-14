@@ -35,6 +35,7 @@ import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.blockentities.TimeFreezerBE;
+import com.jdte.common.blockentities.ChargedLightningRodBE;
 import com.jdte.common.integrations.ae2.AE2CraftingReadNetwork;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.autoioconfig.AutoIoTransferHelper;
@@ -150,6 +151,8 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if (type == UpgradeType.THUNDERSTORM) return machine instanceof ChargedLightningRodBE;
+        if (machine instanceof ChargedLightningRodBE rod) return rod.isUpgradeAllowed(type);
         if (machine instanceof ICreativeGreenhouse creativeGreenhouse) {
             return type == UpgradeType.AE_CRAFTING_READ || creativeGreenhouse.isSupportedUpgrade(type);
         }
@@ -369,7 +372,7 @@ public class UpgradeHelper {
         return !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof BioFactoryBE) && !(machine instanceof LifeBreederBE)
                 && !(machine instanceof LifeSynthesisVatBE) && !(machine instanceof MineralExtractorBE)
-                && !(machine instanceof CrystalIncubatorBE);
+                && !(machine instanceof CrystalIncubatorBE) && !(machine instanceof ChargedLightningRodBE);
     }
 
     public static boolean hasUltimateOverclock(BaseMachineBE machine) {

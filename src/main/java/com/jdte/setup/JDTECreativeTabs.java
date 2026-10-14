@@ -74,6 +74,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ADVANCED_ITEM_COLLECTOR.get());
                 output.accept(JDTEItems.ENTITY_SUPPRESSOR.get());
                 output.accept(JDTEItems.RANGE_BLOCKER.get());
+                output.accept(JDTEItems.CHARGED_LIGHTNING_ROD.get());
                 output.accept(JDTEItems.FACTORY_PACKER.get());
 
                 // Glue Activators

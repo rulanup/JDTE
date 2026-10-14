@@ -2,9 +2,17 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.4.2`
+当前版本：`0.6.4.3`
 
 [English README](README_EN.md)
+
+## 0.6.4.3 更新
+
+- **带电引雷针**（`jdte:charged_lightning_rod`）：默认仅在雷暴天气工作，生成带 AE2LT 自然闪电识别标记的完整原版闪电；默认每次消耗 10,000 FE，间隔 10 秒。
+- **雷暴升级**（`jdte:thunderstorm_upgrade`）：机器专用升级，限 1 张，允许在其它天气和维度工作。
+- **超频与界面**：普通超频为 40,000 FE/道、每 tick 最多 5 道；顶级超频为 100,000 FE/道、每 tick 最多 50 道。界面可分别关闭闪电渲染和声音，保留雷击效果及 AE2LT 标记。
+
+完整说明：[0.6.4.3 Release Notes](docs/releases/0.6.4.3.md)。
 
 ## 0.6.4.2 更新
 

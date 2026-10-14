@@ -4,6 +4,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.jdte.common.blockentities.BioCrusherBE;
+import com.jdte.common.blockentities.ChargedLightningRodBE;
 import com.jdte.common.manager.ExtendedTimeAccelerationManager;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.blockentities.TimeFreezerBE;
@@ -74,7 +75,7 @@ public abstract class BaseMachineBlockMixin {
             }
             boolean ultimateOverclock = redstoneActive && UpgradeHelper.hasUltimateOverclock(machine);
             boolean overclock = redstoneActive && UpgradeHelper.shouldRunOverclock(machine);
-            int executions = ultimateOverclock ? 10 : (overclock ? 2 : 1);
+            int executions = machine instanceof ChargedLightningRodBE ? 1 : (ultimateOverclock ? 10 : (overclock ? 2 : 1));
             UpgradeHelper.runServerTicker(UpgradeHelper.usesCommonAeTickerGate(machine), redstoneActive,
                     () -> UpgradeHelper.mayRunWithUpgrades(machine), executions,
                     () -> {

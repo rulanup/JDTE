@@ -19,7 +19,8 @@ public enum UpgradeType {
     ESSENCE_CONVERSION("essence_conversion", 1),
     SEED_CONVERSION("seed_conversion", 1),
     ULTIMATE_OVERCLOCK("ultimate_overclock", 1),
-    ULTIMATE_CAPACITY("ultimate_capacity", 1);
+    ULTIMATE_CAPACITY("ultimate_capacity", 1),
+    THUNDERSTORM("thunderstorm", 1);
 
     private final String serializedName;
     private final int maxPerMachine;
