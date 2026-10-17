@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.4.3`
+Current version: `0.6.4.5`
+
+## What's new in 0.6.4.5
+
+- **14 item textures**: Refreshed Precision, Fortune, Essence Conversion, Seed Conversion, Ultimate Capacity and Ultimate Overclock upgrades, Time Fluid Catalyst, both Upgrade Storages, Advanced Machine Settings Copier, Large Fuel Canister, Large Potion Canister, Large Pocket Generator and Mineral Survey.
+- **State models**: Container fill states and the enabled generator share their respective new icons; separate state textures were not supplied in this update.
+- **Legacy resource pack**: Displaced textures and state models are included in `JDTE-Legacy-Textures.zip`, preserving its earlier contents. Existing exported packs are not overwritten. To refresh one, back up and remove the old pack, then restart the client to export the updated copy.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.4.5.md).
 
 ## What's new in 0.6.4.3
 

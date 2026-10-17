@@ -1,8 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "justdirethings:item/potion_canister",
-    "layer1": "justdirethings:item/potion_canister_layer_0"
+    "layer0": "jdte:item/large_potion_canister"
   },
   "overrides": [
     {

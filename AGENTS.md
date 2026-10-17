@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.4.3` |
+| Current version | `0.6.4.5` |
 | Minecraft | `1.21.1` |
 | NeoForge | `21.1.216+` |
 | Just Dire Things | `1.5.7+` |
@@ -68,7 +68,7 @@ Major features:
 - Time Multitool attack gating is client-only. `jdte.timeMultitool.continuousMiningHoldDelayMillis` defaults to 250 in the existing local CLIENT config, allows 0-2000, and resets on release, focus loss, screen/world changes, and hotbar changes. Existing explicitly enabled JDT area abilities remain active.
 - Manual Ultimate Portal Gun destinations cost 25 mB/block up to 25,000 mB in the same dimension, or 500 mB across dimensions. Quick-added and previous destinations keep JDT pricing.
 
-Detailed release notes: [0.6.4.3](docs/releases/0.6.4.3.md).
+Detailed release notes: [0.6.4.5](docs/releases/0.6.4.5.md).
 
 ## Naming conventions
 

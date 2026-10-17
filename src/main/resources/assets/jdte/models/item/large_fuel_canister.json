@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "justdirethings:item/fuel_canister"
+    "layer0": "jdte:item/large_fuel_canister"
   },
   "overrides": [
     {

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "justdirethings:item/abilityupgrades/lawnmower"
+    "layer0": "jdte:item/seed_conversion_upgrade"
   }
 }

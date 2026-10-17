@@ -2,7 +2,16 @@
 
 ### English
 
-#### v0.6.4.3 (Current) — 2026-10-14
+#### v0.6.4.5 (Current) — 2026-10-17
+
+- Installed 14 supplied item textures and updated models that previously used JDT or vanilla icons.
+- Updated container fill-state and enabled-generator models to use the supplied icons in every state.
+- Extended the optional legacy resource pack with displaced textures, embedded JDT textures, and previous state models; preserved the pack's earlier contents and non-overwriting export behavior.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.4.5.
+
+Full details: [0.6.4.5 release notes](docs/releases/0.6.4.5.md).
+
+#### v0.6.4.3 — 2026-10-14
 
 - Added the Charged Lightning Rod with 10,000 FE strikes, thunderstorm gating, a dedicated Thunderstorm Upgrade, and full vanilla lightning tagged for AE2LT recognition.
 - Added machine-specific Overclock (40,000 FE/strike, up to 5 strikes/tick) and Ultimate Overclock (100,000 FE/strike, up to 50 strikes/tick) rates, with independent synced lightning rendering and sound controls.
@@ -391,7 +400,16 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.4.3（当前）— 2026-10-14
+#### v0.6.4.5（当前）— 2026-10-17
+
+- 安装 14 张用户提供的物品材质，并修改原先借用 JDT 或原版图标的模型引用。
+- 容器的装填状态和发电机的启用状态均使用对应的新图标。
+- 将被替换的材质、原先借用的 JDT 材质和状态模型合并到可选旧版资源包，保留旧包原有内容及不覆盖已导出文件的行为。
+- 主模组及配套可选 JDTE-AE 附属版本统一升级为 0.6.4.5。
+
+完整说明：[0.6.4.5 发布说明](docs/releases/0.6.4.5.md)。
+
+#### v0.6.4.3 — 2026-10-14
 
 - 新增带电引雷针：每道闪电消耗 10,000 FE，默认要求雷暴天气，支持专用雷暴升级，生成带 AE2LT 识别标记的完整原版闪电。
 - 新增机器专用超频规则：普通超频 40,000 FE/道、每 tick 最多 5 道；顶级超频 100,000 FE/道、每 tick 最多 50 道。界面支持独立、同步的闪电渲染和声音开关。

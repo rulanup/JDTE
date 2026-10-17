@@ -1,6 +1,6 @@
 {
-  "parent": "jdte:item/large_potion_canister",
+  "parent": "minecraft:item/generated",
   "textures": {
-    "layer1": "justdirethings:item/potion_canister_layer_4"
+    "layer0": "jdte:item/large_potion_canister"
   }
 }
