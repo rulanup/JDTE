@@ -2,9 +2,16 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.4.5`
+当前版本：`0.6.4.6`
 
 [English README](README_EN.md)
+
+## 0.6.4.6 更新
+
+- **顶级时间手杖新材质**（`jdte:ultimate_time_wand`）：安装用户提供的 16×16 PNG，保留原始像素和手持显示方式。
+- **旧版材质包**：原先借用的 JDT 手杖材质及对应模型已加入 `JDTE-Legacy-Textures.zip`；已有同名资源包仍需备份并删除后，重启客户端重新生成。
+
+完整说明：[0.6.4.6 Release Notes](docs/releases/0.6.4.6.md)。
 
 ## 0.6.4.5 更新
 

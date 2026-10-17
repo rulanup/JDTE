@@ -1,3 +1,6 @@
 {
-  "parent": "justdirethings:item/time_wand"
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "jdte:item/ultimate_time_wand"
+  }
 }

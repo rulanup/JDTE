@@ -2,7 +2,14 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.4.5`
+Current version: `0.6.4.6`
+
+## What's new in 0.6.4.6
+
+- **Ultimate Time Wand texture** (`jdte:ultimate_time_wand`): Installed the supplied 16×16 PNG with its original image data and handheld display transforms.
+- **Legacy resource pack**: Added the previously borrowed JDT wand texture and its model to `JDTE-Legacy-Textures.zip`. To refresh an existing exported pack, back it up, remove it, and restart the client.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.4.6.md).
 
 ## What's new in 0.6.4.5
 

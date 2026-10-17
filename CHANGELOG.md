@@ -2,7 +2,15 @@
 
 ### English
 
-#### v0.6.4.5 (Current) — 2026-10-17
+#### v0.6.4.6 (Current) — 2026-10-17
+
+- Installed the supplied Ultimate Time Wand texture (`jdte:ultimate_time_wand`) and pointed its handheld item model to the JDTE texture.
+- Added the previous JDT wand texture and item model to the optional legacy pack, preserving all existing pack entries.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.4.6.
+
+Full details: [0.6.4.6 release notes](docs/releases/0.6.4.6.md).
+
+#### v0.6.4.5 — 2026-10-17
 
 - Installed 14 supplied item textures and updated models that previously used JDT or vanilla icons.
 - Updated container fill-state and enabled-generator models to use the supplied icons in every state.
@@ -400,7 +408,15 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.4.5（当前）— 2026-10-17
+#### v0.6.4.6（当前）— 2026-10-17
+
+- 为顶级时间手杖（`jdte:ultimate_time_wand`）安装用户提供的新材质，并将手持物品模型改为引用 JDTE 材质。
+- 将原先借用的 JDT 手杖材质和物品模型加入可选旧版资源包，保留原有包内资源。
+- 主模组与配套可选 JDTE-AE 附属版本统一升级为 0.6.4.6。
+
+完整说明：[0.6.4.6 发布说明](docs/releases/0.6.4.6.md)。
+
+#### v0.6.4.5 — 2026-10-17
 
 - 安装 14 张用户提供的物品材质，并修改原先借用 JDT 或原版图标的模型引用。
 - 容器的装填状态和发电机的启用状态均使用对应的新图标。
