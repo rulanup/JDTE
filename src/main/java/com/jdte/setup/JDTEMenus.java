@@ -67,6 +67,8 @@ public class JDTEMenus {
             "large_fuel_canister", () -> IMenuTypeExtension.create(LargeFuelCanisterContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<UpgradeStorageContainer>> UPGRADE_STORAGE = MENUS.register(
             "upgrade_storage", () -> IMenuTypeExtension.create(UpgradeStorageContainer::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<CraftingPatternContainer>> CRAFTING_PATTERN = MENUS.register(
+            "crafting_pattern", () -> IMenuTypeExtension.create(CraftingPatternContainer::new));
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedUpgradeStorageContainer>> ADVANCED_UPGRADE_STORAGE = MENUS.register(
             "advanced_upgrade_storage", () -> IMenuTypeExtension.create(AdvancedUpgradeStorageContainer::new));
 

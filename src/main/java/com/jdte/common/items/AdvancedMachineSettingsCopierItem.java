@@ -8,6 +8,7 @@ import com.jdte.common.items.machinesettings.MachineSettingsCodec;
 import com.jdte.common.items.machinesettings.MachineSettingsCodecRegistry;
 import com.jdte.common.items.machinesettings.MachineSettingsSnapshot;
 import com.jdte.common.items.machinesettings.MachineUpgradeHandlers;
+import com.jdte.common.items.machinesettings.MachineUpgradeTransfer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -55,13 +56,32 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
             return InteractionResult.PASS;
         }
 
-        if (!consumeUpgradeCost(context.getPlayer(), prepared.get().requiredUpgrades())) {
+        Player player = context.getPlayer();
+        MachineUpgradeHandlers.UpgradeExchange exchange = prepared.get().upgrades().exchange(machine);
+        if (player == null && !exchange.returned().isEmpty()) return InteractionResult.PASS;
+        Optional<MachineUpgradeTransfer> transfer = MachineUpgradeTransfer.prepare(
+                player, getPlayerInventory(player), exchange.required());
+        if (transfer.isEmpty()) {
+            if (player != null) player.displayClientMessage(
+                    Component.translatable("jdte.message.settings_copier.missing_upgrades"), true);
             return InteractionResult.PASS;
         }
 
-        prepared.get().apply(this, level, blockEntity, machine, stack);
-        Player player = context.getPlayer();
+        MachineUpgradeHandlers.PreparedHandlers previous = prepared.get().upgrades().captureCurrent(machine);
+        try {
+            transfer.get().consume();
+            prepared.get().apply(this, level, blockEntity, machine, stack);
+        } catch (RuntimeException failure) {
+            transfer.get().rollback();
+            previous.apply(machine);
+            throw failure;
+        }
         if (player != null) {
+            for (ItemStack returned : exchange.returned()) {
+                player.getInventory().placeItemBackInInventory(returned.copy());
+            }
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
             player.displayClientMessage(Component.translatable("justdirethings.settingspasted"), true);
             player.playNotifySound(SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
@@ -217,36 +237,10 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
     }
 
     private boolean consumeUpgradeCost(Player player, List<ItemStack> required) {
-        if (required.isEmpty()) {
-            return true;
-        }
-        Inventory inventory = getPlayerInventory(player);
-        if (inventory == null) {
-            return false;
-        }
-
-        int[] consumed = new int[inventory.getContainerSize()];
-        for (ItemStack requirement : required) {
-            int matchingSlot = -1;
-            for (int slot = 0; slot < consumed.length; slot++) {
-                ItemStack available = inventory.getItem(slot);
-                if (available.getCount() > consumed[slot]
-                        && ItemStack.isSameItemSameComponents(available, requirement)) {
-                    matchingSlot = slot;
-                    break;
-                }
-            }
-            if (matchingSlot < 0) {
-                return false;
-            }
-            consumed[matchingSlot]++;
-        }
-
-        for (int slot = 0; slot < consumed.length; slot++) {
-            if (consumed[slot] > 0) {
-                inventory.removeItem(slot, consumed[slot]);
-            }
-        }
+        Optional<MachineUpgradeTransfer> transfer = MachineUpgradeTransfer.prepare(
+                player, getPlayerInventory(player), required);
+        if (transfer.isEmpty()) return false;
+        transfer.get().consume();
         return true;
     }
 

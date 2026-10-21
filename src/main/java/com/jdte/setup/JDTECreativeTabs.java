@@ -46,6 +46,7 @@ public class JDTECreativeTabs {
         output.accept(JDTEItems.LARGE_FUEL_CANISTER.get());
         output.accept(JDTEItems.FACTORY_PACKAGE.get());
                 output.accept(JDTEItems.MINERAL_SURVEY.get());
+                output.accept(JDTEItems.CRAFTING_PATTERN.get());
 
                 // Time Accelerators
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());

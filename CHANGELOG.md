@@ -2,7 +2,18 @@
 
 ### English
 
-#### v0.6.4.6 (Current) — 2026-10-17
+#### v0.6.5.0 (Current) — 2026-10-21
+
+- Fixed Advanced Machine Settings Copier upgrade loss by reusing matching installed cards, withdrawing only missing cards from inventory and both storage tiers, and returning surplus cards to the player. Equipped advanced storage cases are supported.
+- Fixed common JDT fluid bar overflow when copied upgrades reduce tank capacity.
+- Convert buffered greenhouse output before every AE export; retain incomplete conversion ingredients.
+- Added Crafting Patterns with a server-validated 3×3 ghost recipe editor and anvil binding. Normal Essence Conversion Upgrades hold one pattern; Advanced Essence Conversion Upgrades hold three and share the original installation limit. Added recipes, persistent/synced components, crafting remainders, capacity checks, Jade status, tooltips and bilingual guides.
+- Recipes sharing ingredients rotate by craft count and persist their position with the machine.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.0.
+
+Full details: [0.6.5.0 release notes](docs/releases/0.6.5.0.md).
+
+#### v0.6.4.6 — 2026-10-17
 
 - Installed the supplied Ultimate Time Wand texture (`jdte:ultimate_time_wand`) and pointed its handheld item model to the JDTE texture.
 - Added the previous JDT wand texture and item model to the optional legacy pack, preserving all existing pack entries.
@@ -408,7 +419,18 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.4.6（当前）— 2026-10-17
+#### v0.6.5.0（当前）— 2026-10-21
+
+- 修复高级配置复制器丢失升级：复用机器已有匹配卡，只从背包、普通/高级升级存储器补齐缺卡，并退还多余升级；支持 Curios 中的高级存储器。
+- 修复复制配置导致流体容量下降后，公共 JDT 流体条绘制出界的问题。
+- 每次 AE 输出前先转化温室缓冲区，保留尚未凑齐的转化原料。
+- 新增合成样板的服务端校验 3×3 样品配方编辑界面及铁砧绑定。普通精华转化升级支持 1 个样板，高级版支持 3 个，共用原安装限制；补齐配方、持久化及同步组件、合成返还物与容量检查、Jade 状态、物品提示和中英文游戏内说明。
+- 共享材料的配方按合成次数轮流执行，轮转位置随机器保存。
+- 主模组与配套可选 JDTE-AE 附属版本统一升级为 0.6.5.0。
+
+完整说明：[0.6.5.0 发布说明](docs/releases/0.6.5.0.md)。
+
+#### v0.6.4.6 — 2026-10-17
 
 - 为顶级时间手杖（`jdte:ultimate_time_wand`）安装用户提供的新材质，并将手持物品模型改为引用 JDTE 材质。
 - 将原先借用的 JDT 手杖材质和物品模型加入可选旧版资源包，保留原有包内资源。

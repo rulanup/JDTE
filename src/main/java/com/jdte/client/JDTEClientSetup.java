@@ -91,6 +91,7 @@ public class JDTEClientSetup {
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(JDTEMenus.CRAFTING_PATTERN.get(), CraftingPatternScreen::new);
         // Time Accelerators
         event.register(JDTEMenus.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorScreen::new);
         event.register(JDTEMenus.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorScreen::new);

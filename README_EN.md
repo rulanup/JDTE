@@ -2,7 +2,16 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.4.6`
+Current version: `0.6.5.0`
+
+## What's new in 0.6.5.0
+
+- Fixed upgrade loss during Advanced Machine Settings Copier pastes: reuse installed cards, draw missing cards from inventory/storage cases and return surplus cards to the player.
+- Clamped common fluid bars after capacity reductions to keep over-capacity contents inside the GUI.
+- Run conversion before AE export and retain incomplete crafting ingredients for later harvests.
+- Added [Crafting Patterns and Advanced Essence Conversion](src/main/resources/assets/jdte/guides/jdte/guide/_en_us/crafting-patterns.md): a server-validated 3×3 ghost recipe editor, anvil binding, one/three patterns per normal/advanced card, and Jade/tooltips.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.5.0.md).
 
 ## What's new in 0.6.4.6
 

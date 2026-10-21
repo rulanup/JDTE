@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "jdte:item/essence_conversion_upgrade",
+    "layer1": "minecraft:item/nether_star"
+  }
+}

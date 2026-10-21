@@ -428,6 +428,28 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:ultimate_overclock_upgrade"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:crafting_pattern",
+      "text": "右键打开 3×3 配方格。用光标材料或 Shift 点击背包材料复制样品，Shift 点击样品格清空。材料不消耗，右侧只预览产物。服务端判定配方有效后，点击“记录配方”保存。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:crafting_pattern"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "铁砧左槽放单个精华转化升级，右槽放已记录样板。每次绑定消耗样板和 1 级经验。普通版最多 1 个样板，高级版最多 3 个；重复或无效配方不能绑定。每台温室或大型温室最多安装 1 张，两种等级互斥。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_essence_conversion_upgrade",
+      "text": "在锻造台中，以普通精华转化升级为底材、下界合金升级锻造模板为模板、钻石为添加物，制作高级版。保留原升级已绑定的样板。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "绑定配方优先，共享材料按合成次数轮流，不同材料组各自合成。轮转位置随机器保存。所有原料必须在输出缓冲区内凑齐；保留配方返还物，空间不足不扣料。每次 AE 输出前先转化，待合成原料留在机器中。其他精华沿用原有唯一纯精华配方规则。Jade 和物品提示显示数量、产物与配方有效状态。"
     }
   ],
   "extra_recipe_mappings": {
@@ -457,6 +479,8 @@
     "jdte:upgrade_storage": 85,
     "jdte:advanced_upgrade_storage": 89,
     "jdte:ultimate_capacity_upgrade": 93,
-    "jdte:ultimate_overclock_upgrade": 97
+    "jdte:ultimate_overclock_upgrade": 97,
+    "jdte:crafting_pattern": 100,
+    "jdte:advanced_essence_conversion_upgrade": 103
   }
 }

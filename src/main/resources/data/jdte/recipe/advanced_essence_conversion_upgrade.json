@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": { "item": "minecraft:netherite_upgrade_smithing_template" },
+  "base": { "item": "jdte:essence_conversion_upgrade" },
+  "addition": { "item": "minecraft:diamond" },
+  "result": { "id": "jdte:advanced_essence_conversion_upgrade", "count": 1 }
+}

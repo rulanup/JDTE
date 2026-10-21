@@ -213,6 +213,8 @@ item_ids:
 
 <RecipeFor id="jdte:essence_conversion_upgrade" />
 
+绑定合成样板后可指定配方；普通版 1 个样板，高级版 3 个。详见[合成样板与高级精华转化](crafting-patterns.md)。
+
 ## 种子转化升级
 
 <ItemImage id="jdte:seed_conversion_upgrade" scale="2" />

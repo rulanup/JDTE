@@ -1,6 +1,10 @@
 package com.jdte.common.blockentities;
 
 import com.jdte.common.recipes.GreenhouseCropResolver;
+import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.jdte.common.items.CraftingPatternData;
+import com.jdte.common.items.EssenceConversionUpgradeItem;
+import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +16,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +32,100 @@ public final class GreenhouseEssenceConversionHelper {
     private static long cachedGeneration = Long.MIN_VALUE;
 
     private GreenhouseEssenceConversionHelper() {
+    }
+
+    public static List<CraftingPatternData> patterns(BaseMachineBE machine) {
+        var handler = UpgradeHelper.getUpgradeHandler(machine);
+        if (handler == null) return List.of();
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack stack = handler.getStackInSlot(slot);
+            if (stack.getItem() instanceof EssenceConversionUpgradeItem) return EssenceConversionUpgradeItem.patterns(stack);
+        }
+        return List.of();
+    }
+
+    static List<ItemStack> convert(ServerLevel level, List<ItemStack> drops, BaseMachineBE machine) {
+        return planConversion(level, drops, machine, rotation(machine)).drops();
+    }
+
+    static ConversionPlan planConversion(ServerLevel level, List<ItemStack> drops, BaseMachineBE machine, int[] rotation) {
+        List<CraftingPatternData> patterns = patterns(machine);
+        if (patterns.isEmpty()) return new ConversionPlan(convert(level, drops), rotation.clone());
+        var plan = GreenhousePatternConversionHelper.convert(level, drops, patterns, rotation);
+        List<ItemStack> converted = new ArrayList<>();
+        for (ItemStack drop : plan.drops()) {
+            List<ItemStack> results = GreenhousePatternConversionHelper.references(patterns, drop, true)
+                    ? List.of(drop) : convert(level, List.of(drop));
+            for (ItemStack result : results) addAmount(converted, result, result.getCount());
+        }
+        return new ConversionPlan(converted, plan.rotation());
+    }
+
+    private static int[] rotation(BaseMachineBE machine) {
+        if (machine instanceof GreenhouseBE greenhouse) return greenhouse.getEssencePatternRotation();
+        if (machine instanceof LargeGreenhouseBE greenhouse) return greenhouse.getEssencePatternRotation();
+        return new int[3];
+    }
+
+    private static void commitRotation(BaseMachineBE machine, int[] rotation) {
+        if (machine instanceof GreenhouseBE greenhouse) greenhouse.setEssencePatternRotation(rotation);
+        else if (machine instanceof LargeGreenhouseBE greenhouse) greenhouse.setEssencePatternRotation(rotation);
+    }
+
+    record ConversionPlan(List<ItemStack> drops, int[] rotation) {}
+
+    public static boolean shouldRetainForConversion(ServerLevel level, BaseMachineBE machine, ItemStack stack) {
+        if (!(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+                || !UpgradeHelper.hasEssenceConversionUpgrade(machine)) return false;
+        List<CraftingPatternData> patterns = patterns(machine);
+        if (GreenhousePatternConversionHelper.references(patterns, stack, false)) return true;
+        if (GreenhousePatternConversionHelper.references(patterns, stack, true)) return false;
+        return findConversion(level, stack).isPresent();
+    }
+
+    public static void prepareOutput(ServerLevel level, BaseMachineBE machine) {
+        if (machine instanceof GreenhouseBE greenhouse) greenhouse.prepareOutputConversion();
+        else if (machine instanceof LargeGreenhouseBE greenhouse) greenhouse.prepareOutputConversion();
+    }
+
+    static ItemStack getConversionResult(ServerLevel level, ItemStack essence, BaseMachineBE machine) {
+        for (CraftingPatternData pattern : patterns(machine)) {
+            if (pattern.resolve(level).isPresent()
+                    && GreenhousePatternConversionHelper.references(List.of(pattern), essence, false)) return pattern.result().copy();
+        }
+        return getConversionResult(level, essence);
+    }
+
+    static boolean convertStored(ServerLevel level, IItemHandler handler, BaseMachineBE machine) {
+        if (patterns(machine).isEmpty()) return convertStored(level, handler);
+        List<ItemStack> before = new ArrayList<>();
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack stack = handler.getStackInSlot(slot);
+            if (!stack.isEmpty()) addAmount(before, stack, stack.getCount());
+        }
+        int[] rotation = rotation(machine);
+        ConversionPlan plan = planConversion(level, before, machine, rotation);
+        List<ItemStack> after = plan.drops();
+        boolean same = before.size() == after.size();
+        if (same) for (ItemStack stack : before) {
+            if (GreenhousePatternConversionHelper.count(before, stack) != GreenhousePatternConversionHelper.count(after, stack)) {
+                same = false;
+                break;
+            }
+        }
+        if (same) {
+            commitRotation(machine, plan.rotation());
+            return !java.util.Arrays.equals(rotation, plan.rotation());
+        }
+        if (!GreenhouseCapacityLedger.empty(handler).canFit(after, 1)) return false;
+        for (ItemStack stack : before) extractAll(handler, stack);
+        if (!insertAll(handler, after)) {
+            for (int slot = 0; slot < handler.getSlots(); slot++) extractAll(handler, handler.getStackInSlot(slot).copy());
+            if (!insertAll(handler, before)) throw new IllegalStateException("Could not restore greenhouse conversion inputs");
+            throw new IllegalStateException("Recorded greenhouse crafting exceeded reserved capacity");
+        }
+        commitRotation(machine, plan.rotation());
+        return true;
     }
 
     public static List<ItemStack> convert(ServerLevel level, List<ItemStack> drops) {
@@ -151,7 +250,7 @@ public final class GreenhouseEssenceConversionHelper {
         return new Conversion(essenceCount, result.copy());
     }
 
-    private static void addAmount(List<ItemStack> stacks, ItemStack template, long amount) {
+    static void addAmount(List<ItemStack> stacks, ItemStack template, long amount) {
         if (template.isEmpty() || amount <= 0) return;
         for (ItemStack existing : stacks) {
             if (amount <= 0) return;
@@ -177,7 +276,13 @@ public final class GreenhouseEssenceConversionHelper {
     }
 
     private static void extractAll(IItemHandler handler, ItemStack template) {
+        if (template.isEmpty()) return;
         for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (handler instanceof IItemHandlerModifiable modifiable
+                    && ItemStack.isSameItemSameComponents(handler.getStackInSlot(slot), template)) {
+                modifiable.setStackInSlot(slot, ItemStack.EMPTY);
+                continue;
+            }
             while (true) {
                 ItemStack before = handler.getStackInSlot(slot);
                 if (!ItemStack.isSameItemSameComponents(before, template)) break;

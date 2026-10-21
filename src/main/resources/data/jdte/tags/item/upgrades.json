@@ -27,6 +27,7 @@
     "jdte:entity_acceleration_upgrade",
     "jdte:extended_upgrade",
     "jdte:ultimate_capacity_upgrade",
-    "jdte:ultimate_overclock_upgrade"
+    "jdte:ultimate_overclock_upgrade",
+    "jdte:advanced_essence_conversion_upgrade"
   ]
 }

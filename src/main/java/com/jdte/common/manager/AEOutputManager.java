@@ -2,6 +2,7 @@ package com.jdte.common.manager;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.autoioconfig.AutoIoTransferHelper;
+import com.jdte.common.blockentities.GreenhouseEssenceConversionHelper;
 import com.jdte.common.greenhouse.ICreativeGreenhouse;
 import com.jdte.common.integrations.ae2.AEOutputNetwork;
 import com.jdte.common.upgrades.UpgradeHelper;
@@ -105,6 +106,7 @@ public final class AEOutputManager {
         if (machine == null || level == null) return false;
         ItemStack upgrade = UpgradeHelper.getAEOutputUpgrade(machine);
         if (upgrade.isEmpty() || !AEOutputNetwork.isLinked(upgrade)) return false;
+        GreenhouseEssenceConversionHelper.prepareOutput(level, machine);
         boolean isAdvanced = UpgradeHelper.hasAdvancedAEOutputUpgrade(machine)
                 || UpgradeHelper.isUpgrade(upgrade, UpgradeType.ADVANCED_AE_OUTPUT);
         AutoIoTransferHelper.AEOutputRoutes routes = AutoIoTransferHelper.getAEOutputRoutes(machine);
@@ -139,6 +141,8 @@ public final class AEOutputManager {
         if (handler == null || slots.length == 0) return;
         for (int slot : slots) {
             if (slot < 0 || slot >= handler.getSlots() || handler.getStackInSlot(slot).isEmpty()) continue;
+            if (machine.getLevel() instanceof ServerLevel level
+                    && GreenhouseEssenceConversionHelper.shouldRetainForConversion(level, machine, handler.getStackInSlot(slot))) continue;
             target.add(new AEOutputNetwork.ItemSource(machine, handler, slot));
         }
     }

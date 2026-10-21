@@ -257,6 +257,31 @@ public final class MachineUpgradeHandlers {
             return copyStacks(requiredUpgrades);
         }
 
+        public UpgradeExchange exchange(BaseMachineBE machine) {
+            List<ItemStack> available = new ArrayList<>();
+            for (NamedHandler handler : all(machine)) {
+                if (contents.stream().anyMatch(content -> content.name().equals(handler.name()))) {
+                    available.addAll(copyStacks(handler.handler()));
+                }
+            }
+            List<ItemStack> missing = new ArrayList<>();
+            for (ItemStack wanted : requiredUpgrades) {
+                ItemStack existing = available.stream()
+                        .filter(stack -> !stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, wanted))
+                        .findFirst().orElse(ItemStack.EMPTY);
+                if (existing.isEmpty()) missing.add(wanted.copy());
+                else existing.shrink(1);
+            }
+            return new UpgradeExchange(List.copyOf(missing),
+                    available.stream().filter(stack -> !stack.isEmpty()).map(ItemStack::copy).toList());
+        }
+
+        public PreparedHandlers captureCurrent(BaseMachineBE machine) {
+            return new PreparedHandlers(all(machine).stream()
+                    .filter(handler -> contents.stream().anyMatch(content -> content.name().equals(handler.name())))
+                    .toList(), registries);
+        }
+
         /**
          * Replaces only the handlers included by the snapshot. Legacy data consequently leaves dedicated handlers
          * untouched. Any unexpected application failure restores the previous handler contents.
@@ -317,6 +342,8 @@ public final class MachineUpgradeHandlers {
             }
         }
     }
+
+    public record UpgradeExchange(List<ItemStack> required, List<ItemStack> returned) {}
 
     private static List<ItemStack> copyStacks(ItemStackHandler handler) {
         List<ItemStack> stacks = new ArrayList<>(handler.getSlots());

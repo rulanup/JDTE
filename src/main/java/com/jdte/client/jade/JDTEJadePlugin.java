@@ -17,6 +17,7 @@ import com.jdte.common.blocks.LargeMineralExtractorPartBlock;
 import com.jdte.common.blocks.MineralExtractorBlock;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySource;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.items.EssenceConversionUpgradeItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -56,6 +57,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
     private static final ResourceLocation MINERAL_EXTRACTOR_STATUS_UID = JDTE.id("mineral_extractor_status");
     private static final ResourceLocation GREENHOUSE_STATUS_UID = JDTE.id("greenhouse_status");
     private static final String TAG_UPGRADES = "jdte_upgrades";
+    private static final String TAG_CONVERSION_PATTERNS = "jdte_conversion_pattern_status";
     private static final String TAG_ME_STATUS = "jdte_me_status";
     private static final String TAG_PLAYER_BOUND = "jdte_player_bound";
     private static final String TAG_PLAYER_ONLINE = "jdte_player_online";
@@ -226,10 +228,18 @@ public class JDTEJadePlugin implements IWailaPlugin {
             }
 
             ListTag serialized = new ListTag();
+            ListTag patternStatuses = new ListTag();
             for (ItemStack upgrade : upgrades) {
                 serialized.add(upgrade.save(accessor.getLevel().registryAccess()));
+                CompoundTag statuses = new CompoundTag();
+                var patterns = EssenceConversionUpgradeItem.patterns(upgrade);
+                for (int index = 0; index < patterns.size(); index++) {
+                    statuses.putBoolean(Integer.toString(index), patterns.get(index).resolve(accessor.getLevel()).isPresent());
+                }
+                patternStatuses.add(statuses);
             }
             data.put(TAG_UPGRADES, serialized);
+            data.put(TAG_CONVERSION_PATTERNS, patternStatuses);
         }
 
         private static BaseMachineBE resolveMachine(BlockAccessor accessor) {
@@ -254,6 +264,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
 
             tooltip.add(Component.translatable("jade.jdte.installed_upgrades").withStyle(ChatFormatting.GRAY));
             IElementHelper elements = IElementHelper.get();
+            ListTag patternStatuses = accessor.getServerData().getList(TAG_CONVERSION_PATTERNS, Tag.TAG_COMPOUND);
             for (int index = 0; index < serialized.size(); index++) {
                 ItemStack upgrade = ItemStack.parseOptional(
                         accessor.getLevel().registryAccess(), serialized.getCompound(index));
@@ -264,6 +275,21 @@ public class JDTEJadePlugin implements IWailaPlugin {
                         .append(upgrade.getHoverName())
                         .append(Component.literal(" x" + upgrade.getCount()).withStyle(ChatFormatting.GRAY));
                 tooltip.add(List.of(elements.smallItem(upgrade.copyWithCount(1)), elements.text(label)));
+                if (upgrade.getItem() instanceof EssenceConversionUpgradeItem item) {
+                    var patterns = EssenceConversionUpgradeItem.patterns(upgrade);
+                    tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.patterns", patterns.size(), item.patternLimit())
+                            .withStyle(ChatFormatting.AQUA));
+                    CompoundTag statuses = index < patternStatuses.size() ? patternStatuses.getCompound(index) : new CompoundTag();
+                    for (int patternIndex = 0; patternIndex < patterns.size(); patternIndex++) {
+                        var pattern = patterns.get(patternIndex);
+                        boolean valid = statuses.getBoolean(Integer.toString(patternIndex));
+                        Component patternLabel = Component.translatable("jdte.jade.essence_conversion.pattern",
+                                patternIndex + 1, pattern.result().getHoverName(), pattern.result().getCount(),
+                                Component.translatable(valid ? "jdte.jade.essence_conversion.valid" : "jdte.jade.essence_conversion.invalid"))
+                                .withStyle(valid ? ChatFormatting.GREEN : ChatFormatting.RED);
+                        tooltip.add(List.of(elements.smallItem(pattern.result()), elements.text(patternLabel)));
+                    }
+                }
             }
         }
 
@@ -273,6 +299,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
         }
 
         private static void collect(List<ItemStack> upgrades, IItemHandler handler) {
+            if (handler == null) return;
             for (int slot = 0; slot < handler.getSlots(); slot++) {
                 ItemStack stack = handler.getStackInSlot(slot);
                 if (stack.isEmpty()) {

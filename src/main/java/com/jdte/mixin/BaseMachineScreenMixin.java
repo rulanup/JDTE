@@ -2,6 +2,7 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.direwolf20.justdirethings.util.MagicHelpers;
@@ -13,6 +14,7 @@ import com.jdte.client.screens.util.AutoIoConfigPanelHelper;
 import com.jdte.client.screens.util.FilterPageWidgetHelper;
 import com.jdte.client.screens.util.MachineEnergyBarRenderer;
 import com.jdte.client.screens.util.MachineFluidBarRenderer;
+import com.jdte.client.screens.util.MachineBarMath;
 import com.jdte.client.screens.util.UpgradeSlotLayoutHelper;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
 import com.jdte.common.containers.BioCrusherContainer;
@@ -43,6 +45,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -63,6 +66,15 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Shadow protected int extraHeight;
     @Shadow protected ResourceLocation SOCIALBACKGROUND;
     @Shadow protected abstract int getEnergyBarOffset();
+
+    @ModifyArg(method = "renderBg", at = @At(value = "INVOKE",
+            target = "Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;renderFluid(Lnet/minecraft/client/gui/GuiGraphics;IIII)V"),
+            index = 4)
+    private int jdte$clampFluidBarHeight(int originalHeight) {
+        return baseMachineBE instanceof FluidMachineBE fluidMachine
+                ? MachineBarMath.scaleClamped(container.getFluidAmount(), fluidMachine.getMaxMB(), 70)
+                : Math.clamp(originalHeight, 0, 70);
+    }
 
     @Unique private static final ResourceLocation JDTE_IO_CONFIG = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/hammer3.png");
     @Unique private int jdte$filterPressed = 0;

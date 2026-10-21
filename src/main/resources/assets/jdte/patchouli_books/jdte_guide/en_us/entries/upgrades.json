@@ -444,6 +444,28 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:ultimate_overclock_upgrade"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:crafting_pattern",
+      "text": "Right-click to edit a 3×3 ghost grid. Copy carried ingredients or shift-click inventory items; shift-click ghost slots to clear them. Samples are not consumed. Save Recipe records a valid server-checked crafting recipe."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:crafting_pattern"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Anvil: one upgrade on the left, one recorded pattern on the right. Binding consumes the pattern and one XP level. Normal cards hold one pattern; advanced cards hold three. Duplicate or invalid recipes are rejected. Both tiers share one card per Greenhouse/Large Greenhouse."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_essence_conversion_upgrade",
+      "text": "Smithing: Netherite Upgrade Smithing Template + normal Essence Conversion Upgrade + diamond. The advanced card retains bound patterns."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Shared-ingredient recipes run round-robin by craft count; independent groups craft separately. Rotation persists. All ingredients must be buffered; crafting remainders are retained. Full outputs leave inputs untouched. Conversion precedes AE export and pending ingredients remain buffered. Other essences retain automatic conversion. Jade/tooltips show patterns and validity."
     }
   ],
   "extra_recipe_mappings": {
@@ -473,6 +495,8 @@
     "jdte:upgrade_storage": 89,
     "jdte:advanced_upgrade_storage": 93,
     "jdte:ultimate_capacity_upgrade": 97,
-    "jdte:ultimate_overclock_upgrade": 101
+    "jdte:ultimate_overclock_upgrade": 101,
+    "jdte:crafting_pattern": 104,
+    "jdte:advanced_essence_conversion_upgrade": 107
   }
 }

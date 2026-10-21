@@ -25,6 +25,13 @@ final class GreenhouseCapacityLedger {
         return capture(handler, excluded);
     }
 
+    static GreenhouseCapacityLedger empty(IItemHandler handler) {
+        GreenhouseCapacityLedger ledger = capture(handler);
+        java.util.Arrays.fill(ledger.types, ItemStack.EMPTY);
+        java.util.Arrays.fill(ledger.counts, 0);
+        return ledger;
+    }
+
     private static GreenhouseCapacityLedger capture(IItemHandler handler, ItemStack excluded) {
         int slots = handler.getSlots();
         ItemStack[] types = new ItemStack[slots];

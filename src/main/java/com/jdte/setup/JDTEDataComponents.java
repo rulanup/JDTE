@@ -2,6 +2,7 @@ package com.jdte.setup;
 
 import com.jdte.JDTE;
 import com.jdte.common.minerals.MineralSurveyData;
+import com.jdte.common.items.CraftingPatternData;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -15,6 +16,16 @@ import java.util.List;
 public final class JDTEDataComponents {
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
             DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, JDTE.MODID);
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CraftingPatternData>> CRAFTING_PATTERN =
+            DATA_COMPONENTS.register("crafting_pattern", () -> DataComponentType.<CraftingPatternData>builder()
+                    .persistent(CraftingPatternData.CODEC).networkSynchronized(CraftingPatternData.STREAM_CODEC).build());
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<CraftingPatternData>>> ESSENCE_CONVERSION_PATTERNS =
+            DATA_COMPONENTS.register("essence_conversion_patterns", () -> DataComponentType.<List<CraftingPatternData>>builder()
+                    .persistent(CraftingPatternData.CODEC.listOf(0, 3))
+                    .networkSynchronized(ByteBufCodecs.fromCodecWithRegistries(CraftingPatternData.CODEC.listOf(0, 3)))
+                    .build());
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> AE_EXTRACTION_ENABLED =
             DATA_COMPONENTS.register("ae_extraction_enabled", () -> DataComponentType.<Boolean>builder()

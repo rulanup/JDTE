@@ -3,6 +3,8 @@ package com.jdte.setup;
 import com.jdte.JDTE;
 import com.jdte.common.items.AdvancedMachineSettingsCopierItem;
 import com.jdte.common.items.BossEssenceItem;
+import com.jdte.common.items.CraftingPatternItem;
+import com.jdte.common.items.EssenceConversionUpgradeItem;
 import com.jdte.common.items.ChargedLightningRodItem;
 import com.jdte.common.items.BigFluidTankItem;
 import com.jdte.common.items.EnergyBrewingUpgradeItem;
@@ -61,7 +63,12 @@ public class JDTEItems {
     public static final DeferredHolder<Item, UpgradeCardItem> AE_CRAFTING_READ_UPGRADE = ITEMS.register("ae_crafting_read_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_CRAFTING_READ));
     public static final DeferredHolder<Item, UpgradeCardItem> AE_OUTPUT_UPGRADE = ITEMS.register("ae_output_upgrade", AEOutputUpgradeItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> ADVANCED_AE_OUTPUT_UPGRADE = ITEMS.register("advanced_ae_output_upgrade", AdvancedAEOutputUpgradeItem::new);
-    public static final DeferredHolder<Item, UpgradeCardItem> ESSENCE_CONVERSION_UPGRADE = ITEMS.register("essence_conversion_upgrade", () -> new UpgradeCardItem(UpgradeType.ESSENCE_CONVERSION));
+    public static final DeferredHolder<Item, EssenceConversionUpgradeItem> ESSENCE_CONVERSION_UPGRADE = ITEMS.register(
+            "essence_conversion_upgrade", () -> new EssenceConversionUpgradeItem(1));
+    public static final DeferredHolder<Item, EssenceConversionUpgradeItem> ADVANCED_ESSENCE_CONVERSION_UPGRADE = ITEMS.register(
+            "advanced_essence_conversion_upgrade", () -> new EssenceConversionUpgradeItem(3));
+    public static final DeferredHolder<Item, CraftingPatternItem> CRAFTING_PATTERN = ITEMS.register(
+            "crafting_pattern", CraftingPatternItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> ULTIMATE_CAPACITY_UPGRADE = ITEMS.register("ultimate_capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_CAPACITY));
     public static final DeferredHolder<Item, UltimateOverclockUpgradeItem> ULTIMATE_OVERCLOCK_UPGRADE = ITEMS.register("ultimate_overclock_upgrade", UltimateOverclockUpgradeItem::new);
     public static final DeferredHolder<Item, AEExtractionUpgradeItem> AE_EXTRACTION_UPGRADE =
@@ -214,7 +221,7 @@ public class JDTEItems {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE,
                 AE_ACCELERATION_UPGRADE, AE_CRAFTING_READ_UPGRADE, AE_OUTPUT_UPGRADE, ADVANCED_AE_OUTPUT_UPGRADE,
-                ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE,
+                ESSENCE_CONVERSION_UPGRADE, ADVANCED_ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE,
                 ULTIMATE_CAPACITY_UPGRADE, ULTIMATE_OVERCLOCK_UPGRADE, THUNDERSTORM_UPGRADE);
     }
 
