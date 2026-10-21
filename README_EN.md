@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.5.0`
+Current version: `0.6.5.1`
+
+## What's new in 0.6.5.1
+
+- Fixed recursive mineral survey metadata encoding and world-login stack overflow with Eternal Starlight ([#22](https://github.com/rulanup/JDTE/issues/22)).
+- Fixed Fluid Mixers consuming resources without producing fluid. Normal, parallel and accelerated mixing store the complete output before consuming resources.
+- Added the missing dedicated Fluid Mixer Auto I/O and AE fluid output route.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.5.1.md).
 
 ## What's new in 0.6.5.0
 

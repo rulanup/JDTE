@@ -77,7 +77,9 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         poweredData = new PoweredMachineContainerData(this);
         inputTankA = new JDTEFluidTank(getMaxMB(), f -> true);
         inputTankB = new JDTEFluidTank(getMaxMB(), f -> true);
-        outputTank = new JDTEFluidTank(getMaxMB(), f -> false); // 不接受外部灌入
+        // Internal production must be able to fill this tank. The combined capability
+        // restricts external fills to inputTankA/inputTankB.
+        outputTank = new JDTEFluidTank(getMaxMB());
         fluidData = new FluidContainerData(this);
         fluidMixerData = new ContainerData() {
             private int clientProgress;
@@ -340,6 +342,10 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         int totalEnergy = energyCost * parallel;
         int totalOutputAmount = outputResult.getAmount() * parallel;
 
+        if (!storeOutput(outputResult.copyWithAmount(totalOutputAmount))) {
+            return;
+        }
+
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
             inputTankA.drain(totalDrainA, IFluidHandler.FluidAction.EXECUTE);
             inputTankB.drain(totalDrainB, IFluidHandler.FluidAction.EXECUTE);
@@ -353,7 +359,6 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
             }
         }
 
-        outputTank.fill(outputResult.copyWithAmount(totalOutputAmount), IFluidHandler.FluidAction.EXECUTE);
         progress = 0;
         setChanged();
     }
@@ -416,6 +421,10 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         int totalEnergy = energyCost * parallel;
         int totalOutputAmount = outputResult.getAmount() * parallel;
 
+        if (!storeOutput(outputResult.copyWithAmount(totalOutputAmount))) {
+            return;
+        }
+
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
             inputTankA.drain(totalDrainA, IFluidHandler.FluidAction.EXECUTE);
             inputTankB.drain(totalDrainB, IFluidHandler.FluidAction.EXECUTE);
@@ -429,7 +438,6 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
             }
         }
 
-        outputTank.fill(outputResult.copyWithAmount(totalOutputAmount), IFluidHandler.FluidAction.EXECUTE);
         setChanged();
     }
 
@@ -522,10 +530,18 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
     }
 
     private boolean canOutputFluid(FluidStack result) {
-        FluidStack existing = outputTank.getFluid();
-        if (existing.isEmpty()) return true;
-        if (!existing.is(result.getFluid())) return false;
-        return existing.getAmount() + result.getAmount() <= outputTank.getCapacity();
+        return !result.isEmpty()
+                && outputTank.fill(result, IFluidHandler.FluidAction.SIMULATE) == result.getAmount();
+    }
+
+    private boolean storeOutput(FluidStack result) {
+        if (!canOutputFluid(result)) return false;
+        FluidStack previous = outputTank.getFluid().copy();
+        if (outputTank.fill(result, IFluidHandler.FluidAction.EXECUTE) != result.getAmount()) {
+            outputTank.setFluid(previous);
+            return false;
+        }
+        return true;
     }
 
     private void resetProgress() {

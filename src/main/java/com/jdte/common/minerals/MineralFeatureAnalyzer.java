@@ -6,8 +6,14 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -33,18 +39,25 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
 public final class MineralFeatureAnalyzer {
     private static final long ATTEMPT_SCALE = 1_000_000L;
+    private static final int MAX_CODEC_HOLDER_VISITS = 64;
     private static final ResourceLocation AIR_ID = ResourceLocation.withDefaultNamespace("air");
 
     private MineralFeatureAnalyzer() {
     }
 
     public static List<MineralEntry> analyze(Holder<Biome> biome, int maxEntries) {
+        return analyze(biome, maxEntries, RegistryAccess.EMPTY);
+    }
+
+    public static List<MineralEntry> analyze(Holder<Biome> biome, int maxEntries,
+                                            HolderLookup.Provider registries) {
         Map<ResourceLocation, MutableEntry> minerals = new LinkedHashMap<>();
         List<HolderSet<PlacedFeature>> steps = biome.value().getGenerationSettings().features();
         Set<PlacedFeature> visited = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -52,7 +65,7 @@ public final class MineralFeatureAnalyzer {
             for (Holder<PlacedFeature> featureHolder : step) {
                 PlacedFeature feature = featureHolder.value();
                 if (feature != null && visited.add(feature)) {
-                    analyzePlaced(feature, minerals);
+                    analyzePlaced(feature, minerals, registries);
                 }
             }
         }
@@ -64,14 +77,15 @@ public final class MineralFeatureAnalyzer {
                 .toList();
     }
 
-    private static void analyzePlaced(PlacedFeature placed, Map<ResourceLocation, MutableEntry> minerals) {
+    private static void analyzePlaced(PlacedFeature placed, Map<ResourceLocation, MutableEntry> minerals,
+                                      HolderLookup.Provider registries) {
         if (placed == null) return;
-        PlacementEstimate placement = estimatePlacement(placed.placement());
-        if (placement.disabled() || placement.attempts() <= 0L) return;
-
         ConfiguredFeature<?, ?> configured = placed.feature().value();
-        ExtractedOreConfig oreConfig = extractOreConfig(configured);
+        ExtractedOreConfig oreConfig = extractOreConfig(configured, registries,
+                Collections.newSetFromMap(new IdentityHashMap<>()));
         if (oreConfig == null || oreConfig.targets().isEmpty()) return;
+        PlacementEstimate placement = estimatePlacement(placed.placement(), registries);
+        if (placement.disabled() || placement.attempts() <= 0L) return;
 
         int targetCount = Math.max(1, oreConfig.targets().size());
         long totalWeight = Math.max(1L, saturatingMultiply(placement.attempts(), Math.max(1, oreConfig.veinSize())));
@@ -84,13 +98,15 @@ public final class MineralFeatureAnalyzer {
         }
     }
 
-    private static ExtractedOreConfig extractOreConfig(ConfiguredFeature<?, ?> configured) {
-        if (configured == null) return null;
+    private static ExtractedOreConfig extractOreConfig(ConfiguredFeature<?, ?> configured,
+                                                       HolderLookup.Provider registries,
+                                                       Set<ConfiguredFeature<?, ?>> visited) {
+        if (configured == null || visited.size() >= MAX_CODEC_HOLDER_VISITS || !visited.add(configured)) return null;
         Object config = configured.config();
         if (config == null) return null;
 
         if (config instanceof Holder<?> holder && holder.value() instanceof ConfiguredFeature<?, ?> child) {
-            return extractOreConfig(child);
+            return extractOreConfig(child, registries, visited);
         }
 
         // 1. Vanilla OreConfiguration
@@ -110,7 +126,7 @@ public final class MineralFeatureAnalyzer {
         }
 
         // 3. Codec / JSON fallback
-        return extractFromJson(configured);
+        return extractFromJson(configured, registries);
     }
 
     private static ExtractedOreConfig extractFromReflection(Object config) {
@@ -228,24 +244,24 @@ public final class MineralFeatureAnalyzer {
         return null;
     }
 
-    private static ExtractedOreConfig extractFromJson(ConfiguredFeature<?, ?> configured) {
+    private static ExtractedOreConfig extractFromJson(ConfiguredFeature<?, ?> configured,
+                                                      HolderLookup.Provider registries) {
         try {
             JsonObject config = null;
             try {
                 @SuppressWarnings("unchecked")
                 Codec<Object> codec = (Codec<Object>) (Object) configured.feature().configuredCodec().codec();
-                JsonElement configElement = codec.encodeStart(JsonOps.INSTANCE, configured).result().orElse(null);
+                JsonElement configElement = encodeMetadata(codec, configured, registries);
                 if (configElement instanceof JsonObject obj) {
                     config = obj.has("config") && obj.get("config").isJsonObject()
                             ? obj.getAsJsonObject("config")
                             : obj;
                 }
-            } catch (Throwable ignored) {
+            } catch (RuntimeException ignored) {
             }
 
             if (config == null) {
-                JsonElement encoded = ConfiguredFeature.DIRECT_CODEC.encodeStart(JsonOps.INSTANCE, configured)
-                        .result().orElse(null);
+                JsonElement encoded = encodeMetadata(ConfiguredFeature.DIRECT_CODEC, configured, registries);
                 if (encoded instanceof JsonObject root) {
                     config = root.has("config") && root.get("config").isJsonObject()
                             ? root.getAsJsonObject("config")
@@ -276,7 +292,7 @@ public final class MineralFeatureAnalyzer {
                 size = (int) Math.max(1L, estimateIntProvider(config.get("size")));
             }
             return new ExtractedOreConfig(result, size);
-        } catch (Throwable ignored) {
+        } catch (RuntimeException ignored) {
             return null;
         }
     }
@@ -307,7 +323,8 @@ public final class MineralFeatureAnalyzer {
         return null;
     }
 
-    private static PlacementEstimate estimatePlacement(List<PlacementModifier> modifiers) {
+    private static PlacementEstimate estimatePlacement(List<PlacementModifier> modifiers,
+                                                        HolderLookup.Provider registries) {
         long attempts = ATTEMPT_SCALE;
         int minY = Integer.MIN_VALUE;
         int maxY = Integer.MAX_VALUE;
@@ -338,8 +355,7 @@ public final class MineralFeatureAnalyzer {
             }
 
             try {
-                JsonElement encoded = PlacementModifier.CODEC.encodeStart(JsonOps.INSTANCE, modifier)
-                        .result().orElse(null);
+                JsonElement encoded = encodeMetadata(PlacementModifier.CODEC, modifier, registries);
                 if (!(encoded instanceof JsonObject object)) continue;
                 if (object.has("retro_gen") && object.get("retro_gen").getAsBoolean()) {
                     return PlacementEstimate.DISABLED;
@@ -356,11 +372,37 @@ public final class MineralFeatureAnalyzer {
                     maxY = bounds.maxY();
                 }
             } catch (RuntimeException ignored) {
-                // Runtime-only mod modifiers may report a type whose codec targets another class.
-                // Optional placement metadata must not abort the mineral index or player login.
+                // Optional metadata can have incompatible codecs or unsupported holder graphs.
+                // Preserve the ore and the other modifiers' estimates when it cannot be inspected.
             }
         }
         return new PlacementEstimate(attempts, minY, maxY, false);
+    }
+
+    private static <T> JsonElement encodeMetadata(Codec<T> codec, T value, HolderLookup.Provider registries) {
+        return codec.encodeStart(new MineralRegistryOps(registries), value).result().orElse(null);
+    }
+
+    private static final class MineralRegistryOps extends RegistryOps<JsonElement> {
+        private int holderVisits;
+
+        private MineralRegistryOps(HolderLookup.Provider registries) {
+            super(JsonOps.INSTANCE, new RegistryOps.HolderLookupAdapter(registries));
+        }
+
+        @Override
+        public <E> Optional<HolderOwner<E>> owner(ResourceKey<? extends Registry<? extends E>> registryKey) {
+            // JsonOps expands registered references inline. A structure-avoidance filter can
+            // then reach a template pool whose fallback points to itself (e.g. minecraft:empty).
+            // Keep named references in the live registry, and fail before encoding an unsupported
+            // or excessively nested inline holder graph. The budget resets for each encode.
+            if (++holderVisits > MAX_CODEC_HOLDER_VISITS) {
+                throw new IllegalArgumentException("Mineral metadata exceeds its registry holder budget");
+            }
+            HolderOwner<E> owner = super.owner(registryKey).orElseThrow(() ->
+                    new IllegalArgumentException("Missing mineral metadata registry: " + registryKey.location()));
+            return Optional.of(owner);
+        }
     }
 
     private static boolean isModifierDisabled(PlacementModifier modifier) {

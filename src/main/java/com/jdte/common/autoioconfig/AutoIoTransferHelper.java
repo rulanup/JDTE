@@ -12,6 +12,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.util.ItemStackKey;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
+import com.jdte.common.blockentities.FluidMixerBE;
 import com.jdte.common.blockentities.FluidReceiverBE;
 import com.jdte.common.blockentities.FluidSenderBE;
 import com.jdte.common.blockentities.FluidStabilizerBE;
@@ -353,6 +354,10 @@ public final class AutoIoTransferHelper {
             itemOutputs = boundedSlots(handler, range(GelGeneratorBE.OUTPUT_START_SLOT, GelGeneratorBE.OUTPUT_SLOTS));
             fluidInput = generator.getFluidTank();
             fluidOutput = generator.getOutputFluidTank();
+        } else if (machine instanceof FluidMixerBE mixer) {
+            itemInputs = boundedSlots(handler, FluidMixerBE.CATALYST_SLOT);
+            fluidInput = mixer.getCombinedFluidHandler();
+            fluidOutput = mixer.outputTank;
         } else if (machine instanceof InfusionMachineBE infusion) {
             itemInputs = boundedSlots(handler, InfusionMachineBE.INPUT_SLOT);
             itemOutputs = boundedSlots(handler, InfusionMachineBE.OUTPUT_SLOT);

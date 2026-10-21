@@ -45,7 +45,7 @@ public final class MineralSurveyIndex {
                     .orElseGet(() -> biomes.wrapAsHolder(entry.getValue()));
             ResourceLocation biomeId = entry.getKey().location();
             List<MineralEntry> minerals = new java.util.ArrayList<>(
-                    MineralFeatureAnalyzer.analyze(holder, DEFAULT_MAX_ENTRIES));
+                    MineralFeatureAnalyzer.analyze(holder, DEFAULT_MAX_ENTRIES, server.registryAccess()));
             for (MineralSourceOverride override : MineralSourceReloadListener.overrides()) {
                 if (!override.matches(biomeId, holder)) continue;
                 if (override.replace()) minerals.clear();

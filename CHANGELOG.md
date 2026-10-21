@@ -2,7 +2,15 @@
 
 ### English
 
-#### v0.6.5.0 (Current) — 2026-10-21
+#### v0.6.5.1 (Current) — 2026-10-21
+
+- Fixed Fluid Mixer batches consuming inputs and FE without producing fluid: internal output storage now accepts generated fluids, and both normal and accelerated mixing commit the complete output before consuming resources. Added the missing dedicated Auto I/O and AE fluid output route; external fills remain limited to the two input tanks.
+- Fixed the world-login mineral survey crash with Eternal Starlight 0.9.1 ([#22](https://github.com/rulanup/JDTE/issues/22)). Optional world-generation metadata now uses the server's live registry context, preserving named references instead of recursively expanding structure template pools. Missing registry context and excessive inline holder traversal are rejected before stack exhaustion. Non-ore features no longer serialize placement modifiers; unsupported metadata preserves other ore estimates. [Diagnosis and fix](docs/fixes/issue-22.md).
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.1.
+
+Full details: [0.6.5.1 release notes](docs/releases/0.6.5.1.md).
+
+#### v0.6.5.0 — 2026-10-21
 
 - Fixed Advanced Machine Settings Copier upgrade loss by reusing matching installed cards, withdrawing only missing cards from inventory and both storage tiers, and returning surplus cards to the player. Equipped advanced storage cases are supported.
 - Fixed common JDT fluid bar overflow when copied upgrades reduce tank capacity.
@@ -419,7 +427,15 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.5.0（当前）— 2026-10-21
+#### v0.6.5.1（当前）— 2026-10-21
+
+- 修复混合器扣除原料和 FE 后不产出流体的问题：允许机器内部向输出罐写入产物，普通及加速混合均先完整存入产物再扣除资源。补齐自动 I/O 与 AE 的独立流体输出路由，外部灌入仍只进入两个输入罐。
+- 修复与永恒星光 0.9.1 同装时，登录世界构建矿物清单导致栈溢出的崩溃（[#22](https://github.com/rulanup/JDTE/issues/22)）。世界生成元数据编码改用服务器注册表上下文，保留引用 ID，避免递归展开结构模板池；注册表上下文缺失或内联引用遍历超限时提前退出。非矿物特征不再编码放置条件，不支持的元数据仍保留其余矿物估算。[定位及修复说明](docs/fixes/issue-22.md)。
+- 主模组与配套可选 JDTE-AE 附属版本统一升级为 0.6.5.1。
+
+完整说明：[0.6.5.1 发布说明](docs/releases/0.6.5.1.md)。
+
+#### v0.6.5.0 — 2026-10-21
 
 - 修复高级配置复制器丢失升级：复用机器已有匹配卡，只从背包、普通/高级升级存储器补齐缺卡，并退还多余升级；支持 Curios 中的高级存储器。
 - 修复复制配置导致流体容量下降后，公共 JDT 流体条绘制出界的问题。
