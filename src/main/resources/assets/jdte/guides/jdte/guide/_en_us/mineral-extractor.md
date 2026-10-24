@@ -37,6 +37,8 @@ The Large Mineral Extractor places as one 3×3×2 structure whose controller is 
 
 ## Production and Resources
 
+Base 1x production needs only FE; both fluids are optional. Without fortune fluid (Experience Fluid by default), yield stays normal. Without acceleration fluid (Time Fluid by default), production stays at base 1x. Creative upgrades and zero-cost fluid settings waive the corresponding costs. These rules apply to both extractor sizes.
+
 | Property | Default behavior |
 |----------|------------------|
 | Base processing | 1x uses the former 64x throughput as its baseline: 64 work is added each tick, and each 20 work completes and immediately settles one batch |

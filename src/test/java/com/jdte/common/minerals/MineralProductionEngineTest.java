@@ -116,6 +116,19 @@ class MineralProductionEngineTest {
     }
 
     @Test
+    void baseProductionRemainsAvailableWithoutEitherOptionalFluidBonus() {
+        MineralProductionEngine.WorkAllocation work = MineralProductionEngine.workForTick(64, 64L, false);
+        long cycles = work.totalWork() / 20L;
+        MineralProductionEngine.Batch batch = MineralProductionEngine.distribute(
+                List.of(COPPER), cycles, cycles, 0, RandomSource.create(31L));
+
+        assertEquals(64L, work.baseWork());
+        assertEquals(0L, work.acceleratedWork());
+        assertEquals(3L, batch.consumedCycles());
+        assertEquals(3L, batch.producedItems());
+    }
+
+    @Test
     void settlesAsSoonAsAProductionCycleIsReady() {
         assertTrue(MineralProductionEngine.shouldSettle(0L, 32L, 20L, 1, 20));
         assertTrue(MineralProductionEngine.shouldSettle(10L, 10L, 20L, 1, 20));

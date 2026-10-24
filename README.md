@@ -2,9 +2,17 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.5.1`
+当前版本：`0.6.5.2`
 
 [English README](README_EN.md)
+
+## 0.6.5.2 更新
+
+- 明确矿物提取机的基础 1x 生产只需 FE，两种流体均为可选加成（[#24](https://github.com/rulanup/JDTE/issues/24)）。
+- 机器和 JEI 提示说明经验流体用于时运增产、时间流体仅供额外加速批次消耗。
+- 同步中英文 GuideME/Patchouli 指南与配置说明，补充相关回归测试。
+
+完整说明：[0.6.5.2 Release Notes](docs/releases/0.6.5.2.md)。
 
 ## 0.6.5.1 更新
 

@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.5.1`
+Current version: `0.6.5.2`
+
+## What's new in 0.6.5.2
+
+- Clarified that base 1x Mineral Extractor production needs only FE and both fluids are optional bonuses ([#24](https://github.com/rulanup/JDTE/issues/24)).
+- Machine and JEI tooltips explain fortune fluid for bonus yield and acceleration fluid for extra batches.
+- Updated bilingual GuideME/Patchouli and config help, with regression coverage for the resource policy and tooltips.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.5.2.md).
 
 ## What's new in 0.6.5.1
 

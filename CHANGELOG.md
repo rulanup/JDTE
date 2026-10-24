@@ -2,7 +2,14 @@
 
 ### English
 
-#### v0.6.5.1 (Current) — 2026-10-21
+#### v0.6.5.2 (Current)
+
+- Clarified Mineral Extractor resource rules after [#24](https://github.com/rulanup/JDTE/issues/24): base 1x production uses FE only, fortune fluid optionally increases yield, and acceleration fluid pays only for extra accelerated batches. Added explicit GUI/JEI tooltips, config help, bilingual GuideME/Patchouli guidance and regression coverage.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.2.
+
+Full details: [0.6.5.2 release notes](docs/releases/0.6.5.2.md).
+
+#### v0.6.5.1 — 2026-10-21
 
 - Fixed Fluid Mixer batches consuming inputs and FE without producing fluid: internal output storage now accepts generated fluids, and both normal and accelerated mixing commit the complete output before consuming resources. Added the missing dedicated Auto I/O and AE fluid output route; external fills remain limited to the two input tanks.
 - Fixed the world-login mineral survey crash with Eternal Starlight 0.9.1 ([#22](https://github.com/rulanup/JDTE/issues/22)). Optional world-generation metadata now uses the server's live registry context, preserving named references instead of recursively expanding structure template pools. Missing registry context and excessive inline holder traversal are rejected before stack exhaustion. Non-ore features no longer serialize placement modifiers; unsupported metadata preserves other ore estimates. [Diagnosis and fix](docs/fixes/issue-22.md).
@@ -427,7 +434,14 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.5.1（当前）— 2026-10-21
+#### v0.6.5.2（当前）
+
+- 根据 [#24](https://github.com/rulanup/JDTE/issues/24) 明确矿物提取机资源规则：基础 1x 生产只耗 FE，时运流体用于可选增产，加速流体只支付额外加速批次。补充机器与 JEI 提示、配置说明、中英文 GuideME/Patchouli 指南及回归测试。
+- 主模组与配套可选 JDTE-AE 附属版本统一升级为 0.6.5.2。
+
+完整说明：[0.6.5.2 发布说明](docs/releases/0.6.5.2.md)。
+
+#### v0.6.5.1 — 2026-10-21
 
 - 修复混合器扣除原料和 FE 后不产出流体的问题：允许机器内部向输出罐写入产物，普通及加速混合均先完整存入产物再扣除资源。补齐自动 I/O 与 AE 的独立流体输出路由，外部灌入仍只进入两个输入罐。
 - 修复与永恒星光 0.9.1 同装时，登录世界构建矿物清单导致栈溢出的崩溃（[#22](https://github.com/rulanup/JDTE/issues/22)）。世界生成元数据编码改用服务器注册表上下文，保留引用 ID，避免递归展开结构模板池；注册表上下文缺失或内联引用遍历超限时提前退出。非矿物特征不再编码放置条件，不支持的元数据仍保留其余矿物估算。[定位及修复说明](docs/fixes/issue-22.md)。

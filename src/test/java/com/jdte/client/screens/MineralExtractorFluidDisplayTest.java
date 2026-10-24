@@ -1,6 +1,8 @@
 package com.jdte.client.screens;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.junit.jupiter.api.Test;
@@ -58,5 +60,24 @@ class MineralExtractorFluidDisplayTest {
 
         assertEquals(new FluidStack(Fluids.LAVA, 1).getHoverName(), actualName);
         assertEquals(new FluidStack(Fluids.WATER, 1).getHoverName(), configuredName);
+    }
+
+    @Test
+    void bothTankTooltipsExplainOptionalBonusesAndPowerOnlyBaseProduction() {
+        MineralExtractorFluidDisplay empty = MineralExtractorFluidDisplay.create(
+                Fluids.EMPTY, Fluids.WATER, 0, 1_000);
+        var fortune = MineralExtractorScreen.experienceTooltip(empty, 0);
+        var acceleration = MineralExtractorScreen.accelerationTooltip(empty);
+
+        assertEquals(4, fortune.size());
+        assertEquals(4, acceleration.size());
+        assertEquals("jdte.screen.mineral_extractor.fortune_optional", translationKey(fortune.get(2)));
+        assertEquals("jdte.screen.mineral_extractor.acceleration_optional", translationKey(acceleration.get(2)));
+        assertEquals("jdte.screen.mineral_extractor.base_power_only", translationKey(fortune.get(3)));
+        assertEquals("jdte.screen.mineral_extractor.base_power_only", translationKey(acceleration.get(3)));
+    }
+
+    private static String translationKey(FormattedText text) {
+        return ((TranslatableContents) ((Component) text).getContents()).getKey();
     }
 }

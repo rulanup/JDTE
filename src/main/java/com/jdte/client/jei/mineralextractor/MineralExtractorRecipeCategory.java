@@ -109,6 +109,10 @@ public class MineralExtractorRecipeCategory implements IRecipeCategory<MineralEx
                         tooltip.add(Component.translatable("jdte.screen.mineral_extractor.experience_fluid",
                                 recipe.experienceFluidCost(), recipe.experienceFluidCost(), recipe.fortuneBonusPercent())
                                 .withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("jdte.screen.mineral_extractor.fortune_optional")
+                                .withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("jdte.screen.mineral_extractor.base_power_only")
+                                .withStyle(ChatFormatting.DARK_GRAY));
                     });
         }
 
@@ -125,6 +129,10 @@ public class MineralExtractorRecipeCategory implements IRecipeCategory<MineralEx
                         tooltip.add(Component.translatable("jdte.screen.mineral_extractor.time_fluid",
                                 recipe.timeFluidCost(), recipe.timeFluidCost())
                                 .withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("jdte.screen.mineral_extractor.acceleration_optional")
+                                .withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("jdte.screen.mineral_extractor.base_power_only")
+                                .withStyle(ChatFormatting.DARK_GRAY));
                     });
         }
 

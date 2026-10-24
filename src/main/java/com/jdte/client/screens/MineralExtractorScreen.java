@@ -177,14 +177,22 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
         return List.of(
                 display.tooltipName(),
                 Component.translatable("jdte.screen.mineral_extractor.experience_fluid",
-                        display.amount(), display.capacity(), fortunePercent));
+                        display.amount(), display.capacity(), fortunePercent),
+                Component.translatable("jdte.screen.mineral_extractor.fortune_optional")
+                        .withStyle(ChatFormatting.GRAY),
+                Component.translatable("jdte.screen.mineral_extractor.base_power_only")
+                        .withStyle(ChatFormatting.DARK_GRAY));
     }
 
     static List<FormattedText> accelerationTooltip(MineralExtractorFluidDisplay display) {
         return List.of(
                 display.tooltipName(),
                 Component.translatable("jdte.screen.mineral_extractor.time_fluid",
-                        display.amount(), display.capacity()));
+                        display.amount(), display.capacity()),
+                Component.translatable("jdte.screen.mineral_extractor.acceleration_optional")
+                        .withStyle(ChatFormatting.GRAY),
+                Component.translatable("jdte.screen.mineral_extractor.base_power_only")
+                        .withStyle(ChatFormatting.DARK_GRAY));
     }
 
     private void renderStatus(GuiGraphics graphics) {

@@ -28,8 +28,10 @@ public final class MineralExtractorConfig {
         energyPerCycle = builder.translation("config.jdte.jdte.mineralExtractor.energyPerCycle")
                 .defineInRange("energyPerCycle", 5_000, 0, Integer.MAX_VALUE);
         experienceFluidPerCycle = builder.translation("config.jdte.jdte.mineralExtractor.experienceFluidPerCycle")
+                .comment("Optional fortune fluid consumed per bonus-yield batch. Base production does not require it; 0 makes the bonus free.")
                 .defineInRange("experienceFluidPerCycle", 25, 0, Integer.MAX_VALUE);
         timeFluidPerAcceleratedCycle = builder.translation("config.jdte.jdte.mineralExtractor.timeFluidPerAcceleratedCycle")
+                .comment("Optional acceleration fluid consumed per extra batch above base 1x. Base batches do not consume it; 0 makes acceleration free.")
                 .defineInRange("timeFluidPerAcceleratedCycle", 5, 0, Integer.MAX_VALUE);
         fortuneBonusPercent = builder.translation("config.jdte.jdte.mineralExtractor.fortuneBonusPercent")
                 .defineInRange("fortuneBonusPercent", 100, 0, 10_000);

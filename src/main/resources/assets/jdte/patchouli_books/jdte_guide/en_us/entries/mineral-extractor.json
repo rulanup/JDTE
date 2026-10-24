@@ -36,6 +36,10 @@
     },
     {
       "type": "patchouli:text",
+      "text": "Base 1x production needs only FE; both fluids are optional. Without fortune fluid (Experience Fluid by default), yield stays normal. Without acceleration fluid (Time Fluid by default), production stays at base 1x. Creative upgrades and zero-cost fluid settings waive the corresponding costs. These rules apply to both extractor sizes."
+    },
+    {
+      "type": "patchouli:text",
       "text": "$(bold)Property | Default behavior$()$(br)Base processing | 1x uses the former 64x throughput as its baseline: 64 work is added each tick, and each 20 work completes and immediately settles one batch$(br)Energy | 5,000 FE per batch; 10,000 FE per batch with JDT's Smelter Upgrade installed$(br)Smelting | Accepts at most one JDT Smelter Upgrade; ores with furnace recipes become their smelted results, while ores without recipes remain unchanged$(br)Fortune role fluid (default: JDT Experience Fluid) | Raises that batch's yield by 100%; its amount remains configured by $(thing)experienceFluidPerCycle$() (25 mB by default)$(br)Acceleration role fluid (default: JDT Time Fluid) | Used only for"
     },
     {
