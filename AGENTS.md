@@ -2,17 +2,17 @@
 
 ## Project Overview
 
-JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds upgrade cards, time accelerators, extended machines, automation devices, and optional cross-mod integrations.
+JDT Extras (`jdte`) is a Forge 1.20.1 extension for Just Dire Things (JDT). It adds upgrade cards, time accelerators, extended machines, automation devices, and optional cross-mod integrations.
 
 | Property | Value |
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.5.6` |
-| Minecraft | `1.21.1` |
-| NeoForge | `21.1.233+` |
-| Just Dire Things | `1.5.7+` |
-| Java | `21` |
+| Current version | `0.5.8-forge-1.20.1` |
+| Minecraft | `1.20.1` |
+| Forge | `47.4.10` |
+| Just Dire Things Forge | `1.1.4` |
+| Java | `17` |
 
 Major features:
 
@@ -38,9 +38,11 @@ Major features:
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
 
+The 0.6.5.2 backport is in progress; see [port tracking](docs/forge-1.20.1-port.md). Do not advertise feature parity until the new registrations and runtime checks are complete.
+
 ## Build and Run
 
-The project uses Gradle with NeoForge ModDev. JDT is resolved through CurseMaven file `7463040`; no machine-specific local jar path is required.
+This branch uses Gradle 8.6, ForgeGradle 6 and Java 17. JDT Forge is resolved through CurseMaven file `8573107`; no machine-specific local jar path is required.
 
 Common commands:
 

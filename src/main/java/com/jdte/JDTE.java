@@ -65,6 +65,7 @@ public class JDTE {
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
         MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.level.block.entity.BlockEntity.class, JDTEAttachments::attachBlockCapabilities);
         MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.entity.Entity.class, JDTEAttachments::attachPlayerCapabilities);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.items.RepairTalismanEvents::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(JDTECommands::register);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);

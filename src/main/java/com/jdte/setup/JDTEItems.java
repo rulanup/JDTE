@@ -122,6 +122,9 @@ public class JDTEItems {
     public static final RegistryObject<BlockItem> EXTENDED_BIO_CRUSHER = ITEMS.register("extended_bio_crusher", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_CRUSHER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> LOOT_FABRICATOR = ITEMS.register("loot_fabricator", () -> new BlockItem(JDTEBlocks.LOOT_FABRICATOR.get(), new Item.Properties()));
 
+    public static final RegistryObject<com.jdte.common.items.RepairTalismanItem> REPAIR_TALISMAN = ITEMS.register("repair_talisman",
+            () -> new com.jdte.common.items.RepairTalismanItem(new Item.Properties().stacksTo(1)));
+
     // Boss Essences
     public static final RegistryObject<BossEssenceItem> WITHER_ESSENCE = ITEMS.register("wither_essence", BossEssenceItem::new);
     public static final RegistryObject<BossEssenceItem> ENDER_DRAGON_ESSENCE = ITEMS.register("ender_dragon_essence", BossEssenceItem::new);

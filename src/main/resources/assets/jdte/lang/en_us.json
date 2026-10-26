@@ -688,5 +688,14 @@
   "screen.jdte.ultimate_portal_gun.dimension": "Dimension: %s",
   "screen.jdte.ultimate_portal_gun.no_dimensions": "No dimensions available",
   "screen.jdte.ultimate_portal_gun.delete": "Delete",
-  "message.jdte.ultimate_portal_gun.dimension_missing": "The destination dimension is not loaded on this server."
+  "message.jdte.ultimate_portal_gun.dimension_missing": "The destination dimension is not loaded on this server.",
+  "item.jdte.repair_talisman": "Repair Talisman",
+  "tooltip.jdte.repair_talisman": "Carried in the inventory, continuously repairs all damaged tools, weapons, and armor using FE drawn from charged energy items in the inventory (10,000 FE per durability by default)",
+  "config.jdte.jdte.repairTalisman": "Repair Talisman Settings",
+  "config.jdte.jdte.repairTalisman.amountPerCycle": "Durability Repaired Per Cycle",
+  "config.jdte.jdte.repairTalisman.amountPerCycle.desc": "Durability points repaired per cycle for every damaged item while a Repair Talisman is in the inventory",
+  "config.jdte.jdte.repairTalisman.cycleInterval": "Repair Cycle Interval (ticks)",
+  "config.jdte.jdte.repairTalisman.cycleInterval.desc": "Ticks between repair cycles; 0 disables the talisman",
+  "config.jdte.jdte.repairTalisman.energyPerDurability": "FE Cost Per Durability Point",
+  "config.jdte.jdte.repairTalisman.energyPerDurability.desc": "FE consumed per durability point repaired, drawn from charged energy items in the player's inventory; 0 makes repairs free"
 }

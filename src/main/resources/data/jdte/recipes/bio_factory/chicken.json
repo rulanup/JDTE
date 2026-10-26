@@ -1,17 +1,42 @@
 {
   "type": "jdte:bio_factory",
-  "specimen": { "item": "minecraft:chicken_spawn_egg" },
-  "food": { "items": [
-    "minecraft:wheat_seeds",
-    "minecraft:melon_seeds",
-    "minecraft:pumpkin_seeds",
-    "minecraft:beetroot_seeds",
-    "minecraft:torchflower_seeds",
-    "minecraft:pitcher_pod"
-  ] },
+  "specimen": {
+    "item": "minecraft:chicken_spawn_egg"
+  },
+  "food": [
+    {
+      "item": "minecraft:wheat_seeds"
+    },
+    {
+      "item": "minecraft:melon_seeds"
+    },
+    {
+      "item": "minecraft:pumpkin_seeds"
+    },
+    {
+      "item": "minecraft:beetroot_seeds"
+    },
+    {
+      "item": "minecraft:torchflower_seeds"
+    },
+    {
+      "item": "minecraft:pitcher_pod"
+    }
+  ],
   "outputs": [
-    { "item": { "id": "minecraft:egg", "count": 1 } },
-    { "item": { "id": "minecraft:feather", "count": 1 }, "chance": 0.05 }
+    {
+      "item": {
+        "id": "minecraft:egg",
+        "count": 1
+      }
+    },
+    {
+      "item": {
+        "id": "minecraft:feather",
+        "count": 1
+      },
+      "chance": 0.05
+    }
   ],
   "process_ticks": 600,
   "energy": 1000

@@ -32,6 +32,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_TIME_FREEZER.get());
                 output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
                 output.accept(JDTEItems.BIG_FLUID_TANK.get());
+                output.accept(JDTEItems.REPAIR_TALISMAN.get());
 
                 // Time Accelerators
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());

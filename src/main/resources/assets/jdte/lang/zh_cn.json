@@ -688,5 +688,14 @@
   "screen.jdte.ultimate_portal_gun.dimension": "维度：%s",
   "screen.jdte.ultimate_portal_gun.no_dimensions": "没有可用维度",
   "screen.jdte.ultimate_portal_gun.delete": "删除",
-  "message.jdte.ultimate_portal_gun.dimension_missing": "目标维度未在服务器加载。"
+  "message.jdte.ultimate_portal_gun.dimension_missing": "目标维度未在服务器加载。",
+  "item.jdte.repair_talisman": "修复护符",
+  "tooltip.jdte.repair_talisman": "放在背包中即可持续修复全部受损工具、武器与盔甲，FE 从背包中已充能的能量物品抽取（默认每点耐久 10,000 FE）",
+  "config.jdte.jdte.repairTalisman": "修复护符设置",
+  "config.jdte.jdte.repairTalisman.amountPerCycle": "每周期修复耐久",
+  "config.jdte.jdte.repairTalisman.amountPerCycle.desc": "背包中携带修复护符时，每个修复周期为每件受损物品修复的耐久点数",
+  "config.jdte.jdte.repairTalisman.cycleInterval": "修复周期（刻）",
+  "config.jdte.jdte.repairTalisman.cycleInterval.desc": "两次修复之间的间隔刻数；设为 0 时护符失效",
+  "config.jdte.jdte.repairTalisman.energyPerDurability": "每点耐久 FE 费用",
+  "config.jdte.jdte.repairTalisman.energyPerDurability.desc": "每修复 1 点耐久从玩家背包中已充能的能量物品抽取的 FE；设为 0 时免费修复"
 }

@@ -44,16 +44,6 @@ configurations {
     }
 }
 
-def mixinBootstrapResources = tasks.register('mixinBootstrapResources', Jar) {
-    archiveBaseName = "${mod_id}-mixin-bootstrap"
-    archiveVersion = ''
-    destinationDirectory = layout.buildDirectory.dir('generated/mixin-bootstrap')
-    dependsOn(tasks.named('compileJava'))
-
-    from('src/main/resources') {
-        include 'mixins.jdte.json'
-    }
-}
 
 repositories {
     mavenLocal()
@@ -179,7 +169,8 @@ dependencies {
     // These mods are deliberately absent: Apothic Spawners and Just Dyna Things have no Forge 1.20.1 build.
 
     // Client-only development helpers must never be added to the dedicated-server runtime.
-    jdteClientRuntime fg.deobf("curse.maven:glodium-957920:${glodium_file}")
+    // ExtendedAE and Applied Flux require Glodium on dedicated servers too.
+    runtimeOnly fg.deobf("curse.maven:glodium-957920:${glodium_file}")
 //    jdteClientRuntime fg.deobf("curse.maven:modern-ui-352491:${modern_ui_file}")
     jdteClientRuntime fg.deobf("curse.maven:mouse-tweaks-60089:${mouse_tweaks_file}")
     // Configured 2.2.3 pulls Configuration 2.2.1, whose network code is
@@ -220,6 +211,7 @@ tasks.named('processResources', ProcessResources).configure {
 }
 
 tasks.named('jar', Jar).configure {
+    finalizedBy 'reobfJar'
     manifest {
         attributes([
                 'Specification-Title': mod_id,
@@ -239,16 +231,10 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.withType(JavaExec).configureEach {
     if (name.startsWith('run')) {
-        dependsOn(mixinBootstrapResources)
         classpath += files(sourceSets.main.output.classesDirs, sourceSets.main.output.resourcesDir)
     }
 
     if (name == 'runClient') {
         classpath += configurations.jdteClientRuntime
     }
-}
-
-tasks.withType(net.minecraftforge.gradle.common.util.runs.MinecraftRunTask).configureEach {
-    // Mixin resolves command-line configs from Forge's legacy class path.
-    minecraftArtifacts.from(mixinBootstrapResources)
 }
