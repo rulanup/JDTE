@@ -103,7 +103,8 @@ public final class AutoIoTransferHelper {
         }
         int inputMask = data.getInputMask();
         int outputMask = data.getOutputMask();
-        boolean eventDrivenGreenhouse = machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
+        boolean eventDrivenGreenhouse = machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE
+                || machine instanceof com.jdte.common.blockentities.MineralExtractorBE;
         int periodicOutputMask = eventDrivenGreenhouse ? 0 : outputMask;
         if (inputMask == 0 && periodicOutputMask == 0) {
             data.resetTransferState();
@@ -277,6 +278,10 @@ public final class AutoIoTransferHelper {
     }
 
     private static List<BlockPos> externalNeighbors(ServerLevel level, BaseMachineBE machine, Direction side) {
+        if (machine instanceof com.jdte.common.blockentities.LargeMineralExtractorBE mineral) {
+            return mineral.getBoundaryNeighbors().stream().filter(n -> n.exposedSide() == side)
+                    .map(com.jdte.common.blocks.LargeMineralExtractorStructure.BoundaryNeighbor::pos).distinct().toList();
+        }
         if (machine instanceof LargeGreenhouseBE greenhouse) {
             return greenhouse.getBoundaryNeighbors().stream()
                     .filter(neighbor -> neighbor.exposedSide() == side)
@@ -301,7 +306,11 @@ public final class AutoIoTransferHelper {
         IFluidHandler fluidInput = null;
         IFluidHandler fluidOutput = null;
 
-        if (machine instanceof GelGeneratorBE generator) {
+        if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE mineral) {
+            itemInputs = boundedSlots(handler, range(0, mineral.surveySlotCount()));
+            itemOutputs = boundedSlots(handler, range(mineral.outputStartSlot(), mineral.getActiveOutputSlots()));
+            fluidInput = mineral.getCombinedFluidHandler();
+        } else if (machine instanceof GelGeneratorBE generator) {
             itemInputs = boundedSlots(handler,
                     GelGeneratorBE.GEL_SLOT,
                     GelGeneratorBE.FOOD_SLOT,

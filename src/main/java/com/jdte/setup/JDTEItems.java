@@ -144,4 +144,9 @@ public class JDTEItems {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE);
     }
+    public static final RegistryObject<BlockItem> MINERAL_EXTRACTOR = ITEMS.register("mineral_extractor", () -> new BlockItem(JDTEBlocks.MINERAL_EXTRACTOR.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> LARGE_MINERAL_EXTRACTOR = ITEMS.register("large_mineral_extractor", () -> new BlockItem(JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get(), new Item.Properties()));
+    public static final RegistryObject<com.jdte.common.items.MineralSurveyItem> MINERAL_SURVEY = ITEMS.register("mineral_survey", com.jdte.common.items.MineralSurveyItem::new);
+    public static final RegistryObject<UpgradeCardItem> ULTIMATE_CAPACITY_UPGRADE = ITEMS.register("ultimate_capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_CAPACITY));
+    public static final RegistryObject<UpgradeCardItem> ULTIMATE_OVERCLOCK_UPGRADE = ITEMS.register("ultimate_overclock_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_OVERCLOCK));
 }

@@ -135,4 +135,6 @@ public class JDTEMenus {
             "extended_bio_crusher", () -> IForgeMenuType.create(ExtendedBioCrusherContainer::new));
     public static final RegistryObject<MenuType<LootFabricatorContainer>> LOOT_FABRICATOR = MENUS.register(
             "loot_fabricator", () -> IForgeMenuType.create(LootFabricatorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.MineralExtractorContainer>> MINERAL_EXTRACTOR = MENUS.register("mineral_extractor", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.MineralExtractorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.LargeMineralExtractorContainer>> LARGE_MINERAL_EXTRACTOR = MENUS.register("large_mineral_extractor", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.LargeMineralExtractorContainer::new));
 }

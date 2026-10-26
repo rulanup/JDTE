@@ -85,4 +85,7 @@ public class JDTEBlocks {
     public static final RegistryObject<AdvancedBioCrusherBlock> ADVANCED_BIO_CRUSHER = BLOCKS.register("advanced_bio_crusher", AdvancedBioCrusherBlock::new);
     public static final RegistryObject<ExtendedBioCrusherBlock> EXTENDED_BIO_CRUSHER = BLOCKS.register("extended_bio_crusher", ExtendedBioCrusherBlock::new);
     public static final RegistryObject<LootFabricatorBlock> LOOT_FABRICATOR = BLOCKS.register("loot_fabricator", LootFabricatorBlock::new);
+    public static final RegistryObject<com.jdte.common.blocks.MineralExtractorBlock> MINERAL_EXTRACTOR = BLOCKS.register("mineral_extractor", com.jdte.common.blocks.MineralExtractorBlock::new);
+    public static final RegistryObject<com.jdte.common.blocks.LargeMineralExtractorBlock> LARGE_MINERAL_EXTRACTOR = BLOCKS.register("large_mineral_extractor", com.jdte.common.blocks.LargeMineralExtractorBlock::new);
+    public static final RegistryObject<com.jdte.common.blocks.LargeMineralExtractorPartBlock> LARGE_MINERAL_EXTRACTOR_PART = BLOCKS.register("large_mineral_extractor_part", com.jdte.common.blocks.LargeMineralExtractorPartBlock::new);
 }

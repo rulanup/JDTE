@@ -11,7 +11,9 @@ public enum UpgradeType {
     FILTER("filter", 2),
     CREATIVE("creative", 1),
     FORTUNE("fortune", 8),
-    PRECISION("precision", 1);
+    PRECISION("precision", 1),
+    ULTIMATE_CAPACITY("ultimate_capacity", 1),
+    ULTIMATE_OVERCLOCK("ultimate_overclock", 1);
 
     private final String serializedName;
     private final int maxPerMachine;
@@ -30,7 +32,7 @@ public enum UpgradeType {
     }
 
     public boolean isSpeedUpgrade() {
-        return this == OVERCLOCK || this == UNDERCLOCK;
+        return this == OVERCLOCK || this == UNDERCLOCK || this == ULTIMATE_OVERCLOCK;
     }
 
     public boolean isCreativeUpgrade() {

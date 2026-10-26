@@ -268,10 +268,13 @@ public class JDTEConfig {
 
         public final com.jdte.setup.config.RepairTalismanConfig repairTalisman;
 
+        public final com.jdte.setup.config.MineralExtractorConfig mineralExtractor;
+
         public Common(ForgeConfigSpec.Builder builder) {
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
 
             repairTalisman = new com.jdte.setup.config.RepairTalismanConfig(builder);
+            mineralExtractor = new com.jdte.setup.config.MineralExtractorConfig(builder);
             upgrades = new UpgradesConfig(builder);
             timeAccelerator = new TimeAcceleratorConfig(builder);
             timeFreezer = new TimeFreezerConfig(builder);

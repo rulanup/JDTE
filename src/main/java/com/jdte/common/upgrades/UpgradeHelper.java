@@ -62,6 +62,12 @@ public class UpgradeHelper {
     }
 
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
+            return machine instanceof com.jdte.common.blockentities.MineralExtractorBE;
+        if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE)
+            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID || type == UpgradeType.FILTER
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+
         if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
@@ -175,12 +181,12 @@ public class UpgradeHelper {
     }
 
     public static int adjustEnergyCapacity(BaseMachineBE machine, int original) {
-        return multiplyByPowersOfTwo(original, countUpgrades(machine, UpgradeType.CAPACITY));
+        return multiplyByPowersOfTwo(scaledUltimateCapacity(machine, original), countUpgrades(machine, UpgradeType.CAPACITY));
     }
 
     public static int adjustFluidCapacity(BaseMachineBE machine, int original) {
         int upgrades = countUpgrades(machine, UpgradeType.CAPACITY) + countUpgrades(machine, UpgradeType.FLUID);
-        return multiplyByPowersOfTwo(original, upgrades);
+        return multiplyByPowersOfTwo(scaledUltimateCapacity(machine, original), upgrades);
     }
 
     public static int adjustEnergyCost(BaseMachineBE machine, int original) {
@@ -221,7 +227,7 @@ public class UpgradeHelper {
     }
 
     public static boolean usesLockedDelay(BaseMachineBE machine) {
-        return !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+        return !(machine instanceof com.jdte.common.blockentities.MineralExtractorBE) && !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof BioFactoryBE) && !(machine instanceof LifeBreederBE)
                 && !(machine instanceof LifeSynthesisVatBE);
     }
@@ -352,5 +358,24 @@ public class UpgradeHelper {
         }
         long result = (long) original << powers;
         return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
+    }
+
+    public static boolean isSmelterUpgrade(ItemStack stack) {
+        return stack.is(com.direwolf20.justdirethings.setup.Registration.UPGRADE_SMELTER.get());
+    }
+    public static boolean hasSmelterUpgrade(BaseMachineBE machine) {
+        var handler = getUpgradeHandler(machine);
+        for (int slot = 0; slot < handler.getSlots(); slot++)
+            if (isSmelterUpgrade(handler.getStackInSlot(slot))) return true;
+        return false;
+    }
+    public static boolean hasUltimateCapacity(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ULTIMATE_CAPACITY) > 0;
+    }
+    public static boolean hasUltimateOverclock(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ULTIMATE_OVERCLOCK) > 0;
+    }
+    private static int scaledUltimateCapacity(BaseMachineBE machine, int original) {
+        return hasUltimateCapacity(machine) ? (int) Math.min(Integer.MAX_VALUE, (long) original * 50) : original;
     }
 }

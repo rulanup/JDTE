@@ -25,17 +25,22 @@ public final class MachineFluidBarRenderer {
     }
 
     public static void renderBar(GuiGraphics guiGraphics, FluidStack fluidStack, int fluidAmount, int maxMb, int x, int y) {
+        renderBar(guiGraphics, fluidStack, fluidAmount, maxMb, x, y, false);
+    }
+
+    public static void renderBar(GuiGraphics guiGraphics, FluidStack fluidStack, int fluidAmount, int maxMb, int x, int y, boolean ghost) {
         guiGraphics.blit(FLUID_BAR, x, y, 0, 0, 18, 72, 36, 72);
-        if (maxMb > 0) {
-            int remaining = (fluidAmount * 70) / maxMb;
-            if (remaining > 0) {
-                renderFluid(guiGraphics, fluidStack, x + 1, y + 72 - 1, 16, remaining);
-            }
-        }
+        int height = maxMb <= 0 ? 0 : (int) Math.max(0L, Math.min(70L, (long) fluidAmount * 70L / maxMb));
+        if (ghost && !fluidStack.isEmpty()) renderFluid(guiGraphics, fluidStack, x + 1, y + 71, 16, 70, 0.25F);
+        else if (height > 0) renderFluid(guiGraphics, fluidStack, x + 1, y + 71, 16, height);
         guiGraphics.blit(FLUID_BAR, x, y, 18, 0, 18, 72, 36, 72);
     }
 
     public static void renderFluid(GuiGraphics guiGraphics, FluidStack fluidStack, int startX, int startY, int width, int height) {
+        renderFluid(guiGraphics, fluidStack, startX, startY, width, height, 1.0F);
+    }
+
+    private static void renderFluid(GuiGraphics guiGraphics, FluidStack fluidStack, int startX, int startY, int width, int height, float opacity) {
         if (fluidStack.isEmpty() || height <= 0) return;
 
         Fluid fluid = fluidStack.getFluid();

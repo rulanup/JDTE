@@ -135,4 +135,7 @@ public class JDTEBlockEntities {
             "extended_bio_crusher", () -> BlockEntityType.Builder.of(ExtendedBioCrusherBE::new, JDTEBlocks.EXTENDED_BIO_CRUSHER.get()).build(null));
     public static final RegistryObject<BlockEntityType<LootFabricatorBE>> LOOT_FABRICATOR = BLOCK_ENTITIES.register(
             "loot_fabricator", () -> BlockEntityType.Builder.of(LootFabricatorBE::new, JDTEBlocks.LOOT_FABRICATOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.MineralExtractorBE>> MINERAL_EXTRACTOR = BLOCK_ENTITIES.register("mineral_extractor", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.MineralExtractorBE::new, JDTEBlocks.MINERAL_EXTRACTOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.LargeMineralExtractorBE>> LARGE_MINERAL_EXTRACTOR = BLOCK_ENTITIES.register("large_mineral_extractor", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.LargeMineralExtractorBE::new, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.LargeMineralExtractorPartBE>> LARGE_MINERAL_EXTRACTOR_PART = BLOCK_ENTITIES.register("large_mineral_extractor_part", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.LargeMineralExtractorPartBE::new, JDTEBlocks.LARGE_MINERAL_EXTRACTOR_PART.get()).build(null));
 }

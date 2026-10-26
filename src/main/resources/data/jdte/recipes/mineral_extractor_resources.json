@@ -1,0 +1,5 @@
+{
+  "type": "jdte:mineral_extractor_resources",
+  "fortune_fluid": "justdirethings:xp_fluid",
+  "acceleration_fluid": "justdirethings:time_fluid"
+}

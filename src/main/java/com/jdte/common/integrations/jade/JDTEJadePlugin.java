@@ -3,6 +3,12 @@ package com.jdte.common.integrations.jade;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.jdte.JDTE;
+import com.jdte.common.blockentities.MineralExtractorBE;
+import com.jdte.common.blockentities.LargeMineralExtractorPartBE;
+import com.jdte.common.blocks.MineralExtractorBlock;
+import com.jdte.common.blocks.LargeMineralExtractorBlock;
+import com.jdte.common.blocks.LargeMineralExtractorPartBlock;
+import java.util.Locale;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.ChatFormatting;
@@ -30,23 +36,83 @@ import java.util.List;
 @WailaPlugin(JDTE.MODID)
 public class JDTEJadePlugin implements IWailaPlugin {
     private static final ResourceLocation UID = JDTE.id("installed_upgrades");
+    private static final ResourceLocation MINERAL_EXTRACTOR_STATUS_UID = JDTE.id("mineral_extractor_status");
+    private static final String TAG_EXTRACTOR_STATE = "jdte_extractor_state";
+    private static final String TAG_EXTRACTOR_SURVEY = "jdte_extractor_survey";
+    private static final String TAG_EXTRACTOR_MINERALS = "jdte_extractor_minerals";
+    private static final String TAG_EXTRACTOR_MULTIPLIER = "jdte_extractor_multiplier";
+    private static final String TAG_EXTRACTOR_MAX_MULTIPLIER = "jdte_extractor_max_multiplier";
+    private static final MineralExtractorStatusProvider MINERAL_PROVIDER = new MineralExtractorStatusProvider();
     private static final String TAG_UPGRADES = "jdte_upgrades";
     private static final UpgradeProvider UPGRADE_PROVIDER = new UpgradeProvider();
 
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, BaseMachineBE.class);
+        registration.registerBlockDataProvider(UPGRADE_PROVIDER, LargeMineralExtractorPartBE.class);
+        registration.registerBlockDataProvider(MINERAL_PROVIDER, MineralExtractorBE.class);
+        registration.registerBlockDataProvider(MINERAL_PROVIDER, LargeMineralExtractorPartBE.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(UPGRADE_PROVIDER, BaseMachineBlock.class);
+        registration.registerBlockComponent(UPGRADE_PROVIDER, LargeMineralExtractorPartBlock.class);
+        registration.registerBlockComponent(MINERAL_PROVIDER, MineralExtractorBlock.class);
+        registration.registerBlockComponent(MINERAL_PROVIDER, LargeMineralExtractorBlock.class);
+        registration.registerBlockComponent(MINERAL_PROVIDER, LargeMineralExtractorPartBlock.class);
+    }
+
+    private static class MineralExtractorStatusProvider
+            implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
+        @Override
+        public void appendServerData(CompoundTag data, BlockAccessor accessor) {
+            MineralExtractorBE extractor = accessor.getBlockEntity() instanceof MineralExtractorBE direct
+                    ? direct
+                    : accessor.getBlock() instanceof LargeMineralExtractorPartBlock part
+                    ? part.getController(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState())
+                    : null;
+            if (extractor == null) return;
+            data.putInt(TAG_EXTRACTOR_STATE, extractor.getMachineState().ordinal());
+            data.putBoolean(TAG_EXTRACTOR_SURVEY, extractor.isSurveySource());
+            data.putInt(TAG_EXTRACTOR_MINERALS, extractor.getMachineData().get(11));
+            data.putInt(TAG_EXTRACTOR_MULTIPLIER, extractor.getMultiplier());
+            data.putInt(TAG_EXTRACTOR_MAX_MULTIPLIER, extractor.getMaxSelectableMultiplier());
+        }
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            CompoundTag data = accessor.getServerData();
+            MineralExtractorBE.State[] states = MineralExtractorBE.State.values();
+            MineralExtractorBE.State state = states[Math.floorMod(data.getInt(TAG_EXTRACTOR_STATE), states.length)];
+            ChatFormatting stateColor = state == MineralExtractorBE.State.RUNNING
+                    ? ChatFormatting.GREEN
+                    : state == MineralExtractorBE.State.IDLE ? ChatFormatting.GRAY : ChatFormatting.RED;
+            tooltip.add(Component.translatable("jdte.screen.mineral_extractor.state."
+                    + state.name().toLowerCase(Locale.ROOT)).withStyle(stateColor));
+            tooltip.add(Component.translatable(data.getBoolean(TAG_EXTRACTOR_SURVEY)
+                    ? "jdte.screen.mineral_extractor.source.survey"
+                    : "jdte.screen.mineral_extractor.source.local").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("jdte.screen.mineral_extractor.minerals",
+                    data.getInt(TAG_EXTRACTOR_MINERALS)).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("jade.jdte.mineral_extractor.speed",
+                    data.getInt(TAG_EXTRACTOR_MULTIPLIER), data.getInt(TAG_EXTRACTOR_MAX_MULTIPLIER))
+                    .withStyle(ChatFormatting.GRAY));
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return MINERAL_EXTRACTOR_STATUS_UID;
+        }
     }
 
     private static class UpgradeProvider implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
         @Override
         public void appendServerData(CompoundTag data, BlockAccessor accessor) {
-            if (!(accessor.getBlockEntity() instanceof BaseMachineBE machine)) return;
+            BaseMachineBE machine = accessor.getBlockEntity() instanceof BaseMachineBE direct ? direct
+                    : accessor.getBlock() instanceof LargeMineralExtractorPartBlock part
+                    ? part.getController(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState()) : null;
+            if (machine == null) return;
 
             List<ItemStack> upgrades = new ArrayList<>();
             collect(upgrades, UpgradeHelper.getUpgradeHandler(machine));

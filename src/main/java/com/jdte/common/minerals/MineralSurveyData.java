@@ -33,8 +33,13 @@ public record MineralSurveyData(
     }
 
     public static MineralSurveyData read(FriendlyByteBuf buffer) {
-        return new MineralSurveyData(buffer.readVarInt(), buffer.readVarLong(),
-                buffer.readResourceLocation(), buffer.readResourceLocation(), buffer.readList(MineralEntry::read));
+        int schema = buffer.readVarInt(); long version = buffer.readVarLong();
+        ResourceLocation biome = buffer.readResourceLocation(), dimension = buffer.readResourceLocation();
+        int count = buffer.readVarInt();
+        if (count < 0 || count > 4096) throw new io.netty.handler.codec.DecoderException("Invalid mineral entry count");
+        java.util.ArrayList<MineralEntry> entries = new java.util.ArrayList<>(count);
+        for (int i = 0; i < count; i++) entries.add(MineralEntry.read(buffer));
+        return new MineralSurveyData(schema, version, biome, dimension, entries);
     }
 
     public MineralSurveyData {

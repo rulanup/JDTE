@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "jdte:mineral_extractor",
+    "jdte:large_mineral_extractor",
+    "jdte:large_mineral_extractor_part"
+  ]
+}

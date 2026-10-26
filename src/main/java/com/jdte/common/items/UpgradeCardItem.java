@@ -34,6 +34,8 @@ public class UpgradeCardItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.jdte." + type.getSerializedName()).withStyle(ChatFormatting.GRAY));
+        if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
+            tooltip.add(Component.translatable("tooltip.jdte.forge_mineral_upgrade_only").withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(Component.translatable("tooltip.jdte.max", type.getMaxPerMachine()).withStyle(ChatFormatting.DARK_GRAY));
     }
 }

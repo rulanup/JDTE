@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CFC",
+    "DND",
+    "CTC"
+  ],
+  "key": {
+    "C": {
+      "item": "jdte:capacity_upgrade"
+    },
+    "F": {
+      "item": "jdte:filter_upgrade"
+    },
+    "D": {
+      "item": "minecraft:diamond_pickaxe"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    },
+    "T": {
+      "item": "jdte:advanced_time_accelerator"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "jdte:mineral_extractor"
+  }
+}

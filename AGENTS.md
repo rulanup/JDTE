@@ -38,6 +38,8 @@ Major features:
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
 
+The Mineral Extractor, Large Mineral Extractor and Mineral Survey are now connected to the Forge game systems, with 18 server integration tests; interactive client validation and AE/conversion extensions remain pending.
+
 The 0.6.5.2 backport is in progress; see [port tracking](docs/forge-1.20.1-port.md). Do not advertise feature parity until the new registrations and runtime checks are complete.
 
 ## Build and Run

@@ -27,6 +27,11 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+        if (UpgradeHelper.isSmelterUpgrade(stack) && machine instanceof com.jdte.common.blockentities.MineralExtractorBE) {
+            for (int other = 0; other < getSlots(); other++)
+                if (other != slot && UpgradeHelper.isSmelterUpgrade(getStackInSlot(other))) return false;
+            return true;
+        }
         if (!(stack.getItem() instanceof UpgradeCardItem upgradeCard)) {
             return false;
         }
@@ -35,7 +40,7 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         if (!UpgradeHelper.isUpgradeCompatible(machine, type)) {
             return false;
         }
-        if (type.isSpeedUpgrade() && hasOppositeSpeedUpgrade(type)) {
+        if (type.isSpeedUpgrade() && hasOppositeSpeedUpgrade(type, slot)) {
             return false;
         }
         if (hasConflictingHarvestUpgrade(type)) {
@@ -89,9 +94,11 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         return count;
     }
 
-    private boolean hasOppositeSpeedUpgrade(UpgradeType type) {
-        UpgradeType opposite = type == UpgradeType.OVERCLOCK ? UpgradeType.UNDERCLOCK : UpgradeType.OVERCLOCK;
-        return count(opposite, -1) > 0;
+    private boolean hasOppositeSpeedUpgrade(UpgradeType type, int ignoredSlot) {
+        for (UpgradeType other : new UpgradeType[]{UpgradeType.OVERCLOCK, UpgradeType.UNDERCLOCK, UpgradeType.ULTIMATE_OVERCLOCK}) {
+            if (other != type && count(other, ignoredSlot) > 0) return true;
+        }
+        return false;
     }
 
     private boolean hasConflictingHarvestUpgrade(UpgradeType type) {

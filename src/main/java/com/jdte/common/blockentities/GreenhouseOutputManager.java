@@ -34,7 +34,9 @@ public final class GreenhouseOutputManager {
     public static void wake(BaseMachineBE machine) {
         int start;
         int count;
-        if (machine instanceof GreenhouseBE greenhouse) {
+        if (machine instanceof MineralExtractorBE mineral) {
+            start = mineral.outputStartSlot(); count = mineral.getActiveOutputSlots();
+        } else if (machine instanceof GreenhouseBE greenhouse) {
             start = GreenhouseBE.OUTPUT_START_SLOT;
             count = greenhouse.getActiveOutputSlots();
         } else if (machine instanceof LargeGreenhouseBE greenhouse) {

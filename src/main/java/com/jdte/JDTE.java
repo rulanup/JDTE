@@ -65,6 +65,17 @@ public class JDTE {
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
         MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.level.block.entity.BlockEntity.class, JDTEAttachments::attachBlockCapabilities);
         MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.entity.Entity.class, JDTEAttachments::attachPlayerCapabilities);
+        com.jdte.common.network.MineralPackets.register();
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.AddReloadListenerEvent event) ->
+                event.addListener(new com.jdte.common.minerals.MineralSourceReloadListener()));
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.OnDatapackSyncEvent event) -> {
+            if (event.getPlayer() == null) {
+                com.jdte.common.minerals.MineralSurveyIndex.rebuild(event.getPlayerList().getServer());
+                event.getPlayerList().getPlayers().forEach(com.jdte.common.network.MineralPackets::sendCatalog);
+            } else com.jdte.common.network.MineralPackets.sendCatalog(event.getPlayer());
+        });
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.server.ServerStoppedEvent event) ->
+                com.jdte.common.minerals.MineralSurveyIndex.clear(event.getServer()));
         MinecraftForge.EVENT_BUS.addListener(com.jdte.common.items.RepairTalismanEvents::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(JDTECommands::register);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);

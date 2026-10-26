@@ -287,7 +287,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     private void jdte$clampFilterPage() {
         if (container instanceof BioCrusherContainer || container instanceof LootFabricatorContainer
                 || container instanceof GreenhouseContainer || container instanceof BioFactoryContainer
-                || container instanceof LargeGreenhouseContainer) return;
+                || container instanceof LargeGreenhouseContainer || container instanceof com.jdte.common.containers.MineralExtractorContainer) return;
         if (!(container instanceof FilterPageHolder holder)) return;
         if (!jdte$hasFilterUpgrades()) {
             if (holder.jdte$getFilterPage() != 0) {

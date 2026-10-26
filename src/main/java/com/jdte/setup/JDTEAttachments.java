@@ -149,9 +149,12 @@ public final class JDTEAttachments {
             machineEnergyOptional = LazyOptional.of(() -> machineEnergy);
             energyOptional = machine instanceof PoweredMachineBE powered
                     ? LazyOptional.of(powered::getEnergyStorage) : LazyOptional.empty();
-            fluidOptional = machine instanceof FluidMachineBE fluidMachine
+            fluidOptional = machine instanceof com.jdte.common.blockentities.MineralExtractorBE mineral
+                    ? LazyOptional.of(mineral::getCombinedFluidHandler)
+                    : machine instanceof FluidMachineBE fluidMachine
                     ? LazyOptional.of(fluidMachine::getFluidTank) : LazyOptional.empty();
-            itemOptional = LazyOptional.of(machine::getMachineHandler);
+            itemOptional = machine instanceof com.jdte.common.blockentities.MineralExtractorBE mineral
+                    ? LazyOptional.of(mineral::getAutomationItemHandler) : LazyOptional.of(machine::getMachineHandler);
         }
 
         @Override

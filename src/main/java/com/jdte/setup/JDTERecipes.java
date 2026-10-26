@@ -40,4 +40,6 @@ public class JDTERecipes {
 
     public static final Supplier<LifeSynthesisRecipe.Serializer> LIFE_SYNTHESIS_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
             "life_synthesis", LifeSynthesisRecipe.Serializer::new);
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.item.crafting.RecipeType<com.jdte.common.recipes.MineralExtractorResourcesRecipe>> MINERAL_EXTRACTOR_RESOURCES_RECIPE_TYPE = RECIPE_TYPES.register("mineral_extractor_resources", () -> net.minecraft.world.item.crafting.RecipeType.simple(JDTE.id("mineral_extractor_resources")));
+    public static final net.minecraftforge.registries.RegistryObject<com.jdte.common.recipes.MineralExtractorResourcesRecipe.Serializer> MINERAL_EXTRACTOR_RESOURCES_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("mineral_extractor_resources", com.jdte.common.recipes.MineralExtractorResourcesRecipe.Serializer::new);
 }

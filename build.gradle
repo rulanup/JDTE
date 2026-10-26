@@ -84,6 +84,9 @@ minecraft {
             property 'forge.enabledGameTestNamespaces', project.mod_id
             args '--username', 'JDTEDev'
         }
+        gameTestServer {
+            property 'forge.enabledGameTestNamespaces', project.mod_id
+        }
         server {
             args '--nogui'
         }

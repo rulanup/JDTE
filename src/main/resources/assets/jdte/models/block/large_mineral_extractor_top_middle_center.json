@@ -1,0 +1,355 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "justdirethings:block/eclipsealloy_block",
+    "frame": "justdirethings:block/blazegold_block",
+    "foundation": "minecraft:block/polished_deepslate",
+    "rail": "minecraft:block/smooth_basalt",
+    "metal": "minecraft:block/iron_block",
+    "pipe": "minecraft:block/cut_copper",
+    "glass": "minecraft:block/tinted_glass",
+    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
+    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
+    "output": "jdte:block/advanced_item_receiver_top",
+    "particle": "minecraft:block/polished_deepslate"
+  },
+  "elements": [
+    {
+      "name": "power_head",
+      "from": [
+        0,
+        4,
+        1
+      ],
+      "to": [
+        16,
+        13,
+        15
+      ],
+      "faces": {
+        "down": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            1,
+            16,
+            15
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            1,
+            16,
+            15
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            3,
+            16,
+            12
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            3,
+            16,
+            12
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "power_head_band",
+      "from": [
+        1,
+        3,
+        3
+      ],
+      "to": [
+        15,
+        6,
+        13
+      ],
+      "faces": {
+        "down": {
+          "texture": "#frame",
+          "uv": [
+            1,
+            3,
+            15,
+            13
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#frame",
+          "uv": [
+            1,
+            3,
+            15,
+            13
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#frame",
+          "uv": [
+            1,
+            10,
+            15,
+            13
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#frame",
+          "uv": [
+            1,
+            10,
+            15,
+            13
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            10,
+            13,
+            13
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            10,
+            13,
+            13
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "upper_shaft",
+      "from": [
+        5,
+        1,
+        5
+      ],
+      "to": [
+        11,
+        4,
+        11
+      ],
+      "faces": {
+        "down": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            12,
+            11,
+            15
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            12,
+            11,
+            15
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            12,
+            11,
+            15
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            12,
+            11,
+            15
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "shaft_coupler",
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        2,
+        13
+      ],
+      "faces": {
+        "up": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            14,
+            13,
+            16
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            14,
+            13,
+            16
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            14,
+            13,
+            16
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            14,
+            13,
+            16
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "left_pipe_horizontal",
+      "from": [
+        0,
+        6,
+        8
+      ],
+      "to": [
+        4,
+        9,
+        11
+      ],
+      "faces": {
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            8,
+            4,
+            11
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            8,
+            4,
+            11
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            7,
+            4,
+            10
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            7,
+            4,
+            10
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            8,
+            7,
+            11,
+            10
+          ],
+          "shade": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,295 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "justdirethings:block/eclipsealloy_block",
+    "frame": "justdirethings:block/blazegold_block",
+    "foundation": "minecraft:block/polished_deepslate",
+    "rail": "minecraft:block/smooth_basalt",
+    "metal": "minecraft:block/iron_block",
+    "pipe": "minecraft:block/cut_copper",
+    "glass": "minecraft:block/tinted_glass",
+    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
+    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
+    "output": "jdte:block/advanced_item_receiver_top",
+    "particle": "minecraft:block/polished_deepslate"
+  },
+  "elements": [
+    {
+      "name": "foundation",
+      "from": [
+        0,
+        2,
+        0
+      ],
+      "to": [
+        14,
+        6,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#foundation",
+          "uv": [
+            0,
+            0,
+            14,
+            16
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#foundation",
+          "uv": [
+            0,
+            0,
+            14,
+            16
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#foundation",
+          "uv": [
+            0,
+            10,
+            16,
+            14
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "right_rail",
+      "from": [
+        10,
+        6,
+        0
+      ],
+      "to": [
+        14,
+        8,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#rail",
+          "uv": [
+            10,
+            0,
+            14,
+            16
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#rail",
+          "uv": [
+            10,
+            0,
+            14,
+            16
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#rail",
+          "uv": [
+            0,
+            8,
+            16,
+            10
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#rail",
+          "uv": [
+            0,
+            8,
+            16,
+            10
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "right_window",
+      "from": [
+        10,
+        11,
+        0
+      ],
+      "to": [
+        11,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#glass",
+          "uv": [
+            10,
+            0,
+            11,
+            16
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#glass",
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#glass",
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "right_window_lower",
+      "from": [
+        9,
+        10,
+        0
+      ],
+      "to": [
+        12,
+        12,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#casing",
+          "uv": [
+            9,
+            0,
+            12,
+            16
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#casing",
+          "uv": [
+            9,
+            0,
+            12,
+            16
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            4,
+            16,
+            6
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            4,
+            16,
+            6
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "right_output_port",
+      "from": [
+        12,
+        7,
+        2
+      ],
+      "to": [
+        16,
+        13,
+        14
+      ],
+      "faces": {
+        "down": {
+          "texture": "#casing",
+          "uv": [
+            12,
+            2,
+            16,
+            14
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#casing",
+          "uv": [
+            12,
+            2,
+            16,
+            14
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#casing",
+          "uv": [
+            12,
+            3,
+            16,
+            9
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#casing",
+          "uv": [
+            12,
+            3,
+            16,
+            9
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#casing",
+          "uv": [
+            2,
+            3,
+            14,
+            9
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#output",
+          "uv": [
+            2,
+            3,
+            14,
+            9
+          ],
+          "shade": false
+        }
+      }
+    }
+  ]
+}

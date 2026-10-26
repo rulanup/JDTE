@@ -22,7 +22,9 @@ public class TimeAcceleratorPacket {
     public void handle(TimeAcceleratorPayload payload, PacketContext context) {
         context.enqueueWork(() -> {
             AbstractContainerMenu container = context.player().containerMenu;
-            if (container instanceof BaseMachineContainer machineContainer && machineContainer.baseMachineBE instanceof AdvancedTimeAcceleratorBE accelerator) {
+            if (container instanceof com.jdte.common.containers.MineralExtractorContainer mineral) {
+                ((com.jdte.common.blockentities.MineralExtractorBE) mineral.baseMachineBE).setMultiplier(payload.multiplier());
+            } else if (container instanceof BaseMachineContainer machineContainer && machineContainer.baseMachineBE instanceof AdvancedTimeAcceleratorBE accelerator) {
                 accelerator.setMultiplier(payload.multiplier());
             } else if (container instanceof BaseMachineContainer machineContainer
                     && machineContainer.baseMachineBE instanceof CrystalIncubatorBE incubator) {

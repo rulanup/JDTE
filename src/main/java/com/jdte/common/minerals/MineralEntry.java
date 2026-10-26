@@ -52,8 +52,13 @@ public record MineralEntry(
         ESTIMATED,
         DATA_PACK;
 
-        public static final Codec<Confidence> CODEC = Codec.STRING.xmap(
-                value -> Confidence.valueOf(value.toUpperCase(java.util.Locale.ROOT)),
-                value -> value.name().toLowerCase(java.util.Locale.ROOT));
+        public static final Codec<Confidence> CODEC = Codec.STRING.flatXmap(
+                value -> {
+                    try { return com.mojang.serialization.DataResult.success(Confidence.valueOf(value.toUpperCase(java.util.Locale.ROOT))); }
+                    catch (IllegalArgumentException exception) {
+                        return com.mojang.serialization.DataResult.error(() -> "Unknown mineral confidence: " + value);
+                    }
+                },
+                value -> com.mojang.serialization.DataResult.success(value.name().toLowerCase(java.util.Locale.ROOT)));
     }
 }

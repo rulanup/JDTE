@@ -1,0 +1,130 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "justdirethings:block/eclipsealloy_block",
+    "frame": "justdirethings:block/blazegold_block",
+    "foundation": "minecraft:block/polished_deepslate",
+    "rail": "minecraft:block/smooth_basalt",
+    "metal": "minecraft:block/iron_block",
+    "pipe": "minecraft:block/cut_copper",
+    "glass": "minecraft:block/tinted_glass",
+    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
+    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
+    "output": "jdte:block/advanced_item_receiver_top",
+    "particle": "minecraft:block/polished_deepslate"
+  },
+  "elements": [
+    {
+      "name": "front_top_beam",
+      "from": [
+        0,
+        11,
+        3
+      ],
+      "to": [
+        16,
+        15,
+        8
+      ],
+      "faces": {
+        "down": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            3,
+            16,
+            8
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            3,
+            16,
+            8
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            1,
+            16,
+            5
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            1,
+            16,
+            5
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "front_energy_strip",
+      "from": [
+        0,
+        10,
+        7
+      ],
+      "to": [
+        16,
+        12,
+        9
+      ],
+      "faces": {
+        "down": {
+          "texture": "#frame",
+          "uv": [
+            0,
+            7,
+            16,
+            9
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#frame",
+          "uv": [
+            0,
+            7,
+            16,
+            9
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#frame",
+          "uv": [
+            0,
+            4,
+            16,
+            6
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#frame",
+          "uv": [
+            0,
+            4,
+            16,
+            6
+          ],
+          "shade": false
+        }
+      }
+    }
+  ]
+}
