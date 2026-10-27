@@ -14,7 +14,12 @@ final class GreenhousePatternConversionHelper {
     static Result convert(ServerLevel level, List<ItemStack> drops, List<CraftingPatternData> patterns, int[] rotation) {
         List<ItemStack> working = new ArrayList<>();
         for (ItemStack drop : drops) GreenhouseEssenceConversionHelper.addAmount(working, drop, drop.getCount());
-        int[] nextRotation = rotation.clone();
+        int safeLen = Math.max(patterns.size(), rotation != null ? rotation.length : 0);
+        int[] safeRotation = new int[safeLen];
+        if (rotation != null) {
+            System.arraycopy(rotation, 0, safeRotation, 0, Math.min(rotation.length, safeLen));
+        }
+        int[] nextRotation = safeRotation.clone();
         List<RecipePlan> recipes = new ArrayList<>();
         for (int index = 0; index < patterns.size(); index++) {
             CraftingPatternData pattern = patterns.get(index);
@@ -31,7 +36,7 @@ final class GreenhousePatternConversionHelper {
         for (List<RecipePlan> group : groups(recipes)) {
             group.sort(java.util.Comparator.comparingInt(RecipePlan::index));
             int key = group.getFirst().index();
-            int start = Math.floorMod(rotation[key], Math.max(1, patterns.size()));
+            int start = Math.floorMod(safeRotation[key], Math.max(1, patterns.size()));
             int first = 0;
             for (int index = 1; index < group.size(); index++) {
                 if (Math.floorMod(group.get(index).index() - start, patterns.size())

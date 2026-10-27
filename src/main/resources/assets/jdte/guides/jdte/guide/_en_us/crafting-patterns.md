@@ -6,6 +6,7 @@ navigation:
 item_ids:
   - jdte:crafting_pattern
   - jdte:advanced_essence_conversion_upgrade
+  - jdte:ultimate_essence_conversion_upgrade
 ---
 
 # Crafting Patterns and Essence Conversion
@@ -24,13 +25,20 @@ Place **one Essence Conversion Upgrade** on the left and **one recorded Crafting
 
 - Normal Essence Conversion Upgrade: **one pattern**.
 - Advanced Essence Conversion Upgrade: **three patterns**.
-- Both tiers share the **one card per machine** limit and support the Greenhouse and Large Greenhouse.
+- Ultimate Essence Conversion Upgrade: **2,147,483,647 patterns**.
+- All three tiers share the **one card per machine** limit and support the Greenhouse and Large Greenhouse.
 
 <ItemImage id="jdte:advanced_essence_conversion_upgrade" scale="2" />
 
 Smith a **Netherite Upgrade Smithing Template + normal Essence Conversion Upgrade + diamond** to obtain the advanced card. Existing bound patterns are retained.
 
 <RecipeFor id="jdte:advanced_essence_conversion_upgrade" />
+
+<ItemImage id="jdte:ultimate_essence_conversion_upgrade" scale="2" />
+
+Smith a **Netherite Upgrade Smithing Template + Advanced Essence Conversion Upgrade + Time Crystal** to obtain the ultimate card. Existing bound patterns are retained.
+
+<RecipeFor id="jdte:ultimate_essence_conversion_upgrade" />
 
 ## Crafting and export
 

@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.5.2`
+Current version: `0.6.5.3`
+
+## What's new in 0.6.5.3
+
+- Added Ultimate Essence Conversion Upgrade (`jdte:ultimate_essence_conversion_upgrade`): upgraded in a smithing table using Netherite Upgrade Smithing Template + Advanced Essence Conversion Upgrade + Time Crystal, preserving bound Crafting Patterns.
+- Supports binding up to 2,147,483,647 Crafting Patterns, sharing the one-card limit with normal and advanced essence conversion upgrades.
+- Enhanced Greenhouse pattern rotation handling and added tooltip folding for pattern overviews.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.5.3.md).
 
 ## What's new in 0.6.5.2
 

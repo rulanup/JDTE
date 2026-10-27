@@ -6,6 +6,7 @@ navigation:
 item_ids:
   - jdte:crafting_pattern
   - jdte:advanced_essence_conversion_upgrade
+  - jdte:ultimate_essence_conversion_upgrade
 ---
 
 # 合成样板与高级精华转化
@@ -24,13 +25,20 @@ item_ids:
 
 - 普通精华转化升级：最多 **1 个样板**。
 - 高级精华转化升级：最多 **3 个样板**。
-- 两种等级共用每台机器 **1 张升级** 的安装限制，仅支持普通温室和大型温室。
+- 顶级精华转化升级：最多 **2147483647 个样板**。
+- 三种等级共用每台机器 **1 张升级** 的安装限制，仅支持普通温室和大型温室。
 
 <ItemImage id="jdte:advanced_essence_conversion_upgrade" scale="2" />
 
 高级版在锻造台中使用**下界合金升级锻造模板 + 普通精华转化升级 + 钻石**制作，保留普通版已绑定的样板。
 
 <RecipeFor id="jdte:advanced_essence_conversion_upgrade" />
+
+<ItemImage id="jdte:ultimate_essence_conversion_upgrade" scale="2" />
+
+顶级版在锻造台中使用**下界合金升级锻造模板 + 高级精华转化升级 + 时间水晶**制作，保留已绑定的样板。
+
+<RecipeFor id="jdte:ultimate_essence_conversion_upgrade" />
 
 ## 合成和输出
 

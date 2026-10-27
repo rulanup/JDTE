@@ -36,11 +36,17 @@ public final class EssenceConversionUpgradeItem extends UpgradeCardItem {
                 : "jdte.tooltip.essence_conversion.configured").withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.patterns", patterns.size(), patternLimit)
                 .withStyle(ChatFormatting.AQUA));
-        for (int index = 0; index < patterns.size(); index++) {
+        int maxDisplay = flag.isAdvanced() ? 10 : 5;
+        int displayCount = Math.min(patterns.size(), maxDisplay);
+        for (int index = 0; index < displayCount; index++) {
             appendPatternTooltip(tooltip, patterns.get(index), index + 1);
             if (context.level() != null && patterns.get(index).resolve(context.level()).isEmpty()) {
                 tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.invalid", index + 1).withStyle(ChatFormatting.RED));
             }
+        }
+        if (patterns.size() > displayCount) {
+            tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.more", patterns.size() - displayCount)
+                    .withStyle(ChatFormatting.GRAY));
         }
         tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.anvil").withStyle(ChatFormatting.GOLD));
         tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.reserved").withStyle(ChatFormatting.DARK_GRAY));

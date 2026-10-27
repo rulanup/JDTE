@@ -280,7 +280,8 @@ public class JDTEJadePlugin implements IWailaPlugin {
                     tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.patterns", patterns.size(), item.patternLimit())
                             .withStyle(ChatFormatting.AQUA));
                     CompoundTag statuses = index < patternStatuses.size() ? patternStatuses.getCompound(index) : new CompoundTag();
-                    for (int patternIndex = 0; patternIndex < patterns.size(); patternIndex++) {
+                    int maxDisplay = Math.min(patterns.size(), 6);
+                    for (int patternIndex = 0; patternIndex < maxDisplay; patternIndex++) {
                         var pattern = patterns.get(patternIndex);
                         boolean valid = statuses.getBoolean(Integer.toString(patternIndex));
                         Component patternLabel = Component.translatable("jdte.jade.essence_conversion.pattern",
@@ -288,6 +289,10 @@ public class JDTEJadePlugin implements IWailaPlugin {
                                 Component.translatable(valid ? "jdte.jade.essence_conversion.valid" : "jdte.jade.essence_conversion.invalid"))
                                 .withStyle(valid ? ChatFormatting.GREEN : ChatFormatting.RED);
                         tooltip.add(List.of(elements.smallItem(pattern.result()), elements.text(patternLabel)));
+                    }
+                    if (patterns.size() > maxDisplay) {
+                        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.more", patterns.size() - maxDisplay)
+                                .withStyle(ChatFormatting.GRAY));
                     }
                 }
             }

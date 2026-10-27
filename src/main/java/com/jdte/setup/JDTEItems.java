@@ -67,6 +67,8 @@ public class JDTEItems {
             "essence_conversion_upgrade", () -> new EssenceConversionUpgradeItem(1));
     public static final DeferredHolder<Item, EssenceConversionUpgradeItem> ADVANCED_ESSENCE_CONVERSION_UPGRADE = ITEMS.register(
             "advanced_essence_conversion_upgrade", () -> new EssenceConversionUpgradeItem(3));
+    public static final DeferredHolder<Item, EssenceConversionUpgradeItem> ULTIMATE_ESSENCE_CONVERSION_UPGRADE = ITEMS.register(
+            "ultimate_essence_conversion_upgrade", () -> new EssenceConversionUpgradeItem(Integer.MAX_VALUE));
     public static final DeferredHolder<Item, CraftingPatternItem> CRAFTING_PATTERN = ITEMS.register(
             "crafting_pattern", CraftingPatternItem::new);
     public static final DeferredHolder<Item, UpgradeCardItem> ULTIMATE_CAPACITY_UPGRADE = ITEMS.register("ultimate_capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_CAPACITY));
@@ -221,7 +223,7 @@ public class JDTEItems {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE,
                 AE_ACCELERATION_UPGRADE, AE_CRAFTING_READ_UPGRADE, AE_OUTPUT_UPGRADE, ADVANCED_AE_OUTPUT_UPGRADE,
-                ESSENCE_CONVERSION_UPGRADE, ADVANCED_ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE,
+                ESSENCE_CONVERSION_UPGRADE, ADVANCED_ESSENCE_CONVERSION_UPGRADE, ULTIMATE_ESSENCE_CONVERSION_UPGRADE, SEED_CONVERSION_UPGRADE,
                 ULTIMATE_CAPACITY_UPGRADE, ULTIMATE_OVERCLOCK_UPGRADE, THUNDERSTORM_UPGRADE);
     }
 

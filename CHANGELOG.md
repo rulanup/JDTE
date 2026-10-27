@@ -2,7 +2,15 @@
 
 ### English
 
-#### v0.6.5.2 (Current)
+#### v0.6.5.3 (Current)
+
+- Added Ultimate Essence Conversion Upgrade (`jdte:ultimate_essence_conversion_upgrade`): supports binding up to 2,147,483,647 Crafting Patterns, crafted via smithing table preserving bound patterns, and mutually exclusive with normal/advanced essence conversion cards.
+- Enhanced Greenhouse essence pattern rotation handling and added tooltip folding indicator when patterns exceed tooltip limits.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.3.
+
+Full details: [0.6.5.3 release notes](docs/releases/0.6.5.3.md).
+
+#### v0.6.5.2 — 2026-10-27
 
 - Clarified Mineral Extractor resource rules after [#24](https://github.com/rulanup/JDTE/issues/24): base 1x production uses FE only, fortune fluid optionally increases yield, and acceleration fluid pays only for extra accelerated batches. Added explicit GUI/JEI tooltips, config help, bilingual GuideME/Patchouli guidance and regression coverage.
 - Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.2.
@@ -434,7 +442,15 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.5.2（当前）
+#### v0.6.5.3（当前）
+
+- 新增顶级精华转化升级（`jdte:ultimate_essence_conversion_upgrade`）：可在锻造台中使用下界合金升级锻造模板 + 高级精华转化升级 + 时间水晶制作并保留已绑定样板，支持绑定至多 2,147,483,647 个合成样板，与普通/高级版共享 1 张升级限制。
+- 优化温室精华样板轮转逻辑，修复多样板轮转安全索引；样板列表超出界面显示上限时显示折叠提示。
+- 主模组与配套可选 JDTE-AE 附属版本统一升级为 0.6.5.3。
+
+完整说明：[0.6.5.3 发布说明](docs/releases/0.6.5.3.md)。
+
+#### v0.6.5.2 — 2026-10-27
 
 - 根据 [#24](https://github.com/rulanup/JDTE/issues/24) 明确矿物提取机资源规则：基础 1x 生产只耗 FE，时运流体用于可选增产，加速流体只支付额外加速批次。补充机器与 JEI 提示、配置说明、中英文 GuideME/Patchouli 指南及回归测试。
 - 主模组与配套可选 JDTE-AE 附属版本统一升级为 0.6.5.2。
@@ -670,7 +686,7 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 - **变更**：NeoForge 升级到 21.1.216；附魔描述依赖固定为兼容版本。
 - **修复**：缺失的 `justdirethings.fillmode.jdteonly` 本地化、英文语言文件 BOM 损坏、水晶培育机 `ItemStack.is(TagKey)` 编译错误。
 
-#### v0.5.7(当前)
+#### v0.5.7
 
 - **新增**：加入矿物清单与矿物提取机。群系矿物配置在数据包重载时缓存，支持归一化估算权重、数据包覆盖、经验/时间双流体、烧炼、过滤、分页输出、自动 I/O 和最高 64x 的合并式生产。
 - **新增**：加入 3×3×2 大型矿物提取机，提供 4 个合并权重的矿物清单槽，基础产能为普通矿机 4 倍。17 个无状态结构部件以 O(1) 方式定位控制器，能力与自动 I/O 仅通过结构外边界提供。

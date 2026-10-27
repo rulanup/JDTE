@@ -213,7 +213,7 @@ Greenhouse and Large Greenhouse only. For each harvested essence, the machine ch
 
 <RecipeFor id="jdte:essence_conversion_upgrade" />
 
-Bind Crafting Patterns to select recipes: one pattern on the normal card, three on the advanced card. See [Crafting Patterns and Essence Conversion](crafting-patterns.md).
+Bind Crafting Patterns to select recipes: one pattern on the normal card, three on the advanced card, 2,147,483,647 on the ultimate card. See [Crafting Patterns and Essence Conversion](crafting-patterns.md).
 
 ## Seed-to-Essence Upgrade
 
