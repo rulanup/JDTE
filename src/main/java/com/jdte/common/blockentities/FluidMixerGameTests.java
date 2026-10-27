@@ -112,4 +112,22 @@ public final class FluidMixerGameTests {
         var result=JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get().useOn(new net.minecraft.world.item.context.UseOnContext(player,net.minecraft.world.InteractionHand.MAIN_HAND,new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(target.getBlockPos()),Direction.UP,target.getBlockPos(),false)));
         h.assertTrue(result==net.minecraft.world.InteractionResult.SUCCESS&&UpgradeHelper.hasMixingUpgrade(target)&&handler.getStackInSlot(0).isEmpty()&&target.getEnergyStorage().getEnergyStored()==4321,"typed copier costs one stored mixing card without cloning FE");h.succeed();
     }
+    @GameTest(template="mineral_empty") public static void extendedTierConversionMigratesCardsAndPreservesAllState(GameTestHelper h){
+        var be=machine(h,false);var upgrades=UpgradeHelper.getUpgradeHandler(be);
+        upgrades.insertItem(0,new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()),false);
+        upgrades.insertItem(1,new ItemStack(JDTEItems.MIXING_UPGRADE.get()),false);
+        var read=new ItemStack(JDTEItems.AE_CRAFTING_READ_UPGRADE.get());read.getOrCreateTag().putString("fixture","preserved");upgrades.insertItem(3,read,false);
+        be.inputTankA.setFluid(new FluidStack(Fluids.WATER,12000));be.inputTankB.setFluid(new FluidStack(Fluids.LAVA,13000));be.outputTank.setFluid(new FluidStack(time(),14000));
+        be.getEnergyStorage().receiveEnergy(123456,false);be.progress=73;be.getMachineHandler().setStackInSlot(0,new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get(),3));
+        var player=h.makeMockSurvivalPlayer();var card=new ItemStack(JDTEItems.EXTENDED_UPGRADE.get());player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,card);
+        var result=card.useOn(new net.minecraft.world.item.context.UseOnContext(player,net.minecraft.world.InteractionHand.MAIN_HAND,new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(be.getBlockPos()),Direction.UP,be.getBlockPos(),false)));
+        var converted=(FluidMixerBE)h.getBlockEntity(POS);var next=UpgradeHelper.getUpgradeHandler(converted);
+        h.assertTrue(result==net.minecraft.world.InteractionResult.SUCCESS&&card.isEmpty()&&converted instanceof ExtendedFluidMixerBE,"actual tier-upgrade interaction consumes one card");
+        h.assertTrue(next.getSlots()==8&&UpgradeHelper.hasMixingUpgrade(converted)&&next.getStackInSlot(3).getTag().getString("fixture").equals("preserved"),"active eight-slot handler contains original tagged upgrades");
+        var inactive=JDTEAttachments.upgrades(converted);for(int i=0;i<inactive.getSlots();i++)h.assertTrue(inactive.getStackInSlot(i).isEmpty(),"inactive handler cannot retain duplicate cards");
+        h.assertTrue(converted.inputTankA.getFluidAmount()==12000&&converted.inputTankB.getFluidAmount()==13000&&converted.outputTank.getFluidAmount()==14000&&converted.getMaxMB()==16000,"all fluids and capacity survive conversion");
+        h.assertTrue(converted.progress==73&&converted.getEnergyStorage().getEnergyStored()==123456&&converted.getMachineHandler().getStackInSlot(0).getCount()==3,"progress, FE and catalyst survive conversion");
+        converted.tickServer();h.assertTrue(converted.progress==73&&converted.getEnergyStorage().getEnergyStored()==123456,"migrated read gate remains effective");h.succeed();
+    }
+
 }

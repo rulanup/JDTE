@@ -37,8 +37,10 @@ public abstract class FluidMixerContainer extends BaseMachineContainer {
         return stillValid(ContainerLevelAccess.create(player.level(), pos), player, machineBlock);
     }
 
-    public static final int CATALYST_SLOT_X = 94;
-    public static final int CATALYST_SLOT_Y = 14;
+    // Forge JDT positions the widened top section 30 px left and 26 px above
+    // the vanilla menu origin. Slot coordinates must use the menu origin.
+    public static final int CATALYST_SLOT_X = 94 - 30;
+    public static final int CATALYST_SLOT_Y = 14 - 26;
 
     @Override
     public void addMachineSlots() {

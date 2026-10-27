@@ -83,6 +83,19 @@ public class ExtendedUpgradeItem extends Item {
             BlockEntity newBE = level.getBlockEntity(pos);
             if (newBE != null) {
                 newBE.load(data);
+                if (oldBE instanceof com.jdte.common.blockentities.FluidMixerBE
+                        && newBE instanceof com.jdte.common.blockentities.FluidMixerBE mixer) {
+                    // Forge persists separate four/eight-slot capabilities. Loading the
+                    // old NBT alone leaves cards in the now-inactive four-slot handler.
+                    var previous = com.jdte.setup.JDTEAttachments.upgrades(mixer);
+                    var next = com.jdte.setup.JDTEAttachments.extendedUpgrades(mixer);
+                    for (int slot = 0; slot < previous.getSlots(); slot++) {
+                        next.setStackInSlot(slot, previous.getStackInSlot(slot).copy());
+                        previous.setStackInSlot(slot, ItemStack.EMPTY);
+                    }
+                    com.jdte.common.upgrades.UpgradeHelper.syncCapacities(mixer);
+                    mixer.markDirtyClient();
+                }
             }
         }
 

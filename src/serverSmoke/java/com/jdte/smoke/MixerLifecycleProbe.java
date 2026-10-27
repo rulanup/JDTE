@@ -76,8 +76,11 @@ public final class MixerLifecycleProbe {
                 if(loaded)return;check(retained.drain(1,IFluidHandler.FluidAction.SIMULATE).isEmpty(),"unloaded retained endpoint still drains");force(level,true);for(var pos:POS)level.getChunkAt(pos);stage=3;
             }else if(stage==3){check(expected.equals(snapshot(level)),"unload/reload changed tanks, FE, catalyst, upgrades or progress");finish("mixer-seed-success.txt","PASS: both production mixer tiers unloaded/reloaded with exact tanks, FE, catalyst, upgrades and progress; retained endpoint rejected while unloaded");}
             else if(stage==4&&ticks>=35){
+                if(ticks==35)Files.writeString(Path.of("mixer-resume-observation.txt"), snapshot(level).toString());
+                boolean complete=true;for(int i=0;i<POS.length;i++)complete&=machine(level,i).outputTank.getFluidAmount()==250;
+                if(!complete)return;
                 for(int i=0;i<POS.length;i++){
-                    var mixer=machine(level,i);check(mixer.inputTankA.isEmpty()&&mixer.inputTankB.isEmpty()&&mixer.getMachineHandler().getStackInSlot(0).isEmpty(),"resumed recipe inputs not consumed exactly once");
+                    var mixer=machine(level,i);check(mixer.inputTankA.isEmpty()&&mixer.inputTankB.isEmpty()&&mixer.getMachineHandler().getStackInSlot(0).isEmpty(),"resumed recipe inputs not consumed exactly once: "+fields(mixer));
                     check(mixer.outputTank.getFluidAmount()==250&&mixer.outputTank.getFluid().getFluid()==BuiltInRegistries.FLUID.get(ResourceLocation.fromNamespaceAndPath("justdirethings","time_fluid")),"resumed product is not real Time Fluid");
                     check(mixer.getEnergyStorage().getEnergyStored()==118456,"resumed recipe did not charge exactly 5000 FE");
                 }finish("mixer-restart-success.txt","PASS: fresh production server restored both mixer tiers and naturally completed saved 73/100-tick work with exact fluid, catalyst and 5000 FE costs");

@@ -349,7 +349,7 @@ public final class MineralClientSmoke {
                         mixer.outputTank.setFluid(new net.minecraftforge.fluids.FluidStack(net.minecraft.core.registries.BuiltInRegistries.FLUID.get(ResourceLocation.fromNamespaceAndPath("justdirethings","time_fluid")),100000));
                         mixer.getEnergyStorage().receiveEnergy(50000,false);mixer.markDirtyClient();
                     }
-                    player.teleportTo(mixerPos.getX()+0.5,mixerPos.getY(),mixerPos.getZ()+3.5);player.getInventory().setItem(9,new ItemStack(JDTEItems.MIXING_UPGRADE.get()));player.inventoryMenu.broadcastChanges();
+                    player.teleportTo(mixerPos.getX()+0.5,mixerPos.getY(),mixerPos.getZ()+3.5);player.getInventory().setItem(9,new ItemStack(JDTEItems.MIXING_UPGRADE.get()));player.getInventory().setItem(10,new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get()));player.inventoryMenu.broadcastChanges();
                 });next();
             }
             case 26 -> {
@@ -362,11 +362,17 @@ public final class MineralClientSmoke {
                 var menu=(com.jdte.common.containers.FluidMixerContainer)mc.player.containerMenu;
                 check(menu.getInputAFluidStack().getAmount()==120000&&menu.getInputBFluidAmount()==80000&&menu.getOutputFluidAmount()==100000&&menu.getFluidCapacity()==400000,"three actual network tank values retain high bits");
                 int slot=java.util.stream.IntStream.range(0,menu.slots.size()).filter(i->menu.slots.get(i).getItem().is(JDTEItems.MIXING_UPGRADE.get())).findFirst().orElseThrow();
-                mc.gameMode.handleInventoryMouseClick(menu.containerId,slot,0,ClickType.QUICK_MOVE,mc.player);next();
+                mc.gameMode.handleInventoryMouseClick(menu.containerId,slot,0,ClickType.QUICK_MOVE,mc.player);
+                int catalyst=java.util.stream.IntStream.range(1,menu.slots.size()).filter(i->menu.slots.get(i).getItem().is(JDTEItems.TIME_FLUID_CATALYST.get())).findFirst().orElseThrow();
+                mc.gameMode.handleInventoryMouseClick(menu.containerId,catalyst,0,ClickType.PICKUP,mc.player);
+                var screen=(com.jdte.client.screens.AdvancedFluidMixerScreen)mc.screen;
+                // Click the displayed slot, rather than bypassing its screen hit box.
+                screen.mouseClicked(screen.getGuiLeft()-30+94+8,screen.getGuiTop()-26+14+8,0);next();
             }
             case 28 -> {
                 if(elapsed<30)return;
                 check(UpgradeHelper.hasMixingUpgrade((com.jdte.common.blockentities.FluidMixerBE)mc.level.getBlockEntity(mixerPos)),"vanilla Shift packet installs plain mixing card and synchronizes upgrade");
+                check(mc.player.containerMenu.slots.get(0).getItem().is(JDTEItems.TIME_FLUID_CATALYST.get())&&mc.player.containerMenu.getCarried().isEmpty(),"displayed catalyst slot accepts actual mouse click and syncs");
                 screenshot(mc,"jdte-advanced-fluid-mixer.png");
                 mc.getSingleplayerServer().execute(()->UpgradeHelper.getUpgradeHandler((com.jdte.common.blockentities.FluidMixerBE)mc.getSingleplayerServer().overworld().getBlockEntity(mixerPos)).extractItem(0,1,false));next();
             }
