@@ -282,3 +282,17 @@ See `docs/validation/forge-1.20.1-network/README.md` and `docs/validation/forge-
 Still unverified: an actually submitted nonempty AE crafting CPU job controlling every machine family, long-running public-server throughput/concurrency, all combinations of optional mods, full UI interaction for every AE2 equipment variant, and exhaustive Mystical Agriculture recipe-pack compatibility. Snapshot/cache tests do not claim those scenarios passed. Earlier unported registrations remain unchecked above.
 
 Next: finish any runtime follow-up explicitly left pending in the evidence, then continue Seed Conversion / AE Acceleration and the remaining machine families according to dependencies. Keep the Forge version at 0.5.8 until the entire port and validation are finished. Continue from the pushed branch; do not reset to older baselines or publish a release.
+
+
+## Real crafting jobs and production-chain follow-up (2026-10-27)
+
+Starting checkpoint: `a36c6c5`, continuing the same development branch and version `0.5.8-forge-1.20.1`. Source remains pinned to JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`.
+
+### AE job checkpoint
+
+- Added two conditional AE2 GameTests using real crafting storage, a Pattern Provider, an encoded processing pattern, an actual asynchronous calculation and CPU submission. The completion case waits for a real CPU to finish; the cancellation case cancels the actual CPU. Neither uses a fake busy-CPU snapshot.
+- A linked Mineral Extractor stays paused on the idle grid, runs when the submitted job is busy, pays FE and returns generated ore through its installed ordinary AE Output card. The standalone job finishes with its requested output in ME. Linked extraction equipment also refills from the same busy grid. Once the job completes or is canceled and the existing five-tick cache expires, FE and pending work remain unchanged during the paused observation interval.
+- The processing pattern's cobblestone trigger is delivered to a neighboring chest. It is a fixture for an actual pending processing job; Mineral Extractor remains an independent ore producer and does not claim to process cobblestone. The source read upgrade gates on any active crafting job, rather than matching each machine to a recipe or limiting output to requested counts. A fast producer may generate extra items while a slow CPU/provider is still busy; those items legitimately remain in ME storage.
+- Fixture corrections: asynchronous planners need a real network action host captured on the server thread; requesting a standalone job returns no requester link, so completion/cancellation is observed through the selected actual CPU. The fixture supplies sufficient FE for production throughout CPU scheduling. These were fixture changes; no production semantics were changed to satisfy the tests.
+- Java 17 / Gradle 8.6 `test build runGameTestServer`: **77 JUnit tests and 87 required GameTests passed**, retaining all previous tests; JAR and separate probe reobfuscation passed. Selected evidence is in `docs/validation/forge-1.20.1-production-chain/ae-jobs.txt`.
+- This verifies the native Mineral Extractor/ordinary AE Output/extraction path against real jobs. Every machine family, advanced-output job variants, active-job server restart and long-running multiplayer load are still separate validation work. Seed Conversion and the mixer family are the next implementation checkpoints.

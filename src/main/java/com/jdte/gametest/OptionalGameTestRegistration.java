@@ -14,6 +14,7 @@ public final class OptionalGameTestRegistration {
     public static void register(RegisterGameTestsEvent event) {
         if (ModList.get().isLoaded("ae2")) {
             event.register(AEUpgradeGameTests.class);
+            event.register(AECraftingJobGameTests.class);
             if (ModList.get().isLoaded("appflux")) event.register(AppFluxUpgradeGameTests.class);
         }
         if (ModList.get().isLoaded("curios")) event.register(CuriosRegistrationGameTests.class);
