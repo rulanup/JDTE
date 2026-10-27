@@ -344,7 +344,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             return 0;
         }
 
-        int paidHarvests = generateAndStoreDrops(serverLevel, definition, candidate, settings.fortuneLevel(),
+        int paidHarvests = generateAndStoreDrops(serverLevel, itemHandler.getStackInSlot(slot), definition, candidate, settings.fortuneLevel(),
                 capacityLedger);
         if (paidHarvests <= 0) {
             growthWork[slot] = work.stalledWork();
@@ -459,7 +459,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return capacity;
     }
 
-    private int generateAndStoreDrops(ServerLevel serverLevel, GreenhouseCropDefinition definition, int harvests,
+    private int generateAndStoreDrops(ServerLevel serverLevel, ItemStack plantedSeed, GreenhouseCropDefinition definition, int harvests,
                                       int fortuneLevel, GreenhouseCapacityLedger capacityLedger) {
         int samples = definition.harvestGenerator() == null
                 ? Math.min(LOOT_SAMPLES_PER_SETTLEMENT, harvests)
@@ -471,6 +471,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         for (int sample = 0; sample < samples; sample++) {
             int groupHarvests = baseGroup + (sample < extraGroups ? 1 : 0);
             List<ItemStack> drops = generateSingleHarvest(serverLevel, definition, tool);
+            if (UpgradeHelper.hasSeedConversionUpgrade(this) && !definition.outputs().isEmpty()) {
+                drops = GreenhouseEssenceConversionHelper.replaceSeeds(drops, plantedSeed, definition.outputs().get(0));
+            }
             int fitted = fitRepetitions(serverLevel, capacityLedger, drops, groupHarvests, fortuneLevel);
             List<ItemStack> scaledDrops = GreenhouseFortuneHelper.scaleBatch(
                     drops, fitted, fortuneLevel, serverLevel.random);

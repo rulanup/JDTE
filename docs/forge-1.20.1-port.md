@@ -56,7 +56,7 @@ Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conver
 - [x] `jdte:mineral_survey` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
 - [ ] `jdte:mixing_upgrade`
 - [x] `jdte:repair_talisman` (ported; runtime validation pending)
-- [ ] `jdte:seed_conversion_upgrade`
+- [x] `jdte:seed_conversion_upgrade` (normal/large harvest paths, source recipe and NBT verified)
 - [ ] `jdte:thunderstorm_upgrade`
 - [ ] `jdte:time_multitool`
 - [x] `jdte:ultimate_capacity_upgrade` (mineral machines only; other machine families remain pending)
@@ -296,3 +296,12 @@ Starting checkpoint: `a36c6c5`, continuing the same development branch and versi
 - Fixture corrections: asynchronous planners need a real network action host captured on the server thread; requesting a standalone job returns no requester link, so completion/cancellation is observed through the selected actual CPU. The fixture supplies sufficient FE for production throughout CPU scheduling. These were fixture changes; no production semantics were changed to satisfy the tests.
 - Java 17 / Gradle 8.6 `test build runGameTestServer`: **77 JUnit tests and 87 required GameTests passed**, retaining all previous tests; JAR and separate probe reobfuscation passed. Selected evidence is in `docs/validation/forge-1.20.1-production-chain/ae-jobs.txt`.
 - This verifies the native Mineral Extractor/ordinary AE Output/extraction path against real jobs. Every machine family, advanced-output job variants, active-job server restart and long-running multiplayer load are still separate validation work. Seed Conversion and the mixer family are the next implementation checkpoints.
+
+
+### Seed Conversion checkpoint
+
+- Registered the source one-per-machine Seed Conversion card, restricted to both greenhouse tiers. Newly harvested drops matching the planted seed are replaced one-for-one by the primary output only when that output has the Mystical Agriculture essence tag. Reusable planted templates, other drops and previously stored seeds remain untouched.
+- Both real harvest paths perform seed replacement before fortune/capacity fitting and essence conversion. Converted amounts participate in capacity reservation; blocked output does not commit a harvest. The installed card uses the existing persisted upgrade handlers and generic bag/copier item rules.
+- Added the pinned model/texture, Forge-conditional Mystical Agriculture crafting recipe, creative entry, translations and paired English guide pages. No optional MA API is referenced by the common upgrade implementation.
+- Java 17 `test build runGameTestServer`: **77 JUnit and 93 required GameTests passed**, including both real AE-job tests and all prior tests. Six new tests cover upgrade compatibility/limit/NBT, non-essence crops, normal/large deterministic actual harvest boundaries, preserved planted templates/old stored seeds, converted-capacity backpressure and composition with recorded essence crafting. The MA-specific fixtures register only when MA is present.
+- `seed-conversion.txt` retains selected actual suite output. A new graphical seed-specific check is not claimed here; mixer GUI/runtime validation is the next checkpoint.

@@ -34,6 +34,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.BIG_FLUID_TANK.get());
                 output.accept(JDTEItems.REPAIR_TALISMAN.get());
                 output.accept(JDTEItems.CRAFTING_PATTERN.get());
+                output.accept(JDTEItems.SEED_CONVERSION_UPGRADE.get());
                 output.accept(JDTEItems.AE_CRAFTING_READ_UPGRADE.get());
                 output.accept(JDTEItems.AE_EXTRACTION_UPGRADE.get());
                 output.accept(JDTEItems.AE_OUTPUT_UPGRADE.get());

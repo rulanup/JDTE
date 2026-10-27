@@ -176,10 +176,12 @@ public class UpgradeHelper {
         return fallback;
     }
 
+    public static boolean hasSeedConversionUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.SEED_CONVERSION)>0; }
+
     public static boolean hasEssenceConversionUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.ESSENCE_CONVERSION)>0; }
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
         if(type==UpgradeType.AE_CRAFTING_READ || type.isAEOutputUpgrade()) return true;
-        if(type==UpgradeType.ESSENCE_CONVERSION)return machine instanceof GreenhouseBE||machine instanceof LargeGreenhouseBE;
+        if(type==UpgradeType.ESSENCE_CONVERSION || type==UpgradeType.SEED_CONVERSION)return machine instanceof GreenhouseBE||machine instanceof LargeGreenhouseBE;
         if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
             return machine instanceof com.jdte.common.blockentities.MineralExtractorBE;
         if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE)

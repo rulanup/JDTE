@@ -149,6 +149,7 @@ public class JDTEItems {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE);
     }
+    public static final RegistryObject<UpgradeCardItem> SEED_CONVERSION_UPGRADE = ITEMS.register("seed_conversion_upgrade",()->new UpgradeCardItem(UpgradeType.SEED_CONVERSION));
     public static final RegistryObject<com.jdte.common.items.CraftingPatternItem> CRAFTING_PATTERN = ITEMS.register("crafting_pattern",com.jdte.common.items.CraftingPatternItem::new);
     public static final RegistryObject<com.jdte.common.items.EssenceConversionUpgradeItem> ESSENCE_CONVERSION_UPGRADE = ITEMS.register("essence_conversion_upgrade",()->new com.jdte.common.items.EssenceConversionUpgradeItem(1));
     public static final RegistryObject<com.jdte.common.items.EssenceConversionUpgradeItem> ADVANCED_ESSENCE_CONVERSION_UPGRADE = ITEMS.register("advanced_essence_conversion_upgrade",()->new com.jdte.common.items.EssenceConversionUpgradeItem(3));

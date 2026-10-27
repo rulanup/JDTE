@@ -11,3 +11,7 @@ New tests use a real powered AE network, crafting storage, a Pattern Provider, a
 The source read upgrade is a network-wide activity gate; it does not match the mineral producer to a processing recipe or cap its output to the job request. The fixture's cobblestone trigger enters a chest and ore is independently produced by the real mineral machine. Extra ore remains in ME while the CPU/provider schedules the outstanding work.
 
 The check runs in Forge's dedicated GameTest server. It is not a new independent-client GUI test, an active-job persistence test or proof of all supported machine families. Those scenarios remain unverified in this checkpoint.
+
+## Seed Conversion
+
+The next full suite passed 77 JUnit and 93 required GameTests. `seed-conversion.txt` retains the result. The source upgrade, resources and both greenhouse harvest paths are implemented. MA-specific tests invoke the actual harvest boundary with a deterministic crop generator and real machine inventories; they do not claim random MA loot sampling or independent-client GUI validation.

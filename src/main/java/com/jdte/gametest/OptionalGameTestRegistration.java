@@ -17,6 +17,7 @@ public final class OptionalGameTestRegistration {
             event.register(AECraftingJobGameTests.class);
             if (ModList.get().isLoaded("appflux")) event.register(AppFluxUpgradeGameTests.class);
         }
+        if (ModList.get().isLoaded("mysticalagriculture")) event.register(com.jdte.common.blockentities.SeedHarvestGameTests.class);
         if (ModList.get().isLoaded("curios")) event.register(CuriosRegistrationGameTests.class);
     }
 }

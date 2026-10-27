@@ -17,7 +17,8 @@ public enum UpgradeType {
     ESSENCE_CONVERSION("essence_conversion", 1),
     AE_CRAFTING_READ("ae_crafting_read", 1),
     AE_OUTPUT("ae_output", 1),
-    ADVANCED_AE_OUTPUT("advanced_ae_output", 1);
+    ADVANCED_AE_OUTPUT("advanced_ae_output", 1),
+    SEED_CONVERSION("seed_conversion", 1);
 
     private final String serializedName;
     private final int maxPerMachine;

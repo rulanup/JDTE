@@ -854,5 +854,7 @@
   "tooltip.jdte.ae_extraction.enabled": "已启用 AE 提取",
   "message.jdte.factory_packer.ae_crafting_inactive": "绑定的 AE 网络当前没有正在执行的合成任务",
   "tooltip.jdte.ae_crafting_read.linked": "已绑定 AE 网络",
-  "tooltip.jdte.ae_crafting_read.unlinked": "未绑定——请放入无线访问点 UI"
+  "tooltip.jdte.ae_crafting_read.unlinked": "未绑定——请放入无线访问点 UI",
+  "item.jdte.seed_conversion_upgrade": "种子转化升级",
+  "tooltip.jdte.seed_conversion": "仅限温室。将收获中与当前种植模板相同的神秘农业种子按数量转化为对应精华。"
 }

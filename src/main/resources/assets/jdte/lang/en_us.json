@@ -854,5 +854,7 @@
   "tooltip.jdte.ae_extraction.enabled": "AE extraction enabled",
   "message.jdte.factory_packer.ae_crafting_inactive": "The bound AE network has no active crafting job",
   "tooltip.jdte.ae_crafting_read.linked": "Linked to an AE network",
-  "tooltip.jdte.ae_crafting_read.unlinked": "Unlinked — insert into a Wireless Access Point UI"
+  "tooltip.jdte.ae_crafting_read.unlinked": "Unlinked — insert into a Wireless Access Point UI",
+  "item.jdte.seed_conversion_upgrade": "Seed-to-Essence Upgrade",
+  "tooltip.jdte.seed_conversion": "Greenhouses only. Replaces harvested copies of the planted Mystical Agriculture seed with its essence."
 }
