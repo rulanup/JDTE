@@ -5,6 +5,8 @@ Target baseline: `ac1d813`, Forge 47.4.10, Just Dire Things Forge 1.1.4, Java 17
 
 This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing version remains 0.5.8 until feature migration and validation finish.
 
+Latest checkpoint: [2026-10-27 follow-up](#mineral-follow-up-and-upgrade-storage-checkpoint-2026-10-27), with [graphical evidence](validation/forge-1.20.1-minerals/README.md).
+
 ## Progress
 
 - Selected the existing `forge-1.20.1` branch.
@@ -46,12 +48,12 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 - [ ] `jdte:extended_fluid_mixer`
 - [ ] `jdte:extended_generator`
 - [ ] `jdte:large_fuel_canister`
-- [x] `jdte:large_mineral_extractor` (implemented; server integration tests passed; interactive client checks pending)
+- [x] `jdte:large_mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients pending)
 - [ ] `jdte:large_pocket_generator`
 - [ ] `jdte:large_potion_canister`
 - [ ] `jdte:maiqilin_fumo`
-- [x] `jdte:mineral_extractor` (implemented; server integration tests passed; interactive client checks pending)
-- [x] `jdte:mineral_survey` (implemented; server integration tests passed; interactive client checks pending)
+- [x] `jdte:mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients pending)
+- [x] `jdte:mineral_survey` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients pending)
 - [ ] `jdte:mixing_upgrade`
 - [x] `jdte:repair_talisman` (ported; runtime validation pending)
 - [ ] `jdte:seed_conversion_upgrade`
@@ -61,7 +63,7 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 - [ ] `jdte:ultimate_mixing_parallel_upgrade`
 - [x] `jdte:ultimate_overclock_upgrade` (mineral machines only; other machine families remain pending)
 - [ ] `jdte:ultimate_time_wand`
-- [ ] `jdte:upgrade_storage`
+- [x] `jdte:upgrade_storage` (basic storage implemented; client and dedicated-server tests passed)
 - [ ] `jdte:xingye_fumo`
 
 ## Validation required
@@ -146,3 +148,56 @@ Next session:
 3. Complete the real-client checks above before marking the mineral subsystem fully validated.
 4. Continue with Upgrade Storage and the settings copier, then crafting patterns/essence conversion and AE output/read upgrades in dependency order. Extend Ultimate upgrades to each machine only together with its actual behavior/tests.
 5. Keep version 0.5.8 until the full port and validation finish. The unchecked registration inventory remains the source of truth for the remaining item families.
+
+## Mineral follow-up and Upgrade Storage checkpoint (2026-10-27)
+
+### Actual code changes
+
+- Corrected the mineral menus' inherited `MACHINE_SLOTS`: the normal menu has 17 visible machine slots and the large menu has 20, while their block entities still own all output pages. JDT 1.20.1 uses this field to route ghost-filter clicks. The old total-inventory value incorrectly blocked late hotbar slots and missed the real filter boundary.
+- Connected Eclipse Alloy Wrench interactions through large-mineral parts to the controller, including static bulk-pickup/rotation entry points. Parts return `PASS` for wrench/settings-copier item interactions. A populated large machine can now be picked up through a part and placed again with its four survey slots, 6.4-million-item output, FE, upgrades and multiplier intact.
+- Added the large mineral block entity's full 3x3x2 render bounds. All four orientations are covered by a server test; the actual client also renders the structure.
+- Corrected the mineral screen's vertical origin for Forge JDT's title placement, including the existing window/GUI-scale refresh logic. Added compact oversized output labels and an exact-count tooltip. The private vanilla `renderSlot` method requires a client mixin on 1.20.1.
+- Extended progress/process-length synchronization to signed-short-safe low/high halves, covering the configurable 72,000-tick process length. Mineral channel protocol is now `2`, so incompatible earlier WIP clients cannot exchange a different container-data layout under protocol `1`. Mod version remains unchanged.
+- Added basic `jdte:upgrade_storage`: the source 4x5 GUI, 20 slots at up to 64 upgrades each, upgrade-only validation, native JDT unstackable-upgrade compression, Forge item-handler capability, persistent NBT, both-hand opening, Shift transfers, tooltip summaries and expanded contents, item model/texture, recipe, creative tab and English/Chinese translations.
+- The storage handler replaces the source's component inventory with a live item-tag-backed Forge handler. Independently created wrappers observe the same saved state; simulated operations do not mutate NBT. Saved `Size` cannot resize the fixed inventory. Normal player inventory limits remain in force when extracting unstackable upgrades.
+- The storage menu protects its held item against pickup, Shift movement, number-key swaps and offhand swaps. Server validity uses the bound stack identity; client validity tolerates the normal replacement of its inventory stack by server NBT packets. Dedicated-server tooltip execution never initializes client key classes.
+- Corrected the mineral Patchouli addon category to `justdirethings:machines`, which actually exists in JDT Forge 1.1.4. Added GuideME and Patchouli Upgrade Storage entries. Updated the documentation validator's large-mineral alias/internal-part rules, and filled the inherited missing Time Freezer documentation from its actual Forge behavior; no new Time Freezer gameplay validation is claimed.
+
+### Verification and reproducible commands
+
+| Check | Result |
+|---|---|
+| Java 17 `test build runGameTestServer` | Passed, including production reobfuscation |
+| JUnit tests | 51 passed, including all original 24 mineral core tests |
+| Mineral server GameTests | 24 passed: original 18 plus hotbar/filter boundaries, independent viewers, populated wrench pickup/replacement, all-facing render bounds, recreated-controller capability routing and long process synchronization |
+| Upgrade Storage server GameTests | 11 passed: capability/NBT round trip, whitelist/nesting, simulation, live wrappers, distinct NBT, bound item locks, offhand swap, Shift persistence/conservation, server-safe tooltip, legal unstackable extraction and bounded NBT size |
+| Dedicated server | Reached `Done`, no JDTE recipe parsing errors, all dimensions saved on deliberate SIGINT; the launcher returns 130 for that manual stop |
+| Graphical client | Passed with an actual Forge client and integrated server on existing Xorg dummy/llvmpipe; no JDK or Gradle reinstallation |
+| Client network/UI checks | Normal/large menus, visible title, GUI-scale change, 80,000 mB fluid synchronization, server-acknowledged output page, 6.4M count snapshots, legal cursor pickup, recorded survey screen, synced biome catalog, actual JEI mineral category, Jade mineral server data through controllers and large-machine parts, and live Upgrade Storage item/menu/NBT updates |
+| Documentation validator | Passed: English/Chinese key parity, registered block names and guide coverage |
+| Production JAR isolation | The graphical harness is in `src/clientSmoke`, outside production main sources |
+
+The final server suites have no failures. Initial smoke fixtures needed to wait for login/ground/chunk updates and keep both machines within player interaction reach. A removed-but-still-present entity block recreates its block entity on access; the capability test now checks that transfers reach that replacement rather than the detached instance. Fresh-world Jade checks use actual visible collision shapes when aiming at the machine. These fixture corrections are recorded separately from the menu/wrench/rendering fixes above.
+
+The client harness is opt-in and never activates in normal gameplay or ships in the mod JAR. It creates an integrated-server test scene, sends real Forge/vanilla packets, checks server/client outcomes, saves screenshots and stops the client only after success. `scripts/run_mineral_client_smoke.sh` uses an existing display or starts an existing Xorg dummy driver. It copies a development world into an explicitly marked disposable test fixture, sets lightweight client options and refuses to replace an unmarked world. It does not install tools. Screenshots and the success marker are written under `runs/client`.
+
+```bash
+# Use the existing Java 17 installation and Gradle user home.
+export JAVA_HOME=/workspace/.jdks/jdk17
+export GRADLE_USER_HOME=/workspace/.gradle
+bash gradlew -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 \
+  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 test build runGameTestServer --no-daemon --max-workers=2
+
+# A development server test world must exist first. Override JDTE_SMOKE_SOURCE_WORLD if needed.
+bash scripts/run_mineral_client_smoke.sh \
+  -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080
+python scripts/validate_docs.py
+```
+
+The older "no graphical display" entry describes the previous checkpoint. This session found the already-installed Xorg dummy driver and obtained the graphical coverage above. Client checks use one integrated client, not two independent remote clients. There is no full optional-mod absence matrix, long-running throughput benchmark, actual cross-chunk unload/reload test or Factory Packer relocation/rotation test. Ultimate-capacity inventory destruction also still needs a bounded-drop/load investigation before a production release; wrench pickup is the verified preservation path.
+
+### Continuation
+
+Keep using `codex/forge-1.20.1-mineral-machines` on `origin`; this session adds commits on top of `bf85f53` without resetting or merging the Forge baseline. Keep Mod version `0.5.8-forge-1.20.1` until the overall port is finished. No release or merge to `main` is authorized here.
+
+Next: validate independent-client synchronization and the remaining large-machine lifecycle cases, then port Advanced Upgrade Storage (modes/actions/Curios) and the Advanced Machine Settings Copier against the now-working basic storage handler. Continue crafting patterns/essence conversion and AE read/output upgrades after those inventory dependencies. Unchecked registrations above remain unported; a working basic bag does not mark the advanced bag or copier complete.

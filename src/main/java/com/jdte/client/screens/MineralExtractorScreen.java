@@ -42,6 +42,17 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
         extractorContainer = container;
     }
 
+    public int expectedGuiTop() {
+        int centered = (height - imageHeight) / 2;
+        return Math.max(4, Math.min(height - imageHeight - 4, Math.max(centered, extraHeight + 44)));
+    }
+
+    @Override public void calculateTopSection() {
+        // JDT draws the title 40 pixels above guiTop; keep it within 1.20.1's 240px minimum GUI.
+        topPos = expectedGuiTop();
+        super.calculateTopSection();
+    }
+
     @Override public void setTopSection() {
         var layout = GuiUpgradeLayoutConfig.getInstance();
         extraWidth = layout.getMineralExtractorExtraWidth();
@@ -264,6 +275,11 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
 
     @Override protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         super.renderTooltip(graphics, mouseX, mouseY);
+        if (hoveredSlot != null && extractorContainer.isOutputSlot(hoveredSlot) && hoveredSlot.getItem().getCount() > 64) {
+            var lines = new java.util.ArrayList<Component>(net.minecraft.client.gui.screens.Screen.getTooltipFromItem(minecraft, hoveredSlot.getItem()));
+            lines.add(Component.translatable("tooltip.jdte.mineral_output.count", hoveredSlot.getItem().getCount()).withStyle(ChatFormatting.GRAY));
+            graphics.renderComponentTooltip(font, lines, mouseX, mouseY);
+        }
         var layout = GuiUpgradeLayoutConfig.getInstance();
         Slot hoveredSurveySlot = hoveredEmptySurveySlot(mouseX, mouseY);
         if (MiscTools.inBounds(getGuiLeft() + layout.getMineralExtractorExperienceFluidX(),

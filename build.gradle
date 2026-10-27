@@ -37,6 +37,14 @@ java {
     withSourcesJar()
 }
 
+// Opt-in graphical smoke harness; excluded from production JARs.
+sourceSets {
+    clientSmoke {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += output + compileClasspath + sourceSets.main.runtimeClasspath
+    }
+}
+
 configurations {
     jdteClientRuntime {
         canBeConsumed = false
@@ -81,6 +89,11 @@ minecraft {
         }
 
         client {
+            if (project.hasProperty('jdteClientSmoke')) {
+                property 'jdte.clientSmoke', 'true'
+                args '--quickPlaySingleplayer', 'jdte-mineral-client-smoke'
+                mods { "${mod_id}" { source sourceSets.clientSmoke } }
+            }
             property 'forge.enabledGameTestNamespaces', project.mod_id
             args '--username', 'JDTEDev'
         }

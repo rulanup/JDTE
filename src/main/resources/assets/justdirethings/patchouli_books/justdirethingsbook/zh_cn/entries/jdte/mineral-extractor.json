@@ -1,7 +1,7 @@
 {
   "name": "矿物提取机",
   "icon": "jdte:mineral_extractor",
-  "category": "justdirethings:greenhouses_resources",
+  "category": "justdirethings:machines",
   "sortnum": 3000,
   "pages": [
     {

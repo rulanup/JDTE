@@ -140,8 +140,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     private final ContainerData machineData = new ContainerData() {
         @Override public int get(int index) {
             return switch (index) {
-                case 0 -> isClientSide() ? syncedProgress : progress();
-                case 1 -> isClientSide() ? syncedProcessTicks : processTicks();
+                case 0 -> ContainerDataEncoding.low16(isClientSide() ? syncedProgress : progress());
+                case 1 -> ContainerDataEncoding.low16(isClientSide() ? syncedProcessTicks : processTicks());
                 case 2 -> isClientSide() ? syncedActiveOutputSlots : getActiveOutputSlots();
                 case 3 -> ContainerDataEncoding.low16(isClientSide() ? syncedExperienceFluid : experienceFluidTank.getFluidAmount());
                 case 4 -> ContainerDataEncoding.low16(isClientSide() ? syncedTimeFluid : timeFluidTank.getFluidAmount());
@@ -157,13 +157,15 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 case 14 -> ContainerDataEncoding.high16(isClientSide() ? syncedFluidCapacity : getMaxFluidCapacity());
                 case 15 -> isClientSide() ? syncedExperienceFluidType : encodedFluidType(experienceFluidTank.getFluid());
                 case 16 -> isClientSide() ? syncedTimeFluidType : encodedFluidType(timeFluidTank.getFluid());
+                case 17 -> ContainerDataEncoding.high16(isClientSide() ? syncedProgress : progress());
+                case 18 -> ContainerDataEncoding.high16(isClientSide() ? syncedProcessTicks : processTicks());
                 default -> 0;
             };
         }
         @Override public void set(int index, int value) {
             switch (index) {
-                case 0 -> syncedProgress = value;
-                case 1 -> syncedProcessTicks = value;
+                case 0 -> syncedProgress = ContainerDataEncoding.withLow16(syncedProgress, value);
+                case 1 -> syncedProcessTicks = ContainerDataEncoding.withLow16(syncedProcessTicks, value);
                 case 2 -> syncedActiveOutputSlots = value;
                 case 3 -> syncedExperienceFluid = ContainerDataEncoding.withLow16(syncedExperienceFluid, value);
                 case 4 -> syncedTimeFluid = ContainerDataEncoding.withLow16(syncedTimeFluid, value);
@@ -179,10 +181,12 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 case 14 -> syncedFluidCapacity = ContainerDataEncoding.withHigh16(syncedFluidCapacity, value);
                 case 15 -> syncedExperienceFluidType = value & 0xFFFF;
                 case 16 -> syncedTimeFluidType = value & 0xFFFF;
+                case 17 -> syncedProgress = ContainerDataEncoding.withHigh16(syncedProgress, value);
+                case 18 -> syncedProcessTicks = ContainerDataEncoding.withHigh16(syncedProcessTicks, value);
                 default -> { }
             }
         }
-        @Override public int getCount() { return 17; }
+        @Override public int getCount() { return 19; }
     };
 
     private List<MineralEntry> cachedEntries = List.of();

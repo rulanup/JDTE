@@ -44,10 +44,8 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
-        if (state.getBlock() instanceof LargeGreenhousePartBlock part) {
-            pos = part.getControllerPos(pos, state);
-            state = level.getBlockState(pos);
-        }
+        pos = controllerPosition(level, pos);
+        state = level.getBlockState(pos);
         Block block = state.getBlock();
         Player player = context.getPlayer();
 
@@ -77,6 +75,7 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
     }
 
     public static boolean rotateMachine(Level level, BlockPos pos) {
+        pos = controllerPosition(level, pos);
         BlockState state = level.getBlockState(pos);
         if (!canHandleMachine(state)) {
             return false;
@@ -105,6 +104,7 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
     }
 
     public static boolean pickupMachine(Level level, BlockPos pos, Player player) {
+        pos = controllerPosition(level, pos);
         BlockState state = level.getBlockState(pos);
         if (!canHandleMachine(state)) {
             return false;
@@ -132,6 +132,15 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
         }
         level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0f, 0.9f);
         return true;
+    }
+
+    private static BlockPos controllerPosition(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        BlockPos controller = state.getBlock() instanceof LargeGreenhousePartBlock part
+                ? part.getControllerPos(pos, state)
+                : state.getBlock() instanceof com.jdte.common.blocks.LargeMineralExtractorPartBlock part
+                ? part.getControllerPos(pos, state) : pos;
+        return level.hasChunkAt(controller) ? controller : pos;
     }
 
     private static boolean isMovableMachineBlock(Block block) {

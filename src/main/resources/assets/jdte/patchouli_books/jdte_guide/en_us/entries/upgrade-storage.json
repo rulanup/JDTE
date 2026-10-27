@@ -1,0 +1,21 @@
+{
+  "name": "Upgrade Storage",
+  "icon": "jdte:upgrade_storage",
+  "category": "jdte:upgrades",
+  "sortnum": 3100,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:upgrade_storage",
+      "text": "Stores twenty stacks of upgrades, up to 64 per slot, including normally unstackable JDT upgrades. Ordinary items and nested bags are rejected."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right-click the held bag to open it. Shift-click transfers upgrades using legal player inventory stacks. The open bag is protected against pickup and hotbar/offhand swaps. Hold Shift over its tooltip to inspect the contents. Forge item-handler integrations access the same saved inventory."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:upgrade_storage"
+    }
+  ]
+}

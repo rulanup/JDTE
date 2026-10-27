@@ -778,5 +778,13 @@
   "config.jdte.jdte.mineralExtractor.overclockMaxMultiplier": "Overclock Maximum Speed Multiplier",
   "config.jdte.jdte.mineralExtractor.maxCyclesPerSettlement": "Maximum Settlement Batches",
   "config.jdte.jdte.mineralExtractor.maxPendingWork": "Maximum Pending Work",
-  "tooltip.jdte.forge_mineral_upgrade_only": "Forge port: currently supported by Mineral Extractors only."
+  "tooltip.jdte.forge_mineral_upgrade_only": "Forge port: currently supported by Mineral Extractors only.",
+  "item.jdte.upgrade_storage": "Upgrade Storage",
+  "jdte.screen.upgrade_storage": "Upgrade Storage",
+  "tooltip.jdte.upgrade_storage.open": "Right-click to open",
+  "tooltip.jdte.upgrade_storage.count": "Stored: %s / %s slots",
+  "tooltip.jdte.upgrade_storage.total": "Total upgrades: %s",
+  "tooltip.jdte.upgrade_storage.empty": "Empty",
+  "tooltip.jdte.upgrade_storage.shift_hint": "Hold Shift to inspect contents",
+  "tooltip.jdte.mineral_output.count": "Stored: %s items"
 }

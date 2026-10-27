@@ -28,6 +28,12 @@ public final class LargeMineralExtractorBE extends MineralExtractorBE {
         return cachedBoundaryNeighbors;
     }
 
+    @Override public net.minecraft.world.phys.AABB getRenderBoundingBox() {
+        Direction facing = LargeMineralExtractorStructure.horizontalFacing(getBlockState());
+        return new net.minecraft.world.phys.AABB(worldPosition.relative(facing.getOpposite()))
+                .inflate(1.0D, 0.0D, 1.0D).expandTowards(0.0D, 1.0D, 0.0D);
+    }
+
     @Override public int surveySlotCount() { return SURVEY_SLOTS; }
     @Override protected long baseWorkPerTick() { return BASE_SPEED_MULTIPLIER; }
 }

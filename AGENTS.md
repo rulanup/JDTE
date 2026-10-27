@@ -16,7 +16,7 @@ JDT Extras (`jdte`) is a Forge 1.20.1 extension for Just Dire Things (JDT). It a
 
 Major features:
 
-- 13 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting, and Sharpness.
+- Standard upgrades: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting and Sharpness, plus the currently mineral-only Ultimate Capacity and Ultimate Overclock cards.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
@@ -38,7 +38,7 @@ Major features:
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
 
-The Mineral Extractor, Large Mineral Extractor and Mineral Survey are now connected to the Forge game systems, with 18 server integration tests; interactive client validation and AE/conversion extensions remain pending.
+The Mineral Extractor, Large Mineral Extractor and Mineral Survey are now connected to the Forge game systems, with 24 mineral server integration tests and real graphical client smoke coverage. The basic Upgrade Storage is also ported with 11 server tests. AE/conversion extensions and other unchecked families remain pending.
 
 The 0.6.5.2 backport is in progress; see [port tracking](docs/forge-1.20.1-port.md). Do not advertise feature parity until the new registrations and runtime checks are complete.
 
@@ -63,18 +63,18 @@ The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and Produ
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| NeoForge | `21.1.233` | Mod loader and API |
-| Just Dire Things | `1.5.7` | Base machines, interfaces, config, and Time Fluid |
-| GuideME | `21.1.16` | In-game documentation |
-| JEI | `19.27.0.340` | Recipe categories, catalysts, information pages, and GUI click areas |
-| Apothic Spawners | CurseForge `7492121` | Optional spawner cycle and XP compatibility |
-| Draconic Evolution | CurseForge `7584459` | Optional Chaos Guardian and dragon loot compatibility |
-| FTB Ultimine | CurseForge `8231400` | Optional bulk wrench and Upgrade Card operations |
-| Mystical Agriculture | CurseForge `8344249` | Optional Greenhouse crop registry integration |
-| Mystical Agradditions | CurseForge `7802027` | Optional high-tier Greenhouse crop integration through the shared registry |
-| Productive Bees | CurseForge `8022994` | Optional Bio Factory bee cages, flowering validation, hive products, Productivity Upgrades, and Life Fluid Bee content |
-| Mekanism | `10.7.19.85` | Optional Factory Packer fission-reactor shutdown and radioactive transmitter-content preservation through public APIs |
-| Parchment | `2024.11.17` | Minecraft mappings |
+| Forge | `47.4.10` | Mod loader and API |
+| Just Dire Things Forge | `1.1.4` | Base machines, interfaces and Time Fluid |
+| GuideME | `20.1.15` | In-game documentation |
+| JEI | `15.20.0.127` | Recipe categories, catalysts and GUI integration |
+| Jade | `11.13.3` (CurseForge `8479276`) | Machine and upgrade HUD |
+| AE2 | `15.4.10` | Optional network integrations |
+| Mekanism | `1.20.1-10.4.16.80` | Optional machine/factory integrations |
+| Curios | `5.14.1+1.20.1` | Optional worn-item integrations |
+| FTB Ultimine | CurseForge `7880472` | Optional bulk wrench and Upgrade Card operations |
+| Mystical Agriculture | CurseForge `8034376` | Optional Greenhouse crops |
+| Productive Bees | CurseForge `5566102` | Optional Bio Factory products |
+| Minecraft mappings | Official `1.20.1` | ForgeGradle development names |
 
 Important JDT packages:
 
@@ -115,7 +115,7 @@ src/main/
     |   |-- textures/
     |   `-- gui_layout.json               # Embedded upgrade panel and machine layouts
     |-- data/jdte/                        # Recipes, loot tables, and tags
-    `-- META-INF/neoforge.mods.toml
+    `-- META-INF/mods.toml
 ```
 
 ## Registration Flow
@@ -131,10 +131,10 @@ Core registration is performed from the `JDTE` constructor in this order:
 7. `JDTEEntities`
 8. `JDTEFluids` fluid types, fluids, blocks, and buckets
 9. `JDTERecipes` recipe types and serializers
-10. `JDTE.registerCapabilities()`
+10. Forge `AttachCapabilitiesEvent` listeners in `JDTEAttachments`; multipart relays override their own block entity capability access.
 11. `JDTEPacketHandler.registerNetworking()`
 
-Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItems`, `JDTEBlockEntities`, `JDTEMenus`, `JDTECreativeTabs`, `JDTEClientSetup`, and `JDTE.registerCapabilities()`.
+Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItems`, `JDTEBlockEntities`, `JDTEMenus`, `JDTECreativeTabs`, `JDTEClientSetup`, and `JDTEAttachments` or a dedicated Forge capability provider.
 
 ## Upgrade System
 
@@ -221,7 +221,7 @@ Rules:
 
 - Constructors must pass their own `JDTEBlockEntities` type, not a parent type.
 - Container `stillValid()` checks must recognize the actual extended block.
-- Every required capability must be registered explicitly in `JDTE.registerCapabilities()`.
+- Every required capability must be registered explicitly in `JDTEAttachments` or a dedicated Forge capability provider.
 - Add conversion targets to `ExtendedUpgradeItem.UPGRADE_MAP`.
 
 ### Tiered machine families
@@ -360,7 +360,7 @@ Factory Packer v2 records use block-state NBT, mod-aware block entity move data,
 1. Create the block, block entity, container, and any client screen or renderer.
 2. Register it in `JDTEBlocks`, `JDTEItems`, `JDTEBlockEntities`, and `JDTEMenus`.
 3. Add it to `JDTECreativeTabs` and register the screen in `JDTEClientSetup`.
-4. Register all energy, fluid, and item capabilities in `JDTE.registerCapabilities()`.
+4. Register all energy, fluid, and item capabilities in `JDTEAttachments` or a dedicated Forge capability provider.
 5. Add blockstate, models, textures, translations, loot table, recipe, and GuideME page.
 6. Implement `ExtendedUpgradeMachine` for eight-slot machines and update `ExtendedUpgradeItem.UPGRADE_MAP` when conversion is supported.
 7. Define auto-I/O item/fluid semantics and test all six absolute directions when supported.
@@ -492,7 +492,7 @@ Recommended order:
 
 ## Configuration
 
-JDTE uses NeoForge `ModConfigSpec` with COMMON settings. The config is available through Mods > Config and takes effect after restart where required.
+JDTE uses Forge `ForgeConfigSpec` with COMMON settings. The config is available through Mods > Config and takes effect after restart where required.
 
 Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 

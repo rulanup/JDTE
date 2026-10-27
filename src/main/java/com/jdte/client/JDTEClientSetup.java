@@ -36,6 +36,7 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.UPGRADE_STORAGE.get(), UpgradeStorageScreen::new);
         MenuScreens.register(JDTEMenus.MINERAL_EXTRACTOR.get(), com.jdte.client.screens.MineralExtractorScreen::new);
         MenuScreens.register(JDTEMenus.LARGE_MINERAL_EXTRACTOR.get(), com.jdte.client.screens.MineralExtractorScreen::new);
         // Time Accelerators

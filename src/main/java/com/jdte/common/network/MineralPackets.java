@@ -13,7 +13,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 /** Versioned, direction-restricted mineral UI messages. */
 public final class MineralPackets {
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(JDTE.id("minerals"),
-            () -> "1", "1"::equals, "1"::equals);
+            () -> "2", "2"::equals, "2"::equals);
     private MineralPackets() { }
     public record OpenSurvey(MineralSurveyData survey) { }
     public record Catalog(boolean reset, boolean complete, java.util.List<MineralSurveyData> surveys) { }

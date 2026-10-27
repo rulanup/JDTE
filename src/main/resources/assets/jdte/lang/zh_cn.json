@@ -778,5 +778,13 @@
   "config.jdte.jdte.mineralExtractor.overclockMaxMultiplier": "超频最大速度倍率",
   "config.jdte.jdte.mineralExtractor.maxCyclesPerSettlement": "单次最大结算批次",
   "config.jdte.jdte.mineralExtractor.maxPendingWork": "最大待处理工作量",
-  "tooltip.jdte.forge_mineral_upgrade_only": "Forge 移植版：目前仅支持矿物提取机及大型矿物提取机。"
+  "tooltip.jdte.forge_mineral_upgrade_only": "Forge 移植版：目前仅支持矿物提取机及大型矿物提取机。",
+  "item.jdte.upgrade_storage": "升级存储器",
+  "jdte.screen.upgrade_storage": "升级存储器",
+  "tooltip.jdte.upgrade_storage.open": "右键打开升级存储器",
+  "tooltip.jdte.upgrade_storage.count": "已存储：%s / %s 槽位",
+  "tooltip.jdte.upgrade_storage.total": "升级总计：%s",
+  "tooltip.jdte.upgrade_storage.empty": "空",
+  "tooltip.jdte.upgrade_storage.shift_hint": "按住 Shift 查看详细内容",
+  "tooltip.jdte.mineral_output.count": "存储数量：%s 个"
 }

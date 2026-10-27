@@ -49,7 +49,7 @@ class MineralSurveyCodecTest {
         } finally { buffer.release(); }
     }
     @Test void containerDataPreservesValuesAcrossSignedShortPackets() {
-        for (int value : new int[]{0, 32768, 65535, 65536, 6_400_000, Integer.MAX_VALUE}) {
+        for (int value : new int[]{0, 32768, 65535, 65536, 72000, 6_400_000, Integer.MAX_VALUE}) {
             int low = (short) ContainerDataEncoding.low16(value), high = (short) ContainerDataEncoding.high16(value);
             assertEquals(value, ContainerDataEncoding.combine16(low, high));
             assertEquals(value, ContainerDataEncoding.withHigh16(ContainerDataEncoding.withLow16(0, low), high));

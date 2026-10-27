@@ -325,4 +325,124 @@ public final class MineralMachineGameTests {
         h.succeed();
     }
 
+    @GameTest(template = "mineral_empty")
+    public static void visibleSlotCountsDoNotBlockHotbarClicks(GameTestHelper h) {
+        MineralExtractorBE be = machine(h);
+        var player = h.makeMockSurvivalPlayer();
+        player.getInventory().setItem(8, new ItemStack(Items.DIAMOND, 12));
+        var menu = new com.jdte.common.containers.MineralExtractorContainer(1, player.getInventory(), be.getBlockPos());
+        equal(h, menu.MACHINE_SLOTS, 17, "visible machine slot boundary");
+        menu.clicked(menu.slots.size() - 1, 0, net.minecraft.world.inventory.ClickType.PICKUP, player);
+        equal(h, menu.getCarried().getCount(), 12, "last hotbar slot is clickable");
+        menu.clicked(17, 0, net.minecraft.world.inventory.ClickType.PICKUP, player);
+        equal(h, menu.getCarried().getCount(), 12, "filter clicks do not consume carried items");
+        h.assertTrue(be.getFilterHandler().getStackInSlot(0).isEmpty(), "vanilla click cannot deposit into ghost filter");
+        h.setBlock(new BlockPos(1, 1, 1), JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get());
+        var large = new com.jdte.common.containers.LargeMineralExtractorContainer(2, player.getInventory(), h.absolutePos(new BlockPos(1, 1, 1)));
+        equal(h, large.MACHINE_SLOTS, 20, "large visible slot boundary");
+        h.succeed();
+    }
+    @GameTest(template = "mineral_empty")
+    public static void twoMenusKeepIndependentOutputPages(GameTestHelper h) {
+        MineralExtractorBE be = machine(h);
+        UpgradeHelper.getUpgradeHandler(be).insertItem(0, new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()), false);
+        be.getMachineHandler().setStackInSlot(be.outputStartSlot() + 16, new ItemStack(Items.DIAMOND, 800));
+        be.getMachineHandler().setStackInSlot(be.outputStartSlot() + 48, new ItemStack(Items.IRON_ORE, 4096));
+        var firstPlayer = h.makeMockSurvivalPlayer();
+        var secondPlayer = h.makeMockSurvivalPlayer();
+        var first = new com.jdte.common.containers.MineralExtractorContainer(1, firstPlayer.getInventory(), be.getBlockPos());
+        var second = new com.jdte.common.containers.MineralExtractorContainer(2, secondPlayer.getInventory(), be.getBlockPos());
+        first.setOutputPage(1); second.setOutputPage(3);
+        h.assertTrue(first.slots.get(1).getItem().is(Items.DIAMOND), "first viewer page");
+        h.assertTrue(second.slots.get(1).getItem().is(Items.IRON_ORE), "second viewer page");
+        second.clicked(1, 0, net.minecraft.world.inventory.ClickType.PICKUP, secondPlayer);
+        equal(h, second.getCarried().getCount(), 64, "oversized pickup remains a legal carried stack");
+        equal(h, first.slots.get(1).getItem().getCount(), 800, "other viewer page unaffected");
+        equal(h, second.slots.get(1).getItem().getCount(), 4032, "server output conserved");
+        h.succeed();
+    }
+    @GameTest(template = "mineral_empty")
+    public static void wrenchPickupThroughPartPreservesMachineContents(GameTestHelper h) {
+        h.setBlock(POS, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get());
+        var controller = h.absolutePos(POS);
+        LargeMineralExtractorStructure.placeParts(h.getLevel(), controller, Direction.NORTH);
+        var be = (LargeMineralExtractorBE) h.getLevel().getBlockEntity(controller);
+        survey(h, be, 3, MineralSurveyIndex.version(h.getLevel().getServer()));
+        UpgradeHelper.getUpgradeHandler(be).insertItem(0, new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()), false);
+        be.getEnergyStorage().setEnergy(50_000_000);
+        be.getMachineHandler().setStackInSlot(be.outputStartSlot() + 63, new ItemStack(Items.IRON_ORE, 6_400_000));
+        be.setMultiplier(17);
+        var player = h.makeMockSurvivalPlayer();
+        var part = LargeMineralExtractorStructure.position(controller, Direction.NORTH, -1, 1, 1);
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(JDTEItems.ECLIPSEALLOY_WRENCH.get()));
+        var partState = h.getLevel().getBlockState(part);
+        h.assertTrue(partState.getBlock().use(partState, h.getLevel(), part, player, net.minecraft.world.InteractionHand.MAIN_HAND,
+                new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(part), Direction.UP, part, false)) == net.minecraft.world.InteractionResult.PASS, "part forwards wrench item interaction");
+        h.assertTrue(com.jdte.common.items.EclipseAlloyWrenchItem.pickupMachine(h.getLevel(), part, player), "pickup resolves part controller");
+        h.assertTrue(h.getLevel().getBlockEntity(controller) == null && h.getLevel().isEmptyBlock(part), "old structure dismantled");
+        ItemStack packed = player.getInventory().items.stream().filter(st -> st.is(JDTEItems.LARGE_MINERAL_EXTRACTOR.get())).findFirst().orElseThrow();
+        h.setBlock(POS, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get());
+        var state = h.getLevel().getBlockState(controller);
+        state.getBlock().setPlacedBy(h.getLevel(), controller, state, player, packed);
+        var restored = (LargeMineralExtractorBE) h.getLevel().getBlockEntity(controller);
+        equal(h, restored.getEnergyStorage().getEnergyStored(), 50_000_000, "packed FE");
+        equal(h, restored.getMachineHandler().getStackInSlot(restored.outputStartSlot() + 63).getCount(), 6_400_000, "packed oversized output");
+        h.assertTrue(MineralSurveyItem.getSurvey(restored.getMachineHandler().getStackInSlot(3)) != null, "packed fourth survey");
+        h.assertTrue(UpgradeHelper.hasUltimateCapacity(restored), "packed upgrades");
+        equal(h, restored.getMultiplier(), 17, "packed multiplier");
+        h.assertTrue(h.getLevel().getBlockEntity(part) instanceof LargeMineralExtractorPartBE, "parts rebuilt after placement");
+        h.succeed();
+    }
+    @GameTest(template = "mineral_empty")
+    public static void largeRenderBoundsCoverAllOrientations(GameTestHelper h) {
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            h.setBlock(POS, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get().defaultBlockState()
+                    .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING, facing));
+            var be = (LargeMineralExtractorBE) h.getBlockEntity(POS);
+            var bounds = be.getRenderBoundingBox();
+            for (int y = 0; y < 2; y++) for (int depth = 0; depth < 3; depth++) for (int x = -1; x <= 1; x++)
+                h.assertTrue(bounds.contains(net.minecraft.world.phys.Vec3.atCenterOf(
+                        LargeMineralExtractorStructure.position(be.getBlockPos(), facing, x, depth, y))), "render bounds cover " + facing + " member");
+        }
+        h.succeed();
+    }
+    @GameTest(template = "mineral_empty")
+    public static void retainedPartCapabilitiesResolveReplacementControllers(GameTestHelper h) {
+        h.setBlock(POS, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get());
+        var controller = h.absolutePos(POS);
+        LargeMineralExtractorStructure.placeParts(h.getLevel(), controller, Direction.NORTH);
+        var part = h.getLevel().getBlockEntity(LargeMineralExtractorStructure.position(controller, Direction.NORTH, -1, 1, 1));
+        var endpoint = part.getCapability(ForgeCapabilities.ENERGY).orElseThrow(AssertionError::new);
+        var detached = (LargeMineralExtractorBE) h.getLevel().getBlockEntity(controller);
+        detached.getEnergyStorage().setEnergy(999);
+        h.getLevel().removeBlockEntity(controller);
+        endpoint.receiveEnergy(100, false);
+        equal(h, detached.getEnergyStorage().getEnergyStored(), 999, "detached store unchanged");
+        // A still-present entity block recreates its BE when queried after removal.
+        var replacement = (LargeMineralExtractorBE) h.getLevel().getBlockEntity(controller);
+        h.assertTrue(replacement != detached, "replacement controller instance");
+        equal(h, replacement.getEnergyStorage().getEnergyStored(), 100, "relay resolves recreated controller");
+        h.succeed();
+    }
+
+    @GameTest(template = "mineral_empty")
+    public static void longProcessTimesUseShortSafeContainerFields(GameTestHelper h) {
+        var config = JDTEConfig.COMMON.mineralExtractor.processTicks;
+        int old = config.get();
+        try {
+            config.set(72_000);
+            MineralExtractorBE be = machine(h);
+            var saved = be.saveWithFullMetadata(); saved.putLong("pendingBaseWork", 65_000);
+            be.load(saved);
+            var player = h.makeMockSurvivalPlayer();
+            var menu = new com.jdte.common.containers.MineralExtractorContainer(1, player.getInventory(), be.getBlockPos());
+            equal(h, menu.getProgressMax(), 72_000, "full configured process length");
+            equal(h, menu.getProgress(), 65_000, "full pending progress");
+            var data = be.getMachineData();
+            equal(h, com.jdte.common.utils.ContainerDataEncoding.combine16((short) data.get(1), (short) data.get(18)), 72_000, "process length through signed shorts");
+            equal(h, com.jdte.common.utils.ContainerDataEncoding.combine16((short) data.get(0), (short) data.get(17)), 65_000, "progress through signed shorts");
+        } finally { config.set(old); }
+        h.succeed();
+    }
+
 }

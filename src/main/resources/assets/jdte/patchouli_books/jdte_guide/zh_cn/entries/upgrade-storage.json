@@ -1,0 +1,21 @@
+{
+  "name": "升级存储包",
+  "icon": "jdte:upgrade_storage",
+  "category": "jdte:upgrades",
+  "sortnum": 3100,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:upgrade_storage",
+      "text": "提供20个升级槽，每槽最多存放64个升级，包括通常不可堆叠的JDT升级。不能存放普通物品或嵌套存储包。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "手持存储包右击打开，Shift点击转移升级，取出时遵守玩家物品栏的正常堆叠限制。界面打开期间存储包不能被拿走或用快捷栏、副手交换。按住Shift查看提示可展开内容。Forge物品接口与界面共享同一份存档。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:upgrade_storage"
+    }
+  ]
+}

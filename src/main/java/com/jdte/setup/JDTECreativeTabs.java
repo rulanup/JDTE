@@ -33,6 +33,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
                 output.accept(JDTEItems.BIG_FLUID_TANK.get());
                 output.accept(JDTEItems.REPAIR_TALISMAN.get());
+                output.accept(JDTEItems.UPGRADE_STORAGE.get());
                 output.accept(JDTEItems.MINERAL_EXTRACTOR.get());
                 output.accept(JDTEItems.LARGE_MINERAL_EXTRACTOR.get());
                 output.accept(JDTEItems.MINERAL_SURVEY.get());

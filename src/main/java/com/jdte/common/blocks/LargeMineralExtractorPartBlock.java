@@ -57,6 +57,9 @@ public final class LargeMineralExtractorPartBlock extends Block implements net.m
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                   InteractionHand hand, BlockHitResult hit) {
+        var held = player.getItemInHand(hand).getItem();
+        if (held instanceof com.direwolf20.justdirethings.common.items.FerricoreWrench
+                || held instanceof com.direwolf20.justdirethings.common.items.MachineSettingsCopier) return InteractionResult.PASS;
         BlockPos controllerPos = getControllerPos(pos, state);
         if (!level.hasChunkAt(controllerPos)) return InteractionResult.FAIL;
         BlockState controller = level.getBlockState(controllerPos);
@@ -82,7 +85,7 @@ public final class LargeMineralExtractorPartBlock extends Block implements net.m
         HorizontalPart(int offset) { this.offset = offset; }
         public int offset() { return offset; }
         public static HorizontalPart fromOffset(int offset) { return values()[offset + 1]; }
-        @Override public String getSerializedName() { return name().toLowerCase(); }
+        @Override public String getSerializedName() { return name().toLowerCase(java.util.Locale.ROOT); }
     }
 
     public enum DepthPart implements StringRepresentable {
@@ -91,7 +94,7 @@ public final class LargeMineralExtractorPartBlock extends Block implements net.m
         DepthPart(int offset) { this.offset = offset; }
         public int offset() { return offset; }
         public static DepthPart fromOffset(int offset) { return values()[offset]; }
-        @Override public String getSerializedName() { return name().toLowerCase(); }
+        @Override public String getSerializedName() { return name().toLowerCase(java.util.Locale.ROOT); }
     }
 
     public enum LayerPart implements StringRepresentable {
@@ -100,6 +103,6 @@ public final class LargeMineralExtractorPartBlock extends Block implements net.m
         LayerPart(int offset) { this.offset = offset; }
         public int offset() { return offset; }
         public static LayerPart fromOffset(int offset) { return values()[offset]; }
-        @Override public String getSerializedName() { return name().toLowerCase(); }
+        @Override public String getSerializedName() { return name().toLowerCase(java.util.Locale.ROOT); }
     }
 }

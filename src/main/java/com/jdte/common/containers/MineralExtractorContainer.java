@@ -50,6 +50,8 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
     }
 
     @Override public void addMachineSlots() {
+        // The BE owns all output pages, while JDT's click routing needs the visible count.
+        MACHINE_SLOTS = getMachineSlotCount();
         machineHandler = baseMachineBE.getMachineHandler();
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int surveySlots = getSurveySlotCount();
@@ -72,8 +74,8 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
         }
     }
 
-    public int getProgress() { return data(0, 0); }
-    public int getProgressMax() { return data(1, 20); }
+    public int getProgress() { return ContainerDataEncoding.combine16(data(0, 0), data(17, 0)); }
+    public int getProgressMax() { return ContainerDataEncoding.combine16(data(1, 20), data(18, 0)); }
     public int getActiveOutputSlots() { return data(2, MineralExtractorBE.BASE_OUTPUT_SLOTS); }
     public int getExperienceFluid() { return ContainerDataEncoding.combine16(data(3, 0), data(12, 0)); }
     public int getTimeFluid() { return ContainerDataEncoding.combine16(data(4, 0), data(13, 0)); }
@@ -181,6 +183,11 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
 
     public int getSurveySlotCount() {
         return baseMachineBE instanceof MineralExtractorBE extractor ? extractor.surveySlotCount() : 1;
+    }
+
+    public boolean isOutputSlot(Slot slot) {
+        int index = slots.indexOf(slot);
+        return index >= getSurveySlotCount() && index < getSurveySlotCount() + OUTPUT_SLOTS_PER_PAGE;
     }
 
     public int getMachineSlotCount() {
