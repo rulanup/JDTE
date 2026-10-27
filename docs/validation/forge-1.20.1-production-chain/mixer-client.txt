@@ -1,0 +1,9 @@
+[14:40:34] [IO-Worker-4/INFO] [co.jd.cl.sm.MineralClientSmoke/]: Mineral smoke screenshot: Saved screenshot as jdte-crafting-pattern.png
+[14:40:39] [Render thread/INFO] [co.jd.cl.sm.MineralClientSmoke/]: Mixer click: origin 125,44 slot 64,-12 carried 0 air catalyst 1 time_fluid_catalyst
+[14:40:39] [IO-Worker-6/INFO] [co.jd.cl.sm.MineralClientSmoke/]: Mineral smoke screenshot: Saved screenshot as jdte-mixer-click-diagnostic.png
+[14:40:41] [IO-Worker-4/INFO] [co.jd.cl.sm.MineralClientSmoke/]: Mineral smoke screenshot: Saved screenshot as jdte-advanced-fluid-mixer.png
+[14:40:42] [IO-Worker-2/INFO] [co.jd.cl.sm.MineralClientSmoke/]: Mineral smoke screenshot: Saved screenshot as jdte-fluid-mixer-capacity-clamp.png
+[14:40:44] [IO-Worker-6/INFO] [co.jd.cl.sm.MineralClientSmoke/]: Mineral smoke screenshot: Saved screenshot as jdte-extended-fluid-mixer.png
+[14:40:45] [IO-Worker-6/INFO] [co.jd.cl.sm.MineralClientSmoke/]: Mineral smoke screenshot: Saved screenshot as jdte-fluid-mixer-jei.png
+BUILD SUCCESSFUL in 3m 5s
+PASS: normal/large/survey, fluids/pages/count packets, JEI/Jade, basic/advanced bags, machine panel packet insertion/conservation advanced copier option packets 6.4M bulk-drop entity sync real crafting-pattern ghost/save packets and both mixer menus/high-bit tank data/capacity clamp/Shift mixing insertion/JEI

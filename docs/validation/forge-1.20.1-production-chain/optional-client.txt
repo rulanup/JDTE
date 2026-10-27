@@ -1,0 +1,1 @@
+PASS: real client title, registrations and tank capability without AE2, Curios, JEI or Jade

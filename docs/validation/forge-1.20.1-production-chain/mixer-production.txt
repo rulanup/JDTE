@@ -1,0 +1,5 @@
+PASS: both production mixer tiers unloaded/reloaded with exact tanks, FE, catalyst, upgrades and progress; retained endpoint rejected while unloaded
+PASS: fresh production server restored both mixer tiers and naturally completed saved 73/100-tick work with exact fluid, catalyst and 5000 FE costs
+
+Startup tick 35 observation before completion:
+{0:{energy:123456,inputTankA:{Amount:1000,FluidName:"minecraft:water"},inputTankB:{Amount:0,FluidName:"minecraft:empty"},inventory:{Items:[{Count:1b,Slot:0,id:"jdte:time_fluid_catalyst"}],Size:1},outputTank:{Amount:0,FluidName:"minecraft:empty"},progress:73,upgrades:{Items:[{Count:1b,Slot:1,id:"jdte:mixing_upgrade"},{Count:1b,Slot:2,id:"jdte:capacity_upgrade"}],Size:4}},1:{energy:123456,inputTankA:{Amount:1000,FluidName:"minecraft:water"},inputTankB:{Amount:0,FluidName:"minecraft:empty"},inventory:{Items:[{Count:1b,Slot:0,id:"jdte:time_fluid_catalyst"}],Size:1},outputTank:{Amount:0,FluidName:"minecraft:empty"},progress:73,upgrades:{Items:[{Count:1b,Slot:1,id:"jdte:mixing_upgrade"},{Count:1b,Slot:2,id:"jdte:capacity_upgrade"}],Size:8}}}
