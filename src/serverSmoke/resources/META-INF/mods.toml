@@ -1,0 +1,14 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+[[mods]]
+modId="jdte_lifecycle_probe"
+version="1"
+displayName="JDTE Lifecycle Test Probe"
+displayTest="IGNORE_SERVER_VERSION"
+[[dependencies.jdte_lifecycle_probe]]
+modId="jdte"
+mandatory=true
+versionRange="[0.5.8,)"
+ordering="AFTER"
+side="SERVER"

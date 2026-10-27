@@ -43,9 +43,10 @@ public class UpgradeStorageItem extends Item {
         if (player.getOffhandItem().is(JDTEItems.UPGRADE_STORAGE.get())) return player.getOffhandItem();
         return player.getInventory().items.stream().filter(stack -> stack.is(JDTEItems.UPGRADE_STORAGE.get())).findFirst().orElse(ItemStack.EMPTY);
     }
+    protected UpgradeStorageHandler createHandler(ItemStack stack) { return new UpgradeStorageHandler(stack); }
     @Override public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
         return new ICapabilityProvider() {
-            private final LazyOptional<IItemHandler> inventory = LazyOptional.of(() -> new UpgradeStorageHandler(stack));
+            private final LazyOptional<IItemHandler> inventory = LazyOptional.of(() -> createHandler(stack));
             @Override public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
                 return capability == ForgeCapabilities.ITEM_HANDLER ? inventory.cast() : LazyOptional.empty();
             }
@@ -60,18 +61,19 @@ public class UpgradeStorageItem extends Item {
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
+    protected String tooltipPrefix() { return "tooltip.jdte.upgrade_storage"; }
     @Override public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
-        var inventory = new UpgradeStorageHandler(stack);
+        var inventory = createHandler(stack);
         int filled = 0, total = 0;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack item = inventory.getStackInSlot(i);
             if (!item.isEmpty()) { filled++; total += item.getCount(); }
         }
-        if (filled == 0) tooltip.add(Component.translatable("tooltip.jdte.upgrade_storage.empty").withStyle(ChatFormatting.GRAY));
+        if (filled == 0) tooltip.add(Component.translatable(tooltipPrefix() + ".empty").withStyle(ChatFormatting.GRAY));
         else {
-            tooltip.add(Component.translatable("tooltip.jdte.upgrade_storage.count", filled, inventory.getSlots()).withStyle(ChatFormatting.AQUA));
-            tooltip.add(Component.translatable("tooltip.jdte.upgrade_storage.total", total).withStyle(ChatFormatting.DARK_AQUA));
+            tooltip.add(Component.translatable(tooltipPrefix() + ".count", filled, inventory.getSlots()).withStyle(ChatFormatting.AQUA));
+            tooltip.add(Component.translatable(tooltipPrefix() + ".total", total).withStyle(ChatFormatting.DARK_AQUA));
             boolean expanded = DistExecutor.unsafeRunForDist(() -> com.jdte.client.UpgradeStorageClient::shiftDown, () -> () -> false);
             if (expanded) for (int i = 0; i < inventory.getSlots(); i++) {
                 ItemStack item = inventory.getStackInSlot(i);
@@ -81,6 +83,6 @@ public class UpgradeStorageItem extends Item {
             }
             else tooltip.add(Component.translatable("tooltip.jdte.upgrade_storage.shift_hint").withStyle(ChatFormatting.DARK_GRAY));
         }
-        tooltip.add(Component.translatable("tooltip.jdte.upgrade_storage.open").withStyle(ChatFormatting.GOLD));
+        tooltip.add(Component.translatable(tooltipPrefix() + ".open").withStyle(ChatFormatting.GOLD));
     }
 }

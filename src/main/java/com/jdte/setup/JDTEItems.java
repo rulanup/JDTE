@@ -144,6 +144,8 @@ public class JDTEItems {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE);
     }
+    public static final RegistryObject<com.jdte.common.items.AdvancedMachineSettingsCopierItem> ADVANCED_MACHINE_SETTINGS_COPIER = ITEMS.register("advanced_machine_settings_copier", com.jdte.common.items.AdvancedMachineSettingsCopierItem::new);
+    public static final RegistryObject<com.jdte.common.items.AdvancedUpgradeStorageItem> ADVANCED_UPGRADE_STORAGE = ITEMS.register("advanced_upgrade_storage", com.jdte.common.items.AdvancedUpgradeStorageItem::new);
     public static final RegistryObject<com.jdte.common.items.UpgradeStorageItem> UPGRADE_STORAGE = ITEMS.register("upgrade_storage", com.jdte.common.items.UpgradeStorageItem::new);
     public static final RegistryObject<BlockItem> MINERAL_EXTRACTOR = ITEMS.register("mineral_extractor", () -> new BlockItem(JDTEBlocks.MINERAL_EXTRACTOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> LARGE_MINERAL_EXTRACTOR = ITEMS.register("large_mineral_extractor", () -> new BlockItem(JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get(), new Item.Properties()));

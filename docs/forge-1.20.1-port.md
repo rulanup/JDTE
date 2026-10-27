@@ -27,8 +27,8 @@ Latest checkpoint: [2026-10-27 follow-up](#mineral-follow-up-and-upgrade-storage
 - [ ] `jdte:advanced_entity_accelerator`
 - [ ] `jdte:advanced_essence_conversion_upgrade`
 - [ ] `jdte:advanced_fluid_mixer`
-- [ ] `jdte:advanced_machine_settings_copier`
-- [ ] `jdte:advanced_upgrade_storage`
+- [x] `jdte:advanced_machine_settings_copier` (typed Forge presets, upgrade exchange and storage sources implemented)
+- [x] `jdte:advanced_upgrade_storage` (36 slots, machine actions, Curios lookup and Forge persistence implemented)
 - [ ] `jdte:ae_acceleration_upgrade`
 - [ ] `jdte:ae_crafting_read_upgrade`
 - [ ] `jdte:ae_extraction_upgrade`
@@ -201,3 +201,50 @@ The older "no graphical display" entry describes the previous checkpoint. This s
 Keep using `codex/forge-1.20.1-mineral-machines` on `origin`; this session adds commits on top of `bf85f53` without resetting or merging the Forge baseline. Keep Mod version `0.5.8-forge-1.20.1` until the overall port is finished. No release or merge to `main` is authorized here.
 
 Next: validate independent-client synchronization and the remaining large-machine lifecycle cases, then port Advanced Upgrade Storage (modes/actions/Curios) and the Advanced Machine Settings Copier against the now-working basic storage handler. Continue crafting patterns/essence conversion and AE read/output upgrades after those inventory dependencies. Unchecked registrations above remain unported; a working basic bag does not mark the advanced bag or copier complete.
+
+## Lifecycle, advanced storage and settings copier checkpoint (2026-10-27)
+
+This checkpoint continues `2bdf14e` on `codex/forge-1.20.1-mineral-machines`. The pinned reference remains `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`; the Mod version remains `0.5.8-forge-1.20.1`. Earlier limitations above describe earlier checkpoints.
+
+### Lifecycle fixes and actual behavior
+
+- Added `BulkItemEntity` for mineral output stacks larger than the item's normal stack limit. One full normal/large machine has 64 output entities rather than hundreds of thousands. Real counts use an integer entity-data field and integer NBT; the vanilla tracked item and saved `Item` node use a legal count. Vanilla/Forge pickup rules still govern inventory insertion, ownership, events and remainder handling. Full/partially full player inventories and entity NBT are covered by GameTests.
+- Replaced broad removal of `JustDiresBEData` from ordinary machine loot with `MachineDropDataHelper`. The helper removes separately dropped machine inventories and upgrade handlers while retaining FE, fluids, filters, configuration and pending work. Mineral machines explicitly save non-default machine state when generating loot. Wrench pickup remains a whole-machine preservation path.
+- Factory Packer now validates that every coordinate of a selected Large Mineral Extractor is inside the capture bounds. An orphan part or partial selection reports error 21 before world removal. Removal uses the moving-block flag for this structure, preventing part/controller teardown from destroying records the packer is still moving.
+- Part capability relays now check their own loaded chunk and current block-entity identity, in addition to the controller. Even a detached object whose removed flag is cleared cannot write through its replacement. The probe distinguishes live chunk-object reuse from detached endpoints.
+- Oversized inventory loading bounds `Size` to the actual fixed handler size before allocation and rejects non-positive integer count overrides. This shared loader also protects the already ported greenhouse inventories.
+- Fixed a production-only startup failure: `mixins.jdte.json` now declares its generated refmap. JDT overrides of Minecraft methods use both development and SRG selectors where their JDT-target mixin deliberately disables automatic remapping. This was verified with a real reobfuscated JAR in a standalone production Forge server, not just `runServer`.
+
+### Advanced Upgrade Storage
+
+- Ported the pinned source's actual 6x6/36-slot advanced case, with up to 64 upgrades per slot, including compressed unstackable JDT upgrades. The live item-backed Forge handler, capability, fixed NBT size, both-hand menu opening, safe Shift transfers and bound-item swap protections are shared with the basic case.
+- Ported the source machine side panel, case switching, collapse button, compatibility indicators, tooltips and all six actions: insert one/max, take one onto the cursor, withdraw a legal inventory stack, deposit all/one from the cursor. Bio Crusher Looting/Sharpness handlers are supported alongside standard handlers. The Bio Factory indicator uses the already ported Forge handler's actual limits.
+- Server messages validate the active machine menu, its window ID, interaction validity, case index and slot before mutation. JEI excludes the panel area. The main channel protocol is now `2`; the mineral channel remains `2`.
+- Case discovery checks main hand, offhand, inventory and optional Curios inventories, deduplicating the same stack by identity. No new Curios slot is created. Worn-case discovery and copier withdrawals are exercised against the real Curios capability in the server suite.
+- Added the original item/GUI textures and model, adapted shaped recipe, creative tab, translations and guide content. The pinned source does **not** implement the “collection modes” described in an earlier continuation note; no collection mode is claimed here.
+
+### Machine Settings Copiers
+
+- The basic copier is the existing `justdirethings:machine_settings_copier` in JDT Forge 1.1.4. Its filter/redstone behavior is integration-tested against mineral machines; it is not duplicated under a second registry ID.
+- Ported `AdvancedMachineSettingsCopierItem`, its typed/versioned snapshot data, machine codec registry, native/JDTE machine codecs, named upgrade handlers and planned upgrade exchange. Only machine families actually available in this Forge port/JDT 1.1.4 are registered; absent source families are still unported.
+- Presets retain common tick/direction settings, supported custom options, auto-I/O masks and dedicated upgrade handlers. Native area/offset/filter/redstone option switches remain available. Advanced Potion Brewer recipe-lock templates apply as configuration without resetting an active brew or producing ingredients.
+- Pasting reuses installed matching cards, consumes missing cards from the player/basic case/advanced case/Curios case, and refunds surplus cards to inventory or as player drops. Empty presets remove and refund old cards. Missing costs or invalid/type-mismatched/schema-mismatched presets reject the paste before mutation. Planned withdrawals support compressed unstackable upgrades and rollback.
+- Both copier tiers resolve Large Mineral Extractor parts to their controller. Real machine inventories, FE, stored fluids, surveys and work queues are excluded from the configuration codecs. Removing a capacity card still applies the machine's ordinary capacity rules.
+- Added source item resources/recipe and guides. The native Forge copier ingredient ID differs from the newer source and is adapted to `justdirethings:machine_settings_copier`.
+
+### Verification and limits
+
+- Java 17/Gradle 8.6 `test build serverSmokeJar runGameTestServer`: **58 JUnit tests passed**, including the original 24 mineral core tests; **57 required GameTests passed**. The server suite comprises 25 mineral interaction/production tests, 7 lifecycle/packer tests, 11 basic-case tests, 6 advanced-case tests and 8 copier tests.
+- New lifecycle coverage includes all 409.6 million output items on destruction, bounded drops, entity save/partial pickup, malformed inventory size/count, full-player-inventory wrench pickup with both fluids/work queues, actual complete Factory Packer capture/place, horizontal rotation, and rejection of partial structure capture. Packer tests use a larger isolated template and a registered fake-owner lookup entry for permission checks, not a real multiplayer connection.
+- `src/serverSmoke` is a separate test mod outside the production JAR. `serverSmokeJar` is separately reobfuscated with the main classes on its mapping classpath. `scripts/run_mineral_lifecycle_probe.sh` requires an explicitly marked, loopback-only disposable production Forge 47.4.10 server. It runs **two different JVMs**, checks success markers/exit codes, and retains per-phase logs.
+- The production probe seeds normal and large machines with 64 full 6.4-million-item output slots, all survey slots, 50 million FE, both fluids, an Ultimate Capacity card, multiplier and both pending work queues. It releases all nearby test chunk tickets, observes an actual controller chunk unload, checks stale endpoint rejection, reloads the chunks and compares persisted fields. It then saves/shuts down normally. A fresh server process restores those fields from disk and resumes exactly seven fortune cycles into the final available output space, charging exactly 35,000 FE and 175 mB XP Fluid without overflowing the slot.
+- Production runtime contains the configured optional-mod set. Some third-party missing optional recipe/tag references and update/authentication network failures occur in these cloud logs; they are not JDTE parsing failures. There is no full optional-mod absence matrix or claim that unrelated optional integrations have been validated.
+- Graphical checks and exact retained evidence are listed in `docs/validation/forge-1.20.1-lifecycle/README.md`. The opt-in client harness remains outside the production JAR. These checks use a real client with an integrated server. **Two independent remote clients connected to a dedicated server remain unverified.**
+- Earlier test attempts exposed fixture issues: neighbor forced tickets prevented unloading; a genuinely detached endpoint must stay invalid while a reused live chunk object may legitimately reconnect; repeated seeds needed fixture cleanup; fake networkless login could not run Forge login integrations; running capture fixtures needed explicit redstone pause; mock-player drops were located at the player's position. Each final assertion checks the intended behavior, and the final suites pass. One concurrent development compile invalidated a running test classpath; final validation uses completed compilation before starting the runtime checks.
+
+### Next continuation
+
+1. Continue from this branch's pushed checkpoint; retain all subsequent work rather than resetting to `ac1d813` or `2bdf14e`.
+2. Complete two independent remote-client synchronization checks and longer-running production/automation tests before a release. Extend the packaged client checks if additional production-only mapping issues appear.
+3. Continue crafting patterns and essence conversion (including Advanced Essence Conversion), then AE read/output upgrades against the now available case/copier inventory infrastructure. Add actual machine-specific behavior/tests before widening Ultimate upgrade compatibility.
+4. The unchecked registration inventory at the start of this document still identifies unported machines, items and upgrade families. This checkpoint does not claim full 0.6.5.2 parity. Keep Mod version 0.5.8 until the overall port and validation finish. No release or merge into `main` was performed.

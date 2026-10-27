@@ -29,7 +29,8 @@
     "PoweredMachineOverrideMaxEnergyMixin",
     "SpawnerMixin",
     "SpawnerMixin$ApothSpawnerMixin",
-    "TickSpeedPacketMixin"
+    "TickSpeedPacketMixin",
+    "MachineSettingsCopierMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",
@@ -42,5 +43,6 @@
     "ItemEntityRendererMixin",
     "ParticleEngineMixin"
   ],
-  "minVersion": "0.8"
+  "minVersion": "0.8",
+  "refmap": "mixins.jdte.refmap.json"
 }

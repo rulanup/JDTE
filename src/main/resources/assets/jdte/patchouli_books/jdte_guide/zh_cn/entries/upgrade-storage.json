@@ -16,6 +16,15 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:upgrade_storage"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_upgrade_storage",
+      "text": "高级包拥有6×6格，并在机器界面提供侧栏。左键安装一个，Shift左键安装至上限；右键取一个到光标，Shift右键取一组到背包。光标持有升级时可存入。支持主副手、背包及已配置的Curios槽位。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_upgrade_storage"
     }
   ]
 }

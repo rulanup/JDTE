@@ -32,6 +32,7 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = "jdte", value = Dist.CLIENT)
 public final class MineralClientSmoke {
     private static int stage;
+    private static boolean copierAreaBefore;
     private static int ticks;
     private static int changedAt;
     private static BlockPos normalPos;
@@ -234,10 +235,77 @@ public final class MineralClientSmoke {
                 screenshot(mc, "jdte-upgrade-storage.png"); next();
             }
             case 15 -> {
-                if (elapsed < 30) return;
-                try { Files.writeString(mc.gameDirectory.toPath().resolve("mineral-smoke-success.txt"), "PASS: normal/large/survey screens, layout, 32-bit fluid sync, pages, 6.4M count/cursor packets, JEI category, Jade server data and Upgrade Storage live inventory\n"); }
-                catch (java.io.IOException exception) { throw new IllegalStateException("Cannot save smoke result", exception); }
-                LOG.info("JDTE_MINERAL_CLIENT_SMOKE_PASS"); mc.stop(); next();
+                if (elapsed < 15) return;
+                mc.player.closeContainer();
+                var server=mc.getSingleplayerServer();var id=mc.player.getUUID();
+                server.execute(()->{
+                    var player=server.getPlayerList().getPlayer(id);
+                    var bag=new ItemStack(JDTEItems.ADVANCED_UPGRADE_STORAGE.get());
+                    var contents=new com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler(bag);
+                    contents.insertItem(35,new ItemStack(JDTEItems.CAPACITY_UPGRADE.get(),64),false);
+                    player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,bag);player.inventoryMenu.broadcastChanges();
+                    JDTEItems.ADVANCED_UPGRADE_STORAGE.get().use(player.level(),player,net.minecraft.world.InteractionHand.MAIN_HAND);
+                });next();
+            }
+            case 16 -> {
+                if (!(mc.player.containerMenu instanceof com.jdte.common.containers.AdvancedUpgradeStorageContainer menu)||elapsed<25) return;
+                check(mc.screen instanceof com.jdte.client.screens.AdvancedUpgradeStorageScreen,"advanced bag screen");
+                check(menu.slots.size()==72&&menu.handler.getStackInSlot(35).getCount()==64,"36-slot advanced contents synchronized");
+                screenshot(mc,"jdte-advanced-upgrade-storage.png");mc.player.closeContainer();stage=161;changedAt=ticks;
+            }
+            case 161 -> {
+                if(elapsed<15)return;
+                var server=mc.getSingleplayerServer();var id=mc.player.getUUID();
+                server.execute(()->{
+                    var player=server.getPlayerList().getPlayer(id);
+                    var machine=(MineralExtractorBE)player.serverLevel().getBlockEntity(normalPos);
+                    com.jdte.common.upgrades.UpgradeHelper.getUpgradeHandler(machine).setStackInSlot(0,ItemStack.EMPTY);
+                    ((com.jdte.common.blocks.MineralExtractorBlock)machine.getBlockState().getBlock()).openMenu(player,normalPos);
+                });stage=17;changedAt=ticks;
+            }
+            case 17 -> {
+                if (!(mc.screen instanceof MineralExtractorScreen screen)||elapsed<30) return;
+                var area=com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.getPanelArea(screen);
+                check(area!=null,"machine bag panel visible");
+                screenshot(mc,"jdte-advanced-storage-machine-panel.png");
+                double x=area.getX()+6+5*18+9,y=area.getY()+16+5*18+9;
+                check(screen.mouseClicked(x,y,0),"machine bag panel click handled");next();
+            }
+            case 18 -> {
+                if(elapsed<25)return;
+                var menu=(MineralExtractorContainer)mc.player.containerMenu;
+                check(menu.baseMachineBE!=null&&UpgradeHelper.countUpgrades(menu.baseMachineBE,com.jdte.common.upgrades.UpgradeType.CAPACITY)==1,"panel packet installed card");
+                check(new com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler(mc.player.getMainHandItem()).getStackInSlot(35).getCount()==63,"panel packet conserved bag count");
+                mc.player.closeContainer();
+                var server=mc.getSingleplayerServer();var id=mc.player.getUUID();
+                server.execute(()->{
+                    var player=server.getPlayerList().getPlayer(id);
+                    player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get()));player.inventoryMenu.broadcastChanges();
+                    var bulk=new com.jdte.common.entities.BulkItemEntity(player.level(),player.getX()+1,player.getY(),player.getZ(),new ItemStack(Items.IRON_ORE,6_400_000));
+                    bulk.setPickUpDelay(32767);player.serverLevel().addFreshEntity(bulk);
+                });next();
+            }
+            case 19 -> {
+                if(elapsed<25)return;
+                boolean bulkSynced=java.util.stream.StreamSupport.stream(mc.level.entitiesForRendering().spliterator(),false)
+                        .anyMatch(e->e instanceof com.jdte.common.entities.BulkItemEntity bulk&&bulk.getItem().getCount()==6_400_000);
+                check(bulkSynced,"bulk drop uses integer entity synchronization");
+                mc.gameMode.useItem(mc.player,net.minecraft.world.InteractionHand.MAIN_HAND);next();
+            }
+            case 20 -> {
+                if(elapsed<25)return;
+                check(mc.screen instanceof com.direwolf20.justdirethings.client.screens.MachineSettingsCopierScreen,"advanced copier uses native options screen");
+                screenshot(mc,"jdte-advanced-settings-copier.png");
+                copierAreaBefore=com.direwolf20.justdirethings.common.items.MachineSettingsCopier.getCopyArea(mc.player.getMainHandItem());
+                var button=(net.minecraft.client.gui.components.AbstractButton)mc.screen.children().stream().filter(e->e instanceof net.minecraft.client.gui.components.AbstractButton).findFirst().orElseThrow();
+                button.onPress();next();
+            }
+            case 21 -> {
+                if(elapsed<25)return;
+                check(com.direwolf20.justdirethings.common.items.MachineSettingsCopier.getCopyArea(mc.player.getMainHandItem())!=copierAreaBefore,"copier option reaches server and synchronizes inventory");
+                try { Files.writeString(mc.gameDirectory.toPath().resolve("mineral-smoke-success.txt"), "PASS: normal/large/survey, fluids/pages/count packets, JEI/Jade, basic/advanced bags, machine panel packet insertion/conservation advanced copier option packets and 6.4M bulk-drop entity sync\n"); }
+                catch(java.io.IOException exception){throw new IllegalStateException(exception);}
+                LOG.info("JDTE_MINERAL_CLIENT_SMOKE_PASS");mc.stop();next();
             }
             default -> { }
         }

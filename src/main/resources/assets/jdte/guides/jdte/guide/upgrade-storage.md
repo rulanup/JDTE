@@ -5,6 +5,7 @@ navigation:
   position: 31
 item_ids:
   - jdte:upgrade_storage
+  - jdte:advanced_upgrade_storage
 ---
 
 # Upgrade Storage
@@ -23,8 +24,24 @@ Upgrade Storage holds twenty stacks of upgrades in a 4x5 grid. Each slot accepts
 
 The bag accepts JDTE upgrade cards, Looting and Sharpness upgrades, Extended Upgrades, JDT ability upgrades and items in the `jdte:upgrades` item tag. It rejects ordinary items and nested upgrade storage bags.
 
-This is the basic storage item. The Advanced Upgrade Storage's collection modes and Curios support remain part of the unfinished Forge port.
 
 ## Crafting
 
 <RecipeFor id="jdte:upgrade_storage" />
+
+## Advanced Upgrade Storage
+
+<ItemImage id="jdte:advanced_upgrade_storage" scale="2" />
+
+The advanced case holds 36 stacks in a 6x6 grid, with the same 64-upgrade slot limit and Forge item interface. It uses the same persistent item inventory and protects the opened case against hotbar/offhand movement.
+
+While a machine menu is open, its side panel finds advanced cases in your main hand, offhand, inventory and available Curios inventories. The page arrows switch between cases; the header collapses the panel. Green dots identify upgrades the current machine can accept.
+
+- Left-click inserts one upgrade; Shift-left-click inserts as many as the machine accepts.
+- Right-click takes one upgrade onto an empty cursor; Shift-right-click withdraws one legal stack into your inventory.
+- With an upgrade on the cursor, left-click deposits the carried stack into that case slot; right-click deposits one.
+- Machine limits, incompatible upgrades and dedicated Bio Crusher Looting/Sharpness slots are respected. Failed insertions leave the remainder in the case.
+
+There is no automatic collection mode in the pinned 0.6.5.2 item implementation. Curios lookup uses slots supplied by the installed Curios configuration; this item does not create a new accessory slot.
+
+<RecipeFor id="jdte:advanced_upgrade_storage" />

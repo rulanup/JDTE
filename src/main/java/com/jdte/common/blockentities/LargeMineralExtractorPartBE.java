@@ -77,7 +77,9 @@ public final class LargeMineralExtractorPartBE extends BlockEntity {
         super(JDTEBlockEntities.LARGE_MINERAL_EXTRACTOR_PART.get(), pos, state);
     }
     private LargeMineralExtractorBE controller() {
-        if (isRemoved() || level == null || !(getBlockState().getBlock() instanceof LargeMineralExtractorPartBlock part)) return null;
+        if (isRemoved() || level == null || !level.hasChunkAt(worldPosition)
+                || level.getBlockEntity(worldPosition) != this
+                || !(getBlockState().getBlock() instanceof LargeMineralExtractorPartBlock part)) return null;
         BlockPos pos = part.getControllerPos(worldPosition, getBlockState());
         return level.hasChunkAt(pos) && level.getBlockEntity(pos) instanceof LargeMineralExtractorBE be && !be.isRemoved() ? be : null;
     }

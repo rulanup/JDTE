@@ -37,6 +37,7 @@ public class JDTEClientSetup {
 
     private static void registerScreens() {
         MenuScreens.register(JDTEMenus.UPGRADE_STORAGE.get(), UpgradeStorageScreen::new);
+        MenuScreens.register(JDTEMenus.ADVANCED_UPGRADE_STORAGE.get(), AdvancedUpgradeStorageScreen::new);
         MenuScreens.register(JDTEMenus.MINERAL_EXTRACTOR.get(), com.jdte.client.screens.MineralExtractorScreen::new);
         MenuScreens.register(JDTEMenus.LARGE_MINERAL_EXTRACTOR.get(), com.jdte.client.screens.MineralExtractorScreen::new);
         // Time Accelerators
@@ -130,6 +131,7 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
+        event.registerEntityRenderer(JDTEEntities.BULK_ITEM.get(), net.minecraft.client.renderer.entity.ItemEntityRenderer::new);
         event.registerEntityRenderer(JDTEEntities.TIME_ACCELERATOR_EFFECT.get(), TimeAcceleratorEffectRenderer::new);
 
         // Extended Machines

@@ -71,7 +71,7 @@ import java.util.function.Supplier;
 
 /** Forge 1.20.1 message registration for all JDTE client/server interactions. */
 public final class JDTEPacketHandler {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             JDTE.id("main"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
     private static int nextPacketId;
@@ -80,6 +80,10 @@ public final class JDTEPacketHandler {
     }
 
     public static void registerNetworking(FMLCommonSetupEvent event) {
+        registerServer(com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload.class,
+                com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload::encode,
+                com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload::decode,
+                com.jdte.common.network.handler.AdvancedUpgradeStorageActionPacket::handle);
         registerServer(TimeAcceleratorPayload.class, TimeAcceleratorPayload::encode, TimeAcceleratorPayload::decode,
                 TimeAcceleratorPacket.get()::handle);
         registerServer(TimeFreezerPayload.class, TimeFreezerPayload::encode, TimeFreezerPayload::decode,

@@ -6,15 +6,21 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 
 /** Live, item-backed Forge replacement for the source's ComponentItemHandler. */
-public final class UpgradeStorageHandler extends ItemStackHandler {
+public class UpgradeStorageHandler extends ItemStackHandler {
     public static final int SLOTS = 20;
     public static final String NBT_KEY = "JDTEUpgradeStorage";
     private final ItemStack owner;
+    private final int fixedSlots;
     private CompoundTag lastSaved;
     private boolean refreshing;
 
     public UpgradeStorageHandler(ItemStack owner) {
-        super(SLOTS);
+        this(owner, SLOTS);
+    }
+
+    protected UpgradeStorageHandler(ItemStack owner, int slots) {
+        super(slots);
+        this.fixedSlots = slots;
         if (!(owner.getItem() instanceof UpgradeStorageItem)) throw new IllegalArgumentException("Expected an Upgrade Storage item");
         this.owner = owner;
         refresh();
@@ -25,7 +31,7 @@ public final class UpgradeStorageHandler extends ItemStackHandler {
         CompoundTag data = owner.hasTag() ? owner.getTag().getCompound(NBT_KEY) : new CompoundTag();
         if (data.equals(lastSaved)) return;
         CompoundTag bounded = data.copy();
-        bounded.putInt("Size", SLOTS); // Saved NBT must not resize this fixed inventory.
+        bounded.putInt("Size", fixedSlots); // Saved NBT must not resize this fixed inventory.
         refreshing = true;
         try {
             super.deserializeNBT(bounded);

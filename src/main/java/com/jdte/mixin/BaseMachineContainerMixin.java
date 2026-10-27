@@ -60,7 +60,7 @@ public abstract class BaseMachineContainerMixin {
         }
     }
 
-    @Inject(remap = false, method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
+    @Inject(remap = false, method = {"quickMoveStack", "m_7648_"}, at = @At("HEAD"), cancellable = true)
     private void jdte$quickMoveUpgrades(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
         if (baseMachineBE == null || index < 0) {
             return;

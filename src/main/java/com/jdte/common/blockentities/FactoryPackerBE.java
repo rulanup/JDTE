@@ -308,6 +308,20 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             BlockPos pos = positionAt(operationOrigin, operationSize, cursor);
             BlockState state = level.getBlockState(pos);
             if (state.isAir()) continue;
+            BlockPos mineralController = state.getBlock() instanceof com.jdte.common.blocks.LargeMineralExtractorBlock ? pos
+                    : state.getBlock() instanceof com.jdte.common.blocks.LargeMineralExtractorPartBlock part ? part.getControllerPos(pos, state) : null;
+            if (mineralController != null) {
+                if (!(level.getBlockState(mineralController).getBlock() instanceof com.jdte.common.blocks.LargeMineralExtractorBlock)) { fail(21); return; }
+                var facing = com.jdte.common.blocks.LargeMineralExtractorStructure.horizontalFacing(level.getBlockState(mineralController));
+                for (int y = 0; y < 2; y++) for (int depth = 0; depth < 3; depth++) for (int x = -1; x <= 1; x++) {
+                    BlockPos member = com.jdte.common.blocks.LargeMineralExtractorStructure.position(mineralController, facing, x, depth, y);
+                    if (member.getX() < operationOrigin.getX() || member.getX() >= operationOrigin.getX() + operationSize.getX()
+                            || member.getY() < operationOrigin.getY() || member.getY() >= operationOrigin.getY() + operationSize.getY()
+                            || member.getZ() < operationOrigin.getZ() || member.getZ() >= operationOrigin.getZ() + operationSize.getZ()) {
+                        fail(21); return;
+                    }
+                }
+            }
             if (state.is(BLACKLIST) || pos.equals(getBlockPos())) {
                 reporter.rememberBlacklistedBlock(state, pos);
                 continue;
@@ -1125,7 +1139,10 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             reporter.debugLog("mekanism-removal", prepared.describe("after-remove-block-entity",
                     MekanismFactoryMoveIntegration.currentRadiation(level, pos)));
         }
-        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+        var movingState = level.getBlockState(pos);
+        int moveFlag = movingState.getBlock() instanceof com.jdte.common.blocks.LargeMineralExtractorBlock
+                || movingState.getBlock() instanceof com.jdte.common.blocks.LargeMineralExtractorPartBlock ? Block.UPDATE_MOVE_BY_PISTON : 0;
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | moveFlag);
         if (logDiagnostics) {
             reporter.debugLog("mekanism-removal", prepared.describe("after-set-air",
                     MekanismFactoryMoveIntegration.currentRadiation(level, pos)));

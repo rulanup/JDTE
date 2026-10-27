@@ -21,19 +21,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = BaseMachineBlock.class, remap = false)
 public abstract class BaseMachineBlockMixin {
-    @Inject(remap = false, method = "getDrops", at = @At("RETURN"))
+    @Inject(remap = false, method = {"getDrops", "m_49635_"}, at = @At("RETURN"))
     private void jdte$removeMachineDataFromNormalDrops(BlockState state, LootParams.Builder builder,
                                                        CallbackInfoReturnable<java.util.List<ItemStack>> cir) {
         for (ItemStack stack : cir.getReturnValue()) {
             if (stack.is(state.getBlock().asItem())) {
-                if (stack.getTag() != null) {
-                    stack.getTag().remove("JustDiresBEData");
-                }
+                com.jdte.common.utils.MachineDropDataHelper.removeSeparatelyDroppedItems(stack);
             }
         }
     }
 
-    @Inject(remap = false, method = "getTicker", at = @At("RETURN"), cancellable = true)
+    @Inject(remap = false, method = {"getTicker", "m_142354_"}, at = @At("RETURN"), cancellable = true)
     private <T extends BlockEntity> void jdte$wrapServerTicker(Level level, BlockState state, BlockEntityType<T> type, CallbackInfoReturnable<BlockEntityTicker<T>> cir) {
         if (level.isClientSide()) {
             return;
@@ -52,7 +50,7 @@ public abstract class BaseMachineBlockMixin {
         });
     }
 
-    @Inject(remap = false, method = "onRemove", at = @At("HEAD"))
+    @Inject(remap = false, method = {"onRemove", "m_6810_"}, at = @At("HEAD"))
     private void jdte$dropUpgradeCards(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving, CallbackInfo ci) {
         if (level.isClientSide() || newState.getBlock() == state.getBlock()) {
             return;
@@ -86,4 +84,19 @@ public abstract class BaseMachineBlockMixin {
             }
         }
     }
+    @org.spongepowered.asm.mixin.injection.Redirect(method = {"onRemove", "m_6810_"}, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/Containers;dropItemStack(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V", remap = true), remap = false)
+    private void jdte$dropMineralInventory(Level level, double x, double y, double z, ItemStack stack,
+            BlockState oldState, Level oldLevel, BlockPos pos, BlockState newState, boolean moving) {
+        if (oldState.getBlock() instanceof com.jdte.common.blocks.MineralExtractorBlock
+                || oldState.getBlock() instanceof com.jdte.common.blocks.LargeMineralExtractorBlock) {
+            if (stack.getCount() > stack.getMaxStackSize()) {
+                level.addFreshEntity(new com.jdte.common.entities.BulkItemEntity(level, x + 0.5, y + 0.5, z + 0.5, stack));
+                stack.setCount(0);
+                return;
+            }
+        }
+        Containers.dropItemStack(level, x, y, z, stack);
+    }
+
 }

@@ -1,0 +1,345 @@
+package com.jdte.common.items;
+
+import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.items.MachineSettingsCopier;
+
+import com.jdte.common.autoioconfig.AutoIoConfigHelper;
+import com.jdte.common.items.machinesettings.MachineSettingsCodec;
+import com.jdte.common.items.machinesettings.MachineSettingsCodecRegistry;
+import com.jdte.common.items.machinesettings.MachineSettingsSnapshot;
+import com.jdte.common.items.machinesettings.MachineUpgradeHandlers;
+import com.jdte.common.items.machinesettings.MachineUpgradeTransfer;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.List;
+import java.util.Optional;
+
+public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
+    public AdvancedMachineSettingsCopierItem() {
+        super();
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        Level level = context.getLevel();
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        BlockEntity blockEntity = com.jdte.common.items.machinesettings.MachineSettingsTargets.resolve(level, context.getClickedPos());
+        if (!(blockEntity instanceof BaseMachineBE machine)) {
+            return InteractionResult.PASS;
+        }
+
+        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
+            return super.useOn(context);
+        }
+
+        ItemStack stack = context.getItemInHand();
+        Optional<PreparedPaste> prepared = preparePaste(level, machine, stack);
+        if (prepared.isEmpty()) {
+            return InteractionResult.PASS;
+        }
+
+        Player player = context.getPlayer();
+        MachineUpgradeHandlers.UpgradeExchange exchange = prepared.get().upgrades().exchange(machine);
+        if (player == null && !exchange.returned().isEmpty()) return InteractionResult.PASS;
+        Optional<MachineUpgradeTransfer> transfer = MachineUpgradeTransfer.prepare(
+                player, getPlayerInventory(player), exchange.required());
+        if (transfer.isEmpty()) {
+            if (player != null) player.displayClientMessage(
+                    Component.translatable("jdte.message.settings_copier.missing_upgrades"), true);
+            return InteractionResult.PASS;
+        }
+
+        MachineUpgradeHandlers.PreparedHandlers previous = prepared.get().upgrades().captureCurrent(machine);
+        try {
+            transfer.get().consume();
+            prepared.get().apply(this, level, blockEntity, machine, stack);
+        } catch (RuntimeException failure) {
+            transfer.get().rollback();
+            previous.apply(machine);
+            throw failure;
+        }
+        if (player != null) {
+            for (ItemStack returned : exchange.returned()) {
+                player.getInventory().placeItemBackInInventory(returned.copy());
+            }
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+            player.displayClientMessage(Component.translatable("justdirethings.settingspasted"), true);
+            player.playNotifySound(SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public void saveSettings(BlockEntity blockEntity, ItemStack stack) {
+        Level level = blockEntity.getLevel();
+        saveBaseSettings(level, blockEntity, stack);
+
+        CompoundTag copiedData = hasCopiedData(stack)
+                ? stack.getTag().getCompound("CopiedData").copy()
+                : new CompoundTag();
+
+        if (blockEntity instanceof BaseMachineBE machine) {
+            ResourceLocation machineTypeId = getBlockEntityTypeId(machine);
+            if (machineTypeId == null) {
+                AdvancedMachineSettingsCopierData.remove(copiedData);
+                AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+                AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+                AdvancedMachineSettingsCopierData.clearUpgradeHandlers(copiedData);
+            } else {
+                AdvancedMachineSettingsCopierData.writeMachineType(copiedData, machineTypeId);
+                saveMachineSettings(level, machine, machineTypeId, copiedData);
+                saveUpgrades(level, machine, copiedData);
+
+                if (hasConfigurableIo(machine)) {
+                    AdvancedMachineSettingsCopierData.writeMasks(copiedData,
+                            getInputMask(machine),
+                            getOutputMask(machine));
+                } else {
+                    AdvancedMachineSettingsCopierData.clearMasks(copiedData);
+                }
+            }
+        } else {
+            AdvancedMachineSettingsCopierData.remove(copiedData);
+            AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+            AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+            AdvancedMachineSettingsCopierData.clearUpgradeHandlers(copiedData);
+        }
+
+        if (copiedData.isEmpty()) {
+            stack.getOrCreateTag().remove("CopiedData");
+        } else {
+            stack.getOrCreateTag().put("CopiedData", copiedData);
+        }
+    }
+
+    @Override
+    public void loadSettings(BlockEntity blockEntity, ItemStack stack) {
+        Level level = blockEntity.getLevel();
+        if (!(blockEntity instanceof BaseMachineBE machine) || !hasCopiedData(stack)) {
+            return;
+        }
+
+        Optional<PreparedPaste> prepared = preparePaste(level, machine, stack);
+        if (prepared.isEmpty()) {
+            return;
+        }
+        prepared.get().apply(this, level, blockEntity, machine, stack);
+    }
+
+    private static boolean hasCopiedData(ItemStack stack) { return stack.hasTag() && stack.getTag().contains("CopiedData", Tag.TAG_COMPOUND); }
+
+    protected void saveBaseSettings(Level level, BlockEntity blockEntity, ItemStack stack) {
+        super.saveSettings(blockEntity, stack);
+    }
+
+    protected void loadBaseSettings(Level level, BlockEntity blockEntity, ItemStack stack) {
+        super.loadSettings(blockEntity, stack);
+    }
+
+    protected ResourceLocation getBlockEntityTypeId(BaseMachineBE machine) {
+        return BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType());
+    }
+
+    protected Optional<MachineSettingsCodec> getMachineSettingsCodec(ResourceLocation machineType,
+                                                                       BaseMachineBE machine) {
+        return MachineSettingsCodecRegistry.find(machineType, machine);
+    }
+
+    protected boolean hasConfigurableIo(BaseMachineBE machine) {
+        return AutoIoConfigHelper.hasConfigurableIo(machine);
+    }
+
+    protected int getInputMask(BaseMachineBE machine) {
+        return AutoIoConfigHelper.getInputMask(machine);
+    }
+
+    protected int getOutputMask(BaseMachineBE machine) {
+        return AutoIoConfigHelper.getOutputMask(machine);
+    }
+
+    protected void setMasks(BaseMachineBE machine, int inputMask, int outputMask) {
+        AutoIoConfigHelper.setMasks(machine, inputMask, outputMask);
+    }
+
+    protected RegistryAccess getRegistryAccess(Level level) {
+        return level == null ? null : level.registryAccess();
+    }
+
+    protected void saveUpgrades(Level level, BaseMachineBE machine, CompoundTag copiedData) {
+        RegistryAccess registries = getRegistryAccess(level);
+        if (registries == null) {
+            AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
+            AdvancedMachineSettingsCopierData.clearUpgradeHandlers(copiedData);
+            return;
+        }
+        MachineUpgradeHandlers.write(copiedData, machine, registries);
+    }
+
+    private void saveMachineSettings(Level level, BaseMachineBE machine, ResourceLocation machineType,
+                                     CompoundTag copiedData) {
+        RegistryAccess registries = getRegistryAccess(level);
+        if (registries == null) {
+            AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+            return;
+        }
+
+        Optional<MachineSettingsCodec> codec = getMachineSettingsCodec(machineType, machine);
+        if (codec.isEmpty()) {
+            AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
+            return;
+        }
+
+        try {
+            MachineSettingsSnapshot.write(copiedData, machineType, machine.getTickSpeed(), machine.getDirection(),
+                    codec.get().encode(machine, registries));
+        } catch (RuntimeException failure) {
+            com.mojang.logging.LogUtils.getLogger().error("Failed to capture settings for {}", machineType, failure);
+            throw failure;
+        }
+    }
+
+    protected void loadUpgrades(Level level, BaseMachineBE machine, CompoundTag copiedData) {
+        RegistryAccess registries = getRegistryAccess(level);
+        if (registries == null) {
+            return;
+        }
+
+        MachineUpgradeHandlers.prepare(copiedData, machine, registries).ifPresent(prepared -> {
+            prepared.apply(machine);
+        });
+    }
+
+    /**
+     * Checks and atomically consumes one matching inventory item for every copied upgrade.
+     * A failed check leaves the player's inventory untouched.
+     */
+    protected boolean consumeUpgradeCost(Player player, Level level, BaseMachineBE machine, ItemStack copierStack) {
+        Optional<List<ItemStack>> requiredResult = readRequiredUpgrades(level, machine, copierStack);
+        if (requiredResult.isEmpty()) {
+            return false;
+        }
+
+        return consumeUpgradeCost(player, requiredResult.get());
+    }
+
+    private boolean consumeUpgradeCost(Player player, List<ItemStack> required) {
+        Optional<MachineUpgradeTransfer> transfer = MachineUpgradeTransfer.prepare(
+                player, getPlayerInventory(player), required);
+        if (transfer.isEmpty()) return false;
+        transfer.get().consume();
+        return true;
+    }
+
+    protected Inventory getPlayerInventory(Player player) {
+        return player == null ? null : player.getInventory();
+    }
+
+    private Optional<List<ItemStack>> readRequiredUpgrades(Level level, BaseMachineBE machine, ItemStack copierStack) {
+        if (!hasCopiedData(copierStack)) {
+            return Optional.of(List.of());
+        }
+
+        return preparePaste(level, machine, copierStack).map(PreparedPaste::requiredUpgrades);
+    }
+
+    private boolean hasCompatibleType(BaseMachineBE machine, CompoundTag copiedData) {
+        ResourceLocation machineTypeId = getBlockEntityTypeId(machine);
+        if (machineTypeId == null) {
+            return false;
+        }
+
+        return AdvancedMachineSettingsCopierData.readMachineType(copiedData)
+                .map(machineTypeId::equals)
+                .orElse(false);
+    }
+
+    private Optional<PreparedPaste> preparePaste(Level level, BaseMachineBE machine, ItemStack copierStack) {
+        if (!hasCopiedData(copierStack)) {
+            return Optional.empty();
+        }
+
+        CompoundTag copiedData = copierStack.getTag().getCompound("CopiedData").copy();
+        ResourceLocation machineType = getBlockEntityTypeId(machine);
+        RegistryAccess registries = getRegistryAccess(level);
+        if (machineType == null || registries == null || !hasCompatibleType(machine, copiedData)) {
+            return Optional.empty();
+        }
+
+        MachineSettingsCodec.PreparedSettings settings = null;
+        if (copiedData.contains(AdvancedMachineSettingsCopierData.MACHINE_SETTINGS_KEY)) {
+            Optional<MachineSettingsSnapshot> snapshot = MachineSettingsSnapshot.read(copiedData);
+            Optional<MachineSettingsCodec> codec = getMachineSettingsCodec(machineType, machine);
+            if (snapshot.isEmpty() || codec.isEmpty() || !snapshot.get().machineType().equals(machineType)
+                    || !hasMatchingCommonFields(snapshot.get())) {
+                return Optional.empty();
+            }
+            Optional<MachineSettingsCodec.PreparedSettings> decoded = codec.get().decode(snapshot.get().custom(), registries);
+            if (decoded.isEmpty()) {
+                return Optional.empty();
+            }
+            settings = decoded.get();
+        }
+
+        Optional<MachineUpgradeHandlers.PreparedHandlers> upgrades =
+                MachineUpgradeHandlers.prepare(copiedData, machine, registries);
+        if (upgrades.isEmpty()) {
+            return Optional.empty();
+        }
+
+        AdvancedMachineSettingsCopierData.Masks masks = hasConfigurableIo(machine)
+                ? AdvancedMachineSettingsCopierData.readMasks(copiedData).orElse(null)
+                : null;
+        return Optional.of(new PreparedPaste(settings, upgrades.get(), masks));
+    }
+
+    private static boolean hasMatchingCommonFields(MachineSettingsSnapshot snapshot) {
+        CompoundTag custom = snapshot.custom();
+        return custom.contains("tickSpeed", Tag.TAG_INT)
+                && custom.contains("direction", Tag.TAG_INT)
+                && custom.getInt("tickSpeed") == snapshot.tickSpeed()
+                && custom.getInt("direction") == snapshot.direction();
+    }
+
+    private record PreparedPaste(MachineSettingsCodec.PreparedSettings settings,
+                                 MachineUpgradeHandlers.PreparedHandlers upgrades,
+                                 AdvancedMachineSettingsCopierData.Masks masks) {
+        private List<ItemStack> requiredUpgrades() {
+            return upgrades.requiredUpgrades();
+        }
+
+        private void apply(AdvancedMachineSettingsCopierItem copier, Level level, BlockEntity blockEntity,
+                           BaseMachineBE machine, ItemStack copierStack) {
+            copier.loadBaseSettings(level, blockEntity, copierStack);
+            upgrades.apply(machine);
+            if (settings != null) {
+                settings.apply(machine);
+                if (MachineSettingsCopier.getCopyFilter(copierStack)) {
+                    settings.applyFilterSettings(machine);
+                }
+            }
+            if (masks != null) {
+                copier.setMasks(machine, masks.inputMask(), masks.outputMask());
+            }
+            machine.markDirtyClient();
+        }
+    }
+}

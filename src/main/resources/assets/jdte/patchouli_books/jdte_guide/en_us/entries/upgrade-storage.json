@@ -16,6 +16,15 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:upgrade_storage"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_upgrade_storage",
+      "text": "Adds a 6x6 case and a machine menu side panel. Left-click installs one card; Shift-left installs the maximum. Right-click takes one card; Shift-right withdraws a legal stack. Carry upgrades to deposit them. Cases are found in either hand, inventory and configured Curios slots."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_upgrade_storage"
     }
   ]
 }

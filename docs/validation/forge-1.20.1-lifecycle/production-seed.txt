@@ -1,0 +1,8 @@
+Selected verbatim log lines (UTC timestamps)
+
+[04:07:52] [Server thread/INFO] [minecraft/DedicatedServer]: Done (6.138s)! For help, type "help"
+[04:07:57] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[04:07:57] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[04:07:58] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+
+PASS: real boundary chunk unload/reload, retained capability, all saved machine fields

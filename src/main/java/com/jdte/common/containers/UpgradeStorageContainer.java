@@ -20,6 +20,7 @@ public class UpgradeStorageContainer extends BaseContainer {
     public static final int COLUMNS = 5;
     public static final int SLOTS = ROWS * COLUMNS; // 20
 
+    private final int storageSlots;
     public final UpgradeStorageHandler handler;
     public final ItemStack upgradeStorageItemStack;
     public final Player playerEntity;
@@ -34,20 +35,26 @@ public class UpgradeStorageContainer extends BaseContainer {
     }
 
     public UpgradeStorageContainer(int windowId, Inventory inventory, Player player, ItemStack stack, InteractionHand hand) {
-        super(JDTEMenus.UPGRADE_STORAGE.get(), windowId);
+        this(JDTEMenus.UPGRADE_STORAGE.get(), windowId, inventory, player, stack, hand, ROWS, COLUMNS, 44, 102, new UpgradeStorageHandler(stack));
+    }
+
+    protected UpgradeStorageContainer(net.minecraft.world.inventory.MenuType<?> type, int windowId, Inventory inventory,
+            Player player, ItemStack stack, InteractionHand hand, int rows, int columns, int slotX, int playerY, UpgradeStorageHandler handler) {
+        super(type, windowId);
+        this.storageSlots = rows * columns;
         this.playerEntity = player;
         this.upgradeStorageItemStack = stack;
         this.hand = hand;
-        this.handler = new UpgradeStorageHandler(stack);
+        this.handler = handler;
 
         int slotIndex = 0;
-        for (int r = 0; r < ROWS; r++) {
-            for (int c = 0; c < COLUMNS; c++) {
-                addSlot(new UpgradeStorageSlot(handler, slotIndex++, 44 + c * 18, 18 + r * 18));
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < columns; c++) {
+                addSlot(new UpgradeStorageSlot(handler, slotIndex++, slotX + c * 18, 18 + r * 18));
             }
         }
 
-        addPlayerSlots(inventory, 8, 102);
+        addPlayerSlots(inventory, 8, playerY);
     }
 
     @Override
@@ -61,7 +68,7 @@ public class UpgradeStorageContainer extends BaseContainer {
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
         if (!stillValid(player) || (hand == InteractionHand.OFF_HAND && clickType == ClickType.SWAP && button == 40)) return;
         if (hand == InteractionHand.MAIN_HAND) {
-            int heldSlotIndex = SLOTS + 27 + player.getInventory().selected;
+            int heldSlotIndex = storageSlots + 27 + player.getInventory().selected;
             if (slotId == heldSlotIndex) {
                 return;
             }
@@ -81,18 +88,18 @@ public class UpgradeStorageContainer extends BaseContainer {
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         if (!stillValid(player) || index < 0 || index >= slots.size()) return ItemStack.EMPTY;
-        if (hand == InteractionHand.MAIN_HAND && index == SLOTS + 27 + player.getInventory().selected) return ItemStack.EMPTY;
+        if (hand == InteractionHand.MAIN_HAND && index == storageSlots + 27 + player.getInventory().selected) return ItemStack.EMPTY;
         ItemStack copied = ItemStack.EMPTY;
         Slot slot = slots.get(index);
         if (slot != null && slot.hasItem()) {
             ItemStack slotStack = slot.getItem();
             copied = slotStack.copy();
 
-            if (index < SLOTS) {
+            if (index < storageSlots) {
                 // Storage -> Player Inventory: move 1-by-1 since player slots limit is 1
                 while (!slotStack.isEmpty()) {
                     ItemStack single = slotStack.split(1);
-                    if (!moveItemStackTo(single, SLOTS, slots.size(), true)) {
+                    if (!moveItemStackTo(single, storageSlots, slots.size(), true)) {
                         slotStack.grow(1);
                         break;
                     }
@@ -124,7 +131,7 @@ public class UpgradeStorageContainer extends BaseContainer {
         }
         boolean moved = false;
         // Step 1: Merge into existing matching slots
-        for (int i = 0; i < SLOTS; i++) {
+        for (int i = 0; i < storageSlots; i++) {
             Slot storageSlot = slots.get(i);
             ItemStack existing = storageSlot.getItem();
             if (!existing.isEmpty() && ItemStack.isSameItemSameTags(stack, existing)) {
@@ -144,7 +151,7 @@ public class UpgradeStorageContainer extends BaseContainer {
         }
         // Step 2: Insert into first empty slot
         if (!stack.isEmpty()) {
-            for (int i = 0; i < SLOTS; i++) {
+            for (int i = 0; i < storageSlots; i++) {
                 Slot storageSlot = slots.get(i);
                 ItemStack existing = storageSlot.getItem();
                 if (existing.isEmpty() && storageSlot.mayPlace(stack)) {

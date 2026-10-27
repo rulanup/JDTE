@@ -728,6 +728,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public boolean canRun() { return true; }
 
+    @Override public boolean isDefaultSettings() { return false; }
+
     @Override public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("inventory", OversizedItemStackHandlerSerialization.serialize(itemHandler));

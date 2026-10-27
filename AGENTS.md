@@ -38,7 +38,7 @@ Major features:
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
 
-The Mineral Extractor, Large Mineral Extractor and Mineral Survey are now connected to the Forge game systems, with 24 mineral server integration tests and real graphical client smoke coverage. The basic Upgrade Storage is also ported with 11 server tests. AE/conversion extensions and other unchecked families remain pending.
+The Mineral Extractor, Large Mineral Extractor and Mineral Survey are connected to the Forge game systems, with lifecycle/Factory Packer tests and real graphical client smoke coverage. Basic/Advanced Upgrade Storage and the Advanced Machine Settings Copier are implemented, including native JDT basic copier compatibility. The current server suite has 57 GameTests; the 58 JUnit tests retain all 24 original mineral core tests. Real production Forge server unload/restart probes use a separate test-only JAR. AE/conversion extensions and other unchecked families remain pending.
 
 The 0.6.5.2 backport is in progress; see [port tracking](docs/forge-1.20.1-port.md). Do not advertise feature parity until the new registrations and runtime checks are complete.
 

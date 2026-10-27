@@ -1,0 +1,44 @@
+{
+  "reference_commit": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "starting_commit": "2bdf14e",
+  "branch": "codex/forge-1.20.1-mineral-machines",
+  "mod_version": "0.5.8-forge-1.20.1",
+  "minecraft": "1.20.1",
+  "forge": "47.4.10",
+  "java": "17",
+  "gradle": "8.6",
+  "jdt": "1.1.4",
+  "junit": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "gametest": {
+    "required_passed": 57,
+    "failed": 0
+  },
+  "production_server": {
+    "seed_exit": 0,
+    "restart_exit": 0,
+    "real_chunk_unload_reload": true,
+    "two_separate_JVMs": true,
+    "jar_sha256": "68c5e320201592b4f53fcb6238a4987bc44299d63dc2d1b3a0f6ada6bf2ea9bc"
+  },
+  "real_graphical_client": {
+    "exit": 0,
+    "backend": "Xorg dummy / llvmpipe",
+    "integrated_server": true,
+    "advanced_bag_menu": true,
+    "machine_panel_packets": true,
+    "copier_option_packets": true,
+    "bulk_entity_integer_count_sync": true
+  },
+  "production_jar_has_smoke_classes": false,
+  "unverified": [
+    "two independent remote clients on a dedicated server",
+    "full optional-mod absence matrix",
+    "long-running production/automation and throughput soak tests",
+    "all unported registrations in the progress document"
+  ]
+}

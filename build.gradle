@@ -39,6 +39,10 @@ java {
 
 // Opt-in graphical smoke harness; excluded from production JARs.
 sourceSets {
+    serverSmoke {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += output + compileClasspath + sourceSets.main.runtimeClasspath
+    }
     clientSmoke {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += output + compileClasspath + sourceSets.main.runtimeClasspath
@@ -254,3 +258,12 @@ tasks.withType(JavaExec).configureEach {
         classpath += configurations.jdteClientRuntime
     }
 }
+
+// Separate test mod for real disk unload/restart and packaged-server validation.
+tasks.register('serverSmokeJar', Jar) {
+    archiveClassifier = 'lifecycle-probe'
+    from sourceSets.serverSmoke.output
+    manifest { attributes 'FMLModType': 'MOD' }
+}
+reobf { serverSmokeJar { classpath.from sourceSets.main.output, sourceSets.main.compileClasspath } }
+tasks.named('serverSmokeJar').configure { finalizedBy 'reobfServerSmokeJar' }

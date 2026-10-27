@@ -362,7 +362,10 @@ public final class MineralMachineGameTests {
         h.succeed();
     }
     @GameTest(template = "mineral_empty")
-    public static void wrenchPickupThroughPartPreservesMachineContents(GameTestHelper h) {
+    public static void wrenchPickupThroughPartPreservesMachineContents(GameTestHelper h) { populatedWrenchRoundTrip(h,false); }
+    @GameTest(template = "mineral_empty")
+    public static void wrenchPickupWithFullPlayerInventoryDropsOneIntactMachine(GameTestHelper h) { populatedWrenchRoundTrip(h,true); }
+    private static void populatedWrenchRoundTrip(GameTestHelper h, boolean full) {
         h.setBlock(POS, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get());
         var controller = h.absolutePos(POS);
         LargeMineralExtractorStructure.placeParts(h.getLevel(), controller, Direction.NORTH);
@@ -372,7 +375,11 @@ public final class MineralMachineGameTests {
         be.getEnergyStorage().setEnergy(50_000_000);
         be.getMachineHandler().setStackInSlot(be.outputStartSlot() + 63, new ItemStack(Items.IRON_ORE, 6_400_000));
         be.setMultiplier(17);
+        be.getTimeFluidTank().setFluid(new FluidStack(com.direwolf20.justdirethings.setup.Registration.TIME_FLUID_SOURCE.get(),80000));
+        be.getExperienceFluidTank().setFluid(new FluidStack(com.direwolf20.justdirethings.setup.Registration.XP_FLUID_SOURCE.get(),70000));
+        var saved=be.saveWithFullMetadata();saved.putLong("pendingBaseWork",13);saved.putLong("pendingAcceleratedWork",7);be.load(saved);
         var player = h.makeMockSurvivalPlayer();
+        if(full) { for(int i=0;i<36;i++)player.getInventory().setItem(i,new ItemStack(Items.COBBLESTONE,64)); player.setPos(controller.getX()+0.5,controller.getY()+0.5,controller.getZ()+0.5); }
         var part = LargeMineralExtractorStructure.position(controller, Direction.NORTH, -1, 1, 1);
         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(JDTEItems.ECLIPSEALLOY_WRENCH.get()));
         var partState = h.getLevel().getBlockState(part);
@@ -380,7 +387,11 @@ public final class MineralMachineGameTests {
                 new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(part), Direction.UP, part, false)) == net.minecraft.world.InteractionResult.PASS, "part forwards wrench item interaction");
         h.assertTrue(com.jdte.common.items.EclipseAlloyWrenchItem.pickupMachine(h.getLevel(), part, player), "pickup resolves part controller");
         h.assertTrue(h.getLevel().getBlockEntity(controller) == null && h.getLevel().isEmptyBlock(part), "old structure dismantled");
-        ItemStack packed = player.getInventory().items.stream().filter(st -> st.is(JDTEItems.LARGE_MINERAL_EXTRACTOR.get())).findFirst().orElseThrow();
+        ItemStack packed;
+        if(full){
+            var drops=h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(controller).inflate(2),e->e.getItem().is(JDTEItems.LARGE_MINERAL_EXTRACTOR.get()));
+            h.assertTrue(drops.size()==1,"full player inventory drops exactly one packed machine");packed=drops.get(0).getItem();drops.get(0).discard();
+        } else packed=player.getInventory().items.stream().filter(st->st.is(JDTEItems.LARGE_MINERAL_EXTRACTOR.get())).findFirst().orElseThrow();
         h.setBlock(POS, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get());
         var state = h.getLevel().getBlockState(controller);
         state.getBlock().setPlacedBy(h.getLevel(), controller, state, player, packed);
@@ -390,6 +401,9 @@ public final class MineralMachineGameTests {
         h.assertTrue(MineralSurveyItem.getSurvey(restored.getMachineHandler().getStackInSlot(3)) != null, "packed fourth survey");
         h.assertTrue(UpgradeHelper.hasUltimateCapacity(restored), "packed upgrades");
         equal(h, restored.getMultiplier(), 17, "packed multiplier");
+        equal(h,restored.getTimeFluidTank().getFluidAmount(),80000,"packed Time Fluid");
+        equal(h,restored.getExperienceFluidTank().getFluidAmount(),70000,"packed XP Fluid");
+        h.assertTrue(restored.saveWithFullMetadata().getLong("pendingBaseWork")==13 && restored.saveWithFullMetadata().getLong("pendingAcceleratedWork")==7,"both work queues preserved");
         h.assertTrue(h.getLevel().getBlockEntity(part) instanceof LargeMineralExtractorPartBE, "parts rebuilt after placement");
         h.succeed();
     }

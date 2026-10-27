@@ -12,6 +12,10 @@ import net.minecraftforge.registries.DeferredRegister;
 public class JDTEEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE, JDTE.MODID);
 
+    public static final RegistryObject<EntityType<com.jdte.common.entities.BulkItemEntity>> BULK_ITEM = ENTITIES.register(
+            "bulk_item", () -> EntityType.Builder.<com.jdte.common.entities.BulkItemEntity>of(com.jdte.common.entities.BulkItemEntity::new, MobCategory.MISC)
+                    .sized(0.25f, 0.25f).clientTrackingRange(6).updateInterval(1).build("bulk_item"));
+
     public static final RegistryObject<EntityType<TimeAcceleratorEffectEntity>> TIME_ACCELERATOR_EFFECT = ENTITIES.register(
             "time_accelerator_effect", () -> EntityType.Builder.<TimeAcceleratorEffectEntity>of(TimeAcceleratorEffectEntity::new, MobCategory.MISC)
                     .sized(0.1f, 0.1f)
