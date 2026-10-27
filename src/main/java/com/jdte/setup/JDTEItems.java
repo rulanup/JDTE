@@ -71,6 +71,11 @@ public class JDTEItems {
     public static final RegistryObject<BlockItem> LIFE_BREEDER = ITEMS.register("life_breeder", () -> new BlockItem(JDTEBlocks.LIFE_BREEDER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> FACTORY_PACKER = ITEMS.register("factory_packer", () -> new BlockItem(JDTEBlocks.FACTORY_PACKER.get(), new Item.Properties()));
 
+    public static final RegistryObject<UpgradeCardItem> AE_CRAFTING_READ_UPGRADE = ITEMS.register("ae_crafting_read_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_CRAFTING_READ));
+    public static final RegistryObject<com.jdte.common.items.AEExtractionUpgradeItem> AE_EXTRACTION_UPGRADE = ITEMS.register("ae_extraction_upgrade", com.jdte.common.items.AEExtractionUpgradeItem::new);
+    public static final RegistryObject<com.jdte.common.items.AEOutputUpgradeItem> AE_OUTPUT_UPGRADE = ITEMS.register("ae_output_upgrade", com.jdte.common.items.AEOutputUpgradeItem::new);
+    public static final RegistryObject<com.jdte.common.items.AdvancedAEOutputUpgradeItem> ADVANCED_AE_OUTPUT_UPGRADE = ITEMS.register("advanced_ae_output_upgrade", com.jdte.common.items.AdvancedAEOutputUpgradeItem::new);
+
     // Glue Activator
     public static final RegistryObject<BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> ADVANCED_GLUE_ACTIVATOR = ITEMS.register("advanced_glue_activator", () -> new BlockItem(JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get(), new Item.Properties()));
@@ -144,6 +149,9 @@ public class JDTEItems {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE);
     }
+    public static final RegistryObject<com.jdte.common.items.CraftingPatternItem> CRAFTING_PATTERN = ITEMS.register("crafting_pattern",com.jdte.common.items.CraftingPatternItem::new);
+    public static final RegistryObject<com.jdte.common.items.EssenceConversionUpgradeItem> ESSENCE_CONVERSION_UPGRADE = ITEMS.register("essence_conversion_upgrade",()->new com.jdte.common.items.EssenceConversionUpgradeItem(1));
+    public static final RegistryObject<com.jdte.common.items.EssenceConversionUpgradeItem> ADVANCED_ESSENCE_CONVERSION_UPGRADE = ITEMS.register("advanced_essence_conversion_upgrade",()->new com.jdte.common.items.EssenceConversionUpgradeItem(3));
     public static final RegistryObject<com.jdte.common.items.AdvancedMachineSettingsCopierItem> ADVANCED_MACHINE_SETTINGS_COPIER = ITEMS.register("advanced_machine_settings_copier", com.jdte.common.items.AdvancedMachineSettingsCopierItem::new);
     public static final RegistryObject<com.jdte.common.items.AdvancedUpgradeStorageItem> ADVANCED_UPGRADE_STORAGE = ITEMS.register("advanced_upgrade_storage", com.jdte.common.items.AdvancedUpgradeStorageItem::new);
     public static final RegistryObject<com.jdte.common.items.UpgradeStorageItem> UPGRADE_STORAGE = ITEMS.register("upgrade_storage", com.jdte.common.items.UpgradeStorageItem::new);

@@ -36,6 +36,7 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.CRAFTING_PATTERN.get(),CraftingPatternScreen::new);
         MenuScreens.register(JDTEMenus.UPGRADE_STORAGE.get(), UpgradeStorageScreen::new);
         MenuScreens.register(JDTEMenus.ADVANCED_UPGRADE_STORAGE.get(), AdvancedUpgradeStorageScreen::new);
         MenuScreens.register(JDTEMenus.MINERAL_EXTRACTOR.get(), com.jdte.client.screens.MineralExtractorScreen::new);

@@ -238,7 +238,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             // 周期性持久化兜底（能量等杂项状态），本地标记开销可忽略
             setChanged();
         }
-        advanceProductionTicks(1);
+        if (UpgradeHelper.mayRunWithUpgrades(this) || !isActiveRedstone() || !canRun()) advanceProductionTicks(1);
     }
 
     @Override
@@ -248,6 +248,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
 
     @Override
     public void flushAcceleratedTicks() {
+        if (!UpgradeHelper.mayRunWithUpgrades(this) && isActiveRedstone() && canRun()) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks);
@@ -255,6 +256,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
 
     private void advanceProductionTicks(int ticks) {
         if (ticks <= 0) return;
+        if (isActiveRedstone() && canRun() && !UpgradeHelper.mayRunWithUpgrades(this)) return;
         if (!isActiveRedstone() || !canRun()) {
             settlementTicker = 0;
             return;

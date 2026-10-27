@@ -1,0 +1,38 @@
+{
+  "starting_commit": "8563466",
+  "mod_version": "0.5.8-forge-1.20.1",
+  "two_independent_client_JVMs": true,
+  "same_clients_reconnected_after_server_restart": true,
+  "runtime_mods": [
+    "justdirethings",
+    "jdte",
+    "guideme",
+    "ae2",
+    "curios",
+    "jei",
+    "jade",
+    "modernfix"
+  ],
+  "shared_output_and_independent_pages": true,
+  "concurrent_upgrades_copiers_and_bags": true,
+  "disconnect_with_cursor_and_natural_pickup": true,
+  "capacity_card_budget": 128,
+  "extracted_ore_budget": 256,
+  "actual_chunk_unload": true,
+  "server_seed_exit": 0,
+  "server_restart_exit": 0,
+  "client_exits": [
+    0,
+    0
+  ],
+  "core_jar_sha256": "4b55480ecc18223257548d74bded0fe284c40492dad7c4af5aee6f4bc0838e33",
+  "optional_absence": [
+    "ae2",
+    "curios",
+    "jei",
+    "jade"
+  ],
+  "minimal_server_seed": "PASS: real boundary chunk unload/reload, retained capability, all saved machine fields",
+  "minimal_server_restart": "PASS: fresh server JVM restored inventory, FE, both fluids, surveys, upgrades, multiplier and pending work; resumed with bounded output/resource costs",
+  "minimal_client": "PASS: real client title, registrations and tank capability without AE2, Curios, JEI or Jade"
+}

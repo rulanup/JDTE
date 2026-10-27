@@ -77,6 +77,17 @@ public class JDTE {
         MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.server.ServerStoppedEvent event) ->
                 com.jdte.common.minerals.MineralSurveyIndex.clear(event.getServer()));
         MinecraftForge.EVENT_BUS.addListener(com.jdte.common.items.RepairTalismanEvents::onPlayerTick);
+        modEventBus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) -> event.enqueueWork(() -> {
+            com.jdte.common.integrations.ae2.AE2CraftingReadNetwork.registerLinkable();
+            com.jdte.common.integrations.ae2.AEOutputNetwork.registerLinkable();
+            com.jdte.common.integrations.ae2.AEExtractionNetwork.registerLinkable();
+        }));
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEOutputManager::onServerTickPost);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEOutputManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEOutputManager::onServerStopped);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.integrations.ae2.AE2CraftingReadNetwork::onServerStopped);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEExtractionPlayerManager::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEExtractionPlayerManager::onTooltip);
         MinecraftForge.EVENT_BUS.addListener(JDTECommands::register);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
@@ -108,6 +119,7 @@ public class JDTE {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
         if (ModList.get().isLoaded("curios")) {
             MinecraftForge.EVENT_BUS.addListener(BigFluidTankCuriosIntegration::onPlayerLoggedIn);
+            modEventBus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) -> event.enqueueWork(BigFluidTankCuriosIntegration::registerItems));
         }
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> com.jdte.client.JDTEClientMod::new);
         if (ModList.get().isLoaded("ftbultimine")) {

@@ -1,0 +1,37 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "mysticalagriculture"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "pattern": [
+          "PEP",
+          "ESE",
+          "PEP"
+        ],
+        "key": {
+          "E": {
+            "item": "mysticalagriculture:inferium_essence"
+          },
+          "P": {
+            "item": "mysticalagriculture:prosperity_shard"
+          },
+          "S": {
+            "item": "justdirethings:upgrade_smelter"
+          }
+        },
+        "result": {
+          "count": 1,
+          "item": "jdte:essence_conversion_upgrade"
+        }
+      }
+    }
+  ]
+}

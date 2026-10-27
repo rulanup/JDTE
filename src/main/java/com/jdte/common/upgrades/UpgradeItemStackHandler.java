@@ -40,6 +40,10 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
         if (!UpgradeHelper.isUpgradeCompatible(machine, type)) {
             return false;
         }
+        if (type.isAEOutputUpgrade()) {
+            for (int other=0;other<getSlots();other++)
+                if (other!=slot && getStackInSlot(other).getItem() instanceof UpgradeCardItem card && card.getType().isAEOutputUpgrade()) return false;
+        }
         if (type.isSpeedUpgrade() && hasOppositeSpeedUpgrade(type, slot)) {
             return false;
         }
@@ -78,6 +82,7 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
             UpgradeHelper.syncCapacities(machine);
             UpgradeHelper.trimInactiveFilterSlots(machine);
             machine.markDirtyClient();
+            com.jdte.common.manager.AEOutputManager.refresh(machine);
         }
     }
 

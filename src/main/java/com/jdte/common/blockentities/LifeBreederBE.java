@@ -141,7 +141,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
 
     @Override public void tickServer() {
         super.tickServer();
-        if (!isActiveRedstone() || ++cycleTicker < JDTEConfig.COMMON.lifeBreederProcessingInterval.get()) return;
+        if (!isActiveRedstone() || !UpgradeHelper.mayRunWithUpgrades(this) || ++cycleTicker < JDTEConfig.COMMON.lifeBreederProcessingInterval.get()) return;
         cycleTicker = 0;
         if (!(level instanceof ServerLevel serverLevel)) return;
 

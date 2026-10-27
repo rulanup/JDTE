@@ -116,7 +116,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     }
 
     boolean canApplyEffectThisTick() {
-        if (isRemoved() || level == null || !fieldActive || !isActiveRedstone()) return false;
+        if (isRemoved() || level == null || !fieldActive || !isActiveRedstone() || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         if (level.isClientSide || UpgradeHelper.hasCreativeUpgrade(this)) return true;
         long gameTime = level.getGameTime();
         if (paidGameTime == gameTime) return true;
@@ -131,7 +131,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     }
 
     private boolean canActivateWithoutConsuming() {
-        if (isRemoved() || level == null || !isActiveRedstone()) return false;
+        if (isRemoved() || level == null || !isActiveRedstone() || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         if (UpgradeHelper.hasCreativeUpgrade(this)) return true;
         int configuredCost = getStandardEnergyCost();
         if (configuredCost <= 0) return true;
@@ -140,7 +140,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     }
 
     private boolean consumeSilenceEnergy() {
-        if (isRemoved() || level == null || !isActiveRedstone()) return false;
+        if (isRemoved() || level == null || !isActiveRedstone() || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         if (UpgradeHelper.hasCreativeUpgrade(this)) return true;
         int cost = JDTEConfig.COMMON.rangeBlockerSilenceEnergyPerTick.get();
         if (cost <= 0) return true;

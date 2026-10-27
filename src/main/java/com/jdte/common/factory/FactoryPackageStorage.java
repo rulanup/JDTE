@@ -11,9 +11,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -36,8 +34,8 @@ public final class FactoryPackageStorage {
 
     private FactoryPackageStorage() {}
 
-    public static void write(MinecraftServer server, PackageData data, long maxCompressedBytes) throws IOException {
-        Path path = packagePath(server, data.id(), null);
+    public static void write(Path worldRoot, PackageData data, long maxCompressedBytes) throws IOException {
+        Path path = packagePath(worldRoot, data.id(), null);
         Path temp = path.resolveSibling(path.getFileName() + ".tmp");
         Files.createDirectories(path.getParent());
         NbtIo.writeCompressed(encode(data), temp.toFile());
@@ -48,20 +46,20 @@ public final class FactoryPackageStorage {
         moveReplace(temp, path);
     }
 
-    public static PackageData read(MinecraftServer server, UUID id, UUID claimToken,
+    public static PackageData read(Path worldRoot, UUID id, UUID claimToken,
                                    long maxUncompressedBytes, HolderLookup.Provider registries) throws IOException {
         CompoundTag root;
-        try (InputStream file = Files.newInputStream(packagePath(server, id, claimToken));
+        try (InputStream file = Files.newInputStream(packagePath(worldRoot, id, claimToken));
              DataInputStream input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file)))) {
             root = NbtIo.read(input, new NbtAccounter(maxUncompressedBytes));
         }
         return decode(id, root, registries);
     }
 
-    public static void claim(MinecraftServer server, UUID id, UUID claimToken) throws IOException {
+    public static void claim(Path worldRoot, UUID id, UUID claimToken) throws IOException {
         if (claimToken == null) throw new IOException("Factory package claim token is missing");
-        Path source = packagePath(server, id, null);
-        Path claimed = packagePath(server, id, claimToken);
+        Path source = packagePath(worldRoot, id, null);
+        Path claimed = packagePath(worldRoot, id, claimToken);
         if (Files.exists(claimed)) {
             if (Files.exists(source)) throw new IOException("Factory package has conflicting storage files");
             return;
@@ -70,28 +68,28 @@ public final class FactoryPackageStorage {
         moveReplace(source, claimed);
     }
 
-    public static void release(MinecraftServer server, UUID id, UUID claimToken) throws IOException {
+    public static void release(Path worldRoot, UUID id, UUID claimToken) throws IOException {
         if (claimToken == null) throw new IOException("Factory package claim token is missing");
-        Path claimed = packagePath(server, id, claimToken);
-        Path regular = packagePath(server, id, null);
+        Path claimed = packagePath(worldRoot, id, claimToken);
+        Path regular = packagePath(worldRoot, id, null);
         if (Files.exists(claimed) && Files.exists(regular)) {
             throw new IOException("Factory package has conflicting storage files");
         }
         if (Files.exists(claimed)) moveReplace(claimed, regular);
     }
 
-    public static void deleteRegular(MinecraftServer server, UUID id) throws IOException {
-        Files.deleteIfExists(packagePath(server, id, null));
+    public static void deleteRegular(Path worldRoot, UUID id) throws IOException {
+        Files.deleteIfExists(packagePath(worldRoot, id, null));
     }
 
-    public static void deleteClaimed(MinecraftServer server, UUID id, UUID claimToken) throws IOException {
+    public static void deleteClaimed(Path worldRoot, UUID id, UUID claimToken) throws IOException {
         if (claimToken == null) throw new IOException("Factory package claim token is missing");
-        Files.deleteIfExists(packagePath(server, id, claimToken));
+        Files.deleteIfExists(packagePath(worldRoot, id, claimToken));
     }
 
-    private static Path packagePath(MinecraftServer server, UUID id, UUID claimToken) {
+    private static Path packagePath(Path worldRoot, UUID id, UUID claimToken) {
         String suffix = claimToken == null ? ".nbt" : "." + claimToken + ".placing.nbt";
-        return server.getWorldPath(LevelResource.ROOT).resolve("data").resolve(DIRECTORY)
+        return worldRoot.resolve("data").resolve(DIRECTORY)
                 .resolve(id + suffix);
     }
 

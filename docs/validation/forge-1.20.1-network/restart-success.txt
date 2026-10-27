@@ -1,0 +1,1 @@
+PASS: fresh dedicated server and independent clients restored exact player/machine inventories and reopened synchronized menus

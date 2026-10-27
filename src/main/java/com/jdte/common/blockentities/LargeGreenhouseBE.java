@@ -95,6 +95,10 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             return slot >= OUTPUT_START_SLOT || slot >= 0 && GreenhouseCropResolver.find(level, stack) != null;
         }
 
+        @Override public ItemStack extractItem(int slot,int amount,boolean simulate) {
+            if(slot>=OUTPUT_START_SLOT&&level instanceof ServerLevel server&&GreenhouseEssenceConversionHelper.shouldRetainForConversion(server,LargeGreenhouseBE.this,getStackInSlot(slot)))return ItemStack.EMPTY;
+            return super.extractItem(slot,amount,simulate);
+        }
         @Override
         protected void onContentsChanged(int slot) {
             if (slot >= 0 && slot < INPUT_SLOTS) {
@@ -125,7 +129,8 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         }
         private boolean valid(int slot) { return slot >= 0 && slot < getSlots(); }
     };
-    private final IItemHandler internalOutputHandler = new IItemHandler() {
+    private final net.minecraftforge.items.IItemHandlerModifiable internalOutputHandler = new net.minecraftforge.items.IItemHandlerModifiable() {
+        @Override public void setStackInSlot(int slot,ItemStack stack) { if(!valid(slot))throw new IndexOutOfBoundsException(slot);itemHandler.setStackInSlot(OUTPUT_START_SLOT+slot,stack); }
         @Override public int getSlots() { return getActiveOutputSlots(); }
         @Override public ItemStack getStackInSlot(int slot) {
             return valid(slot) ? itemHandler.getStackInSlot(OUTPUT_START_SLOT + slot) : ItemStack.EMPTY;
@@ -179,6 +184,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     private int settlementTicker;
     private int nextInputSlot;
+    private final int[] essencePatternRotation=new int[3];
     private int activeMask;
     private int syncedProgress;
     private int syncedProgressMax = 1;
@@ -205,11 +211,19 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         Arrays.fill(cachedSeeds, ItemStack.EMPTY);
     }
 
+    int[] getEssencePatternRotation() { return essencePatternRotation.clone(); }
+    void setEssencePatternRotation(int[] rotation) { for(int i=0;i<3;i++)essencePatternRotation[i]=i<rotation.length?Math.floorMod(rotation[i],3):0; }
+    public void prepareOutputConversion() {
+        if(!(level instanceof ServerLevel server)||!UpgradeHelper.hasEssenceConversionUpgrade(this))return;
+        beginOutputChangeBatch();try{if(GreenhouseEssenceConversionHelper.convertStored(server,internalOutputHandler,this))markDirtyClient();}finally{finishOutputChangeBatch();}
+    }
+
     @Override
     public void tickServer() {
+        prepareOutputConversion();
         super.tickServer();
         if (level != null && level.getGameTime() % 20L == 0L) UpgradeHelper.syncCapacities(this);
-        advanceProductionTicks(1);
+        if (UpgradeHelper.mayRunWithUpgrades(this) || !isActiveRedstone() || !canRun()) advanceProductionTicks(1);
     }
 
     @Override
@@ -219,6 +233,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     @Override
     public void flushAcceleratedTicks() {
+        if (!UpgradeHelper.mayRunWithUpgrades(this) && isActiveRedstone() && canRun()) return;
         int ticks = accumulatedAcceleratedTicks;
         accumulatedAcceleratedTicks = 0;
         advanceProductionTicks(ticks);
@@ -226,6 +241,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     private void advanceProductionTicks(int ticks) {
         if (ticks <= 0) return;
+        if (isActiveRedstone() && canRun() && !UpgradeHelper.mayRunWithUpgrades(this)) return;
         if (!isActiveRedstone() || !canRun()) {
             setActiveMask(0);
             settlementTicker = 0;
@@ -422,6 +438,10 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     private boolean hasOutputSpace(GreenhouseCropDefinition definition) {
         if (definition.outputs().isEmpty()) return false;
         ItemStack primary = definition.outputs().get(0);
+        if(UpgradeHelper.hasEssenceConversionUpgrade(this)&&level instanceof ServerLevel server){
+            ItemStack converted=GreenhouseEssenceConversionHelper.getConversionResult(server,primary,this);
+            if(!converted.isEmpty())return getInsertableCount(converted)>=converted.getCount();
+        }
         return getInsertableCount(primary) >= primary.getCount();
     }
 
@@ -451,10 +471,14 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         for (int sample = 0; sample < samples; sample++) {
             int groupHarvests = baseGroup + (sample < extraGroups ? 1 : 0);
             List<ItemStack> drops = generateSingleHarvest(serverLevel, definition, tool);
-            int fitted = fitRepetitions(capacityLedger, drops, groupHarvests, fortuneLevel);
+            int fitted = fitRepetitions(serverLevel, capacityLedger, drops, groupHarvests, fortuneLevel);
             List<ItemStack> scaledDrops = GreenhouseFortuneHelper.scaleBatch(
                     drops, fitted, fortuneLevel, serverLevel.random);
+            GreenhouseEssenceConversionHelper.ConversionPlan conversion=UpgradeHelper.hasEssenceConversionUpgrade(this)
+                    ?GreenhouseEssenceConversionHelper.planConversion(serverLevel,scaledDrops,this,getEssencePatternRotation()):null;
+            if(conversion!=null)scaledDrops=conversion.drops();
             if (fitted > 0 && insertScaledDrops(null, internalOutputHandler, scaledDrops, 1)) {
+                if(conversion!=null)setEssencePatternRotation(conversion.rotation());
                 capacityLedger.reserve(scaledDrops, 1);
                 completed += fitted;
             }
@@ -496,13 +520,14 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return result.isEmpty() ? definition.outputs() : result;
     }
 
-    private int fitRepetitions(GreenhouseCapacityLedger capacityLedger, List<ItemStack> drops,
+    private int fitRepetitions(ServerLevel serverLevel, GreenhouseCapacityLedger capacityLedger, List<ItemStack> drops,
                                int maximum, int fortuneLevel) {
         int low = 0;
         int high = maximum;
         while (low < high) {
             int middle = low + (high - low + 1) / 2;
             List<ItemStack> capacityBound = GreenhouseFortuneHelper.capacityBound(drops, middle, fortuneLevel);
+            if(UpgradeHelper.hasEssenceConversionUpgrade(this))capacityBound=GreenhouseEssenceConversionHelper.planConversion(serverLevel,capacityBound,this,getEssencePatternRotation()).drops();
             if (capacityLedger.canFit(capacityBound, 1)) low = middle;
             else high = middle - 1;
         }
@@ -745,6 +770,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         tag.putLongArray("growthWork", growthWork);
         tag.putInt("settlementTicker", settlementTicker);
         tag.putInt("nextInputSlot", nextInputSlot);
+        tag.putIntArray("essencePatternRotation",essencePatternRotation);
         tag.putInt("activeMask", activeMask);
         tag.putInt("multiplier", getMultiplier());
         for (int slot = 0; slot < INPUT_SLOTS; slot++) {
@@ -764,6 +790,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         }
         settlementTicker = Math.max(0, tag.getInt("settlementTicker"));
         nextInputSlot = Math.floorMod(tag.getInt("nextInputSlot"), INPUT_SLOTS);
+        setEssencePatternRotation(tag.getIntArray("essencePatternRotation"));
         activeMask = tag.getInt("activeMask");
         multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")
                 : JDTEConfig.COMMON.greenhouseDefaultSpeedMultiplier.get();

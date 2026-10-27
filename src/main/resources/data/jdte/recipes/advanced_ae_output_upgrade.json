@@ -1,0 +1,35 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "ae2"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shapeless",
+        "category": "misc",
+        "ingredients": [
+          {
+            "item": "jdte:ae_output_upgrade"
+          },
+          {
+            "item": "justdirethings:eclipsealloy_ingot"
+          },
+          {
+            "item": "minecraft:nether_star"
+          },
+          {
+            "item": "justdirethings:time_crystal"
+          }
+        ],
+        "result": {
+          "count": 1,
+          "item": "jdte:advanced_ae_output_upgrade"
+        }
+      }
+    }
+  ]
+}

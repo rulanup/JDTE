@@ -2,6 +2,8 @@
 
 Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Starting checkpoint: `2bdf14e`. Mod version is still `0.5.8-forge-1.20.1`.
 
+For later two-client and optional-dependency validation, see [network evidence](../forge-1.20.1-network/README.md); for subsequent crafting/conversion/AE work, see [upgrade evidence](../forge-1.20.1-upgrades/README.md). This folder retains the earlier checkpoint and its original checksums/counts.
+
 ## Results
 
 | Check | Actual outcome |

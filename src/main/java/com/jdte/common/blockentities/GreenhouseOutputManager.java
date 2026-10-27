@@ -72,11 +72,13 @@ public final class GreenhouseOutputManager {
             for (Map.Entry<BaseMachineBE, PendingOutput> entry : snapshot) {
                 BaseMachineBE machine = entry.getKey();
                 PendingOutput pending = entry.getValue();
-                if (machine.isRemoved() || machine.getLevel() != level) {
+                if (machine.isRemoved() || machine.getLevel() != level || !level.isLoaded(machine.getBlockPos())
+                        || level.getBlockEntity(machine.getBlockPos()) != machine) {
                     AutoIoTransferHelper.forgetEventDrivenGreenhouse(machine);
                     machines.remove(machine);
                     continue;
                 }
+                GreenhouseEssenceConversionHelper.prepareOutput(level,machine);
                 pruneEmptySlots(machine, pending.slots);
                 if (pending.slots.isEmpty()) {
                     machines.remove(machine);

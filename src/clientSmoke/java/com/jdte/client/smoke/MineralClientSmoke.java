@@ -303,7 +303,39 @@ public final class MineralClientSmoke {
             case 21 -> {
                 if(elapsed<25)return;
                 check(com.direwolf20.justdirethings.common.items.MachineSettingsCopier.getCopyArea(mc.player.getMainHandItem())!=copierAreaBefore,"copier option reaches server and synchronizes inventory");
-                try { Files.writeString(mc.gameDirectory.toPath().resolve("mineral-smoke-success.txt"), "PASS: normal/large/survey, fluids/pages/count packets, JEI/Jade, basic/advanced bags, machine panel packet insertion/conservation advanced copier option packets and 6.4M bulk-drop entity sync\n"); }
+                mc.player.closeContainer();
+                mc.getSingleplayerServer().execute(()->{
+                    var player=mc.getSingleplayerServer().getPlayerList().getPlayers().get(0);
+                    player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(JDTEItems.CRAFTING_PATTERN.get()));
+                    player.getInventory().setItem(9,new ItemStack(Items.OAK_PLANKS,32));player.inventoryMenu.broadcastChanges();
+                });next();
+            }
+            case 22 -> {
+                if(elapsed<30)return;
+                check(mc.player.getMainHandItem().is(JDTEItems.CRAFTING_PATTERN.get()),"pattern inventory sync");
+                mc.gameMode.useItem(mc.player,net.minecraft.world.InteractionHand.MAIN_HAND);next();
+            }
+            case 23 -> {
+                if(elapsed<25)return;
+                check(mc.screen instanceof com.jdte.client.screens.CraftingPatternScreen,"real crafting-pattern screen");
+                var menu=mc.player.containerMenu;
+                mc.gameMode.handleInventoryMouseClick(menu.containerId,10,0,ClickType.PICKUP,mc.player);
+                mc.gameMode.handleInventoryMouseClick(menu.containerId,0,0,ClickType.PICKUP,mc.player);
+                mc.gameMode.handleInventoryButtonClick(menu.containerId,0);next();
+            }
+            case 24 -> {
+                if(elapsed<35)return;
+                var menu=mc.player.containerMenu;
+                check(menu.getCarried().is(Items.OAK_PLANKS)&&menu.getCarried().getCount()==32,"ghost click preserves all ingredients");
+                check(menu.slots.get(9).getItem().is(Items.OAK_BUTTON),"synced server recipe result");
+                check(com.jdte.common.items.CraftingPatternItem.getPattern(mc.player.getMainHandItem())!=null,"server-saved pattern synchronizes to client");
+                screenshot(mc,"jdte-crafting-pattern.png");
+                mc.gameMode.handleInventoryMouseClick(menu.containerId,10,0,ClickType.PICKUP,mc.player);
+                mc.player.closeContainer();next();
+            }
+            case 25 -> {
+                if(elapsed<20)return;
+                try { Files.writeString(mc.gameDirectory.toPath().resolve("mineral-smoke-success.txt"), "PASS: normal/large/survey, fluids/pages/count packets, JEI/Jade, basic/advanced bags, machine panel packet insertion/conservation advanced copier option packets 6.4M bulk-drop entity sync and real crafting-pattern ghost/save packets\n"); }
                 catch(java.io.IOException exception){throw new IllegalStateException(exception);}
                 LOG.info("JDTE_MINERAL_CLIENT_SMOKE_PASS");mc.stop();next();
             }

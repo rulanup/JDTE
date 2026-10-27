@@ -90,7 +90,8 @@ public final class AutoIoTransferHelper {
     }
 
     public static void tick(BaseMachineBE machine) {
-        if (machine == null || !(machine.getLevel() instanceof ServerLevel serverLevel)) {
+        if (machine == null || !(machine.getLevel() instanceof ServerLevel serverLevel) || machine.isRemoved()
+                || !serverLevel.isLoaded(machine.getBlockPos()) || serverLevel.getBlockEntity(machine.getBlockPos())!=machine) {
             return;
         }
         if (!AutoIoConfigHelper.hasConfigurableIo(machine)) {
@@ -143,9 +144,13 @@ public final class AutoIoTransferHelper {
     }
 
     public static EventOutputResult flushEventDrivenGreenhouseOutput(BaseMachineBE machine, int[] sourceSlots) {
-        if (!(machine.getLevel() instanceof ServerLevel level) || sourceSlots.length == 0) {
+        if (!(machine.getLevel() instanceof ServerLevel level) || sourceSlots.length == 0 || machine.isRemoved()
+                || !level.isLoaded(machine.getBlockPos()) || level.getBlockEntity(machine.getBlockPos())!=machine) {
             return new EventOutputResult(false, false);
         }
+        com.jdte.common.blockentities.GreenhouseEssenceConversionHelper.prepareOutput(level,machine);
+        sourceSlots = java.util.Arrays.stream(sourceSlots).filter(slot -> !com.jdte.common.blockentities.GreenhouseEssenceConversionHelper.shouldRetainForConversion(
+                level,machine,machine.getMachineHandler().getStackInSlot(slot))).toArray();
         AutoIoConfigData data = JDTEAttachments.autoIo(machine);
         int outputMask = data.getOutputMask();
         if (outputMask == 0 || OverclockDirectTransferHelper.isEnabled(machine)) {
@@ -299,6 +304,14 @@ public final class AutoIoTransferHelper {
         return List.of(machine.getBlockPos().relative(side));
     }
 
+    public record AEOutputRoutes(int[] itemSlots, IFluidHandler fluidOutput) {}
+    public static boolean supportsAEOutput(BaseMachineBE machine) { return machine != null; }
+    public static AEOutputRoutes getAEOutputRoutes(BaseMachineBE machine) {
+        if (machine instanceof com.jdte.common.blockentities.ItemReceiverBE || machine instanceof com.jdte.common.blockentities.FluidReceiverBE)
+            return new AEOutputRoutes(new int[0], null);
+        IoRoutes routes = getRoutes(machine);
+        return new AEOutputRoutes(routes.itemOutputs().clone(), routes.fluidOutput());
+    }
     private static IoRoutes getRoutes(BaseMachineBE machine) {
         ItemStackHandler handler = machine.getMachineHandler();
         int[] itemInputs = NO_SLOTS;

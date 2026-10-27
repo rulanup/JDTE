@@ -204,6 +204,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     public Component startOperation(ServerPlayer player) {
         if (!(level instanceof ServerLevel serverLevel)) return message("invalid_level");
         if (isBusy()) return message("busy");
+        if (!UpgradeHelper.mayRunWithUpgrades(this)) return message("ae_crafting_inactive");
         ItemStack packageStack = packageHandler.getStackInSlot(0);
         if (!FactoryPackageItem.isFactoryPackage(packageStack)) return message("missing_package");
 
@@ -270,6 +271,13 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         if (!(level instanceof ServerLevel serverLevel)) return;
         reporter.notifyPhaseChange(serverLevel);
         if (ioPending) return;
+        boolean safetyPhase = switch (phase) {
+            case ROLLBACK_CUT, ROLLBACK_PLACE, ROLLBACK_CUT_ENTITIES,
+                 ROLLBACK_PLACE_ENTITIES, ROLLBACK_PREPARE, ROLLBACK_PERMISSION -> true;
+            default -> false;
+        };
+        if (!com.jdte.common.upgrades.AECraftingReadMachinePolicy.mayAdvanceFactoryPhase(
+                UpgradeHelper.mayRunWithUpgrades(this), safetyPhase)) return;
         int budget = operationBudget();
         switch (phase) {
             case IDLE, WRITING, CLAIMING -> { }
@@ -587,9 +595,11 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         ioPending = true;
         setChanged();
         MinecraftServer server = level.getServer();
+        // Resolve the mutable world-path cache on the server thread, before asynchronous I/O.
+        java.nio.file.Path storageRoot = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
         CompletableFuture.runAsync(() -> {
             try {
-                FactoryPackageStorage.write(server, data, JDTEConfig.COMMON.factoryPackerMaxCompressedBytes.get());
+                FactoryPackageStorage.write(storageRoot, data, JDTEConfig.COMMON.factoryPackerMaxCompressedBytes.get());
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
@@ -675,9 +685,11 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         ioPending = true;
         setChanged();
         MinecraftServer server = level.getServer();
+        // Resolve the mutable world-path cache on the server thread, before asynchronous I/O.
+        java.nio.file.Path storageRoot = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
         CompletableFuture.runAsync(() -> {
             try {
-                FactoryPackageStorage.write(server, data, JDTEConfig.COMMON.factoryPackerMaxCompressedBytes.get());
+                FactoryPackageStorage.write(storageRoot, data, JDTEConfig.COMMON.factoryPackerMaxCompressedBytes.get());
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
@@ -848,12 +860,14 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     private void claimAndRead(ServerLevel level) {
         ioPending = true;
         MinecraftServer server = level.getServer();
+        // Resolve the mutable world-path cache on the server thread, before asynchronous I/O.
+        java.nio.file.Path storageRoot = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
         UUID id = packageId;
         UUID token = claimToken;
         CompletableFuture.supplyAsync(() -> {
             try {
-                FactoryPackageStorage.claim(server, id, token);
-                return FactoryPackageStorage.read(server, id, token,
+                FactoryPackageStorage.claim(storageRoot, id, token);
+                return FactoryPackageStorage.read(storageRoot, id, token,
                         JDTEConfig.COMMON.factoryPackerMaxUncompressedBytes.get(), server.registryAccess());
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
@@ -1164,11 +1178,13 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     private void readForResume(ServerLevel level, boolean claimed) {
         ioPending = true;
         MinecraftServer server = level.getServer();
+        // Resolve the mutable world-path cache on the server thread, before asynchronous I/O.
+        java.nio.file.Path storageRoot = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
         UUID id = packageId;
         UUID token = claimToken;
         CompletableFuture.supplyAsync(() -> {
             try {
-                return FactoryPackageStorage.read(server, id, claimed ? token : null,
+                return FactoryPackageStorage.read(storageRoot, id, claimed ? token : null,
                         JDTEConfig.COMMON.factoryPackerMaxUncompressedBytes.get(), server.registryAccess());
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
@@ -1201,11 +1217,13 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         }
         ioPending = true;
         MinecraftServer server = serverLevel.getServer();
+        // Resolve the mutable world-path cache on the server thread, before asynchronous I/O.
+        java.nio.file.Path storageRoot = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
         UUID id = packageId;
         UUID token = claimToken;
         CompletableFuture.runAsync(() -> {
             try {
-                FactoryPackageStorage.release(server, id, token);
+                FactoryPackageStorage.release(storageRoot, id, token);
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
@@ -1227,12 +1245,14 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
 
     private void deleteAsync(ServerLevel level, boolean claimed) {
         MinecraftServer server = level.getServer();
+        // Resolve the mutable world-path cache on the server thread, before asynchronous I/O.
+        java.nio.file.Path storageRoot = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
         UUID id = packageId;
         UUID token = claimToken;
         CompletableFuture.runAsync(() -> {
             try {
-                if (claimed) FactoryPackageStorage.deleteClaimed(server, id, token);
-                else FactoryPackageStorage.deleteRegular(server, id);
+                if (claimed) FactoryPackageStorage.deleteClaimed(storageRoot, id, token);
+                else FactoryPackageStorage.deleteRegular(storageRoot, id);
             } catch (IOException exception) {
                 LOGGER.warn("Failed to delete {} factory package {}", claimed ? "claimed" : "regular", id,
                         exception);

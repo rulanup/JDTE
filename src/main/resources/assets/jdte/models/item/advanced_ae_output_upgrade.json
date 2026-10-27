@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "jdte:item/advanced_ae_output_upgrade"
+  }
+}

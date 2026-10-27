@@ -17,6 +17,8 @@ public class JDTERecipes {
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, JDTE.MODID);
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, JDTE.MODID);
 
+    public static final RegistryObject<com.jdte.common.recipes.AEExtractionSmithingRecipe.Serializer> AE_EXTRACTION_SMITHING_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("ae_extraction_smithing", com.jdte.common.recipes.AEExtractionSmithingRecipe.Serializer::new);
+
     public static final RegistryObject<RecipeType<InfusionRecipe>> INFUSION_RECIPE_TYPE = RECIPE_TYPES.register(
             "infusion", () -> RecipeType.simple(com.jdte.JDTE.id("infusion")));
 

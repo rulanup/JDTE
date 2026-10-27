@@ -11,6 +11,10 @@ public final class BigFluidTankCuriosIntegration {
     private BigFluidTankCuriosIntegration() {
     }
 
+    public static void registerItems() {
+        CuriosApi.registerCurio(com.jdte.setup.JDTEItems.BIG_FLUID_TANK.get(), new top.theillusivec4.curios.api.type.capability.ICurioItem() { });
+    }
+
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) {
             return;

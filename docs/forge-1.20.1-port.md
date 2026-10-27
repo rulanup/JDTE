@@ -5,7 +5,7 @@ Target baseline: `ac1d813`, Forge 47.4.10, Just Dire Things Forge 1.1.4, Java 17
 
 This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing version remains 0.5.8 until feature migration and validation finish.
 
-Latest checkpoint: [2026-10-27 follow-up](#mineral-follow-up-and-upgrade-storage-checkpoint-2026-10-27), with [graphical evidence](validation/forge-1.20.1-minerals/README.md).
+Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conversion-and-ae-upgrades-checkpoint-2026-10-27), with [remote-client evidence](validation/forge-1.20.1-network/README.md) and [new upgrade evidence](validation/forge-1.20.1-upgrades/README.md).
 
 ## Progress
 
@@ -21,25 +21,25 @@ Latest checkpoint: [2026-10-27 follow-up](#mineral-follow-up-and-upgrade-storage
 
 ## Item registrations requiring migration
 
-- [ ] `jdte:advanced_ae_output_upgrade`
+- [x] `jdte:advanced_ae_output_upgrade` (implemented; see the latest validation checkpoint)
 - [ ] `jdte:advanced_bio_extractor`
 - [ ] `jdte:advanced_energy_transmitter`
 - [ ] `jdte:advanced_entity_accelerator`
-- [ ] `jdte:advanced_essence_conversion_upgrade`
+- [x] `jdte:advanced_essence_conversion_upgrade` (implemented; see the latest validation checkpoint)
 - [ ] `jdte:advanced_fluid_mixer`
 - [x] `jdte:advanced_machine_settings_copier` (typed Forge presets, upgrade exchange and storage sources implemented)
 - [x] `jdte:advanced_upgrade_storage` (36 slots, machine actions, Curios lookup and Forge persistence implemented)
 - [ ] `jdte:ae_acceleration_upgrade`
-- [ ] `jdte:ae_crafting_read_upgrade`
-- [ ] `jdte:ae_extraction_upgrade`
-- [ ] `jdte:ae_output_upgrade`
+- [x] `jdte:ae_crafting_read_upgrade` (implemented; see the latest validation checkpoint)
+- [x] `jdte:ae_extraction_upgrade` (implemented; see the latest validation checkpoint)
+- [x] `jdte:ae_output_upgrade` (implemented; see the latest validation checkpoint)
 - [ ] `jdte:cainiaoyo_fumo`
 - [ ] `jdte:charged_lightning_rod`
-- [ ] `jdte:crafting_pattern`
+- [x] `jdte:crafting_pattern` (implemented; see the latest validation checkpoint)
 - [ ] `jdte:energy_brewing_upgrade`
 - [ ] `jdte:energy_overload_upgrade`
 - [ ] `jdte:entity_acceleration_upgrade`
-- [ ] `jdte:essence_conversion_upgrade`
+- [x] `jdte:essence_conversion_upgrade` (implemented; see the latest validation checkpoint)
 - [ ] `jdte:extended_bio_extractor`
 - [ ] `jdte:extended_energy_transmitter`
 - [ ] `jdte:extended_entity_accelerator`
@@ -48,12 +48,12 @@ Latest checkpoint: [2026-10-27 follow-up](#mineral-follow-up-and-upgrade-storage
 - [ ] `jdte:extended_fluid_mixer`
 - [ ] `jdte:extended_generator`
 - [ ] `jdte:large_fuel_canister`
-- [x] `jdte:large_mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients pending)
+- [x] `jdte:large_mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
 - [ ] `jdte:large_pocket_generator`
 - [ ] `jdte:large_potion_canister`
 - [ ] `jdte:maiqilin_fumo`
-- [x] `jdte:mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients pending)
-- [x] `jdte:mineral_survey` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients pending)
+- [x] `jdte:mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
+- [x] `jdte:mineral_survey` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
 - [ ] `jdte:mixing_upgrade`
 - [x] `jdte:repair_talisman` (ported; runtime validation pending)
 - [ ] `jdte:seed_conversion_upgrade`
@@ -248,3 +248,37 @@ This checkpoint continues `2bdf14e` on `codex/forge-1.20.1-mineral-machines`. Th
 2. Complete two independent remote-client synchronization checks and longer-running production/automation tests before a release. Extend the packaged client checks if additional production-only mapping issues appear.
 3. Continue crafting patterns and essence conversion (including Advanced Essence Conversion), then AE read/output upgrades against the now available case/copier inventory infrastructure. Add actual machine-specific behavior/tests before widening Ultimate upgrade compatibility.
 4. The unchecked registration inventory at the start of this document still identifies unported machines, items and upgrade families. This checkpoint does not claim full 0.6.5.2 parity. Keep Mod version 0.5.8 until the overall port and validation finish. No release or merge into `main` was performed.
+
+
+## Multiplayer, conversion and AE upgrades checkpoint (2026-10-27)
+
+This checkpoint continues `8563466` on `codex/forge-1.20.1-mineral-machines`. The source is still pinned to `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`; version remains `0.5.8-forge-1.20.1`. Earlier limitations are historical. No release or merge is performed.
+
+### Implemented and fixed
+
+- Added opt-in remote-client and optional-client harnesses outside the production JAR. Two independent graphical clients connected to a real production dedicated server simultaneously, exercised shared output and independent pages, concurrent upgrade-panel and copier operations, both bag menus, logout with a carried stack, natural pickup after reconnect, observed chunk unload, saved shutdown and reconnection to a fresh server JVM. The first-phase evidence identifies its exact JAR separately from the later upgrade JAR.
+- Fixed missing-Curios startup: `BigFluidTankItem` no longer directly implements an optional Curios interface. Curios-present behavior uses guarded item registration; the Forge fluid capability remains intact. Missing client block-entity upgrade queries now return no upgrades safely while a chunk arrives.
+- Ported Crafting Pattern's held-item menu and screen, real 3x3 recipe validation, ghost ingredients, non-extractable result, save/clear buttons, both-hand bound-item protection, inventory synchronization, fixed-size version-independent Forge NBT, model, recipe and translations. Saved patterns revalidate recipe identity, input matching and actual output against server recipes.
+- Ported basic/advanced Essence Conversion, including anvil binding of one/three distinct patterns, one-level/one-pattern costs, rename handling, native smithing NBT preservation, tooltips and Jade server-side validity status. Advanced patterns sharing an ingredient rotate fairly; different input groups craft independently. Machine NBT retains the rotation. Both greenhouses convert batch production and stored output, preserve crafting remainders, reserve incomplete inputs and reject conversions that cannot fit. Conversion runs before adjacent output and AE output. Unconfigured cards retain the source's unambiguous Mystical Agriculture essence-only conversion.
+- Ported AE Crafting Read's Wireless Access Point binding and five-tick server/grid-scoped cache. A busy CPU must also have an active job. Unbound, unavailable, inactive, booting or unloaded targets fail closed. Normal and accelerated work boundaries, event-driven collectors/suppressors, freezers and factory operations use the gate; factory rollback remains possible. Mineral pending work pauses instead of being discarded. Only machine families already available in this Forge port are integrated.
+- Ported AE Extraction's standalone linked template, dynamic two-input smithing recipe, equipment NBT/capability preservation, carried/Curios item discovery and capability identity deduplication. Matching existing fluids refill from ME; an empty tank requires a unique accepted fluid type. Applied Flux FE transfer is guarded by its own optional bridge. Extract/insert simulation and refund logic preserve resources on commit shortfalls.
+- Ported basic/advanced AE Output with real output-only machine routes, conversion-before-export, oversized grouped long-count item transfers and rollback. Basic transfer defaults to five ticks (configurable 1–1200) and 64,000 mB; advanced output allows ten passes per tick, up to integer-max fluid per pass and a flush after actual machine ticker executions. Output tiers are mutually exclusive. Binding is persistent dimension/position NBT; it never forces the target chunk to load. Models, textures, recipes, creative entries, language keys, bag tag and English guide pages are included. The pinned source contains no survival recipe for Crafting Read; no replacement recipe is invented.
+- Real concurrency testing exposed a preexisting Factory Packer race: asynchronous operations called Minecraft's mutable world-path cache. Packer write/read/claim/release/delete and package preview now capture the world root on the server thread and pass an immutable `Path` to asynchronous storage. Eight parallel complete package I/O operations are regression-tested.
+- Optional integration GameTests register only when their own APIs are present, using separate AE2/Applied Flux/Curios classes. This fixes a development-client discovery crash without dropping tests from the full configured suite.
+- Added current-world-object checks to queued adjacent output and AE output. A detached controller with its removed flag cleared cannot export a second copy or access invalidated capabilities after replacement. This fixes a server crash exposed by the new replacement test as well as preventing duplicate output.
+
+### Verified in the final development suite
+
+- Java 17 / Gradle 8.6 `test build runGameTestServer compileClientSmokeJava`: **77 JUnit tests passed**, preserving all previous 58 and the original 24 mineral core tests; **85 required Forge GameTests passed**, preserving all previous 57. Production and separate probe JAR reobfuscation passed.
+- New JUnit coverage exercises grouped oversized/long-max item transfer, simulated acceptance, commit-shortfall refunds, resource transfer bounds and machine safety decisions. Tests requiring Minecraft registries run as GameTests rather than pretending a plain JUnit VM has bootstrapped Forge.
+- New GameTests cover optional Curios registration, pattern ghost/menu/NBT validation, binding limits, fair rotation and save/load, output capacity and ingredient reservation, both greenhouse variants, native smithing pattern preservation, real AE2 link handlers, idle real-grid read rejection, paused mineral production, five-tick cache expiry/invalidation/server isolation, ordinary/advanced real-grid oversized output, conversion before real ME insertion, extraction equipment persistence, real ME fluid refill, real Applied Flux FE refill, empty-fluid ambiguity, discovery deduplication, stale-controller output rejection and concurrent factory storage.
+- The AE fixtures use actual powered/channelled Wireless Access Points, drives and item/fluid/FE storage cells, not an always-successful network stub. Initial fixture failures came from a drive facing the wrong way, and a non-energy item chosen for an FE test; those fixtures were corrected. The packer path race and stale-output crash were actual defects and were fixed.
+- `scripts/validate_docs.py` and `git diff --check` passed. Full configured development runtime logs contain unrelated third-party absent-item recipes/update checks; there are no JDTE recipe parsing errors in the final suite.
+
+### Runtime scope and continuation
+
+See `docs/validation/forge-1.20.1-network/README.md` and `docs/validation/forge-1.20.1-upgrades/README.md` for exact JAR checksums and runtime outcomes. The new upgrade checkpoint records final-JAR graphical/optional/remote reruns separately as they finish.
+
+Still unverified: an actually submitted nonempty AE crafting CPU job controlling every machine family, long-running public-server throughput/concurrency, all combinations of optional mods, full UI interaction for every AE2 equipment variant, and exhaustive Mystical Agriculture recipe-pack compatibility. Snapshot/cache tests do not claim those scenarios passed. Earlier unported registrations remain unchecked above.
+
+Next: finish any runtime follow-up explicitly left pending in the evidence, then continue Seed Conversion / AE Acceleration and the remaining machine families according to dependencies. Keep the Forge version at 0.5.8 until the entire port and validation are finished. Continue from the pushed branch; do not reset to older baselines or publish a release.

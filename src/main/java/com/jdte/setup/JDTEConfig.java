@@ -57,6 +57,8 @@ public class JDTEConfig {
         public final GeneratorUpgradeConfig generatorUpgrade;
         public final UpgradeItemsConfig upgradeItems;
 
+        public final ForgeConfigSpec.IntValue aeOutputReturnInterval;
+
         // Upgrade System
         public final ForgeConfigSpec.IntValue filterSlotsPerUpgrade;
         public final ForgeConfigSpec.DoubleValue underclockEnergyMultiplier;
@@ -271,6 +273,7 @@ public class JDTEConfig {
         public final com.jdte.setup.config.MineralExtractorConfig mineralExtractor;
 
         public Common(ForgeConfigSpec.Builder builder) {
+            aeOutputReturnInterval = builder.comment("Ticks between successful basic AE output transfers.").defineInRange("aeOutputReturnInterval", 5, 1, 1200);
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
 
             repairTalisman = new com.jdte.setup.config.RepairTalismanConfig(builder);

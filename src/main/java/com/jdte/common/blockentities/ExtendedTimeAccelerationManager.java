@@ -505,6 +505,10 @@ public final class ExtendedTimeAccelerationManager {
             if (ticker == null || !MiscTools.isValidTickAccelBlock(level, blockEntity.getBlockState(), blockEntity)) {
                 return ExecutionResult.invalid();
             }
+            if (blockEntity instanceof com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE machine
+                    && !com.jdte.common.upgrades.UpgradeHelper.mayRunWithUpgrades(machine)) {
+                return new ExecutionResult(0, true, true);
+            }
             if (blockEntity instanceof CoalescedAcceleratedMachine coalesced) {
                 coalesced.accumulateAcceleratedTicks(requested);
                 coalescedTargets.add(coalesced);

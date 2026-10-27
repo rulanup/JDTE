@@ -1,0 +1,1 @@
+PASS: two remote clients, shared and independent output pages, concurrent cards/copiers/bags, disconnect with cursor, reconnect, actual chunk unload and saved shutdown

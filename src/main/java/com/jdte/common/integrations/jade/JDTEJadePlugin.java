@@ -123,7 +123,12 @@ public class JDTEJadePlugin implements IWailaPlugin {
             if (upgrades.isEmpty()) return;
 
             ListTag serialized = new ListTag();
-            for (ItemStack upgrade : upgrades) serialized.add(upgrade.save(new CompoundTag()));
+            ListTag statuses=new ListTag();
+            for(ItemStack upgrade:upgrades){
+                serialized.add(upgrade.save(new CompoundTag()));var entry=new CompoundTag();var patterns=com.jdte.common.items.EssenceConversionUpgradeItem.patterns(upgrade);
+                for(int i=0;i<patterns.size();i++)entry.putBoolean(Integer.toString(i),patterns.get(i).resolve(accessor.getLevel()).isPresent());statuses.add(entry);
+            }
+            data.put("jdte_conversion_patterns",statuses);
             data.put(TAG_UPGRADES, serialized);
         }
 
@@ -134,6 +139,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
 
             tooltip.add(Component.translatable("jade.jdte.installed_upgrades").withStyle(ChatFormatting.GRAY));
             IElementHelper elements = IElementHelper.get();
+            var patternStatuses=accessor.getServerData().getList("jdte_conversion_patterns",Tag.TAG_COMPOUND);
             for (int index = 0; index < serialized.size(); index++) {
                 ItemStack upgrade = ItemStack.of(serialized.getCompound(index));
                 if (upgrade.isEmpty()) continue;
@@ -141,6 +147,16 @@ public class JDTEJadePlugin implements IWailaPlugin {
                         .append(upgrade.getHoverName())
                         .append(Component.literal(" x" + upgrade.getCount()).withStyle(ChatFormatting.GRAY));
                 tooltip.add(List.of(elements.smallItem(upgrade.copyWithCount(1)), elements.text(label)));
+                if(upgrade.getItem() instanceof com.jdte.common.items.EssenceConversionUpgradeItem item){
+                    var patterns=com.jdte.common.items.EssenceConversionUpgradeItem.patterns(upgrade);
+                    tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.patterns",patterns.size(),item.patternLimit()).withStyle(ChatFormatting.AQUA));
+                    var statuses=index<patternStatuses.size()?patternStatuses.getCompound(index):new CompoundTag();
+                    for(int p=0;p<patterns.size();p++){
+                        var pattern=patterns.get(p);boolean valid=statuses.getBoolean(Integer.toString(p));
+                        var text=Component.translatable("jdte.jade.essence_conversion.pattern",p+1,pattern.result().getHoverName(),pattern.result().getCount(),Component.translatable(valid?"jdte.jade.essence_conversion.valid":"jdte.jade.essence_conversion.invalid")).withStyle(valid?ChatFormatting.GREEN:ChatFormatting.RED);
+                        tooltip.add(List.of(elements.smallItem(pattern.result()),elements.text(text)));
+                    }
+                }
             }
         }
 

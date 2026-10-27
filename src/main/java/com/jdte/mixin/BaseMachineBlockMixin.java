@@ -43,10 +43,20 @@ public abstract class BaseMachineBlockMixin {
         }
 
         cir.setReturnValue((tickLevel, pos, blockState, blockEntity) -> {
-            original.tick(tickLevel, pos, blockState, blockEntity);
-            if (blockEntity instanceof BaseMachineBE machine && UpgradeHelper.shouldRunOverclock(machine)) {
-                original.tick(tickLevel, pos, blockState, blockEntity);
-            }
+            if (blockEntity instanceof BaseMachineBE machine) {
+                com.jdte.common.manager.AEOutputManager.track(machine);
+                boolean redstoneActive = true;
+                if (machine instanceof com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE redstone) {
+                    redstone.evaluateRedstone();
+                    redstoneActive = redstone.isActiveRedstoneTestOnly();
+                }
+                UpgradeHelper.runServerTicker(UpgradeHelper.usesCommonAeTickerGate(machine), redstoneActive,
+                        () -> UpgradeHelper.mayRunWithUpgrades(machine), UpgradeHelper.shouldRunOverclock(machine), () -> {
+                    original.tick(tickLevel, pos, blockState, blockEntity);
+                    if (UpgradeHelper.hasAdvancedAEOutputUpgrade(machine) && tickLevel instanceof net.minecraft.server.level.ServerLevel server)
+                        com.jdte.common.manager.AEOutputManager.flush(server, machine);
+                });
+            } else original.tick(tickLevel, pos, blockState, blockEntity);
         });
     }
 

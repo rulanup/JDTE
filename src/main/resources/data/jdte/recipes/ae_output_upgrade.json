@@ -1,0 +1,32 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "ae2"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shapeless",
+        "category": "misc",
+        "ingredients": [
+          {
+            "item": "ae2:wireless_receiver"
+          },
+          {
+            "item": "ae2:import_bus"
+          },
+          {
+            "item": "jdte:capacity_upgrade"
+          }
+        ],
+        "result": {
+          "count": 1,
+          "item": "jdte:ae_output_upgrade"
+        }
+      }
+    }
+  ]
+}
