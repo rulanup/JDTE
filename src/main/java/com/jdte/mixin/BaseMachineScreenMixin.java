@@ -137,7 +137,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
         int expectedLeft = (width - imageWidth) / 2;
         int expectedTop = (Object) this instanceof com.jdte.client.screens.MineralExtractorScreen mineral
-                ? mineral.expectedGuiTop() : (height - imageHeight) / 2;
+                ? mineral.expectedGuiTop() : (Object) this instanceof com.jdte.client.screens.FluidMixerScreen<?> mixer
+                ? mixer.expectedGuiTop() : (height - imageHeight) / 2;
         boolean staleWindowBounds = width != scaledWidth || height != scaledHeight;
         boolean staleGuiOrigin = getGuiLeft() != expectedLeft || getGuiTop() != expectedTop;
         if (!staleWindowBounds && !staleGuiOrigin) return;

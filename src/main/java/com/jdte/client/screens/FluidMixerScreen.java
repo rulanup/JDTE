@@ -58,6 +58,18 @@ public abstract class FluidMixerScreen<T extends FluidMixerContainer> extends Ba
         super(container, inv, name);
     }
 
+    public int expectedGuiTop() {
+        int centered = (height - imageHeight) / 2;
+        return Math.max(4, Math.min(height - imageHeight - 4, Math.max(centered, extraHeight + 44)));
+    }
+
+    @Override
+    public void calculateTopSection() {
+        // Forge JDT draws the title 40 px above the vanilla inventory origin.
+        topPos = expectedGuiTop();
+        super.calculateTopSection();
+    }
+
     @Override
     public void setTopSection() {
         extraWidth = 60;

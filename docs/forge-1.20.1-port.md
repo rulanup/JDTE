@@ -336,3 +336,9 @@ Starting checkpoint: `a36c6c5`, continuing the same development branch and versi
 
 - Expanded tier-conversion coverage to Ultimate Capacity in the last slot, with 4,000,000 FE and 120,000/130,000/140,000 mB stored fluids. Per-slot migration could temporarily expose base capacity before the last card arrived. Restoring the full eight-slot handler before any capacity refresh prevents this resource loss, and clears the inactive four-slot copy without intermediate callbacks.
 - Full build/reobfuscation and the complete suite passed **81 JUnit and 108 required GameTests**. Earlier 107/81 results remain historical checkpoints. Final graphical and production runs are being repeated with the final production JAR.
+
+### Mixer small-window presentation
+
+- Clamped mixer GUI placement so Forge JDT's title, drawn above the inventory origin, remains visible at the actual 240-pixel minimum scaled height. Dynamic resize validation now recognizes the mixer origin, preventing repeated stale-layout rebuilds.
+- The graphical catalyst fixture now sends both mouse press and release and separates cursor pickup from the displayed-slot click across server synchronization. Earlier click-fixture assertions failed; a diagnostic rerun passed the full previous graphical suite and real catalyst click before this final title adjustment. Final screenshots/results follow after the new runtime run.
+- Repeated the complete suite after the GUI changes: **81 JUnit and 108 required GameTests passed**, with production/probe reobfuscation and compiled graphical harnesses.

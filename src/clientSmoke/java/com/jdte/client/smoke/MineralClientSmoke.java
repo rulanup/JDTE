@@ -38,6 +38,7 @@ public final class MineralClientSmoke {
     private static BlockPos normalPos;
     private static BlockPos largePos;
     private static BlockPos mixerPos;
+    private static boolean mixerCursorPicked;
     private static MineralSurveyData survey;
     private static final org.slf4j.Logger LOG = com.mojang.logging.LogUtils.getLogger();
     private static void check(boolean condition, String message) {
@@ -361,11 +362,18 @@ public final class MineralClientSmoke {
                 check(mc.screen instanceof com.jdte.client.screens.AdvancedFluidMixerScreen,"actual advanced mixer screen");
                 var menu=(com.jdte.common.containers.FluidMixerContainer)mc.player.containerMenu;
                 check(menu.getInputAFluidStack().getAmount()==120000&&menu.getInputBFluidAmount()==80000&&menu.getOutputFluidAmount()==100000&&menu.getFluidCapacity()==400000,"three actual network tank values retain high bits");
-                int slot=java.util.stream.IntStream.range(0,menu.slots.size()).filter(i->menu.slots.get(i).getItem().is(JDTEItems.MIXING_UPGRADE.get())).findFirst().orElseThrow();
-                mc.gameMode.handleInventoryMouseClick(menu.containerId,slot,0,ClickType.QUICK_MOVE,mc.player);
-                int catalyst=java.util.stream.IntStream.range(1,menu.slots.size()).filter(i->menu.slots.get(i).getItem().is(JDTEItems.TIME_FLUID_CATALYST.get())).findFirst().orElseThrow();
-                mc.gameMode.handleInventoryMouseClick(menu.containerId,catalyst,0,ClickType.PICKUP,mc.player);
+                if(!mixerCursorPicked) {
+                    check(menu.getCarried().isEmpty(),"clean cursor before mixer interaction");
+                    int slot=java.util.stream.IntStream.range(0,menu.slots.size()).filter(i->menu.slots.get(i).getItem().is(JDTEItems.MIXING_UPGRADE.get())).findFirst().orElseThrow();
+                    mc.gameMode.handleInventoryMouseClick(menu.containerId,slot,0,ClickType.QUICK_MOVE,mc.player);
+                    int catalyst=java.util.stream.IntStream.range(1,menu.slots.size()).filter(i->menu.slots.get(i).getItem().is(JDTEItems.TIME_FLUID_CATALYST.get())).findFirst().orElseThrow();
+                    mc.gameMode.handleInventoryMouseClick(menu.containerId,catalyst,0,ClickType.PICKUP,mc.player);
+                    mixerCursorPicked=true;return;
+                }
+                if(elapsed<40)return;
+                check(menu.getCarried().is(JDTEItems.TIME_FLUID_CATALYST.get()),"catalyst cursor survived server synchronization before screen click: "+menu.getCarried());
                 var screen=(com.jdte.client.screens.AdvancedFluidMixerScreen)mc.screen;
+                check(screen.getGuiTop()==screen.expectedGuiTop()&&screen.getGuiTop()>=44,"mixer title remains visible after actual GUI resize");
                 // Click the displayed slot, rather than bypassing its screen hit box.
                 screen.mouseClicked(screen.getGuiLeft()-30+94+8,screen.getGuiTop()-26+14+8,0);
                 screen.mouseReleased(screen.getGuiLeft()-30+94+8,screen.getGuiTop()-26+14+8,0);
