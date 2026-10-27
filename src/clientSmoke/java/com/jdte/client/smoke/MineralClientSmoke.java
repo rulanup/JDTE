@@ -37,6 +37,7 @@ public final class MineralClientSmoke {
     private static int changedAt;
     private static BlockPos normalPos;
     private static BlockPos largePos;
+    private static BlockPos mixerPos;
     private static MineralSurveyData survey;
     private static final org.slf4j.Logger LOG = com.mojang.logging.LogUtils.getLogger();
     private static void check(boolean condition, String message) {
@@ -335,7 +336,63 @@ public final class MineralClientSmoke {
             }
             case 25 -> {
                 if(elapsed<20)return;
-                try { Files.writeString(mc.gameDirectory.toPath().resolve("mineral-smoke-success.txt"), "PASS: normal/large/survey, fluids/pages/count packets, JEI/Jade, basic/advanced bags, machine panel packet insertion/conservation advanced copier option packets 6.4M bulk-drop entity sync and real crafting-pattern ghost/save packets\n"); }
+                mixerPos=normalPos.above(4);
+                mc.getSingleplayerServer().execute(()->{
+                    var server=mc.getSingleplayerServer();var player=server.getPlayerList().getPlayers().get(0);var level=player.serverLevel();
+                    for(int x=-3;x<=4;x++)for(int z=-2;z<=4;z++)level.setBlockAndUpdate(mixerPos.offset(x,-1,z),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+                    for(int i=0;i<2;i++){
+                        var pos=mixerPos.east(i*2);level.setBlockAndUpdate(pos,(i==0?JDTEBlocks.ADVANCED_FLUID_MIXER.get():JDTEBlocks.EXTENDED_FLUID_MIXER.get()).defaultBlockState());
+                        var mixer=(com.jdte.common.blockentities.FluidMixerBE)level.getBlockEntity(pos);var upgrades=UpgradeHelper.getUpgradeHandler(mixer);
+                        upgrades.insertItem(0,new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()),false);upgrades.insertItem(1,new ItemStack(JDTEItems.AE_CRAFTING_READ_UPGRADE.get()),false);
+                        mixer.inputTankA.setFluid(new net.minecraftforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.WATER,120000));
+                        mixer.inputTankB.setFluid(new net.minecraftforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.LAVA,80000));
+                        mixer.outputTank.setFluid(new net.minecraftforge.fluids.FluidStack(net.minecraft.core.registries.BuiltInRegistries.FLUID.get(ResourceLocation.fromNamespaceAndPath("justdirethings","time_fluid")),100000));
+                        mixer.getEnergyStorage().receiveEnergy(50000,false);mixer.markDirtyClient();
+                    }
+                    player.teleportTo(mixerPos.getX()+0.5,mixerPos.getY(),mixerPos.getZ()+3.5);player.getInventory().setItem(9,new ItemStack(JDTEItems.MIXING_UPGRADE.get()));player.inventoryMenu.broadcastChanges();
+                });next();
+            }
+            case 26 -> {
+                if(elapsed<40 || mc.level.getBlockEntity(mixerPos)==null || mc.level.getBlockEntity(mixerPos.east(2))==null)return;
+                mc.getSingleplayerServer().execute(()->JDTEBlocks.ADVANCED_FLUID_MIXER.get().openMenu(mc.getSingleplayerServer().getPlayerList().getPlayers().get(0),mixerPos));next();
+            }
+            case 27 -> {
+                if(elapsed<30)return;
+                check(mc.screen instanceof com.jdte.client.screens.AdvancedFluidMixerScreen,"actual advanced mixer screen");
+                var menu=(com.jdte.common.containers.FluidMixerContainer)mc.player.containerMenu;
+                check(menu.getInputAFluidStack().getAmount()==120000&&menu.getInputBFluidAmount()==80000&&menu.getOutputFluidAmount()==100000&&menu.getFluidCapacity()==400000,"three actual network tank values retain high bits");
+                int slot=java.util.stream.IntStream.range(0,menu.slots.size()).filter(i->menu.slots.get(i).getItem().is(JDTEItems.MIXING_UPGRADE.get())).findFirst().orElseThrow();
+                mc.gameMode.handleInventoryMouseClick(menu.containerId,slot,0,ClickType.QUICK_MOVE,mc.player);next();
+            }
+            case 28 -> {
+                if(elapsed<30)return;
+                check(UpgradeHelper.hasMixingUpgrade((com.jdte.common.blockentities.FluidMixerBE)mc.level.getBlockEntity(mixerPos)),"vanilla Shift packet installs plain mixing card and synchronizes upgrade");
+                screenshot(mc,"jdte-advanced-fluid-mixer.png");
+                mc.getSingleplayerServer().execute(()->UpgradeHelper.getUpgradeHandler((com.jdte.common.blockentities.FluidMixerBE)mc.getSingleplayerServer().overworld().getBlockEntity(mixerPos)).extractItem(0,1,false));next();
+            }
+            case 29 -> {
+                if(elapsed<30)return;
+                var menu=(com.jdte.common.containers.FluidMixerContainer)mc.player.containerMenu;
+                check(menu.getFluidCapacity()==8000&&menu.getInputAFluidStack().getAmount()==8000&&menu.getInputBFluidAmount()==8000&&menu.getOutputFluidAmount()==8000,"capacity removal updates and clamps all three displayed tanks");
+                screenshot(mc,"jdte-fluid-mixer-capacity-clamp.png");mc.player.closeContainer();
+                mc.getSingleplayerServer().execute(()->JDTEBlocks.EXTENDED_FLUID_MIXER.get().openMenu(mc.getSingleplayerServer().getPlayerList().getPlayers().get(0),mixerPos.east(2)));next();
+            }
+            case 30 -> {
+                if(elapsed<30)return;
+                check(mc.screen instanceof com.jdte.client.screens.ExtendedFluidMixerScreen,"actual extended mixer screen");
+                var menu=(com.jdte.common.containers.FluidMixerContainer)mc.player.containerMenu;check(menu.getFluidCapacity()==400000&&menu.getInputBFluidAmount()==80000,"extended mixer data synchronized");
+                check(UpgradeHelper.getUpgradeHandler((com.jdte.common.blockentities.FluidMixerBE)mc.level.getBlockEntity(mixerPos.east(2))).getSlots()==8,"extended mixer exposes eight upgrade slots");
+                screenshot(mc,"jdte-extended-fluid-mixer.png");
+                try{
+                    var field=com.jdte.common.jei.JDTEJeiPlugin.class.getDeclaredField("runtime");field.setAccessible(true);var runtime=(mezz.jei.api.runtime.IJeiRuntime)field.get(null);
+                    var type=com.jdte.client.jei.fluidmixer.FluidMixerRecipeCategory.RECIPE_TYPE;
+                    check(runtime.getRecipeManager().createRecipeLookup(type).get().anyMatch(recipe->recipe.id().equals(ResourceLocation.fromNamespaceAndPath("jdte","fluid_mixer/time_fluid_mixing"))&&!recipe.output().isEmpty()),"JEI displays real synced mixer recipe with stable ID/product");
+                    runtime.getRecipesGui().showTypes(List.of(type));
+                }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}next();
+            }
+            case 31 -> {
+                if(elapsed<25)return;screenshot(mc,"jdte-fluid-mixer-jei.png");
+                try { Files.writeString(mc.gameDirectory.toPath().resolve("mineral-smoke-success.txt"), "PASS: normal/large/survey, fluids/pages/count packets, JEI/Jade, basic/advanced bags, machine panel packet insertion/conservation advanced copier option packets 6.4M bulk-drop entity sync real crafting-pattern ghost/save packets and both mixer menus/high-bit tank data/capacity clamp/Shift mixing insertion/JEI\n"); }
                 catch(java.io.IOException exception){throw new IllegalStateException(exception);}
                 LOG.info("JDTE_MINERAL_CLIENT_SMOKE_PASS");mc.stop();next();
             }

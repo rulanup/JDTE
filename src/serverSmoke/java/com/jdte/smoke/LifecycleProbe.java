@@ -35,7 +35,7 @@ public final class LifecycleProbe {
     private CompoundTag expected;
     private net.minecraftforge.energy.IEnergyStorage retained;
     private net.minecraft.world.level.block.entity.BlockEntity retainedPart;
-    public LifecycleProbe() { MinecraftForge.EVENT_BUS.register(this); MinecraftForge.EVENT_BUS.register(new MultiplayerProbe()); }
+    public LifecycleProbe() { MinecraftForge.EVENT_BUS.register(this); MinecraftForge.EVENT_BUS.register(new MultiplayerProbe()); MinecraftForge.EVENT_BUS.register(new MixerLifecycleProbe()); }
     private static void check(boolean condition, String message) { if (!condition) throw new IllegalStateException("JDTE lifecycle: " + message); }
     @SubscribeEvent public void started(ServerStartedEvent event) {
         mode = System.getProperty("jdte.lifecycle", ""); server = event.getServer();

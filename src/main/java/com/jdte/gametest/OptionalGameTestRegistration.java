@@ -15,6 +15,7 @@ public final class OptionalGameTestRegistration {
         if (ModList.get().isLoaded("ae2")) {
             event.register(AEUpgradeGameTests.class);
             event.register(AECraftingJobGameTests.class);
+            event.register(AEFluidMixerJobGameTests.class);
             if (ModList.get().isLoaded("appflux")) event.register(AppFluxUpgradeGameTests.class);
         }
         if (ModList.get().isLoaded("mysticalagriculture")) event.register(com.jdte.common.blockentities.SeedHarvestGameTests.class);
