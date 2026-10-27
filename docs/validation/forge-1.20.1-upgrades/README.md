@@ -4,7 +4,32 @@ Pinned source: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Starting
 
 The final development suite passed **77 JUnit tests** and **85 required Forge GameTests**, including all earlier 58/57 tests. `test build runGameTestServer compileClientSmokeJava` completed successfully under the existing Java 17 / Gradle 8.6 setup. Both the production JAR and separate lifecycle probe JAR were reobfuscated.
 
-See the [port checkpoint](../../forge-1.20.1-port.md#multiplayer-conversion-and-ae-upgrades-checkpoint-2026-10-27) for implementation details and test coverage. Runtime reruns are in progress and will be recorded here with their actual outcomes before this checkpoint is committed.
+See the [port checkpoint](../../forge-1.20.1-port.md#multiplayer-conversion-and-ae-upgrades-checkpoint-2026-10-27) for implementation details and test coverage. Final runtime reruns passed with the same code and the JAR identified in `summary.json`. All test JVMs exited normally with code 0. The implementation is saved in pushed commit `1588372`; the evidence is saved by the subsequent documentation commit.
+
+## Final runtime outcomes
+
+| Check | Actual result |
+| --- | --- |
+| Full graphical client with integrated server | Passed all earlier mineral/storage/copier/JEI/Jade/bulk-entity checks plus real crafting-pattern ghost clicks, result synchronization and persisted save packets |
+| Two independent remote graphical clients | Passed simultaneous shared/independent output menus, concurrent upgrade storage/copier actions, cursor logout/reconnect and natural pickup |
+| Dedicated remote server unload and restart | Observed actual chunk unload, saved shutdown, fresh JVM restoration of exact player/machine state and both clients reopening synchronized menus |
+| Minimal production server, seed and fresh restart | Both passed with AE2, Curios, JEI and Jade absent; only Forge, JDT, JDTE and GuideME loaded, plus the separate probe |
+| Minimal graphical development client | Reached title and verified registrations/tank capability without AE2, Curios, JEI or Jade; development GameTest discovery remained enabled |
+| Optional Applied Flux | Real FE-cell extraction passed in the full GameTest runtime; remote/minimal runtime launches also passed with Applied Flux absent |
+| Production packaging | Neither graphical nor server smoke classes are included in the main JAR; generated Mixin refmap is present |
+| Language/guide consistency | 856 matching language keys, 56 blocks and 36 paired guide pages validated |
+
+The final runtime JAR SHA-256 is `65be182f551da8a532a59b8279f659f8a97a6c83e765bc3ce7ad625d3651c227`. `summary.json` retains all exact counts, checksums and success messages. Adjacent text files preserve selected verbatim output, not full worlds/dependencies or third-party update logs. Runtime log timestamps in this session use the host timezone (UTC).
+
+The independent-client run uses real client JVMs talking to a separate production Forge 47.4.10 server. The same two clients reconnect after the server process restarts. Its loopback fixture uses offline authentication and is not a public-server authentication test.
+
+The screenshot below was inspected after shortening the English button labels; saved pattern data and 32 unchanged cursor ingredients were verified through actual packets.
+
+![Crafting Pattern screen with valid saved recipe](jdte-crafting-pattern.png)
+
+[Independent client One](jdte-remote-One.png) · [Independent client Two](jdte-remote-Two.png)
+
+For prebuilt parallel graphical checks, `JDTE_SMOKE_PREBUILT=1` lets the multiplayer wrapper reuse a previously compiled/captured launch. Compile all source sets and JARs first. Do not rebuild exploded classes while any client uses them.
 
 ## Actual failure investigations
 

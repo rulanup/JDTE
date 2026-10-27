@@ -277,7 +277,7 @@ This checkpoint continues `8563466` on `codex/forge-1.20.1-mineral-machines`. Th
 
 ### Runtime scope and continuation
 
-See `docs/validation/forge-1.20.1-network/README.md` and `docs/validation/forge-1.20.1-upgrades/README.md` for exact JAR checksums and runtime outcomes. The new upgrade checkpoint records final-JAR graphical/optional/remote reruns separately as they finish.
+See `docs/validation/forge-1.20.1-network/README.md` and `docs/validation/forge-1.20.1-upgrades/README.md` for exact JAR checksums and runtime outcomes. The final JAR passed the full graphical integrated-client smoke, two simultaneous independent remote clients, a production server save/restart with those clients reconnecting, and both minimal server/client launches without AE2, Curios, JEI or Jade. The same remote clients and final full test suite also ran with Applied Flux absent/present respectively. All final test JVMs exited 0. The upgrade evidence records exact final checksums, inspected screenshots and selected log lines. Code commit `1588372` is pushed to the current development branch; subsequent evidence commits preserve this final runtime record.
 
 Still unverified: an actually submitted nonempty AE crafting CPU job controlling every machine family, long-running public-server throughput/concurrency, all combinations of optional mods, full UI interaction for every AE2 equipment variant, and exhaustive Mystical Agriculture recipe-pack compatibility. Snapshot/cache tests do not claim those scenarios passed. Earlier unported registrations remain unchecked above.
 

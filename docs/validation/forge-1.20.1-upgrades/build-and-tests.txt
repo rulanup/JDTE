@@ -1,0 +1,12 @@
+> Task :reobfJar
+> Task :reobfServerSmokeJar
+> Task :testClasses UP-TO-DATE
+> Task :test
+> Task :reobfJarJar SKIPPED
+> Task :build
+[12:59:34] [Server thread/INFO] [minecraft/GameTestServer]: ========= 85 GAME TESTS COMPLETE ======================
+[12:59:34] [Server thread/INFO] [minecraft/GameTestServer]: All 85 required tests passed :)
+[12:59:34] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[12:59:34] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[12:59:35] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+BUILD SUCCESSFUL in 1m 3s

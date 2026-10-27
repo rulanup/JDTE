@@ -21,7 +21,7 @@ An actual reobfuscated production server with only Forge, JDT, JDTE and GuideME 
 
 This found a real startup defect: the large fluid tank directly implemented Curios' optional interface. The common item now exposes only its native Forge capability, and Curios behavior is registered through the guarded Curios bridge. The GameTest suite also checks that the Curios-present behavior remains available.
 
-The runtime checksum in `summary.json` identifies the first-phase JAR, before the crafting/conversion/AE ports in this session. Later final-JAR reruns, if performed, are recorded separately in the new upgrade checkpoint. This is not a full combinatorial absence matrix or a long-running public-server stress test.
+The runtime checksum in `summary.json` identifies the first-phase JAR, before the crafting/conversion/AE ports in this session. Final-JAR reruns passed after the new upgrade ports; they are recorded separately in the [upgrade checkpoint](../forge-1.20.1-upgrades/README.md). This is not a full combinatorial absence matrix or a long-running public-server stress test.
 
 ## Reproduction and retained files
 

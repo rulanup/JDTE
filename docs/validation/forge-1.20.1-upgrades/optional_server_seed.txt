@@ -1,0 +1,1 @@
+PASS: real boundary chunk unload/reload, retained capability, all saved machine fields

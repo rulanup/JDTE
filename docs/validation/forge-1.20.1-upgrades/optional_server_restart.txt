@@ -1,0 +1,1 @@
+PASS: fresh server JVM restored inventory, FE, both fluids, surveys, upgrades, multiplier and pending work; resumed with bounded output/resource costs
