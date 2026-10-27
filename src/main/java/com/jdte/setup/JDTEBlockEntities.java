@@ -20,6 +20,8 @@ public class JDTEBlockEntities {
             "time_freezer", () -> BlockEntityType.Builder.of(TimeFreezerBE::new, JDTEBlocks.TIME_FREEZER.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedTimeFreezerBE>> EXTENDED_TIME_FREEZER = BLOCK_ENTITIES.register(
             "extended_time_freezer", () -> BlockEntityType.Builder.of(ExtendedTimeFreezerBE::new, JDTEBlocks.EXTENDED_TIME_FREEZER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<AdvancedFluidMixerBE>> ADVANCED_FLUID_MIXER = BLOCK_ENTITIES.register("advanced_fluid_mixer", () -> BlockEntityType.Builder.of(AdvancedFluidMixerBE::new,JDTEBlocks.ADVANCED_FLUID_MIXER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedFluidMixerBE>> EXTENDED_FLUID_MIXER = BLOCK_ENTITIES.register("extended_fluid_mixer", () -> BlockEntityType.Builder.of(ExtendedFluidMixerBE::new,JDTEBlocks.EXTENDED_FLUID_MIXER.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedClickerBE>> EXTENDED_CLICKER = BLOCK_ENTITIES.register(
             "extended_clicker", () -> BlockEntityType.Builder.of(ExtendedClickerBE::new, JDTEBlocks.EXTENDED_CLICKER.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedBlockBreakerBE>> EXTENDED_BLOCK_BREAKER = BLOCK_ENTITIES.register(

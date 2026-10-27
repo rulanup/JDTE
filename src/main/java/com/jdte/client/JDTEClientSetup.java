@@ -36,6 +36,8 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.ADVANCED_FLUID_MIXER.get(), com.jdte.client.screens.AdvancedFluidMixerScreen::new);
+        MenuScreens.register(JDTEMenus.EXTENDED_FLUID_MIXER.get(), com.jdte.client.screens.ExtendedFluidMixerScreen::new);
         MenuScreens.register(JDTEMenus.CRAFTING_PATTERN.get(),CraftingPatternScreen::new);
         MenuScreens.register(JDTEMenus.UPGRADE_STORAGE.get(), UpgradeStorageScreen::new);
         MenuScreens.register(JDTEMenus.ADVANCED_UPGRADE_STORAGE.get(), AdvancedUpgradeStorageScreen::new);

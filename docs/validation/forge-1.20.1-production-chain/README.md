@@ -15,3 +15,7 @@ The check runs in Forge's dedicated GameTest server. It is not a new independent
 ## Seed Conversion
 
 The next full suite passed 77 JUnit and 93 required GameTests. `seed-conversion.txt` retains the result. The source upgrade, resources and both greenhouse harvest paths are implemented. MA-specific tests invoke the actual harvest boundary with a deterministic crop generator and real machine inventories; they do not claim random MA loot sampling or independent-client GUI validation.
+
+## Fluid Mixer server checkpoint
+
+`mixer-server.txt` records the successful 81-unit/104-GameTest suite, including source parallel limits and eleven actual machine/menu/lifecycle tests. Both source mixer tiers, ordinary/ultimate parallel upgrades, machine registrations/resources and JEI integration are implemented. At this checkpoint mixer-specific graphical checks and real AE fluid processing jobs remain pending. The configured runtime does not contain Mekanism Extras, so its specific liquid-fuel chain is unverified.

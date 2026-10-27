@@ -32,6 +32,11 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
                 if (other != slot && UpgradeHelper.isSmelterUpgrade(getStackInSlot(other))) return false;
             return true;
         }
+        if (UpgradeHelper.isMixingUpgrade(stack)) {
+            if (!(machine instanceof com.jdte.common.blockentities.FluidMixerBE)) return false;
+            for(int other=0;other<getSlots();other++)if(other!=slot && UpgradeHelper.isMixingUpgrade(getStackInSlot(other)))return false;
+            return true;
+        }
         if (!(stack.getItem() instanceof UpgradeCardItem upgradeCard)) {
             return false;
         }

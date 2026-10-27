@@ -57,8 +57,18 @@ public class UpgradeHelper {
         return JDTEAttachments.upgrades(machine);
     }
 
+    public static boolean isMixingUpgrade(ItemStack stack) { return stack.getItem() instanceof com.jdte.common.items.MixingUpgradeItem || isUltimateMixingParallelUpgrade(stack); }
+    public static boolean isUltimateMixingParallelUpgrade(ItemStack stack) { return stack.getItem() instanceof com.jdte.common.items.UltimateMixingParallelUpgradeItem; }
+    public static boolean hasMixingUpgrade(BaseMachineBE machine) {
+        var handler = getUpgradeHandler(machine);if(handler==null)return false;
+        for(int i=0;i<handler.getSlots();i++)if(isMixingUpgrade(handler.getStackInSlot(i)))return true;return false;
+    }
+    public static boolean hasUltimateMixingParallelUpgrade(BaseMachineBE machine) {
+        var handler = getUpgradeHandler(machine);if(handler==null)return false;
+        for(int i=0;i<handler.getSlots();i++)if(isUltimateMixingParallelUpgrade(handler.getStackInSlot(i)))return true;return false;
+    }
     public static boolean isUpgrade(ItemStack stack) {
-        return stack.getItem() instanceof UpgradeCardItem;
+        return stack.getItem() instanceof UpgradeCardItem || isMixingUpgrade(stack);
     }
 
     public static boolean isUpgrade(ItemStack stack, UpgradeType type) {
@@ -183,7 +193,7 @@ public class UpgradeHelper {
         if(type==UpgradeType.AE_CRAFTING_READ || type.isAEOutputUpgrade()) return true;
         if(type==UpgradeType.ESSENCE_CONVERSION || type==UpgradeType.SEED_CONVERSION)return machine instanceof GreenhouseBE||machine instanceof LargeGreenhouseBE;
         if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
-            return machine instanceof com.jdte.common.blockentities.MineralExtractorBE;
+            return machine instanceof com.jdte.common.blockentities.MineralExtractorBE || machine instanceof com.jdte.common.blockentities.FluidMixerBE;
         if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE)
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID || type == UpgradeType.FILTER
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
@@ -316,6 +326,7 @@ public class UpgradeHelper {
         if (hasCreativeUpgrade(machine)) {
             return 0;
         }
+        if (machine instanceof com.jdte.common.blockentities.FluidMixerBE && hasUltimateOverclock(machine)) return (int)Math.min(Integer.MAX_VALUE,(long)original*50);
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
             return Math.max(1, (int) Math.ceil(original * JDTEConfig.COMMON.underclockEnergyMultiplier.get()));
         }
@@ -422,6 +433,7 @@ public class UpgradeHelper {
             }
         }
 
+        if(machine instanceof com.jdte.common.blockentities.FluidMixerBE mixer)mixer.syncTankCapacities();
         syncClickerFluidTank(machine);
         trimInactiveFilterSlots(machine);
     }

@@ -778,7 +778,7 @@
   "config.jdte.jdte.mineralExtractor.overclockMaxMultiplier": "Overclock Maximum Speed Multiplier",
   "config.jdte.jdte.mineralExtractor.maxCyclesPerSettlement": "Maximum Settlement Batches",
   "config.jdte.jdte.mineralExtractor.maxPendingWork": "Maximum Pending Work",
-  "tooltip.jdte.forge_mineral_upgrade_only": "Forge port: currently supported by Mineral Extractors only.",
+  "tooltip.jdte.forge_mineral_upgrade_only": "Supported on Mineral Extractors and Fluid Mixers in this Forge port.",
   "item.jdte.upgrade_storage": "Upgrade Storage",
   "jdte.screen.upgrade_storage": "Upgrade Storage",
   "tooltip.jdte.upgrade_storage.open": "Right-click to open",
@@ -856,5 +856,16 @@
   "tooltip.jdte.ae_crafting_read.linked": "Linked to an AE network",
   "tooltip.jdte.ae_crafting_read.unlinked": "Unlinked — insert into a Wireless Access Point UI",
   "item.jdte.seed_conversion_upgrade": "Seed-to-Essence Upgrade",
-  "tooltip.jdte.seed_conversion": "Greenhouses only. Replaces harvested copies of the planted Mystical Agriculture seed with its essence."
+  "tooltip.jdte.seed_conversion": "Greenhouses only. Replaces harvested copies of the planted Mystical Agriculture seed with its essence.",
+  "block.jdte.advanced_fluid_mixer": "Advanced Fluid Mixer",
+  "block.jdte.extended_fluid_mixer": "Extended Fluid Mixer",
+  "jdte.screen.fluid_mixer.input_a": "Input Fluid A",
+  "jdte.screen.fluid_mixer.input_b": "Input Fluid B",
+  "jdte.screen.fluid_mixer.output": "Output Fluid",
+  "jdte.slot.fluid_mixer_catalyst": "Catalyst (Optional)",
+  "jdte.screen.fluid_mixer.progress": "Mixing Progress: %s%%",
+  "item.jdte.mixing_upgrade": "Mixing Parallel Upgrade",
+  "tooltip.jdte.mixing_upgrade": "Fluid Mixers only: allows up to 8 parallel batches",
+  "item.jdte.ultimate_mixing_parallel_upgrade": "Ultimate Mixing Parallel Upgrade",
+  "tooltip.jdte.ultimate_mixing_parallel_upgrade": "Fluid Mixers only: allows up to 2,147,483,647 parallel batches"
 }

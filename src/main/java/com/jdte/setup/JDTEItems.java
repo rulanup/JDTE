@@ -76,6 +76,10 @@ public class JDTEItems {
     public static final RegistryObject<com.jdte.common.items.AEOutputUpgradeItem> AE_OUTPUT_UPGRADE = ITEMS.register("ae_output_upgrade", com.jdte.common.items.AEOutputUpgradeItem::new);
     public static final RegistryObject<com.jdte.common.items.AdvancedAEOutputUpgradeItem> ADVANCED_AE_OUTPUT_UPGRADE = ITEMS.register("advanced_ae_output_upgrade", com.jdte.common.items.AdvancedAEOutputUpgradeItem::new);
 
+    public static final RegistryObject<BlockItem> ADVANCED_FLUID_MIXER = ITEMS.register("advanced_fluid_mixer", () -> new BlockItem(JDTEBlocks.ADVANCED_FLUID_MIXER.get(),new Item.Properties()));
+    public static final RegistryObject<BlockItem> EXTENDED_FLUID_MIXER = ITEMS.register("extended_fluid_mixer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_MIXER.get(),new Item.Properties()));
+    public static final RegistryObject<com.jdte.common.items.MixingUpgradeItem> MIXING_UPGRADE = ITEMS.register("mixing_upgrade",com.jdte.common.items.MixingUpgradeItem::new);
+    public static final RegistryObject<com.jdte.common.items.UltimateMixingParallelUpgradeItem> ULTIMATE_MIXING_PARALLEL_UPGRADE = ITEMS.register("ultimate_mixing_parallel_upgrade",com.jdte.common.items.UltimateMixingParallelUpgradeItem::new);
     // Glue Activator
     public static final RegistryObject<BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> ADVANCED_GLUE_ACTIVATOR = ITEMS.register("advanced_glue_activator", () -> new BlockItem(JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get(), new Item.Properties()));

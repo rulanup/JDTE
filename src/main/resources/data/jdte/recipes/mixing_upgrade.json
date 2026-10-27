@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "justdirethings:blazegold_ingot"
+    },
+    "C": {
+      "item": "minecraft:cauldron"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "pattern": [
+    " E ",
+    "ECE",
+    " R "
+  ],
+  "result": {
+    "count": 1,
+    "item": "jdte:mixing_upgrade"
+  }
+}

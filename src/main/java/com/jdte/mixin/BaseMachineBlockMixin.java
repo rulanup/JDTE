@@ -50,8 +50,10 @@ public abstract class BaseMachineBlockMixin {
                     redstone.evaluateRedstone();
                     redstoneActive = redstone.isActiveRedstoneTestOnly();
                 }
+                int executions = redstoneActive && machine instanceof com.jdte.common.blockentities.FluidMixerBE && UpgradeHelper.hasUltimateOverclock(machine)
+                        ? 10 : UpgradeHelper.shouldRunOverclock(machine) ? 2 : 1;
                 UpgradeHelper.runServerTicker(UpgradeHelper.usesCommonAeTickerGate(machine), redstoneActive,
-                        () -> UpgradeHelper.mayRunWithUpgrades(machine), UpgradeHelper.shouldRunOverclock(machine), () -> {
+                        () -> UpgradeHelper.mayRunWithUpgrades(machine), executions, () -> {
                     original.tick(tickLevel, pos, blockState, blockEntity);
                     if (UpgradeHelper.hasAdvancedAEOutputUpgrade(machine) && tickLevel instanceof net.minecraft.server.level.ServerLevel server)
                         com.jdte.common.manager.AEOutputManager.flush(server, machine);

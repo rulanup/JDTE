@@ -3,6 +3,8 @@
   "values": [
     "jdte:mineral_extractor",
     "jdte:large_mineral_extractor",
-    "jdte:large_mineral_extractor_part"
+    "jdte:large_mineral_extractor_part",
+    "jdte:advanced_fluid_mixer",
+    "jdte:extended_fluid_mixer"
   ]
 }

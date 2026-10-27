@@ -19,6 +19,8 @@ public class JDTERecipes {
 
     public static final RegistryObject<com.jdte.common.recipes.AEExtractionSmithingRecipe.Serializer> AE_EXTRACTION_SMITHING_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("ae_extraction_smithing", com.jdte.common.recipes.AEExtractionSmithingRecipe.Serializer::new);
 
+    public static final RegistryObject<RecipeType<com.jdte.common.recipes.FluidMixerRecipe>> FLUID_MIXER_RECIPE_TYPE = RECIPE_TYPES.register("fluid_mixer", () -> RecipeType.simple(JDTE.id("fluid_mixer")));
+    public static final RegistryObject<com.jdte.common.recipes.FluidMixerRecipe.Serializer> FLUID_MIXER_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("fluid_mixer", com.jdte.common.recipes.FluidMixerRecipe.Serializer::new);
     public static final RegistryObject<RecipeType<InfusionRecipe>> INFUSION_RECIPE_TYPE = RECIPE_TYPES.register(
             "infusion", () -> RecipeType.simple(com.jdte.JDTE.id("infusion")));
 

@@ -23,6 +23,8 @@ public final class MachineSettingsCodecRegistry {
     private static final Map<ResourceLocation, RegisteredCodec> REGISTRY = new LinkedHashMap<>();
 
     static {
+        register(JDTEBlockEntities.ADVANCED_FLUID_MIXER.get(), AdvancedFluidMixerBE.class);
+        register(JDTEBlockEntities.EXTENDED_FLUID_MIXER.get(), ExtendedFluidMixerBE.class);
         register(JDTEBlockEntities.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorBE.class);
         register(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorBE.class,
                 JdteMachineSettingsCodecs.advancedTimeAccelerator());

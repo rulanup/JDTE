@@ -26,7 +26,7 @@ Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conver
 - [ ] `jdte:advanced_energy_transmitter`
 - [ ] `jdte:advanced_entity_accelerator`
 - [x] `jdte:advanced_essence_conversion_upgrade` (implemented; see the latest validation checkpoint)
-- [ ] `jdte:advanced_fluid_mixer`
+- [x] `jdte:advanced_fluid_mixer` (server implementation and regression suite passed; see mixer checkpoint)
 - [x] `jdte:advanced_machine_settings_copier` (typed Forge presets, upgrade exchange and storage sources implemented)
 - [x] `jdte:advanced_upgrade_storage` (36 slots, machine actions, Curios lookup and Forge persistence implemented)
 - [ ] `jdte:ae_acceleration_upgrade`
@@ -45,7 +45,7 @@ Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conver
 - [ ] `jdte:extended_entity_accelerator`
 - [ ] `jdte:extended_experience_holder`
 - [ ] `jdte:extended_fluid_generator`
-- [ ] `jdte:extended_fluid_mixer`
+- [x] `jdte:extended_fluid_mixer` (server implementation and regression suite passed; see mixer checkpoint)
 - [ ] `jdte:extended_generator`
 - [ ] `jdte:large_fuel_canister`
 - [x] `jdte:large_mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
@@ -54,14 +54,14 @@ Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conver
 - [ ] `jdte:maiqilin_fumo`
 - [x] `jdte:mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
 - [x] `jdte:mineral_survey` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
-- [ ] `jdte:mixing_upgrade`
+- [x] `jdte:mixing_upgrade` (server implementation and regression suite passed; see mixer checkpoint)
 - [x] `jdte:repair_talisman` (ported; runtime validation pending)
 - [x] `jdte:seed_conversion_upgrade` (normal/large harvest paths, source recipe and NBT verified)
 - [ ] `jdte:thunderstorm_upgrade`
 - [ ] `jdte:time_multitool`
-- [x] `jdte:ultimate_capacity_upgrade` (mineral machines only; other machine families remain pending)
-- [ ] `jdte:ultimate_mixing_parallel_upgrade`
-- [x] `jdte:ultimate_overclock_upgrade` (mineral machines only; other machine families remain pending)
+- [x] `jdte:ultimate_capacity_upgrade` (mineral machines and fluid mixers; other machine families remain pending)
+- [x] `jdte:ultimate_mixing_parallel_upgrade` (server implementation and regression suite passed; see mixer checkpoint)
+- [x] `jdte:ultimate_overclock_upgrade` (mineral machines and fluid mixers; other machine families remain pending)
 - [ ] `jdte:ultimate_time_wand`
 - [x] `jdte:upgrade_storage` (basic storage implemented; client and dedicated-server tests passed)
 - [ ] `jdte:xingye_fumo`
@@ -305,3 +305,16 @@ Starting checkpoint: `a36c6c5`, continuing the same development branch and versi
 - Added the pinned model/texture, Forge-conditional Mystical Agriculture crafting recipe, creative entry, translations and paired English guide pages. No optional MA API is referenced by the common upgrade implementation.
 - Java 17 `test build runGameTestServer`: **77 JUnit and 93 required GameTests passed**, including both real AE-job tests and all prior tests. Six new tests cover upgrade compatibility/limit/NBT, non-essence crops, normal/large deterministic actual harvest boundaries, preserved planted templates/old stored seeds, converted-capacity backpressure and composition with recorded essence crafting. The MA-specific fixtures register only when MA is present.
 - `seed-conversion.txt` retains selected actual suite output. A new graphical seed-specific check is not claimed here; mixer GUI/runtime validation is the next checkpoint.
+
+
+### Fluid Mixer server checkpoint
+
+- Ported both source registry tiers: `advanced_fluid_mixer` (100,000 FE/four upgrade slots) and `extended_fluid_mixer` (200,000 FE/eight slots). Both have two 8,000 mB inputs, an 8,000 mB output, a consumed catalyst slot, unordered inputs and optional second input. The original 100-tick/5,000-FE water/catalyst recipe produces 250 mB Time Fluid using Forge JDT 1.1.4's actual fluid ID.
+- Ported source processing/accelerated batching, 8-batch Mixing Upgrade and the related Ultimate Mixing Parallel Upgrade bounded by real resources/output. Parallel tiers are mutually exclusive. Basic/advanced upgrade bags, Shift insertion and the typed copier accept the plain mixing items. Extended Upgrade conversion recognizes the mixer pair.
+- Added full block/entity/menu/screen registrations, native models/loot/recipes/textures, translations, guide pages, JEI category/catalysts/click areas/stable recipe IDs and recipe-update refresh. A graphical mixer-specific check is still pending in this checkpoint.
+- Forge-specific fixes: the JDT superclass intercepts fluid queries before attached capabilities, so the mixer explicitly exposes its combined three-tank capability. The machine controls its own recipe clock and does not apply JDT's inherited generic work delay again. All three tanks persist dirty state and resize/clamp together. Data slots split all tank quantities/capacity and progress/duration into 16-bit pieces, and rendering clamps to the visible bars.
+- Normal/accelerated work respects AE read gating. Auto I/O accepts catalyst/inputs and exports only the product tank; AE output cannot extract input fluids/catalysts. Invalidated or detached combined endpoints cannot access a replacement machine. Ordinary destruction preserves FE, all fluids and progress but removes inventories/cards that drop separately.
+- Ultimate Capacity and Ultimate Overclock now support this newly ported family in addition to mineral machines. Mixer Ultimate Overclock executes ten real ticks per server tick, one-tick recipes and fiftyfold FE per batch. Other previously unported Ultimate-compatible families remain restricted.
+- Optional Mekanism integration adapts Forge 1.20's typed gas Chemical Infuser recipes to same-ID fluid equivalents, with the original 100 ticks/5,000 FE defaults. Unknown/unregistered equivalents are rejected; unexpected third-party recipe failures are logged rather than swallowed globally. Cache snapshots are scoped to recipe managers and reload generations. The configured runtime does not include Mekanism Extras; its specific liquid uranium/silicon fuel chain is not claimed as tested here.
+- Java 17 `test build runGameTestServer`: **81 JUnit and 104 required GameTests passed**, preserving all prior 77/93. This adds four original parallel-limit unit tests and eleven game tests covering both tiers, resource costs, single/dual input, fresh-BE restoration, capability simulation/direction, high-bit menu values, all-tank capacity removal, codec validation, acceleration/read pause, Ultimate Overclock, ordinary-drop conservation, detached endpoints and bag/copier integration. Production and probe reobfuscation passed. Selected output is in `mixer-server.txt`.
+- Next checkpoint: real processing-pattern fluid tasks with AE read/output, mixer GUI/JEI checks, optional-absence runtime checks and final evidence. No new server/client runtime pass is claimed before those checks run.

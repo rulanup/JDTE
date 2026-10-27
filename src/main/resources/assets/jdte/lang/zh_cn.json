@@ -778,7 +778,7 @@
   "config.jdte.jdte.mineralExtractor.overclockMaxMultiplier": "超频最大速度倍率",
   "config.jdte.jdte.mineralExtractor.maxCyclesPerSettlement": "单次最大结算批次",
   "config.jdte.jdte.mineralExtractor.maxPendingWork": "最大待处理工作量",
-  "tooltip.jdte.forge_mineral_upgrade_only": "Forge 移植版：目前仅支持矿物提取机及大型矿物提取机。",
+  "tooltip.jdte.forge_mineral_upgrade_only": "此 Forge 移植版目前支持矿物提取机与流体混合器。",
   "item.jdte.upgrade_storage": "升级存储器",
   "jdte.screen.upgrade_storage": "升级存储器",
   "tooltip.jdte.upgrade_storage.open": "右键打开升级存储器",
@@ -856,5 +856,16 @@
   "tooltip.jdte.ae_crafting_read.linked": "已绑定 AE 网络",
   "tooltip.jdte.ae_crafting_read.unlinked": "未绑定——请放入无线访问点 UI",
   "item.jdte.seed_conversion_upgrade": "种子转化升级",
-  "tooltip.jdte.seed_conversion": "仅限温室。将收获中与当前种植模板相同的神秘农业种子按数量转化为对应精华。"
+  "tooltip.jdte.seed_conversion": "仅限温室。将收获中与当前种植模板相同的神秘农业种子按数量转化为对应精华。",
+  "block.jdte.advanced_fluid_mixer": "高级流体混合器",
+  "block.jdte.extended_fluid_mixer": "扩展流体混合器",
+  "jdte.screen.fluid_mixer.input_a": "输入流体 A",
+  "jdte.screen.fluid_mixer.input_b": "输入流体 B",
+  "jdte.screen.fluid_mixer.output": "输出流体",
+  "jdte.slot.fluid_mixer_catalyst": "催化剂（可选）",
+  "jdte.screen.fluid_mixer.progress": "混合进度: %s%%",
+  "item.jdte.mixing_upgrade": "混合并行升级",
+  "tooltip.jdte.mixing_upgrade": "仅流体混合器可用：最多并行制作 8 批",
+  "item.jdte.ultimate_mixing_parallel_upgrade": "顶级混合并行升级",
+  "tooltip.jdte.ultimate_mixing_parallel_upgrade": "仅流体混合器可用：最多并行制作 2147483647 批"
 }

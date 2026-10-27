@@ -319,7 +319,11 @@ public final class AutoIoTransferHelper {
         IFluidHandler fluidInput = null;
         IFluidHandler fluidOutput = null;
 
-        if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE mineral) {
+        if (machine instanceof com.jdte.common.blockentities.FluidMixerBE mixer) {
+            itemInputs = boundedSlots(handler,0);
+            fluidInput = mixer.getCombinedFluidHandler();
+            fluidOutput = mixer.outputTank;
+        } else if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE mineral) {
             itemInputs = boundedSlots(handler, range(0, mineral.surveySlotCount()));
             itemOutputs = boundedSlots(handler, range(mineral.outputStartSlot(), mineral.getActiveOutputSlots()));
             fluidInput = mineral.getCombinedFluidHandler();

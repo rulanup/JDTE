@@ -16,7 +16,7 @@ JDT Extras (`jdte`) is a Forge 1.20.1 extension for Just Dire Things (JDT). It a
 
 Major features:
 
-- Standard upgrades: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting and Sharpness, plus the currently mineral-only Ultimate Capacity and Ultimate Overclock cards.
+- Standard upgrades: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting and Sharpness, plus the currently mineral/mixer Ultimate Capacity and Ultimate Overclock cards.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
@@ -38,7 +38,7 @@ Major features:
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
 
-The Mineral Extractor, Large Mineral Extractor and Mineral Survey are connected to the Forge game systems, with lifecycle/Factory Packer tests and real graphical client coverage. Basic/Advanced Upgrade Storage and the Advanced Machine Settings Copier are implemented, including native JDT basic copier compatibility. Crafting Pattern, basic/advanced Essence Conversion, AE Crafting Read, AE Extraction and basic/advanced AE Output are implemented. Seed Conversion is implemented for both greenhouse harvest paths. Real submitted AE crafting jobs now exercise Mineral Extractor read/output and fluid extraction. The current suite has 93 GameTests and 77 JUnit tests, retaining all previous 57/58 and the original 24 mineral core tests. Independent remote-client tests use two actual client JVMs and a separate production server; optional-absence runtime checks remove AE2, Curios, JEI and Jade. Packer storage paths must be captured on the server thread before asynchronous I/O. Read the latest checkpoint/evidence for exact tested scope; unchecked families remain unported.
+The Mineral Extractor, Large Mineral Extractor and Mineral Survey are connected to the Forge game systems, with lifecycle/Factory Packer tests and real graphical client coverage. Basic/Advanced Upgrade Storage and the Advanced Machine Settings Copier are implemented, including native JDT basic copier compatibility. Crafting Pattern, basic/advanced Essence Conversion, AE Crafting Read, AE Extraction and basic/advanced AE Output are implemented. Seed Conversion is implemented for both greenhouse harvest paths. Real submitted AE crafting jobs now exercise Mineral Extractor read/output and fluid extraction. Both Fluid Mixer tiers and Mixing/Ultimate Mixing Parallel are implemented with explicit three-tank Forge capabilities. The current suite has 104 GameTests and 81 JUnit tests, retaining all previous 57/58 and the original 24 mineral core tests. Independent remote-client tests use two actual client JVMs and a separate production server; optional-absence runtime checks remove AE2, Curios, JEI and Jade. Packer storage paths must be captured on the server thread before asynchronous I/O. Read the latest checkpoint/evidence for exact tested scope; unchecked families remain unported.
 
 The 0.6.5.2 backport is in progress; see [port tracking](docs/forge-1.20.1-port.md). Do not advertise feature parity until the new registrations and runtime checks are complete.
 

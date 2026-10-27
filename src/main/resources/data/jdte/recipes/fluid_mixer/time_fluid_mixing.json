@@ -1,0 +1,19 @@
+{
+  "type": "jdte:fluid_mixer",
+  "fluid_input_a": {
+    "id": "minecraft:water",
+    "amount": 1000
+  },
+  "item_input": {
+    "ingredient": {
+      "item": "jdte:time_fluid_catalyst"
+    },
+    "count": 1
+  },
+  "output": {
+    "id": "justdirethings:time_fluid",
+    "amount": 250
+  },
+  "process_ticks": 100,
+  "energy": 5000
+}

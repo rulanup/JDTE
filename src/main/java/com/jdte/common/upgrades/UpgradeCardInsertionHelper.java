@@ -37,7 +37,7 @@ public final class UpgradeCardInsertionHelper {
     }
 
     public static boolean isUpgradeCard(ItemStack stack) {
-        return stack.getItem() instanceof UpgradeCardItem
+        return UpgradeHelper.isMixingUpgrade(stack) || stack.getItem() instanceof UpgradeCardItem
                 || stack.getItem() instanceof LootingUpgradeItem
                 || stack.getItem() instanceof SharpnessUpgradeItem
                 || BioFactoryUpgradeItemStackHandler.getProductivityTier(stack) > 0;
@@ -65,6 +65,7 @@ public final class UpgradeCardInsertionHelper {
         }
 
         if (!(heldStack.getItem() instanceof UpgradeCardItem)
+                && !(machine instanceof com.jdte.common.blockentities.FluidMixerBE && UpgradeHelper.isMixingUpgrade(heldStack))
                 && !(machine instanceof LootFabricatorBE && heldStack.getItem() instanceof LootingUpgradeItem)
                 && !(machine instanceof BioFactoryBE && (heldStack.getItem() instanceof LootingUpgradeItem
                 || BioFactoryUpgradeItemStackHandler.getProductivityTier(heldStack) > 0))) {

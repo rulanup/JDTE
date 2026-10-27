@@ -10,6 +10,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class JDTEBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, JDTE.MODID);
 
+    public static final RegistryObject<AdvancedFluidMixerBlock> ADVANCED_FLUID_MIXER = BLOCKS.register("advanced_fluid_mixer", AdvancedFluidMixerBlock::new);
+    public static final RegistryObject<ExtendedFluidMixerBlock> EXTENDED_FLUID_MIXER = BLOCKS.register("extended_fluid_mixer", ExtendedFluidMixerBlock::new);
     public static final RegistryObject<BasicTimeAcceleratorBlock> BASIC_TIME_ACCELERATOR = BLOCKS.register("basic_time_accelerator", BasicTimeAcceleratorBlock::new);
     public static final RegistryObject<AdvancedTimeAcceleratorBlock> ADVANCED_TIME_ACCELERATOR = BLOCKS.register("advanced_time_accelerator", AdvancedTimeAcceleratorBlock::new);
     public static final RegistryObject<ExtendedTimeAcceleratorBlock> EXTENDED_TIME_ACCELERATOR = BLOCKS.register("extended_time_accelerator", ExtendedTimeAcceleratorBlock::new);

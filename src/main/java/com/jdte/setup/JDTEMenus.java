@@ -11,6 +11,8 @@ import net.minecraftforge.registries.DeferredRegister;
 public class JDTEMenus {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, JDTE.MODID);
 
+    public static final RegistryObject<MenuType<AdvancedFluidMixerContainer>> ADVANCED_FLUID_MIXER = MENUS.register("advanced_fluid_mixer", () -> IForgeMenuType.create(AdvancedFluidMixerContainer::new));
+    public static final RegistryObject<MenuType<ExtendedFluidMixerContainer>> EXTENDED_FLUID_MIXER = MENUS.register("extended_fluid_mixer", () -> IForgeMenuType.create(ExtendedFluidMixerContainer::new));
     public static final RegistryObject<MenuType<BasicTimeAcceleratorContainer>> BASIC_TIME_ACCELERATOR = MENUS.register(
             "basic_time_accelerator", () -> IForgeMenuType.create(BasicTimeAcceleratorContainer::new));
     public static final RegistryObject<MenuType<AdvancedTimeAcceleratorContainer>> ADVANCED_TIME_ACCELERATOR = MENUS.register(

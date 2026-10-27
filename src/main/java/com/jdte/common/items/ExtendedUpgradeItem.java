@@ -29,6 +29,7 @@ public class ExtendedUpgradeItem extends Item {
     private static final Map<Block, Block> UPGRADE_MAP = new HashMap<>();
 
     static {
+        UPGRADE_MAP.put(JDTEBlocks.ADVANCED_FLUID_MIXER.get(),JDTEBlocks.EXTENDED_FLUID_MIXER.get());
         UPGRADE_MAP.put(Registration.ClickerT2.get(), JDTEBlocks.EXTENDED_CLICKER.get());
         UPGRADE_MAP.put(Registration.BlockBreakerT2.get(), JDTEBlocks.EXTENDED_BLOCK_BREAKER.get());
         UPGRADE_MAP.put(Registration.BlockPlacerT2.get(), JDTEBlocks.EXTENDED_BLOCK_PLACER.get());
