@@ -5,7 +5,7 @@ Target baseline: `ac1d813`, Forge 47.4.10, Just Dire Things Forge 1.1.4, Java 17
 
 This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing version remains 0.5.8 until feature migration and validation finish.
 
-Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conversion-and-ae-upgrades-checkpoint-2026-10-27), with [remote-client evidence](validation/forge-1.20.1-network/README.md) and [new upgrade evidence](validation/forge-1.20.1-upgrades/README.md).
+Latest checkpoint: [real crafting jobs, Seed Conversion and Fluid Mixers](#real-crafting-jobs-and-production-chain-follow-up-2026-10-27), with [production-chain evidence](validation/forge-1.20.1-production-chain/README.md). Earlier [remote-client evidence](validation/forge-1.20.1-network/README.md) and [upgrade evidence](validation/forge-1.20.1-upgrades/README.md) remain available with their original scope and counts.
 
 ## Progress
 
@@ -26,7 +26,7 @@ Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conver
 - [ ] `jdte:advanced_energy_transmitter`
 - [ ] `jdte:advanced_entity_accelerator`
 - [x] `jdte:advanced_essence_conversion_upgrade` (implemented; see the latest validation checkpoint)
-- [x] `jdte:advanced_fluid_mixer` (server implementation and regression suite passed; see mixer checkpoint)
+- [x] `jdte:advanced_fluid_mixer` (implemented; see production-chain runtime evidence)
 - [x] `jdte:advanced_machine_settings_copier` (typed Forge presets, upgrade exchange and storage sources implemented)
 - [x] `jdte:advanced_upgrade_storage` (36 slots, machine actions, Curios lookup and Forge persistence implemented)
 - [ ] `jdte:ae_acceleration_upgrade`
@@ -45,7 +45,7 @@ Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conver
 - [ ] `jdte:extended_entity_accelerator`
 - [ ] `jdte:extended_experience_holder`
 - [ ] `jdte:extended_fluid_generator`
-- [x] `jdte:extended_fluid_mixer` (server implementation and regression suite passed; see mixer checkpoint)
+- [x] `jdte:extended_fluid_mixer` (implemented; see production-chain runtime evidence)
 - [ ] `jdte:extended_generator`
 - [ ] `jdte:large_fuel_canister`
 - [x] `jdte:large_mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
@@ -54,13 +54,13 @@ Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conver
 - [ ] `jdte:maiqilin_fumo`
 - [x] `jdte:mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
 - [x] `jdte:mineral_survey` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
-- [x] `jdte:mixing_upgrade` (server implementation and regression suite passed; see mixer checkpoint)
+- [x] `jdte:mixing_upgrade` (implemented; see production-chain runtime evidence)
 - [x] `jdte:repair_talisman` (ported; runtime validation pending)
 - [x] `jdte:seed_conversion_upgrade` (normal/large harvest paths, source recipe and NBT verified)
 - [ ] `jdte:thunderstorm_upgrade`
 - [ ] `jdte:time_multitool`
 - [x] `jdte:ultimate_capacity_upgrade` (mineral machines and fluid mixers; other machine families remain pending)
-- [x] `jdte:ultimate_mixing_parallel_upgrade` (server implementation and regression suite passed; see mixer checkpoint)
+- [x] `jdte:ultimate_mixing_parallel_upgrade` (implemented; see production-chain runtime evidence)
 - [x] `jdte:ultimate_overclock_upgrade` (mineral machines and fluid mixers; other machine families remain pending)
 - [ ] `jdte:ultimate_time_wand`
 - [x] `jdte:upgrade_storage` (basic storage implemented; client and dedicated-server tests passed)
@@ -77,7 +77,7 @@ Latest checkpoint: [multiplayer, conversion and AE upgrades](#multiplayer-conver
 
 ## Current validation evidence
 
-- Clean Java 17 build: passed, including reobfJar.
+- Latest Java 17 build: passed, including production/probe reobfuscation; 81 JUnit and 108 required GameTests passed. All earlier tests are retained.
 - MineralProductionEngineTest: 16 passed.
 - MineralOutputPlannerTest: 8 passed.
 - Clean dedicated Forge server: reached Done and shut down with saved dimensions.
@@ -331,3 +331,8 @@ Starting checkpoint: `a36c6c5`, continuing the same development branch and versi
 - Added a real Extended Upgrade interaction regression. Forge stores separate four/eight-slot capability handlers; merely loading the old machine snapshot leaves installed cards in the inactive four-slot handler. Mixer tier conversion now migrates the tagged cards to the active eight-slot handler, clears the inactive copy and refreshes capacities/client state. The regression preserves all three tanks, FE, catalyst, 73 ticks of progress and the installed read gate.
 - The full Java 17 `test build runGameTestServer compileClientSmokeJava` run passed **81 JUnit and 107 required GameTests**, including production/probe reobfuscation. No previous tests were removed.
 - The production optional-absence seed JVM passed real unload/reload and exact snapshots. The first restart fixture checked resumed work after a fixed 35 startup ticks and failed its completion assertion even though its disk-restoration comparison passed. The rerun records the actual state at that point and waits, with a bounded timeout, for natural work completion. Final restart results are pending; no restart pass is claimed here.
+
+### Capacity-safe mixer tier migration
+
+- Expanded tier-conversion coverage to Ultimate Capacity in the last slot, with 4,000,000 FE and 120,000/130,000/140,000 mB stored fluids. Per-slot migration could temporarily expose base capacity before the last card arrived. Restoring the full eight-slot handler before any capacity refresh prevents this resource loss, and clears the inactive four-slot copy without intermediate callbacks.
+- Full build/reobfuscation and the complete suite passed **81 JUnit and 108 required GameTests**. Earlier 107/81 results remain historical checkpoints. Final graphical and production runs are being repeated with the final production JAR.

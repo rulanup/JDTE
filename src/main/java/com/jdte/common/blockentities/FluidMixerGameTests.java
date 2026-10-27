@@ -130,4 +130,16 @@ public final class FluidMixerGameTests {
         converted.tickServer();h.assertTrue(converted.progress==73&&converted.getEnergyStorage().getEnergyStored()==123456,"migrated read gate remains effective");h.succeed();
     }
 
+    @GameTest(template="mineral_empty") public static void capacityCardInLastSlotMigratesWithoutTransientResourceClamp(GameTestHelper h){
+        var be=machine(h,false);var upgrades=UpgradeHelper.getUpgradeHandler(be);
+        upgrades.insertItem(0,new ItemStack(JDTEItems.AE_CRAFTING_READ_UPGRADE.get()),false);upgrades.insertItem(1,new ItemStack(JDTEItems.MIXING_UPGRADE.get()),false);
+        upgrades.insertItem(3,new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()),false);
+        be.inputTankA.setFluid(new FluidStack(Fluids.WATER,120000));be.inputTankB.setFluid(new FluidStack(Fluids.LAVA,130000));be.outputTank.setFluid(new FluidStack(time(),140000));be.getEnergyStorage().receiveEnergy(4000000,false);be.progress=73;
+        var player=h.makeMockSurvivalPlayer();var card=new ItemStack(JDTEItems.EXTENDED_UPGRADE.get());player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,card);
+        card.useOn(new net.minecraft.world.item.context.UseOnContext(player,net.minecraft.world.InteractionHand.MAIN_HAND,new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(be.getBlockPos()),Direction.UP,be.getBlockPos(),false)));
+        var converted=(FluidMixerBE)h.getBlockEntity(POS);converted.tickServer();
+        h.assertTrue(converted.getMaxMB()==400000&&converted.inputTankA.getFluidAmount()==120000&&converted.inputTankB.getFluidAmount()==130000&&converted.outputTank.getFluidAmount()==140000,"late capacity card never exposes transient base-capacity tanks");
+        h.assertTrue(converted.getEnergyStorage().getEnergyStored()==4000000&&converted.progress==73&&UpgradeHelper.getUpgradeHandler(converted).getSlots()==8,"large FE, saved progress and handler size remain intact after native tick");h.succeed();
+    }
+
 }

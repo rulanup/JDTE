@@ -89,10 +89,15 @@ public class ExtendedUpgradeItem extends Item {
                     // old NBT alone leaves cards in the now-inactive four-slot handler.
                     var previous = com.jdte.setup.JDTEAttachments.upgrades(mixer);
                     var next = com.jdte.setup.JDTEAttachments.extendedUpgrades(mixer);
-                    for (int slot = 0; slot < previous.getSlots(); slot++) {
-                        next.setStackInSlot(slot, previous.getStackInSlot(slot).copy());
-                        previous.setStackInSlot(slot, ItemStack.EMPTY);
-                    }
+                    // Restore the complete handler before firing capacity updates.
+                    // Per-slot insertion would clamp fluids/FE before a Capacity card
+                    // in a later slot has been migrated.
+                    CompoundTag migrated = previous.serializeNBT();
+                    migrated.putInt("Size", next.getSlots());
+                    next.deserializeNBT(migrated);
+                    CompoundTag empty = new CompoundTag();
+                    empty.putInt("Size", previous.getSlots());
+                    previous.deserializeNBT(empty);
                     com.jdte.common.upgrades.UpgradeHelper.syncCapacities(mixer);
                     mixer.markDirtyClient();
                 }

@@ -367,12 +367,15 @@ public final class MineralClientSmoke {
                 mc.gameMode.handleInventoryMouseClick(menu.containerId,catalyst,0,ClickType.PICKUP,mc.player);
                 var screen=(com.jdte.client.screens.AdvancedFluidMixerScreen)mc.screen;
                 // Click the displayed slot, rather than bypassing its screen hit box.
-                screen.mouseClicked(screen.getGuiLeft()-30+94+8,screen.getGuiTop()-26+14+8,0);next();
+                screen.mouseClicked(screen.getGuiLeft()-30+94+8,screen.getGuiTop()-26+14+8,0);
+                screen.mouseReleased(screen.getGuiLeft()-30+94+8,screen.getGuiTop()-26+14+8,0);
+                LOG.info("Mixer click: origin {},{} slot {},{} carried {} catalyst {}",screen.getGuiLeft(),screen.getGuiTop(),menu.slots.get(0).x,menu.slots.get(0).y,menu.getCarried(),menu.slots.get(0).getItem());
+                screenshot(mc,"jdte-mixer-click-diagnostic.png");next();
             }
             case 28 -> {
                 if(elapsed<30)return;
                 check(UpgradeHelper.hasMixingUpgrade((com.jdte.common.blockentities.FluidMixerBE)mc.level.getBlockEntity(mixerPos)),"vanilla Shift packet installs plain mixing card and synchronizes upgrade");
-                check(mc.player.containerMenu.slots.get(0).getItem().is(JDTEItems.TIME_FLUID_CATALYST.get())&&mc.player.containerMenu.getCarried().isEmpty(),"displayed catalyst slot accepts actual mouse click and syncs");
+                check(mc.player.containerMenu.slots.get(0).getItem().is(JDTEItems.TIME_FLUID_CATALYST.get())&&mc.player.containerMenu.getCarried().isEmpty(),"displayed catalyst slot accepts actual mouse click and syncs; actual="+mc.player.containerMenu.slots.get(0).getItem()+", carried="+mc.player.containerMenu.getCarried());
                 screenshot(mc,"jdte-advanced-fluid-mixer.png");
                 mc.getSingleplayerServer().execute(()->UpgradeHelper.getUpgradeHandler((com.jdte.common.blockentities.FluidMixerBE)mc.getSingleplayerServer().overworld().getBlockEntity(mixerPos)).extractItem(0,1,false));next();
             }
