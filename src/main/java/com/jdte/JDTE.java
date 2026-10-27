@@ -148,7 +148,9 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, JDTEContentEvents::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onEntityTickPost);
         NeoForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onEntityInteract);
-        NeoForge.EVENT_BUS.addListener(com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration::onPlayerLoggedIn);
+        if (ModList.get().isLoaded("curios")) {
+            NeoForge.EVENT_BUS.addListener(com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration::onPlayerLoggedIn);
+        }
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
         }
@@ -281,7 +283,9 @@ public class JDTE {
             AEOutputNetwork.registerLinkable();
             com.jdte.common.integrations.ae2.AE2CraftingReadNetwork.registerLinkable();
             AEExtractionNetwork.registerLinkable();
-            com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration.registerCurioBehaviors();
+            if (ModList.get().isLoaded("curios")) {
+                com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration.registerCurioBehaviors();
+            }
         });
     }
 

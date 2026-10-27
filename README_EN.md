@@ -2,7 +2,14 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.5.3`
+Current version: `0.6.5.4`
+
+## What's new in 0.6.5.4
+
+- Made Curios API an optional dependency rather than an undeclared hard requirement, resolving startup crashes when Curios is absent while preserving full Curios functionality when installed.
+- Decoupled `BigFluidTankItem` from `ICurioItem` and isolated Curios invocations in container menus to avoid class verification failure.
+
+See the [detailed release notes and installation guidance](docs/releases/0.6.5.4.md).
 
 ## What's new in 0.6.5.3
 

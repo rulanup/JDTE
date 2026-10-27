@@ -43,7 +43,6 @@ import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
-import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -52,7 +51,7 @@ import java.util.List;
  * 大型流体储罐：操作逻辑与 JDT 原版 FluidCanister 一致，容量 1000 B。
  * 填充模式共 4 种：NONE / JDTONLY / JDTEONLY / ALL。可放入饰品栏新槽位 "tank"。
  */
-public class BigFluidTankItem extends Item implements FluidContainingItem, ICurioItem {
+public class BigFluidTankItem extends Item implements FluidContainingItem {
     public enum FillMode {
         NONE("none"),
         JDTONLY("jdtonly"),

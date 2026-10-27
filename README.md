@@ -2,9 +2,16 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.5.3`
+当前版本：`0.6.5.4`
 
 [English README](README_EN.md)
+
+## 0.6.5.4 更新
+
+- Curios API 全面转为可选依赖：在 `neoforge.mods.toml` 中显式声明为可选，彻底解决未安装 Curios 时的崩溃问题。
+- 大型流体储罐解除对 `ICurioItem` 接口的直接实现，改为运行时动态挂载行为；大型便携容器界面的 Curios API 调用全隔离保护。
+
+完整说明：[0.6.5.4 Release Notes](docs/releases/0.6.5.4.md)。
 
 ## 0.6.5.3 更新
 

@@ -38,6 +38,16 @@ public class BigFluidTankCuriosIntegration {
                                 .inventoryTick(stack, entity.level(), entity, -1, false);
                     }
                 });
+        top.theillusivec4.curios.api.CuriosApi.registerCurio(
+                JDTEItems.BIG_FLUID_TANK.get(),
+                new top.theillusivec4.curios.api.type.capability.ICurioItem() {
+                    @Override
+                    public void curioTick(top.theillusivec4.curios.api.SlotContext slotContext, ItemStack stack) {
+                        LivingEntity entity = slotContext.entity();
+                        JDTEItems.BIG_FLUID_TANK.get()
+                                .inventoryTick(stack, entity.level(), entity, -1, false);
+                    }
+                });
     }
 
     @SubscribeEvent

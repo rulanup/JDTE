@@ -2,7 +2,16 @@
 
 ### English
 
-#### v0.6.5.3 (Current)
+#### v0.6.5.4 (Current)
+
+- Made Curios API an optional dependency rather than an undeclared hard requirement, resolving startup crashes when Curios is absent while preserving full Curios functionality when installed.
+- Decoupled `BigFluidTankItem` from `ICurioItem` and dynamically register Curios behaviors at runtime when Curios is available.
+- Isolated Curios API invocations for large portable container menus in `LargePortableContainerCuriosIntegration` with ModList guards to prevent class verification failure.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.4.
+
+Full details: [0.6.5.4 release notes](docs/releases/0.6.5.4.md).
+
+#### v0.6.5.3 — 2026-10-27
 
 - Added Ultimate Essence Conversion Upgrade (`jdte:ultimate_essence_conversion_upgrade`): supports binding up to 2,147,483,647 Crafting Patterns, crafted via smithing table preserving bound patterns, and mutually exclusive with normal/advanced essence conversion cards.
 - Enhanced Greenhouse essence pattern rotation handling and added tooltip folding indicator when patterns exceed tooltip limits.
@@ -442,7 +451,16 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.5.3（当前）
+#### v0.6.5.4（当前）
+
+- 将 Curios API 依赖全面改为可选依赖，明确在 `neoforge.mods.toml` 中声明 `curios` 为可选依赖，彻底解决未安装 Curios 时的崩溃问题。
+- 大型流体储罐（`BigFluidTankItem`）解除对 `ICurioItem` 接口的直接依赖，改为在检测到 Curios 时动态注册饰品行为。
+- 大型便携容器界面的 Curios API 调用隔离至独立集成类 `LargePortableContainerCuriosIntegration`，未安装 Curios 时安全回退，防止类验证崩溃。
+- 主模组与配套可选 JDTE-AE 附属版本统一升级为 0.6.5.4。
+
+完整说明：[0.6.5.4 发布说明](docs/releases/0.6.5.4.md)。
+
+#### v0.6.5.3 — 2026-10-27
 
 - 新增顶级精华转化升级（`jdte:ultimate_essence_conversion_upgrade`）：可在锻造台中使用下界合金升级锻造模板 + 高级精华转化升级 + 时间水晶制作并保留已绑定样板，支持绑定至多 2,147,483,647 个合成样板，与普通/高级版共享 1 张升级限制。
 - 优化温室精华样板轮转逻辑，修复多样板轮转安全索引；样板列表超出界面显示上限时显示折叠提示。

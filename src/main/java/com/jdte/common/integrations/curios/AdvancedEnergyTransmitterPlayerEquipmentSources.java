@@ -7,13 +7,15 @@ import net.neoforged.fml.ModList;
 import java.util.function.Predicate;
 
 public final class AdvancedEnergyTransmitterPlayerEquipmentSources {
-    private static final boolean CURIOS_AVAILABLE = ModList.get().isLoaded("curios");
+    private static boolean isCuriosLoaded() {
+        return ModList.get() != null && ModList.get().isLoaded("curios");
+    }
 
     private AdvancedEnergyTransmitterPlayerEquipmentSources() {
     }
 
     public static void collectCurios(ServerPlayer player, Predicate<ItemStack> visitor) {
-        if (CURIOS_AVAILABLE) {
+        if (isCuriosLoaded()) {
             AdvancedEnergyTransmitterCuriosIntegration.collect(player, visitor);
         }
     }
