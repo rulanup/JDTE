@@ -77,7 +77,7 @@ Latest checkpoint: [AE Acceleration and mixer runtime follow-up](#ae-acceleratio
 
 ## Current validation evidence
 
-- Latest Java 17 build: passed, including production/probe reobfuscation; 81 JUnit and 108 required GameTests passed. All earlier tests are retained.
+- Latest Java 17 build: passed, including production/probe reobfuscation; 95 JUnit and 113 required GameTests passed. All earlier tests are retained.
 - MineralProductionEngineTest: 16 passed.
 - MineralOutputPlannerTest: 8 passed.
 - Clean dedicated Forge server: reached Done and shut down with saved dimensions.
@@ -382,3 +382,9 @@ Starting commit: `5498124`; reference remains `ccf46472abaf3856fa9eebe0f5ebd25d8
 - Full Java 17 build/reobfuscation and **95 JUnit / 113 required GameTests passed**, retaining all earlier tests. A subsequent resources/build pass corrected the guide's opening text: only linked AE cards need a Wireless Access Point; local AE Acceleration needs no binding.
 - The early natural-cost assertion expected a whole-mB decrement too soon. The source retains fractional cost in `pendingFluidCost`, so the corrected test checks a whole debit or saved positive fractional debt. Production costs were not changed.
 - Two early mixer multiplayer attempts are retained in the evidence folder: the first waited for a randomly tossed logout cursor stack outside stationary player reach; the second included 64 old world items loaded after ServerStarted, before any client interaction. The fixture now performs its one-time old-drop cleanup after client chunks are ready and before establishing the 128-catalyst/5-card baseline, then observes every subsequent transfer/drop without deleting items. Reconnected players are moved into natural pickup range. Control phases are written atomically. The full rerun is next; these attempts are not counted as passing validation.
+
+### Submitted accelerator lifecycle guard
+
+- Final review found a capability-lifetime risk when an accelerator is dismantled after submission but before END-phase processing. The scheduler now admits only nonremoved, loaded contributors belonging to the current level and current world block-entity object before querying upgrades or retaining backlog.
+- Added a regression that queues real Inscriber work, dismantles the accelerator and clears the old object's removed flag. Neither invalidated capabilities nor the detached reference can execute queued work. Full build/reobfuscation and **95 JUnit / 114 required GameTests passed**, preserving original 81/108. No public-server crash is claimed; this risk was found during review.
+- Previous final same-JAR multiplayer, active-job restart and fuel tests passed at the 113-test checkpoint. The final runtime rerun is being repeated with this guard; no other machine family is being expanded.

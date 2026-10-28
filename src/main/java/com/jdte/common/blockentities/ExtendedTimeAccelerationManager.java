@@ -254,7 +254,13 @@ public final class ExtendedTimeAccelerationManager {
                 nextEffectTick.entrySet().removeIf(entry -> entry.getValue() + 200L < level.getGameTime());
             }
             Set<TimeAcceleratorBE> active = Collections.newSetFromMap(new IdentityHashMap<>());
-            active.addAll(submitted);
+            for (TimeAcceleratorBE accelerator : submitted) {
+                // Another machine can dismantle a submitted accelerator before END.
+                // Do not query invalidated upgrade capabilities or retain a detached copy.
+                if (!accelerator.isRemoved() && accelerator.getLevel() == level
+                        && level.isLoaded(accelerator.getBlockPos())
+                        && level.getBlockEntity(accelerator.getBlockPos()) == accelerator) active.add(accelerator);
+            }
             Set<TimeAcceleratorBE> aeActive = Collections.newSetFromMap(new IdentityHashMap<>());
             if(backend==null && AE2_LOADED && JDTEConfig.COMMON.timeAcceleratorAE2Enabled.get())
                 for(var accelerator:active)if(UpgradeHelper.hasAEAccelerationUpgrade(accelerator))aeActive.add(accelerator);
@@ -267,7 +273,7 @@ public final class ExtendedTimeAccelerationManager {
             List<AcceleratorContext> contexts = new ArrayList<>();
             Map<Long, List<AcceleratorContext>> byChunk = new LinkedHashMap<>();
             for (TimeAcceleratorBE accelerator : submitted) {
-                if (accelerator.isRemoved() || accelerator.getLevel() != level) {
+                if (!active.contains(accelerator)) {
                     continue;
                 }
                 int multiplier = accelerator.getEffectiveMultiplier();

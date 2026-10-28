@@ -106,6 +106,15 @@ public final class AEAccelerationGameTests {
             h.assertTrue(a.fluidTank.getFluidAmount()<1000||a.saveWithFullMetadata().getDouble("pendingFluidCost")>0,"natural acceleration accounts for whole or saved fractional Time Fluid cost");h.succeed();
         });
     }
+    @GameTest(templateNamespace="jdte",template="mineral_empty",timeoutTicks=220) public static void dismantledSubmittedAcceleratorCannotReadInvalidCapsOrRetainWork(GameTestHelper h){
+        grid(h);var a=source(h,SOURCE);UpgradeHelper.getUpgradeHandler(a).insertItem(0,new ItemStack(JDTEItems.AE_ACCELERATION_UPGRADE.get()),false);
+        h.runAfterDelay(80,()->{
+            var be=inscriber(h);inputs(be);var state=queue();frame(state,h.getLevel(),List.of(a),null,0);int before=be.getProcessingTime();
+            h.getLevel().destroyBlock(a.getBlockPos(),false);h.assertTrue(a.isRemoved(),"submitted source was actually dismantled");
+            frame(state,h.getLevel(),List.of(a),null,64);h.assertTrue(be.getProcessingTime()==before,"removed source cannot read invalid capabilities or execute paid backlog");
+            a.clearRemoved();frame(state,h.getLevel(),List.of(a),null,64);h.assertTrue(be.getProcessingTime()==before,"clearing old removed flag cannot revive a detached contributor");h.succeed();
+        });
+    }
     private static final class Backend implements ExternalTimeAccelerationBackend {
         final List<String> order=new ArrayList<>();final TargetHandle handle=new TargetHandle(){};boolean inactive;
         public void beginFrame(net.minecraft.server.MinecraftServer s){order.add("begin");}
