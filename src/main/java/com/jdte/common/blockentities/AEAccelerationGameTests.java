@@ -39,7 +39,7 @@ public final class AEAccelerationGameTests {
             var field=state.getClass().getDeclaredField("submitted");field.setAccessible(true);((Set<TimeAcceleratorBE>)field.get(state)).addAll(sources);
             var prepare=state.getClass().getDeclaredMethod("prepare",ServerLevel.class,int.class,ExternalTimeAccelerationBackend.class);prepare.setAccessible(true);
             var execute=state.getClass().getDeclaredMethod("execute",ServerLevel.class,int.class);execute.setAccessible(true);
-            ExtendedTimeAccelerationManager.runAccelerationFrame(level.getServer(),backend,List.of(new ExtendedTimeAccelerationManager.FrameWork(
+            ExternalTimeAccelerationFrame.run(level.getServer(),backend,List.of(new ExternalTimeAccelerationFrame.Work(
                     ()->invoke(prepare,state,level,4096,backend),()->invoke(execute,state,level,budget))));
         }catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
     }

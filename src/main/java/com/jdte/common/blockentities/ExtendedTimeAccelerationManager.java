@@ -6,6 +6,7 @@ import com.jdte.common.integrations.ae2.ExtendedTimeAcceleratorAE2Integration;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.acceleration.ExternalTimeAccelerationBackend;
+import com.jdte.common.acceleration.ExternalTimeAccelerationFrame;
 import com.jdte.common.acceleration.ExternalTimeAccelerationBackends;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -78,27 +79,15 @@ public final class ExtendedTimeAccelerationManager {
         int scanBase = scanBudget / states.size();
         int scanExtra = scanBudget % states.size();
         ExternalTimeAccelerationBackend backend = ExternalTimeAccelerationBackends.current().orElse(null);
-        List<FrameWork> frame = new ArrayList<>();
+        List<ExternalTimeAccelerationFrame.Work> frame = new ArrayList<>();
         for (int offset = 0; offset < states.size(); offset++) {
             Map.Entry<ServerLevel, LevelState> entry = states.get((startIndex + offset) % states.size());
             int levelScanBudget = scanBase + (offset < scanExtra ? 1 : 0);
             int levelExecutionBudget = executionBase + (offset < executionExtra ? 1 : 0);
-            frame.add(new FrameWork(() -> entry.getValue().prepare(entry.getKey(), levelScanBudget, backend),
+            frame.add(new ExternalTimeAccelerationFrame.Work(() -> entry.getValue().prepare(entry.getKey(), levelScanBudget, backend),
                     () -> entry.getValue().execute(entry.getKey(), levelExecutionBudget)));
         }
-        runAccelerationFrame(server, backend, frame);
-    }
-
-    record FrameWork(Runnable prepare, Runnable executeOrdinary) {}
-
-    static void runAccelerationFrame(MinecraftServer server, ExternalTimeAccelerationBackend backend, List<FrameWork> work) {
-        boolean open=false;
-        try {
-            if(backend!=null){backend.beginFrame(server);open=true;}
-            for(var item:work)item.prepare().run();
-            for(var item:work)item.executeOrdinary().run();
-            if(backend!=null)backend.executeFrame(server);
-        } finally { if(open)backend.clearFrame(server); }
+        ExternalTimeAccelerationFrame.run(server, backend, frame);
     }
 
     public static void onLevelUnload(LevelEvent.Unload event) {

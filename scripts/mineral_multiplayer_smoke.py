@@ -10,7 +10,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 SERVER = Path(os.environ['JDTE_LIFECYCLE_SERVER']).resolve()
-CONTROL = Path('/tmp/jdte-remote-control')
+SCENARIO = os.environ.get('JDTE_REMOTE_SCENARIO', 'mineral')
+assert SCENARIO in {'mineral','mixer'}
+CONTROL = Path('/tmp/jdte-mixer-remote-control' if SCENARIO == 'mixer' else '/tmp/jdte-remote-control')
 assert (SERVER / '.jdte-lifecycle-fixture').is_file(), 'Use the existing marked disposable server'
 props = dict(line.split('=', 1) for line in (SERVER / 'server.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
 assert props.get('server-ip') == '127.0.0.1' and props.get('server-port') == '25579', 'Use loopback port 25579'
@@ -26,7 +28,7 @@ processes = []; logs = []
 env = dict(os.environ, **launch['environment'])
 def start_server(mode):
     log = (CONTROL / f'server-{mode}.log').open('w'); logs.append(log)
-    process = subprocess.Popen([str(Path(os.environ['JAVA_HOME']) / 'bin/java'), '-Xmx3G', f'-Djdte.multiplayer={mode}', '@libraries/net/minecraftforge/forge/1.20.1-47.4.10/unix_args.txt', '--nogui'], cwd=SERVER, stdout=log, stderr=subprocess.STDOUT)
+    process = subprocess.Popen([str(Path(os.environ['JAVA_HOME']) / 'bin/java'), '-Xmx3G', f'-Djdte.{"mixerMultiplayer" if SCENARIO == "mixer" else "multiplayer"}={mode}', f'-Djdte.remoteControl={CONTROL}', '@libraries/net/minecraftforge/forge/1.20.1-47.4.10/unix_args.txt', '--nogui'], cwd=SERVER, stdout=log, stderr=subprocess.STDOUT)
     processes.append(process); return process
 
 def start_client(role, round_number):
@@ -35,6 +37,10 @@ def start_client(role, round_number):
     command = filtered_command(launch,folder,KEEP)
     for key, value in [('--username', 'JDTE' + role), ('--gameDir', str(folder))]:
         command[command.index(key) + 1] = value
+    if SCENARIO == 'mixer':
+        command = [arg.replace('-Djdte.remoteSmoke=true','-Djdte.remoteSmoke=false') for arg in command]
+        command.insert(1,'-Djdte.mixerRemoteSmoke=true')
+        command.insert(1,f'-Djdte.remoteControl={CONTROL}')
     command.insert(1, '-Xmx3G')
     log = (CONTROL / f'client-{role}-{round_number}.log').open('w'); logs.append(log)
     process = subprocess.Popen(command, cwd=folder, env=env, stdout=log, stderr=subprocess.STDOUT)
@@ -61,7 +67,7 @@ def phase(value):
 try:
     server = start_server('seed'); wait_for(lambda: phase(0), 'dedicated server ready', 150)
     one = start_client('One', 0); two = start_client('Two', 0)
-    wait_for(lambda: phase(7), 'two-client simultaneous interactions and first disconnect')
+    wait_for(lambda: phase(7), 'two-client simultaneous interactions and first disconnect', 420)
     wait_for(lambda: (CONTROL / 'seed-success').is_file(), 'reconnect, chunk unload and saved shutdown')
     assert server.wait(timeout=90) == 0
     server = start_server('restart'); wait_for(lambda: phase(9), 'fresh dedicated server ready', 150)
