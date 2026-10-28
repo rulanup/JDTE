@@ -1,0 +1,12 @@
+{
+  "final_build": "test build: BUILD SUCCESSFUL; no new runtime-code changes after the full regression/production run",
+  "final_sha256": {
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar": "2d52573899d5b7f62fd791d8ed2135672a67b333907dfd4f0e97558432958cd3",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar": "d8970e935bd76e33aa804f5184c01b9b0bc29bb33561e52593cce5280b154706"
+  },
+  "production_to_final_different_entries": [
+    "assets/jdte/guides/jdte/guide/_en_us/advanced-energy-transmitter.md",
+    "assets/jdte/guides/jdte/guide/advanced-energy-transmitter.md"
+  ],
+  "all_runtime_class_and_other_resource_entries_identical": true
+}

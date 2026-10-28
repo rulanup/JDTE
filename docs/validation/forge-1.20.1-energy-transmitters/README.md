@@ -42,3 +42,7 @@ Evidence files: `production-summary.txt`, compressed seed/verify logs, success m
 ## Continuation
 
 Keep version 0.5.8 and retain both recovery and development branch checkpoints. Start with the unverified player/Curios and complex native peer-network FE paths before considering V acceptance. The graphical transmitter UI and Jade status have implementation/build coverage only in this round. Do not rerun unrelated prolonged multiplayer or reactor tests just to change counts.
+
+## Final packaging check
+
+A final `test build` after the guide additions passed in 14 seconds. The produced JAR and the production-tested JAR were compared entry by entry: only the two Advanced Energy Transmitter Markdown guide pages differ; all runtime classes and all other resources are byte-identical. `artifact-sha256.json` records the production-tested artifacts; `final-artifact-equivalence.json` records final artifact hashes and exact differences. Expensive Minecraft runs were not repeated for these documentation-only resource changes.

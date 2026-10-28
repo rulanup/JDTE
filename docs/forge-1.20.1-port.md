@@ -8,7 +8,7 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest durable recovery checkpoint: **`a115219`** (WIP, pushed to `codex/recovery-energy-transmitters-20261028`), based on **`fb64caa`**. Both interrupted transmitter implementations survived. See [recovery evidence](validation/forge-1.20.1-energy-transmitters/README.md).
+- Latest code/validation checkpoint: **`083e95f`** — transmitter production lifecycle and retained evidence; real Applied Flux/accounting fix **`f7e2a15`**. Initial WIP recovery **`a115219`** is preserved on `codex/recovery-energy-transmitters-20261028`, based on **`fb64caa`**. Validated follow-up commits were fast-forwarded into `codex/forge-1.20.1-mineral-machines`; documentation-only commits may follow. See [transmitter evidence](validation/forge-1.20.1-energy-transmitters/README.md).
 - Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
 - Latest completed recovery regression: **131 JUnit / 154 required GameTests**, full build and production/probe reobfuscation passed. Real Applied Flux same-grid extraction and failed-refund/NBT/node recovery pass; both minimal production JVM lifecycle checks also passed. Failed attempts remain recorded below.
 - 120-item status: V **33**, U **21**, P **48**, N **18**; **102** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) is the authority for functional acceptance and scoped evidence.
@@ -512,3 +512,9 @@ Both fresh production Forge JVMs exited **0** using the actual reobfuscated mod 
 The drop fixture required actual ticking entity tracking and removal of leftovers from aborted attempts in the marked disposable test area. These were fixture corrections, not relaxed conservation assertions. Source-original teardown refunds are intentionally omitted: refunding credit after a save/pickup snapshot can duplicate that saved FE. Normal live ticks refund the credit; real Applied Flux failed-refund conservation is separately verified.
 
 Guides and source-derived Jade/copier wiring are implemented. No new graphical transmitter run, online bound-player/Curios charge, Draconic injector test, arbitrary native peer-network proof or installed ME production-JVM restart was performed. Both transmitters remain **U**; counts are **V33/U21/P48/N18**, registered **102/120**. The native-to-Extended conversion is a 16th real-item GameTest path; the previous 15 conversions retain their own production evidence. Four remaining conversion targets and the Large Fuel Canister are still absent. Audit normal/`--check` and guide/language validation pass. No version change, main-branch merge or release.
+
+### Recovery branch integration
+
+After source recovery, passing full regression and successful two-JVM production probes, the development branch `codex/forge-1.20.1-mineral-machines` was fast-forwarded from `fb64caa` through `083e95f`. Recovery commits remain reachable on the independent recovery branch. The original pre-existing untracked `scripts/__pycache__/` directory remains untouched and excluded from commits. No main branch was merged or changed.
+
+Final post-guide `test build` and main/probe reobfuscation passed (14 seconds). Entry-level comparison of final versus production-tested main JAR finds only two guide Markdown pages changed; runtime classes and all other resources are identical. Both tested and final SHA-256 hashes and the equivalence report are retained. No unrelated multiplayer/pressure test was repeated.
