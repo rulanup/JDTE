@@ -102,4 +102,31 @@ public final class TransmitterNetworkGameTests {
         h.succeed();
     }
 
+    @GameTest(template="mineral_empty") public static void extendedUltimateCapacityAndNaturalOverclockInstallRemovalHaveRealEffects(GameTestHelper h) {
+        int rate=Config.ENERGY_TRANSMITTER_T1_RF_PER_TICK.get();double loss=Config.ENERGY_TRANSMITTER_T1_LOSS_PER_BLOCK.get();
+        try {
+            Config.ENERGY_TRANSMITTER_T1_RF_PER_TICK.set(1000);Config.ENERGY_TRANSMITTER_T1_LOSS_PER_BLOCK.set(0D);
+            h.setBlock(SOURCE,JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get());h.setBlock(PEER,JDTEBlocks.ADVANCED_FLUID_MIXER.get());var old=h.getBlockEntity(SOURCE);
+            var source=new ExtendedEnergyTransmitterBE(old.getBlockPos(),old.getBlockState()){@Override public net.minecraft.world.phys.AABB getAABB(BlockPos ignored){return new net.minecraft.world.phys.AABB(h.absolutePos(PEER));}};h.getLevel().setBlockEntity(source);
+            var upgrades=UpgradeHelper.getUpgradeHandler(source);h.assertTrue(upgrades.insertItem(0,new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()),false).isEmpty()&&upgrades.insertItem(1,new ItemStack(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get()),false).isEmpty(),"ultimate cards accepted by actual eight-slot handler");
+            UpgradeHelper.syncCapacities(source);h.assertTrue(source.getMaxEnergy()==Config.ENERGY_TRANSMITTER_T1_MAX_RF.get()*50&&source.getEnergyStorage().getRealMaxEnergyStored()==source.getMaxEnergy(),"ultimate capacity changes real buffer");
+            source.getEnergyStorage().setEnergy(10000);
+            @SuppressWarnings("unchecked") var ticker=(net.minecraft.world.level.block.entity.BlockEntityTicker<ExtendedEnergyTransmitterBE>)source.getBlockState().getTicker(h.getLevel(),source.getType());ticker.tick(h.getLevel(),source.getBlockPos(),source.getBlockState(),source);
+            var receiver=(AdvancedFluidMixerBE)h.getBlockEntity(PEER);h.assertTrue(receiver.getEnergyStorage().getEnergyStored()==10000&&source.getEnergyStorage().getRealEnergyStored()==0&&source.getTickSpeed()==1,"ten actual native executions each transfer 1000 without duplicate FE");
+            upgrades.extractItem(1,1,false);source.getEnergyStorage().setEnergy(2000);ticker.tick(h.getLevel(),source.getBlockPos(),source.getBlockState(),source);
+            h.assertTrue(receiver.getEnergyStorage().getEnergyStored()==11000&&source.getEnergyStorage().getRealEnergyStored()==1000&&source.getTickSpeed()==50,"removal restores one native execution and normal delay");
+            upgrades.extractItem(0,1,false);UpgradeHelper.syncCapacities(source);h.assertTrue(source.getEnergyStorage().getRealMaxEnergyStored()==Config.ENERGY_TRANSMITTER_T1_MAX_RF.get(),"capacity removal restores actual base buffer");
+        } finally {Config.ENERGY_TRANSMITTER_T1_RF_PER_TICK.set(rate);Config.ENERGY_TRANSMITTER_T1_LOSS_PER_BLOCK.set(loss);}h.succeed();
+    }
+    @GameTest(template="mineral_empty") public static void extendedAllSixFacesAndHeldRotatedPortsObeyDirection(GameTestHelper h) {
+        var source=source(h);source.getEnergyStorage().setEnergy(5000);net.minecraftforge.energy.IEnergyStorage previous=null;
+        for(var face:Direction.values()) {
+            h.getLevel().setBlock(source.getBlockPos(),source.getBlockState().setValue(BlockStateProperties.FACING,face),Block.UPDATE_ALL);
+            if(previous!=null)h.assertTrue(previous.receiveEnergy(100,false)==0&&previous.extractEnergy(100,false)==0,"held previous-facing capability is inert");
+            for(var side:Direction.values())h.assertTrue(source.getCapability(ForgeCapabilities.ENERGY,side).isPresent()==(side==face),"only current input face exposes the native-compatible FE endpoint");
+            h.assertTrue(!source.getCapability(ForgeCapabilities.ENERGY).isPresent(),"no unsided energy fallback");previous=source.getCapability(ForgeCapabilities.ENERGY,face).orElseThrow(IllegalStateException::new);
+        }
+        h.assertTrue(source.getEnergyStorage().getRealEnergyStored()==5000,"rotation never copies or loses owned FE");h.succeed();
+    }
+
 }

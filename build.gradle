@@ -93,6 +93,11 @@ minecraft {
         }
 
         client {
+            if (project.hasProperty('jdteTransmitterSmoke')) {
+                property 'jdte.transmitterSmoke', 'true'
+                args '--quickPlaySingleplayer', 'jdte-mineral-client-smoke', '--width', '1280', '--height', '720'
+                mods { "${mod_id}" { source sourceSets.clientSmoke } }
+            }
             if (project.hasProperty('jdteRemoteSmoke')) {
                 property 'jdte.remoteSmoke', 'true'
                 args '--quickPlayMultiplayer', '127.0.0.1:25579'

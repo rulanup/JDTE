@@ -60,7 +60,7 @@ The machine family and individual upgrade rows are separate: a verified new card
 | Greenhouse family | P: core harvest/seed/recorded crafting verified | Source matrix integration and broader Ultimate support |
 | Mixer family | V: production-chain and AE-runtime evidence, real clients/jobs/restart/Extras fuel | Complete reactor operation remains unverified |
 | Energy Brewing / Energy Overload | V for tested brewer and native/JDTE transmitter paths: energy-upgrade/transmitter evidence | New graphical card checks; JDTE transmitter acceptance is tracked separately |
-| Advanced/Extended Energy Transmitters | U pending full acceptance; recovered core tests and new lifecycle/integration checks are tracked in transmitter evidence | Player/Curios, Draconic, graphical UI and broader network acceptance remain incomplete |
+| Energy Transmitters | Extended V: native-FE contract including real GUI, network and production evidence; Advanced U: graphical/online Curios/Draconic paths pass | Advanced dedicated online-server logout and installed ME production-JVM recovery remain pending |
 | Inherited other machines | P where known Ultimate/operation gaps; otherwise U | Dedicated parity and behavior checks are not replaced by bootstrap |
 | Repair Talisman, apples, eggs/essences | U unless an explicit behavioral test is linked later | Functional behavior not established by registration/assets |
 | Optional JEI/Jade/Curios integrations | Implemented, selected client/presence/absence checks retained | Not every new card GUI/every mod combination |

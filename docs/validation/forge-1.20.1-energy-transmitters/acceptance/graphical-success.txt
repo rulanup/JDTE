@@ -1,0 +1,1 @@
+PASS: real graphical Advanced/Extended menus, 32-bit FE, filter packets/ghost conservation, eight upgrade slots/install/remove, binding/particles, Jade online data; online hotbar/actual armor/offhand/validated Curios FE charging; real disconnect/world unload/rejoin and saved UUID/Curios recharge, exact source FE costs. Curios test slot exists only in clientSmoke datapack.
