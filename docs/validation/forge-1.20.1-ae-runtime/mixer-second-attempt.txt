@@ -1,0 +1,7 @@
+PASS: dedicated server ready
+Traceback (most recent call last):
+  File "/workspace/JDTE/scripts/mineral_multiplayer_smoke.py", line 70, in <module>
+    wait_for(lambda: phase(7), 'two-client simultaneous interactions and first disconnect', 420)
+  File "/workspace/JDTE/scripts/mineral_multiplayer_smoke.py", line 57, in wait_for
+    raise RuntimeError('; '.join(p.read_text() for p in failures))
+RuntimeError: java.lang.IllegalStateException: Mixer remote: catalyst ledger=192

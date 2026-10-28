@@ -38,3 +38,9 @@ export JDTE_MEKE_JAR=/path/to/mekanism_extras-1.20.1-1.5.0.jar
 export JDTE_MEKANISM_JAR=/path/to/Mekanism-1.20.1-10.4.16.80.jar
 bash scripts/run_mekanism_fuel_probe.sh
 ```
+
+## Natural ticker coverage and multiplayer fixture history
+
+The later complete suite passes **95 JUnit / 113 required GameTests**. A fifth acceleration test installs the actual card, enables the real Basic accelerator block ticker and lets the global scheduler complete the native Inscriber recipe without directly calling the frame or service bridge. The reusable press and exactly one silicon print are verified, as is the source Time Fluid ledger. Source costs can remain fractional before a whole mB drains; the test checks either the actual drain or saved positive fractional debt, correcting an early integer-only fixture assumption. Config-disable invalidation is now checked alongside card removal.
+
+`mixer-first-attempt.txt` and `mixer-second-attempt.txt` preserve failed fixture runs. The first passed gameplay phases but waited for a tossed logout stack to reach stationary players. The second detected a contaminated **pre-interaction** baseline (192 catalysts) when the prior failed world's 64-item entity loaded after ServerStarted. The one-time fixture cleanup now waits until both clients have their chunks, before the 128-catalyst/5-card baseline and before any tested action. No drops are discarded during gameplay checks. Reconnect uses the established natural-pickup setup from the earlier mineral fixture. These corrections do not change production item handling or assume a passing multiplayer result.

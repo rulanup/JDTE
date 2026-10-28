@@ -74,7 +74,12 @@ public final class AEAccelerationGameTests {
             frame(state,h.getLevel(),List.of(a,b),null,64);
             h.assertTrue(be.getProcessingTime()-start==2*a.getEffectiveMultiplier()&&b.fluidTank.getFluidAmount()==1000,"unupgraded overlapping contributor cannot borrow another card");
             h.assertTrue(a.saveWithFullMetadata().getDouble("pendingFluidCost")>0||a.fluidTank.getFluidAmount()<1000,"existing source fractional Time Fluid accounting used");
-            frame(state,h.getLevel(),List.of(a),null,0);int before=be.getProcessingTime();handler.extractItem(0,1,false);
+            frame(state,h.getLevel(),List.of(a),null,0);int before=be.getProcessingTime();
+            try {
+                JDTEConfig.COMMON.timeAcceleratorAE2Enabled.set(false);frame(state,h.getLevel(),List.of(a),null,64);
+                h.assertTrue(be.getProcessingTime()==before,"disabling AE acceleration invalidates queued service work");
+            } finally { JDTEConfig.COMMON.timeAcceleratorAE2Enabled.set(true); }
+            frame(state,h.getLevel(),List.of(a),null,0);handler.extractItem(0,1,false);
             frame(state,h.getLevel(),List.of(a),null,64);h.assertTrue(be.getProcessingTime()==before,"removing card invalidates queued AE contributions");h.succeed();
         });
     }
@@ -86,6 +91,19 @@ public final class AEAccelerationGameTests {
             h.assertTrue(backend.order.equals(List.of("begin","resolve","submit:"+a.getEffectiveMultiplier(),"execute","clear"))&&be.getProcessingTime()==start,"external frame contract and no native duplicate");
             backend.order.clear();backend.inactive=true;var saved=a.saveWithFullMetadata();frame(state,h.getLevel(),List.of(a),backend,64);
             h.assertTrue(backend.order.equals(List.of("begin","resolve","execute","clear"))&&a.saveWithFullMetadata().getDouble("pendingFluidCost")==saved.getDouble("pendingFluidCost")&&be.getProcessingTime()==start,"inactive external target cannot fall back or charge");h.succeed();
+        });
+    }
+    @GameTest(templateNamespace="jdte",template="mineral_empty",timeoutTicks=220) public static void naturalServerTicksSubmitInstalledCardAndCompleteRealInscriberRecipe(GameTestHelper h){
+        grid(h);var a=source(h,SOURCE);
+        h.runAfterDelay(80,()->{
+            inputs(inscriber(h));UpgradeHelper.getUpgradeHandler(a).insertItem(0,new ItemStack(JDTEItems.AE_ACCELERATION_UPGRADE.get()),false);
+            a.getRedstoneControlData().redstoneMode=com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        });
+        h.runAfterDelay(105,()->{
+            var be=inscriber(h);var inv=be.getInternalInventory();
+            h.assertTrue(inv.getStackInSlot(3).is(AEItems.SILICON_PRINT.asItem())&&inv.getStackInSlot(3).getCount()==1&&inv.getStackInSlot(2).isEmpty(),"actual block ticker/global scheduler completed native recipe with one output");
+            h.assertTrue(inv.getStackInSlot(0).is(AEItems.SILICON_PRESS.asItem()),"native press remains reusable: "+inv.getStackInSlot(0));
+            h.assertTrue(a.fluidTank.getFluidAmount()<1000||a.saveWithFullMetadata().getDouble("pendingFluidCost")>0,"natural acceleration accounts for whole or saved fractional Time Fluid cost");h.succeed();
         });
     }
     private static final class Backend implements ExternalTimeAccelerationBackend {

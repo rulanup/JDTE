@@ -13,7 +13,7 @@ item_ids:
 
 # AE Network Upgrades
 
-Bind each upgrade in an AE2 Wireless Access Point's item slot. The target must remain loaded and active. Binding does not keep chunks loaded. Items retain their target dimension and block position when saved or moved.
+Bind Crafting Read, Output and Extraction upgrades in an AE2 Wireless Access Point's item slot. AE Acceleration uses the accelerator's local area and needs no wireless binding. The target must remain loaded and active. Binding does not keep chunks loaded. Items retain their target dimension and block position when saved or moved.
 
 ## Crafting Read
 

@@ -29,7 +29,7 @@ public final class MixerMultiplayerProbe {
     private final Path control=Path.of(System.getProperty("jdte.remoteControl","/tmp/jdte-mixer-remote-control"));
     private MinecraftServer server;private int stage,ticks,at;private boolean restart;private List<ServerPlayer> originals=List.of();private CompoundTag expected;
     private void check(boolean v,String s){if(!v)throw new IllegalStateException("Mixer remote: "+s);}
-    private void write(String n,String v){try{Files.writeString(control.resolve(n),v);}catch(java.io.IOException e){throw new IllegalStateException(e);}}
+    private void write(String n,String v){try{Files.writeString(control.resolve(n+".tmp"),v);Files.move(control.resolve(n+".tmp"),control.resolve(n),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);}catch(java.io.IOException e){throw new IllegalStateException(e);}}
     private void phase(int n){stage=n;at=ticks;write("phase",Integer.toString(n));}
     private boolean marked(String n){return Files.isRegularFile(control.resolve(n));}
     private boolean both(int n){return marked("One-"+n)&&marked("Two-"+n);}
@@ -66,7 +66,7 @@ public final class MixerMultiplayerProbe {
     private void run()throws java.io.IOException{
         ticks++;check(ticks-at<3600,"timeout stage="+stage);var people=players();var level=server.overworld();
         if(stage==0&&people.size()==2){originals=people;for(var p:people){p.getInventory().clearContent();p.teleportTo(A.getX()+0.5,A.getY(),A.getZ()+2.5);p.getInventory().setItem(9,new ItemStack(JDTEItems.MIXING_UPGRADE.get()));var bag=new ItemStack(JDTEItems.ADVANCED_UPGRADE_STORAGE.get());new AdvancedUpgradeStorageHandler(bag).setStackInSlot(0,new ItemStack(JDTEItems.MIXING_UPGRADE.get()));p.getInventory().setItem(35,bag);p.inventoryMenu.broadcastChanges();}phase(-2);}
-        else if(stage==-2&&both(-2)){conserved();open(A);phase(1);}
+        else if(stage==-2&&both(-2)){for(var drop:level.getEntitiesOfClass(ItemEntity.class,new AABB(A).inflate(12)))drop.discard();conserved();open(A);phase(1);}
         else if(stage==1&&both(1)){conserved();check(machine(A).getMachineHandler().getStackInSlot(0).isEmpty(),"one winner extracted shared catalyst stack");phase(2);}
         else if(stage==2&&both(2)){conserved();check(machine(A).getMachineHandler().getStackInSlot(0).getCount()==64,"shared catalyst returned once");phase(3);}
         else if(stage==3&&both(3)){conserved();check(UpgradeHelper.hasMixingUpgrade(machine(A)),"concurrent Shift accepted exactly one mixing card");for(var p:people){p.closeContainer();var copier=new ItemStack(JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get());com.direwolf20.justdirethings.common.items.MachineSettingsCopier.setSettings(copier,true,true,true,true);JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get().saveSettings(machine(SOURCE),copier);equip(p,copier);}phase(4);}
@@ -74,7 +74,9 @@ public final class MixerMultiplayerProbe {
         else if(stage==5&&both(5)){conserved();check(machine(B).getMachineHandler().getStackInSlot(0).getCount()==64&&UpgradeHelper.hasMixingUpgrade(machine(B)),"extended concurrent catalyst and bag panel round trip");phase(6);}
         else if(stage==6&&marked("One-6")&&people.size()==1){conserved();check(originals.get(0).inventoryMenu.getCarried().isEmpty(),"logout settles real carried catalyst");phase(7);}
         else if(stage==7&&people.size()==2&&both(7)){
-            conserved();if(!level.getEntitiesOfClass(ItemEntity.class,new AABB(A).inflate(12)).isEmpty())return;for(var p:people)p.closeContainer();expected=snapshot();NbtIo.writeCompressed(expected,control.resolve("expected.nbt").toFile());phase(8);for(var p:people)p.connection.disconnect(net.minecraft.network.chat.Component.literal("Mixer restart fixture"));force(false);
+            conserved();var drops=level.getEntitiesOfClass(ItemEntity.class,new AABB(A).inflate(12),drop->drop.getItem().is(JDTEItems.TIME_FLUID_CATALYST.get()));
+            if(!drops.isEmpty()){var drop=drops.get(0);people.get(0).teleportTo(drop.getX(),drop.getY(),drop.getZ());return;}
+            for(var p:people)p.closeContainer();expected=snapshot();NbtIo.writeCompressed(expected,control.resolve("expected.nbt").toFile());phase(8);for(var p:people)p.connection.disconnect(net.minecraft.network.chat.Component.literal("Mixer restart fixture"));force(false);
         }else if(stage==8&&people.isEmpty()){
             for(var p:List.of(A,B,SOURCE))if(level.getChunkSource().hasChunk(p.getX()>>4,p.getZ()>>4))return;server.saveEverything(false,true,true);write("seed-success","PASS: two independent clients raced shared catalysts and Shift upgrades, pasted configs, repeated Extended mixer transfers, disconnected with cursor, reconnected, conserved 128 catalysts/5 cards and all high-bit fluids/FE/work, then observed chunk unload and saved shutdown\n");server.halt(false);stage=99;
         }else if(stage==9&&people.size()==2&&both(9)){originals=people;compare();for(var p:people)check(expected.getList(p.getGameProfile().getName(),Tag.TAG_COMPOUND).equals(p.getInventory().save(new ListTag())),"restored exact player inventory "+p.getGameProfile().getName());for(int i=0;i<people.size();i++)(i==0?JDTEBlocks.ADVANCED_FLUID_MIXER.get():JDTEBlocks.EXTENDED_FLUID_MIXER.get()).openMenu(people.get(i),i==0?A:B);phase(10);}
