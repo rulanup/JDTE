@@ -1,0 +1,2 @@
+PASS: real CPU job supplied mixer, read gate opened, partial recipe saved while CPU remained busy, exact state held through normal saved shutdown
+PASS: fresh server restored actual busy CPU and mixer NBT, resumed partial work, completed real job through Advanced AE Output with exactly 500 mB product and 10000 FE cost, then paused

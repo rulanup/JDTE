@@ -1,0 +1,7 @@
+PASS: dedicated server ready
+PASS: two-client simultaneous interactions and first disconnect
+PASS: reconnect, chunk unload and saved shutdown
+PASS: fresh dedicated server ready
+PASS: disk restoration and two-client synchronized menus
+PASS: two independent clients raced shared catalysts and Shift upgrades, pasted configs, repeated Extended mixer transfers, disconnected with cursor, reconnected, conserved 128 catalysts/5 cards and all high-bit fluids/FE/work, then observed chunk unload and saved shutdown
+PASS: fresh dedicated server restored both mixer tiers and exact player inventories; both independent clients reopened synchronized three-tank menus with correct upgrade slots and empty cursors

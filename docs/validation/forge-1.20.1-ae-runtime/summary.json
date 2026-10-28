@@ -1,0 +1,55 @@
+{
+  "starting_commit": "5498124",
+  "code_checkpoint": "9970bd6",
+  "reference_commit": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "mod_version": "0.5.8-forge-1.20.1",
+  "jar_sha256": "aba10d187b28e45fa99619fd3df0218ae313a68b6c7c1cd46b95cf3b06df5308",
+  "probe_sha256": "c8f947a70131c3cfba5ac888fb4abb1cf2788997170ac52ac1605935318cb32d",
+  "junit_tests": 95,
+  "junit_failures": 0,
+  "junit_suites": {
+    "com.jdte.common.minerals.MineralProductionEngineTest": 16,
+    "com.jdte.common.integrations.ae2.AEExtractionTransferTest": 10,
+    "com.jdte.common.factory.FactoryTransformTest": 10,
+    "com.jdte.common.recipes.LifeSynthesisRecipeTest": 7,
+    "com.jdte.common.utils.StackCountLabelsTest": 4,
+    "com.jdte.common.integrations.ae2.AEItemBatchTransferTest": 5,
+    "com.jdte.common.blockentities.FluidMixerParallelLimitTest": 4,
+    "com.jdte.common.integrations.ae2.AECraftingReadPolicyTest": 4,
+    "com.jdte.common.acceleration.ExternalTimeAccelerationBackendsTest": 10,
+    "com.jdte.common.minerals.MineralSurveyCodecTest": 6,
+    "com.jdte.common.minerals.MineralOutputPlannerTest": 8,
+    "com.jdte.common.items.machinesettings.MachineSettingsSnapshotTest": 7,
+    "com.jdte.common.acceleration.AEAccelerationFrameTest": 4
+  },
+  "required_gametests": 114,
+  "gametest_failures": 0,
+  "remote_server_exits": [
+    0,
+    0
+  ],
+  "remote_client_exits": [
+    0,
+    0
+  ],
+  "active_job_server_exits": [
+    0,
+    0
+  ],
+  "mekanism_server_exit": 0,
+  "production_smoke_classes_absent": true,
+  "runtime_checks": {
+    "mixer_seed": "PASS: two independent clients raced shared catalysts and Shift upgrades, pasted configs, repeated Extended mixer transfers, disconnected with cursor, reconnected, conserved 128 catalysts/5 cards and all high-bit fluids/FE/work, then observed chunk unload and saved shutdown",
+    "mixer_restart": "PASS: fresh dedicated server restored both mixer tiers and exact player inventories; both independent clients reopened synchronized three-tank menus with correct upgrade slots and empty cursors",
+    "active_job_seed": "PASS: real CPU job supplied mixer, read gate opened, partial recipe saved while CPU remained busy, exact state held through normal saved shutdown",
+    "active_job_restart": "PASS: fresh server restored actual busy CPU and mixer NBT, resumed partial work, completed real job through Advanced AE Output with exactly 500 mB product and 10000 FE cost, then paused",
+    "mekanism": "PASS: actual Mekanism Extras fuel recipe mapped to real fluids and completed 100 native work calls in both production mixers; swapped inputs, 8/25 parallel batches, exact FE/product accounting and native downstream fuel-gas recipe acceptance"
+  },
+  "captured_at": "2026-10-28T02:07:24.214634+00:00",
+  "unverified": [
+    "actual separately installed JDTE-AE whole-grid backend mod",
+    "long-running public-server stress",
+    "full operating rotary-machine/reactor cycle beyond native downstream recipe acceptance",
+    "all other Extras releases and optional-mod combinations"
+  ]
+}

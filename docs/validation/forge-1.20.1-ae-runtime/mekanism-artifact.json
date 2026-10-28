@@ -10,6 +10,6 @@
   "forge": "47.4.10",
   "tested_recipe": "mekanism_extras:chemical_infusing/fluorinated_naquadah_uranium_fuel",
   "localized_product": "液态含氟硅岩铀燃料",
-  "production_jar_sha256": "999538ef9cdd7dba9d11213d1de5bf8d5c7d64a38bc772d6b3ee7a7637c35ff8",
+  "production_jar_sha256": "aba10d187b28e45fa99619fd3df0218ae313a68b6c7c1cd46b95cf3b06df5308",
   "exit": 0
 }

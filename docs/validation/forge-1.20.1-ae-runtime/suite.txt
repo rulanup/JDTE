@@ -1,8 +1,15 @@
 > Task :reobfJar
 > Task :reobfServerSmokeJar
-> Task :testClasses
+> Task :testClasses UP-TO-DATE
 > Task :test
 > Task :reobfJarJar SKIPPED
-[01:31:15] [Server thread/INFO] [minecraft/GameTestServer]: All 112 required tests passed :)
+[02:00:36] [Server thread/INFO] [minecraft/GameTestServer]: All 114 required tests passed :)
 > Task :compileClientSmokeJava UP-TO-DATE
-BUILD SUCCESSFUL in 1m 5s
+BUILD SUCCESSFUL in 1m 3s
+Final resource/guide build:
+> Task :reobfJar
+> Task :reobfServerSmokeJar
+> Task :testClasses UP-TO-DATE
+> Task :test
+> Task :reobfJarJar SKIPPED
+BUILD SUCCESSFUL in 14s

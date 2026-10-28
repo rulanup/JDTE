@@ -77,7 +77,7 @@ Latest checkpoint: [AE Acceleration and mixer runtime follow-up](#ae-acceleratio
 
 ## Current validation evidence
 
-- Latest Java 17 build: passed, including production/probe reobfuscation; 95 JUnit and 113 required GameTests passed. All earlier tests are retained.
+- Latest Java 17 build: passed, including production/probe reobfuscation; 95 JUnit and 114 required GameTests passed. All earlier tests are retained.
 - MineralProductionEngineTest: 16 passed.
 - MineralOutputPlannerTest: 8 passed.
 - Clean dedicated Forge server: reached Done and shut down with saved dimensions.
@@ -388,3 +388,11 @@ Starting commit: `5498124`; reference remains `ccf46472abaf3856fa9eebe0f5ebd25d8
 - Final review found a capability-lifetime risk when an accelerator is dismantled after submission but before END-phase processing. The scheduler now admits only nonremoved, loaded contributors belonging to the current level and current world block-entity object before querying upgrades or retaining backlog.
 - Added a regression that queues real Inscriber work, dismantles the accelerator and clears the old object's removed flag. Neither invalidated capabilities nor the detached reference can execute queued work. Full build/reobfuscation and **95 JUnit / 114 required GameTests passed**, preserving original 81/108. No public-server crash is claimed; this risk was found during review.
 - Previous final same-JAR multiplayer, active-job restart and fuel tests passed at the 113-test checkpoint. The final runtime rerun is being repeated with this guard; no other machine family is being expanded.
+
+### Final bounded follow-up runtime checkpoint
+
+- Final source checkpoint `9970bd6` passed **95 JUnit and 114 required GameTests**, full build/reobfuscation and the final same-JAR runtime checks. All original 81/108 tests remain. Final checksums, exact unit suites, logs, process exits and inspected screenshots are in [AE runtime evidence](validation/forge-1.20.1-ae-runtime/README.md).
+- Two actual independent client JVMs passed simultaneous Advanced/Extended mixer catalyst races, Shift/bag upgrade insertion, concurrent copier pastes, authoritative menu snapshots, disconnect with a cursor, natural pickup, real chunk unload, saved shutdown and reconnection to a fresh dedicated server. All phases conserved 128 catalysts/five Mixing cards and exact three-tank/FE/progress state. Both servers and both clients exited 0.
+- The final two-JVM active-job test restored the actual nonempty busy CPU and mixer state, resumed partial work, returned exactly 500 mB through Advanced AE Output at 10,000 FE and paused. No plan was recreated after loading. The final actual Extras fuel/downstream recipe test also passed against the same production JAR.
+- The first multiplayer attempts failed at fixture-only pickup/pre-interaction contamination boundaries and are retained with their corrections. No item-bearing state was excluded from persistence comparisons, and no gameplay-phase drops were deleted to obtain a passing ledger.
+- This follow-up implements AE Acceleration and verifies the requested mixer/AE persistence/fuel paths. Real third-party JDTE-AE whole-grid scheduling, prolonged public-server stress, full operating reactor cycles and all other Extras/mod combinations remain unverified. Other large machine families were not expanded. Keep 0.5.8, preserve the pushed checkpoints and do not merge main or publish a release.
