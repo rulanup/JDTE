@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class GeneratorSolidConservationMixin {
     @Shadow public int feRemaining;
     @Shadow public int burnRemaining;
+    @Shadow int fuelBurnMultiplier;
+    @Shadow public int maxBurn;
     @Inject(method="doGenerate",at=@At("HEAD"),cancellable=true,remap=false)
     private void jdte$preserveCredit(CallbackInfo ci){
         var owner=(GeneratorT1BE)(Object)this;
@@ -30,6 +32,14 @@ public abstract class GeneratorSolidConservationMixin {
     }
     @Inject(method="fePerTick",at=@At("HEAD"),cancellable=true,remap=false)
     private void jdte$checkedRate(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Integer> cir){var owner=(GeneratorT1BE)(Object)this;cir.setReturnValue(FuelCanisterMath.rate(owner.getFePerFuelTick(),owner.getBurnSpeedMultiplier()));}
+    @Inject(method="getBurnSpeedMultiplier",at=@At("HEAD"),cancellable=true,remap=false)
+    private void jdte$checkedSpeed(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Integer> cir) {
+        cir.setReturnValue(Math.max(1,FuelCanisterMath.rate(com.direwolf20.justdirethings.setup.Config.GENERATOR_T1_BURN_SPEED_MULTIPLIER.get(),fuelBurnMultiplier)));
+    }
+    @Inject(method="doBurn",at=@At("TAIL"),remap=false)
+    private void jdte$checkedCounter(CallbackInfo ci) {
+        if (maxBurn == Integer.MAX_VALUE) { maxBurn=Integer.MAX_VALUE-1;burnRemaining=Integer.MAX_VALUE; }
+    }
     @Redirect(method="doBurn",at=@At(value="INVOKE",target="Lnet/minecraftforge/common/ForgeHooks;getBurnTime(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/crafting/RecipeType;)I"),remap=false)
     private int jdte$checkedBurn(ItemStack stack,RecipeType<?> type){int ticks=net.minecraftforge.common.ForgeHooks.getBurnTime(stack,type);return FuelCanisterMath.energyBudget(ticks,((GeneratorT1BE)(Object)this).getFePerFuelTick(),1)>0?ticks:0;}
 }

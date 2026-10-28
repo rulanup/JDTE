@@ -1,0 +1,7 @@
+2026-10-28, first production seed attempt
+[13:30:19] [Server thread/INFO] [minecraft/DedicatedServer]: Done (14.500s)! For help, type "help"
+[13:30:25] [Server thread/ERROR] [ne.mi.ev.EventBus/EVENTBUS]: Exception caught during firing event: Generator lifecycle: full inventory creates one packed generator
+java.lang.IllegalStateException: Generator lifecycle: full inventory creates one packed generator
+[13:30:25] [Server thread/ERROR] [minecraft/MinecraftServer]: Encountered an unexpected exception
+java.lang.IllegalStateException: Generator lifecycle: full inventory creates one packed generator
+Investigation hypothesis: a newly generated remote chunk may not yet track the dropped entity at immediate lookup. Extending fixture warmup will test this hypothesis. This attempt is failed, not accepted as passed.

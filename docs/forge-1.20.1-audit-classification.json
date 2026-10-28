@@ -120,13 +120,13 @@
       "id": "ultimate_capacity_upgrade",
       "initial_list": true,
       "status": "partial",
-      "note": "Mineral/mixer and both transmitter physical capacity/ticker paths have behavioral evidence; source support in other registered machine families remains incomplete or restricted. Keep P; see transmitter acceptance for the new host scope."
+      "note": "Mineral/mixer and both transmitter physical capacity/ticker paths have behavioral evidence; source support in other registered machine families remains incomplete or restricted. Keep P; see transmitter acceptance for the new host scope. Both new Extended generator hosts now have tested physical capacity, ten-execution ticker and safe capacity-card removal; other outstanding host gaps remain P."
     },
     {
       "id": "ultimate_overclock_upgrade",
       "initial_list": true,
       "status": "partial",
-      "note": "Mineral/mixer and both transmitter physical capacity/ticker paths have behavioral evidence; source support in other registered machine families remains incomplete or restricted. Keep P; see transmitter acceptance for the new host scope."
+      "note": "Mineral/mixer and both transmitter physical capacity/ticker paths have behavioral evidence; source support in other registered machine families remains incomplete or restricted. Keep P; see transmitter acceptance for the new host scope. Both new Extended generator hosts now have tested physical capacity, ten-execution ticker and safe capacity-card removal; other outstanding host gaps remain P."
     },
     {
       "id": "ae_extraction_upgrade",
@@ -216,7 +216,7 @@
       "id": "large_fuel_canister",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Full source-derived fuel item, bound menu, Curios shortcut/slot, preserving recipe and resources implemented. Seven numeric tests/five Forge tests verify filling, ownership, recipe and native generator fuel/FE conservation. Graphical and dedicated recovery acceptance remain pending; see generators evidence."
+      "note": "Full source-derived fuel item, bound menu, Curios F shortcut/slot, preserving recipe and resources implemented. Numeric/five Forge tests plus real graphical handheld/worn fill and synchronized NBT/item counts passed. Production recovery acceptance remains pending; see generators evidence."
     },
     {
       "id": "factory_package",
@@ -282,7 +282,7 @@
       "id": "extended_generator",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Native Forge generation, eight real upgrade slots, menus/screens, full-width counters, preserving recipes, live guarded automation ports and actual-acceptance neighbor export implemented. Nine Forge tests cover both conversions/protection rollback, fuel/FE/fluid, Ultimate ticker/capacity and packing. Graphical and production unload/restart acceptance pending; see generators evidence."
+      "note": "Source-derived native generation, eight slots, real capacities/Ultimate ticker, guarded automation and actual-acceptance export implemented. Eleven Forge tests cover conversions/rollback/packing, fuel/FE/fluid, unsafe capacity removal and overflow. Real GUI/32-bit menu/card transfer passed; production unload/restart remains pending after failed initial drop lookup. See generators evidence."
     },
     {
       "id": "extended_experience_holder",
@@ -294,7 +294,7 @@
       "id": "extended_fluid_generator",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Native Forge generation, eight real upgrade slots, menus/screens, full-width counters, preserving recipes, live guarded automation ports and actual-acceptance neighbor export implemented. Nine Forge tests cover both conversions/protection rollback, fuel/FE/fluid, Ultimate ticker/capacity and packing. Graphical and production unload/restart acceptance pending; see generators evidence."
+      "note": "Source-derived native generation, eight slots, real capacities/Ultimate ticker, guarded automation and actual-acceptance export implemented. Eleven Forge tests cover conversions/rollback/packing, fuel/FE/fluid, unsafe capacity removal and overflow. Real GUI/32-bit menu/card transfer passed; production unload/restart remains pending after failed initial drop lookup. See generators evidence."
     },
     {
       "id": "extended_energy_transmitter",

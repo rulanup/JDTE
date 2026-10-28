@@ -73,6 +73,7 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
             }
             stack = stack.copyWithCount(1);
         }
+        if (!GeneratorCapacityGuard.permits(machine, this, slot, stack)) return;
         super.setStackInSlot(slot, stack);
     }
 
@@ -85,6 +86,12 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
             return stack;
         }
         return super.insertItem(slot, stack, simulate);
+    }
+
+    @Override
+    public @NotNull ItemStack extractItem(int slot,int amount,boolean simulate) {
+        if (amount > 0 && !GeneratorCapacityGuard.permits(machine,this,slot,ItemStack.EMPTY)) return ItemStack.EMPTY;
+        return super.extractItem(slot,amount,simulate);
     }
 
     @Override

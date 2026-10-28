@@ -19,3 +19,11 @@ The source has no external item-handler capability on the canister: its menu slo
 The source generators are thin native subclasses with eight upgrade slots. Preserve their non-directional blockstate and native configured fuel/FE/tank ownership. Only JDT `RefinedFuel` is accepted by the liquid machine. Both native constructors create output-only energy storage; wrapper behavior follows the actual owned storage. FE output limits are per face, including native liquid export ×10. The port corrects short-acceptance loss and packed recipe NBT loss. Retained public ports reject detached/unloaded owners. The capability provider now recreates invalidated handles after Forge revival without recreating or copying their underlying inventories.
 
 Source Extended Upgrade has 20 targets; 18 are now wired. Experience Holder and Advanced Bio Extractor are still absent. Other machines' missing Ultimate behaviors and the external JDTE-AE backend are not completed by this work.
+
+## Graphical and conservation follow-up
+
+Actual Forge client run passed; [screenshots, server-checked assertions and summary](graphical/run-summary.txt), [success marker](graphical/success.txt). Handheld and Curios F-event canister GUI fills update real NBT; both generator screens synchronize >16-bit FE, burn and fluid properties. Eight real slots and card install/remove/transfer are verified. Harness does not substitute server menu mutation for player clicks. It uses real `MultiPlayerGameMode` inventory packets and the registered client key event.
+
+[Full regression](conservation-summary.txt): **139 JUnit / 180 required GameTests**, build and both reobfuscations pass. Checked/saturated fuel arithmetic and card removal guards protect stored FE/fluid. Compared with source, unsafe generator capacity-card removal is rejected until buffers fit rather than clipping stored resources.
+
+First production attempt failed; see [failure evidence](production-first-failure.txt). Production acceptance remains pending until a subsequent successful run is recorded below. Do not infer success from graphical or GameTest acceptance.

@@ -8,12 +8,12 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest pushed fuel checkpoint: **`2415cc9`**; Extended generator core checkpoint follows (this entry is included in that commit). Prior transmitter acceptance remains unchanged.
+- Latest pushed machine checkpoint: **`46541e8`**; fuel core **`2415cc9`**. Follow-up conservation and graphical evidence checkpoint follows this entry. Prior transmitter acceptance remains unchanged.
 - Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
-- Latest complete regression: **138 JUnit / 178 required GameTests**, build, main/probe reobfuscation and graphical harness compilation passed. Existing 131/164 tests remain enabled. See [fuel evidence](validation/forge-1.20.1-generators/README.md).
+- Latest complete regression: **139 JUnit / 180 required GameTests**, build and main/probe reobfuscation passed. Real graphical canister/Curios and generator GUI acceptance passed. Existing 131/164 tests remain enabled. See [fuel evidence](validation/forge-1.20.1-generators/README.md).
 - 120-item status: V **35**, U **22**, P **48**, N **15**; **105** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains the acceptance authority.
 - Persistence: checkpoints are saved on `codex/forge-1.20.1-mineral-machines`; recovery branch **`cd8aaaa`** and `/workspace/jdte-recovery-20261028` remain preserved. No main merge or release.
-- Next priorities: execute graphical fuel/Curios and both generator menus; production chunk unload, full-inventory wrench and fresh-JVM recovery. All three new rows remain U pending acceptance.
+- Next priorities: finish production chunk unload, full-inventory wrench and fresh-JVM recovery. First production attempt failed the immediate packed-drop lookup; investigate without treating it as success. Three new rows remain U pending acceptance.
 - Still unverified: external JDTE-AE whole-grid backend, prolonged multiplayer uptime, complete operating reactors and complete Draconic fusion recipes.
 <!-- current-status:end -->
 
@@ -563,3 +563,11 @@ Added both native-derived Extended generator blocks/entities, eight-slot upgrade
 Added guarded live FE/item/fluid capabilities and fresh neighboring-port resolution. Export debits actual acceptance instead of native simulation results. Packed crafting now retains machine NBT and migrates four active upgrade slots without leaving a second inventory. Menus reject detached owners. Found and fixed attached capability handles never recovering after Forge invalidation/revival; fresh handles now point to the same retained buffers, and detached ticker callbacks are rejected before querying upgrades.
 
 Nine new Forge tests cover real fuel insertion/extraction, full buffers/whole batches, validation, capacities, actual ten-execution ticker, both native conversions, real protection-event cancellation/rollback, raw save/load, retained endpoints, wrench/actual BlockItem placement, partial receiving neighbors/direction/rates and packed crafting. Early runs exposed fixture errors (T1 unpowered receiver, mock player's crafting menu, replacing a speed card instead of conflicting with it) and the real capability-revival defect. Final **138 JUnit / 178 required GameTests**, complete build, both reobfuscations and client harness compilation pass. No tests/assertions removed. Graphical and production-JVM checks remain pending at this checkpoint.
+
+## 2026-10-28 — Graphical fuel/generator acceptance and capacity removal safety
+
+The real Forge graphical client passed handheld and dedicated Curios-slot canister opening, F input-event/network dispatch, actual shift-fill and exact synchronized fuel/item counts. Both generator screens show real menus with full-width FE/burn/fluid data and eight slots. A single Generator Upgrade was installed, removed and moved between both machines with server/client assertions and no duplicate. [Screenshots and run summary](validation/forge-1.20.1-generators/graphical/run-summary.txt).
+
+Further boundary review found inherited capacity removal could clip FE/fluid. New generator hosts refuse a card removal/replacement when the resulting buffer could not retain existing resources. Menu shift-click now respects the slot extraction guard. Actual API, direct replacement and menu paths plus independent fluid excess have regression tests. Fuel speed/production/export multiplications saturate rather than wrapping; overflowing normal/upgraded fuel credits reject before consuming fuel. One numeric and two Forge tests added: **139 JUnit / 180 required GameTests**, full build and both reobfuscations pass.
+
+The first production seed attempt failed immediate full-inventory packed-drop lookup in a new remote chunk. [Failure record](validation/forge-1.20.1-generators/production-first-failure.txt) retains the actual failure and the fixture-timing hypothesis. Production acceptance is still pending here. Documentation validation exposed machine-family guide filename requirements; added the correct family pages, preserving English project Markdown. Docs validation now passes (929 language keys / 62 blocks / 45 pages).

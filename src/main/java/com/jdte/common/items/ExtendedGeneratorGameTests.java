@@ -189,4 +189,32 @@ public final class ExtendedGeneratorGameTests {
             h.assertTrue(recipe.getRemainingItems(input).stream().allMatch(ItemStack::isEmpty),"no duplicate old generator remainder");
         }h.succeed();
     }
+    @GameTest(template="mineral_empty")
+    public static void unsafeCapacityRemovalAndMenuShiftCannotDiscardBuffers(GameTestHelper h) {
+        for(boolean fluid:List.of(false,true)) {
+            var be=place(h,fluid);var u=UpgradeHelper.getUpgradeHandler(be);u.insertItem(0,new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()),false);
+            var energy=((PoweredMachineBE)be).getEnergyStorage();energy.setEnergy(((PoweredMachineBE)be).getMaxEnergy());
+            if(fluid)((ExtendedFluidGeneratorBE)be).getFluidTank().setFluid(new FluidStack(fuel(),100000));
+            int stored=energy.getEnergyStored();
+            h.assertTrue(u.extractItem(0,1,true).isEmpty()&&u.extractItem(0,1,false).isEmpty()&&energy.getEnergyStored()==stored,"unsafe simulated/real capacity extraction is refused");
+            u.setStackInSlot(0,ItemStack.EMPTY);h.assertTrue(u.getStackInSlot(0).is(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get())&&energy.getEnergyStored()==stored,"direct card replacement cannot clip FE");
+            var p=h.makeMockSurvivalPlayer();p.setPos(be.getBlockPos().getX()+.5,be.getBlockPos().getY()+1,be.getBlockPos().getZ()+.5);
+            var m=fluid?new ExtendedFluidGeneratorContainer(1,p.getInventory(),be.getBlockPos()):new ExtendedGeneratorContainer(1,p.getInventory(),be.getBlockPos());
+            var slot=m.slots.stream().filter(v->v instanceof com.jdte.common.upgrades.UpgradeSlot&&v.getItem().is(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get())).findFirst().orElseThrow();
+            m.quickMoveStack(p,slot.index);h.assertTrue(p.getInventory().countItem(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get())==0&&energy.getEnergyStored()==stored&&!u.getStackInSlot(0).isEmpty(),"shift-click respects buffer-preserving extraction guard");
+            energy.setEnergy(0);
+            if(fluid) {h.assertTrue(u.extractItem(0,1,false).isEmpty()&&((ExtendedFluidGeneratorBE)be).getFluidTank().getFluidAmount()==100000,"fluid independently prevents unsafe downgrade");((ExtendedFluidGeneratorBE)be).getFluidTank().setFluid(new FluidStack(fuel(),1000));}
+            h.assertTrue(u.extractItem(0,1,false).is(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get())&&energy.getEnergyStored()==0,"safe drained-buffer card removal succeeds");
+            if(fluid)h.assertTrue(((ExtendedFluidGeneratorBE)be).getFluidTank().getFluidAmount()==1000,"safe removal conserves remaining fluid");
+        }h.succeed();
+    }
+    @GameTest(template="mineral_empty")
+    public static void overflowingFuelBudgetRejectsBeforeConsumptionAndSpeedSaturates(GameTestHelper h) {
+        h.setBlock(POS,Registration.GeneratorT1.get());var pos=h.absolutePos(POS);var state=h.getLevel().getBlockState(pos);
+        var huge=new GeneratorT1BE(pos,state) { @Override public int getFePerFuelTick() {return Integer.MAX_VALUE;} };h.getLevel().setBlockEntity(huge);huge.getMachineHandler().setStackInSlot(0,new ItemStack(Items.COAL,2));
+        huge.doBurn();h.assertTrue(huge.feRemaining==0&&huge.getMachineHandler().getStackInSlot(0).getCount()==2,"normal overflowing credit does not consume fuel");
+        UpgradeHelper.getUpgradeHandler(huge).insertItem(0,new ItemStack(JDTEItems.GENERATOR_UPGRADE.get()),false);huge.doBurn();h.assertTrue(huge.feRemaining==0&&huge.getMachineHandler().getStackInSlot(0).getCount()==2,"upgraded overflowing credit does not consume fuel");
+        var data=huge.saveWithFullMetadata();data.putInt("fuelBurnMultiplier",Integer.MAX_VALUE);huge.load(data);
+        h.assertTrue(huge.getBurnSpeedMultiplier()==Integer.MAX_VALUE&&huge.fePerTick()==Integer.MAX_VALUE,"real native rate multiplication saturates without negative FE");h.succeed();
+    }
 }

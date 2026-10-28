@@ -1,0 +1,18 @@
+2026-10-28; parent 46541e8; actual Forge client / Xorg dummy display / software OpenGL
+Command: scripts/run_generator_client_smoke.sh (existing Java17/Gradle caches and configured proxy).
+[13:31:22] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 1
+[13:31:23] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 2
+[13:31:25] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 3
+[13:31:26] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 4
+[13:31:28] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 5
+[13:31:30] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 6
+[13:31:31] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 7
+[13:31:33] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 8
+[13:31:34] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 9
+[13:31:36] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 10
+[13:31:37] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 11
+[13:31:38] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 12
+[13:31:39] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 13
+[13:31:41] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 14
+BUILD SUCCESSFUL in 2m 1s
+PASS: actual graphical handheld and Curios F-event canister menus, coal shift-fill and exact NBT/item counts over real packets; Extended solid/fluid screens, >16-bit FE/burn/fluid synchronization, eight upgrade slots, card install/remove and transfer without duplication.

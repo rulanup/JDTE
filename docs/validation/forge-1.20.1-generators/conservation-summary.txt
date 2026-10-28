@@ -1,0 +1,6 @@
+2026-10-28; parent 46541e8
+Command: gradlew test build runGameTestServer --no-daemon --max-workers=2 (configured proxy)
+JUnit 139, zero failures/errors/skips; All 180 required GameTests passed. BUILD SUCCESSFUL in 1m 16s.
+Main/probe JAR reobfuscation passed. Prior tests/assertions preserved.
+New: checked rate saturation (JUnit), unsafe capacity card removal/replacement/shift-click and fluid guard (Forge), overflowing normal/upgraded fuel rejection and actual native rate saturation (Forge).
+Original log: /tmp/jdte-generator-gt5.log (ephemeral).

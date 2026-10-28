@@ -71,7 +71,7 @@ public final class GeneratorLifecycleProbe {
             for(var drop:level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(POS[i]).inflate(3),e->e.getItem().is(type)))drop.discard();
             var old=be(i);var stale=old.getCapability(ForgeCapabilities.ENERGY).orElseThrow(IllegalStateException::new);
             check(EclipseAlloyWrenchItem.pickupMachine(level,POS[i],actor),"wrench pickup");
-            var drops=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(POS[i]).inflate(3),e->e.getItem().is(type));check(drops.size()==1,"full inventory creates one packed generator");
+            var drops=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(POS[i]).inflate(3),e->e.getItem().is(type));check(drops.size()==1,"full inventory creates one packed generator, got "+drops.size());
             var item=drops.get(0).getItem().copy();drops.get(0).discard();level.setBlockAndUpdate(POS[i],(i==0?JDTEBlocks.EXTENDED_GENERATOR.get():JDTEBlocks.EXTENDED_FLUID_GENERATOR.get()).defaultBlockState());
             var state=level.getBlockState(POS[i]);state.getBlock().setPlacedBy(level,POS[i],state,actor,item);
             check(expected.getCompound("machine"+i).equals(be(i).saveWithoutMetadata()),"full-inventory packed state conserved "+index);
@@ -82,7 +82,7 @@ public final class GeneratorLifecycleProbe {
     @SubscribeEvent public void tick(TickEvent.ServerTickEvent event)throws Exception {
         if(mode.isEmpty()||event.phase!=TickEvent.Phase.END||event.getServer()!=server)return;
         check(++ticks<900,"timeout stage "+stage);var level=server.overworld();
-        if(stage==1&&ticks>=20) {check(expected.equals(snapshot()),"full/disabled machine state stable");pack();server.saveEverything(false,true,true);force(false);stage=2;}
+        if(stage==1&&ticks>=100) {check(expected.equals(snapshot()),"full/disabled machine state stable");pack();server.saveEverything(false,true,true);force(false);stage=2;}
         else if(stage==2) {
             for(var pos:POS)if(level.getChunkSource().hasChunk(pos.getX()>>4,pos.getZ()>>4))return;
             for(int i=0;i<2;i++)check(retained[i].extractEnergy(123,false)==0&&items[i].extractItem(0,64,false).isEmpty(),"retained unloaded endpoints inert");

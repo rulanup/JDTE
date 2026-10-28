@@ -9,4 +9,5 @@ class FuelCanisterMathTest {
  @Test void invalidInputs(){assertEquals(0,FuelCanisterMath.acceptedItems(-1,100,1,1));assertEquals(0,FuelCanisterMath.acceptedItems(101,100,1,1));assertEquals(0,FuelCanisterMath.acceptedItems(0,100,0,1));assertEquals(0,FuelCanisterMath.acceptedItems(0,100,1,-1));}
  @Test void upgradeBudget(){assertEquals(240000,FuelCanisterMath.energyBudget(2000,40,3));assertEquals(0,FuelCanisterMath.energyBudget(Integer.MAX_VALUE,40,3));assertEquals(0,FuelCanisterMath.energyBudget(1600,0,3));}
  @Test void counterCannotOverflow(){assertEquals(Integer.MAX_VALUE-1,FuelCanisterMath.safeBurnCounter(Integer.MAX_VALUE,1));assertEquals(20,FuelCanisterMath.safeBurnCounter(2000,100));}
+ @Test void exportedAndProducedRatesCannotWrap(){assertEquals(Integer.MAX_VALUE,FuelCanisterMath.rate(Integer.MAX_VALUE,10));assertEquals(0,FuelCanisterMath.rate(-1,3));assertEquals(0,FuelCanisterMath.rate(20,-1));assertEquals(600,FuelCanisterMath.rate(15,40));}
 }

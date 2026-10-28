@@ -97,6 +97,7 @@ public abstract class BaseMachineContainerMixin {
         ItemStack originalStack = currentStack.copy();
 
         if (fromUpgradeSlot) {
+            if (!slot.mayPickup(player)) { cir.setReturnValue(ItemStack.EMPTY); return; }
             // 从升级槽移到玩家背包
             if (!moveItemStackTo(currentStack, upgradeEnd, container.slots.size(), true)) {
                 cir.setReturnValue(ItemStack.EMPTY);
