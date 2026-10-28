@@ -33,46 +33,11 @@ public class ExtendedEnergyTransmitterBE extends EnergyTransmitterBE implements 
         return result;
     }
 
-    @Override public int getTotalEnergyStored() {
-        return AdvancedEnergyTransmitterScheduler.clampToInt(getTransmitterEnergyStorages().values().stream()
-                .mapToLong(s -> Math.max(0, s.getRealEnergyStored())).sum());
-    }
-    @Override public int getTotalMaxEnergyStored() {
-        return AdvancedEnergyTransmitterScheduler.clampToInt(getTransmitterEnergyStorages().values().stream()
-                .mapToLong(s -> Math.max(0, s.getRealMaxEnergyStored())).sum());
-    }
+    @Override public int getTotalEnergyStored() { return TransmitterNetworkEnergy.total(this, false); }
+    @Override public int getTotalMaxEnergyStored() { return TransmitterNetworkEnergy.total(this, true); }
     @Override public int distributeEnergy(int amount) { return getEnergyStorage().receiveEnergy(amount, false); }
     @Override public int extractEnergy(int amount) { return getEnergyStorage().extractEnergy(amount, false); }
-
-    @Override public void balanceEnergy() {
-        var entries = new java.util.ArrayList<>(getTransmitterEnergyStorages().entrySet());
-        if (entries.size() < 2) return;
-        // A wide, capacity-constrained equal-share plan avoids both int overflow and small-peer overfill.
-        long remaining = 0, capacity = 0;
-        for (var entry : entries) {
-            if (entry.getValue().getRealEnergyStored() < 0) return;
-            remaining += entry.getValue().getRealEnergyStored();
-            capacity += Math.max(0, entry.getValue().getRealMaxEnergyStored());
-        }
-        if (remaining > capacity) return; // Never silently discard pre-existing excess from a foreign buffer.
-        entries.sort(java.util.Comparator.comparingInt(e -> e.getValue().getRealMaxEnergyStored()));
-        int count = entries.size();
-        for (var entry : entries) {
-            int target = (int)Math.min(Math.max(0, entry.getValue().getRealMaxEnergyStored()),
-                    remaining / count + (remaining % count == 0 ? 0 : 1));
-            if (entry.getValue().getRealEnergyStored() != target) {
-                entry.getValue().setEnergy(target);markBufferChanged(entry.getKey());
-                doParticles(worldPosition, entry.getKey());
-            }
-            remaining -= target;count--;
-        }
-    }
-    void markBufferChanged(BlockPos pos) {
-        if (level != null && level.isLoaded(pos)) {
-            var be = level.getBlockEntity(pos);
-            if (be != null) be.setChanged();
-        }
-    }
+    @Override public void balanceEnergy() { TransmitterNetworkEnergy.balance(this); }
 
     @Override
     public IEnergyStorage getTransmitterHandler(BlockPos blockPos) {

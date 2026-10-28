@@ -88,4 +88,18 @@ public final class TransmitterNetworkGameTests {
         }h.succeed();
     }
 
+    @GameTest(template="mineral_empty") public static void nativeOriginatedThreeNodeTrafficAndDiskNbtConserveEveryOwner(GameTestHelper h) {
+        var third=new BlockPos(6,1,2);for(var pos:java.util.List.of(SOURCE,PEER,third))h.setBlock(pos,Registration.EnergyTransmitter.get());
+        var nodes=new java.util.ArrayList<EnergyTransmitterBE>();
+        for(var pos:java.util.List.of(SOURCE,PEER,third)){var be=(EnergyTransmitterBE)h.getBlockEntity(pos);be.setAreaSettings(6,1,1,0,0,0,false);be.getBlocksToCharge();nodes.add(be);}
+        nodes.get(0).getEnergyStorage().setEnergy(1000);nodes.get(1).getEnergyStorage().setEnergy(8000);nodes.get(2).getEnergyStorage().setEnergy(11000);
+        h.assertTrue(nodes.get(0).getTotalEnergyStored()==20000,"three actual native nodes discovered");
+        h.assertTrue(nodes.get(0).getEnergyStorage().extractEnergy(5000,false)==5000,"native-originated pooled extraction");
+        h.assertTrue(nodes.stream().allMatch(n->n.getEnergyStorage().getRealEnergyStored()>=0)&&nodes.stream().mapToLong(n->n.getEnergyStorage().getRealEnergyStored()).sum()==15000,"no native owner becomes negative");
+        for(int cycle=0;cycle<32;cycle++)for(var node:nodes){int sent=node.getEnergyStorage().extractEnergy(77,false);h.assertTrue(sent==77&&node.getEnergyStorage().receiveEnergy(sent,false)==sent,"round-trip packet debits and credits once");node.balanceEnergy();}
+        h.assertTrue(nodes.stream().mapToLong(n->n.getEnergyStorage().getRealEnergyStored()).sum()==15000,"repeated overlapping native pools have no duplicate FE");
+        for(var node:nodes){var reloaded=(EnergyTransmitterBE)BlockEntity.loadStatic(node.getBlockPos(),node.getBlockState(),node.saveWithFullMetadata());h.getLevel().setBlockEntity(reloaded);h.assertTrue(reloaded.getEnergyStorage().getRealEnergyStored()==5000,"native peer persists its actual owned 5000 FE");}
+        h.succeed();
+    }
+
 }

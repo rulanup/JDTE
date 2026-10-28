@@ -1,0 +1,1 @@
+PASS: second production JVM restores full three-node NBT and native owned FE; native post-restart transfer conserves 10000 remaining FE

@@ -30,7 +30,9 @@
     "SpawnerMixin",
     "SpawnerMixin$ApothSpawnerMixin",
     "TickSpeedPacketMixin",
-    "MachineSettingsCopierMixin"
+    "MachineSettingsCopierMixin",
+    "TransmitterEnergyStorageMixin",
+    "EnergyTransmitterNetworkMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",
