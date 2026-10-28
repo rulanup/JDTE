@@ -5,7 +5,18 @@ Target baseline: `ac1d813`, Forge 47.4.10, Just Dire Things Forge 1.1.4, Java 17
 
 This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing version remains 0.5.8 until feature migration and validation finish.
 
-Latest checkpoint: [AE Acceleration and mixer runtime follow-up](#ae-acceleration-and-mixer-concurrency-follow-up-2026-10-28), with [AE runtime evidence](validation/forge-1.20.1-ae-runtime/README.md). Earlier [production-chain evidence](validation/forge-1.20.1-production-chain/README.md) retains its original scope. Earlier [remote-client evidence](validation/forge-1.20.1-network/README.md) and [upgrade evidence](validation/forge-1.20.1-upgrades/README.md) remain available with their original scope and counts.
+## Current Status
+
+<!-- current-status:start -->
+- Latest verified code checkpoint: **`a718716`** — [Generator fuel corrections](#generator-upgrade-fuel-correction-2026-10-28); prior [energy runtime evidence](validation/forge-1.20.1-energy-upgrades/README.md) retains its original JAR and scope.
+- Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
+- Latest completed regression suite: **107 JUnit / 127 required GameTests**. The previous full build/reobfuscation and two-JVM production evidence are retained; final combined production build/runtime for this round is pending.
+- 120-item status: V **32**, U **19**, P **49**, N **20**; **100** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) is the authority for functional acceptance and scoped evidence.
+- Priorities: migrate Extended Upgrade's native four-slot state into its effective eight-slot interfaces transactionally; restore Ultimate Portal Gun source FE/fluid pricing and capacities. Validate before changing classifications.
+- Still unverified: installed JDTE-AE whole-grid backend, prolonged multiplayer uptime and complete operating reactors. New graphical energy-card checks were not run.
+<!-- current-status:end -->
+
+This file is a chronological development log. Sections below preserve the implementation, limitations, failures and test results **at their recorded checkpoint**; old limitations are not current acceptance decisions. Consult Current Status and the matrix for the latest state. Earlier evidence retains its original scope and counts.
 
 ## Progress
 
@@ -431,3 +442,12 @@ Selected bounded implementation: **Energy Brewing Upgrade + Energy Overload Upgr
 ### Next development boundary
 
 Use the matrix before choosing work. A bounded next energy slice is fixing the Generator Upgrade's one-mB drain edge case and validating its native generator paths, or adding one source energy-transmitter tier with its full settings/filter/energy contract. Do not silently expand Ultimate card support across all inherited machines: each host needs its own operation/capacity tests. Time Accelerator timing/proxy/cache additions, Greenhouse matrix support, brewing coalesced acceleration and the Ultimate Portal Gun numeric mismatch are recorded partial work. Keep version 0.5.8; no main merge or release.
+
+
+## Generator Upgrade fuel correction (2026-10-28)
+
+- Fixed upgraded fluid generation to simulate the complete two-mB fuel debit and full three-times-native FE credit before mutation. One leftover mB survives repeated attempts and BE reload. Full/partially full FE buffers and inactive redstone do not consume fluid. Unexpected short commits restore both owned buffers; integer-overflowing output is rejected.
+- New native solid-generator coverage exposed two previously unexercised Forge port bugs: vanilla coal needs `ForgeHooks.getBurnTime`, and the non-Mixin helper cannot live in the reserved Mixin package. Corrected both and verified the two-coal/three-times-output behavior while retaining the insufficient-single-coal path and ordinary one-mB non-upgraded fluid behavior.
+- **107 JUnit / 127 required GameTests passed**, retaining all previous 100/123. Added seven pure batch-policy tests and four actual native-generator tests. Initial solid-fuel runs failed on the raw burn-time hook and helper-package classloading restriction; the final rerun passed after actual fixes, without deleting or disabling tests.
+- Generator Upgrade remains **P**: the native defect is fixed and tested, but the source Large Fuel Canister-specific path cannot be complete while that item remains unported. No broad Ultimate compatibility gate was removed. Final combined production JAR/dedicated-server checks will follow the other requested corrections.
+- Documentation roles are now explicit: the complete matrix remains authoritative for functional acceptance; this file keeps chronological historical evidence. Current Status replaces the stale latest-checkpoint pointer, and `audit_forge_port.py --check` also checks its 120-item counts against the matrix. These documentation checks do not start Minecraft.

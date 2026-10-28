@@ -83,7 +83,12 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 Curated behavioral classifications and notes live in `forge-1.20.1-audit-classification.json`; the generated machine-readable inventory is `forge-1.20.1-feature-inventory.json`. Review source and evidence before changing a classification, then run `python scripts/audit_forge_port.py`. Use `--check` to detect stale tables without executing Minecraft or Gradle. This intentionally does not infer completed gameplay from a registered class or count of tests.
 '''
  rendered=json.dumps(result,indent=2,ensure_ascii=False)+'\n'
- if args.check:assert out.read_text()==rendered and md.read_text()==text,'Audit output stale; regenerate after reviewing classifications'
+ if args.check:
+  assert out.read_text()==rendered and md.read_text()==text,'Audit output stale; regenerate after reviewing classifications'
+  port=(ROOT/'docs/forge-1.20.1-port.md').read_text()
+  summary=port.split('<!-- current-status:start -->',1)[1].split('<!-- current-status:end -->',1)[0]
+  expected='- 120-item status: '+', '.join(f'{labels[k]} **{counts.get(k,0)}**' for k in labels)+f'; **{len(forge_ids)}** source items registered in Forge.'
+  assert expected in summary,'Current Status inventory counts differ from the authoritative matrix'
  else:out.write_text(rendered);md.write_text(text)
  print(f'Audited {len(rows)} source items, {len(forge_ids)} Forge items: {counts}')
 if __name__=='__main__':main()
