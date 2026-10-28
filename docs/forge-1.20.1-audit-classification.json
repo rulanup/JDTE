@@ -629,8 +629,8 @@
     {
       "id": "advanced_energy_transmitter",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Core transfer/overload/Ultimate, real GUI/filter/card packets/Jade, online hotbar/armor/offhand/validated Curios charging, actual integrated-world logout/rejoin, real Applied Flux failed refund and registered Draconic injector FE pass. Dedicated running-server logout and installed ME-grid production-JVM recovery remain unverified; keep U. See transmitter acceptance evidence."
+      "status": "verified",
+      "note": "Source area/FE/overload/Ultimate, graphical/filter/card/Jade, actual online armor/hotbar/offhand/validated Curios and registered Draconic injector paths verified. Dedicated server remains running through real logout, 100 offline ticks, actual unload/reload and same-client reconnect/refill. Real installed AE2/AppFlux disk and managed node recover across two production JVMs with exact FE conservation. Scoped evidence: transmitter acceptance/dedicated; prolonged uptime/full fusion and external JDTE-AE backend are separate unverified scope."
     },
     {
       "id": "advanced_fluid_mixer",

@@ -45,6 +45,8 @@ public final class LifecycleProbe {
         MinecraftForge.EVENT_BUS.register(new TransmitterNetworkProbe());
         MinecraftForge.EVENT_BUS.register(new TierConversionProbe());
         MinecraftForge.EVENT_BUS.register(new PortalGunProbe());
+        if (net.minecraftforge.fml.ModList.get().isLoaded("ae2") && net.minecraftforge.fml.ModList.get().isLoaded("appflux") && net.minecraftforge.fml.ModList.get().isLoaded("curios"))
+            MinecraftForge.EVENT_BUS.register(new AdvancedTransmitterAcceptanceProbe());
         if (net.minecraftforge.fml.ModList.get().isLoaded("ae2"))
             MinecraftForge.EVENT_BUS.register(new AECraftingRestartProbe());
         if (net.minecraftforge.fml.ModList.get().isLoaded("mekanism_extras"))

@@ -1,0 +1,1 @@
+PASS: actual AE2/Applied Flux drive and transmitter managed node restore across production JVMs, stored 10000 delivered once; exact final 60000 FE after external 50000 withdrawal

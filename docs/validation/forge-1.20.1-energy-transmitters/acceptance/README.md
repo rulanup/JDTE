@@ -11,9 +11,9 @@
 - Extended Ultimate Capacity/Overclock installation/removal changes the physical buffer and actual native ticker: ten 1,000 FE executions versus one after removal. All six faces, held rotated ports and absent unsided FE pass.
 - Native/JDTE mixed-network production checks and prior real unload/wrench probes retain their separate logs in the parent directory.
 
-## Remaining acceptance
+## Final acceptance
 
-Advanced stays U until a dedicated server that remains running during actual player logout/rejoin, and installed AE2/Applied Flux grid recovery across two production JVMs, are checked. The in-process real ME failed-refund test is already retained; it does not replace that production check. Extended is V for its source native-FE machine contract. This does not certify prolonged multiplayer, operating reactors or the separately installed JDTE-AE whole-grid backend.
+Both Advanced and Extended are V for the stated source contracts. [Dedicated Advanced evidence](dedicated/README.md) now also verifies a real independent client leaving a still-running dedicated server, 100 offline ticks, actual source chunk unload/reload, same-UUID reconnect and exact Curios refill, followed by real installed AE2/Applied Flux disk/node recovery across two production JVMs. Earlier limits below are historical; prolonged multiplayer, complete fusion/reactor operation and the separately installed JDTE-AE whole-grid backend remain unverified.
 
 ## Fixture failures retained as failures
 

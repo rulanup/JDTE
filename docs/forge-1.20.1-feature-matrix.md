@@ -11,7 +11,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit starte
 
 The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
 
-Current inventory: source **120**, Forge **102**. Status counts: V **34**, U **20**, P **48**, N **18**.
+Current inventory: source **120**, Forge **102**. Status counts: V **35**, U **19**, P **48**, N **18**.
 
 ## Evidence and cross-cutting systems
 
@@ -23,7 +23,7 @@ Current inventory: source **120**, Forge **102**. Status counts: V **34**, U **2
 | Greenhouse family | P: core harvest/seed/recorded crafting verified | Source matrix integration and broader Ultimate support |
 | Mixer family | V: production-chain and AE-runtime evidence, real clients/jobs/restart/Extras fuel | Complete reactor operation remains unverified |
 | Energy Brewing / Energy Overload | V for tested brewer and native/JDTE transmitter paths: energy-upgrade/transmitter evidence | New graphical card checks; JDTE transmitter acceptance is tracked separately |
-| Energy Transmitters | Extended V: native-FE contract including real GUI, network and production evidence; Advanced U: graphical/online Curios/Draconic paths pass | Advanced dedicated online-server logout and installed ME production-JVM recovery remain pending |
+| Energy Transmitters | Both V: scoped source contracts, graphical/Curios/Draconic, native mixed network, dedicated offline/rejoin and installed ME production-JVM recovery evidence | Prolonged multiplayer, full fusion/reactor operation and external JDTE-AE backend are separate unverified scope |
 | Inherited other machines | P where known Ultimate/operation gaps; otherwise U | Dedicated parity and behavior checks are not replaced by bootstrap |
 | Repair Talisman, apples, eggs/essences | U unless an explicit behavioral test is linked later | Functional behavior not established by registration/assets |
 | Optional JEI/Jade/Curios integrations | Implemented, selected client/presence/absence checks retained | Not every new card GUI/every mod combination |
@@ -40,7 +40,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:advanced_ae_output_upgrade` | Advanced AE Output Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:advanced_bio_crusher` | Advanced Bio Crusher | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
 | `jdte:advanced_bio_extractor` | Advanced Bio Extractor | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
-| `jdte:advanced_energy_transmitter` | Advanced Energy Transmitter | yes | **U** | yes/yes | yes/yes/yes | Core transfer/overload/Ultimate, real GUI/filter/card packets/Jade, online hotbar/armor/offhand/validated Curios charging, actual integrated-world logout/rejoin, real Applied Flux failed refund and registered Draconic injector FE pass. Dedicated running-server logout and installed ME-grid production-JVM recovery remain unverified; keep U. See transmitter acceptance evidence. |
+| `jdte:advanced_energy_transmitter` | Advanced Energy Transmitter | yes | **V** | yes/yes | yes/yes/yes | Source area/FE/overload/Ultimate, graphical/filter/card/Jade, actual online armor/hotbar/offhand/validated Curios and registered Draconic injector paths verified. Dedicated server remains running through real logout, 100 offline ticks, actual unload/reload and same-client reconnect/refill. Real installed AE2/AppFlux disk and managed node recover across two production JVMs with exact FE conservation. Scoped evidence: transmitter acceptance/dedicated; prolonged uptime/full fusion and external JDTE-AE backend are separate unverified scope. |
 | `jdte:advanced_entity_accelerator` | Advanced Entity Accelerator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
 | `jdte:advanced_essence_conversion_upgrade` | Advanced Essence Conversion Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:advanced_fluid_mixer` | Advanced Fluid Mixer | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |

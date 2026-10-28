@@ -1,0 +1,1 @@
+PASS: actual independent client completed dedicated login/logout/reconnect while server stayed online

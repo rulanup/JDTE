@@ -5,9 +5,9 @@ The initial recovery was a WIP checkpoint; it was not a full parity or runtime a
 
 ## Current validation status
 
-- **131 JUnit / 154 required GameTests passed**, full build and both reobfuscated JARs passed.
+- **131 JUnit / 164 required GameTests passed**, full build and both reobfuscated JARs passed.
 - Both production JVMs exited **0** with AE2, Applied Flux, Curios, JEI, Jade and Draconic absent. The opt-in probe passed full-inventory wrench transport, actual unload/reload, saved shutdown/restart and live FE access after restart for both registered tiers.
-- Both items remain **U**. Pending acceptance includes graphical screens/Jade presentation, online bound-player/Curios charging, Draconic injectors, complex native peer-network accounting and installed ME-grid recovery across production JVMs. Prolonged multiplayer/global JDTE-AE backend/reactor operation remains unverified.
+- Both items are now **V for their scoped source contracts**. Real graphical controls, actual online/Curios charging, real dedicated logout/unload/rejoin, registered Draconic injector FE, mixed native-network production persistence and installed ME-grid production-JVM recovery have evidence. See [current acceptance](acceptance/README.md). Prolonged multiplayer, complete fusion/reactor operation and the installed external JDTE-AE whole-grid backend remain unverified. Historical checkpoints below retain their original U limits.
 
 ## Initial recovery (historical)
 
@@ -58,3 +58,7 @@ Client acceptance is still in progress and both U classifications remain unchang
 ## Native-originated mixed network
 
 The shared `TransmitterNetworkEnergy` helper and targeted native Mixins also protect native-originated traffic and persist native buffers. Complete 131-unit/162-GameTest regression and reobfuscation pass. The new `run_transmitter_network_probe.sh` passes two production JVMs with one Extended/two native nodes: 96 round trips, a native 5,000 withdrawal, saved 3x5,000 actual FE, complete NBT restoration and a second native withdrawal leaving 10,000. Native discovery asymmetry is retained. No old wrench/unload test was repeated. Logs, markers and expected NBT are retained here.
+
+## Final Advanced dedicated acceptance
+
+A new independent client and two production Forge JVMs close the last Advanced-specific limits. The server stays running for 100 offline ticks, unloads/reloads the source, restores the same operator and refills a real Curios item for exactly 1,000 FE. A real AE2/AppFlux disk spends 40,000 FE before shutdown, restores the remaining 10,000 in a fresh JVM and delivers it once. All three JVM exits are 0. [Dedicated evidence](acceptance/dedicated/README.md) includes complete logs, expected/source/player NBT, markers and artifact hashes. Final `test build` passes; no production source changed after the full 131/164 regression.
