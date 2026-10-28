@@ -4,6 +4,7 @@ navigation:
   icon: "jdte:ae_output_upgrade"
   position: 34
 item_ids:
+  - jdte:ae_acceleration_upgrade
   - jdte:ae_crafting_read_upgrade
   - jdte:ae_extraction_upgrade
   - jdte:ae_output_upgrade
@@ -37,3 +38,11 @@ AE2, Applied Flux, Curios, JEI and Jade remain optional. The cards' network oper
 <RecipeFor id="jdte:ae_output_upgrade" />
 <RecipeFor id="jdte:advanced_ae_output_upgrade" />
 <RecipeFor id="jdte:ae_extraction_upgrade" />
+
+## AE Acceleration
+
+Install one AE Acceleration Upgrade in any of the three Time Accelerator tiers. This card needs no wireless binding: it discovers filtered targets in the configured loaded area. With AE2 enabled in config, it invokes individual AE2 `IGridTickable` services using the accelerator's existing multiplier, Time Fluid costs and bounded shared execution budget. Overlapping accelerators contribute to the same queued target; removing the card discards its pending AE contribution. Idle sleeping endpoints stop work without counting their sleep-only call as an executed acceleration tick.
+
+The source external-backend registration API is available for JDTE-AE whole-grid scheduling. A registered backend owns active/inactive external targets; the built-in per-device AE fallback is disabled while that backend owns routing, preventing duplicate acceleration. No third-party backend is bundled. Without AE2 the card stays saved but performs no AE work, and its survival recipe is disabled.
+
+<RecipeFor id="jdte:ae_acceleration_upgrade" />

@@ -39,6 +39,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ULTIMATE_MIXING_PARALLEL_UPGRADE.get());
                 output.accept(JDTEItems.CRAFTING_PATTERN.get());
                 output.accept(JDTEItems.SEED_CONVERSION_UPGRADE.get());
+                output.accept(JDTEItems.AE_ACCELERATION_UPGRADE.get());
                 output.accept(JDTEItems.AE_CRAFTING_READ_UPGRADE.get());
                 output.accept(JDTEItems.AE_EXTRACTION_UPGRADE.get());
                 output.accept(JDTEItems.AE_OUTPUT_UPGRADE.get());

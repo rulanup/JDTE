@@ -71,6 +71,7 @@ public class JDTEItems {
     public static final RegistryObject<BlockItem> LIFE_BREEDER = ITEMS.register("life_breeder", () -> new BlockItem(JDTEBlocks.LIFE_BREEDER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> FACTORY_PACKER = ITEMS.register("factory_packer", () -> new BlockItem(JDTEBlocks.FACTORY_PACKER.get(), new Item.Properties()));
 
+    public static final RegistryObject<UpgradeCardItem> AE_ACCELERATION_UPGRADE = ITEMS.register("ae_acceleration_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_ACCELERATION));
     public static final RegistryObject<UpgradeCardItem> AE_CRAFTING_READ_UPGRADE = ITEMS.register("ae_crafting_read_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_CRAFTING_READ));
     public static final RegistryObject<com.jdte.common.items.AEExtractionUpgradeItem> AE_EXTRACTION_UPGRADE = ITEMS.register("ae_extraction_upgrade", com.jdte.common.items.AEExtractionUpgradeItem::new);
     public static final RegistryObject<com.jdte.common.items.AEOutputUpgradeItem> AE_OUTPUT_UPGRADE = ITEMS.register("ae_output_upgrade", com.jdte.common.items.AEOutputUpgradeItem::new);

@@ -29,7 +29,7 @@ Latest checkpoint: [real crafting jobs, Seed Conversion and Fluid Mixers](#real-
 - [x] `jdte:advanced_fluid_mixer` (implemented; see production-chain runtime evidence)
 - [x] `jdte:advanced_machine_settings_copier` (typed Forge presets, upgrade exchange and storage sources implemented)
 - [x] `jdte:advanced_upgrade_storage` (36 slots, machine actions, Curios lookup and Forge persistence implemented)
-- [ ] `jdte:ae_acceleration_upgrade`
+- [x] `jdte:ae_acceleration_upgrade` (three Time Accelerator tiers, per-device AE service and source external-backend contract implemented)
 - [x] `jdte:ae_crafting_read_upgrade` (implemented; see the latest validation checkpoint)
 - [x] `jdte:ae_extraction_upgrade` (implemented; see the latest validation checkpoint)
 - [x] `jdte:ae_output_upgrade` (implemented; see the latest validation checkpoint)
@@ -350,3 +350,16 @@ Starting checkpoint: `a36c6c5`, continuing the same development branch and versi
 - Both production mixers genuinely unloaded/reloaded with exact FE, all three fluids, catalyst, upgrade cards and progress. A fresh server JVM restored those fields and naturally completed the saved 73/100-tick recipe once with exact 1,000 mB water, catalyst, 5,000 FE and 250 mB Time Fluid accounting. AE2/Curios/JEI/Jade/Mekanism/Applied Flux were absent in that server; the actual optional-absence graphical title/registration check also passed.
 - Earlier probe assertion failures and their final reruns are retained in the evidence README. A compiler pass is not presented as a runtime pass. New independent two-player mixer checks, active-AE-job restart, the Mekanism Extras liquid-fuel chain, exhaustive crop-pack behavior and long-running stress remain unverified.
 - Seed Conversion, both source mixer tiers, Mixing and the related Ultimate Mixing Parallel are now implemented. Real AE CPU completion/cancellation and ordinary/advanced mixer-output jobs are verified. Unchecked registrations above remain unported; AE Acceleration and the remaining energy/entity/biological machinery are useful next checkpoints. Keep version 0.5.8, preserve this branch's commits and do not publish a release or merge main.
+
+## AE acceleration and mixer concurrency follow-up (2026-10-28)
+
+Starting commit: `5498124`; reference remains `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Version remains `0.5.8-forge-1.20.1`. This work is limited to AE Acceleration, mixer multiplayer, active-job restart and available Mekanism Extras fuel compatibility.
+
+### AE Acceleration implementation checkpoint
+
+- Added the source one-per-machine AE Acceleration card, restricted to Basic/Advanced/Extended Time Accelerators, including the AE2-conditional speed-card/overclock/time-crystal recipe, original model, creative entry, translations and paired English guide updates. Existing upgrade handlers provide NBT, menu, insertion, bag and copier integration.
+- Each accelerator now needs its own card to discover native AE2 `IGridTickable` services. Removing the card or disabling AE2 acceleration removes its queued AE contribution; overlapping unupgraded accelerators cannot borrow another contributor's card. Native block-entity/random tick behavior and existing fluid-cost/budget settings remain in place.
+- Ported the source external-backend registration contract and frame ordering for optional JDTE-AE integration. Active external handles receive submissions; inactive targets reject fallback and charging; backend-owned routing suppresses built-in per-device AE calls. Cleanup is performed after execution and on level/server shutdown. No third-party backend mod is bundled or claimed as runtime-tested.
+- Corrected the older bridge's sleep accounting to match 0.6.5.2: a request that only makes endpoints sleep is not counted as useful work. Loaded-position checks prevent queued target lookups from forcing chunks.
+- Java 17 `test build runGameTestServer`: **91 JUnit and 112 required GameTests passed**, retaining all previous 81/108. Ten original backend-registry tests and four new GameTests cover registration/limit/recipe/NBT, real powered Inscriber service calls and sided deduplication, per-contributor scheduler gating/backlog removal and external routing. The native Inscriber advances two processing units per one-tick service call; early fixture expectations of one unit were corrected without changing production behavior.
+- Production and probe JAR reobfuscation passed. Real two-client mixer, active CPU restart and Mekanism Extras production checks are the next checkpoints; no new runtime pass is claimed here.

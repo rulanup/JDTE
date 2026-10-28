@@ -14,6 +14,7 @@ public final class OptionalGameTestRegistration {
     public static void register(RegisterGameTestsEvent event) {
         if (ModList.get().isLoaded("ae2")) {
             event.register(AEUpgradeGameTests.class);
+            event.register(com.jdte.common.blockentities.AEAccelerationGameTests.class);
             event.register(AECraftingJobGameTests.class);
             event.register(AEFluidMixerJobGameTests.class);
             if (ModList.get().isLoaded("appflux")) event.register(AppFluxUpgradeGameTests.class);

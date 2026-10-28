@@ -867,5 +867,7 @@
   "item.jdte.mixing_upgrade": "混合并行升级",
   "tooltip.jdte.mixing_upgrade": "仅流体混合器可用：最多并行制作 8 批",
   "item.jdte.ultimate_mixing_parallel_upgrade": "顶级混合并行升级",
-  "tooltip.jdte.ultimate_mixing_parallel_upgrade": "仅流体混合器可用：最多并行制作 2147483647 批"
+  "tooltip.jdte.ultimate_mixing_parallel_upgrade": "仅流体混合器可用：最多并行制作 2147483647 批",
+  "item.jdte.ae_acceleration_upgrade": "AE 加速升级",
+  "tooltip.jdte.ae_acceleration": "仅限三档时间加速器；未装 JDTE-AE 时逐设备加速，安装后加速整个在线 AE2 Grid。"
 }

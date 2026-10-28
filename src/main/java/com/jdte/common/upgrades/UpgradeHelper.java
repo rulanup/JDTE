@@ -24,6 +24,8 @@ import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.integrations.ae2.AE2CraftingReadNetwork;
+import com.jdte.common.blockentities.BasicTimeAcceleratorBE;
+import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
 import com.jdte.mixin.EnergyStorageAccessor;
 import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEAttachments;
@@ -74,6 +76,8 @@ public class UpgradeHelper {
     public static boolean isUpgrade(ItemStack stack, UpgradeType type) {
         return stack.getItem() instanceof UpgradeCardItem upgradeCard && upgradeCard.getType() == type;
     }
+
+    public static boolean hasAEAccelerationUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.AE_ACCELERATION)>0; }
 
     public static boolean hasAeCraftingReadUpgrade(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.AE_CRAFTING_READ) > 0;
@@ -190,6 +194,7 @@ public class UpgradeHelper {
 
     public static boolean hasEssenceConversionUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.ESSENCE_CONVERSION)>0; }
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if(type==UpgradeType.AE_ACCELERATION)return machine instanceof BasicTimeAcceleratorBE || machine instanceof AdvancedTimeAcceleratorBE;
         if(type==UpgradeType.AE_CRAFTING_READ || type.isAEOutputUpgrade()) return true;
         if(type==UpgradeType.ESSENCE_CONVERSION || type==UpgradeType.SEED_CONVERSION)return machine instanceof GreenhouseBE||machine instanceof LargeGreenhouseBE;
         if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)

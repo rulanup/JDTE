@@ -4,6 +4,9 @@ import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.entities.TimeAcceleratorEffectEntity;
 import com.jdte.common.integrations.ae2.ExtendedTimeAcceleratorAE2Integration;
 import com.jdte.setup.JDTEConfig;
+import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.acceleration.ExternalTimeAccelerationBackend;
+import com.jdte.common.acceleration.ExternalTimeAccelerationBackends;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceLocation;
@@ -74,25 +77,41 @@ public final class ExtendedTimeAccelerationManager {
         int executionExtra = executionBudget % states.size();
         int scanBase = scanBudget / states.size();
         int scanExtra = scanBudget % states.size();
+        ExternalTimeAccelerationBackend backend = ExternalTimeAccelerationBackends.current().orElse(null);
+        List<FrameWork> frame = new ArrayList<>();
         for (int offset = 0; offset < states.size(); offset++) {
             Map.Entry<ServerLevel, LevelState> entry = states.get((startIndex + offset) % states.size());
             int levelScanBudget = scanBase + (offset < scanExtra ? 1 : 0);
             int levelExecutionBudget = executionBase + (offset < executionExtra ? 1 : 0);
-            entry.getValue().prepare(entry.getKey(), levelScanBudget);
-            entry.getValue().execute(entry.getKey(), levelExecutionBudget);
+            frame.add(new FrameWork(() -> entry.getValue().prepare(entry.getKey(), levelScanBudget, backend),
+                    () -> entry.getValue().execute(entry.getKey(), levelExecutionBudget)));
         }
+        runAccelerationFrame(server, backend, frame);
+    }
+
+    record FrameWork(Runnable prepare, Runnable executeOrdinary) {}
+
+    static void runAccelerationFrame(MinecraftServer server, ExternalTimeAccelerationBackend backend, List<FrameWork> work) {
+        boolean open=false;
+        try {
+            if(backend!=null){backend.beginFrame(server);open=true;}
+            for(var item:work)item.prepare().run();
+            for(var item:work)item.executeOrdinary().run();
+            if(backend!=null)backend.executeFrame(server);
+        } finally { if(open)backend.clearFrame(server); }
     }
 
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel level) {
-            LEVELS.remove(level);
+            try { ExternalTimeAccelerationBackends.current().ifPresent(backend -> backend.onLevelUnload(level)); }
+            finally { LEVELS.remove(level); }
         }
     }
 
     public static void onServerStopped(ServerStoppedEvent event) {
         MinecraftServer server = event.getServer();
-        LEVELS.keySet().removeIf(level -> level.getServer() == server);
-        LEVEL_CURSORS.remove(server);
+        try { ExternalTimeAccelerationBackends.current().ifPresent(backend -> backend.onServerStopped(server)); }
+        finally { LEVELS.keySet().removeIf(level -> level.getServer() == server); LEVEL_CURSORS.remove(server); }
     }
 
     private enum TargetKind {
@@ -136,6 +155,7 @@ public final class ExtendedTimeAccelerationManager {
         private final int fluidCost;
         private final int energyCost;
         private final Set<TargetKey> targets = new LinkedHashSet<>();
+        private final Set<ExternalTimeAccelerationBackend.TargetHandle> externalTargets = new LinkedHashSet<>();
 
         private AcceleratorContext(TimeAcceleratorBE accelerator, AABB area, int multiplier,
                                    int fluidCost, int energyCost) {
@@ -239,14 +259,17 @@ public final class ExtendedTimeAccelerationManager {
             return !submitted.isEmpty() || !pending.isEmpty();
         }
 
-        private void prepare(ServerLevel level, int maxScannedBlocks) {
+        private void prepare(ServerLevel level, int maxScannedBlocks, ExternalTimeAccelerationBackend backend) {
             TickBudget scanBudget = new TickBudget(maxScannedBlocks);
             if (level.getGameTime() % 200L == 0L) {
                 nextEffectTick.entrySet().removeIf(entry -> entry.getValue() + 200L < level.getGameTime());
             }
             Set<TimeAcceleratorBE> active = Collections.newSetFromMap(new IdentityHashMap<>());
             active.addAll(submitted);
-            retainActiveContributors(active);
+            Set<TimeAcceleratorBE> aeActive = Collections.newSetFromMap(new IdentityHashMap<>());
+            if(backend==null && AE2_LOADED && JDTEConfig.COMMON.timeAcceleratorAE2Enabled.get())
+                for(var accelerator:active)if(UpgradeHelper.hasAEAccelerationUpgrade(accelerator))aeActive.add(accelerator);
+            retainActiveContributors(active,aeActive);
             randomTargets.keySet().removeIf(accelerator -> !active.contains(accelerator));
             if (submitted.isEmpty()) {
                 return;
@@ -284,14 +307,14 @@ public final class ExtendedTimeAccelerationManager {
                 return;
             }
 
-            discoverBlockEntities(level, byChunk);
+            discoverBlockEntities(level, byChunk, backend);
             for (AcceleratorContext context : contexts) {
                 context.targets.addAll(getRandomTargets(level, context, scanBudget));
             }
 
             long maxPending = JDTEConfig.COMMON.timeAcceleratorMaxPendingTicks.get();
             for (AcceleratorContext context : contexts) {
-                boolean acceptsWork = context.targets.stream().anyMatch(target -> canAccept(target, maxPending));
+                boolean acceptsWork = !context.externalTargets.isEmpty() || context.targets.stream().anyMatch(target -> canAccept(target, maxPending));
                 if (!acceptsWork || !context.accelerator.hasResources(context.fluidCost, context.energyCost)) {
                     continue;
                 }
@@ -299,15 +322,16 @@ public final class ExtendedTimeAccelerationManager {
                 for (TargetKey target : context.targets) {
                     enqueue(target, context.accelerator, context.multiplier, maxPending);
                 }
+                if(backend!=null)for(var handle:context.externalTargets)backend.submit(handle,context.accelerator,context.multiplier);
             }
         }
 
-        private void retainActiveContributors(Set<TimeAcceleratorBE> active) {
+        private void retainActiveContributors(Set<TimeAcceleratorBE> active, Set<TimeAcceleratorBE> aeActive) {
             boolean removed = false;
             var iterator = pending.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<TargetKey, PendingTarget> entry = iterator.next();
-                entry.getValue().retainContributors(active);
+                entry.getValue().retainContributors(entry.getKey().kind()==TargetKind.AE2_GRID?aeActive:active);
                 if (entry.getValue().virtualTicks <= 0) {
                     iterator.remove();
                     removed = true;
@@ -319,7 +343,7 @@ public final class ExtendedTimeAccelerationManager {
             }
         }
 
-        private void discoverBlockEntities(ServerLevel level, Map<Long, List<AcceleratorContext>> byChunk) {
+        private void discoverBlockEntities(ServerLevel level, Map<Long, List<AcceleratorContext>> byChunk, ExternalTimeAccelerationBackend backend) {
             for (Map.Entry<Long, List<AcceleratorContext>> entry : byChunk.entrySet()) {
                 ChunkPos chunkPos = new ChunkPos(entry.getKey());
                 LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
@@ -332,14 +356,18 @@ public final class ExtendedTimeAccelerationManager {
                     if (blockEntity instanceof TimeAcceleratorMachine || blockEntity.isRemoved()) {
                         continue;
                     }
-                    TargetKind kind = getBlockEntityTargetKind(level, pos, blockEntity);
-                    if (kind == null) {
-                        continue;
-                    }
                     BlockState state = blockEntity.getBlockState();
                     for (AcceleratorContext context : entry.getValue()) {
                         if (context.contains(pos) && context.accelerator.isBlockValidFilter(level, pos, state)) {
-                            context.targets.add(new TargetKey(pos, kind));
+                            boolean aeEnabled=AE2_LOADED && JDTEConfig.COMMON.timeAcceleratorAE2Enabled.get()
+                                    && UpgradeHelper.hasAEAccelerationUpgrade(context.accelerator);
+                            if(aeEnabled && backend!=null){
+                                var resolution=backend.resolve(level,pos);
+                                if(resolution.state()==ExternalTimeAccelerationBackend.TargetState.ACTIVE_EXTERNAL){context.externalTargets.add(resolution.handle());continue;}
+                                if(resolution.state()==ExternalTimeAccelerationBackend.TargetState.INACTIVE_EXTERNAL)continue;
+                            }
+                            TargetKind kind=getBlockEntityTargetKind(level,pos,blockEntity,aeEnabled && backend==null);
+                            if(kind!=null)context.targets.add(new TargetKey(pos,kind));
                         }
                     }
                 }
@@ -402,9 +430,9 @@ public final class ExtendedTimeAccelerationManager {
         }
 
         @SuppressWarnings("unchecked")
-        private TargetKind getBlockEntityTargetKind(ServerLevel level, BlockPos pos, BlockEntity blockEntity) {
+        private TargetKind getBlockEntityTargetKind(ServerLevel level, BlockPos pos, BlockEntity blockEntity, boolean aeEnabled) {
             BlockState state = blockEntity.getBlockState();
-            if (AE2_LOADED && JDTEConfig.COMMON.timeAcceleratorAE2Enabled.get()
+            if (aeEnabled
                     && !state.is(JDT_TICK_SPEED_DENY)
                     && ExtendedTimeAcceleratorAE2Integration.hasTickable(level, pos)) {
                 return TargetKind.AE2_GRID;

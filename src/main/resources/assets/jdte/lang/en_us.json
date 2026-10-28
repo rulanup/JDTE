@@ -867,5 +867,7 @@
   "item.jdte.mixing_upgrade": "Mixing Parallel Upgrade",
   "tooltip.jdte.mixing_upgrade": "Fluid Mixers only: allows up to 8 parallel batches",
   "item.jdte.ultimate_mixing_parallel_upgrade": "Ultimate Mixing Parallel Upgrade",
-  "tooltip.jdte.ultimate_mixing_parallel_upgrade": "Fluid Mixers only: allows up to 2,147,483,647 parallel batches"
+  "tooltip.jdte.ultimate_mixing_parallel_upgrade": "Fluid Mixers only: allows up to 2,147,483,647 parallel batches",
+  "item.jdte.ae_acceleration_upgrade": "AE Acceleration Upgrade",
+  "tooltip.jdte.ae_acceleration": "Time Accelerators only; accelerates individual AE2 devices without JDTE-AE, or the entire online Grid with it."
 }
