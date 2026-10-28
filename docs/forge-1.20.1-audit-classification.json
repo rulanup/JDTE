@@ -144,7 +144,7 @@
       "id": "extended_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "Mixer migration tested; native tier conversion still loads four-slot state into inactive capability without general four-to-eight migration."
+      "note": "All 15 available source/target conversions tested through actual item interaction: active 4-to-8 slots, physical inventories, native FE/filter remapping, capacities, reload, stale endpoints and transactional/protection-event rollback. Five source conversion targets remain absent; keep P."
     },
     {
       "id": "upgrade_storage",
@@ -276,7 +276,7 @@
       "id": "extended_clicker",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete."
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
     },
     {
       "id": "extended_generator",
@@ -306,43 +306,43 @@
       "id": "extended_block_breaker",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete."
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
     },
     {
       "id": "extended_block_placer",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete."
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
     },
     {
       "id": "extended_block_swapper",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete."
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
     },
     {
       "id": "extended_dropper",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete."
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
     },
     {
       "id": "extended_sensor",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete."
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
     },
     {
       "id": "extended_fluid_collector",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete."
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
     },
     {
       "id": "extended_fluid_placer",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete."
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
     },
     {
       "id": "advanced_item_collector",
