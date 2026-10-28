@@ -1,0 +1,15 @@
+{
+  "project_id": "HUZkxNTQ",
+  "release_id": "9T6CetkG",
+  "release_version": "1.20.1-1.5.0",
+  "file": "mekanism_extras-1.20.1-1.5.0.jar",
+  "url": "https://cdn.modrinth.com/data/HUZkxNTQ/versions/9T6CetkG/mekanism_extras-1.20.1-1.5.0.jar",
+  "sha512": "affecd8096db9df66c39857b8bf395e7a7d72798567916f0d443dc216cad8bca72f9fbfcfcde74458757808701848f4a28f236db7057911fc318c9a69ad4a47a",
+  "sha256": "73dcdc8af6938ff711e041e1edf40315ac690b51daf93f96d3e697360a320596",
+  "mekanism": "1.20.1-10.4.16.80",
+  "forge": "47.4.10",
+  "tested_recipe": "mekanism_extras:chemical_infusing/fluorinated_naquadah_uranium_fuel",
+  "localized_product": "液态含氟硅岩铀燃料",
+  "production_jar_sha256": "999538ef9cdd7dba9d11213d1de5bf8d5c7d64a38bc772d6b3ee7a7637c35ff8",
+  "exit": 0
+}
