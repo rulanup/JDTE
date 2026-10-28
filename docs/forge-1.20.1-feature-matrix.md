@@ -11,7 +11,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit starte
 
 The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
 
-Current inventory: source **120**, Forge **100**. Status counts: V **32**, U **19**, P **49**, N **20**.
+Current inventory: source **120**, Forge **100**. Status counts: V **33**, U **19**, P **48**, N **20**.
 
 ## Evidence and cross-cutting systems
 
@@ -149,7 +149,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:ultimate_capacity_upgrade` | Ultimate Capacity Upgrade | yes | **P** | no/no | yes/yes/yes | Only mineral/mixer families accept it; source supports other already registered machines. |
 | `jdte:ultimate_mixing_parallel_upgrade` | Ultimate Mixing Parallel Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:ultimate_overclock_upgrade` | Ultimate Overclock Upgrade | yes | **P** | no/no | yes/yes/yes | Only mineral/mixer families accept it; source supports other already registered machines. |
-| `jdte:ultimate_portal_gun` | Ultimate Portal Gun | no | **P** | no/no | yes/yes/yes | Manual fluid costs differ: source cross-dimension/per-block/cap 500/25/25000; Forge 1000000/1000/500000. getEnergyCapacity source override also needs comparison. |
+| `jdte:ultimate_portal_gun` | Ultimate Portal Gun | no | **V** | no/no | yes/yes/yes | Source manual 500 mB cross-dimension / 25 mB per block / 25000 mB cap, native Forge V2 FE setting, recorded/previous routing, configured capacities, item NBT, insufficient funds and rejected-projectile conservation verified by eight unit/seven Forge tests and real production native shots. Graphical editor not revalidated. |
 | `jdte:ultimate_time_wand` | Ultimate Time Wand | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
 | `jdte:underclock_upgrade` | Underclock Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:upgrade_storage` | Upgrade Storage | yes | **V** | no/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |

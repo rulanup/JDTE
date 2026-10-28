@@ -1,0 +1,6 @@
+Earlier test-only production fixture assertion; not a passing run:
+[06:36:58] [Server thread/ERROR] [ne.mi.ev.EventBus/EVENTBUS]: Exception caught during firing event: JDTE portal production probe: exactly one actual projectile
+java.lang.IllegalStateException: JDTE portal production probe: exactly one actual projectile
+	at TRANSFORMER/jdte_lifecycle_probe@1/com.jdte.smoke.PortalGunProbe.tick(PortalGunProbe.java:55)
+java.lang.IllegalStateException: JDTE portal production probe: exactly one actual projectile
+	at com.jdte.smoke.PortalGunProbe.tick(PortalGunProbe.java:55) ~[%5BForge%5D%20jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar%23104!/:?] {re:classloading}

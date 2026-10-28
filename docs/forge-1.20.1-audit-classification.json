@@ -179,8 +179,8 @@
     {
       "id": "ultimate_portal_gun",
       "initial_list": false,
-      "status": "partial",
-      "note": "Manual fluid costs differ: source cross-dimension/per-block/cap 500/25/25000; Forge 1000000/1000/500000. getEnergyCapacity source override also needs comparison."
+      "status": "verified",
+      "note": "Source manual 500 mB cross-dimension / 25 mB per block / 25000 mB cap, native Forge V2 FE setting, recorded/previous routing, configured capacities, item NBT, insufficient funds and rejected-projectile conservation verified by eight unit/seven Forge tests and real production native shots. Graphical editor not revalidated."
     },
     {
       "id": "big_fluid_tank",

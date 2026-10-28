@@ -40,3 +40,21 @@ bash scripts/run_tier_conversion_lifecycle_probe.sh
 ```
 
 Use `JDTE_SMOKE_PREBUILT=1` after a completed build to avoid rebuilding unchanged artifacts. Full logs, expected NBT and the disposable world stay outside Git. New graphical/two-client tests, absent conversion targets, whole-grid JDTE-AE, prolonged multiplayer and full reactor operation remain unverified or unimplemented. Generator/Extended Upgrade remain P for the source features still dependent on absent items/machines; tested native fixes do not imply full source parity.
+
+
+## Portal cost/capacity checkpoint `e0b6df8`
+
+**120 JUnit and 140 required GameTests passed**, retaining every earlier test. Eight new pricing-policy unit tests and seven actual Forge tests cover source manual costs, JDT recorded/previous pricing, native FE, real projectiles, exact resource checks, capacities and saved items. Full build/reobfuscation passed; only guide/test-probe resources were added after the full GameTest run. See `portal-suite-selected.txt` and `portal-summary.json`.
+
+The source's native V2 FE setting is named `PORTAL_GUN_V2_RF_COST` on NeoForge and **`PORTAL_GUN_FE_COST` on Forge 1.20.1**. The corresponding native Forge implementation was inspected before using that field. JDTE's legacy `ultimatePortalGun.energyCost` remains unused as in the source. Manual costs are 500 mB across dimensions or ceil(25 x distance) capped at 25000 mB; previous/recorded destinations retain the real native callback, and a zero-distance manual shot requires no fluid.
+
+A separate **production reobfuscated server JVM passed and exited 0**, with JDT Forge/GuideME and without AE2/Curios/JEI/Jade. It charges exactly 173 FE per native shot despite the legacy JDTE value 99, consumes 500 or 250 mB for cross-dimension/ten-block manual destinations, honors actual configured 30000-mB/12000-FE buffers, restores resources/manual flags through item NBT, correctly prices previous destinations and enforces the 25000-mB cap. Per-owner Forge join events plus accepted live native objects confirm actual projectiles; these are not substituted entities. The first production fixture's immediate spatial-query assumption failed; its assertion is retained separately and the observation method was corrected. GameTests continue to check real spatial-query counts and cancellation conservation.
+
+```bash
+export JDTE_LIFECYCLE_SERVER=/path/to/disposable/forge-server
+bash scripts/run_portal_gun_probe.sh
+```
+
+Reuse the same marked loopback-only fixture requirements described above. This one-JVM probe uses chunk `(3304,90,3304)` for actual native shots and item NBT checks. It does **not** claim a second disk restart of a portal item, a graphical editor check, a full portal-traversal test or independent multiplayer. Use `JDTE_SMOKE_PREBUILT=1` after a completed build to avoid redundant compilation. Earlier two-JVM tier/Generator results retain their original artifact hashes in `summary.json`; portal artifact hashes are separate in `portal-summary.json`.
+
+Final acceptance: **V 33 / U 19 / P 48 / N 20**, with 100/120 source items registered. Generator and Extended Upgrade remain P for absent source integration targets; the new Portal Gun V state is scoped to the tested server pricing/capacity/destination paths. Whole-grid JDTE-AE, prolonged multiplayer, complete reactors and new graphical checks remain unverified.

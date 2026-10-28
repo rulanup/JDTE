@@ -1,0 +1,35 @@
+{
+  "source_reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "code_checkpoint": "e0b6df8",
+  "version": "0.5.8-forge-1.20.1",
+  "unit": {
+    "tests": 120,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "required_gametests_passed": 140,
+  "portal_new_unit_tests": 8,
+  "portal_new_gametests": 7,
+  "production_server_exit_code": 0,
+  "production_sha256": "9f19ec4e81f69a758d48e27337b2aac63b95444f137a713a0f70b006cbbb5fe4",
+  "probe_sha256": "3181d5ae42a44dcc4f2c1d950ff72738b72f551cd6bef86ebbc99e8726c88d11",
+  "probe_excluded_from_production": true,
+  "native_fe_config_mapping": {
+    "source": "PORTAL_GUN_V2_RF_COST",
+    "forge": "PORTAL_GUN_FE_COST"
+  },
+  "production_native_price_test": 173,
+  "manual_cross_dimension_mb": 500,
+  "manual_per_block_mb": 25,
+  "manual_same_dimension_cap_mb": 25000,
+  "configured_production_capacity_test": {
+    "fluid_mb": 30000,
+    "energy_fe": 12000
+  },
+  "new_graphical_editor_validation": "not run",
+  "new_independent_multiplayer": "not run",
+  "whole_grid_jdte_ae": "unverified",
+  "long_running_multiplayer": "unverified",
+  "complete_operating_reactor": "unverified"
+}

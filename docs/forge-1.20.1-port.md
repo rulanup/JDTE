@@ -8,11 +8,11 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest verified code checkpoint: **`f9c4a57`** — production probe; gameplay **`b2d329e`**, with [complete tier conversion and Generator evidence](validation/forge-1.20.1-parity-fixes/README.md).
+- Latest verified code checkpoint: **`e0b6df8`** — portal pricing/capacity and production native shots; tier/Generator gameplay **`b2d329e`**, production probe **`f9c4a57`**. See [parity evidence](validation/forge-1.20.1-parity-fixes/README.md).
 - Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
-- Latest completed regression suite: **112 JUnit / 133 required GameTests**, full build and production/probe reobfuscation passed. All 15 available conversions and Generator fuel conservation passed real two-JVM production save/restart; both final server exits were 0.
-- 120-item status: V **32**, U **19**, P **49**, N **20**; **100** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) is the authority for functional acceptance and scoped evidence.
-- Priorities: restore Ultimate Portal Gun source FE/fluid pricing and capacities; then select a bounded group for actual Ultimate upgrade support. Keep the five absent Extended Upgrade targets and Large Fuel Canister explicit; neither native fix completes those missing features.
+- Latest completed regression suite: **120 JUnit / 140 required GameTests**, full build and production/probe reobfuscation passed. Earlier two-JVM production checks cover all 15 conversions and Generator odd fuel; current production native portal shots/configured capacities also passed, exit 0.
+- 120-item status: V **33**, U **19**, P **48**, N **20**; **100** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) is the authority for functional acceptance and scoped evidence.
+- Priorities: choose a bounded Ultimate Capacity group (the eight extended native machines now have corrected actual storage); validate host capacities/operations before admission. Ultimate Overclock needs host batching/cost logic. Five Extended Upgrade targets and Large Fuel Canister remain absent.
 - Still unverified: installed JDTE-AE whole-grid backend, prolonged multiplayer uptime and complete operating reactors. New graphical energy-card checks were not run.
 <!-- current-status:end -->
 
@@ -88,7 +88,9 @@ This historical checklist records the initial registration delta, not complete 0
 - [ ] Exercise remaining new machine/upgrade registration and saved data after their migration.
 - Validate optional dependencies and client-only screens separately.
 
-## Current validation evidence
+## Historical validation summary (energy-upgrade checkpoint)
+
+This retained summary describes that checkpoint. Current Status above contains the latest suite and acceptance counts.
 
 - Latest Java 17 build: passed, including production/probe reobfuscation; 100 JUnit and 123 required GameTests passed. All earlier tests are retained.
 - MineralProductionEngineTest: 16 passed.
@@ -473,3 +475,15 @@ Use the matrix before choosing work. A bounded next energy slice is fixing the G
 - The first probe fixture failed by assuming native SensorT2 implements RedstoneControlledBE. The pause helper was corrected to inspect the actual interface; final full-state/live-interface checks include the sensor. No source path was dropped. Selected logs, first failure, checksums, process outcomes and reproduction are in [parity-fix evidence](validation/forge-1.20.1-parity-fixes/README.md).
 - Acceptance remains **V 32 / U 19 / P 49 / N 20**, all 120 items accounted for. Generator Upgrade remains P because the source Large Fuel Canister path is absent. Extended Upgrade remains P because five source target machines remain absent. Eight extended machine rows retain P because broader Ultimate/operation parity is not proved by conversion tests. No item was promoted to V from compilation alone.
 - No new graphical, independent multiplayer or stress runs were necessary for these server/interface corrections. Their absence is explicit; existing historical evidence is unchanged. Ultimate Portal Gun consumption, broader Ultimate hosts, installed JDTE-AE whole-grid scheduling, prolonged multiplayer and complete reactors remain the stated next work/unverified boundaries.
+
+
+## Ultimate Portal Gun source consumption correction (2026-10-28)
+
+- Restored the pinned source's actual manual prices: **500 mB** cross-dimension, **25 mB/block** in the same dimension, rounded up and capped at **25,000 mB**. The old Forge values were 1,000,000 / 1000 / 500,000. Zero-distance manual shots may use an empty fluid tank while still paying the normal native FE cost.
+- Source firing uses JDT's `PORTAL_GUN_V2_RF_COST`; its Forge 1.20.1 counterpart is **`Config.PORTAL_GUN_FE_COST`**, as confirmed against the actual native `PortalGunV2` bytecode. The source JDTE `ultimatePortalGun.energyCost` field is unused; retain it for config compatibility and clarify it in the config comment/guide instead of incorrectly charging it.
+- Restored separate pricing for recorded favorites and previous destinations. Holding Shift must call native JDT pricing even when a manual slot is selected. Source-compatible public calculation helpers now delegate to a pure tested policy. Whole FE/fluid checks precede firing; a cancelled native projectile addition no longer charges resources.
+- Actual item capabilities retain the source default **1,000,000 mB / 1,000,000 FE**, configured through the existing JDTE capacity fields. Tests fill 30,000-mB/12,000-FE configured buffers, reject overfill/wrong fluid, save/reload the item and preserve resource amounts/manual flags. Added paired English GuideME pages and clarified native versus legacy energy settings.
+- **120 JUnit / 140 required GameTests passed**, including all earlier 112/133, with full build and production/probe reobfuscation. Added eight pure pricing tests and seven actual Forge tests: native projectiles and exact debits, cross/same dimensions, previous/recorded/manual routing, rounding/cap/zero cost, configured capacities/item NBT, insufficient funds and real cancelled entity joins.
+- A separate reobfuscated production server with JDT/GuideME and AE2/Curios/JEI/Jade absent passed real native shots, native 173-FE pricing despite a different legacy JDTE value, manual 500/250-mB debits, configured capacities, saved-item restoration, previous routing and the cap; normal saved shutdown and **exit 0**. The first test fixture assumed immediate spatial-query visibility in a newly loaded chunk and failed that assertion. The final fixture records actual per-owner Forge entity joins and requires accepted live native projectile objects; the GameTests retain their actual spatial-query checks. Initial NeoForge config-field naming also failed compilation and was corrected to the verified Forge API. No gameplay test was removed or disabled.
+- The matrix promotes only Ultimate Portal Gun's verified stated paths from **P to V**. Current totals: **V 33 / U 19 / P 48 / N 20**, 120 items / 100 registrations. Fresh graphical portal-editor validation and a new independent multiplayer run were not performed. Generator and Extended Upgrade retain P for their source features blocked by absent items/targets.
+- This bounded round completed the three requested resource/interface corrections. Broader Ultimate support was analyzed but not unconditionally enabled: common scaling helpers do not prove every host's capacity and per-operation behavior. Next work can start with a narrow extended-native Capacity group; Ultimate Overclock must also implement and verify host-specific batching and FE costs. Whole-grid JDTE-AE, prolonged multiplayer and full operating reactors remain unverified.
