@@ -82,10 +82,15 @@ public final class TransmitterLifecycleProbe {
                 var actor=new net.minecraft.server.level.ServerPlayer(server,level,new com.mojang.authlib.GameProfile(UUID.fromString("5b537ea3-e447-48ac-919d-aa6a527ac568"),"TransmitterProbe"));actor.getInventory().clearContent();
                 for(int slot=0;slot<36;slot++)actor.getInventory().setItem(slot,new ItemStack(net.minecraft.world.item.Items.COBBLESTONE,64));
                 actor.setPos(POS[i].getX()+.5,POS[i].getY()+.5,POS[i].getZ()+.5);
+                // Failed earlier fixture runs may have left drops in chunks whose entity tracking was not ready.
+                // Remove only pre-existing transmitter item entities in this marked, disposable fixture area.
+                final int tier=i;
+                for(var existing:level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                        new net.minecraft.world.phys.AABB(POS[i]).inflate(3),
+                        e->e.getItem().is(tier==0?JDTEItems.ADVANCED_ENERGY_TRANSMITTER.get():JDTEItems.EXTENDED_ENERGY_TRANSMITTER.get())))existing.discard();
                 var old=machine(i);var face=old.getBlockState().getValue(BlockStateProperties.FACING);
                 var stale=old.getCapability(ForgeCapabilities.ENERGY,face).orElseThrow(IllegalStateException::new);
                 check(EclipseAlloyWrenchItem.pickupMachine(level,POS[i],actor),"wrench pickup");
-                final int tier=i;
                 var drops=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(POS[i]).inflate(3),e->e.getItem().is(tier==0?JDTEItems.ADVANCED_ENERGY_TRANSMITTER.get():JDTEItems.EXTENDED_ENERGY_TRANSMITTER.get()));
                 check(drops.size()==1,"full inventory drops exactly one packed machine, got "+drops.size());
                 var packed=drops.get(0).getItem().copy();drops.get(0).discard();

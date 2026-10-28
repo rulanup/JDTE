@@ -1,0 +1,25 @@
+## jdte-transmitter-recovery-compile.log
+/workspace/JDTE/src/serverSmoke/java/com/jdte/smoke/TransmitterLifecycleProbe.java:62: error: method orElseThrow in class LazyOptional<T> cannot be applied to given types;
+/workspace/JDTE/src/serverSmoke/java/com/jdte/smoke/TransmitterLifecycleProbe.java:79: error: method orElseThrow in class LazyOptional<T> cannot be applied to given types;
+/workspace/JDTE/src/serverSmoke/java/com/jdte/smoke/TransmitterLifecycleProbe.java:89: error: method orElseThrow in class LazyOptional<T> cannot be applied to given types;
+/workspace/JDTE/src/serverSmoke/java/com/jdte/smoke/TransmitterLifecycleProbe.java:89: error: method orElseThrow in class LazyOptional<T> cannot be applied to given types;
+/workspace/JDTE/src/serverSmoke/java/com/jdte/smoke/TransmitterLifecycleProbe.java:109: error: method orElseThrow in class LazyOptional<T> cannot be applied to given types;
+BUILD FAILED in 19s
+## jdte-transmitter-recovery-regression.log
+[10:24:45] [Server thread/ERROR] [minecraft/LogTestReporter]: failedrefundremainsownedacrosssnapshotandnodeteardown failed! real receiver charged directly from ME without invented buffer FE
+[10:24:49] [Server thread/ERROR] [minecraft/LogTestReporter]: explicitchunkunloadrejectsretainedportsuntilonload failed! java.lang.IllegalStateException
+BUILD FAILED in 1m 1s
+## jdte-transmitter-recovery-regression2.log
+[10:27:04] [Server thread/ERROR] [minecraft/LogTestReporter]: explicitchunkunloadrejectsretainedportsandfreshreloadrestoresstate failed! fresh loaded BE restores owned energy exactly once
+[10:27:09] [Server thread/ERROR] [minecraft/LogTestReporter]: failedrefundremainsownedacrosssnapshotandnodeteardown failed! real receiver charge: accepted=0, buffer=0, targets=1, last=0, reserve=0
+[10:27:16] [Server thread/ERROR] [minecraft/LogTestReporter]: actualappliedfluxdisksuppliesonlyrealreceiverdemand failed! real receiver charge: accepted=0, buffer=0, targets=1, last=0, reserve=0
+BUILD FAILED in 1m 31s
+## jdte-transmitter-recovery-regression3.log
+[10:29:58] [Server thread/ERROR] [minecraft/LogTestReporter]: explicitchunkunloadrejectsretainedportsandfreshreloadrestoresstate failed! fresh loaded BE restores owned energy exactly once, tier=1, FE=0
+[10:30:05] [Server thread/ERROR] [minecraft/LogTestReporter]: failedrefundremainsownedacrosssnapshotandnodeteardown failed! real receiver charge: accepted=0, buffer=0, targets=1, last=0, reserve=0, attempted=1, tickSpeed=1, available=1000
+[10:30:15] [Server thread/ERROR] [minecraft/LogTestReporter]: actualappliedfluxdisksuppliesonlyrealreceiverdemand failed! real receiver charge: accepted=0, buffer=0, targets=1, last=0, reserve=0, attempted=1, tickSpeed=1, available=50000
+BUILD FAILED in 1m 26s
+## jdte-transmitter-recovery-regression4.log
+[10:34:17] [Server thread/ERROR] [minecraft/LogTestReporter]: failedrefundremainsownedacrosssnapshotandnodeteardown failed! real receiver charge: accepted=0, buffer=0, targets=1, last=0, reserve=0, calls=[1, 0, 268435456], attempted=1, tickSpeed=1, available=1000
+[10:34:24] [Server thread/ERROR] [minecraft/LogTestReporter]: actualappliedfluxdisksuppliesonlyrealreceiverdemand failed! real receiver charge: accepted=0, buffer=0, targets=1, last=0, reserve=0, calls=[1, 0, 268435456], attempted=1, tickSpeed=1, available=50000
+BUILD FAILED in 1m 12s

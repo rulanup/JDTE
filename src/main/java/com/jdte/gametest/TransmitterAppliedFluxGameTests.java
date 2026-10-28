@@ -29,7 +29,11 @@ public final class TransmitterAppliedFluxGameTests {
     @GameTest(templateNamespace="jdte",template="mineral_empty",timeoutTicks=240)
     public static void failedRefundRemainsOwnedAcrossSnapshotAndNodeTeardown(GameTestHelper h){run(h,true);}
     private static void run(GameTestHelper h,boolean failRefund){
-        grid(h);h.setBlock(new BlockPos(2,1,2),AEBlocks.CREATIVE_ENERGY_CELL.block());
+        grid(h);
+        // The wireless access point only exposes its rear node. Bridge through the existing energy cell,
+        // rather than accidentally powering a separate, channelled but storage-less grid beside the AP.
+        h.setBlock(new BlockPos(2,1,2),AEBlocks.CREATIVE_ENERGY_CELL.block());
+        h.setBlock(new BlockPos(2,1,3),AEBlocks.CREATIVE_ENERGY_CELL.block());
         var drive=(DriveBlockEntity)h.getBlockEntity(DRIVE);
         drive.getInternalInventory().insertItem(2,new ItemStack(AFItemAndBlock.FE_CELL_1k),false);
         h.setBlock(MACHINE,JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get());var original=h.getBlockEntity(MACHINE);
@@ -60,6 +64,8 @@ public final class TransmitterAppliedFluxGameTests {
         h.runAfterDelay(80,()->{
             var me=ap(h).getGrid().getStorageService().getInventory();var action=IActionSource.empty();var key=FluxKey.of(EnergyType.FE);
             h.assertTrue(source.getEnergyNetworkStatus()==com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySource.Status.ONLINE,"real adjacent Forge node has power and channel");
+            var host=(appeng.api.networking.IInWorldGridNodeHost)source.getEnergyNetworkSource().getGridNodeHost();
+            h.assertTrue(host.getGridNode(null).getGrid()==ap(h).getGrid(),"transmitter and FE disk share the same real grid");
             int amount=failRefund?1000:50000;
             h.assertTrue(me.insert(key,amount,Actionable.MODULATE,action)==amount,"seed real FE disk");
             source.setTickSpeed(1);source.getRedstoneControlData().checkedRedstone=false;
