@@ -1,0 +1,35 @@
+{
+  "source_reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "code_checkpoint": "9ae486d27255e6b9144d314552524d8a9463895f",
+  "version": "0.5.8-forge-1.20.1",
+  "unit": {
+    "tests": 100,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "gametest_required_passed": 123,
+  "new_unit_tests": 5,
+  "new_gametests": 9,
+  "build_and_reobfuscation": "passed",
+  "production_jvm_exit_codes": [
+    0,
+    0
+  ],
+  "production_fixture_mods": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "guideme-20.1.15.jar",
+    "just-dire-things-forge-1533501-8573107.jar"
+  ],
+  "optional_ae2_curios_jei_jade": "absent in production fixture",
+  "production_jar_sha256": "a0c04da39d04d0e633869f59d0ff0670a962c8a0d1e6c2084e5f50b8cf9d0b41",
+  "probe_jar_sha256": "cd237eacabe4aaa619524d90f3f402ffbc2d7792ecbe8b30b6dc5fffe635c505",
+  "probe_excluded_from_production": true,
+  "source_models_textures_and_adapted_recipes_match": true,
+  "graphical_new_card_validation": "not run",
+  "new_multiplayer_validation": "not run",
+  "jdte_ae_whole_grid_backend": "unverified",
+  "long_running_multiplayer": "unverified",
+  "complete_operating_reactor": "unverified"
+}

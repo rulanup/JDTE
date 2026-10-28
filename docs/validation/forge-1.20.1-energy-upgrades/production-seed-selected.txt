@@ -1,0 +1,5 @@
+[03:10:14] [Server thread/INFO] [minecraft/DedicatedServer]: Done (5.368s)! For help, type "help"
+[03:10:27] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[03:10:27] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[03:10:27] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[03:10:29] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved

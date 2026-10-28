@@ -17,7 +17,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit baseli
 | JUnit | 100 passed, including 5 new transaction tests; all previous 95 retained |
 | Forge GameTest | All 123 required tests passed, including 9 new integration tests; all previous 114 retained |
 | Production and separate probe JAR reobfuscation | Passed |
-| Production two-JVM save/restart probe | Pending at initial code checkpoint; final result will be appended after completion |
+| Production two-JVM save/restart probe | Passed, seed and fresh verify processes both exited 0 |
 | `python scripts/validate_docs.py`, `git diff --check` | Passed before checkpoint |
 | Fresh graphical client / new card visuals | Not run |
 | New real two-client run | Not run; unaffected prior evidence retained |
@@ -48,3 +48,12 @@ After a completed build, set `JDTE_SMOKE_PREBUILT=1` to reuse the current JARs. 
 ## Unverified / out of scope
 
 New graphical appearance/tooltips/Jade rendering have not been observed in a fresh client. The original source Advanced/Extended transmitters are absent. Advanced Potion Brewer coalesced accelerated processing/Ultimate support, the external installed JDTE-AE whole-grid backend, prolonged multiplayer uptime and complete operating reactor scenarios remain incomplete or unverified as described in the full feature matrix. No new two-client/AE-job/Mekanism runs were necessary for this bounded change.
+
+
+## Final production result
+
+Code checkpoint `9ae486d` passed the separate **reobfuscated production JAR** probe in two actual dedicated-server JVMs with only JDT Forge 1.1.4, GuideME, JDTE and the separate probe installed. AE2, Curios, JEI and Jade were absent. Both processes reached `Done`, saved every dimension and exited **0**. See `summary.json` for checksums and counts; adjacent selected logs retain actual startup/shutdown lines and success markers. Full fixture logs/world/NBT stay outside Git.
+
+The seed naturally ran the live brewer to **175/400 ticks**, with one 5000-FE purchase, **19** remaining credits, **45000 FE**, both cards and five untouched Blaze Powder. A normal server shutdown saved the state. The fresh JVM compared actual disk-restored inventory, canonical upgrade capabilities, FE, fuel, active ingredient, timing and sequence fields. It naturally finished **one Awkward Potion**, consumed the wart exactly once, spent only the normal **300 FE** (ending at **44700**) and retained all five powder without repurchasing fuel. The live production transmitter Mixin returned `Integer.MAX_VALUE`; extracting/reinserting its saved card restored/lifted the configured native limit. This runtime check complements the GameTest's actual 9000-FE native delivery/conservation test.
+
+Exact source models/textures and Forge-adapted shaped recipes were compared against the pinned source and matched; both new items' packaged resources exist in the production JAR. Probe classes are absent from that JAR. Final documentation validation, audit regeneration/check and whitespace checks passed. No expensive unaffected graphical/multiplayer/AE restart/fuel-chain rerun was added.
