@@ -42,6 +42,7 @@ public final class LifecycleProbe {
         MinecraftForge.EVENT_BUS.register(new MixerLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new EnergyUpgradeLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new TierConversionProbe());
+        MinecraftForge.EVENT_BUS.register(new PortalGunProbe());
         if (net.minecraftforge.fml.ModList.get().isLoaded("ae2"))
             MinecraftForge.EVENT_BUS.register(new AECraftingRestartProbe());
         if (net.minecraftforge.fml.ModList.get().isLoaded("mekanism_extras"))

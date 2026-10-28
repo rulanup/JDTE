@@ -11,6 +11,10 @@ import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.NBTHelpers;
 import com.direwolf20.justdirethings.util.TooltipHelpers;
 import com.jdte.setup.JDTEConfig;
+import com.jdte.common.items.portal.PortalGunCosts;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.phys.Vec3;
+import java.util.function.IntSupplier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -39,13 +43,13 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Forge 1.20.1 port of the 0.5.8 unlimited-slot advanced portal gun. */
+/** Forge port of the unlimited-slot portal gun, with the 0.6.5.2 pricing rules. */
 public class UltimatePortalGunItem extends PortalGunV2 {
     public static final int MAX_MB = 1_000_000;
     public static final int SEGMENTS_PER_PAGE = 12;
-    public static final int MANUAL_CROSS_DIMENSION_COST = 1_000_000;
-    public static final int MANUAL_PER_BLOCK_COST = 1000;
-    public static final int MANUAL_MAX_DISTANCE_COST = 500_000;
+    public static final int MANUAL_CROSS_DIMENSION_COST = PortalGunCosts.CROSS_DIMENSION;
+    public static final int MANUAL_PER_BLOCK_COST = PortalGunCosts.PER_BLOCK;
+    public static final int MANUAL_MAX_DISTANCE_COST = PortalGunCosts.DISTANCE_LIMIT;
 
     private static final String DESTINATIONS_KEY = "JDTEUltimateDestinations";
     private static final String POSITION_KEY = "JDTEUltimateFavoritePos";
@@ -253,13 +257,16 @@ public class UltimatePortalGunItem extends PortalGunV2 {
         if (!(level instanceof ServerLevel serverLevel)) {
             return InteractionResultHolder.pass(stack);
         }
-        NBTHelpers.PortalDestination destination = player.isShiftKeyDown()
+        boolean previousDestination = player.isShiftKeyDown();
+        NBTHelpers.PortalDestination destination = previousDestination
                 ? PortalGunV2.getPrevious(stack) : getSelectedDestination(stack);
         if (destination == null || isDimensionBlacklisted(destination.dimension())) {
             return InteractionResultHolder.fail(stack);
         }
-        int cost = calculateActualFluidCost(serverLevel, player, stack, destination);
-        int energyCost = JDTEConfig.COMMON.ultimatePortalGun.energyCost.get();
+        int cost = calculateDestinationFluidCost(stack, previousDestination, serverLevel.dimension(),
+                player.position(), destination, () -> PortalGunV2.calculateFluidCost(serverLevel, player, destination));
+        // The source actually charges the native V2 setting; its legacy JDTE energyCost field is unused.
+        int energyCost = Config.PORTAL_GUN_FE_COST.get();
         if (!hasEnoughPortalFluid(stack, cost)) {
             player.displayClientMessage(Component.translatable("justdirethings.lowportalfluid"), true);
             return InteractionResultHolder.fail(stack);
@@ -273,23 +280,27 @@ public class UltimatePortalGunItem extends PortalGunV2 {
         PortalProjectile projectile = new PortalProjectile(serverLevel, player,
                 PortalGunV2.getOrCreateGunUUID(stack), primary, true, destination, lifespan);
         projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.0F, 1.0F);
-        serverLevel.addFreshEntity(projectile);
+        if (!serverLevel.addFreshEntity(projectile)) return InteractionResultHolder.fail(stack);
         PoweredItem.consumeEnergy(stack, energyCost);
         FluidContainingItem.consumeFluid(stack, cost);
         PortalGunV2.setPrevious(player, stack);
         return InteractionResultHolder.success(stack);
     }
 
-    private static int calculateActualFluidCost(ServerLevel level, Player player, ItemStack stack,
-                                                NBTHelpers.PortalDestination destination) {
-        if (!isManualSlot(stack, getFavoritePosition(stack))) {
-            return PortalGunV2.calculateFluidCost(level, player, destination);
-        }
-        if (!destination.dimension().equals(level.dimension())) {
-            return MANUAL_CROSS_DIMENSION_COST;
-        }
-        return Math.min((int) Math.ceil(destination.position().distanceTo(player.position()) * MANUAL_PER_BLOCK_COST),
-                MANUAL_MAX_DISTANCE_COST);
+    public static int calculateDestinationFluidCost(ItemStack stack, boolean previousDestination,
+                                                    ResourceKey<Level> sourceDimension, Vec3 sourcePosition,
+                                                    NBTHelpers.PortalDestination destination, IntSupplier jdtCost) {
+        return PortalGunCosts.destination(previousDestination, isManualSlot(stack, getFavoritePosition(stack)),
+                destination.dimension().equals(sourceDimension), destination.position().distanceTo(sourcePosition), jdtCost);
+    }
+
+    public static int calculateManualFluidCost(ResourceKey<Level> sourceDimension, Vec3 sourcePosition,
+                                               NBTHelpers.PortalDestination destination) {
+        return PortalGunCosts.manual(destination.dimension().equals(sourceDimension), destination.position().distanceTo(sourcePosition));
+    }
+
+    public static int getEnergyCapacity() {
+        return JDTEConfig.COMMON.ultimatePortalGun.ultimatePortalGunEnergyCapacity.get();
     }
 
     public static boolean isPortalFluid(net.minecraft.world.level.material.Fluid fluid) {
@@ -340,6 +351,7 @@ public class UltimatePortalGunItem extends PortalGunV2 {
         if (handler == null) {
             return false;
         }
+        if (amount == 0) return true;
         FluidStack fluid = handler.getFluidInTank(0);
         return !fluid.isEmpty() && isPortalFluid(fluid.getFluid()) && fluid.getAmount() >= amount;
     }
