@@ -132,4 +132,9 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
             return false;
         return com.jdte.common.utils.EntityFilterHelper.matches(this, entity);
     }
+    @Override
+    public int getMaxEnergy() {
+        return com.jdte.common.upgrades.UpgradeHelper.adjustEnergyCapacity(this, 100000);
+    }
+
 }

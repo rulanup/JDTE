@@ -1,15 +1,10 @@
 package com.jdte.common.items;
 
-import com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,9 +12,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +22,7 @@ public class ExtendedUpgradeItem extends Item {
     private static final Map<Block, Block> UPGRADE_MAP = new HashMap<>();
 
     static {
+        UPGRADE_MAP.put(JDTEBlocks.ADVANCED_GEL_GENERATOR.get(), JDTEBlocks.EXTENDED_GEL_GENERATOR.get());
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_FLUID_MIXER.get(),JDTEBlocks.EXTENDED_FLUID_MIXER.get());
         UPGRADE_MAP.put(Registration.ClickerT2.get(), JDTEBlocks.EXTENDED_CLICKER.get());
         UPGRADE_MAP.put(Registration.BlockBreakerT2.get(), JDTEBlocks.EXTENDED_BLOCK_BREAKER.get());
@@ -65,52 +59,14 @@ public class ExtendedUpgradeItem extends Item {
             return InteractionResult.SUCCESS;
         }
 
-        BlockEntity oldBE = level.getBlockEntity(pos);
-        CompoundTag data = null;
-        if (oldBE != null) {
-            data = oldBE.saveWithFullMetadata();
-        }
+        return MachineTierConversion.convert(context, extendedBlock, this::replaceBlock);
+    }
 
-        // Get facing direction before removing
-        Direction facing = state.getValue(BlockStateProperties.FACING);
+    static Block targetFor(Block source) { return UPGRADE_MAP.get(source); }
 
-        // Remove old block without dropping items
-        level.removeBlockEntity(pos);
-        level.setBlock(pos, extendedBlock.defaultBlockState().setValue(BlockStateProperties.FACING, facing), Block.UPDATE_ALL);
-
-        // Restore data to new block entity
-        if (data != null) {
-            BlockEntity newBE = level.getBlockEntity(pos);
-            if (newBE != null) {
-                newBE.load(data);
-                if (oldBE instanceof com.jdte.common.blockentities.FluidMixerBE
-                        && newBE instanceof com.jdte.common.blockentities.FluidMixerBE mixer) {
-                    // Forge persists separate four/eight-slot capabilities. Loading the
-                    // old NBT alone leaves cards in the now-inactive four-slot handler.
-                    var previous = com.jdte.setup.JDTEAttachments.upgrades(mixer);
-                    var next = com.jdte.setup.JDTEAttachments.extendedUpgrades(mixer);
-                    // Restore the complete handler before firing capacity updates.
-                    // Per-slot insertion would clamp fluids/FE before a Capacity card
-                    // in a later slot has been migrated.
-                    CompoundTag migrated = previous.serializeNBT();
-                    migrated.putInt("Size", next.getSlots());
-                    next.deserializeNBT(migrated);
-                    CompoundTag empty = new CompoundTag();
-                    empty.putInt("Size", previous.getSlots());
-                    previous.deserializeNBT(empty);
-                    com.jdte.common.upgrades.UpgradeHelper.syncCapacities(mixer);
-                    mixer.markDirtyClient();
-                }
-            }
-        }
-
-        // Consume item
-        context.getItemInHand().shrink(1);
-
-        // Play sound
-        level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 1.0f, 1.0f);
-
-        return InteractionResult.SUCCESS;
+    protected boolean replaceBlock(Level level, BlockPos pos, BlockState target) {
+        // Neighbors are notified only after data and the placement permission event succeed.
+        return level.setBlock(pos, target, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
     }
 
     @Override

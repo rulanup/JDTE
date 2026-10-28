@@ -79,4 +79,9 @@ public class ExtendedBlockPlacerBE extends BlockPlacerT1BE implements PoweredMac
         ItemStack filterStack = filterState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), level, blockPos, fakePlayer);
         return isStackValidFilter(filterStack);
     }
+    @Override
+    public int getMaxEnergy() {
+        return com.jdte.common.upgrades.UpgradeHelper.adjustEnergyCapacity(this, 100000);
+    }
+
 }

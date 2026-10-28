@@ -86,4 +86,9 @@ public class ExtendedBlockBreakerBE extends BlockBreakerT1BE implements PoweredM
         }
         return false;
     }
+    @Override
+    public int getMaxEnergy() {
+        return com.jdte.common.upgrades.UpgradeHelper.adjustEnergyCapacity(this, 100000);
+    }
+
 }

@@ -60,4 +60,15 @@ public class ExtendedFluidCollectorBE extends FluidCollectorT1BE implements Powe
         return level.getBlockState(pos).getBlock() instanceof LiquidBlock liquid
                 && isStackValidFilter(new ItemStack(liquid));
     }
+    @Override
+    public int getMaxEnergy() {
+        return com.jdte.common.upgrades.UpgradeHelper.adjustEnergyCapacity(this, 100000);
+    }
+
+    @Override
+    public int getMaxMB() {
+        // Keep the native T2 reservoir when inheriting T1's execution implementation.
+        return com.jdte.common.upgrades.UpgradeHelper.adjustFluidCapacity(this, 32000);
+    }
+
 }
