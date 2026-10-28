@@ -56,6 +56,14 @@ public abstract class GeneratorT1UpgradeMixin {
             return;
         }
 
+        if (fuelStack.getItem() instanceof com.direwolf20.justdirethings.common.items.FuelCanister) {
+            int minimum = fuelStack.getItem() instanceof com.jdte.common.items.LargeFuelCanisterItem
+                    ? com.jdte.common.items.LargeFuelCanisterItem.getMinimumFuelConsumed()
+                    : Config.FUEL_CANISTER_MINIMUM_TICKS_CONSUMED.get();
+            if ((long) com.direwolf20.justdirethings.common.items.FuelCanister.getFuelLevel(fuelStack) < 2L * minimum) { ci.cancel(); return; }
+        }
+        int energyBudget = com.jdte.common.items.FuelCanisterMath.energyBudget(burnTime, getFePerFuelTick(), 3);
+        if (energyBudget == 0) { ci.cancel(); return; }
         int oldMultiplier = fuelBurnMultiplier;
         fuelBurnMultiplier = GeneratorUpgradeHelper.burnSpeedMultiplier(fuelStack);
         if (fuelBurnMultiplier != oldMultiplier) {
@@ -63,16 +71,19 @@ public abstract class GeneratorT1UpgradeMixin {
         }
         GeneratorUpgradeHelper.consumeFuel(generator.getMachineHandler(), fuelStack);
 
-        feRemaining = burnTime * getFePerFuelTick() * 3;
-        maxBurn = (int) (Math.floor(burnTime) / getBurnSpeedMultiplier());
+        feRemaining = energyBudget;
+        maxBurn = com.jdte.common.items.FuelCanisterMath.safeBurnCounter(burnTime, getBurnSpeedMultiplier());
         burnRemaining = maxBurn + 1;
         ci.cancel();
     }
 
+    @org.spongepowered.asm.mixin.injection.Redirect(method="doBurn", at=@At(value="INVOKE",target="Lcom/direwolf20/justdirethings/common/items/FuelCanister;getBurnSpeedMultiplier(Lnet/minecraft/world/item/ItemStack;)I"),remap=false)
+    private int jdte$largeFuelSpeed(ItemStack stack) { return com.jdte.common.items.PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(stack); }
+
     @Inject(remap = false, method = "getFEPerTick", at = @At("RETURN"), cancellable = true)
     private void jdte$generatorUpgradeOutput(CallbackInfoReturnable<Integer> cir) {
         if (UpgradeHelper.hasGeneratorUpgrade((GeneratorT1BE) (Object) this)) {
-            cir.setReturnValue(Config.GENERATOR_T1_FE_PER_TICK.get() * 3);
+            cir.setReturnValue(com.jdte.common.items.FuelCanisterMath.rate(Config.GENERATOR_T1_FE_PER_TICK.get(), 3));
         }
     }
 }

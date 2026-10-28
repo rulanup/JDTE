@@ -11,7 +11,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit starte
 
 The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
 
-Current inventory: source **120**, Forge **102**. Status counts: V **35**, U **19**, P **48**, N **18**.
+Current inventory: source **120**, Forge **103**. Status counts: V **35**, U **20**, P **48**, N **17**.
 
 ## Evidence and cross-cutting systems
 
@@ -120,9 +120,9 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:fluid_storage_upgrade` | Fluid Storage Upgrade | no | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
 | `jdte:fluid_upgrade` | Fluid Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:fortune_upgrade` | Fortune Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
-| `jdte:generator_upgrade` | Generator Upgrade | no | **P** | no/no | yes/yes/yes | Native fluid batches simulate two mB and full FE acceptance before consumption, with owned-buffer rollback; native solid fuel uses ForgeHooks and a loadable helper. Seven unit/four real GameTests and production two-JVM odd-fuel conservation pass. Large-canister-specific support remains absent with its unported item; keep P. |
+| `jdte:generator_upgrade` | Generator Upgrade | no | **P** | no/no | yes/yes/yes | Native fluid batches atomically consume two mB; solid fuel and Large Fuel Canister use checked Forge fuel budgets and two complete canister units for x3 FE. Existing generator tests plus five fuel-canister tests pass. Large-canister graphical/dedicated and extended-host acceptance remain pending; keep P. |
 | `jdte:greenhouse` | Greenhouse | no | **P** | yes/yes | yes/yes/yes | Core harvest/essence/seed paths tested, but source greenhouse matrix member/runtime hooks and general Ultimate support are absent. |
-| `jdte:large_fuel_canister` | Large Fuel Canister | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:large_fuel_canister` | Large Fuel Canister | yes | **U** | no/yes | yes/yes/yes | Full source-derived fuel item, bound menu, Curios shortcut/slot, preserving recipe and resources implemented. Seven numeric tests/five Forge tests verify filling, ownership, recipe and native generator fuel/FE conservation. Graphical and dedicated recovery acceptance remain pending; see generators evidence. |
 | `jdte:large_greenhouse` | Large Greenhouse | no | **P** | yes/yes | yes/yes/yes | Core harvest/structure paths exist, but source matrix hooks and general Ultimate support are absent. |
 | `jdte:large_mineral_extractor` | Large Mineral Extractor | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:large_pocket_generator` | Large Pocket Generator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |

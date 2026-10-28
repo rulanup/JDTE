@@ -2,11 +2,11 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 102,
+  "forge_item_count": 103,
   "counts": {
     "verified": 35,
-    "absent": 18,
-    "implemented_unverified": 19,
+    "absent": 17,
+    "implemented_unverified": 20,
     "partial": 48
   },
   "rows": [
@@ -120,7 +120,7 @@
       "id": "generator_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "Native fluid batches simulate two mB and full FE acceptance before consumption, with owned-buffer rollback; native solid fuel uses ForgeHooks and a loadable helper. Seven unit/four real GameTests and production two-JVM odd-fuel conservation pass. Large-canister-specific support remains absent with its unported item; keep P.",
+      "note": "Native fluid batches atomically consume two mB; solid fuel and Large Fuel Canister use checked Forge fuel budgets and two complete canister units for x3 FE. Existing generator tests plus five fuel-canister tests pass. Large-canister graphical/dedicated and extended-host acceptance remain pending; keep P.",
       "registered": true,
       "kind": "item",
       "name": "Generator Upgrade",
@@ -631,18 +631,20 @@
     {
       "id": "large_fuel_canister",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "implemented_unverified",
+      "note": "Full source-derived fuel item, bound menu, Curios shortcut/slot, preserving recipe and resources implemented. Seven numeric tests/five Forge tests verify filling, ownership, recipe and native generator fuel/FE conservation. Graphical and dedicated recovery acceptance remain pending; see generators evidence.",
+      "registered": true,
       "kind": "item",
       "name": "Large Fuel Canister",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/LargeFuelCanisterItem.java"
+      ],
       "block_entity": false,
-      "menu": false,
-      "model": false,
+      "menu": true,
+      "model": true,
       "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "factory_package",

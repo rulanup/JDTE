@@ -923,5 +923,7 @@
   "jdte.screen.energy_transmitter.player_offline": "Player: %s (Offline)",
   "message.jdte.energy_transmitter.player_bound": "Bound to the current player and enabled equipment charging",
   "message.jdte.energy_transmitter.player_unbound": "Removed the player binding",
-  "message.jdte.energy_transmitter.binding_denied": "Only the bound player or a creative administrator can change this binding"
+  "message.jdte.energy_transmitter.binding_denied": "Only the bound player or a creative administrator can change this binding",
+  "item.jdte.large_fuel_canister": "Large Fuel Canister",
+  "curios.identifier.large_fuel_canister": "Large Fuel Canister"
 }

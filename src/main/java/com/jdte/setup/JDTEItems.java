@@ -25,6 +25,8 @@ import java.util.List;
 public class JDTEItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, JDTE.MODID);
 
+    public static final RegistryObject<com.jdte.common.items.LargeFuelCanisterItem> LARGE_FUEL_CANISTER = ITEMS.register("large_fuel_canister", com.jdte.common.items.LargeFuelCanisterItem::new);
+
     public static final RegistryObject<UpgradeCardItem> CAPACITY_UPGRADE = ITEMS.register("capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.CAPACITY));
     public static final RegistryObject<UpgradeCardItem> OVERCLOCK_UPGRADE = ITEMS.register("overclock_upgrade", () -> new UpgradeCardItem(UpgradeType.OVERCLOCK));
     public static final RegistryObject<UpgradeCardItem> UNDERCLOCK_UPGRADE = ITEMS.register("underclock_upgrade", () -> new UpgradeCardItem(UpgradeType.UNDERCLOCK));

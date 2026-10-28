@@ -32,7 +32,8 @@
     "TickSpeedPacketMixin",
     "MachineSettingsCopierMixin",
     "TransmitterEnergyStorageMixin",
-    "EnergyTransmitterNetworkMixin"
+    "EnergyTransmitterNetworkMixin",
+    "GeneratorSolidConservationMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",

@@ -12,23 +12,16 @@ public final class GeneratorUpgradeHelper {
     }
 
     public static int burnSpeedMultiplier(ItemStack fuelStack) {
-        if (fuelStack.getItem() instanceof Coal_T1 direCoal) {
-            return direCoal.getBurnSpeedMultiplier();
-        }
-        if (fuelStack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CoalBlock_T1 coalBlock) {
-            return coalBlock.getBurnSpeedMultiplier();
-        }
-        if (fuelStack.getItem() instanceof FuelCanister) {
-            return FuelCanister.getBurnSpeedMultiplier(fuelStack);
-        }
-        return 1;
+        return com.jdte.common.items.PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack);
     }
 
     /** Consumes double fuel for the generator upgrade's tripled output. */
     public static void consumeFuel(ItemStackHandler machineHandler, ItemStack fuelStack) {
         if (fuelStack.hasCraftingRemainingItem()) {
             ItemStack remaining = fuelStack.getCraftingRemainingItem();
-            if (remaining.getItem() instanceof FuelCanister) {
+            if (remaining.getItem() instanceof com.jdte.common.items.LargeFuelCanisterItem) {
+                com.jdte.common.items.LargeFuelCanisterItem.decrementFuel(remaining);
+            } else if (remaining.getItem() instanceof FuelCanister) {
                 FuelCanister.decrementFuel(remaining);
             }
             machineHandler.setStackInSlot(0, remaining);

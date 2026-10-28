@@ -12,6 +12,7 @@ public final class BigFluidTankCuriosIntegration {
     }
 
     public static void registerItems() {
+        CuriosApi.registerCurio(com.jdte.setup.JDTEItems.LARGE_FUEL_CANISTER.get(), new top.theillusivec4.curios.api.type.capability.ICurioItem() { });
         CuriosApi.registerCurio(com.jdte.setup.JDTEItems.BIG_FLUID_TANK.get(), new top.theillusivec4.curios.api.type.capability.ICurioItem() { });
     }
 
@@ -20,6 +21,8 @@ public final class BigFluidTankCuriosIntegration {
             return;
         }
         ISlotHelper helper = CuriosApi.getSlotHelper();
+        if (helper != null && helper.getSlotType("large_fuel_canister").isPresent() && helper.getSlotsForType(player,"large_fuel_canister") <= 0)
+            helper.setSlotsForType("large_fuel_canister",player,1);
         if (helper != null && helper.getSlotType(SLOT_ID).isPresent()
                 && helper.getSlotsForType(player, SLOT_ID) <= 0) {
             helper.setSlotsForType(SLOT_ID, player, 1);

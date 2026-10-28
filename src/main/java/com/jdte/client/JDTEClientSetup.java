@@ -25,6 +25,7 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 public class JDTEClientSetup {
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ItemProperties.register(JDTEItems.LARGE_FUEL_CANISTER.get(), net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("justdirethings","fullness"), (stack,level,entity,seed) -> com.jdte.common.items.LargeFuelCanisterItem.getFullness(stack)));
         event.enqueueWork(() -> ItemProperties.register(
                 JDTEItems.FACTORY_PACKAGE.get(),
                 ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),
@@ -36,6 +37,7 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.LARGE_FUEL_CANISTER.get(), com.jdte.client.screens.LargeFuelCanisterScreen::new);
         MenuScreens.register(JDTEMenus.ADVANCED_ENERGY_TRANSMITTER.get(), com.jdte.client.screens.AdvancedEnergyTransmitterScreen::new);
         MenuScreens.register(JDTEMenus.EXTENDED_ENERGY_TRANSMITTER.get(), com.jdte.client.screens.ExtendedEnergyTransmitterScreen::new);
         MenuScreens.register(JDTEMenus.ADVANCED_FLUID_MIXER.get(), com.jdte.client.screens.AdvancedFluidMixerScreen::new);
@@ -126,6 +128,7 @@ public class JDTEClientSetup {
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(JDTEKeyMappings.WRENCH_AREA_MODIFIER);
+        event.register(JDTEKeyMappings.LARGE_FUEL_CANISTER);
     }
 
     @SubscribeEvent

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "jdte:item/large_fuel_canister"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "justdirethings:fullness": 1
+      },
+      "model": "jdte:item/large_fuel_canister_1"
+    },
+    {
+      "predicate": {
+        "justdirethings:fullness": 2
+      },
+      "model": "jdte:item/large_fuel_canister_2"
+    },
+    {
+      "predicate": {
+        "justdirethings:fullness": 3
+      },
+      "model": "jdte:item/large_fuel_canister_3"
+    },
+    {
+      "predicate": {
+        "justdirethings:fullness": 4
+      },
+      "model": "jdte:item/large_fuel_canister_4"
+    }
+  ]
+}

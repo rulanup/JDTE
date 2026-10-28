@@ -8,13 +8,13 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest code/validation checkpoint: **`47c28d2`** — dedicated Advanced player/Curios and installed ME production recovery; graphical/Extended acceptance **`f87b93e`**, shared native network fixes **`f986ccf`**, initial pooled-FE fix **`cbcf0f7`**. Documentation-only commits may follow. See [acceptance evidence](validation/forge-1.20.1-energy-transmitters/acceptance/README.md).
+- Latest saved baseline: **`2d630d4`**; fuel-canister core checkpoint follows (this entry is included in that commit). Prior transmitter acceptance remains unchanged.
 - Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
-- Latest complete regression: **131 JUnit / 164 required GameTests**, build and main/probe reobfuscation passed; final `test build` also passed. Actual graphical GUI/filter/upgrade/Jade, online Curios, real dedicated logout/unload/rejoin, registered Draconic injector FE, native mixed-network restart and installed AE2/AppFlux two-JVM recovery pass. All prior tests remain enabled.
-- 120-item status: V **35**, U **19**, P **48**, N **18**; **102** source items registered in Forge. Both transmitter rows are V for their tested source contracts. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) is the authority for acceptance and limits.
-- Persistence: all verified phases are committed/pushed on `codex/forge-1.20.1-mineral-machines`; recovery branch remains at **`cd8aaaa`**, and `/workspace/jdte-recovery-20261028` is preserved. No reset, main merge or release.
-- Next priorities: choose a bounded remaining P/U family from the matrix; additional Ultimate host support and the four remaining Extended conversion targets/Large Fuel Canister remain incomplete. Do not repeat completed transmitter lifecycle tests without a related change.
-- Still unverified: installed external JDTE-AE whole-grid backend, prolonged multiplayer uptime, complete operating reactors and complete Draconic fusion recipes. Scoped V evidence is not an exhaustive modpack or long-duration guarantee.
+- Latest complete regression: **138 JUnit / 169 required GameTests**, build and main/probe reobfuscation passed. Existing 131/164 tests remain enabled. See [fuel evidence](validation/forge-1.20.1-generators/README.md).
+- 120-item status: V **35**, U **20**, P **48**, N **17**; **103** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains the acceptance authority.
+- Persistence: checkpoints are saved on `codex/forge-1.20.1-mineral-machines`; recovery branch **`cd8aaaa`** and `/workspace/jdte-recovery-20261028` remain preserved. No main merge or release.
+- Next priorities: complete both Extended generator conversions and their lifecycle/automation tests; graphical fuel/Curios and production recovery acceptance. Fuel canister remains U until those paths have evidence.
+- Still unverified: external JDTE-AE whole-grid backend, prolonged multiplayer uptime, complete operating reactors and complete Draconic fusion recipes.
 <!-- current-status:end -->
 
 This file is a chronological development log. Sections below preserve the implementation, limitations, failures and test results **at their recorded checkpoint**; old limitations are not current acceptance decisions. Consult Current Status and the matrix for the latest state. Earlier evidence retains its original scope and counts.
@@ -547,3 +547,11 @@ After checkpoint `f87b93e` admitted Extended, the existing remote launch/librari
 The same production server has an actual powered/channelled AE2 grid and Applied Flux disk. With a real receiver at 60,000/100,000, 50,000 FE on disk supplies only the 40,000 demand and saves the remaining 10,000. A second production JVM restores disk/source/node/binding data; after a deliberate 50,000 receiver withdrawal, exactly the final disk 10,000 is delivered once, ending at receiver 60,000 and disk/source/credit zero. Both production JVMs and the client exit 0. The final main artifact is byte-identical to the production-tested artifact.
 
 Advanced is now also admitted to V. Authoritative counts are **V35/U19/P48/N18**, registered **102/120**. Full regression remains **131 JUnit / 164 required GameTests**, all previous tests retained; final `test build`/reobfuscation passes. The added final code is in test-only source sets; fixture Curios JSON and smoke classes are excluded from the production JAR. Full logs, actual player/source NBT, markers, screenshots and hashes are retained in [dedicated acceptance evidence](validation/forge-1.20.1-energy-transmitters/acceptance/dedicated/README.md). Global JDTE-AE external backend, prolonged multiplayer and complete fusion/reactor operation remain explicitly unverified. Recovery branch/backup remain unchanged; no version change, main merge or release.
+
+## 2026-10-28 — Large Fuel Canister core
+
+Implemented the source fuel item, weighted burn speed, ×4 capacity/×10 unit, bound transient menu, Curios shortcut/slot, models, language, guide and registered preserving upgrade recipe. Large Pocket Generator/Potion Canister are separate unported items; the two Extended generators depend directly on native machines and the existing Extended Upgrade.
+
+Fixed caller-owned fuel stacks being mutated by synchronous staging-slot callbacks and native solid generation consuming prepaid FE while its output buffer was full. Checked overflow before consuming fuel, and require two complete canister units for Generator Upgrade. The upgrade recipe consumes four actual ingot cells and does not return the old canister (which would duplicate stored fuel).
+
+Validation: **138 JUnit / 169 required GameTests**, build and main/probe reobfuscation pass. Previous runs exposed input-stack ownership and an incorrect expected speed omitting native configuration; both were corrected before the passing run. All previous tests remain enabled. [Evidence and outstanding acceptance](validation/forge-1.20.1-generators/README.md). Canister U; Generator Upgrade remains P pending remaining acceptance.

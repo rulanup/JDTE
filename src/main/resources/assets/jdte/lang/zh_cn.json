@@ -923,5 +923,7 @@
   "jdte.screen.energy_transmitter.player_offline": "玩家：%s（离线）",
   "message.jdte.energy_transmitter.player_bound": "已绑定当前玩家并启用装备直充",
   "message.jdte.energy_transmitter.player_unbound": "已解除玩家绑定",
-  "message.jdte.energy_transmitter.binding_denied": "只有已绑定玩家或创造模式管理员可以修改绑定"
+  "message.jdte.energy_transmitter.binding_denied": "只有已绑定玩家或创造模式管理员可以修改绑定",
+  "item.jdte.large_fuel_canister": "大型燃料罐",
+  "curios.identifier.large_fuel_canister": "大型燃料罐"
 }

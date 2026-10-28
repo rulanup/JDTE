@@ -1,0 +1,5 @@
+{
+  "type": "jdte:large_portable_container",
+  "source_item": "justdirethings:fuel_canister",
+  "result": "jdte:large_fuel_canister"
+}
