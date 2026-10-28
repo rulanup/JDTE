@@ -23,3 +23,8 @@ BUILD FAILED in 1m 26s
 [10:34:17] [Server thread/ERROR] [minecraft/LogTestReporter]: failedrefundremainsownedacrosssnapshotandnodeteardown failed! real receiver charge: accepted=0, buffer=0, targets=1, last=0, reserve=0, calls=[1, 0, 268435456], attempted=1, tickSpeed=1, available=1000
 [10:34:24] [Server thread/ERROR] [minecraft/LogTestReporter]: actualappliedfluxdisksuppliesonlyrealreceiverdemand failed! real receiver charge: accepted=0, buffer=0, targets=1, last=0, reserve=0, calls=[1, 0, 268435456], attempted=1, tickSpeed=1, available=50000
 BUILD FAILED in 1m 12s
+
+Production fixture attempts (before the retained successful two-JVM run):
+- Early ServerStartedEvent item queries found zero drops before normal entity tracking became ready.
+- Moving the action into running ticks exposed three pre-existing packed drops left by the aborted fixture attempts.
+- The final fixture removes only pre-existing matching item entities inside its two marked disposable test areas before performing the pickup; each fresh pickup must then produce exactly one drop. All transport assertions remain active.

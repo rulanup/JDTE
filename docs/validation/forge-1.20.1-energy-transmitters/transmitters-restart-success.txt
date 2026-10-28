@@ -1,0 +1,1 @@
+PASS: second production JVM restored both tiers exactly; real FE extraction spends exactly 123 per tier; long reserve remains owned; no optional mod linkage failure

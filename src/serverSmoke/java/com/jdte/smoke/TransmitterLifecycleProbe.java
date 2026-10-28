@@ -17,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.event.TickEvent;
@@ -60,12 +59,18 @@ public final class TransmitterLifecycleProbe {
                 check(upgrades.insertItem(7,new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()),false).isEmpty(),"eighth-slot capacity insertion");
                 var battery=new ItemStack(Registration.EclipseAlloyPickaxe.get());battery.getCapability(ForgeCapabilities.ENERGY).orElseThrow(IllegalStateException::new).receiveEnergy(12345,false);
                 be.getMachineHandler().setStackInSlot(0,battery);
-                JDTEAttachments.filter(be).setStackInSlot(0,new ItemStack(JDTEItems.ADVANCED_FLUID_MIXER.get()));
+                var filtered=(com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE)be;
+                filtered.getFilterHandler().setStackInSlot(0,new ItemStack(JDTEItems.ADVANCED_FLUID_MIXER.get()));
+                filtered.getFilterData().allowlist=true;filtered.getFilterData().compareNBT=true;
+                ((com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE)be).setAreaSettings(1,2,3,1,0,-1,true);
                 if(be instanceof AdvancedEnergyTransmitterBE advanced){
                     advanced.getEnergyStorage().setEnergy(1_900_000_000);advanced.setShowParticles(true);
                     advanced.applyCopiedPlayerBinding(Optional.of(UUID.fromString("ebdf6a41-7546-47d9-9cff-60abc13b92bd")),"OfflineProbe");
                     var tag=advanced.saveWithFullMetadata();tag.putLong("networkEnergyReserve",5_000_000_000L);advanced.load(tag);
-                } else ((EnergyTransmitterBE)be).getEnergyStorage().setEnergy(30000);
+                } else {
+                    ((EnergyTransmitterBE)be).getEnergyStorage().setEnergy(30000);
+                    ((EnergyTransmitterBE)be).showParticles=false;
+                }
                 be.setChanged();
             }
             expected=snapshot();

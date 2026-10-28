@@ -120,13 +120,13 @@
       "id": "ultimate_capacity_upgrade",
       "initial_list": true,
       "status": "partial",
-      "note": "Only mineral/mixer families accept it; source supports other already registered machines."
+      "note": "Mineral/mixer and Advanced Energy Transmitter actual capacity paths tested, including saturating 2B source capacity. Extended transmitter accepts the card, but its broader native-network capacity behavior and other source machines remain unverified or restricted; keep P."
     },
     {
       "id": "ultimate_overclock_upgrade",
       "initial_list": true,
       "status": "partial",
-      "note": "Only mineral/mixer families accept it; source supports other already registered machines."
+      "note": "Mineral/mixer and Advanced Energy Transmitter natural ticker/budget paths tested. Both new transmitter hosts accept the card; Extended behavior and other source-machine batching/cost paths still need acceptance work; keep P."
     },
     {
       "id": "ae_extraction_upgrade",
@@ -144,7 +144,7 @@
       "id": "extended_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "All 15 available source/target conversions tested through actual item interaction and two production JVMs with exact disk restoration/live capabilities: active 4-to-8 slots, physical inventories, native FE/filter remapping, capacities, reload, stale endpoints and transactional/protection-event rollback. Five source conversion targets remain absent; keep P."
+      "note": "The original 15 conversions retain real-item and two-JVM production evidence. A 16th native Energy Transmitter to Extended path now passes real-item GameTest local-FE/card conservation; the new target separately passes production wrench/unload/restart checks. Four source targets remain absent; keep P. Do not infer production coverage for the new conversion from target lifecycle coverage."
     },
     {
       "id": "upgrade_storage",
@@ -300,7 +300,7 @@
       "id": "extended_energy_transmitter",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Recovered implementation and core behavior tests are saved on the energy-transmitter recovery branch. Registration, FE ports, real transfer, eight slots, overload, persistence and conversion have core evidence; extended lifecycle, optional-integration and graphical acceptance are tracked in validation/forge-1.20.1-energy-transmitters/README.md. Keep U until the outstanding acceptance scope is reviewed."
+      "note": "Source native-JDT-derived eight-slot transmitter, real rate/overload behavior, owned-FE persistence and native-to-Extended conversion implemented. Core and minimal production wrench/unload/restart tests pass. Complex peer-network accounting, graphical UI and full source Ultimate behavior need further acceptance checks; retain U. See transmitter evidence."
     },
     {
       "id": "extended_block_breaker",
@@ -630,7 +630,7 @@
       "id": "advanced_energy_transmitter",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Recovered implementation and core behavior tests are saved on the energy-transmitter recovery branch. Registration, FE ports, real transfer, eight slots, overload, persistence and conversion have core evidence; extended lifecycle, optional-integration and graphical acceptance are tracked in validation/forge-1.20.1-energy-transmitters/README.md. Keep U until the outstanding acceptance scope is reviewed."
+      "note": "Full source-derived area transmitter, eight slots, sided FE, bounded/fair scans, overload, long ME credit, player binding, menus/network, copier/Jade/guides and optional bridges implemented. Core and actual Applied Flux demand/refund tests pass in the 131-unit/154-GameTest regression; minimal production wrench/unload/restart checks pass. Graphical UI, bound-player/Curios charging and Draconic demand remain unverified; retain U pending acceptance review. See transmitter evidence."
     },
     {
       "id": "advanced_fluid_mixer",
@@ -696,7 +696,7 @@
       "id": "energy_overload_upgrade",
       "initial_list": true,
       "status": "verified",
-      "note": "Native JDT transmitter rate override, actual FE-conserving transfer, limits and saved-card restoration tested. Source advanced/extended JDTE transmitters remain absent, not implicitly implemented by this card."
+      "note": "Native JDT and new Advanced/Extended JDTE transmitter rate/budget override, real FE-conserving transfer, removal/restoration and saved-card behavior tested. New transmitter hosts have separate U acceptance rows; this verified card does not imply complete host verification."
     },
     {
       "id": "mixing_upgrade",

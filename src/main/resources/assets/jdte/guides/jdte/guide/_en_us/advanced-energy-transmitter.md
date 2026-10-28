@@ -55,3 +55,7 @@ Energy capacity, operation delay, refresh interval, scan and target budgets, tot
 ## Forge port status
 
 The Advanced tier is a separate eight-slot area transmitter. The Extended Upgrade converts the native JDT Energy Transmitter to the Extended tier; it does not convert this Advanced machine. Core transfer tests pass. Installed optional integrations, lifecycle and graphical acceptance are tracked separately in the port documentation.
+
+## Additional Forge upgrades
+
+Energy Overload lifts the block-attempt, per-target and transfer/ME extraction limits; real source energy and receiver room still bound delivery. Ultimate Capacity multiplies base capacity by fifty with integer saturation. Ultimate Overclock locks the interval to one tick and executes ten machine ticks per server tick; each operation uses the configured overclock budget multiplier (eight by default). The ordinary Capacity and Overclock cards retain their separate source behavior.

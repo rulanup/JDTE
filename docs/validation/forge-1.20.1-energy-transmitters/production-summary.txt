@@ -1,0 +1,9 @@
+PASS: both production transmitters: full-inventory wrench transport, stale ports, real chunk unload/reload, exact FE/reserve/battery/upgrades/filter/binding conservation; optional AE2/Curios/JEI/Jade absent
+PASS: second production JVM restored both tiers exactly; real FE extraction spends exactly 123 per tier; long reserve remains owned; no optional mod linkage failure
+
+Both subprocesses exited 0. Server: Forge 47.4.10, Java 17, loopback-only marked disposable lifecycle-world.
+Installed JARs:
+[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar
+[Forge] jdte-0.5.8-forge-1.20.1.jar
+guideme-20.1.15.jar
+just-dire-things-forge-1533501-8573107.jar
