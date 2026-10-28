@@ -8,12 +8,12 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest pushed machine checkpoint: **`46541e8`**; fuel core **`2415cc9`**. Follow-up conservation and graphical evidence checkpoint follows this entry. Prior transmitter acceptance remains unchanged.
+- Latest pushed conservation/graphical checkpoint: **`e14381f`**; machine core **`46541e8`**, fuel core **`2415cc9`**. Further container-fuel/rendering verification follows this entry. Prior transmitter acceptance remains unchanged.
 - Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
-- Latest complete regression: **139 JUnit / 180 required GameTests**, build and main/probe reobfuscation passed. Real graphical canister/Curios and generator GUI acceptance passed. Existing 131/164 tests remain enabled. See [fuel evidence](validation/forge-1.20.1-generators/README.md).
+- Latest complete regression: **140 JUnit / 181 required GameTests**, build and main/probe reobfuscation passed. Real graphical canister/Curios and generator GUI acceptance passed. Existing 131/164 tests remain enabled. See [fuel evidence](validation/forge-1.20.1-generators/README.md).
 - 120-item status: V **35**, U **22**, P **48**, N **15**; **105** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains the acceptance authority.
 - Persistence: checkpoints are saved on `codex/forge-1.20.1-mineral-machines`; recovery branch **`cd8aaaa`** and `/workspace/jdte-recovery-20261028` remain preserved. No main merge or release.
-- Next priorities: finish production chunk unload, full-inventory wrench and fresh-JVM recovery. First production attempt failed the immediate packed-drop lookup; investigate without treating it as success. Three new rows remain U pending acceptance.
+- Next priorities: diagnose production chunk staying at FULL/level 33 after unforcing, then complete actual unload and new-JVM recovery. Full-inventory wrench and strict packed-state equality now pass. Graphical rerun checks the newly fixed large-FE bar overflow. Three new rows remain U pending acceptance.
 - Still unverified: external JDTE-AE whole-grid backend, prolonged multiplayer uptime, complete operating reactors and complete Draconic fusion recipes.
 <!-- current-status:end -->
 
@@ -571,3 +571,11 @@ The real Forge graphical client passed handheld and dedicated Curios-slot canist
 Further boundary review found inherited capacity removal could clip FE/fluid. New generator hosts refuse a card removal/replacement when the resulting buffer could not retain existing resources. Menu shift-click now respects the slot extraction guard. Actual API, direct replacement and menu paths plus independent fluid excess have regression tests. Fuel speed/production/export multiplications saturate rather than wrapping; overflowing normal/upgraded fuel credits reject before consuming fuel. One numeric and two Forge tests added: **139 JUnit / 180 required GameTests**, full build and both reobfuscations pass.
 
 The first production seed attempt failed immediate full-inventory packed-drop lookup in a new remote chunk. [Failure record](validation/forge-1.20.1-generators/production-first-failure.txt) retains the actual failure and the fixture-timing hypothesis. Production acceptance is still pending here. Documentation validation exposed machine-family guide filename requirements; added the correct family pages, preserving English project Markdown. Docs validation now passes (929 language keys / 62 blocks / 45 pages).
+
+## 2026-10-28 — Container fuels, graphical overflow and production diagnostics
+
+Added a real Forge test for the source container-fuel exception (one Lava Bucket and one empty remainder, tripled credit) and the native Refined Fuel bucket path, including refusal to partially drain a bucket when only one mB fits. Guides now state this exception instead of promising two buckets. Full regression **140 JUnit / 181 required GameTests**, build/main/probe reobfuscation pass; all previous assertions remain enabled.
+
+The graphical capacity-guard rerun passed real Shift-click rejection while FE is full. Screenshot review then exposed a real native screen integer multiplication overflow (`stored FE * 70`) at enlarged capacity: numeric menu values were correct but the bar was empty. The two new generator screens now use wide/clamped arithmetic in the native render path; an additional unit test covers full/half/invalid/overflow bar values. This rendering fix still requires the next graphical rerun at this checkpoint.
+
+Production investigation retained failures rather than declaring success: [second attempt](validation/forge-1.20.1-generators/production-second-failure.txt) identified the fixture's missing initial placer UUID, fixed without excluding fields; full packed state now compares exactly. [Third](validation/forge-1.20.1-generators/production-third-failure.txt) and [fourth](validation/forge-1.20.1-generators/production-fourth-failure.txt) attempts reached real unload but timed out with a FULL/33 holder despite unforcing the generator chunk. Further ticket diagnostics are in the probe. No production unload/restart acceptance claimed yet.

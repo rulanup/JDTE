@@ -10,4 +10,5 @@ class FuelCanisterMathTest {
  @Test void upgradeBudget(){assertEquals(240000,FuelCanisterMath.energyBudget(2000,40,3));assertEquals(0,FuelCanisterMath.energyBudget(Integer.MAX_VALUE,40,3));assertEquals(0,FuelCanisterMath.energyBudget(1600,0,3));}
  @Test void counterCannotOverflow(){assertEquals(Integer.MAX_VALUE-1,FuelCanisterMath.safeBurnCounter(Integer.MAX_VALUE,1));assertEquals(20,FuelCanisterMath.safeBurnCounter(2000,100));}
  @Test void exportedAndProducedRatesCannotWrap(){assertEquals(Integer.MAX_VALUE,FuelCanisterMath.rate(Integer.MAX_VALUE,10));assertEquals(0,FuelCanisterMath.rate(-1,3));assertEquals(0,FuelCanisterMath.rate(20,-1));assertEquals(600,FuelCanisterMath.rate(15,40));}
+ @Test void fullAndPartialBarsUseWideClampedArithmetic(){assertEquals(70,FuelCanisterMath.pixels(400000000,400000000,70));assertEquals(35,FuelCanisterMath.pixels(200000000,400000000,70));assertEquals(70,FuelCanisterMath.pixels(Integer.MAX_VALUE,400000000,70));assertEquals(0,FuelCanisterMath.pixels(-1,400000000,70));assertEquals(0,FuelCanisterMath.pixels(10,0,70));}
 }

@@ -13,5 +13,6 @@ public final class FuelCanisterMath {
         return base>Integer.MAX_VALUE/multiplier?0:(int)(base*multiplier);
     }
     public static int rate(int base,int multiplier){return (int)Math.min(Integer.MAX_VALUE,(long)Math.max(0,base)*Math.max(0,multiplier));}
+    public static int pixels(int amount,int capacity,int height) {return amount<=0||capacity<=0||height<=0?0:(int)Math.min(height,(long)amount*height/capacity);}
     public static int safeBurnCounter(int burnTicks,int speed){return Math.min(Integer.MAX_VALUE-1,Math.max(0,burnTicks)/Math.max(1,speed));}
 }

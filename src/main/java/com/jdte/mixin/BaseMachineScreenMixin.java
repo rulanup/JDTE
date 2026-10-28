@@ -508,4 +508,15 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     private void jdte$storageTooltip(GuiGraphics graphics, int x, int y, CallbackInfo ci) {
         com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.renderTooltip(graphics, (BaseMachineScreen<?>) (Object) this, font, x, y);
     }
+
+    @org.spongepowered.asm.mixin.injection.ModifyVariable(method={"renderBg","m_7286_"},
+            at=@At("STORE"), index=10, remap=false,
+            slice=@org.spongepowered.asm.mixin.injection.Slice(
+                    from=@At(value="INVOKE",target="Lcom/direwolf20/justdirethings/common/containers/basecontainers/BaseMachineContainer;getEnergy()I"),
+                    to=@At(value="FIELD",ordinal=1,target="Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;POWERBAR:Lnet/minecraft/resources/ResourceLocation;")))
+    private int jdte$generatorEnergyPixels(int original) {
+        if (!UpgradeHelper.isExtendedGenerator(baseMachineBE)) return original;
+        return com.jdte.common.items.FuelCanisterMath.pixels(container.getEnergy(),
+                ((com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE)baseMachineBE).getMaxEnergy(),70);
+    }
 }

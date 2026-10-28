@@ -217,4 +217,18 @@ public final class ExtendedGeneratorGameTests {
         var data=huge.saveWithFullMetadata();data.putInt("fuelBurnMultiplier",Integer.MAX_VALUE);huge.load(data);
         h.assertTrue(huge.getBurnSpeedMultiplier()==Integer.MAX_VALUE&&huge.fePerTick()==Integer.MAX_VALUE,"real native rate multiplication saturates without negative FE");h.succeed();
     }
+    @GameTest(template="mineral_empty")
+    public static void realContainerFuelsKeepTheirCorrectRemainderAndWholeFluidTransfer(GameTestHelper h) {
+        var solid=(ExtendedGeneratorBE)place(h,false);var items=solid.getCapability(ForgeCapabilities.ITEM_HANDLER).orElseThrow(IllegalStateException::new);
+        UpgradeHelper.getUpgradeHandler(solid).insertItem(7,new ItemStack(JDTEItems.GENERATOR_UPGRADE.get()),false);
+        h.assertTrue(items.insertItem(0,new ItemStack(Items.LAVA_BUCKET),false).isEmpty(),"real furnace container fuel accepted");
+        int burn=net.minecraftforge.common.ForgeHooks.getBurnTime(new ItemStack(Items.LAVA_BUCKET),net.minecraft.world.item.crafting.RecipeType.SMELTING);solid.doBurn();
+        h.assertTrue(solid.feRemaining==burn*solid.getFePerFuelTick()*3&&items.extractItem(0,1,false).is(Items.BUCKET),"source container-fuel exception uses one container, tripled credit, one empty bucket");
+        var liquid=(ExtendedFluidGeneratorBE)place(h,true);var fuelBucket=new ItemStack(fuel().getBucket());var automation=liquid.getCapability(ForgeCapabilities.ITEM_HANDLER).orElseThrow(IllegalStateException::new);
+        h.assertTrue(automation.isItemValid(0,fuelBucket)&&automation.insertItem(0,fuelBucket,false).isEmpty(),"real native Refined Fuel bucket accepted by automation");
+        liquid.getFluidTank().setFluid(new FluidStack(fuel(),liquid.getMaxMB()-1));liquid.handleItemStack();
+        h.assertTrue(liquid.getFluidTank().getFluidAmount()==liquid.getMaxMB()-1&&liquid.getMachineHandler().getStackInSlot(0).is(fuelBucket.getItem()),"bucket cannot be partially debited when only one mB fits");
+        liquid.getFluidTank().setFluid(FluidStack.EMPTY);liquid.handleItemStack();
+        h.assertTrue(liquid.getFluidTank().getFluidAmount()==1000&&automation.extractItem(0,1,false).is(Items.BUCKET),"exactly one real bucket becomes 1000 mB and one empty bucket");h.succeed();
+    }
 }

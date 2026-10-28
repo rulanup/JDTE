@@ -1,0 +1,5 @@
+2026-10-28; second production seed attempt
+The longer fixture warmup passed exactly-one packed-drop lookup. Strict state comparison then failed.
+Offline comparison of generators-expected.nbt against saved region NBT found only machine0.placedBy: absent -> actor UUID. All item, FE, fluid, card and progress fields matched.
+Cause: initial fixture used setBlockAndUpdate without assigning a placer, while real packed placement correctly assigned the actor. Fix seed fixture to assign the same real actor UUID before snapshot; retain strict equality for every saved field.
+This attempt remains failed. A subsequent successful run must be recorded separately.

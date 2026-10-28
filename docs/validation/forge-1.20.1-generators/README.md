@@ -27,3 +27,11 @@ Actual Forge client run passed; [screenshots, server-checked assertions and summ
 [Full regression](conservation-summary.txt): **139 JUnit / 180 required GameTests**, build and both reobfuscations pass. Checked/saturated fuel arithmetic and card removal guards protect stored FE/fluid. Compared with source, unsafe generator capacity-card removal is rejected until buffers fit rather than clipping stored resources.
 
 First production attempt failed; see [failure evidence](production-first-failure.txt). Production acceptance remains pending until a subsequent successful run is recorded below. Do not infer success from graphical or GameTest acceptance.
+
+## Container-fuel and rendering follow-up
+
+[Full regression](container-render-summary.txt): **140 JUnit / 181 required GameTests**, complete build and both reobfuscations pass. Actual Lava Bucket/remainder and Refined Fuel bucket/full versus partial headroom are covered. Source's one-container exception is preserved. Real GUI rerun also passes attempted unsafe capacity-card removal.
+
+Screenshot inspection found native large-FE bar arithmetic overflow despite correct numeric synchronization. Only the two new generator hosts use the corrected wide/clamped bar in the native screen path; graphical verification of this change is pending here.
+
+Production progress: full-inventory packed-drop and exact NBT restore pass after fixture warmup/initial placer correction. Actual unload still times out at FULL/level 33. Failed attempts are retained in `production-*-failure.txt`; do not label production recovery successful before a passing run below.

@@ -42,7 +42,7 @@ public final class GeneratorLifecycleProbe {
             for(int i=0;i<2;i++) {
                 for(var pos:BlockPos.betweenClosed(POS[i].offset(-1,-1,-1),POS[i].offset(1,1,1))) {level.removeBlockEntity(pos);level.setBlockAndUpdate(pos,Blocks.AIR.defaultBlockState());}
                 level.setBlockAndUpdate(POS[i],(i==0?JDTEBlocks.EXTENDED_GENERATOR.get():JDTEBlocks.EXTENDED_FLUID_GENERATOR.get()).defaultBlockState());
-                var be=be(i);var cards=UpgradeHelper.getUpgradeHandler(be);
+                var be=be(i);be.setPlacedBy(UUID.fromString("12ef3a01-54f1-4398-ad9b-000000000001"));var cards=UpgradeHelper.getUpgradeHandler(be);
                 check(cards.insertItem(0,new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()),false).isEmpty(),"ultimate capacity accepted");
                 cards.insertItem(7,new ItemStack(JDTEItems.GENERATOR_UPGRADE.get()),false);
                 ((RedstoneControlledBE)be).getRedstoneControlData().redstoneMode=MiscHelpers.RedstoneMode.HIGH;
@@ -84,6 +84,11 @@ public final class GeneratorLifecycleProbe {
         check(++ticks<900,"timeout stage "+stage);var level=server.overworld();
         if(stage==1&&ticks>=100) {check(expected.equals(snapshot()),"full/disabled machine state stable");pack();server.saveEverything(false,true,true);force(false);stage=2;}
         else if(stage==2) {
+            if(ticks%200==0) {
+                var manager=level.getChunkSource().chunkMap.getDistanceManager();
+                var method=Arrays.stream(net.minecraft.server.level.DistanceManager.class.getDeclaredMethods()).filter(m->m.getReturnType()==String.class&&Arrays.equals(m.getParameterTypes(),new Class<?>[]{long.class})).findFirst().orElseThrow();method.setAccessible(true);
+                com.mojang.logging.LogUtils.getLogger().info("Generator unload diagnostic: forced={}, holder={}, ticket={}",level.getForcedChunks(),level.getChunkSource().getChunkDebugData(new net.minecraft.world.level.ChunkPos(POS[0])),method.invoke(manager,new net.minecraft.world.level.ChunkPos(POS[0]).toLong()));
+            }
             for(var pos:POS)if(level.getChunkSource().hasChunk(pos.getX()>>4,pos.getZ()>>4))return;
             for(int i=0;i<2;i++)check(retained[i].extractEnergy(123,false)==0&&items[i].extractItem(0,64,false).isEmpty(),"retained unloaded endpoints inert");
             check(fluid.drain(10,IFluidHandler.FluidAction.EXECUTE).isEmpty(),"unloaded fluid interface inert");force(true);for(var pos:POS)level.getChunkAt(pos);stage=3;

@@ -15,7 +15,7 @@ public final class GeneratorUpgradeHelper {
         return com.jdte.common.items.PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack);
     }
 
-    /** Consumes double fuel for the generator upgrade's tripled output. */
+    /** Source rules: two ordinary items/two canister units; other container fuels return their single remainder. */
     public static void consumeFuel(ItemStackHandler machineHandler, ItemStack fuelStack) {
         if (fuelStack.hasCraftingRemainingItem()) {
             ItemStack remaining = fuelStack.getCraftingRemainingItem();
