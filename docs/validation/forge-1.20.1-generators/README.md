@@ -58,3 +58,9 @@ The failed production attempts led to the actual native global-fluid-drop chunk 
 ### Reproduce
 
 Use the existing Java 17/Gradle environment. Run `gradlew test build runGameTestServer`; `build` includes separate main/probe reobfuscation. For graphics run `scripts/run_generator_client_smoke.sh`. For production set `JDTE_LIFECYCLE_SERVER` to a marked disposable loopback Forge 47.4.10 installation and run `scripts/run_generator_lifecycle_probe.sh`. The script copies both built/reobfuscated JARs and requires success markers from seed and verify JVMs. `JDTE_SMOKE_PREBUILT=1` uses a previously built pair. Never point the harness at an unmarked user world.
+
+## Final packaged run
+
+Code checkpoint **`ac344f2`**. [Final two-JVM run](production-final/run-summary.txt) retains complete seed/verify logs, both exact success markers, expected saved NBT and [artifact hashes](production-final/artifacts.json). Both JVMs exit 0 with no unexpected diagnostic trace or probe assertion. Installed and built main/probe JARs match byte for byte. This final run uses the corrected probe diagnostic timing and the final reobfuscated pair. The main JAR contains no probe classes/configuration.
+
+Audits remain **V39 / U19 / P47 / N15**, 105/120 registered. The three requested items plus Generator Upgrade are V for the documented tested source contracts. All limitations in Current acceptance remain explicit.

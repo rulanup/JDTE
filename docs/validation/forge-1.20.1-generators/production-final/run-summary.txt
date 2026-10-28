@@ -1,0 +1,7 @@
+2026-10-28; code checkpoint ac344f2
+Final production command: JAVA_HOME=/workspace/.jdks/jdk17 GRADLE_USER_HOME=/workspace/.gradle JDTE_LIFECYCLE_SERVER=/tmp/jdte-optional-none JDTE_SMOKE_PREBUILT=1 bash scripts/run_generator_lifecycle_probe.sh
+Two real Forge JVMs, both exit 0. Source JARs match installed server JARs byte for byte (artifacts.json). No trace/probe errors in final logs.
+PASS: production JAR, both Extended generators, full inventory wrench drop/restore, real chunk unload/reload, stale item/FE/fluid endpoints, exact Large Fuel Canister, FE, fluid, eight-slot cards and prepaid work conservation; optional AE2/Curios/JEI/Jade absent
+PASS: second production JVM restored exact generator state including large canister name/speed/fuel, FE, >16-bit fluid and progress, upgrades; resumed prepaid solid work without rebuying fuel and liquid x3 batch spends exactly two mB; no optional class linkage failure
+
+Installed external mod jars: just-dire-things-forge-1533501-8573107.jar, guideme-20.1.15.jar; plus JDTE/main and diagnostic probe. No AE2/Curios/JEI/Jade. Earlier failed logs and cause are retained outside this folder.

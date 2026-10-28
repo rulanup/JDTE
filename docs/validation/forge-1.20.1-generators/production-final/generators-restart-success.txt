@@ -1,0 +1,1 @@
+PASS: second production JVM restored exact generator state including large canister name/speed/fuel, FE, >16-bit fluid and progress, upgrades; resumed prepaid solid work without rebuying fuel and liquid x3 batch spends exactly two mB; no optional class linkage failure
