@@ -2,6 +2,7 @@ package com.jdte.common.items.machinesettings;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
+import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.BioFactoryBE;
@@ -210,6 +211,28 @@ final class JdteMachineSettingsCodecs {
     }
 
 
+
+    static MachineSettingsCodec advancedEnergyTransmitter() {
+        return typedCodec(AdvancedEnergyTransmitterBE.class, (machine, ignoredRegistries, custom) -> {
+            custom.putBoolean(SHOW_PARTICLES_KEY, machine.isShowingParticles());
+            Optional<UUID> playerId = machine.getBoundPlayerIdForCopy();
+            custom.putBoolean(HAS_BOUND_PLAYER_KEY, playerId.isPresent());
+            if (playerId.isPresent()) {
+                custom.putString(BOUND_PLAYER_ID_KEY, playerId.get().toString());
+                custom.putString(BOUND_PLAYER_NAME_KEY, machine.getBoundPlayerNameForCopy());
+            }
+        }, (custom, registries) -> {
+            Optional<Boolean> showParticles = MachineSettingsCodecSupport.readBoolean(custom, SHOW_PARTICLES_KEY);
+            Optional<PlayerBinding> playerBinding = readPlayerBinding(custom);
+            if (showParticles.isEmpty() || playerBinding.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(machine -> {
+                machine.setShowParticles(showParticles.get());
+                machine.applyCopiedPlayerBinding(playerBinding.get().playerId(), playerBinding.get().playerName());
+            });
+        });
+    }
 
     static MachineSettingsCodec advancedPotionBrewer() {
         return typedCodec(AdvancedPotionBrewerBE.class, (machine, registries, custom) -> {

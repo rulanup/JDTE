@@ -141,4 +141,27 @@ public final class EnergyTransmitterGameTests {
         }finally{JDTEConfig.COMMON.advancedEnergyTransmitterBaseTickDelay.set(delay);JDTEConfig.COMMON.advancedEnergyTransmitterTransferBudgetPerTick.set(budget);}h.succeed();
     }
 
+    @GameTest(template="mineral_empty") public static void explicitChunkUnloadRejectsRetainedPortsAndFreshReloadRestoresState(GameTestHelper h) {
+        for (int tier=0;tier<2;tier++) {
+            h.setBlock(POS,tier==0?JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get():JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get());
+            var be=(BaseMachineBE)h.getBlockEntity(POS);var face=be.getBlockState().getValue(BlockStateProperties.FACING);
+            var energy=be.getCapability(ForgeCapabilities.ENERGY,face).orElseThrow(IllegalStateException::new);
+            var inventory=be.getCapability(ForgeCapabilities.ITEM_HANDLER).orElseThrow(IllegalStateException::new);
+            if(be instanceof ExtendedEnergyTransmitterBE e)e.getBlocksToCharge();
+            h.assertTrue(energy.receiveEnergy(5000,false)==5000,"seed actual sided port");
+            var saved=be.saveWithFullMetadata();
+            be.onChunkUnloaded();
+            h.assertTrue(energy.receiveEnergy(100,false)==0&&energy.extractEnergy(100,false)==0
+                    &&inventory.insertItem(0,new ItemStack(Registration.EclipseAlloyPickaxe.get()),false).getCount()==1,
+                    "explicit unload rejects retained interfaces even before world unload completes");
+            if(be instanceof AdvancedEnergyTransmitterBE a){a.tickServer();a.accumulateAcceleratedTicks(40);a.flushAcceleratedTicks();}
+            else ((ExtendedEnergyTransmitterBE)be).tickServer();
+            var restored=BlockEntity.loadStatic(be.getBlockPos(),be.getBlockState(),saved);h.getLevel().setBlockEntity(restored);
+            if(restored instanceof ExtendedEnergyTransmitterBE e)e.getBlocksToCharge();
+            var fresh=restored.getCapability(ForgeCapabilities.ENERGY,face).orElseThrow(IllegalStateException::new);
+            h.assertTrue(fresh.getEnergyStored()==5000&&fresh.extractEnergy(123,false)==123,"fresh loaded BE restores owned energy exactly once, tier="+tier+", FE="+fresh.getEnergyStored());
+        }
+        h.succeed();
+    }
+
 }

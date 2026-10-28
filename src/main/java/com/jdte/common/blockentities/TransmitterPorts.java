@@ -15,6 +15,8 @@ final class TransmitterPorts {
     private TransmitterPorts() {}
     static boolean live(BaseMachineBE owner) {
         var level=owner.getLevel();
+        if (owner instanceof AdvancedEnergyTransmitterBE advanced && advanced.isChunkUnloaded()
+                || owner instanceof ExtendedEnergyTransmitterBE extended && extended.isChunkUnloaded()) return false;
         return level!=null&&!owner.isRemoved()&&level.isLoaded(owner.getBlockPos())&&level.getBlockEntity(owner.getBlockPos())==owner;
     }
     static boolean facing(BaseMachineBE owner,Direction side) {

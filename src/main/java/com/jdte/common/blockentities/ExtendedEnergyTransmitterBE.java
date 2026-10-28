@@ -32,6 +32,29 @@ public class ExtendedEnergyTransmitterBE extends EnergyTransmitterBE implements 
         }
         return super.fePerTick();
     }
+    @Override public void onChunkUnloaded() {
+        chunkUnloaded = true;
+        super.onChunkUnloaded();
+    }
+    @Override public void tickServer() {
+        if (TransmitterPorts.live(this)) super.tickServer();
+    }
+    private boolean chunkUnloaded;
+    boolean isChunkUnloaded() { return chunkUnloaded; }
+    @Override public void onLoad() {
+        chunkUnloaded = false;
+        super.onLoad();
+    }
+    @Override public void saveAdditional(net.minecraft.nbt.CompoundTag tag) {
+        super.saveAdditional(tag);
+        // Forge JDT's inherited BaseMachineBE save does not serialize this native owned FE field.
+        tag.putInt("energy", getEnergyStorage().getRealEnergyStored());
+    }
+    @Override public void load(net.minecraft.nbt.CompoundTag tag) {
+        super.load(tag);
+        if (tag.contains("energy", net.minecraft.nbt.Tag.TAG_INT))
+            getEnergyStorage().setEnergy(Math.max(0, Math.min(getMaxEnergy(), tag.getInt("energy"))));
+    }
     private java.util.EnumMap<Direction, net.minecraftforge.common.util.LazyOptional<net.minecraftforge.energy.IEnergyStorage>> sidedEnergy;
     private net.minecraftforge.common.util.LazyOptional<net.minecraftforge.items.IItemHandler> exposedItems;
     private void createPorts() {

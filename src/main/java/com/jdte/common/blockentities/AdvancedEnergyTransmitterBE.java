@@ -954,6 +954,8 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
     @Override
     public void onChunkUnloaded() {
+        chunkUnloaded = true;
+        invalidateTargets(true);
         energyNetworkSource.destroy();
         super.onChunkUnloaded();
     }
@@ -1006,6 +1008,12 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         energyNetworkSource.load(tag);
         loadAreaSettings(tag);
         invalidateTargets(true);
+    }
+    private boolean chunkUnloaded;
+    boolean isChunkUnloaded() { return chunkUnloaded; }
+    @Override public void onLoad() {
+        chunkUnloaded = false;
+        super.onLoad();
     }
     private java.util.EnumMap<Direction, net.minecraftforge.common.util.LazyOptional<net.minecraftforge.energy.IEnergyStorage>> sidedEnergy;
     private net.minecraftforge.common.util.LazyOptional<net.minecraftforge.items.IItemHandler> exposedItems;

@@ -90,8 +90,9 @@ final class AdvancedEnergyTransmitterAE2Integration
         if (storage == null || maxFe <= 0L) {
             return 0L;
         }
-        return storage.getInventory().extract(
-                FE_KEY, maxFe, Actionable.MODULATE, actionSource);
+        long extracted = storage.getInventory().extract(FE_KEY, maxFe, Actionable.MODULATE, actionSource);
+        com.mojang.logging.LogUtils.getLogger().debug("Transmitter diagnostic {} requested {}, extracted {}", owner.getBlockPos(), maxFe, extracted);
+        return extracted;
     }
 
     @Override

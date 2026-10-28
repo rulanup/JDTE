@@ -5,13 +5,13 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit starte
 ## Classification and limits
 
 - **V — implemented with behavioral verification:** concrete code and retained tests/runtime evidence for the stated paths. This does not certify every optional backend, recipe pack or long-running workload.
-- **U — implemented, unverified:** concrete inherited implementation and wiring, but no dedicated behavioral evidence found. Build/registration alone does not upgrade U to V.
+- **U — implemented, unverified:** concrete implementation and wiring, but dedicated behavioral evidence is absent or acceptance coverage remains incomplete. Build/registration alone does not upgrade U to V.
 - **P — partial:** known source behavior or integration is missing, even if its core machine works and has tests.
 - **N — not implemented:** no item registration/gameplay wiring. Copied textures alone are not implementation.
 
 The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
 
-Current inventory: source **120**, Forge **100**. Status counts: V **33**, U **19**, P **48**, N **20**.
+Current inventory: source **120**, Forge **102**. Status counts: V **33**, U **21**, P **48**, N **18**.
 
 ## Evidence and cross-cutting systems
 
@@ -22,13 +22,14 @@ Current inventory: source **120**, Forge **100**. Status counts: V **33**, U **1
 | Time Accelerators | P: native AE path verified; source timing/target-proxy/filter-cache additions incomplete | Real installed JDTE-AE whole-grid backend remains unverified |
 | Greenhouse family | P: core harvest/seed/recorded crafting verified | Source matrix integration and broader Ultimate support |
 | Mixer family | V: production-chain and AE-runtime evidence, real clients/jobs/restart/Extras fuel | Complete reactor operation remains unverified |
-| Energy Brewing / Energy Overload | V for tested brewer/native-transmitter paths: energy-upgrade evidence | New graphical card checks and absent advanced/extended transmitters |
+| Energy Brewing / Energy Overload | V for tested brewer/native-transmitter paths: energy-upgrade evidence | New graphical card checks; JDTE transmitter acceptance is tracked separately |
+| Advanced/Extended Energy Transmitters | U pending full acceptance; recovered core tests and new lifecycle/integration checks are tracked in transmitter evidence | Player/Curios, Draconic, graphical UI and broader network acceptance remain incomplete |
 | Inherited other machines | P where known Ultimate/operation gaps; otherwise U | Dedicated parity and behavior checks are not replaced by bootstrap |
 | Repair Talisman, apples, eggs/essences | U unless an explicit behavioral test is linked later | Functional behavior not established by registration/assets |
 | Optional JEI/Jade/Curios integrations | Implemented, selected client/presence/absence checks retained | Not every new card GUI/every mod combination |
 | Network/save/capabilities | Tested by subsystem, Forge replacements for NeoForge attachments | Absence of a global migration proof; scoped coverage only |
 
-Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](validation/forge-1.20.1-network/README.md), [upgrades](validation/forge-1.20.1-upgrades/README.md), [production chain](validation/forge-1.20.1-production-chain/README.md), [AE runtime](validation/forge-1.20.1-ae-runtime/README.md), [energy upgrades](validation/forge-1.20.1-energy-upgrades/README.md). JDTE-AE whole-grid execution, prolonged multiplayer uptime and complete operating reactors remain **unverified**.
+Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](validation/forge-1.20.1-network/README.md), [upgrades](validation/forge-1.20.1-upgrades/README.md), [production chain](validation/forge-1.20.1-production-chain/README.md), [AE runtime](validation/forge-1.20.1-ae-runtime/README.md), [energy upgrades](validation/forge-1.20.1-energy-upgrades/README.md), [transmitter recovery](validation/forge-1.20.1-energy-transmitters/README.md). JDTE-AE whole-grid execution, prolonged multiplayer uptime and complete operating reactors remain **unverified**.
 
 ## Complete item mapping
 
@@ -39,7 +40,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:advanced_ae_output_upgrade` | Advanced AE Output Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:advanced_bio_crusher` | Advanced Bio Crusher | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
 | `jdte:advanced_bio_extractor` | Advanced Bio Extractor | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
-| `jdte:advanced_energy_transmitter` | Advanced Energy Transmitter | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:advanced_energy_transmitter` | Advanced Energy Transmitter | yes | **U** | yes/yes | yes/yes/yes | Recovered implementation and core behavior tests are saved on the energy-transmitter recovery branch. Registration, FE ports, real transfer, eight slots, overload, persistence and conversion have core evidence; extended lifecycle, optional-integration and graphical acceptance are tracked in validation/forge-1.20.1-energy-transmitters/README.md. Keep U until the outstanding acceptance scope is reviewed. |
 | `jdte:advanced_entity_accelerator` | Advanced Entity Accelerator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
 | `jdte:advanced_essence_conversion_upgrade` | Advanced Essence Conversion Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:advanced_fluid_mixer` | Advanced Fluid Mixer | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
@@ -92,7 +93,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:extended_block_swapper` | Extended Block Swapper T2 | no | **P** | yes/yes | yes/yes/yes | Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete. |
 | `jdte:extended_clicker` | Extended Clicker T2 | no | **P** | yes/yes | yes/yes/yes | Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete. |
 | `jdte:extended_dropper` | Extended Dropper T2 | no | **P** | yes/yes | yes/yes/yes | Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete. |
-| `jdte:extended_energy_transmitter` | Extended Energy Transmitter | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:extended_energy_transmitter` | Extended Energy Transmitter | yes | **U** | yes/yes | yes/yes/yes | Recovered implementation and core behavior tests are saved on the energy-transmitter recovery branch. Registration, FE ports, real transfer, eight slots, overload, persistence and conversion have core evidence; extended lifecycle, optional-integration and graphical acceptance are tracked in validation/forge-1.20.1-energy-transmitters/README.md. Keep U until the outstanding acceptance scope is reviewed. |
 | `jdte:extended_entity_accelerator` | Extended Entity Accelerator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
 | `jdte:extended_experience_holder` | Extended Experience Holder | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
 | `jdte:extended_fluid_collector` | Extended Fluid Collector T2 | no | **P** | yes/yes | yes/yes/yes | Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete. |

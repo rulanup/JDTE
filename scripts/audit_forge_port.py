@@ -42,7 +42,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit starte
 ## Classification and limits
 
 - **V — implemented with behavioral verification:** concrete code and retained tests/runtime evidence for the stated paths. This does not certify every optional backend, recipe pack or long-running workload.
-- **U — implemented, unverified:** concrete inherited implementation and wiring, but no dedicated behavioral evidence found. Build/registration alone does not upgrade U to V.
+- **U — implemented, unverified:** concrete implementation and wiring, but dedicated behavioral evidence is absent or acceptance coverage remains incomplete. Build/registration alone does not upgrade U to V.
 - **P — partial:** known source behavior or integration is missing, even if its core machine works and has tests.
 - **N — not implemented:** no item registration/gameplay wiring. Copied textures alone are not implementation.
 
@@ -59,13 +59,14 @@ The machine family and individual upgrade rows are separate: a verified new card
 | Time Accelerators | P: native AE path verified; source timing/target-proxy/filter-cache additions incomplete | Real installed JDTE-AE whole-grid backend remains unverified |
 | Greenhouse family | P: core harvest/seed/recorded crafting verified | Source matrix integration and broader Ultimate support |
 | Mixer family | V: production-chain and AE-runtime evidence, real clients/jobs/restart/Extras fuel | Complete reactor operation remains unverified |
-| Energy Brewing / Energy Overload | V for tested brewer/native-transmitter paths: energy-upgrade evidence | New graphical card checks and absent advanced/extended transmitters |
+| Energy Brewing / Energy Overload | V for tested brewer/native-transmitter paths: energy-upgrade evidence | New graphical card checks; JDTE transmitter acceptance is tracked separately |
+| Advanced/Extended Energy Transmitters | U pending full acceptance; recovered core tests and new lifecycle/integration checks are tracked in transmitter evidence | Player/Curios, Draconic, graphical UI and broader network acceptance remain incomplete |
 | Inherited other machines | P where known Ultimate/operation gaps; otherwise U | Dedicated parity and behavior checks are not replaced by bootstrap |
 | Repair Talisman, apples, eggs/essences | U unless an explicit behavioral test is linked later | Functional behavior not established by registration/assets |
 | Optional JEI/Jade/Curios integrations | Implemented, selected client/presence/absence checks retained | Not every new card GUI/every mod combination |
 | Network/save/capabilities | Tested by subsystem, Forge replacements for NeoForge attachments | Absence of a global migration proof; scoped coverage only |
 
-Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](validation/forge-1.20.1-network/README.md), [upgrades](validation/forge-1.20.1-upgrades/README.md), [production chain](validation/forge-1.20.1-production-chain/README.md), [AE runtime](validation/forge-1.20.1-ae-runtime/README.md), [energy upgrades](validation/forge-1.20.1-energy-upgrades/README.md). JDTE-AE whole-grid execution, prolonged multiplayer uptime and complete operating reactors remain **unverified**.
+Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](validation/forge-1.20.1-network/README.md), [upgrades](validation/forge-1.20.1-upgrades/README.md), [production chain](validation/forge-1.20.1-production-chain/README.md), [AE runtime](validation/forge-1.20.1-ae-runtime/README.md), [energy upgrades](validation/forge-1.20.1-energy-upgrades/README.md), [transmitter recovery](validation/forge-1.20.1-energy-transmitters/README.md). JDTE-AE whole-grid execution, prolonged multiplayer uptime and complete operating reactors remain **unverified**.
 
 ## Complete item mapping
 
