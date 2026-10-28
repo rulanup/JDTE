@@ -137,6 +137,11 @@ final class MachineTierConversion {
         return InteractionResult.SUCCESS;
     }
 
+    private static int localEnergy(MachineEnergyStorage storage) {
+        return storage instanceof com.direwolf20.justdirethings.common.capabilities.TransmitterEnergyStorage transmitter
+                ? transmitter.getRealEnergyStored() : storage.getEnergyStored();
+    }
+
     private static List<ItemStack> stacks(ItemStackHandler handler) {
         var result = new ArrayList<ItemStack>(handler.getSlots());
         for (int i = 0; i < handler.getSlots(); i++) result.add(handler.getStackInSlot(i).copy());
@@ -171,7 +176,7 @@ final class MachineTierConversion {
             filters = filter == null ? List.of() : stacks(filter);
             energy = machine instanceof PoweredMachineBE powered ? powered.getEnergyStorage() : null;
             attachedEnergy = JDTEAttachments.energy(machine);
-            fe = energy == null ? 0 : energy.getEnergyStored();
+            fe = energy == null ? 0 : localEnergy(energy);
             tank = machine instanceof FluidMachineBE fluidMachine ? fluidMachine.getFluidTank() : null;
             fluid = tank == null ? FluidStack.EMPTY : tank.getFluid().copy();
             clickerTank = JDTEAttachments.clickerFluidTank(machine);
@@ -203,7 +208,7 @@ final class MachineTierConversion {
             sameStacks(inventory, target.getMachineHandler(), "Machine inventory");
             sameStacks(cards, UpgradeHelper.getUpgradeHandler(target), "Active upgrade inventory");
             if (filter != null && target instanceof FilterableBE filterable) sameStacks(filters, filterable.getFilterHandler(), "Filter templates");
-            if (energy != null && (!(target instanceof PoweredMachineBE powered) || powered.getEnergyStorage().getEnergyStored() != fe))
+            if (energy != null && (!(target instanceof PoweredMachineBE powered) || localEnergy(powered.getEnergyStorage()) != fe))
                 throw new IllegalStateException("FE differs after conversion");
             if (tank != null && (!(target instanceof FluidMachineBE fluidMachine) || !fluid.isFluidStackIdentical(fluidMachine.getFluidStack())))
                 throw new IllegalStateException("Fluid differs after conversion");

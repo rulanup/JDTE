@@ -33,6 +33,8 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
                 output.accept(JDTEItems.BIG_FLUID_TANK.get());
                 output.accept(JDTEItems.REPAIR_TALISMAN.get());
+                output.accept(JDTEItems.ADVANCED_ENERGY_TRANSMITTER.get());
+                output.accept(JDTEItems.EXTENDED_ENERGY_TRANSMITTER.get());
                 output.accept(JDTEItems.ADVANCED_FLUID_MIXER.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_MIXER.get());
                 output.accept(JDTEItems.ENERGY_BREWING_UPGRADE.get());

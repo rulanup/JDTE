@@ -35,6 +35,7 @@ public class JDTEConfig {
     }
 
     public static class Common {
+        public final com.jdte.setup.config.AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
         public final UpgradesConfig upgrades;
         public final TimeAcceleratorConfig timeAccelerator;
         public final TimeFreezerConfig timeFreezer;
@@ -58,6 +59,21 @@ public class JDTEConfig {
         public final UpgradeItemsConfig upgradeItems;
 
         public final ForgeConfigSpec.IntValue aeOutputReturnInterval;
+
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterEnergyCapacity;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterBaseTickDelay;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterTargetRefreshInterval;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterScanBlocksPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterMaxTargetsPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterMaxTransferPerTarget;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterTransferBudgetPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterOverclockTransferMultiplier;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterMeExtractionLimitPerTick;
+        public final ForgeConfigSpec.BooleanValue advancedEnergyTransmitterExcludeTransmitters;
+        public final ForgeConfigSpec.BooleanValue advancedEnergyTransmitterShowParticlesByDefault;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterMaxParticleTargetsPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterPlayerChargeMaxItemsPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterPlayerChargeMaxCallsPerItem;
 
         // Upgrade System
         public final ForgeConfigSpec.IntValue filterSlotsPerUpgrade;
@@ -276,6 +292,21 @@ public class JDTEConfig {
         public Common(ForgeConfigSpec.Builder builder) {
             aeOutputReturnInterval = builder.comment("Ticks between successful basic AE output transfers.").defineInRange("aeOutputReturnInterval", 5, 1, 1200);
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
+            advancedEnergyTransmitter = new com.jdte.setup.config.AdvancedEnergyTransmitterConfig(builder);
+            advancedEnergyTransmitterEnergyCapacity = advancedEnergyTransmitter.energyCapacity;
+            advancedEnergyTransmitterBaseTickDelay = advancedEnergyTransmitter.baseTickDelay;
+            advancedEnergyTransmitterTargetRefreshInterval = advancedEnergyTransmitter.targetRefreshInterval;
+            advancedEnergyTransmitterScanBlocksPerTick = advancedEnergyTransmitter.scanBlocksPerTick;
+            advancedEnergyTransmitterMaxTargetsPerTick = advancedEnergyTransmitter.maxTargetsPerTick;
+            advancedEnergyTransmitterMaxTransferPerTarget = advancedEnergyTransmitter.maxTransferPerTarget;
+            advancedEnergyTransmitterTransferBudgetPerTick = advancedEnergyTransmitter.transferBudgetPerTick;
+            advancedEnergyTransmitterOverclockTransferMultiplier = advancedEnergyTransmitter.overclockTransferMultiplier;
+            advancedEnergyTransmitterMeExtractionLimitPerTick = advancedEnergyTransmitter.meExtractionLimitPerTick;
+            advancedEnergyTransmitterExcludeTransmitters = advancedEnergyTransmitter.excludeTransmitters;
+            advancedEnergyTransmitterShowParticlesByDefault = advancedEnergyTransmitter.showParticlesByDefault;
+            advancedEnergyTransmitterMaxParticleTargetsPerTick = advancedEnergyTransmitter.maxParticleTargetsPerTick;
+            advancedEnergyTransmitterPlayerChargeMaxItemsPerTick = advancedEnergyTransmitter.playerChargeMaxItemsPerTick;
+            advancedEnergyTransmitterPlayerChargeMaxCallsPerItem = advancedEnergyTransmitter.playerChargeMaxCallsPerItem;
 
             repairTalisman = new com.jdte.setup.config.RepairTalismanConfig(builder);
             mineralExtractor = new com.jdte.setup.config.MineralExtractorConfig(builder);

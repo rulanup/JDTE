@@ -24,6 +24,7 @@ public class ExtendedUpgradeItem extends Item {
     static {
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_GEL_GENERATOR.get(), JDTEBlocks.EXTENDED_GEL_GENERATOR.get());
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_FLUID_MIXER.get(),JDTEBlocks.EXTENDED_FLUID_MIXER.get());
+        UPGRADE_MAP.put(Registration.EnergyTransmitter.get(), JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get());
         UPGRADE_MAP.put(Registration.ClickerT2.get(), JDTEBlocks.EXTENDED_CLICKER.get());
         UPGRADE_MAP.put(Registration.BlockBreakerT2.get(), JDTEBlocks.EXTENDED_BLOCK_BREAKER.get());
         UPGRADE_MAP.put(Registration.BlockPlacerT2.get(), JDTEBlocks.EXTENDED_BLOCK_PLACER.get());

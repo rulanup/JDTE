@@ -84,6 +84,9 @@ public final class JDTEPacketHandler {
                 com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload::encode,
                 com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload::decode,
                 com.jdte.common.network.handler.AdvancedUpgradeStorageActionPacket::handle);
+        registerServer(com.jdte.common.network.data.AdvancedEnergyTransmitterPayload.class, com.jdte.common.network.data.AdvancedEnergyTransmitterPayload::encode, com.jdte.common.network.data.AdvancedEnergyTransmitterPayload::decode, com.jdte.common.network.handler.AdvancedEnergyTransmitterPacket::handle);
+        registerServer(com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload.class, com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload::encode, com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload::decode, com.jdte.common.network.handler.AdvancedEnergyTransmitterBindingPacket::handle);
+        registerServer(com.jdte.common.network.data.ExtendedEnergyTransmitterSettingPayload.class, com.jdte.common.network.data.ExtendedEnergyTransmitterSettingPayload::encode, com.jdte.common.network.data.ExtendedEnergyTransmitterSettingPayload::decode, com.jdte.common.network.handler.ExtendedEnergyTransmitterPacket::handle);
         registerServer(TimeAcceleratorPayload.class, TimeAcceleratorPayload::encode, TimeAcceleratorPayload::decode,
                 TimeAcceleratorPacket.get()::handle);
         registerServer(TimeFreezerPayload.class, TimeFreezerPayload::encode, TimeFreezerPayload::decode,

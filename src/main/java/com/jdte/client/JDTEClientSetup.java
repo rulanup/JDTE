@@ -36,6 +36,8 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.ADVANCED_ENERGY_TRANSMITTER.get(), com.jdte.client.screens.AdvancedEnergyTransmitterScreen::new);
+        MenuScreens.register(JDTEMenus.EXTENDED_ENERGY_TRANSMITTER.get(), com.jdte.client.screens.ExtendedEnergyTransmitterScreen::new);
         MenuScreens.register(JDTEMenus.ADVANCED_FLUID_MIXER.get(), com.jdte.client.screens.AdvancedFluidMixerScreen::new);
         MenuScreens.register(JDTEMenus.EXTENDED_FLUID_MIXER.get(), com.jdte.client.screens.ExtendedFluidMixerScreen::new);
         MenuScreens.register(JDTEMenus.CRAFTING_PATTERN.get(),CraftingPatternScreen::new);
@@ -151,6 +153,8 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.RANGE_BLOCKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.FACTORY_PACKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
 
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), com.jdte.client.renderers.AdvancedEnergyTransmitterBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         // Glue Activators - 使用AreaAffectingBER渲染区域
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
