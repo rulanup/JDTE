@@ -1,0 +1,161 @@
+# Forge 1.20.1 feature migration matrix
+
+Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit started at `020109b`; version stays 0.5.8. This inventory covers **all 120 literal item registrations**, including all entries in the original migration checklist, not just the initial registry delta. The unused `blockItem(name, ...)` helper adds no dynamic registrations.
+
+## Classification and limits
+
+- **V — implemented with behavioral verification:** concrete code and retained tests/runtime evidence for the stated paths. This does not certify every optional backend, recipe pack or long-running workload.
+- **U — implemented, unverified:** concrete inherited implementation and wiring, but no dedicated behavioral evidence found. Build/registration alone does not upgrade U to V.
+- **P — partial:** known source behavior or integration is missing, even if its core machine works and has tests.
+- **N — not implemented:** no item registration/gameplay wiring. Copied textures alone are not implementation.
+
+The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
+
+Current inventory: source **120**, Forge **98**. Status counts: V **30**, U **19**, P **49**, N **22**.
+
+## Evidence and cross-cutting systems
+
+| System | Status and evidence | Remaining boundary |
+| --- | --- | --- |
+| Mineral core, survey, normal/large machines | V: mineral unit/GameTests, lifecycle/network evidence folders | Public-server stress and all data packs |
+| Bags, copier, patterns, conversion and AE cards | V for tested paths: upgrades/production-chain/AE runtime folders | Future absent-machine codecs do not exist yet |
+| Time Accelerators | P: native AE path verified; source timing/target-proxy/filter-cache additions incomplete | Real installed JDTE-AE whole-grid backend remains unverified |
+| Greenhouse family | P: core harvest/seed/recorded crafting verified | Source matrix integration and broader Ultimate support |
+| Mixer family | V: production-chain and AE-runtime evidence, real clients/jobs/restart/Extras fuel | Complete reactor operation remains unverified |
+| Inherited other machines | P where known Ultimate/operation gaps; otherwise U | Dedicated parity and behavior checks are not replaced by bootstrap |
+| Repair Talisman, apples, eggs/essences | U unless an explicit behavioral test is linked later | Functional behavior not established by registration/assets |
+| Optional JEI/Jade/Curios integrations | Implemented, selected client/presence/absence checks retained | Not every new card GUI/every mod combination |
+| Network/save/capabilities | Tested by subsystem, Forge replacements for NeoForge attachments | Absence of a global migration proof; scoped coverage only |
+
+Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](validation/forge-1.20.1-network/README.md), [upgrades](validation/forge-1.20.1-upgrades/README.md), [production chain](validation/forge-1.20.1-production-chain/README.md), [AE runtime](validation/forge-1.20.1-ae-runtime/README.md). JDTE-AE whole-grid execution, prolonged multiplayer uptime and complete operating reactors remain **unverified**.
+
+## Complete item mapping
+
+`Initial` marks membership in the original progress checklist. `BE/Menu` = matching named registry entries; `Assets` = model/language/exact-name recipe.
+
+| Registry ID | Source name | Initial | Status | BE/Menu | Assets | Behavior / outstanding work |
+| --- | --- | --- | --- | --- | --- | --- |
+| `jdte:advanced_ae_output_upgrade` | Advanced AE Output Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:advanced_bio_crusher` | Advanced Bio Crusher | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_bio_extractor` | Advanced Bio Extractor | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:advanced_energy_transmitter` | Advanced Energy Transmitter | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:advanced_entity_accelerator` | Advanced Entity Accelerator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:advanced_essence_conversion_upgrade` | Advanced Essence Conversion Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:advanced_fluid_mixer` | Advanced Fluid Mixer | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:advanced_fluid_receiver` | Advanced Fluid Receiver | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_fluid_sender` | Advanced Fluid Sender | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_fluid_stabilizer` | Advanced Fluid Stabilizer | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_gel_generator` | Advanced Gel Generator | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_glue_activator` | Advanced Glue Activator | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:advanced_infusion_machine` | Advanced Infusion Machine | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_item_collector` | Advanced Item Collector | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:advanced_item_receiver` | Advanced Item Receiver | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_item_sender` | Advanced Item Sender | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_life_extractor` | Advanced Life Extractor | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:advanced_machine_settings_copier` | Advanced Machine Settings Copier | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:advanced_potion_brewer` | Advanced Potion Brewer | no | **P** | yes/yes | yes/yes/yes | Energy Brewing and coalesced accelerated processing are absent at audit start; six-step normal brewing exists. |
+| `jdte:advanced_time_accelerator` | Advanced Time Accelerator | no | **P** | yes/yes | yes/yes/yes | Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported. |
+| `jdte:advanced_upgrade_storage` | Advanced Upgrade Storage | yes | **V** | no/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:ae_acceleration_upgrade` | AE Acceleration Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:ae_crafting_read_upgrade` | AE Crafting Read Upgrade | yes | **V** | no/no | yes/yes/no | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:ae_extraction_upgrade` | AE Extraction Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:ae_output_upgrade` | AE Output Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:basic_fluid_receiver` | Basic Fluid Receiver | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:basic_fluid_sender` | Basic Fluid Sender | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:basic_fluid_stabilizer` | Basic Fluid Stabilizer | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:basic_glue_activator` | Basic Glue Activator | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:basic_item_receiver` | Basic Item Receiver | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:basic_item_sender` | Basic Item Sender | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:basic_time_accelerator` | Basic Time Accelerator | no | **P** | yes/yes | yes/yes/yes | Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported. |
+| `jdte:big_fluid_tank` | Big Fluid Tank | no | **U** | no/no | yes/yes/yes | Core capability, AE refill, Curios and optional-absence checks passed; dedicated bucket pickup/placement and all inherited fill modes remain unverified. |
+| `jdte:bio_factory` | Bio Factory | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:cainiaoyo_fumo` | Yunyouwan Fumo | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:capacity_upgrade` | Capacity Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:charged_lightning_rod` | Charged Lightning Rod | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:crafting_pattern` | Crafting Pattern | yes | **V** | no/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:creative_upgrade` | Creative Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:crystal_incubator` | Crystal Incubator | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:eclipsealloy_wrench` | Eclipse Alloy Wrench | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:elder_guardian_essence` | Elder Guardian Essence | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:ender_dragon_essence` | Ender Dragon Essence | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:ender_dragon_spawn_egg` | Ender Dragon Spawn Egg | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:energy_brewing_upgrade` | Energy Brewing Upgrade | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:energy_overload_upgrade` | Energy Overload Upgrade | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:entity_acceleration_upgrade` | Entity Acceleration Upgrade | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:entity_suppressor` | Entity Suppressor | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:essence_conversion_upgrade` | Essence Conversion Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:extended_bio_crusher` | Extended Bio Crusher | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_bio_extractor` | Extended Bio Extractor | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:extended_block_breaker` | Extended Block Breaker T2 | no | **P** | yes/yes | yes/yes/yes | Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete. |
+| `jdte:extended_block_placer` | Extended Block Placer T2 | no | **P** | yes/yes | yes/yes/yes | Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete. |
+| `jdte:extended_block_swapper` | Extended Block Swapper T2 | no | **P** | yes/yes | yes/yes/yes | Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete. |
+| `jdte:extended_clicker` | Extended Clicker T2 | no | **P** | yes/yes | yes/yes/yes | Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete. |
+| `jdte:extended_dropper` | Extended Dropper T2 | no | **P** | yes/yes | yes/yes/yes | Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete. |
+| `jdte:extended_energy_transmitter` | Extended Energy Transmitter | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:extended_entity_accelerator` | Extended Entity Accelerator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:extended_experience_holder` | Extended Experience Holder | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:extended_fluid_collector` | Extended Fluid Collector T2 | no | **P** | yes/yes | yes/yes/yes | Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete. |
+| `jdte:extended_fluid_generator` | Extended Fluid Generator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:extended_fluid_mixer` | Extended Fluid Mixer | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:extended_fluid_placer` | Extended Fluid Placer T2 | no | **P** | yes/yes | yes/yes/yes | Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete. |
+| `jdte:extended_fluid_receiver` | Extended Fluid Receiver | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_fluid_sender` | Extended Fluid Sender | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_fluid_stabilizer` | Extended Fluid Stabilizer | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_gel_generator` | Extended Gel Generator | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_generator` | Extended Coal Generator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:extended_glue_activator` | Extended Glue Activator | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:extended_infusion_machine` | Extended Infusion Machine | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_item_receiver` | Extended Item Receiver | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_item_sender` | Extended Item Sender | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_life_extractor` | Extended Life Extractor | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:extended_sensor` | Extended Sensor T2 | no | **P** | yes/yes | yes/yes/yes | Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete. |
+| `jdte:extended_time_accelerator` | Extended Time Accelerator | no | **P** | yes/yes | yes/yes/yes | Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported. |
+| `jdte:extended_time_freezer` | Extended Time Freezer | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:extended_upgrade` | Extended Upgrade | no | **P** | no/no | yes/yes/yes | Mixer migration tested; native tier conversion still loads four-slot state into inactive capability without general four-to-eight migration. |
+| `jdte:factory_package` | Factory Package | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:factory_packer` | Factory Packer | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:filter_upgrade` | Filter Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:fluid_storage_upgrade` | Fluid Storage Upgrade | no | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:fluid_upgrade` | Fluid Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:fortune_upgrade` | Fortune Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:generator_upgrade` | Generator Upgrade | no | **P** | no/no | yes/yes/yes | Native generation mixins exist; single-mB upgraded fluid input can be drained before rejecting an incomplete two-mB batch. Large-canister extension remains unavailable with its absent item. |
+| `jdte:greenhouse` | Greenhouse | no | **P** | yes/yes | yes/yes/yes | Core harvest/essence/seed paths tested, but source greenhouse matrix member/runtime hooks and general Ultimate support are absent. |
+| `jdte:large_fuel_canister` | Large Fuel Canister | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:large_greenhouse` | Large Greenhouse | no | **P** | yes/yes | yes/yes/yes | Core harvest/structure paths exist, but source matrix hooks and general Ultimate support are absent. |
+| `jdte:large_mineral_extractor` | Large Mineral Extractor | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:large_pocket_generator` | Large Pocket Generator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:large_potion_canister` | Large Potion Canister | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:life_apple` | Life Apple | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:life_breeder` | Life Breeder | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:life_synthesis_vat` | Life Synthesis Vat | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:loot_fabricator` | Loot Fabricator | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:looting_upgrade` | Looting Upgrade | no | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:maiqilin_fumo` | Maiqilin Fumo | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:mineral_extractor` | Mineral Extractor | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:mineral_survey` | Mineral Survey | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:mixing_upgrade` | Mixing Parallel Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:overclock_upgrade` | Overclock Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:precision_upgrade` | Precision Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:range_blocker` | Range Blocker | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
+| `jdte:range_upgrade` | Range Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:repair_talisman` | Repair Talisman | yes | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:seed_conversion_upgrade` | Seed-to-Essence Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:sharpness_upgrade` | Sharpness Upgrade | no | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:thunderstorm_upgrade` | Thunderstorm Upgrade | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:time_fluid_catalyst` | Time Fluid Catalyst | no | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:time_freezer` | Time Freezer | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:time_multitool` | Time Multitool | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:ultimate_capacity_upgrade` | Ultimate Capacity Upgrade | yes | **P** | no/no | yes/yes/yes | Only mineral/mixer families accept it; source supports other already registered machines. |
+| `jdte:ultimate_mixing_parallel_upgrade` | Ultimate Mixing Parallel Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:ultimate_overclock_upgrade` | Ultimate Overclock Upgrade | yes | **P** | no/no | yes/yes/yes | Only mineral/mixer families accept it; source supports other already registered machines. |
+| `jdte:ultimate_portal_gun` | Ultimate Portal Gun | no | **P** | no/no | yes/yes/yes | Manual fluid costs differ: source cross-dimension/per-block/cap 500/25/25000; Forge 1000000/1000/500000. getEnergyCapacity source override also needs comparison. |
+| `jdte:ultimate_time_wand` | Ultimate Time Wand | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:underclock_upgrade` | Underclock Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:upgrade_storage` | Upgrade Storage | yes | **V** | no/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
+| `jdte:wither_essence` | Wither Essence | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:wither_spawn_egg` | Wither Spawn Egg | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
+| `jdte:xingye_fumo` | Xingye Fumo | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+
+## Rebuild and maintain
+
+Curated behavioral classifications and notes live in `forge-1.20.1-audit-classification.json`; the generated machine-readable inventory is `forge-1.20.1-feature-inventory.json`. Review source and evidence before changing a classification, then run `python scripts/audit_forge_port.py`. Use `--check` to detect stale tables without executing Minecraft or Gradle. This intentionally does not infer completed gameplay from a registered class or count of tests.

@@ -19,7 +19,9 @@ Latest checkpoint: [AE Acceleration and mixer runtime follow-up](#ae-acceleratio
 - The server completed startup with the existing branch content and Repair Talisman; this is not validation of the still-unported machines.
 - Integrated the mineral production engine, output planner and survey codecs into registered Forge machines, menus, capabilities and server datapack lifecycle hooks. See the verified mineral checkpoint below.
 
-## Item registrations requiring migration
+## Original registry-delta checklist
+
+This historical checklist records the initial registration delta, not complete 0.6.5.2 behavior parity. The [full 120-item feature matrix](forge-1.20.1-feature-matrix.md) is authoritative for verified, unverified, partial and absent implementations.
 
 - [x] `jdte:advanced_ae_output_upgrade` (implemented; see the latest validation checkpoint)
 - [ ] `jdte:advanced_bio_extractor`
@@ -396,3 +398,11 @@ Starting commit: `5498124`; reference remains `ccf46472abaf3856fa9eebe0f5ebd25d8
 - The final two-JVM active-job test restored the actual nonempty busy CPU and mixer state, resumed partial work, returned exactly 500 mB through Advanced AE Output at 10,000 FE and paused. No plan was recreated after loading. The final actual Extras fuel/downstream recipe test also passed against the same production JAR.
 - The first multiplayer attempts failed at fixture-only pickup/pre-interaction contamination boundaries and are retained with their corrections. No item-bearing state was excluded from persistence comparisons, and no gameplay-phase drops were deleted to obtain a passing ledger.
 - This follow-up implements AE Acceleration and verifies the requested mixer/AE persistence/fuel paths. Real third-party JDTE-AE whole-grid scheduling, prolonged public-server stress, full operating reactor cycles and all other Extras/mod combinations remain unverified. Other large machine families were not expanded. Keep 0.5.8, preserve the pushed checkpoints and do not merge main or publish a release.
+
+## Complete inventory audit and bounded energy-upgrade work (2026-10-28)
+
+Starting checkpoint: `020109b`. Rebuilt the complete pinned-source inventory rather than inferring completion from the initial registry delta. At audit start, source has **120** fixed item registrations, Forge **98**; **22** are absent. The initial classifications are **30 verified paths / 19 implemented but unverified / 49 partial / 22 absent**. The full English matrix, curated behavior notes and generated JSON include every item from the original checklist, concrete implementation paths, named BE/menu wiring and static resource signals. Run `python scripts/audit_forge_port.py --check` to detect drift without starting Minecraft.
+
+Known gaps include Ultimate support on many already registered machines, newer Time Accelerator timing/proxy behavior, greenhouse matrix hooks, accelerated brewing, ordinary native tier migration and differing Ultimate Portal Gun manual-fluid costs. Missing method names alone were not treated as missing gameplay: inherited Forge methods are considered. Existing core/runtime tests remain valid for their stated paths but do not certify those missing behaviors.
+
+Selected bounded implementation: **Energy Brewing Upgrade + Energy Overload Upgrade**, including real fuel/FE behavior, one-card compatibility, configuration, common bag/copier/menu persistence, recipes/resources and tooltips. Existing JDT Energy Transmitter is a source-supported overload target; the absent advanced/extended transmitter families remain absent and are not being implemented in this pass. The independent JDTE-AE backend, long-running multiplayer and complete reactor operation stay explicitly unverified. No expensive repeated multiplayer/reactor runs are planned for these changes.

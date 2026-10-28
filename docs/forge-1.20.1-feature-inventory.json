@@ -1,0 +1,2124 @@
+{
+  "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "starting_commit": "020109b",
+  "source_item_count": 120,
+  "forge_item_count": 98,
+  "counts": {
+    "verified": 30,
+    "absent": 22,
+    "implemented_unverified": 19,
+    "partial": 49
+  },
+  "rows": [
+    {
+      "id": "capacity_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Capacity Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "overclock_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Overclock Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "thunderstorm_upgrade",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Thunderstorm Upgrade",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "underclock_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Underclock Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "fluid_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Fluid Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "fluid_storage_upgrade",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Fluid Storage Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "generator_upgrade",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native generation mixins exist; single-mB upgraded fluid input can be drained before rejecting an incomplete two-mB batch. Large-canister extension remains unavailable with its absent item.",
+      "registered": true,
+      "kind": "item",
+      "name": "Generator Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "range_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Range Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "filter_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Filter Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "creative_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Creative Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "fortune_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Fortune Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "precision_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Precision Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "ae_acceleration_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "AE Acceleration Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "ae_crafting_read_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "AE Crafting Read Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": false
+    },
+    {
+      "id": "ae_output_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "AE Output Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/AEOutputUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_ae_output_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Advanced AE Output Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/AdvancedAEOutputUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "essence_conversion_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Essence Conversion Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/EssenceConversionUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_essence_conversion_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Advanced Essence Conversion Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/EssenceConversionUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "crafting_pattern",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Crafting Pattern",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/CraftingPatternItem.java"
+      ],
+      "block_entity": false,
+      "menu": true,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "ultimate_capacity_upgrade",
+      "initial_list": true,
+      "status": "partial",
+      "note": "Only mineral/mixer families accept it; source supports other already registered machines.",
+      "registered": true,
+      "kind": "item",
+      "name": "Ultimate Capacity Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "ultimate_overclock_upgrade",
+      "initial_list": true,
+      "status": "partial",
+      "note": "Only mineral/mixer families accept it; source supports other already registered machines.",
+      "registered": true,
+      "kind": "item",
+      "name": "Ultimate Overclock Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "ae_extraction_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "AE Extraction Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/AEExtractionUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "seed_conversion_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Seed-to-Essence Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_upgrade",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Mixer migration tested; native tier conversion still loads four-slot state into inactive capability without general four-to-eight migration.",
+      "registered": true,
+      "kind": "item",
+      "name": "Extended Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/ExtendedUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "upgrade_storage",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Upgrade Storage",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeStorageItem.java"
+      ],
+      "block_entity": false,
+      "menu": true,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_upgrade_storage",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Advanced Upgrade Storage",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/AdvancedUpgradeStorageItem.java"
+      ],
+      "block_entity": false,
+      "menu": true,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "eclipsealloy_wrench",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Eclipse Alloy Wrench",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/EclipseAlloyWrenchItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_machine_settings_copier",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Advanced Machine Settings Copier",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/AdvancedMachineSettingsCopierItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "time_fluid_catalyst",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Time Fluid Catalyst",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "ultimate_portal_gun",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Manual fluid costs differ: source cross-dimension/per-block/cap 500/25/25000; Forge 1000000/1000/500000. getEnergyCapacity source override also needs comparison.",
+      "registered": true,
+      "kind": "item",
+      "name": "Ultimate Portal Gun",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UltimatePortalGunItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "big_fluid_tank",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Core capability, AE refill, Curios and optional-absence checks passed; dedicated bucket pickup/placement and all inherited fill modes remain unverified.",
+      "registered": true,
+      "kind": "item",
+      "name": "Big Fluid Tank",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/BigFluidTankItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "time_multitool",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Time Multitool",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "ultimate_time_wand",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Ultimate Time Wand",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "large_pocket_generator",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Large Pocket Generator",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "large_potion_canister",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Large Potion Canister",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "large_fuel_canister",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Large Fuel Canister",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "factory_package",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Factory Package",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/FactoryPackageItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "mineral_survey",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Mineral Survey",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/MineralSurveyItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "basic_time_accelerator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Basic Time Accelerator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/BasicTimeAcceleratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_time_accelerator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Time Accelerator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedTimeAcceleratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_time_accelerator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Time Accelerator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedTimeAcceleratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_entity_accelerator",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Advanced Entity Accelerator",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "extended_entity_accelerator",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Extended Entity Accelerator",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "time_freezer",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Time Freezer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/TimeFreezerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_time_freezer",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Time Freezer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedTimeFreezerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_clicker",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Clicker T2",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedClickerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_generator",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Extended Coal Generator",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "extended_experience_holder",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Extended Experience Holder",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "extended_fluid_generator",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Extended Fluid Generator",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "extended_energy_transmitter",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Extended Energy Transmitter",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "extended_block_breaker",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Block Breaker T2",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedBlockBreakerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_block_placer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Block Placer T2",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedBlockPlacerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_block_swapper",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Block Swapper T2",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedBlockSwapperBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_dropper",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Dropper T2",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedDropperBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_sensor",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Sensor T2",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedSensorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_fluid_collector",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Fluid Collector T2",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedFluidCollectorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_fluid_placer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited JDT extension exists; Ultimate support and general native tier-upgrade migration remain incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Fluid Placer T2",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedFluidPlacerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_item_collector",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Item Collector",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedItemCollectorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "entity_suppressor",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Entity Suppressor",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/EntitySuppressorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "range_blocker",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Range Blocker",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/RangeBlockerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "charged_lightning_rod",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Charged Lightning Rod",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "crystal_incubator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Crystal Incubator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/CrystalIncubatorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "greenhouse",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Core harvest/essence/seed paths tested, but source greenhouse matrix member/runtime hooks and general Ultimate support are absent.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Greenhouse",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/GreenhouseBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "large_greenhouse",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Core harvest/structure paths exist, but source matrix hooks and general Ultimate support are absent.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Large Greenhouse",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/LargeGreenhouseBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "life_synthesis_vat",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Life Synthesis Vat",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/LifeSynthesisVatBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "bio_factory",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Bio Factory",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/BioFactoryBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "life_breeder",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Life Breeder",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/LifeBreederBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "factory_packer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Factory Packer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/FactoryPackerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "mineral_extractor",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Mineral Extractor",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/MineralExtractorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "large_mineral_extractor",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Large Mineral Extractor",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/LargeMineralExtractorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "xingye_fumo",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Xingye Fumo",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "cainiaoyo_fumo",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Yunyouwan Fumo",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "maiqilin_fumo",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Maiqilin Fumo",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "basic_glue_activator",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Basic Glue Activator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/BasicGlueActivatorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_glue_activator",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Glue Activator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedGlueActivatorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_glue_activator",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Glue Activator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedGlueActivatorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_gel_generator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Gel Generator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedGelGeneratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_gel_generator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Gel Generator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedGelGeneratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "basic_fluid_stabilizer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Basic Fluid Stabilizer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/BasicFluidStabilizerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_fluid_stabilizer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Fluid Stabilizer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedFluidStabilizerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_fluid_stabilizer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Fluid Stabilizer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedFluidStabilizerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "basic_item_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Basic Item Sender",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/BasicItemSenderBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_item_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Item Sender",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedItemSenderBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_item_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Item Sender",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedItemSenderBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "basic_fluid_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Basic Fluid Sender",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/BasicFluidSenderBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_fluid_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Fluid Sender",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedFluidSenderBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_fluid_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Fluid Sender",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedFluidSenderBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "basic_item_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Basic Item Receiver",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/BasicItemReceiverBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_item_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Item Receiver",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedItemReceiverBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_item_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Item Receiver",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedItemReceiverBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "basic_fluid_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Basic Fluid Receiver",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/BasicFluidReceiverBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_fluid_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Fluid Receiver",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedFluidReceiverBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_fluid_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Fluid Receiver",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedFluidReceiverBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_life_extractor",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Life Extractor",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedLifeExtractorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_life_extractor",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Life Extractor",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedLifeExtractorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "life_apple",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Life Apple",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/LifeAppleItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": false
+    },
+    {
+      "id": "advanced_bio_extractor",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Advanced Bio Extractor",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "extended_bio_extractor",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Extended Bio Extractor",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "advanced_infusion_machine",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Infusion Machine",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedInfusionMachineBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_infusion_machine",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Infusion Machine",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedInfusionMachineBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_potion_brewer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Energy Brewing and coalesced accelerated processing are absent at audit start; six-step normal brewing exists.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Potion Brewer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedPotionBrewerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_bio_crusher",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Bio Crusher",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedBioCrusherBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_bio_crusher",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Bio Crusher",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedBioCrusherBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "loot_fabricator",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Loot Fabricator",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/LootFabricatorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "advanced_energy_transmitter",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Advanced Energy Transmitter",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "advanced_fluid_mixer",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Advanced Fluid Mixer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedFluidMixerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "extended_fluid_mixer",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "block item",
+      "name": "Extended Fluid Mixer",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedFluidMixerBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "wither_essence",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Wither Essence",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/BossEssenceItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": false
+    },
+    {
+      "id": "ender_dragon_essence",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Ender Dragon Essence",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/BossEssenceItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": false
+    },
+    {
+      "id": "elder_guardian_essence",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Elder Guardian Essence",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/BossEssenceItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": false
+    },
+    {
+      "id": "wither_spawn_egg",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Wither Spawn Egg",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": false
+    },
+    {
+      "id": "ender_dragon_spawn_egg",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Ender Dragon Spawn Egg",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": false
+    },
+    {
+      "id": "looting_upgrade",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Looting Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/LootingUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "sharpness_upgrade",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Sharpness Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/SharpnessUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "energy_brewing_upgrade",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Energy Brewing Upgrade",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "energy_overload_upgrade",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Energy Overload Upgrade",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "mixing_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Mixing Parallel Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/MixingUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "ultimate_mixing_parallel_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof.",
+      "registered": true,
+      "kind": "item",
+      "name": "Ultimate Mixing Parallel Upgrade",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UltimateMixingParallelUpgradeItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    },
+    {
+      "id": "entity_acceleration_upgrade",
+      "initial_list": true,
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
+      "registered": false,
+      "kind": "item",
+      "name": "Entity Acceleration Upgrade",
+      "implementation_files": [],
+      "block_entity": false,
+      "menu": false,
+      "model": false,
+      "blockstate": false,
+      "translation": false,
+      "named_recipe": false
+    },
+    {
+      "id": "repair_talisman",
+      "initial_list": true,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "registered": true,
+      "kind": "item",
+      "name": "Repair Talisman",
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/RepairTalismanItem.java"
+      ],
+      "block_entity": false,
+      "menu": false,
+      "model": true,
+      "blockstate": false,
+      "translation": true,
+      "named_recipe": true
+    }
+  ]
+}

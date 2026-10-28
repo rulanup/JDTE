@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Rebuild the complete literal JDTE item inventory; curated statuses never follow registration alone."""
+from pathlib import Path
+import argparse,collections,json,re,subprocess
+ROOT=Path(__file__).resolve().parent.parent
+META=ROOT/'docs/forge-1.20.1-audit-classification.json'
+def declaration(text,item):
+ m=re.search(r'public static final\s+[^;]+?\b(\w+)\s*=\s*ITEMS\.register\(\s*"'+re.escape(item)+r'"[^;]*;',text,re.S)
+ return m.group(0) if m else ''
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--check',action='store_true');args=p.parse_args()
+ curated=json.loads(META.read_text());ref=curated['reference'];src=subprocess.check_output(['git','show',f'{ref}:src/main/java/com/jdte/setup/JDTEItems.java'],cwd=ROOT,text=True)
+ forge=(ROOT/'src/main/java/com/jdte/setup/JDTEItems.java').read_text();source_ids=re.findall(r'ITEMS\.register\(\s*"([^"]+)"',src);forge_ids=set(re.findall(r'ITEMS\.register\(\s*"([^"]+)"',forge))
+ assert len(source_ids)==len(set(source_ids))==120
+ rows=curated['rows'];assert {r['id'] for r in rows}==set(source_ids) and len(rows)==120
+ java=collections.defaultdict(list)
+ for path in (ROOT/'src/main/java').rglob('*.java'):java[path.stem].append(str(path.relative_to(ROOT)))
+ be=(ROOT/'src/main/java/com/jdte/setup/JDTEBlockEntities.java').read_text();menus=(ROOT/'src/main/java/com/jdte/setup/JDTEMenus.java').read_text();blocks=(ROOT/'src/main/java/com/jdte/setup/JDTEBlocks.java').read_text()
+ lang=json.loads((ROOT/'src/main/resources/assets/jdte/lang/en_us.json').read_text())
+ source_lang=json.loads(subprocess.check_output(['git','show',f'{ref}:src/main/resources/assets/jdte/lang/en_us.json'],cwd=ROOT,text=True))
+ for r in rows:
+  i=r['id'];present=i in forge_ids;decl=declaration(forge,i);block='BlockItem' in decl
+  # Prefer explicit block/item factories; generic UpgradeCardItem stays explicit in the source expression.
+  classes=re.findall(r'(\w+)(?:::new|\()',decl);classes=[c for c in classes if c in java and c not in ['Item','BlockItem']]
+  if block:
+   field=re.search(r'JDTEBlocks\.(\w+)',decl)
+   if field:
+    bd=re.search(r'\b'+field.group(1)+r'\s*=\s*BLOCKS\.register\([^;]+;',blocks,re.S)
+    if bd:classes+= [c for c in re.findall(r'(\w+)(?:::new|\()',bd.group(0)) if c in java]
+  r.update(registered=present,kind='block item' if block else 'item',name=source_lang.get('item.jdte.'+i,source_lang.get('block.jdte.'+i,i)),implementation_files=sorted({f for c in classes for f in java[c]}),block_entity=bool(re.search(r'BLOCK_ENTITIES\.register\(\s*"'+i+r'"',be)),menu=bool(re.search(r'MENUS\.register\(\s*"'+i+r'"',menus)),model=(ROOT/f'src/main/resources/assets/jdte/models/item/{i}.json').is_file(),blockstate=(ROOT/f'src/main/resources/assets/jdte/blockstates/{i}.json').is_file(),translation=('item.jdte.'+i in lang or 'block.jdte.'+i in lang),named_recipe=(ROOT/f'src/main/resources/data/jdte/recipes/{i}.json').is_file())
+  if not present:r['status']='absent';r['note']='No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.'
+  assert r['status'] in ['verified','implemented_unverified','partial','absent']
+  if r['status']=='verified':assert present and r['model'] and r['translation'],i
+ counts=dict(collections.Counter(r['status'] for r in rows))
+ result={'reference':ref,'starting_commit':curated['starting_commit'],'source_item_count':120,'forge_item_count':len(forge_ids),'counts':counts,'rows':rows}
+ out=ROOT/'docs/forge-1.20.1-feature-inventory.json';md=ROOT/'docs/forge-1.20.1-feature-matrix.md'
+ labels={'verified':'V','implemented_unverified':'U','partial':'P','absent':'N'}
+ text='''# Forge 1.20.1 feature migration matrix
+
+Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit started at `020109b`; version stays 0.5.8. This inventory covers **all 120 literal item registrations**, including all entries in the original migration checklist, not just the initial registry delta. The unused `blockItem(name, ...)` helper adds no dynamic registrations.
+
+## Classification and limits
+
+- **V — implemented with behavioral verification:** concrete code and retained tests/runtime evidence for the stated paths. This does not certify every optional backend, recipe pack or long-running workload.
+- **U — implemented, unverified:** concrete inherited implementation and wiring, but no dedicated behavioral evidence found. Build/registration alone does not upgrade U to V.
+- **P — partial:** known source behavior or integration is missing, even if its core machine works and has tests.
+- **N — not implemented:** no item registration/gameplay wiring. Copied textures alone are not implementation.
+
+The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
+
+'''
+ text+=f"Current inventory: source **120**, Forge **{len(forge_ids)}**. Status counts: "+', '.join(f'{labels[k]} **{counts.get(k,0)}**' for k in labels)+'.\n\n'
+ text+='''## Evidence and cross-cutting systems
+
+| System | Status and evidence | Remaining boundary |
+| --- | --- | --- |
+| Mineral core, survey, normal/large machines | V: mineral unit/GameTests, lifecycle/network evidence folders | Public-server stress and all data packs |
+| Bags, copier, patterns, conversion and AE cards | V for tested paths: upgrades/production-chain/AE runtime folders | Future absent-machine codecs do not exist yet |
+| Time Accelerators | P: native AE path verified; source timing/target-proxy/filter-cache additions incomplete | Real installed JDTE-AE whole-grid backend remains unverified |
+| Greenhouse family | P: core harvest/seed/recorded crafting verified | Source matrix integration and broader Ultimate support |
+| Mixer family | V: production-chain and AE-runtime evidence, real clients/jobs/restart/Extras fuel | Complete reactor operation remains unverified |
+| Inherited other machines | P where known Ultimate/operation gaps; otherwise U | Dedicated parity and behavior checks are not replaced by bootstrap |
+| Repair Talisman, apples, eggs/essences | U unless an explicit behavioral test is linked later | Functional behavior not established by registration/assets |
+| Optional JEI/Jade/Curios integrations | Implemented, selected client/presence/absence checks retained | Not every new card GUI/every mod combination |
+| Network/save/capabilities | Tested by subsystem, Forge replacements for NeoForge attachments | Absence of a global migration proof; scoped coverage only |
+
+Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](validation/forge-1.20.1-network/README.md), [upgrades](validation/forge-1.20.1-upgrades/README.md), [production chain](validation/forge-1.20.1-production-chain/README.md), [AE runtime](validation/forge-1.20.1-ae-runtime/README.md). JDTE-AE whole-grid execution, prolonged multiplayer uptime and complete operating reactors remain **unverified**.
+
+## Complete item mapping
+
+`Initial` marks membership in the original progress checklist. `BE/Menu` = matching named registry entries; `Assets` = model/language/exact-name recipe.
+
+| Registry ID | Source name | Initial | Status | BE/Menu | Assets | Behavior / outstanding work |
+| --- | --- | --- | --- | --- | --- | --- |
+'''
+ for r in sorted(rows,key=lambda x:x['id']):
+  yn=lambda v:'yes' if v else 'no'
+  text+=f"| `jdte:{r['id']}` | {r['name']} | {yn(r['initial_list'])} | **{labels[r['status']]}** | {yn(r['block_entity'])}/{yn(r['menu'])} | {yn(r['model'])}/{yn(r['translation'])}/{yn(r['named_recipe'])} | {r['note']} |\n"
+ text+='''
+## Rebuild and maintain
+
+Curated behavioral classifications and notes live in `forge-1.20.1-audit-classification.json`; the generated machine-readable inventory is `forge-1.20.1-feature-inventory.json`. Review source and evidence before changing a classification, then run `python scripts/audit_forge_port.py`. Use `--check` to detect stale tables without executing Minecraft or Gradle. This intentionally does not infer completed gameplay from a registered class or count of tests.
+'''
+ rendered=json.dumps(result,indent=2,ensure_ascii=False)+'\n'
+ if args.check:assert out.read_text()==rendered and md.read_text()==text,'Audit output stale; regenerate after reviewing classifications'
+ else:out.write_text(rendered);md.write_text(text)
+ print(f'Audited {len(rows)} source items, {len(forge_ids)} Forge items: {counts}')
+if __name__=='__main__':main()
