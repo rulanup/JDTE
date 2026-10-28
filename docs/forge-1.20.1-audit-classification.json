@@ -17,8 +17,8 @@
     {
       "id": "thunderstorm_upgrade",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "underclock_upgrade",
@@ -191,32 +191,32 @@
     {
       "id": "time_multitool",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "ultimate_time_wand",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "large_pocket_generator",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "large_potion_canister",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "large_fuel_canister",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "factory_package",
@@ -251,14 +251,14 @@
     {
       "id": "advanced_entity_accelerator",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "extended_entity_accelerator",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "time_freezer",
@@ -281,26 +281,26 @@
     {
       "id": "extended_generator",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "extended_experience_holder",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "extended_fluid_generator",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "extended_energy_transmitter",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "extended_block_breaker",
@@ -365,8 +365,8 @@
     {
       "id": "charged_lightning_rod",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "crystal_incubator",
@@ -425,20 +425,20 @@
     {
       "id": "xingye_fumo",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "cainiaoyo_fumo",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "maiqilin_fumo",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "basic_glue_activator",
@@ -581,14 +581,14 @@
     {
       "id": "advanced_bio_extractor",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "extended_bio_extractor",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "advanced_infusion_machine",
@@ -606,7 +606,7 @@
       "id": "advanced_potion_brewer",
       "initial_list": false,
       "status": "partial",
-      "note": "Energy Brewing and coalesced accelerated processing are absent at audit start; six-step normal brewing exists."
+      "note": "Energy Brewing and canonical Forge empty-template copier compatibility are now implemented and tested. Source coalesced accelerated processing and broader Ultimate support remain incomplete; normal six-step brewing exists."
     },
     {
       "id": "advanced_bio_crusher",
@@ -629,8 +629,8 @@
     {
       "id": "advanced_energy_transmitter",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "advanced_fluid_mixer",
@@ -689,14 +689,14 @@
     {
       "id": "energy_brewing_upgrade",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Source 5000 FE/20-credit fuel, compatible slots/bags/copier, exact costs, persistence and menu validation pass nine energy integration tests. New graphical appearance remains unverified; see energy-upgrade evidence."
     },
     {
       "id": "energy_overload_upgrade",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Native JDT transmitter rate override, actual FE-conserving transfer, limits and saved-card restoration tested. Source advanced/extended JDTE transmitters remain absent, not implicitly implemented by this card."
     },
     {
       "id": "mixing_upgrade",
@@ -713,8 +713,8 @@
     {
       "id": "entity_acceleration_upgrade",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "absent",
+      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
     },
     {
       "id": "repair_talisman",

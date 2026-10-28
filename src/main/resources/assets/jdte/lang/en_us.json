@@ -869,5 +869,11 @@
   "item.jdte.ultimate_mixing_parallel_upgrade": "Ultimate Mixing Parallel Upgrade",
   "tooltip.jdte.ultimate_mixing_parallel_upgrade": "Fluid Mixers only: allows up to 2,147,483,647 parallel batches",
   "item.jdte.ae_acceleration_upgrade": "AE Acceleration Upgrade",
-  "tooltip.jdte.ae_acceleration": "Time Accelerators only; accelerates individual AE2 devices without JDTE-AE, or the entire online Grid with it."
+  "tooltip.jdte.ae_acceleration": "Time Accelerators only; accelerates individual AE2 devices without JDTE-AE, or the entire online Grid with it.",
+  "item.jdte.energy_brewing_upgrade": "Energy Brewing Upgrade",
+  "tooltip.jdte.energy_brewing_upgrade": "Advanced Potion Brewer only: brewing fuel is paid with FE instead of Blaze Powder (FE per charge configurable)",
+  "item.jdte.energy_overload_upgrade": "Energy Overload Upgrade",
+  "tooltip.jdte.energy_overload_upgrade": "Energy Transmitters only: removes all single-batch and per-tick transfer limits",
+  "config.jdte.jdte.advancedPotionBrewer.energyPerBlazePowder": "Energy Fuel Cost (FE per Blaze Powder)",
+  "config.jdte.jdte.advancedPotionBrewer.energyPerBlazePowder.desc": "FE charged per blaze-powder-equivalent fuel charge (20 brews) when the Energy Brewing Upgrade is installed; 0 makes the energy fuel free"
 }

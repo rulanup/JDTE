@@ -333,7 +333,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
             return isAllowedByRecipeLock(slot, stack) && isBrewingIngredient(stack);
         }
         if (slot == FUEL_SLOT) {
-            return stack.is(Items.BLAZE_POWDER);
+            return !hasEnergyBrewingUpgrade() && stack.is(Items.BLAZE_POWDER);
         }
         return false;
     }
@@ -381,6 +381,8 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     public ItemStackHandler getMachineHandler() {
         return itemHandler;
     }
+
+    public boolean hasEnergyBrewingUpgrade() { return UpgradeHelper.hasEnergyBrewingUpgrade(this); }
 
     public IItemHandler getAutomationItemHandler() {
         return automationItemHandler;
@@ -447,12 +449,22 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         }
 
         if (fuel <= 0) {
-            ItemStack fuelStack = itemHandler.getStackInSlot(FUEL_SLOT);
-            if (!fuelStack.isEmpty() && fuelStack.is(Items.BLAZE_POWDER)) {
-                fuelStack.shrink(1);
-                itemHandler.setStackInSlot(FUEL_SLOT, fuelStack);
-                fuel = FUEL_PER_BLAZE;
-                setChanged();
+            if (hasEnergyBrewingUpgrade()) {
+                int cost=JDTEConfig.COMMON.potionBrewerEnergyPerBlazePowder.get();
+                if (EnergyBrewingFuel.tryCharge(cost, UpgradeHelper.hasCreativeUpgrade(this),
+                        energyStorage::getEnergyStored, amount -> energyStorage.extractEnergy(amount, true),
+                        amount -> energyStorage.extractEnergy(amount, false), energyStorage::setEnergy)) {
+                    fuel=FUEL_PER_BLAZE;
+                    setChanged();
+                }
+            } else {
+                ItemStack fuelStack = itemHandler.getStackInSlot(FUEL_SLOT);
+                if (!fuelStack.isEmpty() && fuelStack.is(Items.BLAZE_POWDER)) {
+                    fuelStack.shrink(1);
+                    itemHandler.setStackInSlot(FUEL_SLOT, fuelStack);
+                    fuel = FUEL_PER_BLAZE;
+                    setChanged();
+                }
             }
         }
 

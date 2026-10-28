@@ -538,6 +538,8 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (machine == null || stack.isEmpty()) {
             return 0;
         }
+        if(UpgradeHelper.isEnergyBrewingUpgrade(stack))return UpgradeHelper.hasEnergyBrewingUpgrade(machine)?1:0;
+        if(UpgradeHelper.isEnergyOverloadUpgrade(stack))return UpgradeHelper.hasEnergyOverloadUpgrade(machine)?1:0;
         if (stack.getItem() instanceof UpgradeCardItem card) {
             return UpgradeHelper.countUpgrades(machine, card.getType());
         }
@@ -574,6 +576,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
         if (machine == null || stack.isEmpty()) {
             return 0;
         }
+        if(UpgradeHelper.isEnergyUpgrade(stack))return 1;
         if (stack.getItem() instanceof UpgradeCardItem card) {
             return UpgradeHelper.getMaxUpgrades(machine, card.getType());
         }

@@ -35,6 +35,8 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.REPAIR_TALISMAN.get());
                 output.accept(JDTEItems.ADVANCED_FLUID_MIXER.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_MIXER.get());
+                output.accept(JDTEItems.ENERGY_BREWING_UPGRADE.get());
+                output.accept(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get());
                 output.accept(JDTEItems.MIXING_UPGRADE.get());
                 output.accept(JDTEItems.ULTIMATE_MIXING_PARALLEL_UPGRADE.get());
                 output.accept(JDTEItems.CRAFTING_PATTERN.get());

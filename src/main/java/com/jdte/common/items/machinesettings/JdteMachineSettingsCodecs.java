@@ -310,7 +310,7 @@ final class JdteMachineSettingsCodecs {
         for (int slot = 0; slot < AdvancedPotionBrewerBE.TOTAL_SLOTS; slot++) {
             ItemStack template = recipeLocked ? machine.getLockedRecipeTemplate(slot) : ItemStack.EMPTY;
             templates.put(TEMPLATE_SLOT_PREFIX + slot, template.isEmpty()
-                    ? ItemStack.EMPTY.save(new CompoundTag())
+                    ? new CompoundTag()
                     : template.copyWithCount(1).save(new CompoundTag()));
         }
         custom.put(RECIPE_LOCK_TEMPLATES_KEY, templates);
@@ -336,7 +336,8 @@ final class JdteMachineSettingsCodecs {
             }
             CompoundTag encodedStack = encodedTemplates.getCompound(key);
             ItemStack template = ItemStack.EMPTY;
-            if (!encodedStack.isEmpty()) {
+            // NeoForge encodes empty stacks as {}, while earlier Forge presets used air/Count:0.
+            if (!encodedStack.isEmpty() && !encodedStack.equals(ItemStack.EMPTY.save(new CompoundTag()))) {
                 final Optional<ItemStack> parsed;
                 try {
                     parsed = Optional.of(ItemStack.of(encodedStack)).filter(stack -> !stack.isEmpty());

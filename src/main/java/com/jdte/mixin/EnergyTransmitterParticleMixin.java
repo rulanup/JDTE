@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = EnergyTransmitterBE.class, remap = false)
 public abstract class EnergyTransmitterParticleMixin {
@@ -21,4 +22,10 @@ public abstract class EnergyTransmitterParticleMixin {
             ci.cancel();
         }
     }
+    @Inject(remap = false, method = "fePerTick", at = @At("HEAD"), cancellable = true)
+    private void jdte$energyOverloadFePerTick(CallbackInfoReturnable<Integer> cir) {
+        if (com.jdte.common.upgrades.UpgradeHelper.hasEnergyOverloadUpgrade((EnergyTransmitterBE)(Object)this))
+            cir.setReturnValue(Integer.MAX_VALUE);
+    }
+
 }

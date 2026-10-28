@@ -2,10 +2,10 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 98,
+  "forge_item_count": 100,
   "counts": {
-    "verified": 30,
-    "absent": 22,
+    "verified": 32,
+    "absent": 20,
     "implemented_unverified": 19,
     "partial": 49
   },
@@ -1776,7 +1776,7 @@
       "id": "advanced_potion_brewer",
       "initial_list": false,
       "status": "partial",
-      "note": "Energy Brewing and coalesced accelerated processing are absent at audit start; six-step normal brewing exists.",
+      "note": "Energy Brewing and canonical Forge empty-template copier compatibility are now implemented and tested. Source coalesced accelerated processing and broader Ultimate support remain incomplete; normal six-step brewing exists.",
       "registered": true,
       "kind": "block item",
       "name": "Advanced Potion Brewer",
@@ -2021,34 +2021,38 @@
     {
       "id": "energy_brewing_upgrade",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "verified",
+      "note": "Source 5000 FE/20-credit fuel, compatible slots/bags/copier, exact costs, persistence and menu validation pass nine energy integration tests. New graphical appearance remains unverified; see energy-upgrade evidence.",
+      "registered": true,
       "kind": "item",
       "name": "Energy Brewing Upgrade",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/EnergyBrewingUpgradeItem.java"
+      ],
       "block_entity": false,
       "menu": false,
-      "model": false,
+      "model": true,
       "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "energy_overload_upgrade",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "verified",
+      "note": "Native JDT transmitter rate override, actual FE-conserving transfer, limits and saved-card restoration tested. Source advanced/extended JDTE transmitters remain absent, not implicitly implemented by this card.",
+      "registered": true,
       "kind": "item",
       "name": "Energy Overload Upgrade",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/EnergyOverloadUpgradeItem.java"
+      ],
       "block_entity": false,
       "menu": false,
-      "model": false,
+      "model": true,
       "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "mixing_upgrade",

@@ -27,6 +27,12 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+        if (UpgradeHelper.isEnergyUpgrade(stack)) {
+            boolean brewing=UpgradeHelper.isEnergyBrewingUpgrade(stack);
+            if(brewing ? !(machine instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE) : !UpgradeHelper.isEnergyTransmitter(machine))return false;
+            for(int other=0;other<getSlots();other++)if(other!=slot && getStackInSlot(other).getItem()==stack.getItem())return false;
+            return true;
+        }
         if (UpgradeHelper.isSmelterUpgrade(stack) && machine instanceof com.jdte.common.blockentities.MineralExtractorBE) {
             for (int other = 0; other < getSlots(); other++)
                 if (other != slot && UpgradeHelper.isSmelterUpgrade(getStackInSlot(other))) return false;

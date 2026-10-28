@@ -33,7 +33,7 @@ public class UpgradeStorageItem extends Item {
     public UpgradeStorageItem() { super(new Properties().stacksTo(1)); }
     public static boolean isAllowedUpgrade(ItemStack stack) {
         if (stack.isEmpty() || stack.getItem() instanceof UpgradeStorageItem) return false;
-        return com.jdte.common.upgrades.UpgradeHelper.isMixingUpgrade(stack) || stack.getItem() instanceof UpgradeCardItem || stack.getItem() instanceof LootingUpgradeItem
+        return com.jdte.common.upgrades.UpgradeHelper.isUpgrade(stack) || stack.getItem() instanceof UpgradeCardItem || stack.getItem() instanceof LootingUpgradeItem
                 || stack.getItem() instanceof SharpnessUpgradeItem || stack.getItem() instanceof ExtendedUpgradeItem
                 || stack.getItem() instanceof Upgrade || stack.is(UPGRADES_TAG);
     }

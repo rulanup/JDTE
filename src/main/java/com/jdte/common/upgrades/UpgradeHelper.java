@@ -70,7 +70,20 @@ public class UpgradeHelper {
         for(int i=0;i<handler.getSlots();i++)if(isUltimateMixingParallelUpgrade(handler.getStackInSlot(i)))return true;return false;
     }
     public static boolean isUpgrade(ItemStack stack) {
-        return stack.getItem() instanceof UpgradeCardItem || isMixingUpgrade(stack);
+        return stack.getItem() instanceof UpgradeCardItem || isMixingUpgrade(stack) || isEnergyUpgrade(stack);
+    }
+
+    public static boolean isEnergyBrewingUpgrade(ItemStack stack) { return stack.getItem() instanceof com.jdte.common.items.EnergyBrewingUpgradeItem; }
+    public static boolean isEnergyOverloadUpgrade(ItemStack stack) { return stack.getItem() instanceof com.jdte.common.items.EnergyOverloadUpgradeItem; }
+    public static boolean isEnergyUpgrade(ItemStack stack) { return isEnergyBrewingUpgrade(stack) || isEnergyOverloadUpgrade(stack); }
+    public static boolean isEnergyTransmitter(BaseMachineBE machine) { return machine instanceof com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE; }
+    public static boolean hasEnergyOverloadUpgrade(BaseMachineBE machine) { return hasSpecialUpgrade(machine,false); }
+    public static boolean hasEnergyBrewingUpgrade(BaseMachineBE machine) { return hasSpecialUpgrade(machine,true); }
+    private static boolean hasSpecialUpgrade(BaseMachineBE machine,boolean brewing) {
+        if(machine==null || machine.isRemoved())return false;
+        var handler=getUpgradeHandler(machine);if(handler==null)return false;
+        for(int slot=0;slot<handler.getSlots();slot++)if(brewing?isEnergyBrewingUpgrade(handler.getStackInSlot(slot)):isEnergyOverloadUpgrade(handler.getStackInSlot(slot)))return true;
+        return false;
     }
 
     public static boolean isUpgrade(ItemStack stack, UpgradeType type) {

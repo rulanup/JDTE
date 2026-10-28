@@ -38,8 +38,8 @@ This historical checklist records the initial registration delta, not complete 0
 - [ ] `jdte:cainiaoyo_fumo`
 - [ ] `jdte:charged_lightning_rod`
 - [x] `jdte:crafting_pattern` (implemented; see the latest validation checkpoint)
-- [ ] `jdte:energy_brewing_upgrade`
-- [ ] `jdte:energy_overload_upgrade`
+- [x] `jdte:energy_brewing_upgrade` (source fuel behavior and Forge integration tested; see energy evidence)
+- [x] `jdte:energy_overload_upgrade` (native JDT transmitter tested; JDTE advanced/extended transmitters remain absent)
 - [ ] `jdte:entity_acceleration_upgrade`
 - [x] `jdte:essence_conversion_upgrade` (implemented; see the latest validation checkpoint)
 - [ ] `jdte:extended_bio_extractor`
@@ -79,7 +79,7 @@ This historical checklist records the initial registration delta, not complete 0
 
 ## Current validation evidence
 
-- Latest Java 17 build: passed, including production/probe reobfuscation; 95 JUnit and 114 required GameTests passed. All earlier tests are retained.
+- Latest Java 17 build: passed, including production/probe reobfuscation; 100 JUnit and 123 required GameTests passed. All earlier tests are retained.
 - MineralProductionEngineTest: 16 passed.
 - MineralOutputPlannerTest: 8 passed.
 - Clean dedicated Forge server: reached Done and shut down with saved dimensions.
@@ -406,3 +406,28 @@ Starting checkpoint: `020109b`. Rebuilt the complete pinned-source inventory rat
 Known gaps include Ultimate support on many already registered machines, newer Time Accelerator timing/proxy behavior, greenhouse matrix hooks, accelerated brewing, ordinary native tier migration and differing Ultimate Portal Gun manual-fluid costs. Missing method names alone were not treated as missing gameplay: inherited Forge methods are considered. Existing core/runtime tests remain valid for their stated paths but do not certify those missing behaviors.
 
 Selected bounded implementation: **Energy Brewing Upgrade + Energy Overload Upgrade**, including real fuel/FE behavior, one-card compatibility, configuration, common bag/copier/menu persistence, recipes/resources and tooltips. Existing JDT Energy Transmitter is a source-supported overload target; the absent advanced/extended transmitter families remain absent and are not being implemented in this pass. The independent JDTE-AE backend, long-running multiplayer and complete reactor operation stay explicitly unverified. No expensive repeated multiplayer/reactor runs are planned for these changes.
+
+
+## Full inventory and energy upgrade checkpoint (2026-10-28)
+
+### Audit and bounded implementation
+
+- Rechecked all **120** source item registrations at `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859` against actual Forge items, blocks, BE/menu registries, models, language entries, recipe names and concrete implementations. The [full matrix](forge-1.20.1-feature-matrix.md) replaces checkbox presence as the authoritative parity classification; JSON and a cheap `--check` generator are retained.
+- Forge now registers **100** of the source items. The conservative matrix has **32 verified / 19 implemented-unverified / 49 partial / 20 absent** entries. Verified refers only to stated paths; a verified card does not complete all behavior of its host machine.
+- Implemented Energy Brewing Upgrade and Energy Overload Upgrade as the source's single-card plain items, including original models/textures, Forge-shaped recipes, translations, creative-tab entries and paired English guide pages. Restored the source upgrade tag for currently registered items only, without dangling unported IDs.
+- Energy Brewing buys the source **20 fuel credits / 5000 FE**, configurable from 0 to 1,000,000, with Creative/free-price bypass and the normal per-stage FE charge preserved. Purchases require valid ingredients and output room. Existing powder remains intact; manual/Shift/automation fuel insertion is rejected while installed and restored on removal. The canonical Forge upgrade capability persists the card alongside existing credits/progress, avoiding a second unsaved handler.
+- Energy Overload returns `Integer.MAX_VALUE` from native JDT `EnergyTransmitterBE.fePerTick()`. Actual transfer still spends stored FE and respects recipients. It uses real native transfer, not simulated generation. Advanced/Extended JDTE transmitters remain unported and are explicitly excluded from this checkpoint.
+- Both cards integrate with existing machine slots, Shift insertion, basic/advanced bags, typed copier validation, machine storage-panel limits and Jade's generic installed-card serialization. Graphical appearance of these new cards has not been run.
+- The new copier regression exposed a real Forge data-format bug: unlocked/partly empty brewing templates serialize as `air/Count:0`, but the decoder only accepted `{}`. New saves use `{}` and both canonical empty formats decode; unknown items, positive-count air and malformed templates still reject. Paste spends exactly one bagged brewing card without copying FE.
+
+### Validation and limits
+
+- Java 17 / Gradle 8.6 `test build runGameTestServer`: **100 JUnit and 123 required GameTests passed**, including production and separate probe JAR reobfuscation. Original 95/114 and the original 24 mineral core tests remain intact. Added five pure transaction tests and nine actual Forge integration tests.
+- New tests cover real twenty/next brews, exact costs, no-input/full-output/insufficient-FE behavior, retained powder, all six input faces, menu/Shift validation, mid-brew BE restoration, Creative/zero-price/legacy fuel, bags/copier costs, both empty template formats and actual native transmitter delivery/conservation/removal/persistence.
+- Production reobfuscated JAR two-JVM saved-shutdown/restart verification is pending at this code checkpoint. See [energy-upgrade evidence](validation/forge-1.20.1-energy-upgrades/README.md) for the final runtime result and reproducible harness.
+- Did not repeat the unaffected expensive two-client, real AE-job or Mekanism fuel runs. Their previous scoped evidence remains valid; this is not a new certification of those paths. Installed JDTE-AE whole-grid backend, prolonged multiplayer uptime and complete operating reactors remain **unverified**.
+- First attempts failed on a JDT-only type accidentally referenced from the plain unit-test classpath, test fixtures that reused an existing brewer and assumed Shift-kept powder in its original player slot, and the real empty-template copier bug. The final full passing run uses a Minecraft-independent FE transaction boundary, fresh fixtures, item-conservation checks and the codec fix. No tests were deleted or disabled.
+
+### Next development boundary
+
+Use the matrix before choosing work. A bounded next energy slice is fixing the Generator Upgrade's one-mB drain edge case and validating its native generator paths, or adding one source energy-transmitter tier with its full settings/filter/energy contract. Do not silently expand Ultimate card support across all inherited machines: each host needs its own operation/capacity tests. Time Accelerator timing/proxy/cache additions, Greenhouse matrix support, brewing coalesced acceleration and the Ultimate Portal Gun numeric mismatch are recorded partial work. Keep version 0.5.8; no main merge or release.

@@ -181,6 +181,7 @@ public class JDTEConfig {
 
         // Advanced Potion Brewer
         public final ForgeConfigSpec.BooleanValue potionBrewerRejectPatternProviderFuelInput;
+        public final ForgeConfigSpec.IntValue potionBrewerEnergyPerBlazePowder;
 
         // Crystal Incubator
         public final ForgeConfigSpec.IntValue crystalIncubatorFluidCapacity;
@@ -413,6 +414,7 @@ public class JDTEConfig {
             this.factoryPackerChatNotifications = factoryPacker.factoryPackerChatNotifications;
 
             this.potionBrewerRejectPatternProviderFuelInput = advancedPotionBrewer.potionBrewerRejectPatternProviderFuelInput;
+            this.potionBrewerEnergyPerBlazePowder = advancedPotionBrewer.potionBrewerEnergyPerBlazePowder;
 
             this.crystalIncubatorFluidCapacity = crystalIncubator.crystalIncubatorFluidCapacity;
             this.crystalIncubatorEnergyCapacity = crystalIncubator.crystalIncubatorEnergyCapacity;
