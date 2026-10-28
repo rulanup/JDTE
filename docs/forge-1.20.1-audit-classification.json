@@ -41,8 +41,8 @@
     {
       "id": "generator_upgrade",
       "initial_list": false,
-      "status": "partial",
-      "note": "Native fluid batches atomically consume two mB; solid fuel and Large Fuel Canister use checked Forge fuel budgets and two complete canister units for x3 FE. Existing generator tests plus five fuel-canister tests pass. Large-canister graphical/dedicated and extended-host acceptance remain pending; keep P."
+      "status": "verified",
+      "note": "Source solid/canister and fluid rules verified on native/Extended generators: two ordinary items/two complete canister units or two mB buy x3 credit; other container fuels retain source one-container exception. Insufficient/partial buffers and overflowing credit reject before consumption; accepted FE preserves prepaid work. Prior odd-mB production evidence retained; new large-canister GUI and dedicated resumed solid/fluid conservation pass. See energy-upgrades and generators evidence."
     },
     {
       "id": "range_upgrade",
@@ -215,8 +215,8 @@
     {
       "id": "large_fuel_canister",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Full source-derived fuel item, bound menu, Curios F shortcut/slot, preserving recipe and resources implemented. Numeric/five Forge tests plus real graphical handheld/worn fill and synchronized NBT/item counts passed. Production recovery acceptance remains pending; see generators evidence."
+      "status": "verified",
+      "note": "Source capacity x4/unit x10/weighted-and-resolved speed preserved. Bound handheld and Curios F menus, source-preserving recipe, real fuels/rejections/remainders, full/native/upgraded FE accounting pass unit/Forge tests. Real GUI fills/NBT sync and dedicated full-inventory packing, real unload/reload and two-JVM recovery preserve fuel/name/speed exactly. Large Pocket/Potion siblings remain separate N items; see generators evidence."
     },
     {
       "id": "factory_package",
@@ -281,8 +281,8 @@
     {
       "id": "extended_generator",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source-derived native generation, eight slots, real capacities/Ultimate ticker, guarded automation and actual-acceptance export implemented. Eleven Forge tests cover conversions/rollback/packing, fuel/FE/fluid, unsafe capacity removal and overflow. Real GUI/32-bit menu/card transfer passed; production unload/restart remains pending after failed initial drop lookup. See generators evidence."
+      "status": "verified",
+      "note": "Native-derived eight-slot generator with real owned FE/tank, validators/automation, source export rates, full-width menus, recipes/packing and actual Ultimate behavior. Forge tests cover actual fuels/containers, capacity, overflow, both conversions/protection rollback, stale ports and short neighbor acceptance. Real GUIs/card transfer and dedicated packed/unloaded/restarted FE/fluid/inventory/progress conservation pass. Source bugs fixed: accepted-FE accounting, packed recipe data, unsafe capacity removal, bar overflow and native global-drop chunk pinning. Scoped acceptance; prolonged multiplayer/external fuel packs not certified."
     },
     {
       "id": "extended_experience_holder",
@@ -293,8 +293,8 @@
     {
       "id": "extended_fluid_generator",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source-derived native generation, eight slots, real capacities/Ultimate ticker, guarded automation and actual-acceptance export implemented. Eleven Forge tests cover conversions/rollback/packing, fuel/FE/fluid, unsafe capacity removal and overflow. Real GUI/32-bit menu/card transfer passed; production unload/restart remains pending after failed initial drop lookup. See generators evidence."
+      "status": "verified",
+      "note": "Native-derived eight-slot generator with real owned FE/tank, validators/automation, source export rates, full-width menus, recipes/packing and actual Ultimate behavior. Forge tests cover actual fuels/containers, capacity, overflow, both conversions/protection rollback, stale ports and short neighbor acceptance. Real GUIs/card transfer and dedicated packed/unloaded/restarted FE/fluid/inventory/progress conservation pass. Source bugs fixed: accepted-FE accounting, packed recipe data, unsafe capacity removal, bar overflow and native global-drop chunk pinning. Scoped acceptance; prolonged multiplayer/external fuel packs not certified."
     },
     {
       "id": "extended_energy_transmitter",

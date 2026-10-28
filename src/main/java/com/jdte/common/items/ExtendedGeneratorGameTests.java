@@ -231,4 +231,24 @@ public final class ExtendedGeneratorGameTests {
         liquid.getFluidTank().setFluid(FluidStack.EMPTY);liquid.handleItemStack();
         h.assertTrue(liquid.getFluidTank().getFluidAmount()==1000&&automation.extractItem(0,1,false).is(Items.BUCKET),"exactly one real bucket becomes 1000 mB and one empty bucket");h.succeed();
     }
+    @GameTest(template="mineral_empty")
+    public static void nativeGlobalDropScanCannotLoadUnrelatedMissingChunk(GameTestHelper h) {
+        var far=new BlockPos(1000000,100,1000000);var level=h.getLevel();h.assertTrue(!level.getChunkSource().hasChunk(far.getX()>>4,far.getZ()>>4),"remote chunk starts absent");
+        var pos=h.absolutePos(POS);var remoteView=new boolean[1];var entity=new net.minecraft.world.entity.item.ItemEntity(level,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,new ItemStack(Items.COAL)) {
+            @Override public BlockPos blockPosition() {return remoteView[0]?far:super.blockPosition();}
+            @Override public void tick() { /* Isolate the native global scan from ordinary entity physics. */ }
+        };
+        level.addFreshEntity(entity);remoteView[0]=true;
+        h.runAfterDelay(2,()->{try {boolean seen=false;for(var current:level.getAllEntities())if(current==entity)seen=true;
+            h.assertTrue(seen,"real global item scan sees the registered entity");
+            h.assertTrue(!level.getChunkSource().hasChunk(far.getX()>>4,far.getZ()>>4)&&entity.getItem().getCount()==1,"actual native level event must not load a missing item-position chunk or consume its item");h.succeed();
+        }finally {entity.discard();}});
+    }
+    @GameTest(template="mineral_empty")
+    public static void actualNativeFluidDropRecipeStillCraftsOneCatalyst(GameTestHelper h) {
+        var recipe=h.getLevel().getRecipeManager().getAllRecipesFor(Registration.FLUID_DROP_RECIPE_TYPE.get()).stream()
+                .filter(r->r.getInput().getBlock() instanceof net.minecraft.world.level.block.LiquidBlock&&!r.getOutput().isAir()&&r.getOutput().getBlock()!=r.getInput().getBlock()&&r.getCatalyst()!=Items.AIR).findFirst().orElseThrow();
+        h.setBlock(POS,recipe.getInput());var pos=h.absolutePos(POS);var entity=new net.minecraft.world.entity.item.ItemEntity(h.getLevel(),pos.getX()+.5,pos.getY()+.3,pos.getZ()+.5,new ItemStack(recipe.getCatalyst(),2));h.getLevel().addFreshEntity(entity);
+        h.runAfterDelay(2,()->{try {h.assertTrue(h.getLevel().getBlockState(pos).equals(recipe.getOutput())&&entity.getItem().getCount()==1,"real native recipe still transforms loaded fluid and spends exactly one catalyst");h.succeed();}finally {entity.discard();}});
+    }
 }

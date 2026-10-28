@@ -35,3 +35,26 @@ First production attempt failed; see [failure evidence](production-first-failure
 Screenshot inspection found native large-FE bar arithmetic overflow despite correct numeric synchronization. Only the two new generator hosts use the corrected wide/clamped bar in the native screen path; graphical verification of this change is pending here.
 
 Production progress: full-inventory packed-drop and exact NBT restore pass after fixture warmup/initial placer correction. Actual unload still times out at FULL/level 33. Failed attempts are retained in `production-*-failure.txt`; do not label production recovery successful before a passing run below.
+
+## Current acceptance (supersedes checkpoint limits above)
+
+**140 JUnit / 183 required GameTests**, complete build and both reobfuscations pass ([summary](final-regression-summary.txt)). Existing 131/164 tests and assertions remain enabled. Added nine pure numeric, five canister and fourteen generator/native-lifecycle tests.
+
+[Final real client evidence](graphical-final/run-summary.txt) includes the actual enlarged FE bar fix and full-FE capacity-card Shift-click rejection; earlier screenshots remain historical. The native screen's int multiplication overflow was confirmed visually and corrected with wide/clamped arithmetic only for these two hosts.
+
+[Two actual production JVM success markers](production-first-pass.txt): full-inventory wrench drop/restore, actual chunk unloading/reloading, inactive stale item/FE/fluid ports, complete saved-state equality, shutdown/restart, exact resumed prepaid solid FE and two-mB liquid batches. Large canister name/speed/fuel, all eight-slot data, >16-bit fluid/burn values and owned FE survive. Runtime has only JDT, GuideME, JDTE and the separate probe mod: AE2, Curios, JEI and Jade are absent. Curios presence/F shortcut is verified separately in the real client.
+
+The failed production attempts led to the actual native global-fluid-drop chunk pinning correction. [Captured stack and cause](production-sixth-failure.txt). `LoadedFluidDropLookup` reads an already loaded chunk without refreshing UNKNOWN tickets; no ordinary world entities are deleted to manufacture acceptance. Regression checks retain real native fluid-drop crafting. Probe-only ticket tracing is not shipped in the main mod.
+
+### Source differences and limits
+
+- Preserve source capacity ×4, unit ×10 and weighted/resolved canister speed (including the source's two-stage multiplier), native generator fuel types, native configured FE and fluid per-face export ×10, eight slots and actual Ultimate ×50/ten executions.
+- Fix recipe resource errors: four occupied ingot cells; no returned old fuel canister; packed generator recipes retain machine state and migrate upgrade storage.
+- Fix caller stack mutation, full/partial solid-buffer FE-credit loss, short neighbor acceptance loss, stale public ports, attached-capability revival and oversized numeric/rendering overflow.
+- Reject insufficient second canister units, overflowing generation budgets and capacity-card changes that would discard FE/fluid. Preserve source's single-container fuel remainder exception.
+- Large Pocket Generator/Large Potion Canister remain separate absent items. Extended Upgrade still lacks Experience Holder/Advanced Bio Extractor conversions. Production checks cover target lifecycle; native-to-Extended conversion/protection rollback uses real Forge GameTests, not a production player session.
+- **Unverified:** two independent players concurrently using these new menus, long-duration public servers, arbitrary external fuel/recipe packs and every optional mod combination. External JDTE-AE whole-grid, complete reactors and full Draconic fusion remain unverified elsewhere. No release or main merge.
+
+### Reproduce
+
+Use the existing Java 17/Gradle environment. Run `gradlew test build runGameTestServer`; `build` includes separate main/probe reobfuscation. For graphics run `scripts/run_generator_client_smoke.sh`. For production set `JDTE_LIFECYCLE_SERVER` to a marked disposable loopback Forge 47.4.10 installation and run `scripts/run_generator_lifecycle_probe.sh`. The script copies both built/reobfuscated JARs and requires success markers from seed and verify JVMs. `JDTE_SMOKE_PREBUILT=1` uses a previously built pair. Never point the harness at an unmarked user world.

@@ -1,0 +1,18 @@
+2026-10-28; fifth seed attempt
+[13:52:12] [Server thread/INFO] [co.jd.sm.GeneratorLifecycleProbe/]: Generator unload diagnostic: forced=[1073741824250, 266287972414, 803158884541, 803158884539, 266287972415, 545460846719, 884763263182], holder=33
+St: 1minecraft:full
+Ch: 1minecraft:full
+FULL, ticket=Ticket[unknown 33 ([194, 194])] at 200 force ticks false
+[13:52:22] [Server thread/INFO] [co.jd.sm.GeneratorLifecycleProbe/]: Generator unload diagnostic: forced=[1073741824250, 266287972414, 803158884541, 803158884539, 266287972415, 545460846719, 884763263182], holder=33
+St: 1minecraft:full
+Ch: 1minecraft:full
+FULL, ticket=Ticket[unknown 33 ([194, 194])] at 400 force ticks false
+[13:52:32] [Server thread/INFO] [co.jd.sm.GeneratorLifecycleProbe/]: Generator unload diagnostic: forced=[1073741824250, 266287972414, 803158884541, 803158884539, 266287972415, 545460846719, 884763263182], holder=33
+St: 1minecraft:full
+Ch: 1minecraft:full
+FULL, ticket=Ticket[unknown 33 ([194, 194])] at 600 force ticks false
+[13:52:42] [Server thread/INFO] [co.jd.sm.GeneratorLifecycleProbe/]: Generator unload diagnostic: forced=[1073741824250, 266287972414, 803158884541, 803158884539, 266287972415, 545460846719, 884763263182], holder=33
+St: 1minecraft:full
+Ch: 1minecraft:full
+FULL, ticket=Ticket[unknown 33 ([194, 194])] at 800 force ticks false
+Timeout at stage 2. An UNKNOWN/33 ticket is refreshed to current tick, not a remaining generator forced ticket. Next diagnostic records the first post-unforce load request stack, in the separate probe JAR only. No successful unload/restart acceptance claimed.

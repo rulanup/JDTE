@@ -33,7 +33,8 @@
     "MachineSettingsCopierMixin",
     "TransmitterEnergyStorageMixin",
     "EnergyTransmitterNetworkMixin",
-    "GeneratorSolidConservationMixin"
+    "GeneratorSolidConservationMixin",
+    "JdtFluidDropChunkAccessMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",

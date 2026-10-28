@@ -280,7 +280,7 @@ tasks.withType(JavaExec).configureEach {
 tasks.register('serverSmokeJar', Jar) {
     archiveClassifier = 'lifecycle-probe'
     from sourceSets.serverSmoke.output
-    manifest { attributes 'FMLModType': 'MOD' }
+    manifest { attributes 'FMLModType': 'MOD', 'MixinConfigs': 'generator-smoke.mixins.json' }
 }
 reobf { serverSmokeJar { classpath.from sourceSets.main.output, sourceSets.main.compileClasspath } }
 tasks.named('serverSmokeJar').configure { finalizedBy 'reobfServerSmokeJar' }

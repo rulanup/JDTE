@@ -1,0 +1,23 @@
+2026-10-28; sixth seed attempt (separate probe-only stack tracing)
+Generator probe unexpected chunk-loading request after unforce
+java.lang.IllegalStateException: Generator chunk ticket trace
+	at net.minecraft.server.level.ServerChunkCache.handler$zbg000$jdte$trace(ServerChunkCache.java:581) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:APP:generator-smoke.mixins.json:GeneratorTicketTrace,pl:mixin:A}
+	at net.minecraft.server.level.ServerChunkCache.m_8456_(ServerChunkCache.java) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:APP:generator-smoke.mixins.json:GeneratorTicketTrace,pl:mixin:A}
+	at net.minecraft.server.level.ServerChunkCache.m_7587_(ServerChunkCache.java:130) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:APP:generator-smoke.mixins.json:GeneratorTicketTrace,pl:mixin:A}
+	at net.minecraft.world.level.Level.m_6522_(Level.java:187) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at net.minecraft.world.level.LevelReader.m_46819_(LevelReader.java:129) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:classloading,re:mixin}
+	at net.minecraft.world.level.Level.m_6325_(Level.java:182) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at net.minecraft.world.level.Level.m_8055_(Level.java:355) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at com.direwolf20.justdirethings.common.events.EntityEvents.levelTick(EntityEvents.java:56) ~[just-dire-things-forge-1533501-8573107.jar%23107!/:?] {re:classloading}
+	at com.direwolf20.justdirethings.common.events.__EntityEvents_levelTick_LevelTickEvent.invoke(.dynamic) ~[just-dire-things-forge-1533501-8573107.jar%23107!/:?] {re:classloading,pl:eventbus:B}
+	at net.minecraftforge.eventbus.ASMEventHandler.invoke(ASMEventHandler.java:73) ~[eventbus-6.0.5.jar%2352!/:?] {}
+	at net.minecraftforge.eventbus.EventBus.post(EventBus.java:315) ~[eventbus-6.0.5.jar%2352!/:?] {}
+	at net.minecraftforge.eventbus.EventBus.post(EventBus.java:296) ~[eventbus-6.0.5.jar%2352!/:?] {}
+	at net.minecraftforge.event.ForgeEventFactory.onPostLevelTick(ForgeEventFactory.java:955) ~[forge-1.20.1-47.4.10-universal.jar%23114!/:?] {re:classloading}
+	at net.minecraft.server.MinecraftServer.m_5703_(MinecraftServer.java:899) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.server.dedicated.DedicatedServer.m_5703_(DedicatedServer.java:283) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.server.MinecraftServer.m_5705_(MinecraftServer.java:814) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.server.MinecraftServer.m_130011_(MinecraftServer.java:661) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.server.MinecraftServer.m_206580_(MinecraftServer.java:251) ~[server-1.20.1-20230612.114412-srg.jar%23109!/:?] {re:classloading,pl:accesstransformer:B}
+	at java.lang.Thread.run(Thread.java:840) ~[?:?] {}
+Cause confirmed: native JDT EntityEvents.levelTick unconditionally calls Level.getBlockState for globally tracked dropped items, refreshing UNKNOWN tickets. Fix this actual lookup to use getChunkNow plus direct loaded-chunk state; retain normal fluid-drop crafting. No unload/restart success claimed in this failed attempt.

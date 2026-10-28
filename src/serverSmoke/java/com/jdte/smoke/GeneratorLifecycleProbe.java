@@ -82,7 +82,7 @@ public final class GeneratorLifecycleProbe {
     @SubscribeEvent public void tick(TickEvent.ServerTickEvent event)throws Exception {
         if(mode.isEmpty()||event.phase!=TickEvent.Phase.END||event.getServer()!=server)return;
         check(++ticks<900,"timeout stage "+stage);var level=server.overworld();
-        if(stage==1&&ticks>=100) {check(expected.equals(snapshot()),"full/disabled machine state stable");pack();server.saveEverything(false,true,true);force(false);stage=2;}
+        if(stage==1&&ticks>=100) {check(expected.equals(snapshot()),"full/disabled machine state stable");pack();server.saveEverything(false,true,true);force(false);System.setProperty("jdte.generatorTicketTrace","true");stage=2;}
         else if(stage==2) {
             if(ticks%200==0) {
                 var manager=level.getChunkSource().chunkMap.getDistanceManager();
@@ -91,7 +91,7 @@ public final class GeneratorLifecycleProbe {
             }
             for(var pos:POS)if(level.getChunkSource().hasChunk(pos.getX()>>4,pos.getZ()>>4))return;
             for(int i=0;i<2;i++)check(retained[i].extractEnergy(123,false)==0&&items[i].extractItem(0,64,false).isEmpty(),"retained unloaded endpoints inert");
-            check(fluid.drain(10,IFluidHandler.FluidAction.EXECUTE).isEmpty(),"unloaded fluid interface inert");force(true);for(var pos:POS)level.getChunkAt(pos);stage=3;
+            check(fluid.drain(10,IFluidHandler.FluidAction.EXECUTE).isEmpty(),"unloaded fluid interface inert");System.setProperty("jdte.generatorTicketTrace","false");force(true);for(var pos:POS)level.getChunkAt(pos);stage=3;
         }else if(stage==3) {check(expected.equals(snapshot()),"real chunk unload/reload exact state");finish("generators-seed-success.txt","PASS: production JAR, both Extended generators, full inventory wrench drop/restore, real chunk unload/reload, stale item/FE/fluid endpoints, exact Large Fuel Canister, FE, fluid, eight-slot cards and prepaid work conservation; optional AE2/Curios/JEI/Jade absent");}
         else if(stage==4&&ticks>=20) {
             check(expected.equals(snapshot()),"saved machines remain stable after production restart");

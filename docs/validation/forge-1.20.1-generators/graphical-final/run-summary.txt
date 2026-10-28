@@ -1,0 +1,19 @@
+2026-10-28; parent f77b068; real Forge client with installed optional dependencies
+Command: scripts/run_generator_client_smoke.sh (configured Java17/Gradle/proxy)
+[13:53:14] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 1
+[13:53:16] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 2
+[13:53:17] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 3
+[13:53:19] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 4
+[13:53:21] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 5
+[13:53:22] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 6
+[13:53:24] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 7
+[13:53:26] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 8
+[13:53:27] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 9
+[13:53:28] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 10
+[13:53:29] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 11
+[13:53:30] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 12
+[13:53:32] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 13
+[13:53:33] [Render thread/INFO] [co.jd.cl.sm.GeneratorClientSmoke/]: Generator client stage 14
+BUILD SUCCESSFUL in 2m 14s
+PASS: actual graphical handheld and Curios F-event canister menus, coal shift-fill and exact NBT/item counts over real packets; Extended solid/fluid screens, >16-bit FE/burn/fluid synchronization, eight upgrade slots, card install/remove and transfer without duplication.
+Screenshot review: the formerly empty enlarged solid FE bar now renders fully red. The fluid-generator bar is corrected too. Unit test checks full/half/overflow pixel height. Capacity card Shift-click is rejected under a full FE buffer.
