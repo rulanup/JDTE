@@ -122,15 +122,15 @@ public final class JDTEAttachments {
         private final FilterBasicHandler filterHandler = new FilterBasicHandler(9);
         private final MachineEnergyStorage machineEnergy;
         private final BaseMachineBE machine;
-        private final LazyOptional<UpgradeItemStackHandler> upgradesOptional;
-        private final LazyOptional<ExtendedUpgradeItemStackHandler> extendedUpgradesOptional;
-        private final LazyOptional<JDTEFluidTank> clickerFluidOptional;
-        private final LazyOptional<AutoIoConfigData> autoIoOptional;
-        private final LazyOptional<FilterBasicHandler> filterOptional;
-        private final LazyOptional<MachineEnergyStorage> machineEnergyOptional;
-        private final LazyOptional<IEnergyStorage> energyOptional;
-        private final LazyOptional<IFluidHandler> fluidOptional;
-        private final LazyOptional<IItemHandler> itemOptional;
+        private LazyOptional<UpgradeItemStackHandler> upgradesOptional;
+        private LazyOptional<ExtendedUpgradeItemStackHandler> extendedUpgradesOptional;
+        private LazyOptional<JDTEFluidTank> clickerFluidOptional;
+        private LazyOptional<AutoIoConfigData> autoIoOptional;
+        private LazyOptional<FilterBasicHandler> filterOptional;
+        private LazyOptional<MachineEnergyStorage> machineEnergyOptional;
+        private LazyOptional<IEnergyStorage> energyOptional;
+        private LazyOptional<IFluidHandler> fluidOptional;
+        private LazyOptional<IItemHandler> itemOptional;
         private boolean machineEnergyInitialized;
 
         private MachineDataProvider(BaseMachineBE machine) {
@@ -141,6 +141,12 @@ public final class JDTEAttachments {
             // Capabilities are attached from BlockEntity's superclass constructor. Calling a
             // subclass getMaxEnergy() here can ask for upgrades before this provider exists.
             machineEnergy = new MachineEnergyStorage(INITIAL_MACHINE_ENERGY_CAPACITY);
+            createOptionals();
+        }
+
+        private boolean invalidated;
+        private void createOptionals() {
+            invalidated=false;
             upgradesOptional = LazyOptional.of(() -> upgrades);
             extendedUpgradesOptional = LazyOptional.of(() -> extendedUpgrades);
             clickerFluidOptional = LazyOptional.of(() -> clickerFluidTank);
@@ -161,6 +167,9 @@ public final class JDTEAttachments {
 
         @Override
         public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
+            // CapabilityProvider gates requests while invalid. Forge reviveCaps reuses the
+            // provider; create fresh handles to the SAME buffers on its next valid request.
+            if (invalidated) createOptionals();
             if (capability == UPGRADE_HANDLER) return upgradesOptional.cast();
             if (capability == EXTENDED_UPGRADE_HANDLER) return extendedUpgradesOptional.cast();
             if (capability == CLICKER_FLUID_TANK) return clickerFluidOptional.cast();
@@ -215,6 +224,7 @@ public final class JDTEAttachments {
         }
 
         private void invalidate() {
+            invalidated=true;
             upgradesOptional.invalidate();
             extendedUpgradesOptional.invalidate();
             clickerFluidOptional.invalidate();

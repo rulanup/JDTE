@@ -47,4 +47,5 @@ public class JDTERecipes {
             "life_synthesis", LifeSynthesisRecipe.Serializer::new);
     public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.item.crafting.RecipeType<com.jdte.common.recipes.MineralExtractorResourcesRecipe>> MINERAL_EXTRACTOR_RESOURCES_RECIPE_TYPE = RECIPE_TYPES.register("mineral_extractor_resources", () -> net.minecraft.world.item.crafting.RecipeType.simple(JDTE.id("mineral_extractor_resources")));
     public static final net.minecraftforge.registries.RegistryObject<com.jdte.common.recipes.MineralExtractorResourcesRecipe.Serializer> MINERAL_EXTRACTOR_RESOURCES_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("mineral_extractor_resources", com.jdte.common.recipes.MineralExtractorResourcesRecipe.Serializer::new);
+    public static final RegistryObject<com.jdte.common.recipes.ExtendedGeneratorRecipe.Serializer> EXTENDED_GENERATOR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("extended_generator", com.jdte.common.recipes.ExtendedGeneratorRecipe.Serializer::new);
 }

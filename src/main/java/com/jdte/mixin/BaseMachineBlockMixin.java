@@ -44,13 +44,14 @@ public abstract class BaseMachineBlockMixin {
 
         cir.setReturnValue((tickLevel, pos, blockState, blockEntity) -> {
             if (blockEntity instanceof BaseMachineBE machine) {
+                if (machine.isRemoved() || tickLevel.getBlockEntity(pos) != machine) return;
                 com.jdte.common.manager.AEOutputManager.track(machine);
                 boolean redstoneActive = true;
                 if (machine instanceof com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE redstone) {
                     redstone.evaluateRedstone();
                     redstoneActive = redstone.isActiveRedstoneTestOnly();
                 }
-                int executions = redstoneActive && (machine instanceof com.jdte.common.blockentities.FluidMixerBE || machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE) && UpgradeHelper.hasUltimateOverclock(machine)
+                int executions = redstoneActive && (machine instanceof com.jdte.common.blockentities.FluidMixerBE || machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || UpgradeHelper.isExtendedGenerator(machine)) && UpgradeHelper.hasUltimateOverclock(machine)
                         ? 10 : UpgradeHelper.shouldRunOverclock(machine) ? 2 : 1;
                 UpgradeHelper.runServerTicker(UpgradeHelper.usesCommonAeTickerGate(machine), redstoneActive,
                         () -> UpgradeHelper.mayRunWithUpgrades(machine), executions, () -> {

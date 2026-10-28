@@ -2,11 +2,11 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 103,
+  "forge_item_count": 105,
   "counts": {
     "verified": 35,
-    "absent": 17,
-    "implemented_unverified": 20,
+    "absent": 15,
+    "implemented_unverified": 22,
     "partial": 48
   },
   "rows": [
@@ -426,7 +426,7 @@
       "id": "extended_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "The original 15 conversions retain real-item and two-JVM production evidence. A 16th native Energy Transmitter to Extended path now passes real-item GameTest local-FE/card conservation; the new target separately passes production wrench/unload/restart checks. Four source targets remain absent; keep P. Do not infer production coverage for the new conversion from target lifecycle coverage.",
+      "note": "Original 15 conversions retain item/production evidence; native transmitter is path 16. Both native generators now convert with real item/FE/fluid/cards/prepaid-work preservation and protection-event rollback tests (paths 17/18). Experience Holder and Advanced Bio Extractor targets remain absent; keep P. Target lifecycle is separate from conversion acceptance.",
       "registered": true,
       "kind": "item",
       "name": "Extended Upgrade",
@@ -825,18 +825,20 @@
     {
       "id": "extended_generator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
-      "kind": "item",
+      "status": "implemented_unverified",
+      "note": "Native Forge generation, eight real upgrade slots, menus/screens, full-width counters, preserving recipes, live guarded automation ports and actual-acceptance neighbor export implemented. Nine Forge tests cover both conversions/protection rollback, fuel/FE/fluid, Ultimate ticker/capacity and packing. Graphical and production unload/restart acceptance pending; see generators evidence.",
+      "registered": true,
+      "kind": "block item",
       "name": "Extended Coal Generator",
-      "implementation_files": [],
-      "block_entity": false,
-      "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedGeneratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "extended_experience_holder",
@@ -857,18 +859,20 @@
     {
       "id": "extended_fluid_generator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
-      "kind": "item",
+      "status": "implemented_unverified",
+      "note": "Native Forge generation, eight real upgrade slots, menus/screens, full-width counters, preserving recipes, live guarded automation ports and actual-acceptance neighbor export implemented. Nine Forge tests cover both conversions/protection rollback, fuel/FE/fluid, Ultimate ticker/capacity and packing. Graphical and production unload/restart acceptance pending; see generators evidence.",
+      "registered": true,
+      "kind": "block item",
       "name": "Extended Fluid Generator",
-      "implementation_files": [],
-      "block_entity": false,
-      "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedFluidGeneratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "extended_energy_transmitter",

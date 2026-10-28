@@ -23,6 +23,8 @@ public final class MachineSettingsCodecRegistry {
     private static final Map<ResourceLocation, RegisteredCodec> REGISTRY = new LinkedHashMap<>();
 
     static {
+        register(JDTEBlockEntities.EXTENDED_FLUID_GENERATOR.get(), ExtendedFluidGeneratorBE.class);
+        register(JDTEBlockEntities.EXTENDED_GENERATOR.get(), ExtendedGeneratorBE.class);
         register(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), AdvancedEnergyTransmitterBE.class,
                 JdteMachineSettingsCodecs.advancedEnergyTransmitter());
         register(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), ExtendedEnergyTransmitterBE.class,

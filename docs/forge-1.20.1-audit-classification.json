@@ -144,7 +144,7 @@
       "id": "extended_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "The original 15 conversions retain real-item and two-JVM production evidence. A 16th native Energy Transmitter to Extended path now passes real-item GameTest local-FE/card conservation; the new target separately passes production wrench/unload/restart checks. Four source targets remain absent; keep P. Do not infer production coverage for the new conversion from target lifecycle coverage."
+      "note": "Original 15 conversions retain item/production evidence; native transmitter is path 16. Both native generators now convert with real item/FE/fluid/cards/prepaid-work preservation and protection-event rollback tests (paths 17/18). Experience Holder and Advanced Bio Extractor targets remain absent; keep P. Target lifecycle is separate from conversion acceptance."
     },
     {
       "id": "upgrade_storage",
@@ -281,8 +281,8 @@
     {
       "id": "extended_generator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Native Forge generation, eight real upgrade slots, menus/screens, full-width counters, preserving recipes, live guarded automation ports and actual-acceptance neighbor export implemented. Nine Forge tests cover both conversions/protection rollback, fuel/FE/fluid, Ultimate ticker/capacity and packing. Graphical and production unload/restart acceptance pending; see generators evidence."
     },
     {
       "id": "extended_experience_holder",
@@ -293,8 +293,8 @@
     {
       "id": "extended_fluid_generator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Native Forge generation, eight real upgrade slots, menus/screens, full-width counters, preserving recipes, live guarded automation ports and actual-acceptance neighbor export implemented. Nine Forge tests cover both conversions/protection rollback, fuel/FE/fluid, Ultimate ticker/capacity and packing. Graphical and production unload/restart acceptance pending; see generators evidence."
     },
     {
       "id": "extended_energy_transmitter",

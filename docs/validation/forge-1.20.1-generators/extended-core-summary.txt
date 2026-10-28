@@ -1,0 +1,7 @@
+2026-10-28; parent fuel checkpoint 2415cc9
+Command: gradlew test build runGameTestServer compileClientSmokeJava --no-daemon --max-workers=2 (configured proxy)
+JUnit 138, zero errors/failures/skips. GameTest: All 178 required tests passed.
+BUILD SUCCESSFUL in 1m 18s. Main/probe reobfuscation and graphical harness compile passed.
+Existing 131 JUnit/164 GameTests retained; new fuel 7/5 and Extended generator 0/9.
+Log: /tmp/jdte-generator-gt4.log (ephemeral original).
+Failures before passing run: Forge API names, test fixture T1 receiver/mock crafting player/speed slot, attached capability handles invalid after revive. Corrected without removing tests or relaxing valid behavioral requirements.

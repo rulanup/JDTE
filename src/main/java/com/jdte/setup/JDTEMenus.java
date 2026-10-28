@@ -145,4 +145,8 @@ public class JDTEMenus {
     public static final RegistryObject<MenuType<com.jdte.common.containers.CraftingPatternContainer>> CRAFTING_PATTERN = MENUS.register("crafting_pattern",()->net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.CraftingPatternContainer::new));
     public static final RegistryObject<MenuType<com.jdte.common.containers.AdvancedUpgradeStorageContainer>> ADVANCED_UPGRADE_STORAGE = MENUS.register("advanced_upgrade_storage", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.AdvancedUpgradeStorageContainer::new));
     public static final RegistryObject<MenuType<com.jdte.common.containers.UpgradeStorageContainer>> UPGRADE_STORAGE = MENUS.register("upgrade_storage", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.UpgradeStorageContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedGeneratorContainer>> EXTENDED_GENERATOR = MENUS.register("extended_generator", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedGeneratorContainer::new));
+
+    public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedFluidGeneratorContainer>> EXTENDED_FLUID_GENERATOR = MENUS.register("extended_fluid_generator", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedFluidGeneratorContainer::new));
+
 }

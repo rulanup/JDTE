@@ -8,12 +8,12 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest saved baseline: **`2d630d4`**; fuel-canister core checkpoint follows (this entry is included in that commit). Prior transmitter acceptance remains unchanged.
+- Latest pushed fuel checkpoint: **`2415cc9`**; Extended generator core checkpoint follows (this entry is included in that commit). Prior transmitter acceptance remains unchanged.
 - Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
-- Latest complete regression: **138 JUnit / 169 required GameTests**, build and main/probe reobfuscation passed. Existing 131/164 tests remain enabled. See [fuel evidence](validation/forge-1.20.1-generators/README.md).
-- 120-item status: V **35**, U **20**, P **48**, N **17**; **103** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains the acceptance authority.
+- Latest complete regression: **138 JUnit / 178 required GameTests**, build, main/probe reobfuscation and graphical harness compilation passed. Existing 131/164 tests remain enabled. See [fuel evidence](validation/forge-1.20.1-generators/README.md).
+- 120-item status: V **35**, U **22**, P **48**, N **15**; **105** source items registered in Forge. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains the acceptance authority.
 - Persistence: checkpoints are saved on `codex/forge-1.20.1-mineral-machines`; recovery branch **`cd8aaaa`** and `/workspace/jdte-recovery-20261028` remain preserved. No main merge or release.
-- Next priorities: complete both Extended generator conversions and their lifecycle/automation tests; graphical fuel/Curios and production recovery acceptance. Fuel canister remains U until those paths have evidence.
+- Next priorities: execute graphical fuel/Curios and both generator menus; production chunk unload, full-inventory wrench and fresh-JVM recovery. All three new rows remain U pending acceptance.
 - Still unverified: external JDTE-AE whole-grid backend, prolonged multiplayer uptime, complete operating reactors and complete Draconic fusion recipes.
 <!-- current-status:end -->
 
@@ -555,3 +555,11 @@ Implemented the source fuel item, weighted burn speed, ×4 capacity/×10 unit, b
 Fixed caller-owned fuel stacks being mutated by synchronous staging-slot callbacks and native solid generation consuming prepaid FE while its output buffer was full. Checked overflow before consuming fuel, and require two complete canister units for Generator Upgrade. The upgrade recipe consumes four actual ingot cells and does not return the old canister (which would duplicate stored fuel).
 
 Validation: **138 JUnit / 169 required GameTests**, build and main/probe reobfuscation pass. Previous runs exposed input-stack ownership and an incorrect expected speed omitting native configuration; both were corrected before the passing run. All previous tests remain enabled. [Evidence and outstanding acceptance](validation/forge-1.20.1-generators/README.md). Canister U; Generator Upgrade remains P pending remaining acceptance.
+
+## 2026-10-28 — Extended generator core
+
+Added both native-derived Extended generator blocks/entities, eight-slot upgrades, Forge menus/screens, full-width burn/fluid menu properties, preserving shaped recipes, conversions, models/loot/tags/translations and English guides. Reuse real native energy/tank ownership, refined-fuel validation and configured output rates (including native fluid export ×10 per face); do not create parallel buffers. Source-compatible Ultimate Capacity ×50 and Ultimate Overclock ten executions are narrowly enabled and tested for these two hosts. Unsupported filter cards remain rejected.
+
+Added guarded live FE/item/fluid capabilities and fresh neighboring-port resolution. Export debits actual acceptance instead of native simulation results. Packed crafting now retains machine NBT and migrates four active upgrade slots without leaving a second inventory. Menus reject detached owners. Found and fixed attached capability handles never recovering after Forge invalidation/revival; fresh handles now point to the same retained buffers, and detached ticker callbacks are rejected before querying upgrades.
+
+Nine new Forge tests cover real fuel insertion/extraction, full buffers/whole batches, validation, capacities, actual ten-execution ticker, both native conversions, real protection-event cancellation/rollback, raw save/load, retained endpoints, wrench/actual BlockItem placement, partial receiving neighbors/direction/rates and packed crafting. Early runs exposed fixture errors (T1 unpowered receiver, mock player's crafting menu, replacing a speed card instead of conflicting with it) and the real capability-revival defect. Final **138 JUnit / 178 required GameTests**, complete build, both reobfuscations and client harness compilation pass. No tests/assertions removed. Graphical and production-JVM checks remain pending at this checkpoint.

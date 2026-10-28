@@ -92,4 +92,8 @@ public class JDTEBlocks {
     public static final RegistryObject<com.jdte.common.blocks.MineralExtractorBlock> MINERAL_EXTRACTOR = BLOCKS.register("mineral_extractor", com.jdte.common.blocks.MineralExtractorBlock::new);
     public static final RegistryObject<com.jdte.common.blocks.LargeMineralExtractorBlock> LARGE_MINERAL_EXTRACTOR = BLOCKS.register("large_mineral_extractor", com.jdte.common.blocks.LargeMineralExtractorBlock::new);
     public static final RegistryObject<com.jdte.common.blocks.LargeMineralExtractorPartBlock> LARGE_MINERAL_EXTRACTOR_PART = BLOCKS.register("large_mineral_extractor_part", com.jdte.common.blocks.LargeMineralExtractorPartBlock::new);
+    public static final RegistryObject<Block> EXTENDED_GENERATOR = BLOCKS.register("extended_generator", com.jdte.common.blocks.ExtendedGeneratorBlock::new);
+
+    public static final RegistryObject<Block> EXTENDED_FLUID_GENERATOR = BLOCKS.register("extended_fluid_generator", com.jdte.common.blocks.ExtendedFluidGeneratorBlock::new);
+
 }

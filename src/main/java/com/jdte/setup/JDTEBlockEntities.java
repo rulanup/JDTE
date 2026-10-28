@@ -142,4 +142,8 @@ public class JDTEBlockEntities {
     public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.MineralExtractorBE>> MINERAL_EXTRACTOR = BLOCK_ENTITIES.register("mineral_extractor", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.MineralExtractorBE::new, JDTEBlocks.MINERAL_EXTRACTOR.get()).build(null));
     public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.LargeMineralExtractorBE>> LARGE_MINERAL_EXTRACTOR = BLOCK_ENTITIES.register("large_mineral_extractor", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.LargeMineralExtractorBE::new, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get()).build(null));
     public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.LargeMineralExtractorPartBE>> LARGE_MINERAL_EXTRACTOR_PART = BLOCK_ENTITIES.register("large_mineral_extractor_part", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.LargeMineralExtractorPartBE::new, JDTEBlocks.LARGE_MINERAL_EXTRACTOR_PART.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedGeneratorBE>> EXTENDED_GENERATOR = BLOCK_ENTITIES.register("extended_generator", () -> BlockEntityType.Builder.of(ExtendedGeneratorBE::new, JDTEBlocks.EXTENDED_GENERATOR.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ExtendedFluidGeneratorBE>> EXTENDED_FLUID_GENERATOR = BLOCK_ENTITIES.register("extended_fluid_generator", () -> BlockEntityType.Builder.of(ExtendedFluidGeneratorBE::new, JDTEBlocks.EXTENDED_FLUID_GENERATOR.get()).build(null));
+
 }

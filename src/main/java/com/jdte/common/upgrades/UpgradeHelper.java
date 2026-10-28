@@ -217,7 +217,7 @@ public class UpgradeHelper {
         if (machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE
                 && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
         if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
-            return machine instanceof com.jdte.common.blockentities.MineralExtractorBE || machine instanceof com.jdte.common.blockentities.FluidMixerBE;
+            return machine instanceof com.jdte.common.blockentities.MineralExtractorBE || machine instanceof com.jdte.common.blockentities.FluidMixerBE || isExtendedGenerator(machine);
         if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE)
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID || type == UpgradeType.FILTER
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
@@ -365,7 +365,7 @@ public class UpgradeHelper {
         if (!usesLockedDelay(machine)) {
             return original;
         }
-        if (hasCreativeUpgrade(machine) || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE) && hasUltimateOverclock(machine)) {
+        if (hasCreativeUpgrade(machine) || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || isExtendedGenerator(machine)) && hasUltimateOverclock(machine)) {
             return 1;
         }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
@@ -389,7 +389,7 @@ public class UpgradeHelper {
 
     public static boolean hasOverclock(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasCreativeUpgrade(machine)
-                || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE) && hasUltimateOverclock(machine);
+                || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || isExtendedGenerator(machine)) && hasUltimateOverclock(machine);
     }
 
     public static boolean hasUndercLock(BaseMachineBE machine) {
@@ -534,5 +534,8 @@ public class UpgradeHelper {
     }
     private static int scaledUltimateCapacity(BaseMachineBE machine, int original) {
         return hasUltimateCapacity(machine) ? (int) Math.min(Integer.MAX_VALUE, (long) original * 50) : original;
+    }
+    public static boolean isExtendedGenerator(BaseMachineBE machine) {
+        return machine instanceof com.jdte.common.blockentities.ExtendedGeneratorBE || machine instanceof com.jdte.common.blockentities.ExtendedFluidGeneratorBE;
     }
 }

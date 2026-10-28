@@ -48,7 +48,7 @@ public abstract class GeneratorFluidUpgradeMixin {
     @Inject(remap = false, method = "getFEOutputPerTick", at = @At("RETURN"), cancellable = true)
     private void jdte$generatorUpgradeOutput(CallbackInfoReturnable<Integer> cir) {
         if (UpgradeHelper.hasGeneratorUpgrade((GeneratorFluidT1BE) (Object) this)) {
-            cir.setReturnValue(cir.getReturnValue() * 3);
+            cir.setReturnValue(com.jdte.common.items.FuelCanisterMath.rate(cir.getReturnValue(), 3));
         }
     }
 }

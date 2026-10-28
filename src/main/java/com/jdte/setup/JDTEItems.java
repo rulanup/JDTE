@@ -172,4 +172,8 @@ public class JDTEItems {
     public static final RegistryObject<com.jdte.common.items.MineralSurveyItem> MINERAL_SURVEY = ITEMS.register("mineral_survey", com.jdte.common.items.MineralSurveyItem::new);
     public static final RegistryObject<UpgradeCardItem> ULTIMATE_CAPACITY_UPGRADE = ITEMS.register("ultimate_capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_CAPACITY));
     public static final RegistryObject<UpgradeCardItem> ULTIMATE_OVERCLOCK_UPGRADE = ITEMS.register("ultimate_overclock_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_OVERCLOCK));
+    public static final RegistryObject<BlockItem> EXTENDED_GENERATOR = ITEMS.register("extended_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_GENERATOR.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockItem> EXTENDED_FLUID_GENERATOR = ITEMS.register("extended_fluid_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(), new Item.Properties()));
+
 }
