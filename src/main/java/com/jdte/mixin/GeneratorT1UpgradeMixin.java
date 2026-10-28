@@ -3,6 +3,7 @@ package com.jdte.mixin;
 import com.direwolf20.justdirethings.common.blockentities.GeneratorT1BE;
 import com.direwolf20.justdirethings.setup.Config;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.upgrades.GeneratorUpgradeHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,7 +46,7 @@ public abstract class GeneratorT1UpgradeMixin {
             ci.cancel();
             return;
         }
-        int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING);
+        int burnTime = net.minecraftforge.common.ForgeHooks.getBurnTime(fuelStack, RecipeType.SMELTING);
         if (burnTime <= 0) {
             ci.cancel();
             return;

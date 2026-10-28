@@ -1,4 +1,4 @@
-package com.jdte.mixin;
+package com.jdte.common.upgrades;
 
 import com.direwolf20.justdirethings.common.blocks.resources.CoalBlock_T1;
 import com.direwolf20.justdirethings.common.items.FuelCanister;
@@ -7,11 +7,11 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 
-final class GeneratorUpgradeHelper {
+public final class GeneratorUpgradeHelper {
     private GeneratorUpgradeHelper() {
     }
 
-    static int burnSpeedMultiplier(ItemStack fuelStack) {
+    public static int burnSpeedMultiplier(ItemStack fuelStack) {
         if (fuelStack.getItem() instanceof Coal_T1 direCoal) {
             return direCoal.getBurnSpeedMultiplier();
         }
@@ -25,7 +25,7 @@ final class GeneratorUpgradeHelper {
     }
 
     /** Consumes double fuel for the generator upgrade's tripled output. */
-    static void consumeFuel(ItemStackHandler machineHandler, ItemStack fuelStack) {
+    public static void consumeFuel(ItemStackHandler machineHandler, ItemStack fuelStack) {
         if (fuelStack.hasCraftingRemainingItem()) {
             ItemStack remaining = fuelStack.getCraftingRemainingItem();
             if (remaining.getItem() instanceof FuelCanister) {
