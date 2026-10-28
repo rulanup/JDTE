@@ -42,7 +42,7 @@
       "id": "generator_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "Native fluid batches simulate two mB and full FE acceptance before consumption, with owned-buffer rollback; native solid fuel uses ForgeHooks and a loadable helper. Seven unit/four real GameTests pass. Large-canister-specific support remains absent with its unported item; keep P."
+      "note": "Native fluid batches simulate two mB and full FE acceptance before consumption, with owned-buffer rollback; native solid fuel uses ForgeHooks and a loadable helper. Seven unit/four real GameTests and production two-JVM odd-fuel conservation pass. Large-canister-specific support remains absent with its unported item; keep P."
     },
     {
       "id": "range_upgrade",
@@ -144,7 +144,7 @@
       "id": "extended_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "All 15 available source/target conversions tested through actual item interaction: active 4-to-8 slots, physical inventories, native FE/filter remapping, capacities, reload, stale endpoints and transactional/protection-event rollback. Five source conversion targets remain absent; keep P."
+      "note": "All 15 available source/target conversions tested through actual item interaction and two production JVMs with exact disk restoration/live capabilities: active 4-to-8 slots, physical inventories, native FE/filter remapping, capacities, reload, stale endpoints and transactional/protection-event rollback. Five source conversion targets remain absent; keep P."
     },
     {
       "id": "upgrade_storage",

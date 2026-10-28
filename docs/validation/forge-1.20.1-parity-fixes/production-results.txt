@@ -1,0 +1,2 @@
+PASS: all 15 real production conversions preserve inventory/cards/FE/filters/fluids, expose eight slots and clear old interfaces; Forge cancellation restores native dropper; generator conserves odd fuel before saved shutdown
+PASS: fresh production JVM restores exact state for all 15 conversions and generator; live FE/item capabilities spend only their one saved inventory; eighth slots and odd-fuel conservation remain correct
