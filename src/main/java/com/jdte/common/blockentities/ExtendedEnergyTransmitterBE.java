@@ -13,16 +13,81 @@ public class ExtendedEnergyTransmitterBE extends EnergyTransmitterBE implements 
         super(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), pos, state);
     }
 
+    private final com.direwolf20.justdirethings.common.capabilities.TransmitterEnergyStorage ownedEnergy =
+            new ExtendedTransmitterEnergyStorage(getMaxEnergy(), this);
+
+    @Override public com.direwolf20.justdirethings.common.capabilities.TransmitterEnergyStorage getEnergyStorage() {
+        // Native constructors may query this virtual method before the subclass field exists.
+        return ownedEnergy == null ? super.getEnergyStorage() : ownedEnergy;
+    }
+
+    @Override public java.util.Map<BlockPos, com.direwolf20.justdirethings.common.capabilities.TransmitterEnergyStorage> getTransmitterEnergyStorages() {
+        if (!TransmitterPorts.live(this)) return java.util.Map.of();
+        var result = new java.util.LinkedHashMap<BlockPos, com.direwolf20.justdirethings.common.capabilities.TransmitterEnergyStorage>();
+        result.put(worldPosition, getEnergyStorage());
+        var seen = new java.util.IdentityHashMap<com.direwolf20.justdirethings.common.capabilities.TransmitterEnergyStorage, Boolean>();
+        seen.put(getEnergyStorage(), Boolean.TRUE);
+        super.getTransmitterEnergyStorages().forEach((pos, storage) -> {
+            if (seen.put(storage, Boolean.TRUE) == null) result.put(pos, storage);
+        });
+        return result;
+    }
+
+    @Override public int getTotalEnergyStored() {
+        return AdvancedEnergyTransmitterScheduler.clampToInt(getTransmitterEnergyStorages().values().stream()
+                .mapToLong(s -> Math.max(0, s.getRealEnergyStored())).sum());
+    }
+    @Override public int getTotalMaxEnergyStored() {
+        return AdvancedEnergyTransmitterScheduler.clampToInt(getTransmitterEnergyStorages().values().stream()
+                .mapToLong(s -> Math.max(0, s.getRealMaxEnergyStored())).sum());
+    }
+    @Override public int distributeEnergy(int amount) { return getEnergyStorage().receiveEnergy(amount, false); }
+    @Override public int extractEnergy(int amount) { return getEnergyStorage().extractEnergy(amount, false); }
+
+    @Override public void balanceEnergy() {
+        var entries = new java.util.ArrayList<>(getTransmitterEnergyStorages().entrySet());
+        if (entries.size() < 2) return;
+        // A wide, capacity-constrained equal-share plan avoids both int overflow and small-peer overfill.
+        long remaining = 0, capacity = 0;
+        for (var entry : entries) {
+            if (entry.getValue().getRealEnergyStored() < 0) return;
+            remaining += entry.getValue().getRealEnergyStored();
+            capacity += Math.max(0, entry.getValue().getRealMaxEnergyStored());
+        }
+        if (remaining > capacity) return; // Never silently discard pre-existing excess from a foreign buffer.
+        entries.sort(java.util.Comparator.comparingInt(e -> e.getValue().getRealMaxEnergyStored()));
+        int count = entries.size();
+        for (var entry : entries) {
+            int target = (int)Math.min(Math.max(0, entry.getValue().getRealMaxEnergyStored()),
+                    remaining / count + (remaining % count == 0 ? 0 : 1));
+            if (entry.getValue().getRealEnergyStored() != target) {
+                entry.getValue().setEnergy(target);markBufferChanged(entry.getKey());
+                doParticles(worldPosition, entry.getKey());
+            }
+            remaining -= target;count--;
+        }
+    }
+    void markBufferChanged(BlockPos pos) {
+        if (level != null && level.isLoaded(pos)) {
+            var be = level.getBlockEntity(pos);
+            if (be != null) be.setChanged();
+        }
+    }
+
     @Override
     public IEnergyStorage getTransmitterHandler(BlockPos blockPos) {
-        if (isRemoved() || level!=null && (!level.isLoaded(blockPos) || level.getBlockEntity(worldPosition)!=this)) return null;
+        if (chunkUnloaded || isRemoved() || level!=null && (!level.isLoaded(blockPos) || level.getBlockEntity(worldPosition)!=this)) return null;
         if (blockPos.equals(worldPosition)) {
             return getEnergyStorage();
         }
         if (level == null || !level.getBlockState(blockPos).is(Registration.EnergyTransmitter.get())) {
             return null;
         }
-        return super.getTransmitterHandler(blockPos);
+        var peer = level.getBlockEntity(blockPos);
+        if (peer == null || peer.isRemoved()) return null;
+        // Resolve the current block entity and facing; a native cache may still refer to a replaced peer.
+        return peer.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ENERGY,
+                level.getBlockState(blockPos).getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING)).orElse(null);
     }
 
     @Override

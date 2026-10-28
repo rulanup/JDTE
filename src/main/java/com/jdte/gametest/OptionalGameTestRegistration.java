@@ -23,6 +23,7 @@ public final class OptionalGameTestRegistration {
             }
         }
         if (ModList.get().isLoaded("mysticalagriculture")) event.register(com.jdte.common.blockentities.SeedHarvestGameTests.class);
+        if (ModList.get().isLoaded("draconicevolution")) event.register(TransmitterDraconicGameTests.class);
         if (ModList.get().isLoaded("curios")) event.register(CuriosRegistrationGameTests.class);
     }
 }

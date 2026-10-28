@@ -25,8 +25,14 @@ final class TransmitterPorts {
     static IEnergyStorage energy(AdvancedEnergyTransmitterBE owner,Direction side) {
         return new IEnergyStorage(){
             private boolean valid(){return facing(owner,side);}
-            @Override public int receiveEnergy(int n,boolean simulate){return valid()?owner.getEnergyStorage().receiveEnergy(n,simulate):0;}
-            @Override public int extractEnergy(int n,boolean simulate){return valid()?owner.getEnergyStorage().extractEnergy(n,simulate):0;}
+            @Override public int receiveEnergy(int n,boolean simulate){
+                if(!valid()||n<=0)return 0;int moved=owner.getEnergyStorage().receiveEnergy(n,simulate);
+                if(!simulate&&moved>0)owner.setChanged();return moved;
+            }
+            @Override public int extractEnergy(int n,boolean simulate){
+                if(!valid()||n<=0)return 0;int moved=owner.getEnergyStorage().extractEnergy(n,simulate);
+                if(!simulate&&moved>0)owner.setChanged();return moved;
+            }
             @Override public int getEnergyStored(){return valid()?owner.getEnergyStorage().getEnergyStored():0;}
             @Override public int getMaxEnergyStored(){return valid()?owner.getEnergyStorage().getMaxEnergyStored():0;}
             @Override public boolean canReceive(){return valid()&&owner.getEnergyStorage().canReceive();}
