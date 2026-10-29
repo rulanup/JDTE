@@ -319,6 +319,7 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
         return super.isDefaultSettings()
                 && energyStorage.getEnergyStored() == 0
                 && fluidTank.getFluid().isEmpty()
+                && pendingFluidCost == 0
                 && multiplier == JDTEConfig.COMMON.entityAccelerator.advancedDefaultMultiplier.get();
     }
 

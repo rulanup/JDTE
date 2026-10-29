@@ -12,12 +12,12 @@ public final class EntityAccelerationManager {
     public static boolean isAccelerating(Entity entity) { return ACTIVE.get()==entity; }
     public static int runAcceleratedTicks(Entity entity,int extraTicks) {
         if(extraTicks<=0 || entity instanceof Player || !(entity.level() instanceof ServerLevel level)
-                || level.getServer().isStopped() || !level.getServer().isSameThread() || ACTIVE.get()!=null)return 0;
+                || (!level.getServer().isRunning() || level.getServer().isStopped()) || !level.getServer().isSameThread() || ACTIVE.get()!=null)return 0;
         int completed=0;
         ACTIVE.set(entity);
         try {
             for(int i=0;i<extraTicks;i++) {
-                if(entity.level()!=level || entity.isRemoved() || !entity.isAlive()
+                if(!level.getServer().isRunning() || level.getServer().isStopped() || entity.level()!=level || entity.isRemoved() || !entity.isAlive()
                         || !level.hasChunkAt(entity.blockPosition()) || level.getEntity(entity.getUUID())!=entity)break;
                 entity.tick();
                 completed++;
