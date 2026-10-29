@@ -86,6 +86,16 @@ public final class UltimateTimeWandGameTests {
         try{h.assertTrue(click(h,p,s)==InteractionResult.FAIL&&markers(h).isEmpty()&&energy(s).getEnergyStored()==original-7&&UltimateTimeWandItem.pendingFluid(s)==0,"callback's own seven FE remains; wand payment and spawned target roll back");}finally{MinecraftForge.EVENT_BUS.unregister(mutate);}
         h.assertTrue(click(h,p,s)==InteractionResult.SUCCESS&&energy(s).getEnergyStored()==original-7-rf(2),"subsequent valid use charges exactly once");markers(h).forEach(Entity::discard);h.succeed();
     }
+    @GameTest(template="mineral_empty") public static void callbackHeldStackSwapAndTargetReplacementRollBack(GameTestHelper h){
+        furnace(h);var s=wand();charge(s);var p=player(h,s);var before=s.save(new CompoundTag());
+        java.util.function.Consumer<EntityJoinLevelEvent> swap=e->{if(e.getEntity() instanceof UltimateTimeWandEntity w&&h.absolutePos(POS).equals(w.getTarget()))p.setItemInHand(InteractionHand.MAIN_HAND,s.copy());};
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false,EntityJoinLevelEvent.class,swap);
+        try{h.assertTrue(click(h,p,s)==InteractionResult.FAIL&&markers(h).isEmpty()&&before.equals(s.save(new CompoundTag()))&&before.equals(p.getMainHandItem().save(new CompoundTag())),"callback replacing the actual held stack cannot leave a free effect or charge an orphan stack");}finally{MinecraftForge.EVENT_BUS.unregister(swap);}
+        p.setItemInHand(InteractionHand.MAIN_HAND,s);
+        java.util.function.Consumer<EntityJoinLevelEvent> replace=e->{if(e.getEntity() instanceof UltimateTimeWandEntity w&&h.absolutePos(POS).equals(w.getTarget())){h.getLevel().removeBlockEntity(h.absolutePos(POS));h.getLevel().setBlockEntity(new FurnaceBlockEntity(h.absolutePos(POS),h.getBlockState(POS)));}};
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false,EntityJoinLevelEvent.class,replace);
+        try{h.assertTrue(click(h,p,s)==InteractionResult.FAIL&&markers(h).isEmpty()&&before.equals(s.save(new CompoundTag())),"callback replacing a ticker with another valid BE cancels the stale planned transaction without charge");}finally{MinecraftForge.EVENT_BUS.unregister(replace);}h.succeed();
+    }
     @GameTest(template="mineral_empty") public static void recursiveActivationAndTwoPlayersDoNotDuplicateMarker(GameTestHelper h){
         furnace(h);var a=wand();var b=wand();charge(a);charge(b);var p=player(h,a);var other=player(h,b);var nested=new InteractionResult[1];
         java.util.function.Consumer<EntityJoinLevelEvent> reenter=e->{if(e.getEntity() instanceof UltimateTimeWandEntity w&&h.absolutePos(POS).equals(w.getTarget()))nested[0]=click(h,other,b);};

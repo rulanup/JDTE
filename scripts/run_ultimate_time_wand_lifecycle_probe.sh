@@ -21,8 +21,11 @@ fi
 cp 'build/libs/[Forge] jdte-0.5.8-forge-1.20.1.jar' 'build/libs/[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar' "$server_dir/mods/"
 python - "$server_dir" "${JAVA_HOME:?Use the existing Java 17 installation}/bin/java" <<'PY'
 from pathlib import Path
-import subprocess,sys
+import subprocess,sys,uuid
 server=Path(sys.argv[1]);java=sys.argv[2]
+# Preserve prior worlds, then isolate every seed from failed prior effect entities.
+world=server/'wand-lifecycle-world'
+if world.exists():world.rename(server/('wand-lifecycle-world-before-'+uuid.uuid4().hex[:12]))
 for mode,marker in [('seed','wand-seed-success'),('verify','wand-verify-success')]:
     success=server/marker;success.unlink(missing_ok=True)
     with (server/f'wand-{mode}.log').open('w') as log:

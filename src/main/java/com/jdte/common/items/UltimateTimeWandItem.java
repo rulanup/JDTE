@@ -134,7 +134,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         }
 
         boolean creative = player.getAbilities().instabuild;
-        ServerCommitPort commitPort = new ServerCommitPort(level, stack, pos, existing, before);
+        ServerCommitPort commitPort = new ServerCommitPort(level, player, stack, pos, existing, before);
         if (!creative && !hasFluidForSettlement(stack, fluidSettlement)) {
             return false;
         }
@@ -387,6 +387,8 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
     private static final class ServerCommitPort implements CommitPort {
         private final ServerLevel level;
+        private final Player player;
+        private final java.util.Optional<com.jdte.common.blockentities.UltimateTimeWandTargetRuntime.Resolved> targetSnapshot;
         private final ItemStack stack;
         private final BlockPos target;
         private final UltimateTimeWandEntity existing;
@@ -394,9 +396,11 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         private UltimateTimeWandEntity created;
         private ItemStackNbtTransaction preparedResources;
 
-        private ServerCommitPort(ServerLevel level, ItemStack stack, BlockPos target,
+        private ServerCommitPort(ServerLevel level, Player player, ItemStack stack, BlockPos target,
                                  UltimateTimeWandEntity existing, WandState before) {
             this.level = level;
+            this.player = player;
+            this.targetSnapshot = com.jdte.common.blockentities.UltimateTimeWandTargetRuntime.resolve(level,target);
             this.stack = stack;
             this.target = target;
             this.existing = existing;
@@ -447,7 +451,9 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
         @Override
         public boolean commitResources() {
-            return isValidTarget(level,target) && preparedResources != null && preparedResources.commit(stack);
+            return canInteract(level,player,stack,target)
+                    && targetSnapshot.equals(com.jdte.common.blockentities.UltimateTimeWandTargetRuntime.resolve(level,target))
+                    && preparedResources != null && preparedResources.commit(stack);
         }
     }
 
@@ -500,7 +506,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         }
 
         boolean creative = player.getAbilities().instabuild;
-        EntityCommitPort commitPort = new EntityCommitPort(target, stack, before);
+        EntityCommitPort commitPort = new EntityCommitPort(player, target, stack, before);
         if (!creative && !hasFluidForSettlement(stack, fluidSettlement)) {
             player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.insufficient_resources")
                     .withStyle(ChatFormatting.RED), true);
@@ -520,13 +526,17 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     }
 
     private static final class EntityCommitPort implements CommitPort {
+        private final Player player;
+        private final ServerLevel level;
         private final net.minecraft.world.entity.Entity target;
         private final ItemStack stack;
         private final WandState before;
         private final boolean hadEffect;
         private ItemStackNbtTransaction preparedResources;
 
-        private EntityCommitPort(net.minecraft.world.entity.Entity target, ItemStack stack, WandState before) {
+        private EntityCommitPort(Player player, net.minecraft.world.entity.Entity target, ItemStack stack, WandState before) {
+            this.player = player;
+            this.level = (ServerLevel)target.level();
             this.target = target;
             this.stack = stack;
             this.before = before;
@@ -572,7 +582,8 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
         @Override
         public boolean commitResources() {
-            return isValidEntityTarget(target) && preparedResources != null && preparedResources.commit(stack);
+            return target.level()==level && isValidEntityTarget(target) && canInteract(level,player,stack,target.blockPosition())
+                    && level.getEntity(target.getUUID())==target && preparedResources != null && preparedResources.commit(stack);
         }
     }
 
