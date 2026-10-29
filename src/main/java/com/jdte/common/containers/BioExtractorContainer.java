@@ -74,4 +74,7 @@ public abstract class BioExtractorContainer extends BaseMachineContainer {
         slot.onTake(player, currentStack);
         return originalStack;
     }
+    @Override public void clicked(int index,int button,net.minecraft.world.inventory.ClickType type,Player player){
+        if(stillValid(player))super.clicked(index,button,type,player);
+    }
 }

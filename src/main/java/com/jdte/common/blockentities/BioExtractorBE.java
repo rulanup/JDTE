@@ -131,6 +131,7 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
                 return false;
             }
         };
+        getFilterHandler(); // Establish full attached storage before the first capability/NBT snapshot.
     }
 
     @Override

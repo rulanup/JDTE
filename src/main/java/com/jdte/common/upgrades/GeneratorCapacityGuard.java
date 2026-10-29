@@ -6,14 +6,20 @@ import com.jdte.common.blockentities.ExtendedFluidGeneratorBE;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
 
-/** Reject generator card changes that would silently discard stored FE or refined fuel. */
+/** Reject generator/Bio card changes that would silently discard stored FE or fluid. */
 public final class GeneratorCapacityGuard {
     private GeneratorCapacityGuard() {}
     public static boolean permits(BaseMachineBE machine,UpgradeItemStackHandler handler,int slot,ItemStack replacement) {
         if(!UpgradeHelper.isExtendedGenerator(machine) && !(machine instanceof com.jdte.common.blockentities.BioExtractorBE))return true;
+        if(handler!=UpgradeHelper.getUpgradeHandler(machine))return true;
+        var layout=new java.util.ArrayList<ItemStack>(handler.getSlots());
+        for(int i=0;i<handler.getSlots();i++)layout.add(i==slot?replacement:handler.getStackInSlot(i));
+        return permitsLayout(machine,layout);
+    }
+    public static boolean permitsLayout(BaseMachineBE machine,java.util.List<ItemStack> layout) {
+        if(!UpgradeHelper.isExtendedGenerator(machine) && !(machine instanceof com.jdte.common.blockentities.BioExtractorBE))return true;
         int capacity=0,fluid=0;boolean ultimate=false;
-        for(int i=0;i<handler.getSlots();i++) {
-            ItemStack stack=i==slot?replacement:handler.getStackInSlot(i);
+        for(ItemStack stack:layout) {
             if(stack.getItem() instanceof UpgradeCardItem card) {
                 if(card.getType()==UpgradeType.CAPACITY)capacity++;
                 if(card.getType()==UpgradeType.FLUID)fluid++;

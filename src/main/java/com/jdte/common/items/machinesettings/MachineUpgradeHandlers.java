@@ -203,7 +203,9 @@ public final class MachineUpgradeHandlers {
                 return false;
             }
         }
-        return true;
+        var layout=new java.util.ArrayList<ItemStack>(decoded.getSlots());
+        for(int slot=0;slot<decoded.getSlots();slot++)layout.add(decoded.getStackInSlot(slot));
+        return com.jdte.common.upgrades.GeneratorCapacityGuard.permitsLayout(machine,layout);
     }
 
     private static UpgradeItemStackHandler validationHandler(BaseMachineBE machine) {

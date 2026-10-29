@@ -29,5 +29,7 @@ Use Extended Upgrade on the placed Advanced machine for a transactional conversi
 
 ## Crafting
 
+Construction from a packed Advanced Life Extractor preserves stored FE, fluid and upgrades. Finish any pending fractional Life Fluid production before crafting. Settings copier presets apply to the same machine type; use Extended Upgrade for a tier conversion.
+
 <RecipeFor id="jdte:advanced_bio_extractor" />
 <RecipeFor id="jdte:extended_bio_extractor" />

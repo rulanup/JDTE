@@ -1,5 +1,5 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "jdte:extended_generator",
   "category": "misc",
   "key": {
     "E": {

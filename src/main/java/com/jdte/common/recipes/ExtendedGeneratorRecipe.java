@@ -20,7 +20,7 @@ public final class ExtendedGeneratorRecipe implements CraftingRecipe {
     private ItemStack source(CraftingContainer input) {
         for(int i=0;i<input.getContainerSize();i++) {
             var stack=input.getItem(i);
-            if(stack.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get()) || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorT1.get().asItem())
+            if(stack.is(com.jdte.setup.JDTEItems.ADVANCED_LIFE_EXTRACTOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get()) || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorT1.get().asItem())
                     || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorFluidT1.get().asItem()))return stack;
         }
         return ItemStack.EMPTY;
@@ -29,6 +29,8 @@ public final class ExtendedGeneratorRecipe implements CraftingRecipe {
         if(!delegate.matches(input,level))return false;
         // Occupied inactive destination storage cannot be silently overwritten.
         var caps=(source(input).hasTag()?source(input).getTag():new CompoundTag()).getCompound("JustDiresBEData").getCompound("ForgeCaps").getCompound("jdte:machine_data");
+        var old=source(input);var data=old.hasTag()?old.getTag().getCompound("JustDiresBEData"):new CompoundTag();
+        if(old.is(com.jdte.setup.JDTEItems.ADVANCED_LIFE_EXTRACTOR.get()) && data.getDouble("pendingLifeFluid")!=0)return false;
         return caps.getCompound("extended_upgrade_handler").getList("Items",Tag.TAG_COMPOUND).isEmpty();
     }
     @Override public ItemStack assemble(CraftingContainer input,RegistryAccess access) {
@@ -38,9 +40,11 @@ public final class ExtendedGeneratorRecipe implements CraftingRecipe {
             if(result.getTag().contains("JustDiresBEData",Tag.TAG_COMPOUND)) {
                 var data=result.getTag().getCompound("JustDiresBEData");
                 var all=data.getCompound("ForgeCaps");var caps=all.getCompound("jdte:machine_data");
-                var expanded=caps.getCompound("upgrade_handler").copy();expanded.putInt("Size",8);
-                caps.put("extended_upgrade_handler",expanded);
-                var empty=new CompoundTag();empty.putInt("Size",4);caps.put("upgrade_handler",empty);
+                if(!result.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get())) {
+                    var expanded=caps.getCompound("upgrade_handler").copy();expanded.putInt("Size",8);
+                    caps.put("extended_upgrade_handler",expanded);
+                    var empty=new CompoundTag();empty.putInt("Size",4);caps.put("upgrade_handler",empty);
+                }
                 all.put("jdte:machine_data",caps);data.put("ForgeCaps",all);
                 data.putString("id",net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(result.getItem()).toString());
             }
