@@ -4,7 +4,7 @@
 Server-side fixture assertions and client actions live in separate test-only source sets.
 This coordinator only launches processes and waits for their explicit results.
 """
-import json, os, shutil, subprocess, time
+import json, os, shutil, subprocess, time, uuid
 from smoke_runtime import KEEP, filtered_command
 from pathlib import Path
 
@@ -16,6 +16,14 @@ CONTROL = Path(f'/tmp/jdte-{SCENARIO}-remote-control' if SCENARIO != 'mineral' e
 assert (SERVER / '.jdte-lifecycle-fixture').is_file(), 'Use the existing marked disposable server'
 props = dict(line.split('=', 1) for line in (SERVER / 'server.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
 assert props.get('server-ip') == '127.0.0.1' and props.get('server-port') == '25579', 'Use loopback port 25579'
+if SCENARIO == 'bio':
+    # Preserve prior worlds/evidence and isolate absolute cooldown/resource ledgers on every seed.
+    world = 'bio-live-' + uuid.uuid4().hex[:12]
+    file = SERVER / 'server.properties'
+    lines = [line for line in file.read_text().splitlines() if not line.startswith('level-name=')]
+    file.write_text('\n'.join(lines + ['level-name=' + world]) + '\n')
+    print('Disposable Bio world:', world, flush=True)
+
 if CONTROL.exists():
     assert (CONTROL / '.fixture').is_file(), 'Refusing an unmarked control directory'
     shutil.rmtree(CONTROL)

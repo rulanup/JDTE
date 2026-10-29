@@ -21,7 +21,6 @@ final class EntityAcceleratorPorts {
     private final AdvancedEntityAcceleratorBE owner;
     private boolean unloaded;
     private LazyOptional<IEnergyStorage> energy;
-    private LazyOptional<IItemHandler> items;
     private LazyOptional<IFluidHandler> fluid;
 
     EntityAcceleratorPorts(AdvancedEntityAcceleratorBE owner) { this.owner=owner; revive(); }
@@ -33,13 +32,12 @@ final class EntityAcceleratorPorts {
     <T> LazyOptional<T> get(Capability<T> cap) {
         if(!live())return LazyOptional.empty();
         if(cap==ForgeCapabilities.ENERGY)return energy.cast();
-        if(cap==ForgeCapabilities.ITEM_HANDLER)return items.cast();
         return fluid.cast();
     }
-    void invalidate() { unloaded=true;energy.invalidate();items.invalidate();fluid.invalidate(); }
+    void invalidate() { unloaded=true;energy.invalidate();fluid.invalidate(); }
     void revive() {
         unloaded=false;
-        energy=LazyOptional.of(EnergyPort::new);items=LazyOptional.of(ItemPort::new);fluid=LazyOptional.of(FluidPort::new);
+        energy=LazyOptional.of(EnergyPort::new);fluid=LazyOptional.of(FluidPort::new);
     }
     private IEnergyStorage rawEnergy() { return ((PoweredMachineBE)owner).getEnergyStorage(); }
     private final class EnergyPort implements IEnergyStorage {
@@ -49,18 +47,6 @@ final class EntityAcceleratorPorts {
         public int getMaxEnergyStored() { return live()?rawEnergy().getMaxEnergyStored():0; }
         public boolean canReceive() { return live()&&rawEnergy().canReceive(); }
         public boolean canExtract() { return live()&&rawEnergy().canExtract(); }
-    }
-    private final class ItemPort implements IItemHandler {
-        public int getSlots() { return owner.getMachineHandler().getSlots(); }
-        public ItemStack getStackInSlot(int slot) { return live()?owner.getMachineHandler().getStackInSlot(slot).copy():ItemStack.EMPTY; }
-        public int getSlotLimit(int slot) { return owner.getMachineHandler().getSlotLimit(slot); }
-        public boolean isItemValid(int slot,ItemStack stack) {return false;}
-        public ItemStack insertItem(int slot,ItemStack stack,boolean simulate) {return stack;}
-        public ItemStack extractItem(int slot,int amount,boolean simulate) {
-            if(!live()||amount<=0)return ItemStack.EMPTY;
-            ItemStack result=owner.getMachineHandler().extractItem(slot,amount,simulate);
-            if(!simulate&&!result.isEmpty())owner.setChanged();return result;
-        }
     }
     private final class FluidPort implements IFluidHandler {
         private IFluidHandler tank() { return owner.getFluidTank(); }

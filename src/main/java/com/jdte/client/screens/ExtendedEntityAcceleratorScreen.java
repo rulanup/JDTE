@@ -11,6 +11,7 @@ import com.jdte.common.network.JDTEPacketHandler;
 
 public class ExtendedEntityAcceleratorScreen extends BaseMachineScreen<ExtendedEntityAcceleratorContainer> {
     private int multiplier;
+    private NumberButton multiplierButton;
 
     public ExtendedEntityAcceleratorScreen(ExtendedEntityAcceleratorContainer container, Inventory inv, Component name) {
         super(container, inv, name);
@@ -20,13 +21,15 @@ public class ExtendedEntityAcceleratorScreen extends BaseMachineScreen<ExtendedE
     @Override
     public void init() {
         super.init();
-        addRenderableWidget(new NumberButton(getGuiLeft() + 65, topSectionTop + 44, 34, 12, multiplier, 1,
+        multiplierButton=addRenderableWidget(new NumberButton(getGuiLeft() + 65, topSectionTop + 44, 34, 12, multiplier, 1,
                 JDTEConfig.COMMON.entityAccelerator.extendedMaxMultiplier.get(),
                 Component.translatable("jdte.screen.multiplier"), b -> {
             multiplier = ((NumberButton) b).getValue();
             JDTEPacketHandler.CHANNEL.sendToServer(new TimeAcceleratorPayload(multiplier));
         }));
     }
+
+    @Override protected void containerTick(){super.containerTick();if(multiplierButton!=null)multiplierButton.setValue(((ExtendedEntityAcceleratorContainer)container).getMultiplier());}
 
     @Override
     public void setTopSection() {

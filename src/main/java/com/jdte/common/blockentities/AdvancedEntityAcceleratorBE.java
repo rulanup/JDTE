@@ -116,7 +116,7 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
     }
 
     protected void accelerateEntities() {
-        if (!ports.live() || !(level instanceof ServerLevel serverLevel) || com.jdte.common.manager.EntityAccelerationManager.isSuppressingAi()) {
+        if (!ports.live() || (!UpgradeHelper.hasCreativeUpgrade(this) && (fluidTank.getFluid().isEmpty() || energyStorage.getEnergyStored()<=0)) || !(level instanceof ServerLevel serverLevel) || com.jdte.common.manager.EntityAccelerationManager.isSuppressingAi()) {
             return;
         }
 
@@ -335,6 +335,7 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
     public void load(CompoundTag tag) {
         super.load(tag);
         filterFingerprint = -1;
+        UpgradeHelper.syncCapacities(this);
         if (tag.contains("fluidTank")) {
             fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
         }
@@ -352,7 +353,7 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
     public int baseEnergyCapacity(){return this instanceof ExtendedEntityAcceleratorBE?JDTEConfig.COMMON.entityAccelerator.extendedEnergyCapacity.get():JDTEConfig.COMMON.entityAccelerator.advancedEnergyCapacity.get();}
     public int baseFluidCapacity(){return JDTEConfig.COMMON.entityAccelerator.baseFluidCapacity.get();}
     public double getPendingFluidCost(){return pendingFluidCost;}
-    @Override public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> cap,net.minecraft.core.Direction side){if(EntityAcceleratorPorts.owns(cap))return ports.get(cap);return super.getCapability(cap,side);}
+    @Override public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> cap,net.minecraft.core.Direction side){if(cap==net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER)return net.minecraftforge.common.util.LazyOptional.empty();if(EntityAcceleratorPorts.owns(cap))return ports.get(cap);return super.getCapability(cap,side);}
     @Override public void onLoad(){super.onLoad();ports.loaded();}
     @Override public void onChunkUnloaded(){ports.unloaded();super.onChunkUnloaded();}
     @Override public void invalidateCaps(){ports.invalidate();super.invalidateCaps();}
