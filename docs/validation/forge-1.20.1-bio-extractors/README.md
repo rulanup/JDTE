@@ -41,3 +41,8 @@ A real Forge graphical client exits 0 after both actual menus, high-bit FE/milk/
 Visual review caught a nonexistent JEI `fluid_bar.png` reference despite successful data assertions. Corrected to the existing `fluidbar.png`, added a live resource-manager assertion and reran the complete graphical scenario successfully. The final screenshot renders real milk without the missing-texture pattern. Initial GUI failure and this correction are not presented as passed attempts.
 
 Scoped acceptance is V for both Bio tiers after the combined production, GUI and full regression evidence. This does not certify independent two-player Bio menu concurrency, prolonged uptime or arbitrary external data packs. Generator two-client acceptance is a separate retained scenario.
+
+
+## Live multiplayer follow-up accepted
+
+The independent Bio two-client gap stated at earlier checkpoints is now closed for the bounded scenario. [Two real clients / two dedicated JVMs](multiplayer/README.md) pass natural production during repeated shared-menu operations, card install/remove and real automatic output, with shared cooldown/FE/milk/wool/card ledgers checked every server tick. No redstone production pause. One disconnects/reconnects; both then leave, actual chunk unload/save occurs, and a second JVM plus the same clients restores exact machine/player/cooldown state and FE/milk menu values. Prolonged public-server uptime and arbitrary recipe/mod combinations remain unverified.
