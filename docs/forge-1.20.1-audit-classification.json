@@ -197,8 +197,8 @@
     {
       "id": "ultimate_time_wand",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Pinned-source modes/exponents/costs/duration merging, real FE/Time Fluid capabilities, NBT/renderer, guarded shared block scheduling/proxy/AE routing and real recipes wired. Compilation and new numeric tests pass; full regression/runtime acceptance pending. Keep U."
     },
     {
       "id": "large_pocket_generator",
@@ -713,8 +713,8 @@
     {
       "id": "entity_acceleration_upgrade",
       "initial_list": true,
-      "status": "partial",
-      "note": "Registered source crafting ingredient for both Entity Accelerator tiers and one-time NBT wand-attachment action. Actual Ultimate Time Wand host is absent; smithing application and timed wand acceleration remain unported/unverified. Keep P."
+      "status": "implemented_unverified",
+      "note": "Actual Ultimate Time Wand host, one-time inventory/crafting/smithing attachments and NBT preservation implemented. Timed persistent entity effects reuse existing guarded executor via completed natural server tick hooks; sync/tracking and generic nonliving targets wired. New Forge cases pass; full regression/runtime acceptance pending. Keep U."
     },
     {
       "id": "repair_talisman",

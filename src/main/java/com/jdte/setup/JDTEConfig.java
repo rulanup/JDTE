@@ -27,17 +27,29 @@ import org.apache.commons.lang3.tuple.Pair;
 public class JDTEConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final Common COMMON;
+    public static final ForgeConfigSpec SERVER_SPEC,LOCAL_SPEC;
+    public static final AccelerationPolicy SERVER,LOCAL;
 
     static {
         Pair<Common, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Common::new);
         COMMON = pair.getLeft();
         COMMON_SPEC = pair.getRight();
+        var serverPair=new ForgeConfigSpec.Builder().configure(AccelerationPolicy::new);SERVER=serverPair.getLeft();SERVER_SPEC=serverPair.getRight();
+        var localPair=new ForgeConfigSpec.Builder().configure(AccelerationPolicy::new);LOCAL=localPair.getLeft();LOCAL_SPEC=localPair.getRight();
     }
 
+    public static final class AccelerationPolicy {
+        public final ForgeConfigSpec.BooleanValue timeAcceleratorAccelerateAllMachines;
+        AccelerationPolicy(ForgeConfigSpec.Builder builder){builder.push("timeAccelerator");timeAcceleratorAccelerateAllMachines=builder.comment("Process all queued work in a scheduler pass instead of the configured per-tick budget. Applied by the authoritative server; local client defaults are copied only at integrated startup.").define("timeAcceleratorAccelerateAllMachines",false);builder.pop();}
+    }
     public static class Common {
         public final com.jdte.setup.config.AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
         public final UpgradesConfig upgrades;
         public final TimeAcceleratorConfig timeAccelerator;
+        public final ForgeConfigSpec.IntValue ultimateTimeWandFluidCapacity,ultimateTimeWandEnergyCapacity,ultimateTimeWandDuration;
+        public final ForgeConfigSpec.DoubleValue ultimateTimeWandBaseCostMultiplier,ultimateTimeWandEnergyCostMultiplier;
+        public final ForgeConfigSpec.BooleanValue ultimateTimeWandFractionalFluidSettlement;
+
         public final com.jdte.setup.config.EntityAcceleratorConfig entityAccelerator;
         public final TimeFreezerConfig timeFreezer;
         public final UltimatePortalGunConfig ultimatePortalGun;
@@ -313,6 +325,13 @@ public class JDTEConfig {
             mineralExtractor = new com.jdte.setup.config.MineralExtractorConfig(builder);
             upgrades = new UpgradesConfig(builder);
             timeAccelerator = new TimeAcceleratorConfig(builder);
+            ultimateTimeWandFluidCapacity = timeAccelerator.ultimateTimeWandFluidCapacity;
+            ultimateTimeWandEnergyCapacity = timeAccelerator.ultimateTimeWandEnergyCapacity;
+            ultimateTimeWandDuration = timeAccelerator.ultimateTimeWandDuration;
+            ultimateTimeWandBaseCostMultiplier = timeAccelerator.ultimateTimeWandBaseCostMultiplier;
+            ultimateTimeWandEnergyCostMultiplier = timeAccelerator.ultimateTimeWandEnergyCostMultiplier;
+            ultimateTimeWandFractionalFluidSettlement = timeAccelerator.ultimateTimeWandFractionalFluidSettlement;
+
             entityAccelerator = new com.jdte.setup.config.EntityAcceleratorConfig(builder);
             timeFreezer = new TimeFreezerConfig(builder);
             ultimatePortalGun = new UltimatePortalGunConfig(builder);

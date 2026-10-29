@@ -36,6 +36,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_FLUID_GENERATOR.get());
                 output.accept(JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get());
                 output.accept(JDTEItems.EXTENDED_ENTITY_ACCELERATOR.get());
+                output.accept(JDTEItems.ULTIMATE_TIME_WAND.get());
                 output.accept(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
                 output.accept(JDTEItems.ADVANCED_BIO_EXTRACTOR.get());
                 output.accept(JDTEItems.EXTENDED_BIO_EXTRACTOR.get());

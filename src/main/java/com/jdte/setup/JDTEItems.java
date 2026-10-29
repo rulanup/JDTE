@@ -178,6 +178,7 @@ public class JDTEItems {
 
     public static final RegistryObject<BlockItem> ADVANCED_ENTITY_ACCELERATOR = ITEMS.register("advanced_entity_accelerator", () -> new BlockItem(JDTEBlocks.ADVANCED_ENTITY_ACCELERATOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> EXTENDED_ENTITY_ACCELERATOR = ITEMS.register("extended_entity_accelerator", () -> new BlockItem(JDTEBlocks.EXTENDED_ENTITY_ACCELERATOR.get(), new Item.Properties()));
+    public static final RegistryObject<com.jdte.common.items.UltimateTimeWandItem> ULTIMATE_TIME_WAND = ITEMS.register("ultimate_time_wand",com.jdte.common.items.UltimateTimeWandItem::new);
     public static final RegistryObject<Item> ENTITY_ACCELERATION_UPGRADE = ITEMS.register("entity_acceleration_upgrade", com.jdte.common.items.EntityAccelerationUpgradeItem::new);
     public static final RegistryObject<BlockItem> ADVANCED_BIO_EXTRACTOR = ITEMS.register("advanced_bio_extractor", () -> new BlockItem(JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> EXTENDED_BIO_EXTRACTOR = ITEMS.register("extended_bio_extractor", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get(), new Item.Properties()));

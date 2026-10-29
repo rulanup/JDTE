@@ -2,12 +2,12 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 110,
+  "forge_item_count": 111,
   "counts": {
     "verified": 43,
-    "absent": 10,
-    "implemented_unverified": 19,
-    "partial": 48
+    "absent": 9,
+    "implemented_unverified": 21,
+    "partial": 47
   },
   "rows": [
     {
@@ -583,18 +583,20 @@
     {
       "id": "ultimate_time_wand",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "implemented_unverified",
+      "note": "Pinned-source modes/exponents/costs/duration merging, real FE/Time Fluid capabilities, NBT/renderer, guarded shared block scheduling/proxy/AE routing and real recipes wired. Compilation and new numeric tests pass; full regression/runtime acceptance pending. Keep U.",
+      "registered": true,
       "kind": "item",
       "name": "Ultimate Time Wand",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UltimateTimeWandItem.java"
+      ],
       "block_entity": false,
       "menu": false,
-      "model": false,
+      "model": true,
       "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "large_pocket_generator",
@@ -2111,8 +2113,8 @@
     {
       "id": "entity_acceleration_upgrade",
       "initial_list": true,
-      "status": "partial",
-      "note": "Registered source crafting ingredient for both Entity Accelerator tiers and one-time NBT wand-attachment action. Actual Ultimate Time Wand host is absent; smithing application and timed wand acceleration remain unported/unverified. Keep P.",
+      "status": "implemented_unverified",
+      "note": "Actual Ultimate Time Wand host, one-time inventory/crafting/smithing attachments and NBT preservation implemented. Timed persistent entity effects reuse existing guarded executor via completed natural server tick hooks; sync/tracking and generic nonliving targets wired. New Forge cases pass; full regression/runtime acceptance pending. Keep U.",
       "registered": true,
       "kind": "item",
       "name": "Entity Acceleration Upgrade",

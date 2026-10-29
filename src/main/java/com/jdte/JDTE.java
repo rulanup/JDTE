@@ -50,6 +50,9 @@ public class JDTE {
         net.minecraftforge.common.ForgeMod.enableMilkFluid();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER,JDTEConfig.SERVER_SPEC,"jdte/time-accelerator-server.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,JDTEConfig.LOCAL_SPEC,"jdte/time-accelerator-local.toml");
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.server.ServerAboutToStartEvent event)->{if(!event.getServer().isDedicatedServer()&&JDTEConfig.LOCAL_SPEC.isLoaded()&&JDTEConfig.SERVER_SPEC.isLoaded())JDTEConfig.SERVER.timeAcceleratorAccelerateAllMachines.set(JDTEConfig.LOCAL.timeAcceleratorAccelerateAllMachines.get());});
         JDTEBlocks.BLOCKS.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
         JDTEBlockEntities.BLOCK_ENTITIES.register(modEventBus);
@@ -99,6 +102,10 @@ public class JDTE {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
         MinecraftForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
         MinecraftForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onEntityInteract);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onStartTracking);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onServerStopped);
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);

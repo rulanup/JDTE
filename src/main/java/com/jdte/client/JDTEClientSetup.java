@@ -146,6 +146,7 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerEntityRenderer(JDTEEntities.BULK_ITEM.get(), net.minecraft.client.renderer.entity.ItemEntityRenderer::new);
+        event.registerEntityRenderer(JDTEEntities.ULTIMATE_TIME_WAND.get(),com.jdte.client.entityrenders.UltimateTimeWandRenderer::new);
         event.registerEntityRenderer(JDTEEntities.TIME_ACCELERATOR_EFFECT.get(), TimeAcceleratorEffectRenderer::new);
 
         // Extended Machines

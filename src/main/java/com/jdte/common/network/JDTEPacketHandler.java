@@ -104,6 +104,8 @@ public final class JDTEPacketHandler {
                 FilterPagePacket.get()::handle);
         registerServer(AutoIoConfigPayload.class, AutoIoConfigPayload::encode, AutoIoConfigPayload::decode,
                 AutoIoConfigPacket.get()::handleServer);
+        registerClient(com.jdte.common.network.data.EntityAccelerationSyncPayload.class,com.jdte.common.network.data.EntityAccelerationSyncPayload::encode,com.jdte.common.network.data.EntityAccelerationSyncPayload::decode,
+            (payload,context)->context.enqueueWork(()->com.jdte.client.EntityAccelerationClientSync.accept(payload)));
         registerClient(AutoIoConfigSyncPayload.class, AutoIoConfigSyncPayload::encode, AutoIoConfigSyncPayload::decode,
                 AutoIoConfigPacket.get()::handleClient);
         registerServer(PotionBrewerRecipeLockPayload.class, PotionBrewerRecipeLockPayload::encode,

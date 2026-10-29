@@ -36,7 +36,8 @@
     "GeneratorSolidConservationMixin",
     "JdtFluidDropChunkAccessMixin",
     "EntityAccelerationLivingEntityMixin",
-    "EntityAccelerationMobMixin"
+    "EntityAccelerationMobMixin",
+    "EntityAccelerationServerTickMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",

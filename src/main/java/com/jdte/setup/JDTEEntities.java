@@ -16,6 +16,8 @@ public class JDTEEntities {
             "bulk_item", () -> EntityType.Builder.<com.jdte.common.entities.BulkItemEntity>of(com.jdte.common.entities.BulkItemEntity::new, MobCategory.MISC)
                     .sized(0.25f, 0.25f).clientTrackingRange(6).updateInterval(1).build("bulk_item"));
 
+    public static final RegistryObject<EntityType<com.jdte.common.entities.UltimateTimeWandEntity>> ULTIMATE_TIME_WAND=ENTITIES.register("ultimate_time_wand",()->EntityType.Builder.<com.jdte.common.entities.UltimateTimeWandEntity>of(com.jdte.common.entities.UltimateTimeWandEntity::new,MobCategory.MISC).sized(.1f,.1f).clientTrackingRange(64).updateInterval(1).build("ultimate_time_wand"));
+
     public static final RegistryObject<EntityType<TimeAcceleratorEffectEntity>> TIME_ACCELERATOR_EFFECT = ENTITIES.register(
             "time_accelerator_effect", () -> EntityType.Builder.<TimeAcceleratorEffectEntity>of(TimeAcceleratorEffectEntity::new, MobCategory.MISC)
                     .sized(0.1f, 0.1f)

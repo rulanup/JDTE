@@ -36,8 +36,12 @@ public final class ExtendedTimeAcceleratorAE2Integration {
             return new Result(0, false, true);
         }
 
+        var owner=level.getBlockEntity(pos);
         int executed = 0;
         while (executed < requestedTicks && !active.isEmpty()) {
+            if(!level.isLoaded(pos)||level.getBlockEntity(pos)!=owner)return new Result(executed,false,true);
+            var live=findEndpoints(level,pos);
+            active.removeIf(old->live.stream().noneMatch(current->current.node==old.node&&current.tickable==old.tickable));
             Iterator<Endpoint> iterator = active.iterator();
             boolean activeRequest = false;
             while (iterator.hasNext()) {
