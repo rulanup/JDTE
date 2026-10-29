@@ -1,0 +1,33 @@
+Final test build after actual GUI/production acceptance; main implementation unchanged.
+> Task :downloadMcpConfig
+> Task :extractSrg UP-TO-DATE
+> Task :createMcpToSrg UP-TO-DATE
+> Task :compileJava UP-TO-DATE
+> Task :addMixinsToJar
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :jar
+> Task :configureReobfTaskForReobfJar
+> Task :reobfJar
+> Task :addMixinsToJarJar
+> Task :jarJar SKIPPED
+> Task :addMixinsToServerSmokeJar
+> Task :compileServerSmokeJava UP-TO-DATE
+> Task :processServerSmokeResources UP-TO-DATE
+> Task :serverSmokeClasses UP-TO-DATE
+> Task :serverSmokeJar
+> Task :configureReobfTaskForReobfServerSmokeJar
+> Task :reobfServerSmokeJar
+> Task :addMixinsToSourcesJar
+> Task :sourcesJar UP-TO-DATE
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test UP-TO-DATE
+> Task :configureReobfTaskForReobfJarJar
+> Task :reobfJarJar SKIPPED
+> Task :assemble
+> Task :check UP-TO-DATE
+> Task :build
+BUILD SUCCESSFUL in 13s
+Main and separate probe JARs match the installed production-tested pair byte for byte. Main JAR excludes smoke classes.
