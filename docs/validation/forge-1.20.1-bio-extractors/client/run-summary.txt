@@ -1,0 +1,19 @@
+Real graphical Forge client; code checkpoint 64742ee; exit 0.
+Command: JAVA_HOME=/workspace/.jdks/jdk17 GRADLE_USER_HOME=/workspace/.gradle bash scripts/run_bio_extractor_client_smoke.sh (configured Gradle proxy)
+[01:22:12] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 1
+[01:22:14] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 2
+[01:22:15] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 3
+[01:22:17] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 4
+[01:22:18] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 5
+[01:22:19] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 6
+[01:22:21] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 7
+[01:22:22] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 8
+[01:22:24] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 9
+[01:22:28] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 10
+[01:22:31] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 11
+[01:22:32] [Render thread/INFO] [co.jd.cl.sm.BioExtractorClientSmoke/]: Bio extractor client stage 12
+BUILD SUCCESSFUL in 1m 42s
+PASS: actual Advanced/Extended GUIs, full-width FE/milk/progress, 4/8 upgrades, real item extraction/rejected insertion/filter installation, live JEI nine recipes, real Jade status packets; natural world ticks produce colored sheep wool and cow milk with exact FE and cooldown.
+Screenshots visually inspected: Extended machine layout and JEI milk output.
+Original screenshot exposed nonexistent fluid_bar.png; corrected to existing fluidbar.png, added an actual resource-manager assertion, reran the whole graphical scenario. Final milk texture/frame renders normally.
+First graphical attempt exposed private-method Shift transfer failure, fixed using mapped AbstractContainerMenu Invoker; no assertions removed.

@@ -1,0 +1,1 @@
+PASS: actual Advanced/Extended GUIs, full-width FE/milk/progress, 4/8 upgrades, real item extraction/rejected insertion/filter installation, live JEI nine recipes, real Jade status packets; natural world ticks produce colored sheep wool and cow milk with exact FE and cooldown.

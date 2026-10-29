@@ -1,2 +1,2 @@
-dc1abb90c79aae13e41744f3a45bf6858e8fce77c716eed0e9701ec166348e25  [Forge] jdte-0.5.8-forge-1.20.1.jar
-447df70a803345f4e3d5f0932a1af8e57ef1568f99cb2126103333d4fe990dc3  [Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar
+cf47b634e816ddb3d73fab66cf3a7459d5e96760bfb4e2dcfd0ef92884270d7b  [Forge] jdte-0.5.8-forge-1.20.1.jar
+aa561da992fad02aadf6cad8824d335d9bd083219b7581a1bde008fb0275b9e3  [Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar

@@ -1,2 +1,6 @@
+Final code checkpoint: 64742ee; final test build/reobfuscation pass after graphical JEI correction.
+Command: JDTE_LIFECYCLE_SERVER=/tmp/jdte-optional-none JDTE_SMOKE_PREBUILT=1 bash scripts/run_bio_extractor_lifecycle_probe.sh (existing Java17/Gradle cache).
+Both independent production JVMs exit 0.
 PASS: both packaged Bio tiers perform real cow extraction, exact FE/milk, full-inventory wrench/placement, real chunk unload/reload, stale ports and complete machine/entity-cooldown state conservation; optional AE2/Curios/JEI/Jade absent
 PASS: second production JVM restores both tiers, 9/18 slots, FE/fluid/filters/cards/area and scan/accelerated progress plus real entity cooldown; active cooldown prevents duplicates, explicit timestamp expiry permits one further exact-cost natural extraction
+Built main/probe bytes equal installed tested pair; SHA-256 in sha256.txt. Runtime mods: JDT 1.1.4, GuideME 20.1.15, JDTE and separate lifecycle probe; AE2/Curios/JEI/Jade absent.

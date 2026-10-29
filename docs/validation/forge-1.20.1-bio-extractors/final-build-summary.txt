@@ -1,0 +1,33 @@
+Final code checkpoint 64742ee, after complete graphical rerun including JEI texture/resource assertion.
+Command: Java17 Gradle8.6 test build --no-daemon --max-workers=2
+> Task :downloadMcpConfig
+> Task :extractSrg UP-TO-DATE
+> Task :createMcpToSrg UP-TO-DATE
+> Task :compileJava UP-TO-DATE
+> Task :addMixinsToJar
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :jar
+> Task :configureReobfTaskForReobfJar
+> Task :reobfJar
+> Task :addMixinsToJarJar
+> Task :jarJar SKIPPED
+> Task :addMixinsToServerSmokeJar
+> Task :compileServerSmokeJava UP-TO-DATE
+> Task :processServerSmokeResources UP-TO-DATE
+> Task :serverSmokeClasses UP-TO-DATE
+> Task :serverSmokeJar
+> Task :configureReobfTaskForReobfServerSmokeJar
+> Task :reobfServerSmokeJar
+> Task :addMixinsToSourcesJar
+> Task :sourcesJar
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test
+> Task :configureReobfTaskForReobfJarJar
+> Task :reobfJarJar SKIPPED
+> Task :assemble
+> Task :check
+> Task :build
+BUILD SUCCESSFUL in 15s

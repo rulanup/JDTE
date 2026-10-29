@@ -4,9 +4,9 @@
   "source_item_count": 120,
   "forge_item_count": 107,
   "counts": {
-    "verified": 39,
+    "verified": 41,
     "absent": 13,
-    "implemented_unverified": 21,
+    "implemented_unverified": 19,
     "partial": 47
   },
   "rows": [
@@ -426,7 +426,7 @@
       "id": "extended_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "Nineteen of twenty source targets wired. New Advanced-to-Extended Bio path preserves real items/FE/fluid/filter/cards/progress with actual Forge conversion, protection rollback and packed crafting tests; target production lifecycle pending. Experience Holder remains absent; keep P.",
+      "note": "Nineteen of twenty source targets wired. Advanced-to-Extended Bio preserves real items/FE/fluid/filter/cards/progress with actual conversion, protection rollback, packed crafting, graphical and production unload/restart acceptance. Experience Holder remains absent; keep P.",
       "registered": true,
       "kind": "item",
       "name": "Extended Upgrade",
@@ -1715,8 +1715,8 @@
     {
       "id": "advanced_bio_extractor",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source-derived harvesting, nine recipes/real Forge milk, guarded ports, full-width menus, JEI/Jade/output routes, source upgrades and 9-to-18 inventory migration implemented. Six numeric/fifteen Forge tests and complete build/reobfuscation pass; actual GUI and production saved-entity/unload acceptance still pending. Keep U.",
+      "status": "verified",
+      "note": "Pinned source harvesting/nine real recipes/milk/cooldown, source upgrades/Ultimate, guarded ports/auto output, full-width GUI/JEI/Jade and copier/bags verified. 146 JUnit/202 GameTests; actual all-species production, rollback, safe layouts, preserving prerequisite/tier craft, normal break and wrench, real unload and two production JVM restoration including entity cooldown; optional AE2/Curios/JEI/Jade absent. See Bio evidence. Independent Bio two-client concurrency/prolonged uptime/arbitrary packs unverified.",
       "registered": true,
       "kind": "block item",
       "name": "Advanced Bio Extractor",
@@ -1733,8 +1733,8 @@
     {
       "id": "extended_bio_extractor",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source-derived harvesting, nine recipes/real Forge milk, guarded ports, full-width menus, JEI/Jade/output routes, source upgrades and 9-to-18 inventory migration implemented. Six numeric/fifteen Forge tests and complete build/reobfuscation pass; actual GUI and production saved-entity/unload acceptance still pending. Keep U.",
+      "status": "verified",
+      "note": "Pinned source harvesting/nine real recipes/milk/cooldown, source upgrades/Ultimate, guarded ports/auto output, full-width GUI/JEI/Jade and copier/bags verified. 146 JUnit/202 GameTests; actual all-species production, rollback, safe layouts, preserving prerequisite/tier craft, normal break and wrench, real unload and two production JVM restoration including entity cooldown; optional AE2/Curios/JEI/Jade absent. See Bio evidence. Independent Bio two-client concurrency/prolonged uptime/arbitrary packs unverified.",
       "registered": true,
       "kind": "block item",
       "name": "Extended Bio Extractor",

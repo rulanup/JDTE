@@ -2,7 +2,7 @@
 
 Reference: pinned JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`; Forge 47.4.10 / JDT 1.1.4 / Java 17; Mod stays 0.5.8.
 
-## Core checkpoint (2026-10-29)
+## Historical core checkpoint (2026-10-29)
 
 **146 JUnit / 198 required GameTests**, full build and main/probe reobfuscation pass. Original 140/183 tests/assertions are retained. Six new numeric tests cover scan-counter boundaries/coalescing/overflow. Fifteen real Forge tests cover all nine loaded recipes and network round trip, real cow milk/FE and shared cooldown, colored sheep/sheared exclusion, inventory/fluid backpressure, insufficient/short-debit rollback, tier/Overclock target limits, source timing/Ultimate ticker/physical buffers, spawn-egg filters, all capability faces/stale ownership/fresh NBT, capacity removal safety, actual adjacent automatic output, Shift output and actual conversion/protection rollback/packed crafting/wrench placement.
 
@@ -19,3 +19,25 @@ Products use real registered entity types, persistent shared absolute cooldown, 
 Fix resource loss/duplication risks: output staging, checked FE/fluid commit rollback, fixed-size inventory NBT expansion 9→18, stored normal/coalesced progress, invalid public ports, state-preserving Extended crafting/conversion, normal-drop duplicated item NBT removal, safe capacity-card changes and actual output-only item automation routes. The source tank permits external filling, including a foreign fluid that then blocks milk until drained; this is documented and tested rather than inventing output-only fluid semantics.
 
 Unverified: independent two-player concurrency specifically for Bio Extractors, prolonged public servers, arbitrary data packs/mod combinations, external JDTE-AE whole-grid backend and complete reactor/fusion operation. Optional integrations use existing guarded bridges; selected new runtime checks follow below.
+
+
+## Final conservation regression
+
+The final complete suite passes **146 JUnit / 202 required GameTests**, retaining all original 140/183 tests and assertions. See [test evidence](core-tests.txt). Additional tests cover actual production for every recipe/entity, packed Life Extractor prerequisite crafting, ordinary breaking, both upgrade bags/source-exact copier type rules and complete capacity-layout preflight. A packed prerequisite with fractional pending Life Fluid cannot be crafted away. Complete copier layouts cannot truncate stored FE/milk, and valid layouts with a late-slot Ultimate card remain accepted.
+
+Failed follow-up runs are recorded, not counted as successes: the test initially assumed cross-tier copier paste, which the source deliberately rejects; a cached UseOnContext retained the prior tool; first-save filter metadata required eager initialization; normal-break entity queries needed actual tracking ticks. The persistent test world retained previous runs' tagged eggs, producing a 93-vs-31 failure. The final test uses per-invocation UUIDs and captured newly spawned machine entities and still requires exactly 31 eggs / one machine with no duplicate packed output inventory. No assertion was removed or relaxed.
+
+## Dedicated production acceptance
+
+[Both actual Forge JVM logs, markers, expected NBT and artifact hashes](production-final/run-summary.txt) are retained. Runtime contains JDT/GuideME/main/probe; **AE2, Curios, JEI and Jade are absent**. Both Bio tiers naturally harvest real cows with exact 5,000 FE / 1,000 mB accounting. Full-inventory wrench/BlockItem re-placement, actual chunk unload/reload, old FE/item/fluid port invalidation, 9/18 outputs, filters, four/eight cards, buffers, configured area, normal/coalesced progress and persistent creature cooldown survive.
+
+A second production JVM restores exact snapshots and prevents repeat production under the active cooldown. The probe explicitly expires the persisted cooldown timestamp, then observes one further natural exact-cost production. This does **not** claim to wait out the complete natural cooldown. Probe/source-set classes are excluded from the production Mod JAR.
+
+
+## Graphical acceptance
+
+A real Forge graphical client exits 0 after both actual menus, high-bit FE/milk/progress sync, four/eight cards, Shift extraction, rejected illegal input and filter installation. Its live JEI runtime exposes all nine recipes and both catalysts; actual Jade packets supply scan/slot state. Natural world ticks shear blue sheep for two blue wool / 3,000 FE and harvest cow milk for 1,000 mB / 5,000 FE once under shared cooldown. [Success and stage markers](client/run-summary.txt), [Extended menu](client/jdte-bio-extended.png), [JEI](client/jdte-bio-jei.png), [Jade](client/jdte-bio-jade.png) and [natural production](client/jdte-bio-real-production.png) are retained.
+
+Visual review caught a nonexistent JEI `fluid_bar.png` reference despite successful data assertions. Corrected to the existing `fluidbar.png`, added a live resource-manager assertion and reran the complete graphical scenario successfully. The final screenshot renders real milk without the missing-texture pattern. Initial GUI failure and this correction are not presented as passed attempts.
+
+Scoped acceptance is V for both Bio tiers after the combined production, GUI and full regression evidence. This does not certify independent two-player Bio menu concurrency, prolonged uptime or arbitrary external data packs. Generator two-client acceptance is a separate retained scenario.
