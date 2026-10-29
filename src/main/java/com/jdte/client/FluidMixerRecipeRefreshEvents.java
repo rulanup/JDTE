@@ -11,6 +11,9 @@ import net.minecraftforge.fml.common.Mod;
 public final class FluidMixerRecipeRefreshEvents {
     private FluidMixerRecipeRefreshEvents() {}
     @SubscribeEvent public static void recipes(RecipesUpdatedEvent event) {
-        if(ModList.get().isLoaded("jei"))com.jdte.common.jei.JDTEJeiPlugin.refreshFluidMixerRecipes();
+        if(ModList.get().isLoaded("jei")){
+            com.jdte.common.jei.JDTEJeiPlugin.refreshFluidMixerRecipes();
+            com.jdte.common.jei.JDTEJeiPlugin.refreshBioExtractorRecipes();
+        }
     }
 }

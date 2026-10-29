@@ -188,7 +188,10 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        var handler=com.jdte.setup.JDTEAttachments.filter(this);
+        int slots=UpgradeHelper.getMaxFilterSlots(9);
+        if(handler.getSlots()<slots){var nbt=handler.serializeNBT();nbt.putInt("Size",slots);handler.deserializeNBT(nbt);}
+        return handler;
     }
 
     @Override
@@ -208,7 +211,7 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
 
     protected abstract int getMaxEntitiesPerTick();
 
-    protected int getExtractInterval() {
+    public int getExtractInterval() {
         if (UpgradeHelper.hasCreativeUpgrade(this)) return OVERCLOCK_SCAN_INTERVAL;
         if (UpgradeHelper.countUpgrades(this, UpgradeType.OVERCLOCK) > 0) return OVERCLOCK_SCAN_INTERVAL;
         if (UpgradeHelper.countUpgrades(this, UpgradeType.UNDERCLOCK) > 0) return 40;

@@ -51,12 +51,14 @@ public class JDTEJadePlugin implements IWailaPlugin {
     private static final String TAG_EXTRACTOR_MAX_MULTIPLIER = "jdte_extractor_max_multiplier";
     private static final MineralExtractorStatusProvider MINERAL_PROVIDER = new MineralExtractorStatusProvider();
     private static final String TAG_UPGRADES = "jdte_upgrades";
+    private static final BioExtractorProvider BIO_PROVIDER=new BioExtractorProvider();
     private static final UpgradeProvider UPGRADE_PROVIDER = new UpgradeProvider();
 
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBE.class);
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, BaseMachineBE.class);
+        registration.registerBlockDataProvider(BIO_PROVIDER,com.jdte.common.blockentities.BioExtractorBE.class);
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, LargeMineralExtractorPartBE.class);
         registration.registerBlockDataProvider(MINERAL_PROVIDER, MineralExtractorBE.class);
         registration.registerBlockDataProvider(MINERAL_PROVIDER, LargeMineralExtractorPartBE.class);
@@ -66,6 +68,8 @@ public class JDTEJadePlugin implements IWailaPlugin {
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBlock.class);
         registration.registerBlockComponent(UPGRADE_PROVIDER, BaseMachineBlock.class);
+        registration.registerBlockComponent(BIO_PROVIDER,com.jdte.common.blocks.AdvancedBioExtractorBlock.class);
+        registration.registerBlockComponent(BIO_PROVIDER,com.jdte.common.blocks.ExtendedBioExtractorBlock.class);
         registration.registerBlockComponent(UPGRADE_PROVIDER, LargeMineralExtractorPartBlock.class);
         registration.registerBlockComponent(MINERAL_PROVIDER, MineralExtractorBlock.class);
         registration.registerBlockComponent(MINERAL_PROVIDER, LargeMineralExtractorBlock.class);
@@ -235,5 +239,10 @@ public class JDTEJadePlugin implements IWailaPlugin {
                 else existing.grow(stack.getCount());
             }
         }
+    }
+    private static final class BioExtractorProvider implements IServerDataProvider<BlockAccessor>,IBlockComponentProvider {
+        public ResourceLocation getUid(){return com.jdte.JDTE.id("bio_extractor_status");}
+        public void appendServerData(CompoundTag tag,BlockAccessor accessor){if(accessor.getBlockEntity() instanceof com.jdte.common.blockentities.BioExtractorBE bio){tag.putInt("bioScan",bio.getScanProgress());tag.putInt("bioInterval",bio.getExtractInterval());tag.putInt("bioSlots",bio.getOutputSlotCount());}}
+        public void appendTooltip(ITooltip tooltip,BlockAccessor accessor,IPluginConfig config){var tag=accessor.getServerData();tooltip.add(Component.translatable("jade.jdte.bio_scan",tag.getInt("bioScan"),tag.getInt("bioInterval")));tooltip.add(Component.translatable("jade.jdte.bio_slots",tag.getInt("bioSlots")));}
     }
 }

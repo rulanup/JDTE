@@ -5,7 +5,7 @@
     {
       "item": {
         "count": 1,
-        "item": "minecraft:honeycomb"
+        "id": "minecraft:honeycomb"
       },
       "chance": 0.5
     }

@@ -9,14 +9,14 @@
     {
       "item": {
         "count": 1,
-        "item": "minecraft:mushroom_stew"
+        "id": "minecraft:mushroom_stew"
       },
       "chance": 0.5
     },
     {
       "item": {
         "count": 2,
-        "item": "minecraft:red_mushroom"
+        "id": "minecraft:red_mushroom"
       },
       "chance": 0.5
     }

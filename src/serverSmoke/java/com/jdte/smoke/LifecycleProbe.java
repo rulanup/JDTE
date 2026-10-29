@@ -43,6 +43,7 @@ public final class LifecycleProbe {
         MinecraftForge.EVENT_BUS.register(new MixerLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new EnergyUpgradeLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new GeneratorLifecycleProbe());
+        MinecraftForge.EVENT_BUS.register(new BioExtractorLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new TransmitterLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new TransmitterNetworkProbe());
         MinecraftForge.EVENT_BUS.register(new TierConversionProbe());

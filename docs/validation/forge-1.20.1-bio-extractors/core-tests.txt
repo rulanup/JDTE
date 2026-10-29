@@ -1,0 +1,5 @@
+2026-10-29; parent fa53329
+Command: gradlew test build runGameTestServer --no-daemon --max-workers=2 (configured Java17/Gradle/proxy)
+JUnit 146, zero errors/failures/skips. All 198 required GameTests passed. BUILD SUCCESSFUL in 1m 6s.
+Main and separate lifecycle-probe JAR reobfuscation passed. Runtime source sets also compile (jar serverSmokeJar compileClientSmokeJava, 15s).
+Original logs: /tmp/jdte-bio-gt1.log (filter storage fixture/implementation failure), /tmp/jdte-bio-gt2.log (197 pass), /tmp/jdte-bio-client1.log (actual private-method crash), /tmp/jdte-bio-gt3.log (198 pass).

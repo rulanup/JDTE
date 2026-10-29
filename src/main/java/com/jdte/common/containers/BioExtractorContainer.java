@@ -54,7 +54,7 @@ public abstract class BioExtractorContainer extends BaseMachineContainer {
 
         if (index < playerStart && !slot.mayPickup(player)) return ItemStack.EMPTY;
         if (index < playerStart) {
-            if (!moveItemStackTo(currentStack, playerStart, playerEnd, true)) {
+            if (!((com.jdte.mixin.AbstractContainerMenuInvoker)this).jdte$invokeMoveItemStackTo(currentStack, playerStart, playerEnd, true)) {
                 return ItemStack.EMPTY;
             }
         } else {

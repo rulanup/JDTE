@@ -64,3 +64,7 @@ Use the existing Java 17/Gradle environment. Run `gradlew test build runGameTest
 Code checkpoint **`ac344f2`**. [Final two-JVM run](production-final/run-summary.txt) retains complete seed/verify logs, both exact success markers, expected saved NBT and [artifact hashes](production-final/artifacts.json). Both JVMs exit 0 with no unexpected diagnostic trace or probe assertion. Installed and built main/probe JARs match byte for byte. This final run uses the corrected probe diagnostic timing and the final reobfuscated pair. The main JAR contains no probe classes/configuration.
 
 Audits remain **V39 / U19 / P47 / N15**, 105/120 registered. The three requested items plus Generator Upgrade are V for the documented tested source contracts. All limitations in Current acceptance remain explicit.
+
+## 2026-10-29 — Independent generator multiplayer follow-up
+
+[Real two-client/dedicated-server acceptance](multiplayer/README.md) now passes shared generator menu races, repeat upgrade clicks, concurrent settings copy, automation endpoints, disconnect/reconnect, actual unload and a second server JVM. This supersedes the generator-menu concurrency limitation above for the recorded bounded scenario. Canister concurrency, prolonged uptime and arbitrary modpacks remain unverified.

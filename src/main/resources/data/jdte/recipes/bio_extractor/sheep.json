@@ -5,7 +5,7 @@
     {
       "item": {
         "count": 2,
-        "item": "minecraft:white_wool"
+        "id": "minecraft:white_wool"
       },
       "chance": 1.0
     }

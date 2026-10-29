@@ -929,5 +929,7 @@
   "block.jdte.extended_generator": "扩展煤炭发电器",
   "block.jdte.extended_fluid_generator": "扩展燃液发电器",
   "block.jdte.advanced_bio_extractor": "高级生物提取机",
-  "block.jdte.extended_bio_extractor": "扩展生物提取机"
+  "block.jdte.extended_bio_extractor": "扩展生物提取机",
+  "jade.jdte.bio_scan": "扫描进度：%s / %s 刻",
+  "jade.jdte.bio_slots": "输出槽：%s"
 }

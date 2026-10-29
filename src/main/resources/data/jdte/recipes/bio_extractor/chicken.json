@@ -5,14 +5,14 @@
     {
       "item": {
         "count": 2,
-        "item": "minecraft:feather"
+        "id": "minecraft:feather"
       },
       "chance": 0.75
     },
     {
       "item": {
         "count": 1,
-        "item": "minecraft:egg"
+        "id": "minecraft:egg"
       },
       "chance": 0.5
     }

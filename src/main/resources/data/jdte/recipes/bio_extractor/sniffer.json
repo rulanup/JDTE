@@ -5,14 +5,14 @@
     {
       "item": {
         "count": 1,
-        "item": "minecraft:torchflower_seeds"
+        "id": "minecraft:torchflower_seeds"
       },
       "chance": 0.5
     },
     {
       "item": {
         "count": 1,
-        "item": "minecraft:pitcher_pod"
+        "id": "minecraft:pitcher_pod"
       },
       "chance": 0.5
     }
