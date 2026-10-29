@@ -1,0 +1,12 @@
+Pinned source: ccf46472abaf3856fa9eebe0f5ebd25d8f28e859
+Java 17 / Gradle 8.6 test build runGameTestServer
+JUnit: 167; failures=0; errors=0
+> Task :reobfJar
+> Task :reobfServerSmokeJar
+> Task :testClasses UP-TO-DATE
+> Task :test
+> Task :reobfJarJar SKIPPED
+> Task :build
+> Task :runGameTestServer
+[15:16:53] [Server thread/INFO] [minecraft/GameTestServer]: All 236 required tests passed :)
+BUILD SUCCESSFUL in 1m 17s

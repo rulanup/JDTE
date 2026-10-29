@@ -15,6 +15,7 @@ public final class OptionalGameTestRegistration {
         if (ModList.get().isLoaded("ae2")) {
             event.register(AEUpgradeGameTests.class);
             event.register(com.jdte.common.blockentities.AEAccelerationGameTests.class);
+            event.register(com.jdte.common.blockentities.UltimateTimeWandAEGameTests.class);
             event.register(AECraftingJobGameTests.class);
             event.register(AEFluidMixerJobGameTests.class);
             if (ModList.get().isLoaded("appflux")) {
