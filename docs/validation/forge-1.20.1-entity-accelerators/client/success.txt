@@ -1,0 +1,1 @@
+PASS: actual Advanced/Extended GUIs, high-bit FE/Time Fluid/multiplier, 4/8 slots, hostile multiplier clamp, real JEI crafting layouts, Jade config labels and status packets, natural real-entity paid production, client-side sub-ticks rejected.

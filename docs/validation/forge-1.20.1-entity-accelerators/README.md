@@ -23,3 +23,10 @@ Initial compile attempts corrected native Forge config names and typed screen ac
 ## Remaining boundary
 
 Graphical and packaged production validation follow separately. Long-running multiplayer, arbitrary mod creatures/data packs and external JDTE-AE whole-grid integration are unverified. Source wand integration remains partial regardless of machine acceptance.
+
+
+## Real graphical acceptance
+
+The complete graphical client run exits 0. [Stages/success](client/run-summary.txt), [Advanced GUI](client/jdte-entity-advanced.png), [Extended GUI](client/jdte-entity-extended.png), [JEI crafting layout](client/jdte-entity-jei.png), [Jade](client/jdte-entity-jade.png) and [natural production](client/jdte-entity-real-production.png) are retained. Both menus synchronize high-bit FE/Time Fluid, source multipliers and four/eight card slots. An out-of-range multiplier packet is clamped on the actual server and the widget tracks server values. The real JEI runtime lists both crafting recipes and displays the actual shaped layout. Jade receives real server multiplier/cost packets and has both new config translations (including the Bio disconnect fix). Actual natural creature acceleration spends exact batch FE and synchronizes resulting buffers; trying to sub-tick the corresponding client entity returns zero.
+
+Dedicated packaged acceptance is still pending at this checkpoint. First probe sampled at a fixed startup tick before observed work; wait for the target actually ticking and establish an isolated accounting baseline, preserving the strict FE checks. The strengthened probe also reconciles natural entity.tickCount plus paid extra ticks against actual age, and whole mB plus fractional debt against exact requested work. The second attempt passed that production accounting but failed exact packing equality because the initial fixture omitted the placement-owner UUID. Seed the actual actor owner before taking the snapshot; retain full equality and use actual survival BlockItem placement/one-item consumption instead of only a placement callback. Neither failed attempt is recorded as passed.

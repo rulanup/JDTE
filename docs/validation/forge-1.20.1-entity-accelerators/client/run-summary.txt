@@ -1,0 +1,15 @@
+Code checkpoint e8b9737. Real graphical Forge client exits 0.
+Command: bash scripts/run_entity_accelerator_client_smoke.sh (existing Java17/cache/proxy/Xorg).
+[03:29:32] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 1
+[03:29:34] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 2
+[03:29:36] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 3
+[03:29:37] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 4
+[03:29:39] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 5
+[03:29:40] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 6
+[03:29:42] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 7
+[03:29:45] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 8
+[03:29:46] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 9
+[03:29:47] [Render thread/INFO] [co.jd.cl.sm.EntityAcceleratorClientSmoke/]: Entity accelerator GUI stage 10
+BUILD SUCCESSFUL in 1m 45s
+PASS: actual Advanced/Extended GUIs, high-bit FE/Time Fluid/multiplier, 4/8 slots, hostile multiplier clamp, real JEI crafting layouts, Jade config labels and status packets, natural real-entity paid production, client-side sub-ticks rejected.
+Extended GUI, vanilla JEI crafting layout and Jade screenshots visually inspected.
