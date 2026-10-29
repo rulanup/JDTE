@@ -1,0 +1,45 @@
+Code checkpoint74ce373; Forge47.4.10/JDT1.1.4/Java17/Gradle8.6, Mod0.5.8.
+Command: test build runGameTestServer --no-daemon --max-workers=2 (existing configured proxy).
+> Task :downloadMcpConfig
+> Task :extractSrg UP-TO-DATE
+> Task :createMcpToSrg UP-TO-DATE
+> Task :compileJava
+> Task :addMixinsToJar
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :jar
+> Task :configureReobfTaskForReobfJar
+> Task :reobfJar
+> Task :addMixinsToJarJar
+> Task :jarJar SKIPPED
+> Task :addMixinsToServerSmokeJar
+> Task :compileServerSmokeJava UP-TO-DATE
+> Task :processServerSmokeResources UP-TO-DATE
+> Task :serverSmokeClasses UP-TO-DATE
+> Task :serverSmokeJar
+> Task :configureReobfTaskForReobfServerSmokeJar
+> Task :reobfServerSmokeJar
+> Task :addMixinsToSourcesJar
+> Task :sourcesJar
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test
+> Task :configureReobfTaskForReobfJarJar
+> Task :reobfJarJar SKIPPED
+> Task :assemble
+> Task :check
+> Task :build
+> Task :createSrgToMcp UP-TO-DATE
+> Task :downloadMCMeta UP-TO-DATE
+> Task :downloadAssets UP-TO-DATE
+> Task :extractNatives UP-TO-DATE
+> Task :makeSrcDirs
+> Task :prepareRuns
+> Task :prepareRunGameTestServer
+> Task :prepareRunGameTestServerCompile
+> Task :runGameTestServer
+[15:06:25] [Server thread/INFO] [minecraft/GameTestServer]: ========= 229 GAME TESTS COMPLETE ======================
+[15:06:25] [Server thread/INFO] [minecraft/GameTestServer]: All 229 required tests passed :)
+BUILD SUCCESSFUL in 1m 36s
+Unit results:167 tests, all passed; original150/217 tests retained.
