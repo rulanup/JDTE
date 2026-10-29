@@ -39,3 +39,9 @@ Use the configured Java17 and Gradle cache. Run `test build runGameTestServer`, 
 ## Pending boundaries
 
 Real remote completion, packaged unload/restart and optional-absence results follow in later checkpoint sections. Long-running public servers, arbitrary third-party entities/tickers/data packs and the separately installed external JDTE-AE whole-grid backend remain unverified; native AE2 Inscriber ticking is a distinct verified GameTest path. No unrelated machine family is claimed complete by this work.
+
+## Completed runtime checkpoint before the random-target correction
+
+Both real client JVMs and both production JVMs completed the full remote scenario (fourth attempt). JEI actually displayed the base crafting and source smithing layouts. Minimal optional-absence seed/restart also passed exact restored NBT and resumed natural work. The test driver now uses normal crouch-command/use/release packets, counts biological work separately from vanilla natural tickCount, waits for real entity indexing and isolates every seed. Initial overlapping client stands obscured the block renderer screenshot; final evidence separates their positions.
+
+The additional deterministic real sugar-cane test exposed Forge JDT1.1.4's unconditional null-BE rejection, differing from pinned1.5.7. An explicit random-target compatibility path now preserves deny tags and Forge regex blacklist rules. Current-state reads on each iteration avoid repeated stale growth. Full167/238 passes after this fix; final same-JAR runtime acceptance is next.

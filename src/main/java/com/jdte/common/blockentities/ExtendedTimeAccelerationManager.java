@@ -425,7 +425,7 @@ public final class ExtendedTimeAccelerationManager {
                 if (state.hasBlockEntity() || !state.isRandomlyTicking()) {
                     continue;
                 }
-                if (MiscTools.isValidTickAccelBlock(level, state, null)
+                if (UltimateTimeWandTargetRuntime.isValidOrdinaryTarget(level, state, null)
                         && context.accelerator.isBlockValidFilter(level, scanPos, state)) {
                     cache.rebuildingTargets.add(new TargetKey(scanPos, TargetKind.RANDOM_TICK));
                 }
@@ -590,15 +590,14 @@ public final class ExtendedTimeAccelerationManager {
         }
 
         private ExecutionResult executeRandomTicks(ServerLevel level, BlockPos pos, int requested) {
-            BlockState state = level.getBlockState(pos);
-            if (state.hasBlockEntity() || !state.isRandomlyTicking()
-                    || !MiscTools.isValidTickAccelBlock(level, state, null)) {
-                return ExecutionResult.invalid();
+            int executed=0;
+            for (; executed < requested; executed++) {
+                if(!level.hasChunkAt(pos))return new ExecutionResult(executed,false,true);
+                BlockState state = level.getBlockState(pos);
+                if(!UltimateTimeWandTargetRuntime.isValidOrdinaryTarget(level,state,null))return new ExecutionResult(executed,false,true);
+                state.randomTick(level,pos,level.random);
             }
-            for (int executed = 0; executed < requested; executed++) {
-                state.randomTick(level, pos, level.random);
-            }
-            return new ExecutionResult(requested, true, false);
+            return new ExecutionResult(executed,true,false);
         }
 
         private void spawnEffect(ServerLevel level, BlockPos pos, int multiplier) {

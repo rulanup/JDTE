@@ -13,11 +13,19 @@ import java.util.*;
 /** Loaded-target resolution and execution shared with the existing server acceleration queue. */
 public final class UltimateTimeWandTargetRuntime {
     private UltimateTimeWandTargetRuntime(){}
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block> DENY=net.minecraft.tags.BlockTags.create(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("justdirethings","tick_speed_deny"));
     public enum Route { ORDINARY, AE2 }
     public record Resolved(TimeAccelerationTarget location,Route route,BlockEntity blockEntity){}
     public record Result(int executed,boolean valid,boolean idle,CoalescedAcceleratedMachine coalescedTarget){}
     private static boolean loaded(ServerLevel level,BlockPos pos){return level!=null&&pos!=null&&level.getServer().isSameThread()&&level.getServer().isRunning()
             &&level.getServer().getLevel(level.dimension())==level&&level.isInWorldBounds(pos)&&level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
+    /** JDT1.5.7 permits random-only targets; Forge1.1.4's helper unconditionally rejects null BEs. */
+    static boolean isValidOrdinaryTarget(ServerLevel level,BlockState state,BlockEntity tile){
+        if(tile!=null)return MiscTools.isValidTickAccelBlock(level,state,tile);
+        return !state.hasBlockEntity()&&state.isRandomlyTicking()&&!state.is(DENY)
+            && !MiscTools.matchesRegexBlacklist(com.direwolf20.justdirethings.setup.Config.TIME_WAND_BLOCK_BLACKLIST.get(),
+                net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
+    }
     public static Optional<Resolved> resolve(ServerLevel level,BlockPos pos){
         var visited=new HashSet<TimeAccelerationTarget>();var original=level;
         for(int depth=0;depth<=10;depth++){
@@ -27,9 +35,8 @@ public final class UltimateTimeWandTargetRuntime {
             if(tile instanceof TimeAccelerationTargetProxy proxy){var next=proxy.getTimeAccelerationTarget();if(next==null||depth==10)return Optional.empty();level=next.level();pos=next.pos();continue;}
             if(tile instanceof TimeAcceleratorMachine)return Optional.empty();
             var state=level.getBlockState(pos);
-            var deny=net.minecraft.tags.BlockTags.create(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("justdirethings","tick_speed_deny"));
-            if(!state.is(deny)&&ModList.get().isLoaded("ae2")&&ExtendedTimeAcceleratorAE2Integration.hasTickable(level,pos))return Optional.of(new Resolved(location,Route.AE2,tile));
-            if(!MiscTools.isValidTickAccelBlock(level,state,tile))return Optional.empty();
+            if(!state.is(DENY)&&ModList.get().isLoaded("ae2")&&ExtendedTimeAcceleratorAE2Integration.hasTickable(level,pos))return Optional.of(new Resolved(location,Route.AE2,tile));
+            if(!isValidOrdinaryTarget(level,state,tile))return Optional.empty();
             if(tile!=null&&ticker(level,tile)!=null || tile==null&&!state.hasBlockEntity()&&state.isRandomlyTicking())return Optional.of(new Resolved(location,Route.ORDINARY,tile));
             return Optional.empty();
         }
@@ -69,7 +76,7 @@ public final class UltimateTimeWandTargetRuntime {
         for(;completed<requested;completed++){
             if(!loaded(level,pos))return new Result(completed,false,true,null);
             BlockState state=level.getBlockState(pos);
-            if(state.hasBlockEntity()||!state.isRandomlyTicking()||!MiscTools.isValidTickAccelBlock(level,state,null))return new Result(completed,false,true,null);
+            if(state.hasBlockEntity()||!state.isRandomlyTicking()||!isValidOrdinaryTarget(level,state,null))return new Result(completed,false,true,null);
             state.randomTick(level,pos,level.random);
         }
         return new Result(completed,true,false,null);

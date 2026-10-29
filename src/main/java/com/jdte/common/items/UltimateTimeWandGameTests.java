@@ -76,6 +76,15 @@ public final class UltimateTimeWandGameTests {
         var f=furnace(h);var request=new UltimateTimeWandEntity(h.getLevel(),h.absolutePos(POS),1,1);h.assertTrue(h.getLevel().addFreshEntity(request),"real one-tick request admitted");request.tick();request.tick();frame(h);
         h.assertTrue(request.isRemoved()&&request.expiredNaturally()&&f.saveWithoutMetadata().getShort("CookTime")==2,"natural final expiry submits exactly two real furnace ticks, repeated same-server-tick request is ignored");h.succeed();
     }
+    @GameTest(template="mineral_empty") public static void realRandomTickGrowthRefetchesCurrentBlockState(GameTestHelper h){
+        markers(h).forEach(Entity::discard);h.setBlock(POS.below(),Blocks.SAND);h.setBlock(POS.below().east(),Blocks.WATER);h.setBlock(POS.above(),Blocks.AIR);
+        h.setBlock(POS,Blocks.SUGAR_CANE.defaultBlockState().setValue(net.minecraft.world.level.block.SugarCaneBlock.AGE,14));
+        var s=wand();charge(s);var p=player(h,s);int before=energy(s).getEnergyStored();h.assertTrue(click(h,p,s)==InteractionResult.SUCCESS,"real vanilla random-tick block admits a paid request");markers(h).get(0).tick();frame(h);
+        h.assertTrue(h.getBlockState(POS.above()).is(Blocks.SUGAR_CANE)&&h.getBlockState(POS).getValue(net.minecraft.world.level.block.SugarCaneBlock.AGE)==0,"two deterministic vanilla sugar-cane ticks use current age14 then15, grow once and reset, rather than reticking stale age14");
+        h.assertTrue(energy(s).getEnergyStored()==before-rf(2),"random growth costs one full2x activation without per-subtick payment");markers(h).forEach(Entity::discard);
+        var saved=com.direwolf20.justdirethings.setup.Config.TIME_WAND_BLOCK_BLACKLIST.get();var original=s.save(new CompoundTag());
+        try{com.direwolf20.justdirethings.setup.Config.TIME_WAND_BLOCK_BLACKLIST.set(List.of("minecraft:sugar_cane"));h.assertTrue(click(h,p,s)==InteractionResult.FAIL&&markers(h).isEmpty()&&original.equals(s.save(new CompoundTag())),"Forge-configured random-block blacklist still rejects before resource payment");}finally{com.direwolf20.justdirethings.setup.Config.TIME_WAND_BLOCK_BLACKLIST.set(saved);}h.succeed();
+    }
     @GameTest(template="mineral_empty") public static void canceledGenerationAndCallbackMutationAreAtomic(GameTestHelper h){
         furnace(h);var s=wand();charge(s);var p=player(h,s);var before=s.save(new CompoundTag());
         java.util.function.Consumer<EntityJoinLevelEvent> cancel=e->{if(e.getEntity() instanceof UltimateTimeWandEntity w&&h.absolutePos(POS).equals(w.getTarget()))e.setCanceled(true);};
