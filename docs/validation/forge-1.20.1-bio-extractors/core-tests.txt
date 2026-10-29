@@ -3,3 +3,11 @@ Command: gradlew test build runGameTestServer --no-daemon --max-workers=2 (confi
 JUnit 146, zero errors/failures/skips. All 198 required GameTests passed. BUILD SUCCESSFUL in 1m 6s.
 Main and separate lifecycle-probe JAR reobfuscation passed. Runtime source sets also compile (jar serverSmokeJar compileClientSmokeJava, 15s).
 Original logs: /tmp/jdte-bio-gt1.log (filter storage fixture/implementation failure), /tmp/jdte-bio-gt2.log (197 pass), /tmp/jdte-bio-client1.log (actual private-method crash), /tmp/jdte-bio-gt3.log (198 pass).
+
+Final regression (code parent c254b8a plus isolated normal-break fixture):
+Command: Java17 Gradle8.6 test build runGameTestServer --no-daemon --max-workers=2.
+JUnit XML: 146 tests / 0 failures / 0 errors / 0 skipped, 20 suites.
+All 202 required GameTests passed. BUILD SUCCESSFUL in 1m 7s (27 tasks).
+Main and lifecycle-probe reobfuscation passed. Log: /tmp/jdte-bio-gt8.log.
+Follow-up tests add actual filled-Life prerequisite crafting, ordinary breaking, source-exact copier/both bags, complete-layout capacity safety; all nine species are actually harvested. Existing 140 JUnit / 183 GameTests remain enabled.
+Fixture corrections retain strict resource assertions: cross-tier copier intentionally rejects; first-save filter storage initialized; fresh UseOnContext reads current held tool; normal-drop tracking waits two ticks, uses a unique UUID and captures this invocation's new entities to exclude old persistent-world drops (previous 93-egg failure counted three prior runs).

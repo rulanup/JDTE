@@ -25,7 +25,7 @@ public class BioExtractorRecipeCategory implements IRecipeCategory<BioExtractorJ
 
     private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
     private static final ResourceLocation JDT_BACKGROUND = ResourceLocation.fromNamespaceAndPath("justdirethings", "background");
-    private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
+    public static final ResourceLocation FLUID_BAR_TEXTURE = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluidbar.png");
 
     private static final int WIDTH = 168;
     private static final int HEIGHT = 70;
@@ -50,10 +50,10 @@ public class BioExtractorRecipeCategory implements IRecipeCategory<BioExtractorJ
     public BioExtractorRecipeCategory(IGuiHelper guiHelper) {
         this.background=guiHelper.createBlankDrawable(WIDTH,HEIGHT);
         this.icon = guiHelper.createDrawableItemStack(new ItemStack(JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get()));
-        this.fluidBarBackground = guiHelper.drawableBuilder(JDTE_FLUID_BAR, 0, 0, 18, 52)
+        this.fluidBarBackground = guiHelper.drawableBuilder(FLUID_BAR_TEXTURE, 0, 0, 18, 52)
                 .setTextureSize(36, 72)
                 .build();
-        this.fluidBarOverlay = guiHelper.drawableBuilder(JDTE_FLUID_BAR, 18, 0, 18, 52)
+        this.fluidBarOverlay = guiHelper.drawableBuilder(FLUID_BAR_TEXTURE, 18, 0, 18, 52)
                 .setTextureSize(36, 72)
                 .build();
     }

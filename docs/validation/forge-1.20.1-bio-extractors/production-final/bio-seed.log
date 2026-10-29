@@ -1,0 +1,142 @@
+2026-10-29 01:19:46,045 main WARN Advanced terminal features are not available in this environment
+[01:19:46] [main/INFO] [cp.mo.mo.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeserver, --fml.forgeVersion, 47.4.10, --fml.mcVersion, 1.20.1, --fml.forgeGroup, net.minecraftforge, --fml.mcpVersion, 20230612.114412, --nogui]
+[01:19:46] [main/INFO] [cp.mo.mo.Launcher/MODLAUNCHER]: ModLauncher 10.0.9+10.0.9+main.dcd20f30 starting: java version 17.0.21 by Eclipse Adoptium; OS Linux arch amd64 version 6.18.55
+[01:19:46] [main/INFO] [ne.mi.fm.lo.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forgeserver
+[01:19:46] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.5 Source=union:/tmp/jdte-optional-none/libraries/org/spongepowered/mixin/0.8.5/mixin-0.8.5.jar%2365!/ Service=ModLauncher Env=SERVER
+[01:19:46] [main/WARN] [ne.mi.fm.lo.mo.ModFileParser/LOADING]: Mod file /tmp/jdte-optional-none/libraries/net/minecraftforge/fmlcore/1.20.1-47.4.10/fmlcore-1.20.1-47.4.10.jar is missing mods.toml file
+[01:19:46] [main/WARN] [ne.mi.fm.lo.mo.ModFileParser/LOADING]: Mod file /tmp/jdte-optional-none/libraries/net/minecraftforge/javafmllanguage/1.20.1-47.4.10/javafmllanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[01:19:46] [main/WARN] [ne.mi.fm.lo.mo.ModFileParser/LOADING]: Mod file /tmp/jdte-optional-none/libraries/net/minecraftforge/lowcodelanguage/1.20.1-47.4.10/lowcodelanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[01:19:46] [main/WARN] [ne.mi.fm.lo.mo.ModFileParser/LOADING]: Mod file /tmp/jdte-optional-none/libraries/net/minecraftforge/mclanguage/1.20.1-47.4.10/mclanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[01:19:46] [main/INFO] [ne.mi.fm.lo.mo.JarInJarDependencyLocator/]: No dependencies to load found. Skipping!
+[01:19:47] [main/INFO] [mixin/]: Compatibility level set to JAVA_17
+[01:19:47] [main/INFO] [cp.mo.mo.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeserver' with arguments [--nogui]
+[01:19:47] [main/WARN] [mixin/]: Error loading class: dev/shadowsoffire/apothic_spawners/block/ApothSpawnerTile$SpawnerLogicExt (java.lang.ClassNotFoundException: dev.shadowsoffire.apothic_spawners.block.ApothSpawnerTile$SpawnerLogicExt)
+[01:19:47] [main/WARN] [mixin/]: Error loading class: mekanism/common/content/gear/mekasuit/ModuleMagneticAttractionUnit (java.lang.ClassNotFoundException: mekanism.common.content.gear.mekasuit.ModuleMagneticAttractionUnit)
+[01:19:47] [main/WARN] [mixin/]: Error loading class: dev/shadowsoffire/apothic_spawners/block/ApothSpawnerTile$SpawnerLogicExt (java.lang.ClassNotFoundException: dev.shadowsoffire.apothic_spawners.block.ApothSpawnerTile$SpawnerLogicExt)
+[01:19:52] [modloading-worker-0/INFO] [ne.mi.co.ForgeMod/FORGEMOD]: Forge mod loading, version 47.4.10, for MC 1.20.1 with MCP 20230612.114412
+[01:19:52] [modloading-worker-0/INFO] [ne.mi.co.MinecraftForge/FORGE]: MinecraftForge v47.4.10 Initialized
+[01:19:54] [Forge Version Check/INFO] [ne.mi.fm.VersionChecker/]: [forge] Starting version check at https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json
+[01:19:54] [Forge Version Check/WARN] [ne.mi.fm.VersionChecker/]: Failed to process update information
+java.net.ConnectException: null
+	at jdk.internal.net.http.HttpClientImpl.send(HttpClientImpl.java:900) ~[java.net.http:?] {}
+	at jdk.internal.net.http.HttpClientFacade.send(HttpClientFacade.java:133) ~[java.net.http:?] {}
+	at net.minecraftforge.fml.VersionChecker$1.openUrlString(VersionChecker.java:142) ~[fmlcore-1.20.1-47.4.10.jar%23110!/:?] {}
+	at net.minecraftforge.fml.VersionChecker$1.process(VersionChecker.java:180) ~[fmlcore-1.20.1-47.4.10.jar%23110!/:?] {}
+	at java.lang.Iterable.forEach(Iterable.java:75) ~[?:?] {re:mixin}
+	at net.minecraftforge.fml.VersionChecker$1.run(VersionChecker.java:117) ~[fmlcore-1.20.1-47.4.10.jar%23110!/:?] {}
+Caused by: java.net.ConnectException
+	at jdk.internal.net.http.common.Utils.toConnectException(Utils.java:1107) ~[java.net.http:?] {}
+	at jdk.internal.net.http.PlainHttpConnection.connectAsync(PlainHttpConnection.java:203) ~[java.net.http:?] {}
+	at jdk.internal.net.http.PlainHttpConnection.checkRetryConnect(PlainHttpConnection.java:238) ~[java.net.http:?] {}
+	at jdk.internal.net.http.PlainHttpConnection.lambda$connectAsync$1(PlainHttpConnection.java:214) ~[java.net.http:?] {}
+	at java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:934) ~[?:?] {}
+	at java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:911) ~[?:?] {}
+	at java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510) ~[?:?] {}
+	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1773) ~[?:?] {}
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[?:?] {}
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[?:?] {}
+	at java.lang.Thread.run(Thread.java:840) ~[?:?] {}
+Caused by: java.nio.channels.ClosedChannelException
+	at sun.nio.ch.SocketChannelImpl.ensureOpen(SocketChannelImpl.java:195) ~[?:?] {}
+	at sun.nio.ch.SocketChannelImpl.beginConnect(SocketChannelImpl.java:760) ~[?:?] {}
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:848) ~[?:?] {}
+	at jdk.internal.net.http.PlainHttpConnection.lambda$connectAsync$0(PlainHttpConnection.java:187) ~[java.net.http:?] {}
+	at java.security.AccessController.doPrivileged(AccessController.java:569) ~[?:?] {}
+	at jdk.internal.net.http.PlainHttpConnection.connectAsync(PlainHttpConnection.java:189) ~[java.net.http:?] {}
+	at jdk.internal.net.http.PlainHttpConnection.checkRetryConnect(PlainHttpConnection.java:238) ~[java.net.http:?] {}
+	at jdk.internal.net.http.PlainHttpConnection.lambda$connectAsync$1(PlainHttpConnection.java:214) ~[java.net.http:?] {}
+	at java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:934) ~[?:?] {}
+	at java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:911) ~[?:?] {}
+	at java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510) ~[?:?] {}
+	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1773) ~[?:?] {}
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[?:?] {}
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[?:?] {}
+	at java.lang.Thread.run(Thread.java:840) ~[?:?] {}
+[01:19:54] [main/INFO] [mojang/YggdrasilAuthenticationService]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+[01:19:55] [main/WARN] [minecraft/VanillaPackResourcesBuilder]: Assets URL 'union:/tmp/jdte-optional-none/libraries/net/minecraft/server/1.20.1-20230612.114412/server-1.20.1-20230612.114412-srg.jar%23109!/assets/.mcassetsroot' uses unexpected schema
+[01:19:55] [main/WARN] [minecraft/VanillaPackResourcesBuilder]: Assets URL 'union:/tmp/jdte-optional-none/libraries/net/minecraft/server/1.20.1-20230612.114412/server-1.20.1-20230612.114412-srg.jar%23109!/data/.mcassetsroot' uses unexpected schema
+[01:19:56] [Worker-Main-3/ERROR] [minecraft/TagLoader]: Couldn't load tag justdirethings:paradox_deny as it is missing following references: justdirethings:paradox_machine (from just-dire-things-forge-1533501-8573107.jar)
+[01:19:56] [main/INFO] [minecraft/RecipeManager]: Skipping loading recipe jdte:ae_extraction_upgrade_apply as it's serializer returned null
+[01:19:56] [main/INFO] [minecraft/RecipeManager]: Skipping loading recipe jdte:ae_extraction_upgrade as it's serializer returned null
+[01:19:56] [main/INFO] [minecraft/RecipeManager]: Skipping loading recipe jdte:ae_acceleration_upgrade as it's serializer returned null
+[01:19:56] [main/INFO] [minecraft/RecipeManager]: Skipping loading recipe jdte:seed_conversion_upgrade as it's serializer returned null
+[01:19:56] [main/INFO] [minecraft/RecipeManager]: Skipping loading recipe jdte:ae_output_upgrade as it's serializer returned null
+[01:19:56] [main/INFO] [minecraft/RecipeManager]: Skipping loading recipe jdte:advanced_ae_output_upgrade as it's serializer returned null
+[01:19:56] [main/INFO] [minecraft/RecipeManager]: Skipping loading recipe jdte:essence_conversion_upgrade as it's serializer returned null
+[01:19:56] [main/INFO] [minecraft/RecipeManager]: Loaded 17 recipes
+[01:19:56] [main/INFO] [minecraft/AdvancementList]: Loaded 1368 advancements
+[01:19:57] [Server thread/INFO] [minecraft/DedicatedServer]: Starting minecraft server version 1.20.1
+[01:19:57] [Server thread/INFO] [minecraft/DedicatedServer]: Loading properties
+[01:19:57] [Server thread/INFO] [minecraft/DedicatedServer]: Default game type: SURVIVAL
+[01:19:57] [Server thread/INFO] [minecraft/MinecraftServer]: Generating keypair
+[01:19:57] [Server thread/INFO] [minecraft/DedicatedServer]: Starting Minecraft server on 127.0.0.1:25589
+[01:19:57] [Server thread/INFO] [minecraft/ServerConnectionListener]: Using epoll channel type
+[01:19:57] [Server thread/WARN] [minecraft/DedicatedServer]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[01:19:57] [Server thread/WARN] [minecraft/DedicatedServer]: The server will make no attempt to authenticate usernames. Beware.
+[01:19:57] [Server thread/WARN] [minecraft/DedicatedServer]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[01:19:57] [Server thread/WARN] [minecraft/DedicatedServer]: To change this, set "online-mode" to "true" in the server.properties file.
+[01:19:57] [Server thread/INFO] [minecraft/DedicatedServer]: Preparing level "lifecycle-world"
+[01:19:59] [Server thread/INFO] [minecraft/MinecraftServer]: Preparing start region for dimension minecraft:overworld
+[01:19:59] [Yggdrasil Key Fetcher/ERROR] [mojang/YggdrasilServicesKeyInfo]: Failed to request yggdrasil public key
+com.mojang.authlib.exceptions.AuthenticationUnavailableException: Cannot contact authentication server
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:119) ~[authlib-4.0.43.jar%2375!/:?] {}
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:91) ~[authlib-4.0.43.jar%2375!/:?] {}
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.fetch(YggdrasilServicesKeyInfo.java:94) ~[authlib-4.0.43.jar%2375!/:?] {}
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.lambda$get$1(YggdrasilServicesKeyInfo.java:81) ~[authlib-4.0.43.jar%2375!/:?] {}
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[?:?] {}
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[?:?] {}
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[?:?] {}
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[?:?] {}
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[?:?] {}
+	at java.lang.Thread.run(Thread.java:840) ~[?:?] {}
+Caused by: java.net.ConnectException: Connection refused
+	at sun.nio.ch.Net.pollConnect(Native Method) ~[?:?] {}
+	at sun.nio.ch.Net.pollConnectNow(Net.java:684) ~[?:?] {}
+	at sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:554) ~[?:?] {}
+	at sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602) ~[?:?] {}
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:351) ~[?:?] {}
+	at java.net.Socket.connect(Socket.java:633) ~[?:?] {}
+	at sun.security.ssl.SSLSocketImpl.connect(SSLSocketImpl.java:304) ~[?:?] {}
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:178) ~[?:?] {}
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:541) ~[?:?] {}
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:646) ~[?:?] {}
+	at sun.net.www.protocol.https.HttpsClient.<init>(HttpsClient.java:267) ~[?:?] {}
+	at sun.net.www.protocol.https.HttpsClient.New(HttpsClient.java:381) ~[?:?] {}
+	at sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.getNewHttpClient(AbstractDelegateHttpsURLConnection.java:196) ~[?:?] {}
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1310) ~[?:?] {}
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1151) ~[?:?] {}
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:1080) ~[?:?] {}
+	at sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(AbstractDelegateHttpsURLConnection.java:181) ~[?:?] {}
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1719) ~[?:?] {}
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1644) ~[?:?] {}
+	at sun.net.www.protocol.https.HttpsURLConnectionImpl.getInputStream(HttpsURLConnectionImpl.java:224) ~[?:?] {}
+	at com.mojang.authlib.HttpAuthenticationService.performGetRequest(HttpAuthenticationService.java:140) ~[authlib-4.0.43.jar%2375!/:?] {}
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:96) ~[authlib-4.0.43.jar%2375!/:?] {}
+	... 9 more
+[01:20:01] [Worker-Main-2/INFO] [minecraft/LoggerChunkProgressListener]: Preparing spawn area: 0%
+[01:20:01] [Worker-Main-2/INFO] [minecraft/LoggerChunkProgressListener]: Preparing spawn area: 0%
+[01:20:01] [Worker-Main-2/INFO] [minecraft/LoggerChunkProgressListener]: Preparing spawn area: 0%
+[01:20:01] [Worker-Main-2/INFO] [minecraft/LoggerChunkProgressListener]: Preparing spawn area: 0%
+[01:20:01] [Worker-Main-3/INFO] [minecraft/LoggerChunkProgressListener]: Preparing spawn area: 0%
+[01:20:02] [Worker-Main-2/INFO] [minecraft/LoggerChunkProgressListener]: Preparing spawn area: 0%
+[01:20:02] [Worker-Main-3/INFO] [minecraft/LoggerChunkProgressListener]: Preparing spawn area: 60%
+[01:20:02] [Server thread/INFO] [minecraft/LoggerChunkProgressListener]: Time elapsed: 3216 ms
+[01:20:02] [Server thread/INFO] [minecraft/DedicatedServer]: Done (5.315s)! For help, type "help"
+[01:20:02] [Server thread/INFO] [ne.mi.se.pe.PermissionAPI/]: Successfully initialized permission handler forge:default_handler
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[lifecycle-world]'/minecraft:overworld
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[lifecycle-world]'/minecraft:the_nether
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[lifecycle-world]'/minecraft:the_end
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (lifecycle-world): All chunks are saved
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[01:20:11] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[01:20:13] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[lifecycle-world]'/minecraft:overworld
+[01:20:14] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[lifecycle-world]'/minecraft:the_nether
+[01:20:14] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[lifecycle-world]'/minecraft:the_end
+[01:20:14] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (lifecycle-world): All chunks are saved
+[01:20:14] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[01:20:14] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[01:20:14] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
