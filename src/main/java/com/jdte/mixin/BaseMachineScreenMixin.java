@@ -515,7 +515,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                     from=@At(value="INVOKE",target="Lcom/direwolf20/justdirethings/common/containers/basecontainers/BaseMachineContainer;getEnergy()I"),
                     to=@At(value="FIELD",ordinal=1,target="Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;POWERBAR:Lnet/minecraft/resources/ResourceLocation;")))
     private int jdte$generatorEnergyPixels(int original) {
-        if (!UpgradeHelper.isExtendedGenerator(baseMachineBE)) return original;
+        if (!UpgradeHelper.isExtendedGenerator(baseMachineBE) && !(baseMachineBE instanceof com.jdte.common.blockentities.BioExtractorBE)) return original;
         return com.jdte.common.items.FuelCanisterMath.pixels(container.getEnergy(),
                 ((com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE)baseMachineBE).getMaxEnergy(),70);
     }

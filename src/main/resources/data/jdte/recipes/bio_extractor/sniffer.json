@@ -1,0 +1,22 @@
+{
+  "type": "jdte:bio_extractor",
+  "entity": "minecraft:sniffer",
+  "output_items": [
+    {
+      "item": {
+        "count": 1,
+        "item": "minecraft:torchflower_seeds"
+      },
+      "chance": 0.5
+    },
+    {
+      "item": {
+        "count": 1,
+        "item": "minecraft:pitcher_pod"
+      },
+      "chance": 0.5
+    }
+  ],
+  "energy": 8000,
+  "cooldown": 4800
+}

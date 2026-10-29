@@ -319,7 +319,9 @@ public final class AutoIoTransferHelper {
         IFluidHandler fluidInput = null;
         IFluidHandler fluidOutput = null;
 
-        if (machine instanceof com.jdte.common.blockentities.FluidMixerBE mixer) {
+        if (machine instanceof com.jdte.common.blockentities.BioExtractorBE bio) {
+            itemOutputs=allSlots(handler);fluidOutput=bio.getFluidTank();
+        } else if (machine instanceof com.jdte.common.blockentities.FluidMixerBE mixer) {
             itemInputs = boundedSlots(handler,0);
             fluidInput = mixer.getCombinedFluidHandler();
             fluidOutput = mixer.outputTank;

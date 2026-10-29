@@ -146,4 +146,6 @@ public class JDTEBlockEntities {
 
     public static final RegistryObject<BlockEntityType<ExtendedFluidGeneratorBE>> EXTENDED_FLUID_GENERATOR = BLOCK_ENTITIES.register("extended_fluid_generator", () -> BlockEntityType.Builder.of(ExtendedFluidGeneratorBE::new, JDTEBlocks.EXTENDED_FLUID_GENERATOR.get()).build(null));
 
+    public static final RegistryObject<BlockEntityType<AdvancedBioExtractorBE>> ADVANCED_BIO_EXTRACTOR = BLOCK_ENTITIES.register("advanced_bio_extractor", () -> BlockEntityType.Builder.of(AdvancedBioExtractorBE::new, JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedBioExtractorBE>> EXTENDED_BIO_EXTRACTOR = BLOCK_ENTITIES.register("extended_bio_extractor", () -> BlockEntityType.Builder.of(ExtendedBioExtractorBE::new, JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get()).build(null));
 }

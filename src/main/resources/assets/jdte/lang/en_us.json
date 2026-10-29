@@ -927,5 +927,7 @@
   "item.jdte.large_fuel_canister": "Large Fuel Canister",
   "curios.identifier.large_fuel_canister": "Large Fuel Canister",
   "block.jdte.extended_generator": "Extended Coal Generator",
-  "block.jdte.extended_fluid_generator": "Extended Fluid Generator"
+  "block.jdte.extended_fluid_generator": "Extended Fluid Generator",
+  "block.jdte.advanced_bio_extractor": "Advanced Bio Extractor",
+  "block.jdte.extended_bio_extractor": "Extended Bio Extractor"
 }

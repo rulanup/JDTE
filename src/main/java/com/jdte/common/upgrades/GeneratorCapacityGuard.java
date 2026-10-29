@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 public final class GeneratorCapacityGuard {
     private GeneratorCapacityGuard() {}
     public static boolean permits(BaseMachineBE machine,UpgradeItemStackHandler handler,int slot,ItemStack replacement) {
-        if(!UpgradeHelper.isExtendedGenerator(machine))return true;
+        if(!UpgradeHelper.isExtendedGenerator(machine) && !(machine instanceof com.jdte.common.blockentities.BioExtractorBE))return true;
         int capacity=0,fluid=0;boolean ultimate=false;
         for(int i=0;i<handler.getSlots();i++) {
             ItemStack stack=i==slot?replacement:handler.getStackInSlot(i);
@@ -20,9 +20,10 @@ public final class GeneratorCapacityGuard {
                 if(card.getType()==UpgradeType.ULTIMATE_CAPACITY)ultimate=true;
             }
         }
-        int base=machine instanceof ExtendedFluidGeneratorBE?Config.GENERATOR_FLUID_T1_MAX_FE.get():Config.GENERATOR_T1_MAX_FE.get();
+        int base=machine instanceof com.jdte.common.blockentities.BioExtractorBE bio?bio.baseEnergyCapacity():machine instanceof ExtendedFluidGeneratorBE?Config.GENERATOR_FLUID_T1_MAX_FE.get():Config.GENERATOR_T1_MAX_FE.get();
         int energyLimit=scaled(base,capacity,ultimate);
         if(((PoweredMachineBE)machine).getEnergyStorage().getEnergyStored()>energyLimit)return false;
+        if(machine instanceof com.jdte.common.blockentities.BioExtractorBE bio)return bio.getFluidTank().getFluidAmount()<=scaled(bio.baseFluidCapacity(),capacity+fluid,ultimate);
         return !(machine instanceof ExtendedFluidGeneratorBE liquid)||liquid.getFluidTank().getFluidAmount()<=scaled(4000,capacity+fluid,ultimate);
     }
     static int scaled(int base,int powers,boolean ultimate) {return (int)Math.min(Integer.MAX_VALUE,((long)base*(ultimate?50:1))<<Math.min(6,Math.max(0,powers)));}

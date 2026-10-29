@@ -581,14 +581,14 @@
     {
       "id": "advanced_bio_extractor",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Source-derived entity harvest engine, recipes/Forge milk mapping, registered machines/menus/screens/JEI, guarded FE/item/fluid ports, real output commit and upgrade/auto-I/O/copy wiring compile. Source tier limits and global entity cooldown preserved; behavior/lifecycle/client acceptance pending. Do not infer V from compilation."
     },
     {
       "id": "extended_bio_extractor",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Source-derived entity harvest engine, recipes/Forge milk mapping, registered machines/menus/screens/JEI, guarded FE/item/fluid ports, real output commit and upgrade/auto-I/O/copy wiring compile. Source tier limits and global entity cooldown preserved; behavior/lifecycle/client acceptance pending. Do not infer V from compilation."
     },
     {
       "id": "advanced_infusion_machine",

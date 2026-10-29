@@ -1,0 +1,26 @@
+{
+  "type": "jdte:bio_extractor",
+  "entity": "minecraft:mooshroom",
+  "output_fluid": {
+    "id": "minecraft:milk",
+    "amount": 1000
+  },
+  "output_items": [
+    {
+      "item": {
+        "count": 1,
+        "item": "minecraft:mushroom_stew"
+      },
+      "chance": 0.5
+    },
+    {
+      "item": {
+        "count": 2,
+        "item": "minecraft:red_mushroom"
+      },
+      "chance": 0.5
+    }
+  ],
+  "energy": 5000,
+  "cooldown": 600
+}

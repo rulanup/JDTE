@@ -62,6 +62,7 @@ public class JDTEJeiPlugin implements IModPlugin {
                 new LootFabricatorRecipeCategory(guiHelper),
                 new GreenhouseRecipeCategory(guiHelper),
                 new BioFactoryRecipeCategory(guiHelper),
+                new com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory(guiHelper),
                 new LifeSynthesisRecipeCategory(guiHelper),
                 new FluidMixerRecipeCategory(guiHelper),
                 new MineralExtractorRecipeCategory(guiHelper)
@@ -76,6 +77,7 @@ public class JDTEJeiPlugin implements IModPlugin {
         registration.addRecipes(PotionBrewerRecipeCategory.RECIPE_TYPE, PotionBrewerJeiRecipe.getRecipes());
         registration.addRecipes(GreenhouseRecipeCategory.RECIPE_TYPE, GreenhouseJeiRecipe.getRecipes());
         registration.addRecipes(BioFactoryRecipeCategory.RECIPE_TYPE, BioFactoryJeiRecipe.getRecipes());
+        registration.addRecipes(com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE,com.jdte.client.jei.bioextractor.BioExtractorJeiRecipe.getRecipes());
         registration.addRecipes(LifeSynthesisRecipeCategory.RECIPE_TYPE, LifeSynthesisJeiRecipe.getRecipes());
         java.util.List<LootFabricatorJeiRecipe> lootFabricatorRecipes = LootFabricatorJeiRecipe.getRecipes();
         registration.addRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, lootFabricatorRecipes);
@@ -110,6 +112,8 @@ public class JDTEJeiPlugin implements IModPlugin {
         for(ItemStack machine : FluidMixerJeiRecipe.getMachines()) registration.addRecipeCatalyst(machine,FluidMixerRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.LARGE_GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(JDTEItems.ADVANCED_BIO_EXTRACTOR.get()),com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(JDTEItems.EXTENDED_BIO_EXTRACTOR.get()),com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.BIO_FACTORY.get()), BioFactoryRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.LIFE_SYNTHESIS_VAT.get()), LifeSynthesisRecipeCategory.RECIPE_TYPE);
     }

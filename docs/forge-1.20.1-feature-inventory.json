@@ -2,11 +2,11 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 105,
+  "forge_item_count": 107,
   "counts": {
     "verified": 39,
-    "absent": 15,
-    "implemented_unverified": 19,
+    "absent": 13,
+    "implemented_unverified": 21,
     "partial": 47
   },
   "rows": [
@@ -1715,34 +1715,38 @@
     {
       "id": "advanced_bio_extractor",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
-      "kind": "item",
+      "status": "implemented_unverified",
+      "note": "Source-derived entity harvest engine, recipes/Forge milk mapping, registered machines/menus/screens/JEI, guarded FE/item/fluid ports, real output commit and upgrade/auto-I/O/copy wiring compile. Source tier limits and global entity cooldown preserved; behavior/lifecycle/client acceptance pending. Do not infer V from compilation.",
+      "registered": true,
+      "kind": "block item",
       "name": "Advanced Bio Extractor",
-      "implementation_files": [],
-      "block_entity": false,
-      "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedBioExtractorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "extended_bio_extractor",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
-      "kind": "item",
+      "status": "implemented_unverified",
+      "note": "Source-derived entity harvest engine, recipes/Forge milk mapping, registered machines/menus/screens/JEI, guarded FE/item/fluid ports, real output commit and upgrade/auto-I/O/copy wiring compile. Source tier limits and global entity cooldown preserved; behavior/lifecycle/client acceptance pending. Do not infer V from compilation.",
+      "registered": true,
+      "kind": "block item",
       "name": "Extended Bio Extractor",
-      "implementation_files": [],
-      "block_entity": false,
-      "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedBioExtractorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "advanced_infusion_machine",

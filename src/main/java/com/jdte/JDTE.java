@@ -47,6 +47,7 @@ public class JDTE {
     public static final String MODID = "jdte";
 
     public JDTE() {
+        net.minecraftforge.common.ForgeMod.enableMilkFluid();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);

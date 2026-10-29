@@ -6,7 +6,7 @@ import java.util.Set;
 
 /** Forge NBT equivalent of the source helper: retain machine state but never duplicate separately dropped items. */
 public final class MachineDropDataHelper {
-    private static final Set<String> ITEM_KEYS = Set.of("machineHandler", "inventory", "factoryPackageSlot", "upgrades", "lootingHandler", "sharpnessHandler");
+    private static final Set<String> ITEM_KEYS = Set.of("machineHandler", "itemHandler", "inventory", "factoryPackageSlot", "upgrades", "lootingHandler", "sharpnessHandler");
     private MachineDropDataHelper() { }
     public static void removeSeparatelyDroppedItems(ItemStack stack) {
         if (!stack.hasTag() || !stack.getTag().contains("JustDiresBEData")) return;

@@ -1,0 +1,22 @@
+{
+  "type": "jdte:bio_extractor",
+  "entity": "minecraft:chicken",
+  "output_items": [
+    {
+      "item": {
+        "count": 2,
+        "item": "minecraft:feather"
+      },
+      "chance": 0.75
+    },
+    {
+      "item": {
+        "count": 1,
+        "item": "minecraft:egg"
+      },
+      "chance": 0.5
+    }
+  ],
+  "energy": 2000,
+  "cooldown": 1200
+}
