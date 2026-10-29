@@ -9,7 +9,7 @@ item_ids:
 
 # Ultimate Time Wand
 
-Sneak-right-click air to cycle **NORMAL / X2 / X4 / MAX**. Right-click a valid block to accelerate that position, including while sneaking. NORMAL adds one exponent, X2 adds two, X4 adds four, and MAX selects the maximum. Multipliers are powers of two: the default maximum is 1024x; attaching Ultimate Overclock increases it to 32768x. Invalid targets and already-saturated effects spend nothing and do not refresh the timer. There is no separate item cooldown.
+Sneak-right-click air to cycle **NORMAL / X2 / X4 / MAX**. Right-click a valid block to accelerate that position, including while sneaking. If a block opens its normal menu first, sneak-right-click it. NORMAL adds one exponent, X2 adds two, X4 adds four, and MAX selects the maximum. Multipliers are powers of two: the default maximum is 1024x; attaching Ultimate Overclock increases it to 32768x. Invalid targets and already-saturated effects spend nothing and do not refresh the timer. There is no separate item cooldown.
 
 A new effect lasts 600 loaded ticks by default. Reinforcement restores **half of the elapsed duration**, not the whole duration. Each successful activation pays the full new multiplier, not only the increase. FE = new multiplier × floor(JDT Time Wand FE cost × configured FE cost factor). Time Fluid = new multiplier × JDT Time Wand fluid cost × configured fluid factor / 600. Whole mB are drained while fractional debt is saved on the wand; a positive fractional settlement still requires some actual Time Fluid in the tank. Disabling fractional settlement rounds every activation up. Creative players bypass payment. Default capacities: **10,000,000 FE / 800,000 mB**, accepting Time Fluid only.
 

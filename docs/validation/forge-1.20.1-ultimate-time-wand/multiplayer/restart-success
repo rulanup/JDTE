@@ -1,0 +1,1 @@
+PASS: new production JVM restored exact furnace/marker/effect state at load, both original clients reconnected with exact wand FE/fluid/fraction/custom NBT/cards and synchronized active timers.

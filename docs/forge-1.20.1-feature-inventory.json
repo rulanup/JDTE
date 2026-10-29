@@ -4,9 +4,9 @@
   "source_item_count": 120,
   "forge_item_count": 111,
   "counts": {
-    "verified": 43,
+    "verified": 45,
     "absent": 9,
-    "implemented_unverified": 21,
+    "implemented_unverified": 19,
     "partial": 47
   },
   "rows": [
@@ -583,8 +583,8 @@
     {
       "id": "ultimate_time_wand",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Pinned-source modes/costs/merging/caps, real capabilities, shared/proxy/AE/random scheduling, renderer and source recipes implemented. 167 JUnit/238 GameTests pass; independent clients, JEI and two-JVM restoration pass at preceding checkpoint. Final same-JAR visual acceptance follows the random-target API fix; keep U until complete.",
+      "status": "verified",
+      "note": "Scoped V: source modes/1024-32768x/full-result FE and fractional Time Fluid, real capabilities/recipes/NBT, guarded shared/proxy/AE/random scheduling and renderer. 167 JUnit/238 GameTests; real independent clients verify inventory/modes/renderer/JEI and exact conservation across unload/reconnect/two-JVM restart. Optional-absence production passes. See wand evidence; arbitrary tickers, prolonged uptime and external JDTE-AE backend remain unverified.",
       "registered": true,
       "kind": "item",
       "name": "Ultimate Time Wand",
@@ -2113,8 +2113,8 @@
     {
       "id": "entity_acceleration_upgrade",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Complete real wand host, one-time inventory/crafting/smithing with NBT preservation, persistent timed living/nonliving effects and tracking sync reuse the guarded entity executor. 167/238 regression and real paired remote/restart paths passed; final paired same-JAR acceptance pending, keep U.",
+      "status": "verified",
+      "note": "Scoped V: actual wand inventory/crafting/exact-count smithing preserves NBT; persistent living/nonliving effects use guarded completed-natural-tick execution and tracking sync. 167/238 tests include native Entity Accelerator stacking, TNT, real dimension transfer/UUID deduplication and callback rollback. Two real clients and minimal production verify exact card/FE/fluid and saved effect recovery. Arbitrary mod creatures/prolonged workloads remain unverified.",
       "registered": true,
       "kind": "item",
       "name": "Entity Acceleration Upgrade",

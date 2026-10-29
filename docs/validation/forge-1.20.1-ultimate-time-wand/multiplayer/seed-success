@@ -1,0 +1,1 @@
+PASS: two independent clients attached cards through real inventory packets, raced four block/four entity activations, exact shared FE/fractional Time Fluid and card ledger, natural 16x biological ticks/real smelting, S2C timers, disconnect/reconnect and actual unload. Fixture source duration=6000; default 600 covered by GameTests.

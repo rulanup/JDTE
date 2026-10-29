@@ -4,7 +4,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`; Forge 47.4.1
 
 ## Current acceptance
 
-Both machine tiers: scoped **V**, with 150 JUnit / 217 required GameTests, actual graphical acceptance and both packaged production JVMs passing. Entity Acceleration Upgrade: **P**, missing the real Ultimate Time Wand dependency/integration. Earlier checkpoint paragraphs below retain their then-pending status; the final acceptance sections supersede those pending boundaries.
+Both machine tiers: scoped **V**, with 150 JUnit / 217 required GameTests, actual graphical acceptance and both packaged production JVMs passing. Entity Acceleration Upgrade: **V** at the later [wand acceptance checkpoint](../forge-1.20.1-ultimate-time-wand/README.md), including real wand/smithing/timed effects and independent-client/production lifecycle evidence. Earlier checkpoint paragraphs below retain their then-pending status; the final acceptance sections supersede those pending boundaries.
 
 ## Core regression checkpoint
 
@@ -16,7 +16,7 @@ Source defaults: Advanced 200,000 FE / 10,000 mB / four cards / default4x / adju
 
 Deliberate Forge safety fixes include per-entity synchronous AI suppression instead of a global flag for unrelated callbacks, recursion/ownership/thread/unload/stop guards, atomic resource payment rollback, capacity-safe card replacement/copy and preserving crafting preflight. Native ShapedRecipe inheritance retains JEI layout support. Source machine configs, recipes and textures are retained. Pinned Extended Upgrade lacks an entity-accelerator mapping; Forge provides an additional tested transactional conversion for this new family. Of the twenty pinned mappings, nineteen are present; Experience Holder remains absent, so Extended Upgrade stays P despite twenty total Forge routes.
 
-## Known partial dependency
+## Historical partial dependency at the machine checkpoint
 
 The Entity Acceleration Upgrade is a real source recipe ingredient used by the new machines, with one-time inventory attachment action stored in Forge NBT. **Ultimate Time Wand is still absent.** The source wand smithing recipe, timed target acceleration attachment and wand integration are not implemented/verified. The card stays P; this is not a claim of full wand functionality. No placeholder wand is registered.
 
@@ -24,7 +24,7 @@ The Entity Acceleration Upgrade is a real source recipe ingredient used by the n
 
 Initial compile attempts corrected native Forge config names and typed screen accessors. The first GameTest structure name did not exist; reused mineral_empty. A simulated unload fixture left a still-placed machine's capabilities invalid for later world ticking; revive/load it before returning. A direct protected work entry must not reapply the native operation-counter gate; it independently requires nonempty resources. Prior failed-run creatures polluted a target-bound fixture; discard only prior local fixture creatures before creating the exact herd, retaining the strict32/64 requirement. All assertions and existing tests are retained; failed attempts are not counted as passes. Original logs: /tmp/jdte-entity-tests1.log through tests11.log and tests-final.log.
 
-## Remaining boundary
+## Historical remaining boundary at the machine checkpoint
 
 Graphical and packaged production validation follow separately. Long-running multiplayer, arbitrary mod creatures/data packs and external JDTE-AE whole-grid integration are unverified. Source wand integration remains partial regardless of machine acceptance.
 
@@ -43,3 +43,7 @@ Dedicated packaged acceptance is still pending at this checkpoint. First probe s
 An actual FakePlayer lifecycle actor with the seeded legitimate owner UUID fills its inventory, wrench-packs the machine into exactly one drop, and uses the actual survival BlockItem placement path, consuming that one packed item. Complete machine NBT remains equal. Real source chunk unload makes retained FE/fluid interfaces inert; reload preserves exact machine data and real cow identities. A second production JVM restores all FE/fluid/filter/cards/multiplier/fractional debt, then resumes naturally paid work; no sub-tick scope leaks. FakePlayer lifecycle actions are distinguished from the separate real graphical client GUI/packet acceptance.
 
 The two rows now receive scoped V acceptance from combined complete regression, real graphical and packaged lifecycle evidence. Independent two-client operation specifically for Entity Accelerators, prolonged servers, arbitrary mod creatures/data packs and the external JDTE-AE backend remain unverified. The wand upgrade remains P; neither machine acceptance nor a successful build implies complete wand integration.
+
+## Later wand integration acceptance
+
+The previous paragraphs preserve the machine checkpoint's then-missing dependency. The Ultimate Time Wand and Entity Acceleration Upgrade are now implemented and scoped V with167/238 regression, real two-client interactions, JEI and optional-present/absent dedicated restart evidence. See [current wand acceptance](../forge-1.20.1-ultimate-time-wand/README.md). Independent two-client **machine menus**, prolonged operation and arbitrary mod creatures remain separate unverified boundaries.

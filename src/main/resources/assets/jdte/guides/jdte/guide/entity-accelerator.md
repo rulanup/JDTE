@@ -19,7 +19,7 @@ Each selected target receives multiplier minus one extra ticks. FE cost is total
 
 Use spawn eggs in filters for allowlist/denylist selection. Capacity, Ultimate Capacity, Fluid, Range, Filter, Overclock, Ultimate Overclock, Underclock, Creative and AE Crafting Read are supported. Range changes the configurable area limit. Filled buffers prevent removal or configuration replacement of capacity cards that would discard resources. FE and Time Fluid support Forge automation. Save, wrench packing and Extended Upgrade conversion preserve state.
 
-The Entity Acceleration Upgrade is also a crafting ingredient for these machines. Its Ultimate Time Wand attachment and smithing gameplay depend on the separately unfinished Ultimate Time Wand port; this item is not accepted as complete wand integration yet.
+The Entity Acceleration Upgrade is a crafting ingredient for both machines and can also be attached to the [Ultimate Time Wand](ultimate-time-wand.md). Use inventory secondary-click, crafting, or smithing with one card as template, one wand as base and one Time Fluid Catalyst as addition. The wand retains its resources and other NBT. Its timed target effects stack with independently paid machine batches.
 
 <RecipeFor id="jdte:entity_acceleration_upgrade" />
 <RecipeFor id="jdte:advanced_entity_accelerator" />
