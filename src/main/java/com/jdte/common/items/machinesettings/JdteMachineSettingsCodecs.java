@@ -61,6 +61,8 @@ final class JdteMachineSettingsCodecs {
     private JdteMachineSettingsCodecs() {
     }
 
+    static MachineSettingsCodec advancedEntityAccelerator(){return multiplier(com.jdte.common.blockentities.AdvancedEntityAcceleratorBE.class, com.jdte.common.blockentities.AdvancedEntityAcceleratorBE::getMultiplier,com.jdte.common.blockentities.AdvancedEntityAcceleratorBE::setMultiplier,()->JDTEConfig.COMMON.entityAccelerator.advancedMaxMultiplier.get());}
+    static MachineSettingsCodec extendedEntityAccelerator(){return multiplier(com.jdte.common.blockentities.ExtendedEntityAcceleratorBE.class, com.jdte.common.blockentities.ExtendedEntityAcceleratorBE::getMultiplier,com.jdte.common.blockentities.ExtendedEntityAcceleratorBE::setMultiplier,()->JDTEConfig.COMMON.entityAccelerator.extendedMaxMultiplier.get());}
     static MachineSettingsCodec advancedTimeAccelerator() {
         return multiplier(AdvancedTimeAcceleratorBE.class, AdvancedTimeAcceleratorBE::getMultiplier,
                 AdvancedTimeAcceleratorBE::setMultiplier,

@@ -20,7 +20,7 @@ public final class ExtendedGeneratorRecipe implements CraftingRecipe {
     private ItemStack source(CraftingContainer input) {
         for(int i=0;i<input.getContainerSize();i++) {
             var stack=input.getItem(i);
-            if(stack.is(com.jdte.setup.JDTEItems.ADVANCED_LIFE_EXTRACTOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get()) || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorT1.get().asItem())
+            if(stack.is(com.jdte.setup.JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_TIME_ACCELERATOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_LIFE_EXTRACTOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get()) || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorT1.get().asItem())
                     || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorFluidT1.get().asItem()))return stack;
         }
         return ItemStack.EMPTY;
@@ -40,7 +40,7 @@ public final class ExtendedGeneratorRecipe implements CraftingRecipe {
             if(result.getTag().contains("JustDiresBEData",Tag.TAG_COMPOUND)) {
                 var data=result.getTag().getCompound("JustDiresBEData");
                 var all=data.getCompound("ForgeCaps");var caps=all.getCompound("jdte:machine_data");
-                if(!result.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get())) {
+                if(!result.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get()) && !result.is(com.jdte.setup.JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get())) {
                     var expanded=caps.getCompound("upgrade_handler").copy();expanded.putInt("Size",8);
                     caps.put("extended_upgrade_handler",expanded);
                     var empty=new CompoundTag();empty.putInt("Size",4);caps.put("upgrade_handler",empty);

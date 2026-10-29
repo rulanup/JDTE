@@ -51,6 +51,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
     private static final String TAG_EXTRACTOR_MAX_MULTIPLIER = "jdte_extractor_max_multiplier";
     private static final MineralExtractorStatusProvider MINERAL_PROVIDER = new MineralExtractorStatusProvider();
     private static final String TAG_UPGRADES = "jdte_upgrades";
+    private static final EntityAcceleratorProvider ENTITY_PROVIDER=new EntityAcceleratorProvider();
     private static final BioExtractorProvider BIO_PROVIDER=new BioExtractorProvider();
     private static final UpgradeProvider UPGRADE_PROVIDER = new UpgradeProvider();
 
@@ -58,6 +59,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBE.class);
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, BaseMachineBE.class);
+        registration.registerBlockDataProvider(ENTITY_PROVIDER,com.jdte.common.blockentities.AdvancedEntityAcceleratorBE.class);
         registration.registerBlockDataProvider(BIO_PROVIDER,com.jdte.common.blockentities.BioExtractorBE.class);
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, LargeMineralExtractorPartBE.class);
         registration.registerBlockDataProvider(MINERAL_PROVIDER, MineralExtractorBE.class);
@@ -68,6 +70,8 @@ public class JDTEJadePlugin implements IWailaPlugin {
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBlock.class);
         registration.registerBlockComponent(UPGRADE_PROVIDER, BaseMachineBlock.class);
+        registration.registerBlockComponent(ENTITY_PROVIDER,com.jdte.common.blocks.AdvancedEntityAcceleratorBlock.class);
+        registration.registerBlockComponent(ENTITY_PROVIDER,com.jdte.common.blocks.ExtendedEntityAcceleratorBlock.class);
         registration.registerBlockComponent(BIO_PROVIDER,com.jdte.common.blocks.AdvancedBioExtractorBlock.class);
         registration.registerBlockComponent(BIO_PROVIDER,com.jdte.common.blocks.ExtendedBioExtractorBlock.class);
         registration.registerBlockComponent(UPGRADE_PROVIDER, LargeMineralExtractorPartBlock.class);
@@ -244,5 +248,10 @@ public class JDTEJadePlugin implements IWailaPlugin {
         public ResourceLocation getUid(){return com.jdte.JDTE.id("bio_extractor_status");}
         public void appendServerData(CompoundTag tag,BlockAccessor accessor){if(accessor.getBlockEntity() instanceof com.jdte.common.blockentities.BioExtractorBE bio){tag.putInt("bioScan",bio.getScanProgress());tag.putInt("bioInterval",bio.getExtractInterval());tag.putInt("bioSlots",bio.getOutputSlotCount());}}
         public void appendTooltip(ITooltip tooltip,BlockAccessor accessor,IPluginConfig config){var tag=accessor.getServerData();tooltip.add(Component.translatable("jade.jdte.bio_scan",tag.getInt("bioScan"),tag.getInt("bioInterval")));tooltip.add(Component.translatable("jade.jdte.bio_slots",tag.getInt("bioSlots")));}
+    }
+    private static final class EntityAcceleratorProvider implements IServerDataProvider<BlockAccessor>,IBlockComponentProvider {
+        public ResourceLocation getUid(){return com.jdte.JDTE.id("entity_accelerator_status");}
+        public void appendServerData(CompoundTag tag,BlockAccessor accessor){if(accessor.getBlockEntity() instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE machine){tag.putInt("entityMultiplier",machine.getEffectiveMultiplier());tag.putInt("entityEnergy",machine.getStandardEnergyCost());}}
+        public void appendTooltip(ITooltip tooltip,BlockAccessor accessor,IPluginConfig config){var tag=accessor.getServerData();tooltip.add(Component.translatable("jade.jdte.entity_accelerator",tag.getInt("entityMultiplier"),tag.getInt("entityEnergy")));}
     }
 }

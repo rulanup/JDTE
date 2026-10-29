@@ -34,7 +34,9 @@
     "TransmitterEnergyStorageMixin",
     "EnergyTransmitterNetworkMixin",
     "GeneratorSolidConservationMixin",
-    "JdtFluidDropChunkAccessMixin"
+    "JdtFluidDropChunkAccessMixin",
+    "EntityAccelerationLivingEntityMixin",
+    "EntityAccelerationMobMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",

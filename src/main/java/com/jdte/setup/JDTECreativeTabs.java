@@ -34,6 +34,9 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.BIG_FLUID_TANK.get());
                 output.accept(JDTEItems.EXTENDED_GENERATOR.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_GENERATOR.get());
+                output.accept(JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get());
+                output.accept(JDTEItems.EXTENDED_ENTITY_ACCELERATOR.get());
+                output.accept(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
                 output.accept(JDTEItems.ADVANCED_BIO_EXTRACTOR.get());
                 output.accept(JDTEItems.EXTENDED_BIO_EXTRACTOR.get());
                 output.accept(JDTEItems.LARGE_FUEL_CANISTER.get());

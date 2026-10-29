@@ -931,5 +931,14 @@
   "block.jdte.advanced_bio_extractor": "高级生物提取机",
   "block.jdte.extended_bio_extractor": "扩展生物提取机",
   "jade.jdte.bio_scan": "扫描进度：%s / %s 刻",
-  "jade.jdte.bio_slots": "输出槽：%s"
+  "jade.jdte.bio_slots": "输出槽：%s",
+  "config.jade.plugin_jdte.bio_extractor_status": "生物提取器状态",
+  "item.jdte.entity_acceleration_upgrade": "实体加速升级",
+  "tooltip.jdte.entity_acceleration_upgrade": "可安装在顶级时间手杖上，用于加速实体（加速时实体AI不加速）。",
+  "block.jdte.advanced_entity_accelerator": "高级实体加速器",
+  "block.jdte.extended_entity_accelerator": "扩展实体加速器",
+  "tooltip.jdte.ultimate_time_wand.entity_acceleration_installed": "实体加速：已安装",
+  "message.jdte.ultimate_time_wand.requires_entity_acceleration": "顶级时间手杖需要安装实体加速升级才能加速实体",
+  "config.jade.plugin_jdte.entity_accelerator_status": "实体加速器状态",
+  "jade.jdte.entity_accelerator": "倍率：%s 倍；每目标 FE：%s"
 }

@@ -931,5 +931,14 @@
   "block.jdte.advanced_bio_extractor": "Advanced Bio Extractor",
   "block.jdte.extended_bio_extractor": "Extended Bio Extractor",
   "jade.jdte.bio_scan": "Scan: %s / %s ticks",
-  "jade.jdte.bio_slots": "Output slots: %s"
+  "jade.jdte.bio_slots": "Output slots: %s",
+  "config.jade.plugin_jdte.bio_extractor_status": "Bio Extractor Status",
+  "item.jdte.entity_acceleration_upgrade": "Entity Acceleration Upgrade",
+  "tooltip.jdte.entity_acceleration_upgrade": "Can be installed on the Ultimate Time Wand to accelerate entities. Entity AI is not accelerated while accelerated.",
+  "block.jdte.advanced_entity_accelerator": "Advanced Entity Accelerator",
+  "block.jdte.extended_entity_accelerator": "Extended Entity Accelerator",
+  "tooltip.jdte.ultimate_time_wand.entity_acceleration_installed": "Entity Acceleration: Installed",
+  "message.jdte.ultimate_time_wand.requires_entity_acceleration": "The Ultimate Time Wand requires the Entity Acceleration Upgrade to accelerate entities",
+  "config.jade.plugin_jdte.entity_accelerator_status": "Entity Accelerator Status",
+  "jade.jdte.entity_accelerator": "Multiplier: %sx; FE per target: %s"
 }

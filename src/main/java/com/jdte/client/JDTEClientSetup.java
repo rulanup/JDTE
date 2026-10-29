@@ -39,6 +39,8 @@ public class JDTEClientSetup {
     private static void registerScreens() {
         MenuScreens.register(JDTEMenus.EXTENDED_GENERATOR.get(), com.jdte.client.screens.ExtendedGeneratorScreen::new);
             MenuScreens.register(JDTEMenus.EXTENDED_FLUID_GENERATOR.get(), com.jdte.client.screens.ExtendedFluidGeneratorScreen::new);
+            MenuScreens.register(JDTEMenus.ADVANCED_ENTITY_ACCELERATOR.get(), com.jdte.client.screens.AdvancedEntityAcceleratorScreen::new);
+            MenuScreens.register(JDTEMenus.EXTENDED_ENTITY_ACCELERATOR.get(), com.jdte.client.screens.ExtendedEntityAcceleratorScreen::new);
             MenuScreens.register(JDTEMenus.ADVANCED_BIO_EXTRACTOR.get(), com.jdte.client.screens.AdvancedBioExtractorScreen::new);
             MenuScreens.register(JDTEMenus.EXTENDED_BIO_EXTRACTOR.get(), com.jdte.client.screens.ExtendedBioExtractorScreen::new);
             MenuScreens.register(JDTEMenus.LARGE_FUEL_CANISTER.get(), com.jdte.client.screens.LargeFuelCanisterScreen::new);

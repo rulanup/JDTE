@@ -11,7 +11,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 SERVER = Path(os.environ['JDTE_LIFECYCLE_SERVER']).resolve()
 SCENARIO = os.environ.get('JDTE_REMOTE_SCENARIO', 'mineral')
-assert SCENARIO in {'mineral','mixer','generator'}
+assert SCENARIO in {'mineral','mixer','generator','bio'}
 CONTROL = Path(f'/tmp/jdte-{SCENARIO}-remote-control' if SCENARIO != 'mineral' else '/tmp/jdte-remote-control')
 assert (SERVER / '.jdte-lifecycle-fixture').is_file(), 'Use the existing marked disposable server'
 props = dict(line.split('=', 1) for line in (SERVER / 'server.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
@@ -28,7 +28,7 @@ processes = []; logs = []
 env = dict(os.environ, **launch['environment'])
 def start_server(mode):
     log = (CONTROL / f'server-{mode}.log').open('w'); logs.append(log)
-    process = subprocess.Popen([str(Path(os.environ['JAVA_HOME']) / 'bin/java'), '-Xmx3G', f'-Djdte.{("generatorMultiplayer" if SCENARIO == "generator" else "mixerMultiplayer") if SCENARIO != "mineral" else "multiplayer"}={mode}', f'-Djdte.remoteControl={CONTROL}', '@libraries/net/minecraftforge/forge/1.20.1-47.4.10/unix_args.txt', '--nogui'], cwd=SERVER, stdout=log, stderr=subprocess.STDOUT)
+    process = subprocess.Popen([str(Path(os.environ['JAVA_HOME']) / 'bin/java'), '-Xmx3G', f'-Djdte.{(SCENARIO+"Multiplayer") if SCENARIO != "mineral" else "multiplayer"}={mode}', f'-Djdte.remoteControl={CONTROL}', '@libraries/net/minecraftforge/forge/1.20.1-47.4.10/unix_args.txt', '--nogui'], cwd=SERVER, stdout=log, stderr=subprocess.STDOUT)
     processes.append(process); return process
 
 def start_client(role, round_number):
@@ -37,7 +37,7 @@ def start_client(role, round_number):
     command = filtered_command(launch,folder,KEEP)
     for key, value in [('--username', 'JDTE' + role), ('--gameDir', str(folder))]:
         command[command.index(key) + 1] = value
-    if SCENARIO in {'mixer','generator'}:
+    if SCENARIO in {'mixer','generator','bio'}:
         command = [arg.replace('-Djdte.remoteSmoke=true','-Djdte.remoteSmoke=false') for arg in command]
         command.insert(1,f'-Djdte.{SCENARIO}RemoteSmoke=true')
         command.insert(1,f'-Djdte.remoteControl={CONTROL}')

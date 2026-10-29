@@ -149,6 +149,8 @@ public class JDTEMenus {
 
     public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedFluidGeneratorContainer>> EXTENDED_FLUID_GENERATOR = MENUS.register("extended_fluid_generator", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedFluidGeneratorContainer::new));
 
+    public static final RegistryObject<MenuType<com.jdte.common.containers.AdvancedEntityAcceleratorContainer>> ADVANCED_ENTITY_ACCELERATOR = MENUS.register("advanced_entity_accelerator", () -> IForgeMenuType.create(com.jdte.common.containers.AdvancedEntityAcceleratorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedEntityAcceleratorContainer>> EXTENDED_ENTITY_ACCELERATOR = MENUS.register("extended_entity_accelerator", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedEntityAcceleratorContainer::new));
     public static final RegistryObject<MenuType<com.jdte.common.containers.AdvancedBioExtractorContainer>> ADVANCED_BIO_EXTRACTOR = MENUS.register("advanced_bio_extractor", () -> IForgeMenuType.create(com.jdte.common.containers.AdvancedBioExtractorContainer::new));
     public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedBioExtractorContainer>> EXTENDED_BIO_EXTRACTOR = MENUS.register("extended_bio_extractor", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedBioExtractorContainer::new));
 }

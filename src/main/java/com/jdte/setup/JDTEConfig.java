@@ -38,6 +38,7 @@ public class JDTEConfig {
         public final com.jdte.setup.config.AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
         public final UpgradesConfig upgrades;
         public final TimeAcceleratorConfig timeAccelerator;
+        public final com.jdte.setup.config.EntityAcceleratorConfig entityAccelerator;
         public final TimeFreezerConfig timeFreezer;
         public final UltimatePortalGunConfig ultimatePortalGun;
         public final BioCrusherConfig bioCrusher;
@@ -312,6 +313,7 @@ public class JDTEConfig {
             mineralExtractor = new com.jdte.setup.config.MineralExtractorConfig(builder);
             upgrades = new UpgradesConfig(builder);
             timeAccelerator = new TimeAcceleratorConfig(builder);
+            entityAccelerator = new com.jdte.setup.config.EntityAcceleratorConfig(builder);
             timeFreezer = new TimeFreezerConfig(builder);
             ultimatePortalGun = new UltimatePortalGunConfig(builder);
             bioCrusher = new BioCrusherConfig(builder);

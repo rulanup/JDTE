@@ -96,6 +96,8 @@ public class JDTEBlocks {
 
     public static final RegistryObject<Block> EXTENDED_FLUID_GENERATOR = BLOCKS.register("extended_fluid_generator", com.jdte.common.blocks.ExtendedFluidGeneratorBlock::new);
 
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> ADVANCED_ENTITY_ACCELERATOR = BLOCKS.register("advanced_entity_accelerator", com.jdte.common.blocks.AdvancedEntityAcceleratorBlock::new);
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> EXTENDED_ENTITY_ACCELERATOR = BLOCKS.register("extended_entity_accelerator", com.jdte.common.blocks.ExtendedEntityAcceleratorBlock::new);
     public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> ADVANCED_BIO_EXTRACTOR = BLOCKS.register("advanced_bio_extractor", com.jdte.common.blocks.AdvancedBioExtractorBlock::new);
     public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> EXTENDED_BIO_EXTRACTOR = BLOCKS.register("extended_bio_extractor", com.jdte.common.blocks.ExtendedBioExtractorBlock::new);
 }

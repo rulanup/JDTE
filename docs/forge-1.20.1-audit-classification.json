@@ -251,14 +251,14 @@
     {
       "id": "advanced_entity_accelerator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Source-derived living-entity sub-ticks, scoped AI/travel suppression, FE/fractional Time Fluid costs, filters/config/Ultimate, guarded ports, UI/sync/crafting/conversion wired. Forge compilation passes; new behavioral/runtime acceptance is in progress. Keep U; no complete acceptance claimed."
     },
     {
       "id": "extended_entity_accelerator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Source-derived living-entity sub-ticks, scoped AI/travel suppression, FE/fractional Time Fluid costs, filters/config/Ultimate, guarded ports, UI/sync/crafting/conversion wired. Forge compilation passes; new behavioral/runtime acceptance is in progress. Keep U; no complete acceptance claimed."
     },
     {
       "id": "time_freezer",
@@ -713,8 +713,8 @@
     {
       "id": "entity_acceleration_upgrade",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "partial",
+      "note": "Registered source crafting ingredient for both Entity Accelerator tiers and one-time NBT wand-attachment action. Actual Ultimate Time Wand host is absent; smithing application and timed wand acceleration remain unported/unverified. Keep P."
     },
     {
       "id": "repair_talisman",

@@ -24,6 +24,8 @@ public final class MachineSettingsCodecRegistry {
 
     static {
         register(JDTEBlockEntities.EXTENDED_BIO_EXTRACTOR.get(), ExtendedBioExtractorBE.class);
+        register(JDTEBlockEntities.ADVANCED_ENTITY_ACCELERATOR.get(), com.jdte.common.blockentities.AdvancedEntityAcceleratorBE.class,JdteMachineSettingsCodecs.advancedEntityAccelerator());
+        register(JDTEBlockEntities.EXTENDED_ENTITY_ACCELERATOR.get(), com.jdte.common.blockentities.ExtendedEntityAcceleratorBE.class,JdteMachineSettingsCodecs.extendedEntityAccelerator());
         register(JDTEBlockEntities.ADVANCED_BIO_EXTRACTOR.get(), AdvancedBioExtractorBE.class);
         register(JDTEBlockEntities.EXTENDED_FLUID_GENERATOR.get(), ExtendedFluidGeneratorBE.class);
         register(JDTEBlockEntities.EXTENDED_GENERATOR.get(), ExtendedGeneratorBE.class);

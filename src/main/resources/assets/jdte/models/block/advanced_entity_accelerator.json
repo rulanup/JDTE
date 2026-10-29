@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "jdte:block/advanced_entity_accelerator_top",
+    "side": "jdte:block/advanced_entity_accelerator_side"
+  }
+}

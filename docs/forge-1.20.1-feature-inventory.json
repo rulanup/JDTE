@@ -2,12 +2,12 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 107,
+  "forge_item_count": 110,
   "counts": {
     "verified": 41,
-    "absent": 13,
-    "implemented_unverified": 19,
-    "partial": 47
+    "absent": 10,
+    "implemented_unverified": 21,
+    "partial": 48
   },
   "rows": [
     {
@@ -739,34 +739,38 @@
     {
       "id": "advanced_entity_accelerator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
-      "kind": "item",
+      "status": "implemented_unverified",
+      "note": "Source-derived living-entity sub-ticks, scoped AI/travel suppression, FE/fractional Time Fluid costs, filters/config/Ultimate, guarded ports, UI/sync/crafting/conversion wired. Forge compilation passes; new behavioral/runtime acceptance is in progress. Keep U; no complete acceptance claimed.",
+      "registered": true,
+      "kind": "block item",
       "name": "Advanced Entity Accelerator",
-      "implementation_files": [],
-      "block_entity": false,
-      "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/AdvancedEntityAcceleratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "extended_entity_accelerator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
-      "kind": "item",
+      "status": "implemented_unverified",
+      "note": "Source-derived living-entity sub-ticks, scoped AI/travel suppression, FE/fractional Time Fluid costs, filters/config/Ultimate, guarded ports, UI/sync/crafting/conversion wired. Forge compilation passes; new behavioral/runtime acceptance is in progress. Keep U; no complete acceptance claimed.",
+      "registered": true,
+      "kind": "block item",
       "name": "Extended Entity Accelerator",
-      "implementation_files": [],
-      "block_entity": false,
-      "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedEntityAcceleratorBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "time_freezer",
@@ -2107,18 +2111,20 @@
     {
       "id": "entity_acceleration_upgrade",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "partial",
+      "note": "Registered source crafting ingredient for both Entity Accelerator tiers and one-time NBT wand-attachment action. Actual Ultimate Time Wand host is absent; smithing application and timed wand acceleration remain unported/unverified. Keep P.",
+      "registered": true,
       "kind": "item",
       "name": "Entity Acceleration Upgrade",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/EntityAccelerationUpgradeItem.java"
+      ],
       "block_entity": false,
       "menu": false,
-      "model": false,
+      "model": true,
       "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "repair_talisman",
