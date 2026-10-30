@@ -224,7 +224,7 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
     public void load(CompoundTag tag) {
         super.load(tag);
         if (tag.contains("chargedLightningRodEnergy")) {
-            energy.setEnergy(tag.getInt("chargedLightningRodEnergy"));
+            energy.setEnergy(Math.max(0,Math.min(getMaxEnergy(),tag.getInt("chargedLightningRodEnergy"))));
         }
         savedAnchor=tag.contains("chargedLightningRodAnchor")?tag.getLong("chargedLightningRodAnchor"):null;
         savedDimension=tag.getString("chargedLightningRodDimension");
