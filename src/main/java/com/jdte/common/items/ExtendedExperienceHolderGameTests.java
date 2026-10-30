@@ -167,4 +167,17 @@ public final class ExtendedExperienceHolderGameTests {
   finally{net.minecraftforge.common.MinecraftForge.EVENT_BUS.unregister(callback);}h.succeed();
  }
 
+ @GameTest(template="mineral_empty") public static void pulseContinuationDoesNotKeepExtraOverclockTicksWithoutANewSignal(GameTestHelper h){
+  for(boolean ultimate:java.util.List.of(false,true)){
+   h.setBlock(P,Blocks.AIR);var b=place(h);b.exp=10000;b.targetExp=100;b.showParticles=false;b.redstoneControlData.pulsed=true;
+   var area=b.getAreaAffectingData();area.xOffset=area.yOffset=area.zOffset=0;area.xRadius=area.yRadius=area.zRadius=2;
+   var p=player(h,b);p.setPos(Vec3.atCenterOf(b.getBlockPos()));h.getLevel().addFreshEntity(p);
+   UpgradeHelper.getUpgradeHandler(b).insertItem(7,new ItemStack(ultimate?JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get():JDTEItems.OVERCLOCK_UPGRADE.get()),false);
+   var ticker=((com.jdte.common.blocks.ExtendedExperienceHolderBlock)b.getBlockState().getBlock()).getTicker(h.getLevel(),b.getBlockState(),JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get());ticker.tick(h.getLevel(),b.getBlockPos(),b.getBlockState(),b);
+   int initial=ultimate?10:2;h.assertTrue(p.experienceLevel==initial&&!b.redstoneControlData.pulsed,"one pulse admits exactly source2/10 initial sub-ticks");
+   ticker.tick(h.getLevel(),b.getBlockPos(),b.getBlockState(),b);
+   h.assertTrue(p.experienceLevel==initial+1&&b.exp+ExperienceUtils.getPlayerTotalExperience(p)==10000,"source running-player continuation uses one tick when pulse is no longer active; no resource generation");p.discard();
+  }h.succeed();
+ }
+
 }

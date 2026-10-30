@@ -288,7 +288,7 @@
       "id": "extended_experience_holder",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Source standalone XP/20mB fluid, player/orb balancing, guarded capabilities, full-width menus/resources/copier, eight-slot native conversion/rollback and preserving recipe implemented. 173 JUnit/267 GameTests pass including stacked buckets/normal drops/bag/copier/max XP. Real GUI and production unload/restart are running, not yet accepted; see experience-holder evidence."
+      "note": "Source standalone XP/20mB fluid, player/orb balancing, guarded capabilities, full-width menus/resources/copier, eight-slot native conversion/rollback and preserving recipe implemented. 173 JUnit/270 GameTests pass, including actual2/10-then1 pulse work and XP-gain callback conservation. Earlier real GUI/online balancing/production unload/restart pass; final current-artifact acceptance pending."
     },
     {
       "id": "extended_fluid_generator",

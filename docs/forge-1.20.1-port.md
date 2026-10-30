@@ -8,9 +8,9 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest implementation checkpoint: **`63153c4`** — pushed Experience Holder container/drop tests and runtime harnesses. Subsequent real-controls/unload investigations and protected XP notification fix are recorded below. Final current-artifact runtime acceptance pending.
+- Latest implementation checkpoint: **`257adc4`** — protected XP transaction/unload/GUI repair checkpoint pushed; the source redstone-overclock boundary checkpoint below follows. Final current-artifact runtime acceptance pending.
 - Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
-- Latest complete regression: **173 JUnit /269 required GameTests**, zero failures; original170/252 retained. Full build/main JAR reobfuscation pass. Forge FluidUtil/normal drops/copier/bag/max XP, actual Ultimate ten-level ticker and unpaid XP-event callback guard pass. Previous real-controls/paired production passes retained; final tooltip/current-artifact runtime rerun pending.
+- Latest complete regression: **173 JUnit /270 required GameTests**, zero failures; original170/252 retained. Full build/main JAR reobfuscation pass. Forge FluidUtil/normal drops/copier/bag/max XP, actual Ultimate ten-level ticker and unpaid XP-event callback guard pass. Previous real-controls/paired production passes retained; final tooltip/current-artifact runtime rerun pending.
 - 120-item status: V **47**, U **20**, P **47**, N **6**; **114** source items registered in Forge. XP holder remains U pending acceptance. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
 - Persistence: checkpoints pushed on `codex/forge-1.20.1-mineral-machines`; remote recovery remains **`cd8aaaa`**, `/workspace/jdte-recovery-20261028` remains intact. Pre-existing Python cache preserved. No reset, main merge or release; version unchanged.
 - Next priorities: complete XP holder client and production unload/restart acceptance. Large Potion Canister is independent and not started; its source4000mB/four-potion batch/portable-menu and native potion-effect dependencies were inspected. Do not reimplement existing machines.
@@ -798,3 +798,10 @@ Visual inspection found the added exact-XP text overlapped native area controls.
 ## 2026-10-30 — Protected player transaction and GUI repair regression
 
 `/tmp/jdte-xp-transaction-regression.log`:173 JUnit/269 required GameTests all pass, full build/main and probe JAR reobfuscation/client harness compilation pass. New actual ticker test asserts ten Ultimate settlements cost160XP without generation; a real Forge XP-change listener rewrites all gain events to100XP and verifies both a player and ServerPlayer transactions still transfer exact7XP/return7XP without invoking gain callbacks. All previous170/252 remain unchanged. Visual overlap fixed by moving the exact-XP readout to a bar tooltip. Final graphical/production rerun on the rebuilt artifact is next; no V promotion yet.
+
+
+## 2026-10-30 — Source pulse/overclock boundary and real online balancing
+
+At `257adc4`, final graphical client verifies the repaired layout, native controls/exact XP/card operations/JEI/actual Jade and a real connected ServerPlayer naturally reaching target37 after one deliberately configured pulse. The source and Forge wrapper review found standard fallback double-ticks were not gated by `redstoneActive`, unlike the pinned source. The one-condition shared wrapper correction now prevents both normal and Ultimate cards from continuing extra sub-ticks after a pulse ends. It leaves the source acquired-player continuation at one settlement per world tick.
+
+`/tmp/jdte-xp-pulse-regression.log`:173 JUnit/270 required GameTests, full build/main+probe reobfuscation and client compilation pass. The new actual Forge ticker test separately requires initial2/10-level work, then exactly one level after the pulse, with the complete XP ledger unchanged. All previous tests/conditions remain enabled. Final rebuilt-artifact graphical/production replay follows;47/20/47/6 remains interim U/P until acceptance. Large Potion Canister was investigated only, to avoid introducing its independent component/potion-effect/menu adaptation before XP lifecycle acceptance.
