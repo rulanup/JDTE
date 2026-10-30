@@ -51,8 +51,8 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
     private void restoreRodAfterRelocation(){
         if(level instanceof ServerLevel&&ownsLightningRod&&savedAnchor!=null
             &&(savedAnchor!=worldPosition.asLong()||!level.dimension().location().toString().equals(savedDimension))
-            &&level.hasChunkAt(worldPosition.above())&&level.getBlockState(worldPosition.above()).isAir()){
-            ownsLightningRod=false;lightningRodSetupAttempted=false;setChanged();
+            &&level.hasChunkAt(worldPosition.above())){
+            ownsLightningRod=false;lightningRodSetupAttempted=!level.getBlockState(worldPosition.above()).isAir();setChanged();
         }
     }
     public int getStrikeCooldown(){return strikeCooldown;}
