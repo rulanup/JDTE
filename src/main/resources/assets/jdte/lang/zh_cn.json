@@ -995,5 +995,14 @@
   "item.jdte.large_pocket_generator": "大型便携发电机",
   "curios.identifier.large_pocket_generator": "大型便携发电机",
   "tooltip.jdte.large_pocket_generator.enabled": "已启用",
-  "tooltip.jdte.large_pocket_generator.disabled": "已禁用"
+  "tooltip.jdte.large_pocket_generator.disabled": "已禁用",
+  "config.jdte.jdte.localTimeMultitool": "多功能时间工具输入设置",
+  "config.jdte.jdte.localTimeMultitool.continuousMiningHoldDelayMillis": "连续挖掘长按延迟（毫秒）",
+  "config.jdte.jdte.localTimeMultitool.continuousMiningHoldDelayMillis.desc": "按住攻击键达到此时长后，允许继续挖掘其它方块；默认 250 毫秒。",
+  "config.jdte.jdte.localTimeMultitool.continuousMiningHoldDelayMillis.tooltip": "短按保持在首次瞄准的方块。可设为 200 或 300 毫秒，设为 0 关闭延迟；松开攻击键后重置。",
+  "item.jdte.time_multitool": "多功能时间工具",
+  "message.jdte.time_multitool.speed": "挖掘速度：%s 倍",
+  "tooltip.jdte.time_multitool.speed": "当前挖掘速度：%s 倍",
+  "tooltip.jdte.time_multitool.fluid": "时间流体：%s / %s mB",
+  "tooltip.jdte.time_multitool.controls": "潜行右击空气切换速度；潜行右击方块打开 JDT 设置"
 }

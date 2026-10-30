@@ -2,12 +2,12 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 116,
+  "forge_item_count": 117,
   "counts": {
     "verified": 51,
-    "implemented_unverified": 19,
+    "implemented_unverified": 20,
     "partial": 46,
-    "absent": 4
+    "absent": 3
   },
   "rows": [
     {
@@ -569,18 +569,20 @@
     {
       "id": "time_multitool",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "implemented_unverified",
+      "note": "Source powered Eclipse Paxel500kFE/1M Time Fluid, six modes/whole-batch fallback, actual paid removal, native abilities/settings/ten smithing recipes/axe-hoe-shovel/input gate/NBT/caps/resources implemented. 196 JUnit/321 GameTests/full build/reobfuscation pass, including permission/receipt/lease/boundary/native breaker/tank compatibility. Real graphical and production lifecycle pending; keep U. See time-multitool evidence.",
+      "registered": true,
       "kind": "item",
       "name": "Time Multitool",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/TimeMultitoolItem.java"
+      ],
       "block_entity": false,
       "menu": false,
-      "model": false,
+      "model": true,
       "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "ultimate_time_wand",

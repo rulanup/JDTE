@@ -45,7 +45,10 @@
     "BaseBowInvoker",
     "PocketGeneratorFuelMultiplierMixin",
     "PocketGeneratorTransmitterMixin",
-    "NativeItemEnergyAccessor"
+    "NativeItemEnergyAccessor",
+    "TimeMultitoolGameModeMixin",
+    "TimeMultitoolUtilityMixin",
+    "TimeMultitoolBlockBreakerMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",

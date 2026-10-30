@@ -48,9 +48,11 @@ public class JDTE {
 
     public JDTE() {
         net.minecraftforge.common.ForgeMod.enableMilkFluid();
+        MinecraftForge.EVENT_BUS.addListener(net.minecraftforge.eventbus.api.EventPriority.LOWEST, com.jdte.common.items.TimeMultitoolMiningEvents::onBreakSpeed);
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER,JDTEConfig.SERVER_SPEC,"jdte/time-accelerator-server.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,JDTEConfig.MULTITOOL_CLIENT_SPEC,"jdte/time-multitool-client.toml");
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,JDTEConfig.LOCAL_SPEC,"jdte/time-accelerator-local.toml");
         MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.server.ServerAboutToStartEvent event)->{if(!event.getServer().isDedicatedServer()&&JDTEConfig.LOCAL_SPEC.isLoaded()&&JDTEConfig.SERVER_SPEC.isLoaded())JDTEConfig.SERVER.timeAcceleratorAccelerateAllMachines.set(JDTEConfig.LOCAL.timeAcceleratorAccelerateAllMachines.get());});
         JDTEBlocks.BLOCKS.register(modEventBus);

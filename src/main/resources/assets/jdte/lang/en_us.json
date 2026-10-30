@@ -995,5 +995,14 @@
   "item.jdte.large_pocket_generator": "Large Pocket Generator",
   "curios.identifier.large_pocket_generator": "Large Pocket Generator",
   "tooltip.jdte.large_pocket_generator.enabled": "Enabled",
-  "tooltip.jdte.large_pocket_generator.disabled": "Disabled"
+  "tooltip.jdte.large_pocket_generator.disabled": "Disabled",
+  "config.jdte.jdte.localTimeMultitool": "Time Multitool Input",
+  "config.jdte.jdte.localTimeMultitool.continuousMiningHoldDelayMillis": "Continuous Mining Hold Delay (ms)",
+  "config.jdte.jdte.localTimeMultitool.continuousMiningHoldDelayMillis.desc": "Hold attack this long before switching to additional blocks. Default: 250 ms.",
+  "config.jdte.jdte.localTimeMultitool.continuousMiningHoldDelayMillis.tooltip": "Short clicks stay on the initial block. Set to 200 or 300 ms to adjust the delay, or 0 to disable it. Release attack to reset.",
+  "item.jdte.time_multitool": "Time Multitool",
+  "message.jdte.time_multitool.speed": "Mining speed: %sx",
+  "tooltip.jdte.time_multitool.speed": "Selected mining speed: %sx",
+  "tooltip.jdte.time_multitool.fluid": "Time Fluid: %s / %s mB",
+  "tooltip.jdte.time_multitool.controls": "Sneak-use air: change speed; sneak-use block: JDT settings"
 }

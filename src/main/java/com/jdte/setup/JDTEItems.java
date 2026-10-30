@@ -186,6 +186,7 @@ public class JDTEItems {
     public static final RegistryObject<com.jdte.common.items.ChargedLightningRodItem> CHARGED_LIGHTNING_ROD = ITEMS.register("charged_lightning_rod", () -> new com.jdte.common.items.ChargedLightningRodItem(JDTEBlocks.CHARGED_LIGHTNING_ROD.get()));
     public static final RegistryObject<UpgradeCardItem> THUNDERSTORM_UPGRADE = ITEMS.register("thunderstorm_upgrade", () -> new UpgradeCardItem(UpgradeType.THUNDERSTORM));
     public static final RegistryObject<BlockItem> EXTENDED_EXPERIENCE_HOLDER = ITEMS.register("extended_experience_holder", () -> new BlockItem(JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get(), new Item.Properties()));
+    public static final RegistryObject<com.jdte.common.items.TimeMultitoolItem> TIME_MULTITOOL = ITEMS.register("time_multitool",com.jdte.common.items.TimeMultitoolItem::new);
     public static final RegistryObject<com.jdte.common.items.LargePocketGeneratorItem> LARGE_POCKET_GENERATOR = ITEMS.register("large_pocket_generator",com.jdte.common.items.LargePocketGeneratorItem::new);
     public static final RegistryObject<com.jdte.common.items.LargePotionCanisterItem> LARGE_POTION_CANISTER = ITEMS.register("large_potion_canister",com.jdte.common.items.LargePotionCanisterItem::new);
 }

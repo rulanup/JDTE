@@ -27,6 +27,8 @@ import org.apache.commons.lang3.tuple.Pair;
 public class JDTEConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final Common COMMON;
+    public static final ForgeConfigSpec MULTITOOL_CLIENT_SPEC;
+    public static final com.jdte.setup.config.TimeMultitoolClientConfig MULTITOOL_CLIENT;
     public static final ForgeConfigSpec SERVER_SPEC,LOCAL_SPEC;
     public static final AccelerationPolicy SERVER,LOCAL;
 
@@ -34,6 +36,7 @@ public class JDTEConfig {
         Pair<Common, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Common::new);
         COMMON = pair.getLeft();
         COMMON_SPEC = pair.getRight();
+        var multitoolPair=new ForgeConfigSpec.Builder().configure(com.jdte.setup.config.TimeMultitoolClientConfig::new);MULTITOOL_CLIENT=multitoolPair.getLeft();MULTITOOL_CLIENT_SPEC=multitoolPair.getRight();
         var serverPair=new ForgeConfigSpec.Builder().configure(AccelerationPolicy::new);SERVER=serverPair.getLeft();SERVER_SPEC=serverPair.getRight();
         var localPair=new ForgeConfigSpec.Builder().configure(AccelerationPolicy::new);LOCAL=localPair.getLeft();LOCAL_SPEC=localPair.getRight();
     }

@@ -1,0 +1,10 @@
+{
+  "type": "justdirethings:ability",
+  "template": [],
+  "base": {
+    "item": "jdte:time_multitool"
+  },
+  "addition": {
+    "item": "justdirethings:upgrade_orexray"
+  }
+}

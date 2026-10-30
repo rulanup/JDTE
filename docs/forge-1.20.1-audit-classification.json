@@ -191,8 +191,8 @@
     {
       "id": "time_multitool",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Source powered Eclipse Paxel500kFE/1M Time Fluid, six modes/whole-batch fallback, actual paid removal, native abilities/settings/ten smithing recipes/axe-hoe-shovel/input gate/NBT/caps/resources implemented. 196 JUnit/321 GameTests/full build/reobfuscation pass, including permission/receipt/lease/boundary/native breaker/tank compatibility. Real graphical and production lifecycle pending; keep U. See time-multitool evidence."
     },
     {
       "id": "ultimate_time_wand",
