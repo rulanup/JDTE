@@ -8,7 +8,7 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest implementation checkpoint: **`ef6b2a2`** — core and real-runtime/multiplayer harnesses pushed. Native getter hardening/runtime investigation below; acceptance remains U until remote completion.
+- Latest implementation checkpoint: **`0da09ae`** — full native potion getter hardening pushed; current menu prediction guard passes complete regression. Remote acceptance remains pending.
 - Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
 - Latest complete regression: **176 JUnit /284 required GameTests**, all passing; original173/270 preserved. Full build/main reobfuscation pass. Additional semantic/malformed/actual-shot/transfer tests pass; new graphical and production acceptance not yet claimed.
 - 120-item status: V **49**, U **20**, P **46**, N **5**; **115** source items registered in Forge. Large Potion Canister N→U only. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
@@ -847,3 +847,8 @@ At `ef6b2a2`, revised actual client holds the vanilla use key through bow draw/r
 Native API review found the inherited `getPotionColor` ignored stored custom color and `getStoredPotion` could throw on malformed legacy IDs. Large-item-only read adapters now use the canonical full contents; native small items retain their original behavior. Added assertions to existing tests require native color0x12ab34/base type, invalid ID→EMPTY/-1 with unchanged NBT. `/tmp/jdte-potion-interop-regression.log`:176 JUnit/284 required GameTests/full build/main+probe reobfuscation/client compilation pass. No previous assertions changed or skipped.
 
 First two-independent-client run reaches real simultaneous partial/completed batches, repeated extraction, server-controlled physical handoff and actual stale-C2S rejection, then fails its ledger after logout:3000mB/pending1/twelve bottles but zero loose potion in player inventories. Vanilla drops a disconnected cursor into the world; the fixture omitted that location. Corrected ledger retains the exact one-potion requirement across inventories/cursors/real ItemEntities, and the reconnected owner must actually pick it up; observer is moved aside. Failure logs/control directory preserved. Remote rerun and final current-artifact runtime checks pending. Counts remain49/20/46/5; no premature V.
+
+## 2026-10-30 — Potion held-slot prediction and remote fixture corrections
+
+- Full176 JUnit/284 required GameTests, build and main/probe reobfuscation pass again (`delivery-regression.log.gz`); client harness compiles. Main-hand selected slot now has an explicit numeric guard on both sides: client bound stacks are decoded snapshots, so server identity protection alone allowed transient client pickup prediction. Real GUI self-click regression is included in the final graphical rerun.
+- Remote attempt2 reached actual reconnect but timed out. The preserved failure is not accepted as a pass. The fixture now waits for held inventory synchronization before opening, teleports the returning owner to the actual disconnected-cursor drop, and requires normal world pickup plus the unchanged complete resource ledger. Fixture-only flat-world generation avoids repeated noise-world startup. Third independent-client attempt and final packaged pair are running; no V promotion yet.

@@ -19,7 +19,7 @@ import java.util.*;
 /** Real remote clients own all menu clicks. Server-controlled material seeding/handoff is explicit. */
 public final class PotionMultiplayerProbe {
  private final Path control=Path.of(System.getProperty("jdte.remoteControl","/tmp/jdte-potion-remote-control"));
- private MinecraftServer server;private int stage,ticks,at;private List<ServerPlayer> original=List.of();private CompoundTag expected;
+ private MinecraftServer server;private int stage,ticks,at;private List<ServerPlayer> original=List.of();private CompoundTag expected;private boolean pickupTargeted;
  private void check(boolean v,String s){if(!v)throw new IllegalStateException("Potion multiplayer: "+s);}
  private void write(String file,String value){try{Files.writeString(control.resolve(file+".tmp"),value);Files.move(control.resolve(file+".tmp"),control.resolve(file),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);}catch(java.io.IOException x){throw new IllegalStateException(x);}}
  private void phase(int n){stage=n;at=ticks;write("phase",Integer.toString(n));}
@@ -47,6 +47,11 @@ public final class PotionMultiplayerProbe {
  }
  private void step()throws Exception{
   ticks++;if(stage==99)return;check(ticks-at<3600,"timeout stage "+stage);var people=players();
+  if(stage==7&&people.size()==2&&!pickupTargeted){
+   var drops=server.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(new BlockPos(32,100,32)).inflate(10),d->d.getItem().is(Items.POTION));
+   if(!drops.isEmpty()){check(drops.stream().mapToInt(d->d.getItem().getCount()).sum()==1,"exact real disconnected-cursor drop remains");var drop=drops.get(0);person("Two").teleportTo(drop.getX(),drop.getY(),drop.getZ());pickupTargeted=true;com.mojang.logging.LogUtils.getLogger().info("Potion reconnect targets actual drop at {} for natural pickup",drop.position());}
+  }
+  if(stage==7&&people.size()==2&&ticks%100==0)com.mojang.logging.LogUtils.getLogger().info("Potion reconnect state: menu={}, held={}, loose={}, pos={}",person("Two").containerMenu.getClass().getSimpleName(),person("Two").getMainHandItem().getDescriptionId(),person("Two").getInventory().countItem(Items.POTION),person("Two").position());
   if(stage==0&&people.size()==2){original=people;for(int n=0;n<2;n++){var p=people.get(n);p.getInventory().clearContent();p.getInventory().selected=0;var c=new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());c.getOrCreateTag().putString("fixture_owner",n==0?"One":"Two");p.setItemInHand(InteractionHand.MAIN_HAND,c);for(int i=9;i<=12;i++)p.getInventory().setItem(i,PotionProbeItems.potion(1));p.teleportTo(server.overworld(),32.5+n*2,100,33.5,0,0);p.inventoryMenu.broadcastChanges();}phase(1);}
   else if(stage==1&&both(1)){ledger(people,0,4,4,0);phase(2);}
   else if(stage==2&&both(2)){ledger(people,2000,0,0,8);var one=person("One");var two=person("Two");var moving=one.getMainHandItem();PotionProbeItems.handler(moving).insertItem(0,PotionProbeItems.potion(3),false);one.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);two.closeContainer();two.getInventory().setItem(35,two.getMainHandItem());two.setItemInHand(InteractionHand.MAIN_HAND,moving);two.getInventory().setItem(9,PotionProbeItems.potion(1));one.inventoryMenu.broadcastChanges();two.inventoryMenu.broadcastChanges();phase(3);}

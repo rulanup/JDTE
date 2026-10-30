@@ -21,6 +21,12 @@ if SCENARIO in {'bio','wand','potion'}:
     world = SCENARIO + '-live-' + uuid.uuid4().hex[:12]
     file = SERVER / 'server.properties'
     lines = [line for line in file.read_text().splitlines() if not line.startswith('level-name=')]
+    if SCENARIO == 'potion':
+        # Portable-menu/network semantics do not require expensive noise terrain on each retry.
+        # Each new flat fixture world and all previous evidence remain separate.
+        lines = [line for line in lines if not line.startswith(('level-type=', 'generator-settings='))]
+        flat = {'layers':[{'block':'minecraft:bedrock','height':1},{'block':'minecraft:dirt','height':2},{'block':'minecraft:grass_block','height':1}], 'biome':'minecraft:plains','features':False,'lakes':False,'structure_overrides':[]}
+        lines += ['level-type=minecraft:flat','generator-settings=' + json.dumps(flat,separators=(',',':'))]
     file.write_text('\n'.join(lines + ['level-name=' + world]) + '\n')
     print('Disposable ' + SCENARIO + ' world:', world, flush=True)
 

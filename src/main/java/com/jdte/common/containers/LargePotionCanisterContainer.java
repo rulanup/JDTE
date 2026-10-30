@@ -32,7 +32,7 @@ public class LargePotionCanisterContainer extends BaseContainer {
     public ItemStack getCurrentStack(){var current=LargePotionCanisterMenuAccess.resolve(owner,curios);return LargePotionCanisterData.isLarge(current)?current:bound;}
     @Override public boolean stillValid(Player player){return player==owner&&player.isAlive()&&!player.isRemoved()&&LargePotionCanisterData.isLarge(bound)&&bound.getCount()==1&&(player.level().isClientSide||player.containerMenu==this&&LargePotionCanisterMenuAccess.resolve(player,curios)==bound);}
     @Override public void clicked(int index,int button,ClickType type,Player player){
-        if(!stillValid(player)||index>=0&&index<slots.size()&&slots.get(index).getItem()==bound||!curios&&type==ClickType.SWAP&&button==player.getInventory().selected)return;
+        if(!stillValid(player)||!curios&&index==slots.size()-9+player.getInventory().selected||index>=0&&index<slots.size()&&slots.get(index).getItem()==bound||!curios&&type==ClickType.SWAP&&button==player.getInventory().selected)return;
         super.clicked(index,button,type,player);
     }
     @Override public ItemStack quickMoveStack(Player player,int index){
