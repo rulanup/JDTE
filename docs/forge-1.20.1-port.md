@@ -12,8 +12,8 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 - Environment/version: Forge47.4.10, JDT Forge1.1.4, Java17, Gradle8.6; **0.5.8-forge-1.20.1**.
 - Latest complete regression: **176 JUnit /284 required GameTests**, all passing; original173/270 and24 mineral core tests preserved. Full build/main and probe reobfuscation pass. Final graphical client, minimal production two-JVM actual unload/restart and two independent clients/two production JVMs all exit0.
 - 120-item status: V **50**, U **19**, P **46**, N **5**; **115** source items registered in Forge. Large Potion Canister N→V from scoped behavioral evidence; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
-- Persistence: `f1f0fad`, `ef6b2a2`, `0da09ae` pushed on the development branch. `3ff5008` and final acceptance are local checkpoints: later push failed because GH_TOKEN expired; verified Git bundles under `/workspace/` preserve those commits for transfer. Do not claim remote completion. Recovery branch/backup and pre-existing Python cache retained; no reset/main merge/release.
-- Next priorities: restore GitHub push authentication and push saved checkpoints first; then consider Large Pocket Generator (shared portable/fuel dependencies) or the separate decorative trio. Time Multitool needs a scoped mining/permissions/event port. No other absent subsystem was started this round.
+- Persistence: implementation/acceptance through **`2386d1c`** pushed on `codex/forge-1.20.1-mineral-machines`. A transient invalid-token rejection was preserved below; retry subsequently succeeded. Verified Git bundles under `/workspace/` also preserve the work. Recovery branch/backup and pre-existing Python cache retained; no reset/main merge/release.
+- Next priorities: consider Large Pocket Generator (shared portable/fuel dependencies) or the separate decorative trio. Time Multitool needs a scoped mining/permissions/event port. No other absent subsystem was started this round.
 - Still unverified: potion cross-dimensional/prolonged/arbitrary-mod/unsaved-crash behavior; XP independent multiplayer; external JDTE-AE whole-grid backend, operating reactors/full fusion and prior scoped runtime boundaries. Full0.6.5.2 parity remains unfinished.
 <!-- current-status:end -->
 
@@ -872,3 +872,7 @@ Saving issue: earlier three commits pushed, but the next push of `3ff5008` was r
 | Xingye/Cainiaoyo/Maiqilin Fumo | Shared horizontal decorative block, directional voxel shapes/placement/rotation, wool sound/strength0.2, source models/textures/loot with Forge resource paths; no BE or machine dependency. |
 
 No registrations, gameplay placeholders or V changes for these five N items were added.
+
+## 2026-10-30 — Potion checkpoint push recovered
+
+The initial invalid-token rejection above describes that attempt, not the final remote state. A later authenticated retry succeeded: remote development branch advanced from `0da09ae` to **`2386d1c`**, including `3ff5008` and final acceptance/evidence. Existing recovery branch remains `cd8aaaa`; all seven original backup hashes still pass. The final Git bundle is retained as an additional recovery path. Audit --check/docs validation/diff checks pass after the acceptance-only update; no unrelated expensive runtime was repeated.
