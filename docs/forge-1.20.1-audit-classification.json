@@ -17,8 +17,8 @@
     {
       "id": "thunderstorm_upgrade",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Complete pinned-source lightning modes/weather card/FE and four upgrade slots, real tagged vanilla bolts, independent synchronized presentation controls, settings codec, resources and lifecycle guards implemented. 170 JUnit/248 GameTests pass including actual pig transformation and rod power. Client/production unload-restart acceptance remains pending; keep U."
+      "status": "verified",
+      "note": "Scoped V: rod-only max-one card with exact source recipe/model/tooltip; bypasses rain+thunder condition without changing weather. 170/252 regression plus actual client inventory insertion/removal/slot sync and clear-weather native bolt work in packaged survival relocation/restart evidence. Actual NeoForge-only AE2LT integration and independent multiplayer remain unverified."
     },
     {
       "id": "underclock_upgrade",
@@ -365,8 +365,8 @@
     {
       "id": "charged_lightning_rod",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Complete pinned-source lightning modes/weather card/FE and four upgrade slots, real tagged vanilla bolts, independent synchronized presentation controls, settings codec, resources and lifecycle guards implemented. 170 JUnit/248 GameTests pass including actual pig transformation and rod power. Client/production unload-restart acceptance remains pending; keep U."
+      "status": "verified",
+      "note": "Scoped V: source 10k/40k/100k FE modes and 1/5/50 batches, real full vanilla lightning with AE2LT weather marker, guarded FE/ownership/NBT, synchronized render/sound and copier. 170 JUnit/252 GameTests plus real GUI/JEI/flash/sound and two packaged production JVMs verify survival transport, actual unload, exact nonzero-cooldown restart and resumed payment. Real AE2LT, random weather arrival, cross-dimensional transport, multiplayer/stress remain unverified."
     },
     {
       "id": "crystal_incubator",

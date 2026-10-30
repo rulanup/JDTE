@@ -1,0 +1,1 @@
+PASS: real GUI full-width FE, weather gate, both toggles, inventory install/remove and max-one card conservation, hidden/silent client bolt metadata with no sky flash/sound events, real restored visible sky flash and lightning sound event, actual JEI both recipes. Weather deterministically configured through the real integrated server API.

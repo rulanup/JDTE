@@ -1,0 +1,51 @@
+{
+  "uploaded_jar": "ae2lt-2.1.2-beta3.jar",
+  "sha256": "996eaa6a34f0976804a1249b65ad615454b08bb3016354085a49de692b77d8a8",
+  "metadata": "META-INF/neoforge.mods.toml",
+  "required_dependencies": [
+    {
+      "modId": "neoforge",
+      "type": "required",
+      "versionRange": "[21,)",
+      "ordering": "NONE",
+      "side": "BOTH"
+    },
+    {
+      "modId": "minecraft",
+      "type": "required",
+      "versionRange": "[1.21.1,1.22)",
+      "ordering": "NONE",
+      "side": "BOTH"
+    },
+    {
+      "modId": "ae2",
+      "type": "required",
+      "versionRange": "[19.2.17,19.3)",
+      "ordering": "AFTER",
+      "side": "BOTH"
+    },
+    {
+      "modId": "ae2wtlib_api",
+      "type": "required",
+      "versionRange": "*",
+      "ordering": "BEFORE",
+      "side": "BOTH"
+    },
+    {
+      "modId": "thunderbolt",
+      "type": "required",
+      "versionRange": "[2.0.3-beta2,3.0.0)",
+      "ordering": "AFTER",
+      "side": "BOTH"
+    }
+  ],
+  "class_major": 65,
+  "marker": "ae2lt.natural_weather_lightning",
+  "readers": [
+    "com/moakiee/ae2lt/event/NaturalLightningTransformationHandler.class",
+    "com/moakiee/ae2lt/item/DebugLightningRodItem.class",
+    "com/moakiee/ae2lt/mixin/ServerLevelMixin.class"
+  ],
+  "real_integration_verified": false,
+  "reason": "NeoForge/Minecraft1.21.1/Java21 dependency cannot load in the Forge1.20.1/Java17 target. Actual source-marked vanilla bolt behavior is tested separately."
+}
