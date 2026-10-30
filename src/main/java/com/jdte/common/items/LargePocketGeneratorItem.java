@@ -84,9 +84,11 @@ public class LargePocketGeneratorItem extends PocketGenerator {
         if (storage.getEnergyStored() < getFEPerTick() / 10) return;
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
             var target = player.getInventory().getItem(i);
-            if (target == stack || player.isUsingItem() && player.getUseItem() == target) continue;
+            if (target == stack) continue;
             target.getCapability(ForgeCapabilities.ENERGY).ifPresent(receiver -> storage.transferTo(receiver, getFEPerTick()));
         }
+        if (net.minecraftforge.fml.ModList.get().isLoaded("curios"))
+            com.jdte.common.integrations.curios.LargePocketGeneratorCurios.chargeEquipment(player, storage, getFEPerTick());
     }
     @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide && !player.isShiftKeyDown()) LargePocketGeneratorMenuAccess.open(player, false);
