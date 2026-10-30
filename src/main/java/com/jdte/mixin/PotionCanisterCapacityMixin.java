@@ -17,4 +17,9 @@ public abstract class PotionCanisterCapacityMixin {
     private static void jdte$reduce(ItemStack stack,int amount,CallbackInfo ci){if(LargePotionCanisterData.isLarge(stack)){if(amount>=0)LargePotionCanisterData.setAmount(stack,(long)LargePotionCanisterData.amount(stack)-amount);ci.cancel();}}
     @Inject(method="addPotionAmount",at=@At("HEAD"),cancellable=true,remap=false)
     private static void jdte$add(ItemStack stack,int amount,CallbackInfo ci){if(LargePotionCanisterData.isLarge(stack)){if(amount>=0)LargePotionCanisterData.setAmount(stack,(long)LargePotionCanisterData.amount(stack)+amount);ci.cancel();}}
+    @Inject(method="getStoredPotion",at=@At("HEAD"),cancellable=true,remap=false)
+    private static void jdte$baseType(ItemStack stack,CallbackInfoReturnable<net.minecraft.world.item.alchemy.Potion> cir){if(LargePotionCanisterData.isLarge(stack))cir.setReturnValue(LargePotionCanisterData.base(stack));}
+    @Inject(method="getPotionColor",at=@At("HEAD"),cancellable=true,remap=false)
+    private static void jdte$fullColor(ItemStack stack,CallbackInfoReturnable<Integer> cir){if(LargePotionCanisterData.isLarge(stack))cir.setReturnValue(LargePotionCanisterData.color(stack));}
+
 }

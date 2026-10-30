@@ -32,6 +32,7 @@ public final class PotionMultiplayerProbe {
   for(var p:people){for(int i=0;i<p.getInventory().getContainerSize();i++){var s=p.getInventory().getItem(i);if(s.is(JDTEItems.LARGE_POTION_CANISTER.get())){canisters+=s.getCount();actualStored+=PotionCanister.getPotionAmount(s);var slot=PotionProbeItems.handler(s).getStackInSlot(0);if(slot.is(Items.POTION))actualPending+=slot.getCount();else if(slot.is(Items.GLASS_BOTTLE))actualBottles+=slot.getCount();}else if(s.is(Items.POTION))actualLoose+=s.getCount();else if(s.is(Items.GLASS_BOTTLE))actualBottles+=s.getCount();}
    var cursor=p.containerMenu.getCarried();if(cursor.is(Items.POTION))actualLoose+=cursor.getCount();if(cursor.is(Items.GLASS_BOTTLE))actualBottles+=cursor.getCount();
   }
+  for(var drop:server.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(new BlockPos(32,100,32)).inflate(10))){var stack=drop.getItem();if(stack.is(Items.POTION))actualLoose+=stack.getCount();if(stack.is(Items.GLASS_BOTTLE))actualBottles+=stack.getCount();}
   check(canisters==2&&actualStored==stored&&actualPending==pending&&actualLoose==loose&&actualBottles==bottles,"conservation canisters="+canisters+" stored="+actualStored+" pending="+actualPending+" loose="+actualLoose+" bottles="+actualBottles);
  }
  @SubscribeEvent public void start(ServerStartedEvent e)throws Exception{
@@ -52,7 +53,10 @@ public final class PotionMultiplayerProbe {
   else if(stage==3&&both(3)){ledger(people,2000,3,1,8);check(!(person("One").containerMenu instanceof LargePotionCanisterContainer),"old owner menu invalidated after controlled physical item handoff");phase(4);}
   else if(stage==4&&both(4)){ledger(people,3000,0,0,12);PotionProbeItems.handler(current()).insertItem(0,PotionProbeItems.potion(2),false);person("Two").containerMenu.broadcastChanges();phase(5);}
   else if(stage==5&&both(5)){ledger(people,3000,1,1,12);check(person("Two").containerMenu.getCarried().is(Items.POTION),"real remote player holds one potion on cursor");phase(6);}
-  else if(stage==6&&Files.exists(control.resolve("Two-6"))&&people.size()==1){ledger(original,3000,1,1,12);check(original.get(1).containerMenu.getCarried().isEmpty(),"logout settles cursor without duplicating potion");phase(7);}
+  else if(stage==6&&Files.exists(control.resolve("Two-6"))&&people.size()==1){ledger(original,3000,1,1,12);check(original.get(1).containerMenu.getCarried().isEmpty(),"logout settles cursor without duplicating potion");
+   // Vanilla drops a disconnected player's cursor into the world. Keep the observer away;
+   // the reconnected owner must actually pick up the real dropped potion through world ticks.
+   person("One").teleportTo(29.5,100,33.5);phase(7);}
   else if(stage==7&&people.size()==2&&both(7)){ledger(people,3000,1,1,12);for(var p:people)p.closeContainer();expected=new CompoundTag();for(var p:people)expected.put(p.getGameProfile().getName(),p.getInventory().save(new ListTag()));NbtIo.writeCompressed(expected,control.resolve("expected.nbt").toFile());phase(8);for(var p:people)p.connection.disconnect(net.minecraft.network.chat.Component.literal("Potion saved restart fixture"));}
   else if(stage==8&&people.isEmpty()){server.saveEverything(false,true,true);write("seed-success","PASS: two actual independent clients concurrently fill/recover distinct portable menus, controlled server handoff plus actual stale-C2S replay rejection, fourth potion resumes exactly once, real cursor logout/reconnect; exact two canisters/3000mB/pending1/loose1/twelve bottles saved. Handoff/material setup is instrumented, not player-driven drag/drop.\n");server.halt(false);stage=99;}
   else if(stage==9&&people.size()==2&&both(9)){for(var p:people)check(expected.getList(p.getGameProfile().getName(),Tag.TAG_COMPOUND).equals(p.getInventory().save(new ListTag())),"new JVM restores exact player inventory/effects/pending state "+p.getGameProfile().getName());ledger(people,3000,1,1,12);phase(10);}

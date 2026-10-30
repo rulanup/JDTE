@@ -32,7 +32,7 @@ public final class PotionCanisterLifecycleProbe {
   if(mode.equals("verify")){expected=NbtIo.readCompressed(Path.of("potion-expected.nbt").toFile());check(expected.equals(chest().saveWithoutMetadata()),"new JVM exact chest/item/effect/color/pending/bow data before work");stage=3;return;}
   l.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING).set(false,server);
   for(var pos:BlockPos.betweenClosed(P.offset(-2,-1,-2),P.offset(3,2,3))){l.removeBlockEntity(pos);l.setBlockAndUpdate(pos,pos.getY()==109?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());}l.setBlockAndUpdate(P,Blocks.CHEST.defaultBlockState());
-  var stored=PotionProbeItems.filled();PotionProbeItems.handler(stored).insertItem(0,PotionProbeItems.potion(3),false);stored.getOrCreateTag().putString("fixture","pending-three-preserved");chest().setItem(0,stored);
+  var stored=PotionProbeItems.filled();check(PotionCanister.getStoredPotion(stored)==net.minecraft.world.item.alchemy.Potions.SWIFTNESS&&PotionCanister.getPotionColor(stored)==0x12ab34,"native full-color/base getter interoperability");PotionProbeItems.handler(stored).insertItem(0,PotionProbeItems.potion(3),false);stored.getOrCreateTag().putString("fixture","pending-three-preserved");chest().setItem(0,stored);
   var bow=PotionProbeItems.bow();var canister=PotionProbeItems.filled();PotionProbeItems.handler(canister).insertItem(0,PotionProbeItems.potion(2),false);BaseBow.setPotionCanister(bow,canister,0);shoot(bow,1);
   check(PotionCanister.getPotionAmount(BaseBow.getPotionCanister(bow,0))==3900,"native bow exact100mB, no1000mB clamp");chest().setItem(1,bow);chest().setItem(2,new ItemStack(Items.GLASS_BOTTLE,32));chest().setChanged();
  }
@@ -44,6 +44,7 @@ public final class PotionCanisterLifecycleProbe {
    try{((BaseBow)bow.getItem()).releaseUsing(bow,l,actor,bow.getUseDuration()-20);}finally{net.minecraftforge.common.MinecraftForge.EVENT_BUS.unregister(listener);}
    var visible=l.getEntitiesOfClass(JustDireArrow.class,new AABB(P).inflate(5));
    check(joined.size()==1&&joined.get(0).isAddedToWorld()&&joined.get(0).getEffects().stream().anyMatch(x->x.getEffect()==net.minecraft.world.effect.MobEffects.REGENERATION&&x.getDuration()==321&&x.getAmplifier()==2),"actual admitted custom-effect arrow for native shot "+i+" joined="+joined.size()+" visible="+visible.size()+" ammo="+actor.getInventory().countItem(Items.ARROW)+" amount="+PotionCanister.getPotionAmount(BaseBow.getPotionCanister(bow,0))+" effects="+(joined.isEmpty()?"none":joined.get(0).getEffects()));
+   com.mojang.logging.LogUtils.getLogger().info("Potion native shot admitted={}, visible={}, added={}",joined.size(),visible.size(),joined.get(0).isAddedToWorld());
    joined.forEach(net.minecraft.world.entity.Entity::discard);
   }
   check(actor.getInventory().countItem(Items.ARROW)==0,"each admitted native shot spends one ammo");actor.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
