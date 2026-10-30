@@ -1,0 +1,1 @@
+PASS: minimal actual production native custom-effect arrow100mB/ammo, full4000mB/pending3 and nested3900mB/pending2 canisters,32 returned bottles, actual inventory move/unload/fresh chest/exact complete NBT and saved shutdown.

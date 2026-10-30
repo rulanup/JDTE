@@ -8,13 +8,13 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest implementation checkpoint: **`0da09ae`** — full native potion getter hardening pushed; current menu prediction guard passes complete regression. Remote acceptance remains pending.
-- Environment/version: Forge 47.4.10, JDT Forge 1.1.4, Java 17, Gradle 8.6; **0.5.8-forge-1.20.1**.
-- Latest complete regression: **176 JUnit /284 required GameTests**, all passing; original173/270 preserved. Full build/main reobfuscation pass. Additional semantic/malformed/actual-shot/transfer tests pass; new graphical and production acceptance not yet claimed.
-- 120-item status: V **49**, U **20**, P **46**, N **5**; **115** source items registered in Forge. Large Potion Canister N→U only. The [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
-- Persistence: checkpoints pushed on `codex/forge-1.20.1-mineral-machines`; remote recovery remains **`cd8aaaa`**, `/workspace/jdte-recovery-20261028` remains intact. Pre-existing Python cache preserved. No reset, main merge or release; version unchanged.
-- Next priorities: finish potion-canister targeted regression, real graphical handheld/Curios/native bow checks, production persistence and targeted independent-client handoff testing. No other absent subsystem is started.
-- Still unverified: XP holder independent multiplayer, cross-dimensional transport/prolonged load and arbitrary XP-event handlers; actual two-client disconnect/rejoin during player balancing and interrupted pulse reacquisition (active player reference is transient in source). Prior real uploaded AE2LT, random weather arrival, lightning cross-dimensional/multiplayer/prolonged cases, arbitrary data packs/tickers/entities, external JDTE-AE whole-grid backend, operating reactors and full Draconic fusion remain unverified.
+- Latest implementation checkpoint: **`3ff5008`** — Large Potion Canister complete gameplay, native read interoperability and held-slot prediction guard. Final matching-artifact runtime acceptance recorded below.
+- Environment/version: Forge47.4.10, JDT Forge1.1.4, Java17, Gradle8.6; **0.5.8-forge-1.20.1**.
+- Latest complete regression: **176 JUnit /284 required GameTests**, all passing; original173/270 and24 mineral core tests preserved. Full build/main and probe reobfuscation pass. Final graphical client, minimal production two-JVM actual unload/restart and two independent clients/two production JVMs all exit0.
+- 120-item status: V **50**, U **19**, P **46**, N **5**; **115** source items registered in Forge. Large Potion Canister N→V from scoped behavioral evidence; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
+- Persistence: `f1f0fad`, `ef6b2a2`, `0da09ae` pushed on the development branch. `3ff5008` and final acceptance are local checkpoints: later push failed because GH_TOKEN expired; verified Git bundles under `/workspace/` preserve those commits for transfer. Do not claim remote completion. Recovery branch/backup and pre-existing Python cache retained; no reset/main merge/release.
+- Next priorities: restore GitHub push authentication and push saved checkpoints first; then consider Large Pocket Generator (shared portable/fuel dependencies) or the separate decorative trio. Time Multitool needs a scoped mining/permissions/event port. No other absent subsystem was started this round.
+- Still unverified: potion cross-dimensional/prolonged/arbitrary-mod/unsaved-crash behavior; XP independent multiplayer; external JDTE-AE whole-grid backend, operating reactors/full fusion and prior scoped runtime boundaries. Full0.6.5.2 parity remains unfinished.
 <!-- current-status:end -->
 
 This file is a chronological development log. Sections below preserve the implementation, limitations, failures and test results **at their recorded checkpoint**; old limitations are not current acceptance decisions. Consult Current Status and the matrix for the latest state. Earlier evidence retains its original scope and counts.
@@ -852,3 +852,23 @@ First two-independent-client run reaches real simultaneous partial/completed bat
 
 - Full176 JUnit/284 required GameTests, build and main/probe reobfuscation pass again (`delivery-regression.log.gz`); client harness compiles. Main-hand selected slot now has an explicit numeric guard on both sides: client bound stacks are decoded snapshots, so server identity protection alone allowed transient client pickup prediction. Real GUI self-click regression is included in the final graphical rerun.
 - Remote attempt2 reached actual reconnect but timed out. The preserved failure is not accepted as a pass. The fixture now waits for held inventory synchronization before opening, teleports the returning owner to the actual disconnected-cursor drop, and requires normal world pickup plus the unchanged complete resource ledger. Fixture-only flat-world generation avoids repeated noise-world startup. Third independent-client attempt and final packaged pair are running; no V promotion yet.
+
+## 2026-10-30 — Large Potion Canister final behavior acceptance
+
+Final gameplay `3ff5008`:176 JUnit/284 required GameTests, full build and both reobfuscations pass. Final graphical client passes the new no-ghost self-click and native custom-color/base assertions, batches/bottles/full recovery, Curios/P, JEI both portable recipes and actual C2S bow draw/release with100mB/one ammo/3900mB and custom effects.
+
+Minimal packaged production pair passes actual native arrow method (explicit FakePlayer), real inventory relocation/ChunkEvent.Unload/fresh BE/exact NBT, saved shutdown and fresh-JVM work. Independent two-client attempt3 passes simultaneous/repeated menu packets, controlled item handoff, actual stale-C2S rejection, cursor dropout/real pickup/reconnect and exact two-canister3000mB/pending1/loose1/twelve-bottle ledger. Fresh production server restores exact full player inventories before both actual clients reopen synchronized menus. No native expectation or resource assertion was relaxed. The old generic remote coordinator label mentioned unload; only the separate production pair asserts an actual unload. The label is now accurate.
+
+Retained [potion evidence](validation/forge-1.20.1-potion-canister/README.md) includes full passing and failed logs, six graphical/two remote screenshots, JUnit XML, expected compressed NBT, exact matching build/installed JAR SHA256 and present/absent runtime profiles. Main JAR excludes runtime smoke classes. U→V acceptance is scoped, not arbitrary-mod or long-running certification: **V50/U19/P46/N5**. Version remains0.5.8.
+
+Saving issue: earlier three commits pushed, but the next push of `3ff5008` was rejected (GitHub Invalid username or token; gh confirms GH_TOKEN invalid). Local checkpoints plus verified `/workspace/jdte-potion-recovery-3ff5008.bundle` and the final recovery bundle retain all changes. Remote success is not claimed for those later checkpoints. Existing energy recovery branch/backup retained.
+
+### Remaining N dependency review (read-only)
+
+| Items | Pinned dependencies / next boundary |
+| --- | --- |
+| Large Pocket Generator | Native PocketGenerator, no-receive FE, configured4x capacity, burn counter/fuel multiplier, shared portable menus/recipe; closest remaining portable family, but actual source burn/charging consumers and preserving NBT require their own port/tests. |
+| Time Multitool | EclipseAlloyPaxel,500000FE/1000000mB Time Fluid, modes/speed storage, client/server continuous mining, block event/break tracker, permissions/tool actions; separate scoped subsystem. |
+| Xingye/Cainiaoyo/Maiqilin Fumo | Shared horizontal decorative block, directional voxel shapes/placement/rotation, wool sound/strength0.2, source models/textures/loot with Forge resource paths; no BE or machine dependency. |
+
+No registrations, gameplay placeholders or V changes for these five N items were added.

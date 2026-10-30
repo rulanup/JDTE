@@ -82,7 +82,7 @@ try:
     server = start_server('seed'); wait_for(lambda: phase(0), 'dedicated server ready', 150)
     one = start_client('One', 0); two = start_client('Two', 0)
     wait_for(lambda: phase(7), 'two-client simultaneous interactions and first disconnect', 420)
-    wait_for(lambda: (CONTROL / 'seed-success').is_file(), 'reconnect, chunk unload and saved shutdown')
+    wait_for(lambda: (CONTROL / 'seed-success').is_file(), 'cursor-drop pickup, reconnect and saved shutdown' if SCENARIO == 'potion' else 'reconnect, chunk unload and saved shutdown')
     assert server.wait(timeout=90) == 0
     server = start_server('restart'); wait_for(lambda: phase(9), 'fresh dedicated server ready', 150)
     wait_for(lambda: (CONTROL / 'restart-success').is_file(), 'disk restoration and two-client synchronized menus')

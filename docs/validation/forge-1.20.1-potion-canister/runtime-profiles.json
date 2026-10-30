@@ -1,0 +1,19 @@
+{
+  "jdte-potion-production": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "guideme-20.1.15.jar",
+    "just-dire-things-forge-1533501-8573107.jar"
+  ],
+  "jdte-potion-network-server": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "applied-energistics-2-223794-7148487.jar",
+    "curios-309927-6418456.jar",
+    "guideme-20.1.15.jar",
+    "jade-324717-8479276.jar",
+    "jei-1.20.1-forge-15.20.0.127.jar",
+    "just-dire-things-forge-1533501-8573107.jar",
+    "modernfix-ZxDvSMHV.jar"
+  ]
+}

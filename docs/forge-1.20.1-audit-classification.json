@@ -209,14 +209,14 @@
     {
       "id": "large_potion_canister",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source4000mB/four-potion batches/bottles/full contents, bound handheld/Curios/shared slot/recipe/resources and actual native bow integration implemented. 176 JUnit/284 GameTests/build/reobfuscation pass; native base/color read interoperability and malformed legacy data tested. Real GUI/Curios/JEI/C2S shot and paired production unload/restart pass before read-only getter hardening; targeted two-client cursor-drop ledger rerun/final artifact checks pending. Keep U; see potion evidence."
+      "status": "verified",
+      "note": "Scoped V: source4000mB/four matching potions/1000mB/four bottles, complete base/custom effects/color, shared bound handheld/Curios menus, preserving recipe/native bow25/25/50mB. 176 JUnit/284 GameTests; real GUI/P/JEI/C2S shot, matching-JAR minimal production actual unload/fresh BE/exact NBT/two-JVM recovery and two actual independent clients with stale clicks/handoff/cursor dropout/pickup/reconnect/restart prove exact ledgers. See potion evidence for controlled fixture setup and unverified cross-dimensional/prolonged/arbitrary-mod boundaries."
     },
     {
       "id": "large_fuel_canister",
       "initial_list": true,
       "status": "verified",
-      "note": "Source capacity x4/unit x10/weighted-and-resolved speed preserved. Bound handheld and Curios F menus, source-preserving recipe, real fuels/rejections/remainders, full/native/upgraded FE accounting pass unit/Forge tests. Real GUI fills/NBT sync and dedicated full-inventory packing, real unload/reload and two-JVM recovery preserve fuel/name/speed exactly. Large Pocket/Potion siblings remain separate N items; see generators evidence."
+      "note": "Source capacity x4/unit x10/weighted-and-resolved speed preserved. Bound handheld and Curios F menus, source-preserving recipe, real fuels/rejections/remainders, full/native/upgraded FE accounting pass unit/Forge tests. Real GUI fills/NBT sync and dedicated full-inventory packing, real unload/reload and two-JVM recovery preserve fuel/name/speed exactly. Large Pocket Generator remains a separate N item; Potion acceptance is tracked separately; see generators evidence."
     },
     {
       "id": "factory_package",
