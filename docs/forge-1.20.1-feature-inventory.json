@@ -4,9 +4,9 @@
   "source_item_count": 120,
   "forge_item_count": 114,
   "counts": {
-    "verified": 47,
-    "implemented_unverified": 20,
-    "partial": 47,
+    "verified": 49,
+    "implemented_unverified": 19,
+    "partial": 46,
     "absent": 6
   },
   "rows": [
@@ -427,8 +427,8 @@
     {
       "id": "extended_upgrade",
       "initial_list": false,
-      "status": "partial",
-      "note": "All twenty pinned mappings now wired, plus the Forge-added Entity Accelerator route (21 total). XP Holder real XP/card conversion and rollback GameTests pass with other retained routes. Keep P pending new-holder graphical/production lifecycle acceptance.",
+      "status": "verified",
+      "note": "All20 pinned source mappings and the extra Forge Entity Accelerator route are wired (21 total). Retained15-route and transmitter/generator/Bio/Entity tests plus XP Holder conversion/rollback verify actual inventory/filter/FE/fluid/XP/card ownership. Shared transaction rollback and preserving recipes retain state; real XP graphical/production transport/unload/restart close the previously missing source target. Scoped V for tier-conversion behavior; this does not promote partial host-machine features, arbitrary mod/event handlers or prolonged multiplayer. See upgrades, generators, Bio/Entity and experience-holder evidence.",
       "registered": true,
       "kind": "item",
       "name": "Extended Upgrade",
@@ -851,8 +851,8 @@
     {
       "id": "extended_experience_holder",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source standalone XP/20mB fluid, player/orb balancing, guarded capabilities, full-width menus/resources/copier, eight-slot native conversion/rollback and preserving recipe implemented. 173 JUnit/270 GameTests pass, including actual2/10-then1 pulse work and XP-gain callback conservation. Earlier real GUI/online balancing/production unload/restart pass; final current-artifact acceptance pending.",
+      "status": "verified",
+      "note": "Pinned standalone integer XP/20mB fluid and source level/target/orb/pulse/particle behavior, guarded ports, eight-slot upgrades/Ultimate, full-width menu/copier/bag/preserving recipe and native conversion/rollback implemented. 173 JUnit/270 GameTests retain all prior170/252. Real graphical client mouse controls/JEI/actual Jade packets and connected-player natural target37 work conserve exact XP. Two minimal reobfuscated production JVMs verify full-inventory survival transport, merged XP ledger, actual ChunkEvent.Unload/fresh BE, stale port revocation, exact complete NBT restart/resumed work on matching JAR. Intentional conservation fixes and eight-slot marker correction documented. Independent multiplayer, cross-dimensional transport and prolonged uptime remain unverified; see experience-holder evidence.",
       "registered": true,
       "kind": "block item",
       "name": "Extended Experience Holder",
