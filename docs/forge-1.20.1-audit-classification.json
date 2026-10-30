@@ -209,8 +209,8 @@
     {
       "id": "large_potion_canister",
       "initial_list": true,
-      "status": "absent",
-      "note": "Not registered or ported. Pinned source investigation confirms independent4000mB canister, four matching potion items per1000mB/four returned bottles, identity-bound handheld/Curios menu and preserving portable recipe. Native bow potion/splash/lingering use and1.20 static1000mB setter must be adapted with full potion NBT; read-only inspection gives no implementation credit."
+      "status": "implemented_unverified",
+      "note": "Source4000mB/four matching potion batch/four bottles implemented with full base/custom-effect/color NBT, persistent shared input slot, bound handheld/Curios menus/key/resources/recipe and native bow capacity/complete-effect integration. Initial176 JUnit/280 GameTests/build/reobfuscation pass. Additional malformed/semantic/real-shot/transfer tests and graphical/production acceptance pending; keep U."
     },
     {
       "id": "large_fuel_canister",

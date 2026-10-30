@@ -344,5 +344,9 @@
     "buttons_y": 62,
     "target_y": 64,
     "toggles_y": 42
+  },
+  "potion_canister_widgets": {
+    "input_x": 80,
+    "input_y": 35
   }
 }

@@ -156,4 +156,5 @@ public class JDTEMenus {
 
     public static final RegistryObject<MenuType<com.jdte.common.containers.ChargedLightningRodContainer>> CHARGED_LIGHTNING_ROD = MENUS.register("charged_lightning_rod", () -> IForgeMenuType.create(com.jdte.common.containers.ChargedLightningRodContainer::new));
     public static final RegistryObject<MenuType<ExtendedExperienceHolderContainer>> EXTENDED_EXPERIENCE_HOLDER = MENUS.register("extended_experience_holder", () -> IForgeMenuType.create(ExtendedExperienceHolderContainer::new));
+    public static final RegistryObject<MenuType<LargePotionCanisterContainer>> LARGE_POTION_CANISTER = MENUS.register("large_potion_canister",() -> IForgeMenuType.create(LargePotionCanisterContainer::new));
 }

@@ -39,7 +39,10 @@
     "EntityAccelerationMobMixin",
     "EntityAccelerationServerTickMixin",
     "LightningBoltEffectsMixin",
-    "ExperienceOrbAccessor"
+    "ExperienceOrbAccessor",
+    "PotionCanisterCapacityMixin",
+    "LargePotionBowMixin",
+    "BaseBowInvoker"
   ],
   "client": [
     "AbstractContainerScreenMixin",

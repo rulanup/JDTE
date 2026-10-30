@@ -989,5 +989,7 @@
   "block.jdte.extended_experience_holder": "Extended Experience Holder",
   "jdte.screen.experience_holder.stored": "Stored: %s XP",
   "jade.jdte.experience_holder.target": "Target level: %s",
-  "config.jade.plugin_jdte.experience_holder_status": "Experience Holder Status"
+  "config.jade.plugin_jdte.experience_holder_status": "Experience Holder Status",
+  "item.jdte.large_potion_canister": "Large Potion Canister",
+  "curios.identifier.large_potion_canister": "Large Potion Canister"
 }

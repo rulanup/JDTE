@@ -64,6 +64,8 @@ public class GuiUpgradeLayoutConfig {
 
     public int getExperienceWidget(String key,int fallback){return get("experience_holder_widgets",key,fallback);}
 
+    public int getPotionWidget(String key,int fallback){return get("potion_canister_widgets",key,fallback);}
+
     // --- Right panel getters ---
 
     public int getFirstSlotX() { return get("upgrade_panel_4", "first_slot_x", 183); }

@@ -2,12 +2,12 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 114,
+  "forge_item_count": 115,
   "counts": {
     "verified": 49,
-    "implemented_unverified": 19,
+    "implemented_unverified": 20,
     "partial": 46,
-    "absent": 6
+    "absent": 5
   },
   "rows": [
     {
@@ -619,18 +619,20 @@
     {
       "id": "large_potion_canister",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "implemented_unverified",
+      "note": "Source4000mB/four matching potion batch/four bottles implemented with full base/custom-effect/color NBT, persistent shared input slot, bound handheld/Curios menus/key/resources/recipe and native bow capacity/complete-effect integration. Initial176 JUnit/280 GameTests/build/reobfuscation pass. Additional malformed/semantic/real-shot/transfer tests and graphical/production acceptance pending; keep U.",
+      "registered": true,
       "kind": "item",
       "name": "Large Potion Canister",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/LargePotionCanisterItem.java"
+      ],
       "block_entity": false,
-      "menu": false,
-      "model": false,
+      "menu": true,
+      "model": true,
       "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "large_fuel_canister",

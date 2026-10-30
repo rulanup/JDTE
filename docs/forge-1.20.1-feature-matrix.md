@@ -11,7 +11,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit starte
 
 The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
 
-Current inventory: source **120**, Forge **114**. Status counts: V **49**, U **19**, P **46**, N **6**.
+Current inventory: source **120**, Forge **115**. Status counts: V **49**, U **20**, P **46**, N **5**.
 
 ## Evidence and cross-cutting systems
 
@@ -132,7 +132,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:large_greenhouse` | Large Greenhouse | no | **P** | yes/yes | yes/yes/yes | Core harvest/structure paths exist, but source matrix hooks and general Ultimate support are absent. |
 | `jdte:large_mineral_extractor` | Large Mineral Extractor | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:large_pocket_generator` | Large Pocket Generator | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
-| `jdte:large_potion_canister` | Large Potion Canister | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:large_potion_canister` | Large Potion Canister | yes | **U** | no/yes | yes/yes/yes | Source4000mB/four matching potion batch/four bottles implemented with full base/custom-effect/color NBT, persistent shared input slot, bound handheld/Curios menus/key/resources/recipe and native bow capacity/complete-effect integration. Initial176 JUnit/280 GameTests/build/reobfuscation pass. Additional malformed/semantic/real-shot/transfer tests and graphical/production acceptance pending; keep U. |
 | `jdte:life_apple` | Life Apple | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
 | `jdte:life_breeder` | Life Breeder | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
 | `jdte:life_synthesis_vat` | Life Synthesis Vat | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |

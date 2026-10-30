@@ -25,6 +25,7 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 public class JDTEClientSetup {
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ItemProperties.register(JDTEItems.LARGE_POTION_CANISTER.get(), new ResourceLocation("justdirethings","potion_fullness"), (stack,level,entity,seed) -> com.jdte.common.items.LargePotionCanisterItem.getFullness(stack)));
         event.enqueueWork(() -> ItemProperties.register(JDTEItems.LARGE_FUEL_CANISTER.get(), net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("justdirethings","fullness"), (stack,level,entity,seed) -> com.jdte.common.items.LargeFuelCanisterItem.getFullness(stack)));
         event.enqueueWork(() -> ItemProperties.register(
                 JDTEItems.FACTORY_PACKAGE.get(),
@@ -37,6 +38,7 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.LARGE_POTION_CANISTER.get(),com.jdte.client.screens.LargePotionCanisterScreen::new);
         MenuScreens.register(JDTEMenus.EXTENDED_EXPERIENCE_HOLDER.get(), com.jdte.client.screens.ExtendedExperienceHolderScreen::new);
         MenuScreens.register(JDTEMenus.CHARGED_LIGHTNING_ROD.get(), com.jdte.client.screens.ChargedLightningRodScreen::new);
         MenuScreens.register(JDTEMenus.EXTENDED_GENERATOR.get(), com.jdte.client.screens.ExtendedGeneratorScreen::new);
@@ -137,6 +139,7 @@ public class JDTEClientSetup {
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(JDTEKeyMappings.WRENCH_AREA_MODIFIER);
         event.register(JDTEKeyMappings.LARGE_FUEL_CANISTER);
+        event.register(JDTEKeyMappings.LARGE_POTION_CANISTER);
     }
 
     @SubscribeEvent

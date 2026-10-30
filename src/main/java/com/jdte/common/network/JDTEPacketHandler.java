@@ -145,6 +145,7 @@ public final class JDTEPacketHandler {
                 LifeBreederModePacket::handle);
         registerClient(LifeSynthesisRunningPayload.class, LifeSynthesisRunningPayload::encode,
                 LifeSynthesisRunningPayload::decode, LifeSynthesisRunningPacket::handle);
+        registerServer(com.jdte.common.network.data.OpenLargePotionCanisterPayload.class,com.jdte.common.network.data.OpenLargePotionCanisterPayload::encode,com.jdte.common.network.data.OpenLargePotionCanisterPayload::decode,(payload,context)->context.enqueueWork(()->com.jdte.common.containers.LargePotionCanisterMenuAccess.open(context.player(),true)));
     }
 
     public static void sendToPlayer(ServerPlayer player, Object message) {
