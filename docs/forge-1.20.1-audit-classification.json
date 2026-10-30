@@ -203,8 +203,8 @@
     {
       "id": "large_pocket_generator",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source configured4x capacity/whole fuel ticks, guarded no-receive FE/shared fuel, inventory+equipped Curios charging, native toggle/G/bound menus, preserving recipe/resources implemented. 180 JUnit/302 GameTests/build/reobfuscation pass, including native generation/short-credit/transmitter repairs. Real GUI/natural ledger/key/player rejoin and earlier production pairs pass; final matching-JAR replay pending. Keep U; see pocket evidence."
+      "status": "verified",
+      "note": "Scoped V: source4x configured FE/whole fuel ticks/speed, no-receive FE/shared persistent fuel, inventory+equipped Curios charging, native toggle/bound GUI/G and preserving recipe. 180 JUnit/302 GameTests/build/reobfuscation; real GUI/natural exact-credit ledger/Curios recipient/key/player save/rejoin/resume and matching-JAR minimal production actual unload/fresh BE/exact NBT/two-JVM recovery pass. Native internal-generation/short-credit/transmitter repairs tested. See pocket evidence; independent multiplayer/prolonged/cross-dimensional/arbitrary-mod boundaries remain unverified."
     },
     {
       "id": "large_potion_canister",
@@ -216,7 +216,7 @@
       "id": "large_fuel_canister",
       "initial_list": true,
       "status": "verified",
-      "note": "Source capacity x4/unit x10/weighted-and-resolved speed preserved. Bound handheld and Curios F menus, source-preserving recipe, real fuels/rejections/remainders, full/native/upgraded FE accounting pass unit/Forge tests. Real GUI fills/NBT sync and dedicated full-inventory packing, real unload/reload and two-JVM recovery preserve fuel/name/speed exactly. Large Pocket Generator remains a separate N item; Potion acceptance is tracked separately; see generators evidence."
+      "note": "Source capacity x4/unit x10/weighted-and-resolved speed preserved. Bound handheld and Curios F menus, source-preserving recipe, real fuels/rejections/remainders, full/native/upgraded FE accounting pass unit/Forge tests. Real GUI fills/NBT sync and dedicated full-inventory packing, real unload/reload and two-JVM recovery preserve fuel/name/speed exactly. Large Pocket Generator and Potion acceptance are tracked separately; see generators evidence."
     },
     {
       "id": "factory_package",

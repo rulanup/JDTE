@@ -1,0 +1,4 @@
+0ae561e77ac0bc8dc99268059c80c074f164ef710c78c3dde42a1f8196128ae0  /workspace/JDTE/build/libs/[Forge] jdte-0.5.8-forge-1.20.1.jar
+0ae561e77ac0bc8dc99268059c80c074f164ef710c78c3dde42a1f8196128ae0  /tmp/jdte-pocket-production/mods/[Forge] jdte-0.5.8-forge-1.20.1.jar
+fb58f4d95d8a985eced956e494844f2f74c73c6e963528bd6c31135ea7a2ff0e  /workspace/JDTE/build/libs/[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar
+fb58f4d95d8a985eced956e494844f2f74c73c6e963528bd6c31135ea7a2ff0e  /tmp/jdte-pocket-production/mods/[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar
