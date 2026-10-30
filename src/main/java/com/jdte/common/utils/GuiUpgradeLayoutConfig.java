@@ -74,6 +74,9 @@ public class GuiUpgradeLayoutConfig {
     public int getPanelWidth() { return getColumns() * getSlotSize() + 2 * getPanelPadding(); }
     public int getPanelHeight() { return getRows() * getSlotSize() + 2 * getPanelPadding(); }
 
+    public int getLightningRenderX(){return get("charged_lightning_rod_widgets","render_x",8);}
+    public int getLightningSoundX(){return get("charged_lightning_rod_widgets","sound_x",92);}
+    public int getLightningButtonsY(){return get("charged_lightning_rod_widgets","button_y",42);}
     // --- Left panel getters (only for 8-slot machines) ---
 
     public int getLeftFirstSlotX() { return get("upgrade_panel_8_left", "first_slot_x", -22); }

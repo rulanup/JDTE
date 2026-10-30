@@ -17,8 +17,8 @@
     {
       "id": "thunderstorm_upgrade",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Complete pinned-source lightning modes/weather card/FE and four upgrade slots, real tagged vanilla bolts, independent synchronized presentation controls, settings codec, resources and lifecycle guards implemented. 170 JUnit/248 GameTests pass including actual pig transformation and rod power. Client/production unload-restart acceptance remains pending; keep U."
     },
     {
       "id": "underclock_upgrade",
@@ -365,8 +365,8 @@
     {
       "id": "charged_lightning_rod",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Complete pinned-source lightning modes/weather card/FE and four upgrade slots, real tagged vanilla bolts, independent synchronized presentation controls, settings codec, resources and lifecycle guards implemented. 170 JUnit/248 GameTests pass including actual pig transformation and rod power. Client/production unload-restart acceptance remains pending; keep U."
     },
     {
       "id": "crystal_incubator",

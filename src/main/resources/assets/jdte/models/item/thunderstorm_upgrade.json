@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "jdte:item/overclock_upgrade",
+    "layer1": "minecraft:block/lightning_rod"
+  }
+}

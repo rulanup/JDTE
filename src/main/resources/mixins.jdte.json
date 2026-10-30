@@ -37,7 +37,8 @@
     "JdtFluidDropChunkAccessMixin",
     "EntityAccelerationLivingEntityMixin",
     "EntityAccelerationMobMixin",
-    "EntityAccelerationServerTickMixin"
+    "EntityAccelerationServerTickMixin",
+    "LightningBoltEffectsMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",

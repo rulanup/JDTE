@@ -182,4 +182,7 @@ public class JDTEItems {
     public static final RegistryObject<Item> ENTITY_ACCELERATION_UPGRADE = ITEMS.register("entity_acceleration_upgrade", com.jdte.common.items.EntityAccelerationUpgradeItem::new);
     public static final RegistryObject<BlockItem> ADVANCED_BIO_EXTRACTOR = ITEMS.register("advanced_bio_extractor", () -> new BlockItem(JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> EXTENDED_BIO_EXTRACTOR = ITEMS.register("extended_bio_extractor", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get(), new Item.Properties()));
+
+    public static final RegistryObject<com.jdte.common.items.ChargedLightningRodItem> CHARGED_LIGHTNING_ROD = ITEMS.register("charged_lightning_rod", () -> new com.jdte.common.items.ChargedLightningRodItem(JDTEBlocks.CHARGED_LIGHTNING_ROD.get()));
+    public static final RegistryObject<UpgradeCardItem> THUNDERSTORM_UPGRADE = ITEMS.register("thunderstorm_upgrade", () -> new UpgradeCardItem(UpgradeType.THUNDERSTORM));
 }

@@ -150,4 +150,6 @@ public class JDTEBlockEntities {
     public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.ExtendedEntityAcceleratorBE>> EXTENDED_ENTITY_ACCELERATOR = BLOCK_ENTITIES.register("extended_entity_accelerator", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.ExtendedEntityAcceleratorBE::new, JDTEBlocks.EXTENDED_ENTITY_ACCELERATOR.get()).build(null));
     public static final RegistryObject<BlockEntityType<AdvancedBioExtractorBE>> ADVANCED_BIO_EXTRACTOR = BLOCK_ENTITIES.register("advanced_bio_extractor", () -> BlockEntityType.Builder.of(AdvancedBioExtractorBE::new, JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedBioExtractorBE>> EXTENDED_BIO_EXTRACTOR = BLOCK_ENTITIES.register("extended_bio_extractor", () -> BlockEntityType.Builder.of(ExtendedBioExtractorBE::new, JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.ChargedLightningRodBE>> CHARGED_LIGHTNING_ROD = BLOCK_ENTITIES.register("charged_lightning_rod", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.ChargedLightningRodBE::new, JDTEBlocks.CHARGED_LIGHTNING_ROD.get()).build(null));
 }

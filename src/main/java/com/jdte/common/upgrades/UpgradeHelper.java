@@ -207,6 +207,8 @@ public class UpgradeHelper {
 
     public static boolean hasEssenceConversionUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.ESSENCE_CONVERSION)>0; }
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if(type==UpgradeType.THUNDERSTORM)return machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE;
+        if(machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE rod)return rod.isUpgradeAllowed(type);
         if(machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE accelerator)return accelerator.isUpgradeAllowed(type);
         if(type==UpgradeType.AE_ACCELERATION)return machine instanceof BasicTimeAcceleratorBE || machine instanceof AdvancedTimeAcceleratorBE;
         if(type==UpgradeType.AE_CRAFTING_READ || type.isAEOutputUpgrade()) return true;
@@ -384,7 +386,7 @@ public class UpgradeHelper {
     }
 
     public static boolean usesLockedDelay(BaseMachineBE machine) {
-        return !(machine instanceof com.jdte.common.blockentities.MineralExtractorBE) && !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+        return !(machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE) && !(machine instanceof com.jdte.common.blockentities.MineralExtractorBE) && !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof BioFactoryBE) && !(machine instanceof LifeBreederBE)
                 && !(machine instanceof LifeSynthesisVatBE);
     }

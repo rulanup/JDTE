@@ -61,6 +61,10 @@ final class JdteMachineSettingsCodecs {
     private JdteMachineSettingsCodecs() {
     }
 
+    static MachineSettingsCodec chargedLightningRod(){return typedCodec(com.jdte.common.blockentities.ChargedLightningRodBE.class,(machine,registries,custom)->{
+        custom.putBoolean(RENDER_LIGHTNING_KEY,machine.isLightningRenderEnabled());custom.putBoolean(PLAY_LIGHTNING_SOUND_KEY,machine.isLightningSoundEnabled());
+    },(custom,registries)->{var render=MachineSettingsCodecSupport.readBoolean(custom,RENDER_LIGHTNING_KEY);var sound=MachineSettingsCodecSupport.readBoolean(custom,PLAY_LIGHTNING_SOUND_KEY);
+        if(render.isEmpty()||sound.isEmpty())return Optional.empty();return Optional.of(machine->machine.setLightningEffects(render.get(),sound.get()));});}
     static MachineSettingsCodec advancedEntityAccelerator(){return multiplier(com.jdte.common.blockentities.AdvancedEntityAcceleratorBE.class, com.jdte.common.blockentities.AdvancedEntityAcceleratorBE::getMultiplier,com.jdte.common.blockentities.AdvancedEntityAcceleratorBE::setMultiplier,()->JDTEConfig.COMMON.entityAccelerator.advancedMaxMultiplier.get());}
     static MachineSettingsCodec extendedEntityAccelerator(){return multiplier(com.jdte.common.blockentities.ExtendedEntityAcceleratorBE.class, com.jdte.common.blockentities.ExtendedEntityAcceleratorBE::getMultiplier,com.jdte.common.blockentities.ExtendedEntityAcceleratorBE::setMultiplier,()->JDTEConfig.COMMON.entityAccelerator.extendedMaxMultiplier.get());}
     static MachineSettingsCodec advancedTimeAccelerator() {

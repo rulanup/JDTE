@@ -37,6 +37,7 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.CHARGED_LIGHTNING_ROD.get(), com.jdte.client.screens.ChargedLightningRodScreen::new);
         MenuScreens.register(JDTEMenus.EXTENDED_GENERATOR.get(), com.jdte.client.screens.ExtendedGeneratorScreen::new);
             MenuScreens.register(JDTEMenus.EXTENDED_FLUID_GENERATOR.get(), com.jdte.client.screens.ExtendedFluidGeneratorScreen::new);
             MenuScreens.register(JDTEMenus.ADVANCED_ENTITY_ACCELERATOR.get(), com.jdte.client.screens.AdvancedEntityAcceleratorScreen::new);

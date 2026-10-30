@@ -327,5 +327,10 @@
     "speed_y": -6,
     "status_x": 30,
     "status_y": 10
+  },
+  "charged_lightning_rod_widgets": {
+    "render_x": 8,
+    "sound_x": 92,
+    "button_y": 42
   }
 }

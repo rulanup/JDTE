@@ -23,6 +23,7 @@ public final class MachineSettingsCodecRegistry {
     private static final Map<ResourceLocation, RegisteredCodec> REGISTRY = new LinkedHashMap<>();
 
     static {
+        register(JDTEBlockEntities.CHARGED_LIGHTNING_ROD.get(), com.jdte.common.blockentities.ChargedLightningRodBE.class,JdteMachineSettingsCodecs.chargedLightningRod());
         register(JDTEBlockEntities.EXTENDED_BIO_EXTRACTOR.get(), ExtendedBioExtractorBE.class);
         register(JDTEBlockEntities.ADVANCED_ENTITY_ACCELERATOR.get(), com.jdte.common.blockentities.AdvancedEntityAcceleratorBE.class,JdteMachineSettingsCodecs.advancedEntityAccelerator());
         register(JDTEBlockEntities.EXTENDED_ENTITY_ACCELERATOR.get(), com.jdte.common.blockentities.ExtendedEntityAcceleratorBE.class,JdteMachineSettingsCodecs.extendedEntityAccelerator());

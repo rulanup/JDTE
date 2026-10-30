@@ -2,12 +2,12 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 111,
+  "forge_item_count": 113,
   "counts": {
     "verified": 45,
-    "absent": 9,
-    "implemented_unverified": 19,
-    "partial": 47
+    "implemented_unverified": 21,
+    "partial": 47,
+    "absent": 7
   },
   "rows": [
     {
@@ -49,18 +49,20 @@
     {
       "id": "thunderstorm_upgrade",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "implemented_unverified",
+      "note": "Complete pinned-source lightning modes/weather card/FE and four upgrade slots, real tagged vanilla bolts, independent synchronized presentation controls, settings codec, resources and lifecycle guards implemented. 170 JUnit/248 GameTests pass including actual pig transformation and rod power. Client/production unload-restart acceptance remains pending; keep U.",
+      "registered": true,
       "kind": "item",
       "name": "Thunderstorm Upgrade",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/UpgradeCardItem.java"
+      ],
       "block_entity": false,
       "menu": false,
-      "model": false,
+      "model": true,
       "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "underclock_upgrade",
@@ -1081,18 +1083,20 @@
     {
       "id": "charged_lightning_rod",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
+      "status": "implemented_unverified",
+      "note": "Complete pinned-source lightning modes/weather card/FE and four upgrade slots, real tagged vanilla bolts, independent synchronized presentation controls, settings codec, resources and lifecycle guards implemented. 170 JUnit/248 GameTests pass including actual pig transformation and rod power. Client/production unload-restart acceptance remains pending; keep U.",
+      "registered": true,
       "kind": "item",
       "name": "Charged Lightning Rod",
-      "implementation_files": [],
-      "block_entity": false,
-      "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "implementation_files": [
+        "src/main/java/com/jdte/common/items/ChargedLightningRodItem.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "crystal_incubator",

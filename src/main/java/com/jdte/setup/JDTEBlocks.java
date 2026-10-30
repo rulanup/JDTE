@@ -100,4 +100,6 @@ public class JDTEBlocks {
     public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> EXTENDED_ENTITY_ACCELERATOR = BLOCKS.register("extended_entity_accelerator", com.jdte.common.blocks.ExtendedEntityAcceleratorBlock::new);
     public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> ADVANCED_BIO_EXTRACTOR = BLOCKS.register("advanced_bio_extractor", com.jdte.common.blocks.AdvancedBioExtractorBlock::new);
     public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> EXTENDED_BIO_EXTRACTOR = BLOCKS.register("extended_bio_extractor", com.jdte.common.blocks.ExtendedBioExtractorBlock::new);
+
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> CHARGED_LIGHTNING_ROD = BLOCKS.register("charged_lightning_rod", com.jdte.common.blocks.ChargedLightningRodBlock::new);
 }

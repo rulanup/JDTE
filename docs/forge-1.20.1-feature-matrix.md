@@ -11,7 +11,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit starte
 
 The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
 
-Current inventory: source **120**, Forge **111**. Status counts: V **45**, U **19**, P **47**, N **9**.
+Current inventory: source **120**, Forge **113**. Status counts: V **45**, U **21**, P **47**, N **7**.
 
 ## Evidence and cross-cutting systems
 
@@ -77,7 +77,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:bio_factory` | Bio Factory | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
 | `jdte:cainiaoyo_fumo` | Yunyouwan Fumo | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
 | `jdte:capacity_upgrade` | Capacity Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
-| `jdte:charged_lightning_rod` | Charged Lightning Rod | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:charged_lightning_rod` | Charged Lightning Rod | yes | **U** | yes/yes | yes/yes/yes | Complete pinned-source lightning modes/weather card/FE and four upgrade slots, real tagged vanilla bolts, independent synchronized presentation controls, settings codec, resources and lifecycle guards implemented. 170 JUnit/248 GameTests pass including actual pig transformation and rod power. Client/production unload-restart acceptance remains pending; keep U. |
 | `jdte:crafting_pattern` | Crafting Pattern | yes | **V** | no/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:creative_upgrade` | Creative Upgrade | no | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:crystal_incubator` | Crystal Incubator | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
@@ -147,7 +147,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:repair_talisman` | Repair Talisman | yes | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
 | `jdte:seed_conversion_upgrade` | Seed-to-Essence Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:sharpness_upgrade` | Sharpness Upgrade | no | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
-| `jdte:thunderstorm_upgrade` | Thunderstorm Upgrade | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:thunderstorm_upgrade` | Thunderstorm Upgrade | yes | **U** | no/no | yes/yes/yes | Complete pinned-source lightning modes/weather card/FE and four upgrade slots, real tagged vanilla bolts, independent synchronized presentation controls, settings codec, resources and lifecycle guards implemented. 170 JUnit/248 GameTests pass including actual pig transformation and rod power. Client/production unload-restart acceptance remains pending; keep U. |
 | `jdte:time_fluid_catalyst` | Time Fluid Catalyst | no | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
 | `jdte:time_freezer` | Time Freezer | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
 | `jdte:time_multitool` | Time Multitool | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
