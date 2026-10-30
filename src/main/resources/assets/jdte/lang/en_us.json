@@ -985,5 +985,8 @@
   "jdte.screen.charged_lightning_rod.normal_rate": "Rate: one strike every %s seconds",
   "jdte.screen.charged_lightning_rod.boosted_rate": "Rate: up to %s strikes/tick",
   "jdte.screen.charged_lightning_rod.weather_ready": "Weather ready",
-  "jdte.screen.charged_lightning_rod.waiting_storm": "Waiting for storm or upgrade"
+  "jdte.screen.charged_lightning_rod.waiting_storm": "Waiting for storm or upgrade",
+  "block.jdte.extended_experience_holder": "Extended Experience Holder",
+  "jdte.screen.experience_holder.stored": "Stored: %s XP",
+  "jade.jdte.experience_holder.target": "Target level: %s"
 }

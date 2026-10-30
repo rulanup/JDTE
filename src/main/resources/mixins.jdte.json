@@ -38,7 +38,8 @@
     "EntityAccelerationLivingEntityMixin",
     "EntityAccelerationMobMixin",
     "EntityAccelerationServerTickMixin",
-    "LightningBoltEffectsMixin"
+    "LightningBoltEffectsMixin",
+    "ExperienceOrbAccessor"
   ],
   "client": [
     "AbstractContainerScreenMixin",

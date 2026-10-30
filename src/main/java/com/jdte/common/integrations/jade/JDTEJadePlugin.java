@@ -53,10 +53,12 @@ public class JDTEJadePlugin implements IWailaPlugin {
     private static final String TAG_UPGRADES = "jdte_upgrades";
     private static final EntityAcceleratorProvider ENTITY_PROVIDER=new EntityAcceleratorProvider();
     private static final BioExtractorProvider BIO_PROVIDER=new BioExtractorProvider();
+    private static final ExperienceProvider EXPERIENCE_PROVIDER = new ExperienceProvider();
     private static final UpgradeProvider UPGRADE_PROVIDER = new UpgradeProvider();
 
     @Override
     public void register(IWailaCommonRegistration registration) {
+        registration.registerBlockDataProvider(EXPERIENCE_PROVIDER,com.jdte.common.blockentities.ExtendedExperienceHolderBE.class);
         registration.registerBlockDataProvider(TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBE.class);
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, BaseMachineBE.class);
         registration.registerBlockDataProvider(ENTITY_PROVIDER,com.jdte.common.blockentities.AdvancedEntityAcceleratorBE.class);
@@ -68,6 +70,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
+        registration.registerBlockComponent(EXPERIENCE_PROVIDER,com.jdte.common.blocks.ExtendedExperienceHolderBlock.class);
         registration.registerBlockComponent(TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBlock.class);
         registration.registerBlockComponent(UPGRADE_PROVIDER, BaseMachineBlock.class);
         registration.registerBlockComponent(ENTITY_PROVIDER,com.jdte.common.blocks.AdvancedEntityAcceleratorBlock.class);
@@ -78,6 +81,17 @@ public class JDTEJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(MINERAL_PROVIDER, MineralExtractorBlock.class);
         registration.registerBlockComponent(MINERAL_PROVIDER, LargeMineralExtractorBlock.class);
         registration.registerBlockComponent(MINERAL_PROVIDER, LargeMineralExtractorPartBlock.class);
+    }
+
+    private static final class ExperienceProvider implements IServerDataProvider<BlockAccessor>,IBlockComponentProvider {
+        public ResourceLocation getUid(){return JDTE.id("experience_holder_status");}
+        public void appendServerData(CompoundTag tag,BlockAccessor accessor){
+            if(accessor.getBlockEntity() instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE b){tag.putInt("jdte_xp",b.exp);tag.putInt("jdte_target_xp",b.targetExp);}
+        }
+        public void appendTooltip(ITooltip tooltip,BlockAccessor accessor,IPluginConfig config){
+            tooltip.add(Component.translatable("jdte.screen.experience_holder.stored",accessor.getServerData().getInt("jdte_xp")));
+            tooltip.add(Component.translatable("jade.jdte.experience_holder.target",accessor.getServerData().getInt("jdte_target_xp")));
+        }
     }
 
     private static class MineralExtractorStatusProvider

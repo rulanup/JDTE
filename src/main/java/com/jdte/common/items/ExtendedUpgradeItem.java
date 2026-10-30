@@ -22,6 +22,7 @@ public class ExtendedUpgradeItem extends Item {
     private static final Map<Block, Block> UPGRADE_MAP = new HashMap<>();
 
     static {
+        UPGRADE_MAP.put(Registration.ExperienceHolder.get(), JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get());
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_ENTITY_ACCELERATOR.get(), JDTEBlocks.EXTENDED_ENTITY_ACCELERATOR.get());
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get(), JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get());
         UPGRADE_MAP.put(Registration.GeneratorFluidT1.get(), JDTEBlocks.EXTENDED_FLUID_GENERATOR.get());

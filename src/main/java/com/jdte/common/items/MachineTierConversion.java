@@ -162,11 +162,16 @@ final class MachineTierConversion {
         final List<ItemStack> inventory, cards, filters;
         final MachineEnergyStorage energy, attachedEnergy;
         final int fe;
+        final BaseMachineBE xpOwner;
+        final Integer xp;
         final FluidTank tank, clickerTank;
         final FluidStack fluid;
         final List<FluidTank> extraTanks = new ArrayList<>();
 
         State(BaseMachineBE machine) {
+            xpOwner = machine;
+            xp = machine instanceof com.direwolf20.justdirethings.common.blockentities.ExperienceHolderBE holder ? holder.exp
+                    : machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE holder ? holder.exp : null;
             inventoryHandler = machine.getMachineHandler();
             active = UpgradeHelper.getUpgradeHandler(machine);
             standard = JDTEAttachments.upgrades(machine);
@@ -205,6 +210,11 @@ final class MachineTierConversion {
         }
 
         void verify(BaseMachineBE target) {
+            if (xp != null) {
+                int actual = target instanceof com.direwolf20.justdirethings.common.blockentities.ExperienceHolderBE holder ? holder.exp
+                        : target instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE holder ? holder.exp : -1;
+                if (actual != xp) throw new IllegalStateException("XP differs after conversion");
+            }
             sameStacks(inventory, target.getMachineHandler(), "Machine inventory");
             sameStacks(cards, UpgradeHelper.getUpgradeHandler(target), "Active upgrade inventory");
             if (filter != null && target instanceof FilterableBE filterable) sameStacks(filters, filterable.getFilterHandler(), "Filter templates");
@@ -215,6 +225,8 @@ final class MachineTierConversion {
         }
 
         void clearOwnedBuffers() {
+            if (xpOwner instanceof com.direwolf20.justdirethings.common.blockentities.ExperienceHolderBE holder) holder.exp = 0;
+            if (xpOwner instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE holder) holder.exp = 0;
             Set<ItemStackHandler> handlers = Collections.newSetFromMap(new IdentityHashMap<>());
             Collections.addAll(handlers, inventoryHandler, active, standard, extended);
             if (filter != null) handlers.add(filter);

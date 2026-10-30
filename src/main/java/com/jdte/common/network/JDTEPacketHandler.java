@@ -80,6 +80,7 @@ public final class JDTEPacketHandler {
     }
 
     public static void registerNetworking(FMLCommonSetupEvent event) {
+        registerServer(com.jdte.common.network.data.ExtendedExperienceHolderSettingsPayload.class,com.jdte.common.network.data.ExtendedExperienceHolderSettingsPayload::encode,com.jdte.common.network.data.ExtendedExperienceHolderSettingsPayload::decode,com.jdte.common.network.handler.ExtendedExperienceHolderSettingsPacket::handle);
         registerServer(com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload.class,
                 com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload::encode,
                 com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload::decode,

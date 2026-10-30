@@ -62,6 +62,8 @@ public class GuiUpgradeLayoutConfig {
         return obj != null && obj.has(key) ? obj.get(key).getAsInt() : defaultValue;
     }
 
+    public int getExperienceWidget(String key,int fallback){return get("experience_holder_widgets",key,fallback);}
+
     // --- Right panel getters ---
 
     public int getFirstSlotX() { return get("upgrade_panel_4", "first_slot_x", 183); }

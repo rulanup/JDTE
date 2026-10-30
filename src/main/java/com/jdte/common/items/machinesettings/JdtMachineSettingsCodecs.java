@@ -261,6 +261,18 @@ final class JdtMachineSettingsCodecs {
                 }));
     }
 
+    static MachineSettingsCodec extendedExperienceHolder() {
+        return typedCodec(com.jdte.common.blockentities.ExtendedExperienceHolderBE.class, (machine, ignoredRegistries, custom) -> writeExperienceSettings(
+                custom, machine.targetExp, machine.ownerOnly, machine.collectExp, machine.showParticles),
+                (custom, registries) -> readExperienceSettings(custom).map(settings -> machine -> {
+                    machine.targetExp = settings.targetExp();
+                    machine.ownerOnly = settings.ownerOnly();
+                    machine.collectExp = settings.collectExp();
+                    machine.showParticles = settings.showParticles();
+                    machine.markDirtyClient();
+                }));
+    }
+
     static MachineSettingsCodec energyTransmitter() {
         return typedCodec(EnergyTransmitterBE.class, (machine, ignoredRegistries, custom) ->
                 custom.putBoolean(SHOW_PARTICLES_KEY, machine.showParticles), (custom, registries) -> {

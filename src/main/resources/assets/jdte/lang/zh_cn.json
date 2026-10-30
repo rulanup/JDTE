@@ -985,5 +985,8 @@
   "jdte.screen.charged_lightning_rod.normal_rate": "速度：%s 秒/次",
   "jdte.screen.charged_lightning_rod.boosted_rate": "速度：最多 %s 次/tick",
   "jdte.screen.charged_lightning_rod.weather_ready": "天气条件满足",
-  "jdte.screen.charged_lightning_rod.waiting_storm": "等待雷暴或安装雷暴升级"
+  "jdte.screen.charged_lightning_rod.waiting_storm": "等待雷暴或安装雷暴升级",
+  "block.jdte.extended_experience_holder": "扩展经验存储器",
+  "jdte.screen.experience_holder.stored": "已储存：%s XP",
+  "jade.jdte.experience_holder.target": "目标等级：%s"
 }

@@ -36,6 +36,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_FLUID_GENERATOR.get());
                 output.accept(JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get());
                 output.accept(JDTEItems.CHARGED_LIGHTNING_ROD.get());
+                output.accept(JDTEItems.EXTENDED_EXPERIENCE_HOLDER.get());
                 output.accept(JDTEItems.THUNDERSTORM_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_ENTITY_ACCELERATOR.get());
                 output.accept(JDTEItems.ULTIMATE_TIME_WAND.get());

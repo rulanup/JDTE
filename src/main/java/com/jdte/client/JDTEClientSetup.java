@@ -37,6 +37,7 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.EXTENDED_EXPERIENCE_HOLDER.get(), com.jdte.client.screens.ExtendedExperienceHolderScreen::new);
         MenuScreens.register(JDTEMenus.CHARGED_LIGHTNING_ROD.get(), com.jdte.client.screens.ChargedLightningRodScreen::new);
         MenuScreens.register(JDTEMenus.EXTENDED_GENERATOR.get(), com.jdte.client.screens.ExtendedGeneratorScreen::new);
             MenuScreens.register(JDTEMenus.EXTENDED_FLUID_GENERATOR.get(), com.jdte.client.screens.ExtendedFluidGeneratorScreen::new);
@@ -140,6 +141,7 @@ public class JDTEClientSetup {
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), com.jdte.client.renderers.ExtendedExperienceHolderBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.MINERAL_EXTRACTOR.get(), com.jdte.client.renderers.MineralExtractorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.LARGE_MINERAL_EXTRACTOR.get(), com.jdte.client.renderers.MineralExtractorBER::new);
         // Time Accelerators

@@ -20,7 +20,7 @@ public final class ExtendedGeneratorRecipe extends ShapedRecipe {
     private ItemStack source(CraftingContainer input) {
         for(int i=0;i<input.getContainerSize();i++) {
             var stack=input.getItem(i);
-            if(stack.is(com.jdte.setup.JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_TIME_ACCELERATOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_LIFE_EXTRACTOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get()) || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorT1.get().asItem())
+            if(stack.is(com.direwolf20.justdirethings.setup.Registration.ExperienceHolder.get().asItem()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_TIME_ACCELERATOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_LIFE_EXTRACTOR.get()) || stack.is(com.jdte.setup.JDTEItems.ADVANCED_BIO_EXTRACTOR.get()) || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorT1.get().asItem())
                     || stack.is(com.direwolf20.justdirethings.setup.Registration.GeneratorFluidT1.get().asItem()))return stack;
         }
         return ItemStack.EMPTY;

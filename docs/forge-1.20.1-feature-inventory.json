@@ -2,12 +2,12 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 113,
+  "forge_item_count": 114,
   "counts": {
     "verified": 47,
-    "implemented_unverified": 19,
+    "implemented_unverified": 20,
     "partial": 47,
-    "absent": 7
+    "absent": 6
   },
   "rows": [
     {
@@ -851,18 +851,20 @@
     {
       "id": "extended_experience_holder",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
-      "kind": "item",
+      "status": "implemented_unverified",
+      "note": "Source standalone XP/20 mB fluid, player balancing/orbs, guarded capabilities, menus/resources/copier, eight-slot native tier conversion and rollback implemented. Initial 173 JUnit/263 GameTests pass. Graphical GUI, actual chunk unload and packaged production restart pending; see experience-holder evidence.",
+      "registered": true,
+      "kind": "block item",
       "name": "Extended Experience Holder",
-      "implementation_files": [],
-      "block_entity": false,
-      "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
-      "named_recipe": false
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/ExtendedExperienceHolderBlock.java"
+      ],
+      "block_entity": true,
+      "menu": true,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
+      "named_recipe": true
     },
     {
       "id": "extended_fluid_generator",

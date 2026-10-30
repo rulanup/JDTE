@@ -332,5 +332,17 @@
     "render_x": 8,
     "sound_x": 92,
     "button_y": 42
+  },
+  "experience_holder_widgets": {
+    "comment": "Source native control offsets from top-section center and top. Eight upgrade slots use shared panels.",
+    "store_x": 15,
+    "extract_x": -33,
+    "target_x": -57,
+    "owner_x": -75,
+    "collect_x": 15,
+    "particles_x": 31,
+    "buttons_y": 62,
+    "target_y": 64,
+    "toggles_y": 42
   }
 }

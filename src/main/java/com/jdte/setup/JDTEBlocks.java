@@ -102,4 +102,5 @@ public class JDTEBlocks {
     public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> EXTENDED_BIO_EXTRACTOR = BLOCKS.register("extended_bio_extractor", com.jdte.common.blocks.ExtendedBioExtractorBlock::new);
 
     public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> CHARGED_LIGHTNING_ROD = BLOCKS.register("charged_lightning_rod", com.jdte.common.blocks.ChargedLightningRodBlock::new);
+    public static final RegistryObject<Block> EXTENDED_EXPERIENCE_HOLDER = BLOCKS.register("extended_experience_holder", ExtendedExperienceHolderBlock::new);
 }
