@@ -124,6 +124,7 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
             }
         }
 
+        if(blockEntity instanceof com.jdte.common.blockentities.ChargedLightningRodBE rod)rod.removeOwnedLightningRod();
         level.removeBlockEntity(pos);
         level.removeBlock(pos, false);
 

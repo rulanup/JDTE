@@ -23,6 +23,16 @@ public class ChargedLightningRodContainer extends BaseMachineContainer {
 
     public ChargedLightningRodContainer(int id, Inventory inventory, BlockPos pos) {
         super(JDTEMenus.CHARGED_LIGHTNING_ROD.get(), id, inventory, pos);
+        // Forge may deliver menu packets before the target chunk/BE on the client.
+        // Build the same client-side inventory/data view; all actions still target the server's real BE.
+        if(baseMachineBE==null&&player.level().isClientSide){
+            var view=new ChargedLightningRodBE(pos,JDTEBlocks.CHARGED_LIGHTNING_ROD.get().defaultBlockState());view.setLevel(player.level());baseMachineBE=view;
+            data=view.getContainerData();addDataSlots(data);
+            var upgrades=com.jdte.common.upgrades.UpgradeHelper.getUpgradeHandler(view);
+            com.jdte.common.utils.UpgradeSlotStorage.setUpgradeSlots(this,upgrades.getSlots());
+            for(int i=0;i<upgrades.getSlots();i++)addSlot(new com.jdte.common.upgrades.UpgradeSlot(upgrades,i,0,0));
+        }
+        if(!(baseMachineBE instanceof ChargedLightningRodBE))throw new IllegalStateException("Charged rod menu has invalid server target at "+pos);
         addPlayerSlots(inventory);
         addDataSlots(new SplitIntContainerData(new net.minecraft.world.inventory.ContainerData(){
             public int getCount(){return 1;}public int get(int i){return player.level().isClientSide?syncedEnergy:((ChargedLightningRodBE)baseMachineBE).getEnergyStorage().getEnergyStored();}public void set(int i,int value){syncedEnergy=value;}
