@@ -116,4 +116,34 @@ public final class ExtendedExperienceHolderGameTests {
   h.assertTrue(b.exp==0&&ExperienceUtils.getPlayerTotalExperience(p)+ExperienceUtils.getPlayerTotalExperience(q)==150,"interleaved repeated shared-menu withdrawals conserve source XP once");
   n.clickMenuButton(q,7);m.clickMenuButton(p,8);h.assertTrue(b.collectExp&&!b.showParticles,"distinct toggles merge authoritative state without stale absolute snapshots");h.succeed();
  }
+ @GameTest(template="mineral_empty") public static void stackedBucketsFillAndEmptyWithoutLosingContainers(GameTestHelper h){
+  var b=place(h);b.exp=100;var p=player(h,b);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.BUCKET,3));
+  var block=b.getBlockState().getBlock();var hit=new BlockHitResult(Vec3.atCenterOf(b.getBlockPos()),Direction.UP,b.getBlockPos(),false);
+  h.assertTrue(block.use(b.getBlockState(),h.getLevel(),b.getBlockPos(),p,InteractionHand.MAIN_HAND,hit).consumesAction(),"actual block fluid interaction succeeds");
+  h.assertTrue(b.exp==50&&p.getMainHandItem().is(Items.BUCKET)&&p.getMainHandItem().getCount()==2,"one1000mB bucket uses50XP and retains two empty buckets");
+  var full=java.util.stream.IntStream.range(0,p.getInventory().getContainerSize()).mapToObj(p.getInventory()::getItem).filter(i->i.is(Registration.XP_FLUID_BUCKET.get())).findFirst().orElseThrow();
+  p.getInventory().removeItemNoUpdate(p.getInventory().findSlotMatchingItem(full));p.setItemInHand(InteractionHand.MAIN_HAND,full);
+  h.assertTrue(block.use(b.getBlockState(),h.getLevel(),b.getBlockPos(),p,InteractionHand.MAIN_HAND,hit).consumesAction()&&b.exp==100&&p.getMainHandItem().is(Items.BUCKET),"one filled bucket returns exactly50XP and one empty container");h.succeed();
+ }
+ @GameTest(template="mineral_empty") public static void normalBreakKeepsXpOnceAndDropsInstalledCardsSeparately(GameTestHelper h){
+  var b=place(h);b.exp=3456789;b.collectExp=true;b.targetExp=13;UpgradeHelper.getUpgradeHandler(b).insertItem(7,new ItemStack(JDTEItems.RANGE_UPGRADE.get()),false);var old=b.getXpFluidHandler();
+  h.getLevel().destroyBlock(b.getBlockPos(),true);
+  var drops=h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new AABB(b.getBlockPos()).inflate(2));
+  var machines=drops.stream().map(net.minecraft.world.entity.item.ItemEntity::getItem).filter(i->i.is(JDTEItems.EXTENDED_EXPERIENCE_HOLDER.get())).toList();
+  h.assertTrue(machines.size()==1&&machines.get(0).getTag().getCompound("JustDiresBEData").getInt("exp")==3456789,"normal break carries saved XP in exactly one machine item");
+  h.assertTrue(drops.stream().mapToInt(e->e.getItem().is(JDTEItems.RANGE_UPGRADE.get())?e.getItem().getCount():0).sum()==1&&!machines.get(0).getTag().getCompound("JustDiresBEData").getCompound("ForgeCaps").getCompound("jdte:machine_data").contains("extended_upgrade_handler"),"upgrades separately dropped once and removed from package");
+  h.assertTrue(old.drain(1000,FluidAction.EXECUTE).isEmpty(),"retained broken endpoint cannot drain saved XP");drops.forEach(Entity::discard);h.succeed();
+ }
+ @GameTest(template="mineral_empty") public static void copierCopiesOnlySettingsAndUpgradeBagKeepsEighthCard(GameTestHelper h){
+  var b=place(h);b.exp=12345;b.targetExp=43;b.ownerOnly=true;b.collectExp=true;b.showParticles=false;var codec=com.jdte.common.items.machinesettings.MachineSettingsCodecRegistry.find(net.minecraft.core.registries.BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(b.getType()),b).orElseThrow();var snapshot=codec.encode(b,h.getLevel().registryAccess());
+  var other=P.east(2);h.setBlock(other,JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get());var target=(ExtendedExperienceHolderBE)h.getBlockEntity(other);target.exp=54321;var owner=java.util.UUID.randomUUID();target.setPlacedBy(owner);codec.decode(snapshot,h.getLevel().registryAccess()).orElseThrow().apply(target);
+  h.assertTrue(target.exp==54321&&target.targetExp==43&&target.ownerOnly&&target.collectExp&&!target.showParticles&&owner.equals(target.placedByUUID),"typed copier changes source controls, never resources or owner identity");
+  var bag=new ItemStack(JDTEItems.UPGRADE_STORAGE.get());var storage=bag.getCapability(ForgeCapabilities.ITEM_HANDLER).orElseThrow(IllegalStateException::new);storage.insertItem(0,new ItemStack(JDTEItems.RANGE_UPGRADE.get()),false);var card=storage.extractItem(0,1,false);h.assertTrue(UpgradeHelper.getUpgradeHandler(target).insertItem(7,card,false).isEmpty(),"actual bag item handler feeds actual eighth slot");
+  var saved=target.saveWithFullMetadata();var restored=(ExtendedExperienceHolderBE)BlockEntity.loadStatic(target.getBlockPos(),target.getBlockState(),saved);h.getLevel().setBlockEntity(restored);var removed=UpgradeHelper.getUpgradeHandler(restored).extractItem(7,1,false);h.assertTrue(storage.insertItem(0,removed,false).isEmpty()&&storage.getStackInSlot(0).is(JDTEItems.RANGE_UPGRADE.get())&&restored.exp==54321,"save restores eighth slot; bag gets exact card back without XP change");h.succeed();
+ }
+ @GameTest(template="mineral_empty") public static void maximumPlayerXpRoundTripAndUnloadedTargetAreSafe(GameTestHelper h){
+  var b=place(h);var p=player(h,b);b.exp=Integer.MAX_VALUE;b.extractExp(p,-1);h.assertTrue(ExperienceUtils.getPlayerTotalExperience(p)==Integer.MAX_VALUE&&b.exp==0,"maximum player extract has no overflow");b.storeExp(p,-1);h.assertTrue(b.exp==Integer.MAX_VALUE&&ExperienceUtils.getPlayerTotalExperience(p)==0,"maximum XP can be stored back without loss");
+  var far=new BlockPos(1000000,100,1000000);var detached=new ExtendedExperienceHolderBE(far,b.getBlockState());detached.setLevel(h.getLevel());detached.exp=500;detached.tickServer();h.assertTrue(detached.getXpFluidHandler().drain(1000,FluidAction.EXECUTE).isEmpty()&&!h.getLevel().hasChunkAt(far)&&detached.exp==500,"unloaded detached target cannot force chunks or spend XP");h.succeed();
+ }
+
 }

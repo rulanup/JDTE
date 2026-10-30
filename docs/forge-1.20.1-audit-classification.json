@@ -144,7 +144,7 @@
       "id": "extended_upgrade",
       "initial_list": false,
       "status": "partial",
-      "note": "Nineteen of twenty pinned source mappings wired (Experience Holder absent), plus one Forge-added Entity Accelerator conversion not present in the pinned mapping: twenty total Forge routes. Bio and Entity paths verify real buffers/filter/cards/progress/fractional debt, actual conversion/protection rollback/crafting and production lifecycle; keep P for the missing source target."
+      "note": "All twenty pinned mappings now wired, plus the Forge-added Entity Accelerator route (21 total). XP Holder real XP/card conversion and rollback GameTests pass with other retained routes. Keep P pending new-holder graphical/production lifecycle acceptance."
     },
     {
       "id": "upgrade_storage",
@@ -288,7 +288,7 @@
       "id": "extended_experience_holder",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Source standalone XP/20 mB fluid, player balancing/orbs, guarded capabilities, menus/resources/copier, eight-slot native tier conversion and rollback implemented. Initial 173 JUnit/263 GameTests pass. Graphical GUI, actual chunk unload and packaged production restart pending; see experience-holder evidence."
+      "note": "Source standalone XP/20mB fluid, player/orb balancing, guarded capabilities, full-width menus/resources/copier, eight-slot native conversion/rollback and preserving recipe implemented. 173 JUnit/267 GameTests pass including stacked buckets/normal drops/bag/copier/max XP. Real GUI and production unload/restart are running, not yet accepted; see experience-holder evidence."
     },
     {
       "id": "extended_fluid_generator",

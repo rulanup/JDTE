@@ -988,5 +988,6 @@
   "jdte.screen.charged_lightning_rod.waiting_storm": "Waiting for storm or upgrade",
   "block.jdte.extended_experience_holder": "Extended Experience Holder",
   "jdte.screen.experience_holder.stored": "Stored: %s XP",
-  "jade.jdte.experience_holder.target": "Target level: %s"
+  "jade.jdte.experience_holder.target": "Target level: %s",
+  "config.jade.plugin_jdte.experience_holder_status": "Experience Holder Status"
 }
