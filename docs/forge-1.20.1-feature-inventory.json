@@ -604,7 +604,7 @@
       "id": "large_pocket_generator",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Source configured4x capacity, whole burn ticks/fuel speed, guarded no-receive FE/shared fuel, real inventory+equipped Curios charging, native toggle/G/bound menus, preserving recipe/resources implemented. 180 JUnit/301 GameTests/build/reobfuscation pass; native internal-generation/transmitter compatibility and actual recipient/refund/max-int config tested. First production pair passes; G-key GUI correction/final matching-artifact replay pending. Keep U; see pocket evidence.",
+      "note": "Source configured4x capacity/whole fuel ticks, guarded no-receive FE/shared fuel, inventory+equipped Curios charging, native toggle/G/bound menus, preserving recipe/resources implemented. 180 JUnit/302 GameTests/build/reobfuscation pass, including native generation/short-credit/transmitter repairs. Real GUI/natural ledger/key/player rejoin and earlier production pairs pass; final matching-JAR replay pending. Keep U; see pocket evidence.",
       "registered": true,
       "kind": "item",
       "name": "Large Pocket Generator",

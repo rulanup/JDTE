@@ -7,6 +7,10 @@ import org.spongepowered.asm.mixin.injection.*;
 /** Pinned source also resolves large-canister fuel speed in the original native generator. */
 @Mixin(value=PocketGenerator.class,remap=false)
 public abstract class PocketGeneratorFuelMultiplierMixin {
+    @Inject(method="initBurn",at=@At("HEAD"),cancellable=true,remap=false)
+    private void jdte$wholeFuelCredit(ItemStack stack,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
+        if(!com.jdte.common.items.NativePocketGeneratorEnergy.canInitialize((PocketGenerator)(Object)this,stack))cir.setReturnValue(false);
+    }
     @Inject(method="forceReceiveEnergy",at=@At("HEAD"),cancellable=true,remap=false)
     private void jdte$internalGeneration(net.minecraftforge.energy.IEnergyStorage storage,int amount,boolean simulate,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Integer> cir) {
         if(storage instanceof com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemStackNoReceive nativeStorage)

@@ -104,4 +104,10 @@ public final class LargePocketGeneratorGameTests {
         h.assertTrue(thrown&&e.getEnergyStored()==1000&&target.getEnergyStored()==0,"failure before receiver mutation propagates and refunds exact reserved FE");h.succeed();
     }
 
+    @GameTest(template="mineral_empty") public static void nativePocketTooFastCanisterCannotProduceUnpaidFe(GameTestHelper h) {
+        var s=new ItemStack(Registration.Pocket_Generator.get());var can=new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());FuelCanister.setBurnSpeed(can,1_000_000D);FuelCanister.setFuelLevel(can,LargeFuelCanisterItem.getMinimumFuelConsumed()*2);
+        var inventory=new net.minecraftforge.items.ItemStackHandler(1);inventory.setStackInSlot(0,can);s.getOrCreateTag().put("FuelInventory",inventory.serializeNBT());var before=s.save(new CompoundTag());var energy=s.getCapability(ForgeCapabilities.ENERGY).orElseThrow(AssertionError::new);((PocketGenerator)s.getItem()).tryBurn(energy,s);
+        h.assertTrue(energy.getEnergyStored()==0&&s.save(new CompoundTag()).equals(before),"native internal generation fix must not enable zero-counter/oversized-rate free FE or consume a too-short fuel");h.succeed();
+    }
+
 }

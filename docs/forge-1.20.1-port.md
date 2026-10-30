@@ -8,9 +8,9 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest implementation checkpoint: **`f8e7437`** pushed; Large Pocket Generator core plus recipient/key follow-up below. New item remains U until real runtime acceptance.
+- Latest implementation checkpoint: **`fbdac7b`** pushed; Large Pocket Generator core plus recipient/key/network follow-up below. New item remains U until real runtime acceptance.
 - Environment/version: Forge47.4.10, JDT Forge1.1.4, Java17, Gradle8.6; **0.5.8-forge-1.20.1**.
-- Latest complete regression: **180 JUnit /301 required GameTests**, all passing; previous176/284 and24 mineral core tests preserved. Full build/main and probe reobfuscation/client compilation pass. Pocket real graphical/production validation remains pending.
+- Latest complete regression: **180 JUnit /302 required GameTests**, all passing; previous176/284 and24 mineral core tests preserved. Full build/main and probe reobfuscation/client compilation pass. Pocket real graphical/production validation remains pending.
 - 120-item status: V **50**, U **20**, P **46**, N **4**; **116** source items registered in Forge. Large Pocket Generator N→U only; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
 - Persistence: implementation/acceptance through **`2386d1c`** pushed on `codex/forge-1.20.1-mineral-machines`. A transient invalid-token rejection was preserved below; retry subsequently succeeded. Verified Git bundles under `/workspace/` also preserve the work. Recovery branch/backup and pre-existing Python cache retained; no reset/main merge/release.
 - Next priorities: finish Large Pocket Generator real graphical natural charging/menu/Curios checks and matching-JAR minimal production unload/restart. No other absent subsystem is started this round.
@@ -892,3 +892,11 @@ Initial compile caught the native Fuel_Canister registry spelling. GameTest atte
 First real graphical attempt verified inventory generation/charging and repeated fuel moves under a source credit/FE ledger, plus equipped generation, then timed out waiting for G menu. Shared-key click dispatch is now explicit configured-key press matching; final driver logs screen/menu/key and uses a bounded real screen assertion. A test-only existing transmitter_test datapack enables a validated real pickaxe recipient, with actual native FE capability and explicit fixture initial charging gaps. Final driver includes both held and worn source charging of actual Curios equipment. No synthetic work is reported as natural production.
 
 First minimal production pair passed actual unload/fresh chest/exact whole NBT and fresh-JVM resume on the preceding JAR; final matching-JAR replay follows. Logs retain the G-key failure separately. Counts remain50/20/46/4 until final runtime acceptance; no unrelated absent item is started.
+
+## 2026-10-30 — Pocket actual G menu, player recovery and native short-fuel guard
+
+Retained real graphical failures2/3 distinguish two wiring issues: Curios also uses G and opens its own screen on the next client tick; after consuming that conflict, the new C2S payload still resolved the potion menu due to a copied callback. The payload now resolves the actual server pocket slot. The conflict is consumed only for the matched pocket binding when a real large generator is equipped; ordinary Curios opening remains available when unequipped. Both paths are real packet checks, not mock openings.
+
+Actual graphical attempt4 passes held/worn production plus inventory/equipped-Curios charging, repeated extraction/reinsert under exact fuel-credit/FE ledgers, native toggle C2S, real G and normal Curios keys,3456789FE sync and JEI all three portable recipes. It additionally disconnects the real player, saves/stops the integrated server, rejoins a new server instance and requires exact whole vanilla inventory/Curios generator/recipient NBT before resuming a new charge ledger.423 observations/126 worn samples pass.
+
+Review of the repaired native internal generation path found that native initBurn could consume an extremely fast canister for zero burn ticks and still emit one oversized FE tick. It now validates a whole fuel credit before mutation (retaining native coal-block special speed); a real native high-speed canister regression requires zero FE and byte-equivalent state. `native-guard-regression.log.gz`:180 JUnit/**302 required GameTests**, complete build/main+probe reobfuscation/client compilation pass. Previous tests unchanged. Matching final-JAR packaged and graphical replay follows; status remains U pending that delivery check.
