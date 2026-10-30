@@ -46,7 +46,12 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
     @Override public void reviveCaps(){super.reviveCaps();unloaded=false;resetPort();}
     @Override public void onChunkUnloaded(){unloaded=true;super.onChunkUnloaded();}
     @Override public void onLoad(){super.onLoad();unloaded=false;if(energyPort==null||!energyPort.isPresent())resetPort();
-        if(ownsLightningRod&&savedAnchor!=null&&(savedAnchor!=worldPosition.asLong()||!level.dimension().location().toString().equals(savedDimension))&&level.hasChunkAt(worldPosition.above())&&level.getBlockState(worldPosition.above()).isAir()){
+        restoreRodAfterRelocation();
+    }
+    private void restoreRodAfterRelocation(){
+        if(level instanceof ServerLevel&&ownsLightningRod&&savedAnchor!=null
+            &&(savedAnchor!=worldPosition.asLong()||!level.dimension().location().toString().equals(savedDimension))
+            &&level.hasChunkAt(worldPosition.above())&&level.getBlockState(worldPosition.above()).isAir()){
             ownsLightningRod=false;lightningRodSetupAttempted=false;setChanged();
         }
     }
@@ -228,5 +233,6 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
         ownsLightningRod = tag.getBoolean("chargedLightningRodOwnsRod");
         renderLightning = !tag.contains("chargedLightningRodRender") || tag.getBoolean("chargedLightningRodRender");
         playLightningSound = !tag.contains("chargedLightningRodSound") || tag.getBoolean("chargedLightningRodSound");
+        restoreRodAfterRelocation();
     }
 }
