@@ -210,7 +210,7 @@
       "id": "large_potion_canister",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Source4000mB/four matching potion batch/four bottles implemented with full base/custom-effect/color NBT, persistent shared input slot, bound handheld/Curios menus/key/resources/recipe and native bow capacity/complete-effect integration. Initial176 JUnit/280 GameTests/build/reobfuscation pass. Additional malformed/semantic/real-shot/transfer tests and graphical/production acceptance pending; keep U."
+      "note": "Source4000mB/four matching potion batch/four bottles, complete base/custom-effect/color NBT, persistent shared input slot, bound handheld/Curios menus/key/resources/recipe and native bow capacity/full-effect integration implemented. 176 JUnit/284 GameTests/build/reobfuscation pass including actual native arrow release, item handoff, invalid NBT/off-thread and equivalent/custom-only contents. Real graphical/production bow checks and independent-client acceptance pending; keep U."
     },
     {
       "id": "large_fuel_canister",

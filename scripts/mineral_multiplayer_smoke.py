@@ -11,12 +11,12 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 SERVER = Path(os.environ['JDTE_LIFECYCLE_SERVER']).resolve()
 SCENARIO = os.environ.get('JDTE_REMOTE_SCENARIO', 'mineral')
-assert SCENARIO in {'mineral','mixer','generator','bio','wand'}
+assert SCENARIO in {'mineral','mixer','generator','bio','wand','potion'}
 CONTROL = Path(f'/tmp/jdte-{SCENARIO}-remote-control' if SCENARIO != 'mineral' else '/tmp/jdte-remote-control')
 assert (SERVER / '.jdte-lifecycle-fixture').is_file(), 'Use the existing marked disposable server'
 props = dict(line.split('=', 1) for line in (SERVER / 'server.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
 assert props.get('server-ip') == '127.0.0.1' and props.get('server-port') == '25579', 'Use loopback port 25579'
-if SCENARIO in {'bio','wand'}:
+if SCENARIO in {'bio','wand','potion'}:
     # Preserve prior worlds/evidence and isolate absolute cooldown/resource ledgers on every seed.
     world = SCENARIO + '-live-' + uuid.uuid4().hex[:12]
     file = SERVER / 'server.properties'
@@ -45,7 +45,7 @@ def start_client(role, round_number):
     command = filtered_command(launch,folder,KEEP)
     for key, value in [('--username', 'JDTE' + role), ('--gameDir', str(folder))]:
         command[command.index(key) + 1] = value
-    if SCENARIO in {'mixer','generator','bio','wand'}:
+    if SCENARIO in {'mixer','generator','bio','wand','potion'}:
         command = [arg.replace('-Djdte.remoteSmoke=true','-Djdte.remoteSmoke=false') for arg in command]
         command.insert(1,f'-Djdte.{SCENARIO}RemoteSmoke=true')
         command.insert(1,f'-Djdte.remoteControl={CONTROL}')
