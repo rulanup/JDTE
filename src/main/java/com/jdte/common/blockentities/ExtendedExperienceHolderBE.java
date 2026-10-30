@@ -94,12 +94,17 @@ public class ExtendedExperienceHolderBE extends BaseMachineBE implements AreaAff
     }
     private static void setPlayerExperience(Player player, int total) {
         int level = ExperienceUtils.getLevelFromTotalExperience(total);
-        player.experienceLevel = level;
-        player.experienceProgress = (float) (total - ExperienceUtils.getTotalExperienceForLevel(level))
-                / ExperienceUtils.getExperienceForNextLevel(level);
+        int remainder = total - ExperienceUtils.getTotalExperienceForLevel(level);
+        if (player instanceof ServerPlayer serverPlayer) {
+            // Vanilla /experience setters refresh the XP packet tracker without firing an XP-gain event.
+            // A synthetic giveExperiencePoints(0) can be changed by other mods into an unpaid bonus.
+            serverPlayer.setExperienceLevels(level);
+            serverPlayer.setExperiencePoints(remainder);
+        } else {
+            player.experienceLevel = level;
+            player.experienceProgress = (float) remainder / ExperienceUtils.getExperienceForNextLevel(level);
+        }
         player.totalExperience = total;
-        // Notify ServerPlayer's vanilla XP packet tracker without a potentially overflowing delta.
-        player.giveExperiencePoints(0);
     }
     @Override public void tickClient() {}
     @Override public void tickServer() {

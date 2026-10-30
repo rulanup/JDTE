@@ -11,3 +11,7 @@ Follow-up FluidUtil container path, graphical GUI/JEI/Jade, real chunk unload an
 ## Container/drop checkpoint
 
 173 JUnit/267 GameTests pass, full build/main reobfuscation pass. Additional cases exercise actual stacked XP buckets, normal loot ownership, bag/copier/eighth-slot save and maximum player XP. Opt-in graphical/client and packaged server probe compile; real runtime executions are pending.
+
+## Runtime investigation and transaction checkpoint
+
+Native client controls/JEI/actual Jade packets and the unload-event-aware production pair pass in retained logs. First failures and exact reasons are recorded chronologically in the port log. The initial extra XP label overlapped area controls; repaired to a tooltip. A synthetic zero-XP grant is replaced by vanilla absolute XP setters to avoid external gain listeners manufacturing unpaid XP. Full173/269 regression/main+probe reobfuscation/client compilation pass. Final rebuilt-artifact graphical/server acceptance remains pending.

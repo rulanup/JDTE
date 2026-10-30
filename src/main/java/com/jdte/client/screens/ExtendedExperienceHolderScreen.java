@@ -42,6 +42,13 @@ public class ExtendedExperienceHolderScreen extends BaseMachineScreen<ExtendedEx
         int progress=(int)(ExperienceUtils.getProgressToNextLevel(menu.storedXp())*183);
         if(progress>0)graphics.blit(texture,x,y,0,69,Math.min(182,progress),5);
         graphics.drawCenteredString(font,Integer.toString(ExperienceUtils.getLevelFromTotalExperience(menu.storedXp())),topSectionLeft+topSectionWidth/2,topSectionTop+66,8453920);
-        graphics.drawCenteredString(font,Component.translatable("jdte.screen.experience_holder.stored",menu.storedXp()),topSectionLeft+topSectionWidth/2,topSectionTop+24,0x404040);
+
     }
+    @Override public void render(GuiGraphics graphics,int mouseX,int mouseY,float partial){
+        super.render(graphics,mouseX,mouseY,partial);
+        int x=topSectionLeft+(topSectionWidth-182)/2,y=topSectionTop+topSectionHeight-15;
+        if(mouseX>=x&&mouseX<x+182&&mouseY>=y&&mouseY<y+8)
+            graphics.renderTooltip(font,Component.translatable("jdte.screen.experience_holder.stored",menu.storedXp()),mouseX,mouseY);
+    }
+
 }

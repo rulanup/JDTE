@@ -35,6 +35,7 @@ public final class ExperienceHolderLifecycleProbe {
     private String mode="";
     private int ticks,stage;
     private CompoundTag expected;
+    private boolean unloadedEvent;
     private ExtendedExperienceHolderBE oldOwner;
     private IFluidHandler retained;
     private static void check(boolean ok,String text){if(!ok)throw new IllegalStateException("Experience lifecycle: "+text);}
@@ -73,12 +74,15 @@ public final class ExperienceHolderLifecycleProbe {
         var after=be().saveWithoutMetadata();check(before.equals(after),"packed transport retains complete machine XP/area/settings/eight slots exactly");
         check(machine.getXpFluidHandler().drain(1000,IFluidHandler.FluidAction.EXECUTE).isEmpty(),"packed old XP endpoint inert");
     }
+    @SubscribeEvent public void unloaded(net.minecraftforge.event.level.ChunkEvent.Unload event){
+        if(server!=null&&stage==2&&event.getLevel()==server.overworld()&&event.getChunk().getPos().equals(new net.minecraft.world.level.ChunkPos(B)))unloadedEvent=true;
+    }
     @SubscribeEvent public void tick(TickEvent.ServerTickEvent event)throws Exception{
         if(mode.isEmpty()||event.phase!=TickEvent.Phase.END||event.getServer()!=server)return;
         check(++ticks<2000,"timeout stage "+stage);var l=server.overworld();
         if(stage==0){var source=(ExtendedExperienceHolderBE)l.getBlockEntity(A);if(source.exp==500000)return;check(source.exp==500185,"five real merged orb units paid exactly185XP");pack();orb(B,35,1);stage=1;}
         else if(stage==1){if(be().exp==500185)return;check(be().exp==500220,"relocated machine resumes natural orb collection once");expected=be().saveWithoutMetadata();retained=be().getXpFluidHandler();oldOwner=be();force(false);stage=2;}
-        else if(stage==2){if(l.getChunkSource().hasChunk(A.getX()>>4,A.getZ()>>4)||l.getChunkSource().hasChunk(B.getX()>>4,B.getZ()>>4))return;check(retained.drain(1000,IFluidHandler.FluidAction.EXECUTE).isEmpty(),"captured endpoint inactive after actual chunk unload");force(true);l.getChunkAt(B);check(expected.equals(be().saveWithoutMetadata())&&oldOwner!=be(),"fresh actual unload/reload restores exact full NBT");stage=3;}
+        else if(stage==2){if(!unloadedEvent||l.getChunkSource().hasChunk(A.getX()>>4,A.getZ()>>4)||l.getChunkSource().hasChunk(B.getX()>>4,B.getZ()>>4))return;check(retained.drain(1000,IFluidHandler.FluidAction.EXECUTE).isEmpty(),"captured endpoint inactive after actual chunk unload");l.getChunkSource().save(true);force(true);l.getChunkAt(B);check(expected.equals(be().saveWithoutMetadata())&&oldOwner!=be(),"fresh actual unload/reload restores exact full NBT: sameOwner="+(oldOwner==be())+" expected="+expected+" actual="+be().saveWithoutMetadata());stage=3;}
         else if(stage==3){NbtIo.writeCompressed(expected,Path.of("experience-expected.nbt").toFile());finish("experience-seed-success","PASS: native tier conversion/card and XP ownership, merged natural orb work+185, full-inventory survival wrench/crosschunk placement/full NBT, resumed+35, actual unload/reload/inert retained capability and exact saved state.");}
         else if(stage==4){check(expected.equals(be().saveWithoutMetadata()),"fresh JVM state still exact");orb(B,11,3);stage=5;}
         else if(stage==5){if(be().exp==500220)return;check(be().exp==500253,"fresh production JVM resumes exactly33XP from three merged units");check(UpgradeHelper.getUpgradeHandler(be()).getStackInSlot(7).is(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()),"real eighth slot survives restart");finish("experience-verify-success","PASS: fresh production JVM exact XP/settings/owner/area/eight slots before work, then natural merged-orb collection adds exactly33XP. Minimal optional-mod-absent production profile; independent multiplayer/cross-dimensional transfer/prolonged load not claimed.");}

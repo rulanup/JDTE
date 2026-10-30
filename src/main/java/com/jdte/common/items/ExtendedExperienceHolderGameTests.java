@@ -146,4 +146,25 @@ public final class ExtendedExperienceHolderGameTests {
   var far=new BlockPos(1000000,100,1000000);var detached=new ExtendedExperienceHolderBE(far,b.getBlockState());detached.setLevel(h.getLevel());detached.exp=500;detached.tickServer();h.assertTrue(detached.getXpFluidHandler().drain(1000,FluidAction.EXECUTE).isEmpty()&&!h.getLevel().hasChunkAt(far)&&detached.exp==500,"unloaded detached target cannot force chunks or spend XP");h.succeed();
  }
 
+ @GameTest(template="mineral_empty") public static void actualUltimateTickerMovesTenLevelsAndNeverCreatesExperience(GameTestHelper h){
+  var b=place(h);b.exp=10000;b.targetExp=100;b.showParticles=false;b.redstoneControlData.redstoneMode=MiscHelpers.RedstoneMode.IGNORED;
+  var area=b.getAreaAffectingData();area.xOffset=area.yOffset=area.zOffset=0;area.xRadius=area.yRadius=area.zRadius=2;
+  var p=player(h,b);p.setPos(Vec3.atCenterOf(b.getBlockPos()));h.getLevel().addFreshEntity(p);
+  h.assertTrue(UpgradeHelper.getUpgradeHandler(b).insertItem(7,new ItemStack(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get()),false).isEmpty(),"source Ultimate card accepted in real eighth slot");
+  var ticker=((com.jdte.common.blocks.ExtendedExperienceHolderBlock)b.getBlockState().getBlock()).getTicker(h.getLevel(),b.getBlockState(),JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get());ticker.tick(h.getLevel(),b.getBlockPos(),b.getBlockState(),b);
+  h.assertTrue(p.experienceLevel==10&&b.exp==9840&&ExperienceUtils.getPlayerTotalExperience(p)+b.exp==10000,"actual wrapped Forge ticker executes ten source level settlements for exactly160XP");p.discard();h.succeed();
+ }
+
+ @GameTest(template="mineral_empty") public static void experienceTransfersDoNotInvokeUnpaidGainCallbacks(GameTestHelper h){
+  var b=place(h);var mock=player(h,b);var realServer=net.minecraftforge.common.util.FakePlayerFactory.get(h.getLevel(),new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"XpTransaction"));realServer.setPos(mock.position());
+  var events=new java.util.concurrent.atomic.AtomicInteger();java.util.function.Consumer<net.minecraftforge.event.entity.player.PlayerXpEvent.XpChange> callback=e->{if(e.getEntity()==mock||e.getEntity()==realServer){events.incrementAndGet();e.setAmount(100);}};
+  net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener(callback);
+  try{for(Player p:java.util.List.of(mock,realServer)){
+   p.experienceLevel=0;p.experienceProgress=0;p.totalExperience=0;b.exp=100;b.extractExp(p,1);
+   h.assertTrue(ExperienceUtils.getPlayerTotalExperience(p)==7&&b.exp==93,"source one-level transaction cannot be multiplied by an XP-gain event");b.storeExp(p,-1);
+   h.assertTrue(ExperienceUtils.getPlayerTotalExperience(p)==0&&b.exp==100,"exact return transfer conserves all XP");
+  }h.assertTrue(events.get()==0,"no synthetic zero-XP gain events during storage transactions");}
+  finally{net.minecraftforge.common.MinecraftForge.EVENT_BUS.unregister(callback);}h.succeed();
+ }
+
 }
