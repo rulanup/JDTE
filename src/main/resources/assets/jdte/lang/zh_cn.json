@@ -991,5 +991,9 @@
   "jade.jdte.experience_holder.target": "目标等级：%s",
   "config.jade.plugin_jdte.experience_holder_status": "经验储存器状态",
   "item.jdte.large_potion_canister": "大型药水罐",
-  "curios.identifier.large_potion_canister": "大型药水罐"
+  "curios.identifier.large_potion_canister": "大型药水罐",
+  "item.jdte.large_pocket_generator": "大型便携发电机",
+  "curios.identifier.large_pocket_generator": "大型便携发电机",
+  "tooltip.jdte.large_pocket_generator.enabled": "已启用",
+  "tooltip.jdte.large_pocket_generator.disabled": "已禁用"
 }

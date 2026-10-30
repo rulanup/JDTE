@@ -8,12 +8,12 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest implementation checkpoint: **`3ff5008`** — Large Potion Canister complete gameplay, native read interoperability and held-slot prediction guard. Final matching-artifact runtime acceptance recorded below.
+- Latest saved baseline: **`b852406`**; Large Pocket Generator core below passes full regression. New item remains U until real runtime acceptance.
 - Environment/version: Forge47.4.10, JDT Forge1.1.4, Java17, Gradle8.6; **0.5.8-forge-1.20.1**.
-- Latest complete regression: **176 JUnit /284 required GameTests**, all passing; original173/270 and24 mineral core tests preserved. Full build/main and probe reobfuscation pass. Final graphical client, minimal production two-JVM actual unload/restart and two independent clients/two production JVMs all exit0.
-- 120-item status: V **50**, U **19**, P **46**, N **5**; **115** source items registered in Forge. Large Potion Canister N→V from scoped behavioral evidence; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
+- Latest complete regression: **180 JUnit /298 required GameTests**, all passing; previous176/284 and24 mineral core tests preserved. Full build/main and probe reobfuscation/client compilation pass. Pocket real graphical/production validation remains pending.
+- 120-item status: V **50**, U **20**, P **46**, N **4**; **116** source items registered in Forge. Large Pocket Generator N→U only; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
 - Persistence: implementation/acceptance through **`2386d1c`** pushed on `codex/forge-1.20.1-mineral-machines`. A transient invalid-token rejection was preserved below; retry subsequently succeeded. Verified Git bundles under `/workspace/` also preserve the work. Recovery branch/backup and pre-existing Python cache retained; no reset/main merge/release.
-- Next priorities: consider Large Pocket Generator (shared portable/fuel dependencies) or the separate decorative trio. Time Multitool needs a scoped mining/permissions/event port. No other absent subsystem was started this round.
+- Next priorities: finish Large Pocket Generator real graphical natural charging/menu/Curios checks and matching-JAR minimal production unload/restart. No other absent subsystem is started this round.
 - Still unverified: potion cross-dimensional/prolonged/arbitrary-mod/unsaved-crash behavior; XP independent multiplayer; external JDTE-AE whole-grid backend, operating reactors/full fusion and prior scoped runtime boundaries. Full0.6.5.2 parity remains unfinished.
 <!-- current-status:end -->
 
@@ -876,3 +876,11 @@ No registrations, gameplay placeholders or V changes for these five N items were
 ## 2026-10-30 — Potion checkpoint push recovered
 
 The initial invalid-token rejection above describes that attempt, not the final remote state. A later authenticated retry succeeded: remote development branch advanced from `0da09ae` to **`2386d1c`**, including `3ff5008` and final acceptance/evidence. Existing recovery branch remains `cd8aaaa`; all seven original backup hashes still pass. The final Git bundle is retained as an additional recovery path. Audit --check/docs validation/diff checks pass after the acceptance-only update; no unrelated expensive runtime was repeated.
+
+## 2026-10-30 — Large Pocket Generator core and native compatibility
+
+Baseline `b852406`; only pre-existing Python cache untracked. Read pinned item/menu/screen/portable logic/recipe/Curios tick and key binding plus actual Forge1.1.4 PocketGenerator, energy storage, config, menu and transmitter code. Source configured4x FE capacity (default4M), fuel burn time/speed/whole-tick rounding, per-item inventory charging, active-item exclusion, native toggle, Curios tick/G menu, source assets and preserving recipe are wired. No fluid interface or machine upgrades invented. Dynamic native-format Energy/FuelInventory/counter/maxburn/fuelmultiplier/enabled views avoid stale menu/cap caches; simulation/caller copies, bound-item identity/client prediction, server-thread mutation, overflow and smaller actual receiver acceptance are guarded. Source partial-last-space loss and last-tick next-fuel prefetch are retained with explicit future credit.
+
+Initial compile caught the native Fuel_Canister registry spelling. GameTest attempts2/3 retained fixture errors: missing PrefixGameTestTemplate(false) and vanilla recipe hooks requiring ServerPlayer from a mock's inventory menu. Corrected fixtures keep all resource assertions. A remaining native consumer test exposed actual JDT Forge forceReceiveEnergy delegating to EnergyStorage.receiveEnergy while canReceive=false; it produced zero. Narrow native PocketGenerator internal settlement now bypasses that rejection, preserving no external input, native capacity and the pinned resolved large-canister multiplier. Native transmitter also casts item storage to unrelated machine storage before calling tryBurn; a Large-item-only path now calls the real generator and conserving transfer.
+
+`core5.log.gz`: **180 JUnit/298 required GameTests**, full build, main/probe reobfuscation and client harness compilation pass. Four new pure tests/fourteen new Forge tests; previous176/284 unchanged. Real graphical/production harnesses are compiled, not yet accepted. N→U,50/20/46/4. Version0.5.8; other four absent items and existing recovery branch/backup untouched.

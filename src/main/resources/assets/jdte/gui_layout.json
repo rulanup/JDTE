@@ -348,5 +348,9 @@
   "potion_canister_widgets": {
     "input_x": 80,
     "input_y": 35
+  },
+  "pocket_generator_widgets": {
+    "input_x": 80,
+    "input_y": 35
   }
 }

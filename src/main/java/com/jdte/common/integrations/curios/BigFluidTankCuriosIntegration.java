@@ -12,6 +12,12 @@ public final class BigFluidTankCuriosIntegration {
     }
 
     public static void registerItems() {
+        CuriosApi.registerCurio(com.jdte.setup.JDTEItems.LARGE_POCKET_GENERATOR.get(), new top.theillusivec4.curios.api.type.capability.ICurioItem() {
+            @Override public void curioTick(top.theillusivec4.curios.api.SlotContext context, net.minecraft.world.item.ItemStack stack) {
+                var entity=context.entity();
+                com.jdte.setup.JDTEItems.LARGE_POCKET_GENERATOR.get().inventoryTick(stack,entity.level(),entity,-1,false);
+            }
+        });
         CuriosApi.registerCurio(com.jdte.setup.JDTEItems.LARGE_FUEL_CANISTER.get(), new top.theillusivec4.curios.api.type.capability.ICurioItem() { });
         CuriosApi.registerCurio(com.jdte.setup.JDTEItems.BIG_FLUID_TANK.get(), new top.theillusivec4.curios.api.type.capability.ICurioItem() { });
     }
@@ -21,6 +27,8 @@ public final class BigFluidTankCuriosIntegration {
             return;
         }
         ISlotHelper helper = CuriosApi.getSlotHelper();
+        if (helper != null && helper.getSlotType("large_pocket_generator").isPresent() && helper.getSlotsForType(player,"large_pocket_generator") <= 0)
+            helper.setSlotsForType("large_pocket_generator",player,1);
         if (helper != null && helper.getSlotType("large_fuel_canister").isPresent() && helper.getSlotsForType(player,"large_fuel_canister") <= 0)
             helper.setSlotsForType("large_fuel_canister",player,1);
         if (helper != null && helper.getSlotType(SLOT_ID).isPresent()

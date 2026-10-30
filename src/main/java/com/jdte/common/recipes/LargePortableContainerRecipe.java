@@ -18,6 +18,7 @@ public final class LargePortableContainerRecipe implements CraftingRecipe {
     public LargePortableContainerRecipe(ResourceLocation id){this(id,item("justdirethings:fuel_canister"),JDTEItems.LARGE_FUEL_CANISTER.get());}
     public LargePortableContainerRecipe(ResourceLocation id,Item source,Item result){
         if(!(source==item("justdirethings:fuel_canister")&&result==JDTEItems.LARGE_FUEL_CANISTER.get()
+                ||source==item("justdirethings:pocket_generator")&&result==JDTEItems.LARGE_POCKET_GENERATOR.get()
                 ||source==item("justdirethings:potion_canister")&&result==JDTEItems.LARGE_POTION_CANISTER.get()))throw new IllegalArgumentException("Unported portable-container pair");
         this.id=id;this.source=source;this.result=result;
     }

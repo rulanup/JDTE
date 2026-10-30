@@ -93,6 +93,11 @@ minecraft {
         }
 
         client {
+            if (project.hasProperty('jdtePocketSmoke')) {
+                property 'jdte.pocketSmoke', 'true'
+                args '--quickPlaySingleplayer', 'jdte-mineral-client-smoke'
+                mods { "${mod_id}" { source sourceSets.clientSmoke } }
+            }
             if (project.hasProperty('jdtePotionSmoke')) {
                 property 'jdte.potionSmoke', 'true'
                 args '--quickPlaySingleplayer', 'jdte-mineral-client-smoke', '--width', '1280', '--height', '720'

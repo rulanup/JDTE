@@ -991,5 +991,9 @@
   "jade.jdte.experience_holder.target": "Target level: %s",
   "config.jade.plugin_jdte.experience_holder_status": "Experience Holder Status",
   "item.jdte.large_potion_canister": "Large Potion Canister",
-  "curios.identifier.large_potion_canister": "Large Potion Canister"
+  "curios.identifier.large_potion_canister": "Large Potion Canister",
+  "item.jdte.large_pocket_generator": "Large Pocket Generator",
+  "curios.identifier.large_pocket_generator": "Large Pocket Generator",
+  "tooltip.jdte.large_pocket_generator.enabled": "Enabled",
+  "tooltip.jdte.large_pocket_generator.disabled": "Disabled"
 }

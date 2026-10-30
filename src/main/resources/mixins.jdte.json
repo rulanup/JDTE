@@ -42,7 +42,10 @@
     "ExperienceOrbAccessor",
     "PotionCanisterCapacityMixin",
     "LargePotionBowMixin",
-    "BaseBowInvoker"
+    "BaseBowInvoker",
+    "PocketGeneratorFuelMultiplierMixin",
+    "PocketGeneratorTransmitterMixin",
+    "NativeItemEnergyAccessor"
   ],
   "client": [
     "AbstractContainerScreenMixin",

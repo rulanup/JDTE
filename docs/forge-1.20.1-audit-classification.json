@@ -203,8 +203,8 @@
     {
       "id": "large_pocket_generator",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Source configured4x capacity, whole burn ticks/fuel speed, guarded no-receive FE and shared fuel, real inventory/Curios charging, native toggle/G/bound menus, preserving recipe/resources implemented. 180 JUnit/298 GameTests/build/reobfuscation pass; actual native internal-generation and transmitter compatibility repaired/tested. Real graphical and production lifecycle runs pending; keep U. See pocket evidence."
     },
     {
       "id": "large_potion_canister",
