@@ -48,7 +48,8 @@
     "NativeItemEnergyAccessor",
     "TimeMultitoolGameModeMixin",
     "TimeMultitoolUtilityMixin",
-    "TimeMultitoolBlockBreakerMixin"
+    "TimeMultitoolBlockBreakerMixin",
+    "TimeMultitoolDropsMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",

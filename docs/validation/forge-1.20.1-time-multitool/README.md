@@ -15,3 +15,9 @@ Real rendered Forge client passed actual controller C2S sneak-air modes1→2→4
 The independently reobfuscated main/probe JARs passed two actual production Forge JVMs with only JDT/GuideME (AE2/Curios/JEI/Jade absent). Actual game-mode hammer9 blocks costs450FE/144mB; native breaker costs50FE/16mB; real inventory split/move, observed ChunkEvent.Unload, absent chunk and fresh BE preserve exact full chest NBT. New JVM restores19500FE/9840mB/mode16/native upgrade/name/unknown tags, cycles256 and mines9 more for450FE/2304mB, leaving19050FE/7536mB and19 actual cobblestone. Server actions use explicit FakePlayer fixture calls, not real graphical input. Both JVMs save/shut down normally.
 
 The initial production fixture failed by asserting inventory split returns the same Java object. Actual ContainerHelper splitting copies the stack; the assertion now requires one returned item, an empty original slot and exact complete NBT equality. Failure log retained; no game code was changed for this fixture repair.
+
+## Harvest repair regression checkpoint
+
+196 JUnit/**324 required GameTests**, full build/main+probe reobfuscation pass (`harvest-regression-pass.log.gz`). Real playerDestroy and scoped vanilla block-pop capture now retain ice callbacks, silk loot, stats/exhaustion, doTileDrops and native passive ability processing. Forge BreakEvent XP is the single XP settlement. Three added Forge regressions cover exact resource/drop/merged-orb XP conservation and actual smelt→loaded bound-chest output. The first XP assertion failure is retained; final assertion uses complete exact before/after ledgers including merged Count.
+
+Two supplementary native GUI fixtures initially assumed false/default3; actual JDT source defaults true/maximum7, so the test now requires7→off3→on3→5→7 through real screen clicks and C2S sync. Both failed logs are retained. The preceding runtime results describe the earlier JAR; final harvest-JAR runtime replay is pending.

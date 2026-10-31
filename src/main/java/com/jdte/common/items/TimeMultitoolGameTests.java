@@ -96,4 +96,33 @@ public final class TimeMultitoolGameTests {
         var s=charged(1000,100,TimeMultitoolSpeedMode.TWO);var p=(net.minecraftforge.common.util.FakePlayer)actor(h,s);h.setBlock(P,Blocks.STONE);var machinePos=h.absolutePos(P.offset(0,0,2));h.getLevel().setBlockAndUpdate(machinePos,Registration.BlockBreakerT1.get().defaultBlockState());var machine=(com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE)h.getLevel().getBlockEntity(machinePos);machine.getMachineHandler().setStackInSlot(0,s);
         h.assertTrue(machine.tryBreakBlock(s,p,h.absolutePos(P),h.getBlockState(P))&&h.getBlockState(P).isAir()&&fe(s)==950&&fluid(s)==98,"actual native machine/FakePlayer tool call shares exactly one removal/payment, without legacy second pass");h.getLevel().removeBlockEntity(machinePos);h.setBlock(P,Blocks.STONE);h.assertTrue(!machine.tryBreakBlock(s,p,h.absolutePos(P),h.getBlockState(P))&&fe(s)==950&&fluid(s)==98,"detached machine cannot mutate the target or held resources");h.succeed();
     }
+    @GameTest(template="mineral_empty") public static void realHarvestRetainsIceCallbackAndSilkTouchDrops(GameTestHelper h){
+        var s=charged(1000,100,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P.below(),Blocks.STONE);h.setBlock(P,Blocks.ICE);
+        h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&h.getBlockState(P).is(Blocks.WATER)&&fe(s)==950&&fluid(s)==98,"real native ice playerDestroy callback leaves water and pays exactly one removal");
+        h.setBlock(P,Blocks.ICE);s.enchant(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH,1);
+        h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&h.getBlockState(P).isAir()&&fe(s)==900&&fluid(s)==96,"silk ice has no invented water and pays one removal");
+        h.assertTrue(drops(h).stream().filter(e->e.getItem().is(Items.ICE)).mapToInt(e->e.getItem().getCount()).sum()==1,"actual native harvest produces exactly one silk ice");h.succeed();
+    }
+    @GameTest(template="mineral_empty") public static void forgeBreakXpIsAwardedExactlyOnceAndDropRuleSurvives(GameTestHelper h){
+        var s=charged(1000,100,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P,Blocks.DIAMOND_ORE);
+        int beforeXp=xpLedger(h);int beforeDiamonds=drops(h).stream().filter(e->e.getItem().is(Items.DIAMOND)).mapToInt(e->e.getItem().getCount()).sum();
+        Consumer<BlockEvent.BreakEvent> xp=e->{if(e.getPlayer()==p)e.setExpToDrop(7);};MinecraftForge.EVENT_BUS.addListener(xp);
+        try{h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P)),"real diamond harvest");}finally{MinecraftForge.EVENT_BUS.unregister(xp);}
+        int total=xpLedger(h)-beforeXp;int diamonds=drops(h).stream().filter(e->e.getItem().is(Items.DIAMOND)).mapToInt(e->e.getItem().getCount()).sum()-beforeDiamonds;
+        h.assertTrue(total==7&&diamonds==1,"Forge event XP7 once and one diamond; actual XP delta="+total+", diamond delta="+diamonds+", beforeXP="+beforeXp+"; no extra OreBlock spawnAfterBreak XP");
+        var rules=h.getLevel().getGameRules();boolean old=rules.getBoolean(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS);int before=drops(h).stream().mapToInt(e->e.getItem().getCount()).sum();
+        rules.getRule(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS).set(false,h.getLevel().getServer());h.setBlock(P,Blocks.STONE);
+        try{h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&before==drops(h).stream().mapToInt(e->e.getItem().getCount()).sum(),"scoped capture respects actual doTileDrops=false");}finally{rules.getRule(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS).set(old,h.getLevel().getServer());}
+        h.assertTrue(fe(s)==900&&fluid(s)==96,"two actual removals charged once each");h.succeed();
+    }
+
+    private static int xpLedger(GameTestHelper h){return h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.ExperienceOrb.class,new AABB(h.absolutePos(P)).inflate(5)).stream().mapToInt(orb->orb.getValue()*Math.max(1,orb.saveWithoutId(new CompoundTag()).getInt("Count"))).sum();}
+    @GameTest(template="mineral_empty") public static void realNativeHarvestSmeltsAndTeleportsToLoadedInventory(GameTestHelper h){
+        var s=charged(5000,100,TimeMultitoolSpeedMode.TWO);upgrade(s,Ability.SMELTER);upgrade(s,Ability.DROPTELEPORT);var p=actor(h,s);var chest=h.absolutePos(P.offset(0,0,2));h.getLevel().setBlockAndUpdate(chest,Blocks.CHEST.defaultBlockState());
+        var bound=new CompoundTag();bound.putString("dimension",h.getLevel().dimension().location().toString());bound.put("blockpos",NbtUtils.writeBlockPos(chest));var config=new CompoundTag();config.put("boundinventory",bound);config.putInt("boundinventory_side",Direction.UP.ordinal());s.getOrCreateTag().put("boundinventory",config);h.setBlock(P,Blocks.IRON_ORE);
+        h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P)),"real native block harvest with both passive abilities");var inventory=((net.minecraft.world.level.block.entity.ChestBlockEntity)h.getLevel().getBlockEntity(chest));int stored=0;for(int slot=0;slot<inventory.getContainerSize();slot++)if(inventory.getItem(slot).is(Items.IRON_INGOT))stored+=inventory.getItem(slot).getCount();
+        int expected=5000-50-Ability.SMELTER.getFeCost()-Ability.DROPTELEPORT.getFeCost();h.assertTrue(stored==1&&fe(s)==expected&&fluid(s)==98,"one actual harvested ore smelts and teleports using real native fees; ingots="+stored+", FE="+fe(s)+", expected="+expected);
+        h.assertTrue(drops(h).stream().noneMatch(e->e.getItem().is(Items.RAW_IRON)||e.getItem().is(Items.IRON_INGOT)),"captured native harvest is not duplicated into world drops");h.succeed();
+    }
+
 }

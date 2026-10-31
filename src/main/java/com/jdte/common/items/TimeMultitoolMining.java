@@ -6,7 +6,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.*;
 import net.minecraft.nbt.*;
 import net.minecraft.server.level.*;
-import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
@@ -23,6 +22,20 @@ import java.util.*;
 /** Synchronous authoritative mining, with scoped resources and no retained world/entity targets. */
 public final class TimeMultitoolMining {
     private static final ThreadLocal<Boolean> ACTIVE=ThreadLocal.withInitial(()->false);
+    private record HarvestCapture(ServerLevel level,List<ItemStack> drops) {}
+    private static final ThreadLocal<HarvestCapture> HARVEST=new ThreadLocal<>();
+    /** Capture only vanilla block-pop calls made synchronously by this tool's real playerDestroy callback. */
+    public static boolean captureDrop(Level level,ItemStack drop){
+        var capture=HARVEST.get();if(capture==null||capture.level()!=level)return false;
+        if(!drop.isEmpty()&&level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)&&!level.restoringBlockSnapshots)Helpers.combineDrops(capture.drops(),List.of(drop.copy()));
+        return true;
+    }
+    private static void harvest(ServerLevel level,ServerPlayer player,Target target,ItemStack lootTool,List<ItemStack> drops){
+        var previous=HARVEST.get();HARVEST.set(new HarvestCapture(level,drops));
+        try{target.state().getBlock().playerDestroy(level,player,target.pos(),target.state(),target.entity(),lootTool);}
+        finally{if(previous==null)HARVEST.remove();else HARVEST.set(previous);}
+    }
+
     private TimeMultitoolMining() {}
     public static boolean active(){return ACTIVE.get();}
     private static boolean valid(ServerLevel level,ServerPlayer player,ItemStack stack){return TimeMultitoolResources.live(stack)&&player.level()==level&&player.isAlive()&&!player.isRemoved()&&!player.isSpectator()&&player.getMainHandItem()==stack;}
@@ -72,8 +85,7 @@ public final class TimeMultitoolMining {
                 }
                 state.getBlock().destroy(level,pos,state);removedPositions.add(pos);if(pos.equals(origin))primary=true;
                 if(!player.isCreative()){
-                    if(harvest){Helpers.combineDrops(drops,Block.getDrops(state,level,pos,target.entity(),player,lootTool));state.spawnAfterBreak(level,pos,lootTool,true);totalXp=(int)Math.min(Integer.MAX_VALUE,(long)totalXp+Math.max(0,xp));}
-                    player.awardStat(Stats.BLOCK_MINED.get(state.getBlock()));player.causeFoodExhaustion(0.005F);
+                    if(harvest){harvest(level,player,target,lootTool,drops);totalXp=(int)Math.min(Integer.MAX_VALUE,(long)totalXp+Math.max(0,xp));}
                 }
             }
             deliver(level,origin,player,stack,removedPositions,drops,totalXp);return primary;
