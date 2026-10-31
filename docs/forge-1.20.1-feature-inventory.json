@@ -2,12 +2,12 @@
   "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
   "starting_commit": "020109b",
   "source_item_count": 120,
-  "forge_item_count": 117,
+  "forge_item_count": 118,
   "counts": {
     "verified": 52,
-    "implemented_unverified": 19,
+    "implemented_unverified": 20,
     "partial": 46,
-    "absent": 3
+    "absent": 2
   },
   "rows": [
     {
@@ -1288,17 +1288,19 @@
     {
       "id": "cainiaoyo_fumo",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port.",
-      "registered": false,
-      "kind": "item",
+      "status": "implemented_unverified",
+      "note": "Source decorative block, facing shapes, self loot, model/texture, translations and default-hidden creative/JEI setting ported; build and runtime validation pending. No source recipe or block entity.",
+      "registered": true,
+      "kind": "block item",
       "name": "Yunyouwan Fumo",
-      "implementation_files": [],
+      "implementation_files": [
+        "src/main/java/com/jdte/common/blocks/DecorativeFumoBlock.java"
+      ],
       "block_entity": false,
       "menu": false,
-      "model": false,
-      "blockstate": false,
-      "translation": false,
+      "model": true,
+      "blockstate": true,
+      "translation": true,
       "named_recipe": false
     },
     {

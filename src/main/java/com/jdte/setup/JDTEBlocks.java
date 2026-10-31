@@ -40,6 +40,8 @@ public class JDTEBlocks {
     public static final RegistryObject<LifeBreederBlock> LIFE_BREEDER = BLOCKS.register("life_breeder", LifeBreederBlock::new);
     public static final RegistryObject<FactoryPackerBlock> FACTORY_PACKER = BLOCKS.register("factory_packer", FactoryPackerBlock::new);
 
+    public static final RegistryObject<DecorativeFumoBlock> CAINIAOYO_FUMO = BLOCKS.register("cainiaoyo_fumo", DecorativeFumoBlock::new);
+
     // Glue Activator
     public static final RegistryObject<BasicGlueActivatorBlock> BASIC_GLUE_ACTIVATOR = BLOCKS.register("basic_glue_activator", BasicGlueActivatorBlock::new);
     public static final RegistryObject<AdvancedGlueActivatorBlock> ADVANCED_GLUE_ACTIVATOR = BLOCKS.register("advanced_glue_activator", AdvancedGlueActivatorBlock::new);

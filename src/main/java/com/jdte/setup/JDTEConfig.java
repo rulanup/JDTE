@@ -46,6 +46,7 @@ public class JDTEConfig {
         AccelerationPolicy(ForgeConfigSpec.Builder builder){builder.push("timeAccelerator");timeAcceleratorAccelerateAllMachines=builder.comment("Process all queued work in a scheduler pass instead of the configured per-tick budget. Applied by the authoritative server; local client defaults are copied only at integrated startup.").define("timeAcceleratorAccelerateAllMachines",false);builder.pop();}
     }
     public static class Common {
+        public final ForgeConfigSpec.BooleanValue showFumoDolls;
         public final com.jdte.setup.config.AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
         public final UpgradesConfig upgrades;
         public final TimeAcceleratorConfig timeAccelerator;
@@ -306,6 +307,9 @@ public class JDTEConfig {
         public final com.jdte.setup.config.MineralExtractorConfig mineralExtractor;
 
         public Common(ForgeConfigSpec.Builder builder) {
+            builder.push("content");
+            showFumoDolls = builder.define("showFumoDolls", false);
+            builder.pop();
             aeOutputReturnInterval = builder.comment("Ticks between successful basic AE output transfers.").defineInRange("aeOutputReturnInterval", 5, 1, 1200);
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
             advancedEnergyTransmitter = new com.jdte.setup.config.AdvancedEnergyTransmitterConfig(builder);

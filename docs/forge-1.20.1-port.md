@@ -8,12 +8,12 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest pushed implementation/runtime checkpoint: **`3852fe8`** (preceded by `a73f98b`, `cd01c50`, `ef4abe7`); this acceptance/documentation checkpoint adds the final rendered-client replay and120-item audit.
+- Latest pushed baseline: **`2ac4a84`**; this checkpoint begins Cainiaoyo Fumo, with validation pending. Prior implementation/runtime checkpoint: **`3852fe8`** (preceded by `a73f98b`, `cd01c50`, `ef4abe7`); this acceptance/documentation checkpoint adds the final rendered-client replay and120-item audit.
 - Environment/version: Forge47.4.10, JDT Forge1.1.4, Java17, Gradle8.6; **0.5.8-forge-1.20.1** unchanged.
 - Latest complete regression: **196 JUnit /324 required GameTests**, all passing; previous180/302 and24 mineral core tests preserved. Full build/main+probe reobfuscation pass. Final real graphical mode/controller/native Hammer GUI/JEI/player save/rejoin/resume and two matching-JAR minimal production JVMs pass; fixtures and actual packets are distinguished in evidence.
-- 120-item status: V **52**, U **19**, P **46**, N **3**; **117** source items registered in Forge. Time Multitool N→U→scoped V; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
+- 120-item status: V **52**, U **20**, P **46**, N **2**; **118** source items registered in Forge. Time Multitool N→U→scoped V; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
 - Persistence: all implementation checkpoints above pushed on the development branch. Original energy recovery branch remains `cd8aaaa`; all seven original backup hashes pass. Pre-existing Python cache preserved. No reset/main merge/release.
-- Next bounded priority: port the three shared decorative Fumo items together using [pinned source findings](forge-1.20.1-fumo-investigation.md), including default hidden-but-registered content/JEI behavior. They are investigated, **not implemented**.
+- Next bounded priority: complete Cainiaoyo Fumo validation and port the two remaining decorative Fumo items using [pinned source findings](forge-1.20.1-fumo-investigation.md), including default hidden-but-registered content/JEI behavior. Cainiaoyo is implemented with validation pending; Maiqilin and Xingye remain unimplemented.
 - Still unverified: independent Time Multitool multiplayer, prolonged/cross-dimensional/unsaved-crash/arbitrary mod blocks/protection/recipe packs and every ability/JEI layout; previous pocket/potion/XP scopes, external JDTE-AE whole-grid backend, operating reactors/full fusion and other matrix boundaries. Full0.6.5.2 parity is unfinished.
 <!-- current-status:end -->
 
@@ -938,3 +938,7 @@ Native GUI full7/off3/on3/5/7 C2S button cycle passed. A later graphical replay 
 Updated classification/inventory/matrix and developer guide. Time Multitool alone moves U→scoped V: **52V/19U/46P/3N**,117/120 registrations. All three Fumo items remain absent; their shared class/vanilla behavior/local textures/default-false visibility/optional-JEI hooks/source tests/no recipes are investigated without implementing them. Existing external-backend/long-term multiplayer/reactor limitations stay unverified. Version0.5.8, recovery branch/backup and history preserved; no main merge or release. Final acceptance-only edits do not rerun unrelated expensive systems.
 
 Delivery checks: the first audit --check rejected a shortened Current Status registration-count sentence; restored the audit's canonical wording without changing its assertions. Audit generation/--check, guide validation, diff checks, final main/probe artifact matching and smoke exclusion now pass. No additional Minecraft run was needed for these documentation-only edits.
+
+## Cainiaoyo Fumo implementation checkpoint
+
+Added the shared horizontal decorative block, Cainiaoyo block/item registration, source model, texture, blockstate, self loot, translations and default-false creative/JEI visibility setting. No recipe or block entity exists in the pinned source. The Gradle build and main JAR reobfuscation passed; a targeted Forge GameTest covers facing shapes and loot but has not yet run. Graphical and dedicated runtime checks remain pending. Maiqilin and Xingye remain absent. Version0.5.8.
