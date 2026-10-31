@@ -308,7 +308,7 @@ public class JDTEConfig {
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("content");
-            showFumoDolls = builder.define("showFumoDolls", false);
+            showFumoDolls = builder.translation("config.jdte.jdte.content.showFumoDolls").define("showFumoDolls", false);
             builder.pop();
             aeOutputReturnInterval = builder.comment("Ticks between successful basic AE output transfers.").defineInRange("aeOutputReturnInterval", 5, 1, 1200);
             builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");

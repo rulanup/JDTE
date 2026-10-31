@@ -1005,5 +1005,7 @@
   "tooltip.jdte.time_multitool.speed": "当前挖掘速度：%s 倍",
   "tooltip.jdte.time_multitool.fluid": "时间流体：%s / %s mB",
   "tooltip.jdte.time_multitool.controls": "潜行右击空气切换速度；潜行右击方块打开 JDT 设置",
-  "block.jdte.cainiaoyo_fumo": "云游玩玩偶"
+  "block.jdte.cainiaoyo_fumo": "云游玩玩偶",
+  "config.jdte.jdte.content.showFumoDolls": "显示玩偶",
+  "config.jdte.jdte.content.showFumoDolls.desc": "在创造物品栏、创造搜索和 JEI 中显示星野、云游玩和麦淇淋玩偶，默认关闭。修改后需要重新进入世界。"
 }

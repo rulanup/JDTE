@@ -1005,5 +1005,7 @@
   "tooltip.jdte.time_multitool.speed": "Selected mining speed: %sx",
   "tooltip.jdte.time_multitool.fluid": "Time Fluid: %s / %s mB",
   "tooltip.jdte.time_multitool.controls": "Sneak-use air: change speed; sneak-use block: JDT settings",
-  "block.jdte.cainiaoyo_fumo": "Yunyouwan Fumo"
+  "block.jdte.cainiaoyo_fumo": "Yunyouwan Fumo",
+  "config.jdte.jdte.content.showFumoDolls": "Show Fumo Dolls",
+  "config.jdte.jdte.content.showFumoDolls.desc": "Show Xingye, Yunyouwan and Maiqilin dolls in creative tabs, creative search and JEI. Disabled by default. Reopen the world after changing this option."
 }
