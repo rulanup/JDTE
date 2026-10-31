@@ -96,7 +96,7 @@ public final class TimeMultitoolMining {
     private static void deliver(ServerLevel level,BlockPos origin,ServerPlayer player,ItemStack stack,Set<BlockPos> removed,List<ItemStack> drops,int xp){
         var tool=(TimeMultitoolItem)stack.getItem();if(tool.canUseAbility(stack,Ability.SMELTER)&&stack.getDamageValue()<stack.getMaxDamage()){boolean[] flag={false};drops=Helpers.smeltDrops(level,drops,stack,player,flag);if(flag[0])ToggleableTool.smelterParticles(level,removed);}
         if(tool.canUseAbility(stack,Ability.DROPTELEPORT)&&!drops.isEmpty()){var handler=bound(level,stack);if(handler!=null)Helpers.teleportDrops(drops,handler,stack,player);}
-        if(!drops.isEmpty())Helpers.dropDrops(drops,level,origin);if(xp>0)net.minecraft.world.entity.ExperienceOrb.award(level,net.minecraft.world.phys.Vec3.atCenterOf(origin),xp);
+        if(!drops.isEmpty())Helpers.dropDrops(drops,level,origin);if(xp>0&&level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)&&!level.restoringBlockSnapshots)net.minecraft.world.entity.ExperienceOrb.award(level,net.minecraft.world.phys.Vec3.atCenterOf(origin),xp);
     }
     private static net.minecraftforge.items.IItemHandler bound(ServerLevel level,ItemStack stack){
         if(!stack.hasTag())return null;var data=stack.getTag().getCompound("boundinventory");var location=data.getCompound("boundinventory");String raw=location.contains("dimension")?location.getString("dimension"):location.getString("level");var id=ResourceLocation.tryParse(raw);int side=data.getInt("boundinventory_side");if(id==null||!data.contains("boundinventory_side",Tag.TAG_INT)||side<0||side>=6||!location.contains("blockpos",Tag.TAG_COMPOUND))return null;

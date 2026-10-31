@@ -4,11 +4,11 @@
   "mods": [
     {
       "name": "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
-      "sha256": "d12e25a2a52b8d51da75ee9f10aecba306d19cb1d82a73a18a096521c69f72a9"
+      "sha256": "fb7fba8c4ff44618f22480e94d10c4895a4c85acfb5d871cef28516c2f3a4469"
     },
     {
       "name": "[Forge] jdte-0.5.8-forge-1.20.1.jar",
-      "sha256": "85558f4855045dd21f3b16a381eec4b98093ddb627d80b6bea3525da49df8a02"
+      "sha256": "522b06479fd1f825817b91ea3a49ac7f836945374aa476c75cd47df7f750df1e"
     },
     {
       "name": "guideme-20.1.15.jar",
@@ -20,5 +20,5 @@
     }
   ],
   "optional_mods": "AE2, Curios, JEI, Jade absent; JDT/GuideME present",
-  "main_matches_build": true
+  "main_and_probe_match_build": true
 }

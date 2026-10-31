@@ -112,8 +112,11 @@ public final class TimeMultitoolGameTests {
         h.assertTrue(total==7&&diamonds==1,"Forge event XP7 once and one diamond; actual XP delta="+total+", diamond delta="+diamonds+", beforeXP="+beforeXp+"; no extra OreBlock spawnAfterBreak XP");
         var rules=h.getLevel().getGameRules();boolean old=rules.getBoolean(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS);int before=drops(h).stream().mapToInt(e->e.getItem().getCount()).sum();
         rules.getRule(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS).set(false,h.getLevel().getServer());h.setBlock(P,Blocks.STONE);
-        try{h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&before==drops(h).stream().mapToInt(e->e.getItem().getCount()).sum(),"scoped capture respects actual doTileDrops=false");}finally{rules.getRule(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS).set(old,h.getLevel().getServer());}
-        h.assertTrue(fe(s)==900&&fluid(s)==96,"two actual removals charged once each");h.succeed();
+        try{h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&before==drops(h).stream().mapToInt(e->e.getItem().getCount()).sum(),"scoped capture respects actual doTileDrops=false");h.assertTrue(fe(s)==900&&fluid(s)==96,"two actual removals charged once each");
+            int xpBeforeDisabled=xpLedger(h);h.setBlock(P,Blocks.DIAMOND_ORE);MinecraftForge.EVENT_BUS.addListener(xp);
+            try{h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&xpBeforeDisabled==xpLedger(h)&&before==drops(h).stream().mapToInt(e->e.getItem().getCount()).sum(),"native popExperience rule: doTileDrops=false suppresses event XP7 and all drops");}finally{MinecraftForge.EVENT_BUS.unregister(xp);}
+            h.assertTrue(fe(s)==850&&fluid(s)==94,"disabled-drop ore still pays exactly one actual removal");
+        }finally{rules.getRule(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS).set(old,h.getLevel().getServer());}h.succeed();
     }
 
     private static int xpLedger(GameTestHelper h){return h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.ExperienceOrb.class,new AABB(h.absolutePos(P)).inflate(5)).stream().mapToInt(orb->orb.getValue()*Math.max(1,orb.saveWithoutId(new CompoundTag()).getInt("Count"))).sum();}

@@ -21,3 +21,9 @@ The initial production fixture failed by asserting inventory split returns the s
 196 JUnit/**324 required GameTests**, full build/main+probe reobfuscation pass (`harvest-regression-pass.log.gz`). Real playerDestroy and scoped vanilla block-pop capture now retain ice callbacks, silk loot, stats/exhaustion, doTileDrops and native passive ability processing. Forge BreakEvent XP is the single XP settlement. Three added Forge regressions cover exact resource/drop/merged-orb XP conservation and actual smelt→loaded bound-chest output. The first XP assertion failure is retained; final assertion uses complete exact before/after ledgers including merged Count.
 
 Two supplementary native GUI fixtures initially assumed false/default3; actual JDT source defaults true/maximum7, so the test now requires7→off3→on3→5→7 through real screen clicks and C2S sync. Both failed logs are retained. The preceding runtime results describe the earlier JAR; final harvest-JAR runtime replay is pending.
+
+## Final harvest-JAR dedicated acceptance
+
+Final196/324 regression and full build/reobfuscation pass. Native popExperience also requires doTileDrops and no snapshot restoration; the exact XP test now includes disabled-drop ore with an explicit7XP event, preserving previous enabled-drop/FE/fluid assertions.
+
+Both final-JAR production JVMs pass, now including actual native ice callback plus exactly one diamond/seven XP through the scoped harvest capture, alongside the retained19-cobblestone/FE/fluid/unload/save/restart ledger. The first expanded probe queried newly queued entities during the same ServerTickEvent.END callback and observed0/0; verifying them on the following tick passes. Failure log retained; native-tier/actual mining checks remain in the fixture. `production-artifacts.json` matches **both** installed main/probe bytes to final build outputs. Final graphical replay pending at this checkpoint.
