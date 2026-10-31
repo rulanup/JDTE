@@ -1,0 +1,7 @@
+PASS: audit generation and --check; Current Status counts agree with authoritative120-item matrix.
+PASS: docs validation1006 lang keys/68 blocks/53 guide pages; git diff --check.
+PASS: final196 JUnit/324 required GameTests; full build/main+probe reobfuscation.
+PASS: final rendered native GUI/controller/player save/rejoin/resume and two packaged production JVMs; fixtures explicit.
+PASS: installed main+probe hashes match final build outputs; smoke classes/test Curios data excluded from main.
+PASS: original cd8aaaa recovery branch and all seven backup hashes retained.
+Version0.5.8-forge-1.20.1; no merge or release.

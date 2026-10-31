@@ -191,8 +191,8 @@
     {
       "id": "time_multitool",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source powered Eclipse Paxel500kFE/1M Time Fluid, six modes/whole-batch fallback, actual paid removal, native abilities/settings/ten smithing recipes/axe-hoe-shovel/input gate/NBT/caps/resources implemented. 196 JUnit/321 GameTests/full build/reobfuscation pass, including permission/receipt/lease/boundary/native breaker/tank compatibility. Real graphical and production lifecycle pending; keep U. See time-multitool evidence."
+      "status": "verified",
+      "note": "Scoped V: source500kFE/1M Time Fluid/six modes/whole-batch fallback, paid native harvest callbacks/XP/abilities/settings/caps/NBT/resources and ten native smithing variants.196 JUnit/324 GameTests/full build+reobfuscation; actual graphical input/controller/native Hammer7-off3-on3-5-7/JEI and exact player save/rejoin/resume; matching-JAR minimal production real ice+7XP/diamond, native breaker, transport/actual unload/fresh BE/two-JVM exact recovery. Independent multiplayer/prolonged/unsaved-crash/arbitrary block/protection integrations remain unverified. See Time Multitool evidence."
     },
     {
       "id": "ultimate_time_wand",
