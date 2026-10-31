@@ -1,6 +1,6 @@
 # Remaining Fumo source investigation
 
-Read-only investigation against JDTE0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. All three items remain **N** in the authoritative [feature matrix](forge-1.20.1-feature-matrix.md). No Fumo registrations or gameplay were added in the Time Multitool task.
+Read-only investigation against JDTE0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. At the investigation checkpoint all three items were **N** in the authoritative [feature matrix](forge-1.20.1-feature-matrix.md). No Fumo registrations or gameplay were added in the Time Multitool task. Cainiaoyo has since been implemented; consult the current matrix for its status.
 
 ## Actual shared behavior
 

@@ -8,7 +8,7 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest pushed baseline: **`2ac4a84`**; this checkpoint begins Cainiaoyo Fumo, with validation pending. Prior implementation/runtime checkpoint: **`3852fe8`** (preceded by `a73f98b`, `cd01c50`, `ef4abe7`); this acceptance/documentation checkpoint adds the final rendered-client replay and120-item audit.
+- Latest pushed checkpoint: **`7d33553`**, implementing Cainiaoyo Fumo; runtime acceptance remains pending. Prior implementation/runtime checkpoint: **`3852fe8`** (preceded by `a73f98b`, `cd01c50`, `ef4abe7`); this acceptance/documentation checkpoint adds the final rendered-client replay and120-item audit.
 - Environment/version: Forge47.4.10, JDT Forge1.1.4, Java17, Gradle8.6; **0.5.8-forge-1.20.1** unchanged.
 - Latest complete regression: **196 JUnit /324 required GameTests**, all passing; previous180/302 and24 mineral core tests preserved. Full build/main+probe reobfuscation pass. Final real graphical mode/controller/native Hammer GUI/JEI/player save/rejoin/resume and two matching-JAR minimal production JVMs pass; fixtures and actual packets are distinguished in evidence.
 - 120-item status: V **52**, U **20**, P **46**, N **2**; **118** source items registered in Forge. Time Multitool N→U→scoped V; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
@@ -942,3 +942,5 @@ Delivery checks: the first audit --check rejected a shortened Current Status reg
 ## Cainiaoyo Fumo implementation checkpoint
 
 Added the shared horizontal decorative block, Cainiaoyo block/item registration, source model, texture, blockstate, self loot, translations and default-false creative/JEI visibility setting. No recipe or block entity exists in the pinned source. The Gradle build and main JAR reobfuscation passed; a targeted Forge GameTest covers facing shapes and loot but has not yet run. Graphical and dedicated runtime checks remain pending. Maiqilin and Xingye remain absent. Version0.5.8.
+
+Cainiaoyo validation:196 JUnit and Gradle build/reobfuscation passed. The first full GameTest run failed the existing Time Multitool silk-ice count assertion; log retained in [Fumo evidence](validation/forge-1.20.1-fumo/README.md). Preserved the prior reusable world and started a fresh-world rerun without modifying assertions. Documentation validation originally classified the decorative block as a machine; scoped non-machine exclusion restores the existing guide checks. Fresh-world result and graphical/JEI runtime remain pending.

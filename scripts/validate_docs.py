@@ -30,8 +30,8 @@ GUIDE_ALIASES = {
     "extended_fluid_placer": "extended-machines",
 }
 
-# Internal structure blocks are registered for world state, not as standalone machines.
-NON_GUIDE_BLOCKS = {"large_greenhouse_part", "large_mineral_extractor_part", "life_synthesis_part"}
+# Internal structure blocks and source-hidden decorative blocks are not standalone machines.
+NON_GUIDE_BLOCKS = {"large_greenhouse_part", "large_mineral_extractor_part", "life_synthesis_part", "cainiaoyo_fumo"}
 
 TIER_PREFIXES = ("basic_", "advanced_", "extended_")
 

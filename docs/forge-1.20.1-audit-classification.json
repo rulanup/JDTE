@@ -432,7 +432,7 @@
       "id": "cainiaoyo_fumo",
       "initial_list": true,
       "status": "implemented_unverified",
-      "note": "Source decorative block, facing shapes, self loot, model/texture, translations and default-hidden creative/JEI setting ported; build and runtime validation pending. No source recipe or block entity."
+      "note": "Source decorative block, facing shapes, self loot, model/texture, translations and default-hidden creative/JEI setting ported; 196 JUnit and build/reobfuscation pass. Full GameTest first run failed an existing Time Multitool assertion; fresh-world rerun and graphical/JEI checks pending. No source recipe or block entity."
     },
     {
       "id": "maiqilin_fumo",
