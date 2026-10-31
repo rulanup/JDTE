@@ -133,7 +133,7 @@ public class JDTEJeiPlugin implements IModPlugin {
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         runtime = jeiRuntime;
-        if (!com.jdte.setup.JDTEConfig.COMMON.showFumoDolls.get()) jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, java.util.List.of(new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.CAINIAOYO_FUMO.get())));
+        if (!com.jdte.setup.JDTEConfig.COMMON.showFumoDolls.get()) jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, java.util.List.of(new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.CAINIAOYO_FUMO.get()), new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.MAIQILIN_FUMO.get()), new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.XINGYE_FUMO.get())));
         refreshMineralExtractorRecipes();
         refreshFluidMixerRecipes();
         refreshBioExtractorRecipes();

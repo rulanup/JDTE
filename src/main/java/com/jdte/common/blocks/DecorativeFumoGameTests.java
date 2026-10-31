@@ -16,7 +16,11 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 public final class DecorativeFumoGameTests {
     @GameTest(template = "mineral_empty")
     public static void cainiaoyoShapesAndSelfDrop(GameTestHelper helper) {
-        var block = JDTEBlocks.CAINIAOYO_FUMO.get();
+        for (var entry : java.util.List.of(
+                java.util.Map.entry(JDTEBlocks.CAINIAOYO_FUMO.get(), JDTEItems.CAINIAOYO_FUMO.get()),
+                java.util.Map.entry(JDTEBlocks.MAIQILIN_FUMO.get(), JDTEItems.MAIQILIN_FUMO.get()),
+                java.util.Map.entry(JDTEBlocks.XINGYE_FUMO.get(), JDTEItems.XINGYE_FUMO.get()))) {
+        var block = entry.getKey();
         var pos = new BlockPos(2, 2, 2);
         for (var facing : Direction.Plane.HORIZONTAL) {
             var state = block.defaultBlockState().setValue(DecorativeFumoBlock.FACING, facing);
@@ -25,7 +29,8 @@ public final class DecorativeFumoGameTests {
             helper.assertTrue(state.getShape(helper.getLevel(), helper.absolutePos(pos)).equals(DecorativeFumoBlock.shapeFor(facing)), "source shape for " + facing);
         }
         var drops = Block.getDrops(helper.getBlockState(pos), helper.getLevel(), helper.absolutePos(pos), null);
-        helper.assertTrue(drops.size() == 1 && ItemStack.isSameItem(drops.get(0), new ItemStack(JDTEItems.CAINIAOYO_FUMO.get())) && drops.get(0).getCount() == 1, "actual self loot");
+        helper.assertTrue(drops.size() == 1 && ItemStack.isSameItem(drops.get(0), new ItemStack(entry.getValue())) && drops.get(0).getCount() == 1, "actual self loot");
+        }
         helper.succeed();
     }
 }

@@ -11,7 +11,7 @@ Reference: JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Audit starte
 
 The machine family and individual upgrade rows are separate: a verified new card does not complete every feature of its host machine. Names come from the pinned English language file. `BE/Menu` and `Model/Language/Recipe` are static presence signals, not proof of working behavior. `Recipe` refers to an exact-name JSON only; source intentionally recipe-less or dynamic recipes are not inferred missing from this flag. JSON contains actual implementation file paths and blockstate presence. Source/Forge API renames and inherited methods are not classified as missing behavior solely from method-name differences.
 
-Current inventory: source **120**, Forge **118**. Status counts: V **52**, U **20**, P **46**, N **2**.
+Current inventory: source **120**, Forge **120**. Status counts: V **52**, U **22**, P **46**, N **0**.
 
 ## Evidence and cross-cutting systems
 
@@ -141,7 +141,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:life_synthesis_vat` | Life Synthesis Vat | no | **P** | yes/yes | yes/yes/yes | Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete. |
 | `jdte:loot_fabricator` | Loot Fabricator | no | **U** | yes/yes | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
 | `jdte:looting_upgrade` | Looting Upgrade | no | **U** | no/no | yes/yes/yes | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
-| `jdte:maiqilin_fumo` | Maiqilin Fumo | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:maiqilin_fumo` | Maiqilin Fumo | yes | **U** | no/no | yes/yes/no | Shared source decorative block/facing shapes, self loot, model, texture, translations and default-hidden creative/JEI setting implemented; build and runtime validation pending. No source recipe or block entity. |
 | `jdte:mineral_extractor` | Mineral Extractor | yes | **V** | yes/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:mineral_survey` | Mineral Survey | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:mixing_upgrade` | Mixing Parallel Upgrade | yes | **V** | no/no | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
@@ -165,7 +165,7 @@ Evidence: [lifecycle](validation/forge-1.20.1-lifecycle/README.md), [network](va
 | `jdte:upgrade_storage` | Upgrade Storage | yes | **V** | no/yes | yes/yes/yes | See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof. |
 | `jdte:wither_essence` | Wither Essence | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
 | `jdte:wither_spawn_egg` | Wither Spawn Egg | no | **U** | no/no | yes/yes/no | Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence. |
-| `jdte:xingye_fumo` | Xingye Fumo | yes | **N** | no/no | no/no/no | No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port. |
+| `jdte:xingye_fumo` | Xingye Fumo | yes | **U** | no/no | yes/yes/no | Shared source decorative block/facing shapes, self loot, model, texture, translations and default-hidden creative/JEI setting implemented; build and runtime validation pending. No source recipe or block entity. |
 
 ## Rebuild and maintain
 

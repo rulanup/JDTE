@@ -8,12 +8,12 @@ This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing ver
 ## Current Status
 
 <!-- current-status:start -->
-- Latest pushed checkpoint: **`c134b32`**, implementing Cainiaoyo Fumo and retaining the first test failure; graphical acceptance remains pending. Prior implementation/runtime checkpoint: **`3852fe8`** (preceded by `a73f98b`, `cd01c50`, `ef4abe7`); this acceptance/documentation checkpoint adds the final rendered-client replay and120-item audit.
+- Latest baseline **`bfbbff0`**; all three Fumo registrations and source resources are now present, with new runtime validation pending. Prior implementation/runtime checkpoint: **`3852fe8`** (preceded by `a73f98b`, `cd01c50`, `ef4abe7`); this acceptance/documentation checkpoint adds the final rendered-client replay and120-item audit.
 - Environment/version: Forge47.4.10, JDT Forge1.1.4, Java17, Gradle8.6; **0.5.8-forge-1.20.1** unchanged.
 - Latest complete regression: **196 JUnit /325 required GameTests**, all passing in a fresh test world; previous180/302 and24 mineral core tests preserved. Full build/main+probe reobfuscation pass. Final real graphical mode/controller/native Hammer GUI/JEI/player save/rejoin/resume and two matching-JAR minimal production JVMs pass; fixtures and actual packets are distinguished in evidence.
-- 120-item status: V **52**, U **20**, P **46**, N **2**; **118** source items registered in Forge. Time Multitool N→U→scoped V; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
+- 120-item status: V **52**, U **22**, P **46**, N **0**; **120** source items registered in Forge. Time Multitool N→U→scoped V; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
 - Persistence: all implementation checkpoints above pushed on the development branch. Original energy recovery branch remains `cd8aaaa`; all seven original backup hashes pass. Pre-existing Python cache preserved. No reset/main merge/release.
-- Next bounded priority: complete Cainiaoyo Fumo validation and port the two remaining decorative Fumo items using [pinned source findings](forge-1.20.1-fumo-investigation.md), including default hidden-but-registered content/JEI behavior. Cainiaoyo is implemented with validation pending; Maiqilin and Xingye remain unimplemented.
+- Next bounded priority: validate all three decorative Fumo items using [pinned source findings](forge-1.20.1-fumo-investigation.md), including default hidden-but-registered content/JEI behavior. All three are implemented and await dedicated runtime validation.
 - Still unverified: independent Time Multitool multiplayer, prolonged/cross-dimensional/unsaved-crash/arbitrary mod blocks/protection/recipe packs and every ability/JEI layout; previous pocket/potion/XP scopes, external JDTE-AE whole-grid backend, operating reactors/full fusion and other matrix boundaries. Full0.6.5.2 parity is unfinished.
 <!-- current-status:end -->
 
@@ -948,3 +948,9 @@ Cainiaoyo validation:196 JUnit and Gradle build/reobfuscation passed. The first 
 Fresh-world Cainiaoyo regression: **325 required GameTests passed** including real facing/self-drop checks and the existing Time Multitool assertion, with no assertion changes. The initial reused-world failure and both logs remain in [Fumo evidence](validation/forge-1.20.1-fumo/README.md); its precise cause was not established. Original test world was preserved. Source configuration title/description translations are now included. Graphical model and actual creative/JEI visibility remain unverified; Cainiaoyo stays U. The other two Fumo items remain N.
 
 Final Cainiaoyo build/reobfuscation and JUnit suite passed after the configuration translation update. The 325 GameTest run preceded that translation-only metadata change; no additional gameplay edits were made after it. Audit and documentation checks pass.
+
+## Fumo family and reused-world investigation checkpoint
+
+The preserved original entity region contains four ice items in three item entities near (45,-60,75); the old assertion counted every ice item in a ten-block-wide box rather than a per-action result. That independently establishes the old world contained contamination and exposes a fixture isolation defect, though the failed test origin was not recorded and the precise historical count at that origin remains unproven. The ice test now explicitly seeds a preexisting ice entity, verifies it exists, and requires exactly one *additional* silk-ice drop alongside the existing FE/fluid/block assertions. An old-world copy and fresh-world tests are pending. Original world and failure logs are preserved.
+
+Maiqilin and Xingye now reuse the registered Fumo block, each with source model, texture, facing variants, block item, self loot and translations. All three follow the source default-hidden creative/JEI setting. Shared GameTest now checks each item's shapes and real self loot. No source recipe or BE exists. Classifications are U pending build, test and graphical verification. Version0.5.8.

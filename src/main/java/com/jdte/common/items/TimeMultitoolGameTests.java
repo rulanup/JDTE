@@ -98,10 +98,13 @@ public final class TimeMultitoolGameTests {
     }
     @GameTest(template="mineral_empty") public static void realHarvestRetainsIceCallbackAndSilkTouchDrops(GameTestHelper h){
         var s=charged(1000,100,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P.below(),Blocks.STONE);h.setBlock(P,Blocks.ICE);
+        h.getLevel().addFreshEntity(new net.minecraft.world.entity.item.ItemEntity(h.getLevel(), h.absolutePos(P).getX()+1.5, h.absolutePos(P).getY()+0.5, h.absolutePos(P).getZ()+0.5, new ItemStack(Items.ICE)));
+        int beforeIce=drops(h).stream().filter(e->e.getItem().is(Items.ICE)).mapToInt(e->e.getItem().getCount()).sum();
+        h.assertTrue(beforeIce >= 1,"preexisting ice fixture is present before harvest");
         h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&h.getBlockState(P).is(Blocks.WATER)&&fe(s)==950&&fluid(s)==98,"real native ice playerDestroy callback leaves water and pays exactly one removal");
         h.setBlock(P,Blocks.ICE);s.enchant(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH,1);
         h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&h.getBlockState(P).isAir()&&fe(s)==900&&fluid(s)==96,"silk ice has no invented water and pays one removal");
-        h.assertTrue(drops(h).stream().filter(e->e.getItem().is(Items.ICE)).mapToInt(e->e.getItem().getCount()).sum()==1,"actual native harvest produces exactly one silk ice");h.succeed();
+        h.assertTrue(drops(h).stream().filter(e->e.getItem().is(Items.ICE)).mapToInt(e->e.getItem().getCount()).sum()-beforeIce==1,"actual native harvest produces exactly one new silk ice, regardless of preexisting entities");h.succeed();
     }
     @GameTest(template="mineral_empty") public static void forgeBreakXpIsAwardedExactlyOnceAndDropRuleSurvives(GameTestHelper h){
         var s=charged(1000,100,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P,Blocks.DIAMOND_ORE);

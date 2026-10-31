@@ -425,8 +425,8 @@
     {
       "id": "xingye_fumo",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Shared source decorative block/facing shapes, self loot, model, texture, translations and default-hidden creative/JEI setting implemented; build and runtime validation pending. No source recipe or block entity."
     },
     {
       "id": "cainiaoyo_fumo",
@@ -437,8 +437,8 @@
     {
       "id": "maiqilin_fumo",
       "initial_list": true,
-      "status": "absent",
-      "note": "No Forge item registration, corresponding gameplay implementation or complete resource wiring. Stray copied assets do not count as a port."
+      "status": "implemented_unverified",
+      "note": "Shared source decorative block/facing shapes, self loot, model, texture, translations and default-hidden creative/JEI setting implemented; build and runtime validation pending. No source recipe or block entity."
     },
     {
       "id": "basic_glue_activator",

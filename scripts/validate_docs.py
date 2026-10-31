@@ -31,7 +31,7 @@ GUIDE_ALIASES = {
 }
 
 # Internal structure blocks and source-hidden decorative blocks are not standalone machines.
-NON_GUIDE_BLOCKS = {"large_greenhouse_part", "large_mineral_extractor_part", "life_synthesis_part", "cainiaoyo_fumo"}
+NON_GUIDE_BLOCKS = {"large_greenhouse_part", "large_mineral_extractor_part", "life_synthesis_part", "cainiaoyo_fumo", "maiqilin_fumo", "xingye_fumo"}
 
 TIER_PREFIXES = ("basic_", "advanced_", "extended_")
 

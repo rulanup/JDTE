@@ -20,7 +20,7 @@ public class JDTECreativeTabs {
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
             .icon(() -> new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()))
             .displayItems((parameters, output) -> {
-                if (JDTEConfig.COMMON.showFumoDolls.get()) output.accept(JDTEItems.CAINIAOYO_FUMO.get());
+                if (JDTEConfig.COMMON.showFumoDolls.get()) { output.accept(JDTEItems.CAINIAOYO_FUMO.get()); output.accept(JDTEItems.MAIQILIN_FUMO.get()); output.accept(JDTEItems.XINGYE_FUMO.get()); }
                 // Upgrade cards
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
                 output.accept(JDTEItems.LOOTING_UPGRADE.get());
