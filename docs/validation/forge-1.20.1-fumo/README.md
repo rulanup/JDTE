@@ -13,3 +13,9 @@ Documentation validation initially treated this hidden decorative block as a mac
 All **325 required GameTests passed** in the fresh world, including the new Cainiaoyo facing/actual self-loot test and the existing Time Multitool test. The first run's isolated failure remains documented; the fresh-world result does not establish its exact cause. The original test world and both complete logs are retained. The configuration label and description now use the pinned source translations. Real graphical model rendering, creative visibility toggle, JEI visibility and independent dedicated-server save/load are still unverified, so the item remains U.
 
 The final build after adding source configuration translations passed, including JAR reobfuscation and the JUnit suite (`build-final.log.gz`). The fresh-world GameTest was run before that translation-only configuration metadata change.
+
+## Remaining Fumo and reused-world ice investigation
+
+Maiqilin and Xingye were ported from `bfbbff0` following Cainiaoyo exactly: shared decorative block, registrations, pinned 0.6.5.2 models/textures, facing blockstates, self loot, translations and default-hidden creative/JEI visibility. GameTests for all three cover facing shapes and real self loot. Build and runtime validation are pending, so both remain U.
+
+Time Multitool: the initial log's only failure is the silk-ice assertion in `realHarvestRetainsIceCallbackAndSilkTouchDrops`. That test scans an 11-wide box for all ice item entities, so pre-existing ice in a reused world can fail it without any tool defect, and the fresh-world pass is consistent with that explanation. The old world is gitignored and not present in this checkout, so no historical ice count is asserted here. The test now asserts exactly one additional silk ice over its starting count, with the water/air/FE/fluid assertions unchanged.
