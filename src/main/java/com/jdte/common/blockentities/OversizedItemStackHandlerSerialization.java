@@ -41,6 +41,25 @@ final class OversizedItemStackHandlerSerialization {
         return result;
     }
 
+    /** Writes one stack, preserving a count above {@link #MAX_CODEC_COUNT} in {@code jdteRealCount}. */
+    static CompoundTag serializeStack(ItemStack stack, HolderLookup.Provider provider) {
+        if (stack.isEmpty()) return new CompoundTag();
+        int realCount = stack.getCount();
+        ItemStack encodedStack = realCount > MAX_CODEC_COUNT ? stack.copyWithCount(MAX_CODEC_COUNT) : stack;
+        CompoundTag tag = encodedStack.save(provider);
+        if (realCount > MAX_CODEC_COUNT) tag.putInt(REAL_COUNT_TAG, realCount);
+        return tag;
+    }
+
+    /** Reads a stack written by {@link #serializeStack(ItemStack, HolderLookup.Provider)}, or by vanilla saving. */
+    static ItemStack deserializeStack(HolderLookup.Provider provider, CompoundTag tag) {
+        if (tag.isEmpty()) return ItemStack.EMPTY;
+        ItemStack stack = ItemStack.parse(provider, tag).orElse(ItemStack.EMPTY);
+        if (stack.isEmpty()) return ItemStack.EMPTY;
+        if (tag.contains(REAL_COUNT_TAG, Tag.TAG_INT)) return stack.copyWithCount(tag.getInt(REAL_COUNT_TAG));
+        return stack;
+    }
+
     static void deserialize(ItemStackHandler handler, HolderLookup.Provider provider, CompoundTag tag) {
         handler.deserializeNBT(provider, tag);
         ListTag items = tag.getList("Items", Tag.TAG_COMPOUND);

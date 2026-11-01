@@ -797,7 +797,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     @Override public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
+        tag.put("inventory", OversizedItemStackHandlerSerialization.serialize(itemHandler, provider));
         tag.put("upgrades", upgradeHandler.serializeNBT(provider));
         tag.put("lifeFluid", lifeFluidTank.serializeNBT(provider));
         tag.put("timeFluid", timeFluidTank.serializeNBT(provider));
@@ -813,7 +813,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
+            OversizedItemStackHandlerSerialization.deserialize(itemHandler, provider, tag.getCompound("inventory"));
             if (itemHandler.getSlots() < TOTAL_SLOTS) {
                 List<ItemStack> existing = new ArrayList<>(itemHandler.getSlots());
                 for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
