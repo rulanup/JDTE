@@ -221,6 +221,10 @@ public class UpgradeHelper {
         if (machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE
                 && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
         if (machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
+        // Item senders only (all three tiers extend ItemSenderBE): original 0.6.5.2 allows
+        // both Ultimate cards for senders via its default branch, so this narrow allowance
+        // restores that scope without opening any other restricted machine family.
+        if (machine instanceof com.jdte.common.blockentities.ItemSenderBE && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
         if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
             return machine instanceof com.jdte.common.blockentities.MineralExtractorBE || machine instanceof com.jdte.common.blockentities.FluidMixerBE || isExtendedGenerator(machine);
         if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE)
@@ -394,7 +398,7 @@ public class UpgradeHelper {
 
     public static boolean hasOverclock(BaseMachineBE machine) {
         return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasCreativeUpgrade(machine)
-                || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || isExtendedGenerator(machine) || machine instanceof com.jdte.common.blockentities.BioExtractorBE || machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE || machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE) && hasUltimateOverclock(machine);
+                || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || isExtendedGenerator(machine) || machine instanceof com.jdte.common.blockentities.BioExtractorBE || machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE || machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE || machine instanceof com.jdte.common.blockentities.ItemSenderBE) && hasUltimateOverclock(machine);
     }
 
     public static boolean hasUndercLock(BaseMachineBE machine) {

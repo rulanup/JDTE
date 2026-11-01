@@ -492,19 +492,19 @@
       "id": "basic_item_sender",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "note": "Ultimate cards verified by GameTest on the Forge port (ItemSenderUltimateGameTests, 11 tests): both Ultimate cards install with speed exclusivity, Ultimate Capacity gives Advanced 2500000 / Extended 5000000 FE (20000000 / 40000000 with 3 Capacity cards) and no measurable effect on Basic, Ultimate Overclock runs 10 ticker executions with the original base 64-per-execution normal cap (640/tick theoretical, stock-limited to 576), standard cost 25000 with direct-path deduction per moving execution and normal-path FE gate without per-operation deduction, direct ticker tick moves all available stock, and capacity removal truncates stored FE. Item stays partial: real-client GUI/JEI/creative visibility and packaged dedicated-server lifecycle (placement, drops, saving, chunk unload, restart) for the sender family are not yet covered, and the other 27 Ultimate-restricted families are unchanged."
     },
     {
       "id": "advanced_item_sender",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "note": "Ultimate cards verified by GameTest on the Forge port (ItemSenderUltimateGameTests, 11 tests): both Ultimate cards install with speed exclusivity, Ultimate Capacity gives Advanced 2500000 / Extended 5000000 FE (20000000 / 40000000 with 3 Capacity cards) and no measurable effect on Basic, Ultimate Overclock runs 10 ticker executions with the original base 64-per-execution normal cap (640/tick theoretical, stock-limited to 576), standard cost 25000 with direct-path deduction per moving execution and normal-path FE gate without per-operation deduction, direct ticker tick moves all available stock, and capacity removal truncates stored FE. Item stays partial: real-client GUI/JEI/creative visibility and packaged dedicated-server lifecycle (placement, drops, saving, chunk unload, restart) for the sender family are not yet covered, and the other 27 Ultimate-restricted families are unchanged."
     },
     {
       "id": "extended_item_sender",
       "initial_list": false,
       "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "note": "Ultimate cards verified by GameTest on the Forge port (ItemSenderUltimateGameTests, 11 tests): both Ultimate cards install with speed exclusivity, Ultimate Capacity gives Advanced 2500000 / Extended 5000000 FE (20000000 / 40000000 with 3 Capacity cards) and no measurable effect on Basic, Ultimate Overclock runs 10 ticker executions with the original base 64-per-execution normal cap (640/tick theoretical, stock-limited to 576), standard cost 25000 with direct-path deduction per moving execution and normal-path FE gate without per-operation deduction, direct ticker tick moves all available stock, and capacity removal truncates stored FE. Item stays partial: real-client GUI/JEI/creative visibility and packaged dedicated-server lifecycle (placement, drops, saving, chunk unload, restart) for the sender family are not yet covered, and the other 27 Ultimate-restricted families are unchanged."
     },
     {
       "id": "basic_fluid_sender",
