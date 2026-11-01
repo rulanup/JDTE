@@ -4,8 +4,8 @@
   "source_item_count": 120,
   "forge_item_count": 120,
   "counts": {
-    "verified": 52,
-    "implemented_unverified": 22,
+    "verified": 55,
+    "implemented_unverified": 19,
     "partial": 46
   },
   "rows": [
@@ -1271,8 +1271,8 @@
     {
       "id": "xingye_fumo",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Shared source decorative block/facing shapes, self loot, model, texture, translations and default-hidden creative/JEI setting implemented; compileJava, 196 JUnit, 327 GameTests and jar/reobfJar passed in a fresh test world (2026-11-01). Graphical model rendering, creative/JEI visibility toggling and independent dedicated-server lifecycle remain unverified. No source recipe or block entity.",
+      "status": "verified",
+      "note": "Verified 2026-11-01 on muse/forge-1.20.1-fumo-validation: real Xvfb client rendered the doll in all four facings and as an item (screenshots in validation/forge-1.20.1-fumo/client-off and client-on); JEI ingredient presence and JDTE creative-tab contents both equal showFumoDolls in two client runs (false and true); dedicated GameTest server placed all facings, real FakePlayer break dropped exactly one self item and blockstate survived NBT round-trip; independent packaged Forge 47.4.10 dedicated server placed 6 dolls, saved, chunk-unloaded and reloaded with facings intact, then a fresh JVM restored the remaining 5 dolls (seed/verify markers in validation/forge-1.20.1-fumo/dedicated-server). Production ItemEntity counting did not yield entities even for a vanilla stone control in the probe setup, so production drop evidence is loot-table drop plus destroy-to-air; ItemEntity counting passes on the GameTest server. No block entity, recipe or machine logic in source.",
       "registered": true,
       "kind": "block item",
       "name": "Xingye Fumo",
@@ -1289,8 +1289,8 @@
     {
       "id": "cainiaoyo_fumo",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Source decorative block, facing shapes, self loot, model/texture, translations and default-hidden creative/JEI setting ported. 196 JUnit and 327 GameTests pass in a fresh world; first reused-world run failed an existing Time Multitool assertion. Graphical, creative/JEI visibility and independent server lifecycle remain unverified. No source recipe or block entity.",
+      "status": "verified",
+      "note": "Verified 2026-11-01 on muse/forge-1.20.1-fumo-validation: real Xvfb client rendered the doll in all four facings and as an item (screenshots in validation/forge-1.20.1-fumo/client-off and client-on); JEI ingredient presence and JDTE creative-tab contents both equal showFumoDolls in two client runs (false and true); dedicated GameTest server placed all facings, real FakePlayer break dropped exactly one self item and blockstate survived NBT round-trip; independent packaged Forge 47.4.10 dedicated server placed 6 dolls, saved, chunk-unloaded and reloaded with facings intact, then a fresh JVM restored the remaining 5 dolls (seed/verify markers in validation/forge-1.20.1-fumo/dedicated-server). Production ItemEntity counting did not yield entities even for a vanilla stone control in the probe setup, so production drop evidence is loot-table drop plus destroy-to-air; ItemEntity counting passes on the GameTest server. No block entity, recipe or machine logic in source.",
       "registered": true,
       "kind": "block item",
       "name": "Yunyouwan Fumo",
@@ -1307,8 +1307,8 @@
     {
       "id": "maiqilin_fumo",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Shared source decorative block/facing shapes, self loot, model, texture, translations and default-hidden creative/JEI setting implemented; compileJava, 196 JUnit, 327 GameTests and jar/reobfJar passed in a fresh test world (2026-11-01). Graphical model rendering, creative/JEI visibility toggling and independent dedicated-server lifecycle remain unverified. No source recipe or block entity.",
+      "status": "verified",
+      "note": "Verified 2026-11-01 on muse/forge-1.20.1-fumo-validation: real Xvfb client rendered the doll in all four facings and as an item (screenshots in validation/forge-1.20.1-fumo/client-off and client-on); JEI ingredient presence and JDTE creative-tab contents both equal showFumoDolls in two client runs (false and true); dedicated GameTest server placed all facings, real FakePlayer break dropped exactly one self item and blockstate survived NBT round-trip; independent packaged Forge 47.4.10 dedicated server placed 6 dolls, saved, chunk-unloaded and reloaded with facings intact, then a fresh JVM restored the remaining 5 dolls (seed/verify markers in validation/forge-1.20.1-fumo/dedicated-server). Production ItemEntity counting did not yield entities even for a vanilla stone control in the probe setup, so production drop evidence is loot-table drop plus destroy-to-air; ItemEntity counting passes on the GameTest server. No block entity, recipe or machine logic in source.",
       "registered": true,
       "kind": "block item",
       "name": "Maiqilin Fumo",

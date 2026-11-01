@@ -1,0 +1,1 @@
+PASS: real client rendered Fumo row, JEI presence == showFumoDolls=true, creative tab contents == showFumoDolls=true, creative screen best-effort only
