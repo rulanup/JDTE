@@ -62,7 +62,7 @@ final class BioFactoryPendingOutput {
         List<ItemStack> items = new ArrayList<>();
         ListTag itemTags = tag.getList(ITEMS_TAG, Tag.TAG_COMPOUND);
         for (int i = 0; i < itemTags.size(); i++) {
-            ItemStack item = ItemStack.parse(provider, itemTags.getCompound(i)).orElse(ItemStack.EMPTY);
+            ItemStack item = OversizedItemStackHandlerSerialization.deserializeStack(provider, itemTags.getCompound(i));
             if (!item.isEmpty()) items.add(item);
         }
         FluidStack fluid = tag.contains(FLUID_TAG)
@@ -78,7 +78,7 @@ final class BioFactoryPendingOutput {
     CompoundTag save(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         ListTag itemTags = new ListTag();
-        for (ItemStack item : items) itemTags.add(item.save(provider));
+        for (ItemStack item : items) itemTags.add(OversizedItemStackHandlerSerialization.serializeStack(item, provider));
         tag.put(ITEMS_TAG, itemTags);
         if (!fluid.isEmpty()) tag.put(FLUID_TAG, fluid.save(provider));
         tag.putInt(ENERGY_COST_TAG, energyCost);
