@@ -29,8 +29,14 @@ public class ExtendedFluidPlacerBE extends FluidPlacerT1BE implements PoweredMac
     public AreaAffectingData areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
     public final PoweredMachineContainerData poweredMachineData;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     public ExtendedFluidPlacerBE(BlockPos pPos, BlockState pBlockState) {
         super(JDTEBlockEntities.EXTENDED_FLUID_PLACER.get(), pPos, pBlockState);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         poweredMachineData = new PoweredMachineContainerData(this);
     }
 
@@ -38,7 +44,7 @@ public class ExtendedFluidPlacerBE extends FluidPlacerT1BE implements PoweredMac
     @Override public MachineEnergyStorage getEnergyStorage() { return com.jdte.setup.JDTEAttachments.energy(this); }
     @Override public int getStandardEnergyCost() { return 250; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
-    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
+    @Override public FilterBasicHandler getFilterHandler() { return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this); }
     @Override public FilterData getFilterData() { return filterData; }
 
     @Override

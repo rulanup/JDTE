@@ -131,8 +131,14 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     private int syncedMaxMultiplier = 32;
     private int syncedMode;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     public LifeBreederBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.LIFE_BREEDER.get(), pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         areaData = new AreaAffectingData(state.getValue(BlockStateProperties.FACING).getOpposite());
         MACHINE_SLOTS = TOTAL_SLOTS;
         tickSpeed = 1;
@@ -440,7 +446,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
+    @Override public FilterBasicHandler getFilterHandler() { return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energyStorage; }

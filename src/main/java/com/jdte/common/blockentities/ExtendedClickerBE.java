@@ -35,8 +35,14 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
     public AreaAffectingData areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
     public final PoweredMachineContainerData poweredMachineData;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     public ExtendedClickerBE(BlockPos pPos, BlockState pBlockState) {
         super(JDTEBlockEntities.EXTENDED_CLICKER.get(), pPos, pBlockState);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         poweredMachineData = new PoweredMachineContainerData(this);
     }
 
@@ -62,7 +68,7 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override

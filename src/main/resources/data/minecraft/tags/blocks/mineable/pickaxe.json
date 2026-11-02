@@ -7,6 +7,7 @@
     "jdte:advanced_fluid_mixer",
     "jdte:extended_fluid_mixer",
     "jdte:extended_generator",
-    "jdte:extended_fluid_generator"
+    "jdte:extended_fluid_generator",
+    "jdte:life_breeder"
   ]
 }

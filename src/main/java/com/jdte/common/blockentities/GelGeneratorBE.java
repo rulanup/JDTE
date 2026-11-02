@@ -74,8 +74,14 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
     protected int fuelUsesRemaining = 0;
     protected boolean autoBalanceInputs = false;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     protected GelGeneratorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         MACHINE_SLOTS = TOTAL_SLOTS;
         energyStorage = new MachineEnergyStorage(getMaxEnergy());
         poweredMachineData = new PoweredMachineContainerData(this);
@@ -711,7 +717,7 @@ public abstract class GelGeneratorBE extends BaseMachineBE implements PoweredMac
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override
