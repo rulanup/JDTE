@@ -272,6 +272,16 @@ public final class ItemSenderValidationGameTests {
             // "Missing JDTE filter capability" (JDT saveAdditional) and
             // "Missing JDTE upgrade capability" (provider energy init
             // during capability serialization) from saveAdditional.
+            // Before/after delta, not an absolute count: the GameTest world
+            // persists between runs, so a previous run's drop would otherwise
+            // be counted again (same flake class as the Fumo drop test).
+            var expectedBefore = tier == 0 ? JDTEItems.BASIC_ITEM_SENDER.get()
+                    : tier == 1 ? JDTEItems.ADVANCED_ITEM_SENDER.get() : JDTEItems.EXTENDED_ITEM_SENDER.get();
+            int before = 0;
+            for (var e : level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                    new net.minecraft.world.phys.AABB(abs).inflate(2))) {
+                if (e.getItem().is(expectedBefore)) before += e.getItem().getCount();
+            }
             h.assertTrue(player.gameMode.destroyBlock(abs), "FakePlayer breaks tier " + tier);
             h.assertTrue(level.getBlockState(abs).isAir() && level.getBlockEntity(abs) == null,
                     "broken sender leaves air and no BE on tier " + tier);
@@ -282,7 +292,7 @@ public final class ItemSenderValidationGameTests {
                     new net.minecraft.world.phys.AABB(abs).inflate(2))) {
                 if (e.getItem().is(expected)) drops += e.getItem().getCount();
             }
-            h.assertTrue(drops == 1, "survival break drops exactly one self item on tier " + tier + ", drops=" + drops);
+            h.assertTrue(drops - before == 1, "survival break drops exactly one self item on tier " + tier + ", drops=" + (drops - before));
         }
         h.succeed();
     }

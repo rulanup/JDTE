@@ -74,11 +74,16 @@ public final class FumoValidationGameTests {
             helper.assertTrue(restored == helper.getBlockState(pos), "blockstate survives NBT round-trip for " + playerFacing);
         }
         // Real break drop on the dedicated server: FakePlayer game-mode break, not a loot-table query.
+        // Before/after delta, not an absolute count: the GameTest world persists
+        // between runs, so a previous run's drop would otherwise be counted again
+        // (this flaked across back-to-back runs: 1 leftover + 1 fresh = 2).
         helper.setBlock(pos, block.defaultBlockState().setValue(DecorativeFumoBlock.FACING, Direction.NORTH));
+        var before = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new AABB(abs).inflate(2))
+                .stream().filter(e -> ItemStack.isSameItem(e.getItem(), new ItemStack(item))).mapToInt(e -> e.getItem().getCount()).sum();
         player.gameMode.destroyBlock(abs);
         helper.assertTrue(helper.getBlockState(pos).isAir(), "broken Fumo leaves air");
         var drops = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new AABB(abs).inflate(2))
-                .stream().filter(e -> ItemStack.isSameItem(e.getItem(), new ItemStack(item))).mapToInt(e -> e.getItem().getCount()).sum();
+                .stream().filter(e -> ItemStack.isSameItem(e.getItem(), new ItemStack(item))).mapToInt(e -> e.getItem().getCount()).sum() - before;
         helper.assertTrue(drops == 1, "real break drops exactly one self item, got " + drops);
         // Resource consistency from the shipped JAR resources.
         var blockstate = checkResource(helper, "assets/jdte/blockstates/" + id + ".json", null, "blockstate readable");
