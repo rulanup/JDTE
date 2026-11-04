@@ -1,0 +1,1 @@
+PASS: real client opened Basic/Advanced/Extended fluid sender GUIs (4/4/8 upgrade slots), GUI shift-click installed both Ultimate cards on Basic, server-installed Ultimate cards show in Advanced/Extended GUIs, GUI screenshots taken for all three tiers, baked models present for all three tiers, creative tab and JEI contain all three sender items and both Ultimate cards.

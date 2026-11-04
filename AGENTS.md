@@ -16,7 +16,7 @@ JDT Extras (`jdte`) is a Forge 1.20.1 extension for Just Dire Things (JDT). It a
 
 Major features:
 
-- Standard upgrades: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting and Sharpness, plus the currently mineral/mixer/transmitter/BioExtractor and item-sender Ultimate Capacity and Ultimate Overclock cards (item senders: verified V with real-client GUI/JEI/creative evidence, packaged dedicated-server lifecycle evidence, and a found-and-fixed survival-break capability crash; other restricted families remain restricted).
+- Standard upgrades: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting and Sharpness, plus the currently mineral/mixer/transmitter/BioExtractor and item-sender Ultimate Capacity and Ultimate Overclock cards (item senders: verified V with real-client GUI/JEI/creative evidence, packaged dedicated-server lifecycle evidence, and a found-and-fixed survival-break capability crash; Basic fluid sender: verified V with real-client GUI/JEI/creative evidence and packaged dedicated-server lifecycle evidence, the seed-phase ItemEntity anomaly applying to the seed Extended break only; Advanced/Extended fluid senders stay P pending live confirmation of the client tank-bar display question; other restricted families remain restricted).
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
