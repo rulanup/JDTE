@@ -33,5 +33,13 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Compile and test
-        run: bash gradlew --no-daemon compileJava test
+      - name: Compile, test, and package
+        run: bash gradlew --no-daemon compileJava test jar
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jdte-forge-1.20.1-${{ github.sha }}
+          path: build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 30
