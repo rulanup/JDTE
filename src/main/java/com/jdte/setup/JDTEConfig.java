@@ -27,16 +27,34 @@ import org.apache.commons.lang3.tuple.Pair;
 public class JDTEConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final Common COMMON;
+    public static final ForgeConfigSpec MULTITOOL_CLIENT_SPEC;
+    public static final com.jdte.setup.config.TimeMultitoolClientConfig MULTITOOL_CLIENT;
+    public static final ForgeConfigSpec SERVER_SPEC,LOCAL_SPEC;
+    public static final AccelerationPolicy SERVER,LOCAL;
 
     static {
         Pair<Common, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Common::new);
         COMMON = pair.getLeft();
         COMMON_SPEC = pair.getRight();
+        var multitoolPair=new ForgeConfigSpec.Builder().configure(com.jdte.setup.config.TimeMultitoolClientConfig::new);MULTITOOL_CLIENT=multitoolPair.getLeft();MULTITOOL_CLIENT_SPEC=multitoolPair.getRight();
+        var serverPair=new ForgeConfigSpec.Builder().configure(AccelerationPolicy::new);SERVER=serverPair.getLeft();SERVER_SPEC=serverPair.getRight();
+        var localPair=new ForgeConfigSpec.Builder().configure(AccelerationPolicy::new);LOCAL=localPair.getLeft();LOCAL_SPEC=localPair.getRight();
     }
 
+    public static final class AccelerationPolicy {
+        public final ForgeConfigSpec.BooleanValue timeAcceleratorAccelerateAllMachines;
+        AccelerationPolicy(ForgeConfigSpec.Builder builder){builder.push("timeAccelerator");timeAcceleratorAccelerateAllMachines=builder.comment("Process all queued work in a scheduler pass instead of the configured per-tick budget. Applied by the authoritative server; local client defaults are copied only at integrated startup.").define("timeAcceleratorAccelerateAllMachines",false);builder.pop();}
+    }
     public static class Common {
+        public final ForgeConfigSpec.BooleanValue showFumoDolls;
+        public final com.jdte.setup.config.AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
         public final UpgradesConfig upgrades;
         public final TimeAcceleratorConfig timeAccelerator;
+        public final ForgeConfigSpec.IntValue ultimateTimeWandFluidCapacity,ultimateTimeWandEnergyCapacity,ultimateTimeWandDuration;
+        public final ForgeConfigSpec.DoubleValue ultimateTimeWandBaseCostMultiplier,ultimateTimeWandEnergyCostMultiplier;
+        public final ForgeConfigSpec.BooleanValue ultimateTimeWandFractionalFluidSettlement;
+
+        public final com.jdte.setup.config.EntityAcceleratorConfig entityAccelerator;
         public final TimeFreezerConfig timeFreezer;
         public final UltimatePortalGunConfig ultimatePortalGun;
         public final BioCrusherConfig bioCrusher;
@@ -56,6 +74,23 @@ public class JDTEConfig {
         public final GelGeneratorConfig gelGenerator;
         public final GeneratorUpgradeConfig generatorUpgrade;
         public final UpgradeItemsConfig upgradeItems;
+
+        public final ForgeConfigSpec.IntValue aeOutputReturnInterval;
+
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterEnergyCapacity;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterBaseTickDelay;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterTargetRefreshInterval;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterScanBlocksPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterMaxTargetsPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterMaxTransferPerTarget;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterTransferBudgetPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterOverclockTransferMultiplier;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterMeExtractionLimitPerTick;
+        public final ForgeConfigSpec.BooleanValue advancedEnergyTransmitterExcludeTransmitters;
+        public final ForgeConfigSpec.BooleanValue advancedEnergyTransmitterShowParticlesByDefault;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterMaxParticleTargetsPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterPlayerChargeMaxItemsPerTick;
+        public final ForgeConfigSpec.IntValue advancedEnergyTransmitterPlayerChargeMaxCallsPerItem;
 
         // Upgrade System
         public final ForgeConfigSpec.IntValue filterSlotsPerUpgrade;
@@ -179,6 +214,7 @@ public class JDTEConfig {
 
         // Advanced Potion Brewer
         public final ForgeConfigSpec.BooleanValue potionBrewerRejectPatternProviderFuelInput;
+        public final ForgeConfigSpec.IntValue potionBrewerEnergyPerBlazePowder;
 
         // Crystal Incubator
         public final ForgeConfigSpec.IntValue crystalIncubatorFluidCapacity;
@@ -266,11 +302,44 @@ public class JDTEConfig {
         public final ForgeConfigSpec.IntValue sharpnessDamagePerUpgrade;
         public final ForgeConfigSpec.IntValue maxLootingUpgrades;
 
-        public Common(ForgeConfigSpec.Builder builder) {
-            builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
+        public final com.jdte.setup.config.RepairTalismanConfig repairTalisman;
 
+        public final com.jdte.setup.config.MineralExtractorConfig mineralExtractor;
+
+        public Common(ForgeConfigSpec.Builder builder) {
+            builder.push("content");
+            showFumoDolls = builder.translation("config.jdte.jdte.content.showFumoDolls").define("showFumoDolls", false);
+            builder.pop();
+            aeOutputReturnInterval = builder.comment("Ticks between successful basic AE output transfers.").defineInRange("aeOutputReturnInterval", 5, 1, 1200);
+            builder.comment("JDT Extras Settings").translation("config.jdte.jdte").push("jdte");
+            advancedEnergyTransmitter = new com.jdte.setup.config.AdvancedEnergyTransmitterConfig(builder);
+            advancedEnergyTransmitterEnergyCapacity = advancedEnergyTransmitter.energyCapacity;
+            advancedEnergyTransmitterBaseTickDelay = advancedEnergyTransmitter.baseTickDelay;
+            advancedEnergyTransmitterTargetRefreshInterval = advancedEnergyTransmitter.targetRefreshInterval;
+            advancedEnergyTransmitterScanBlocksPerTick = advancedEnergyTransmitter.scanBlocksPerTick;
+            advancedEnergyTransmitterMaxTargetsPerTick = advancedEnergyTransmitter.maxTargetsPerTick;
+            advancedEnergyTransmitterMaxTransferPerTarget = advancedEnergyTransmitter.maxTransferPerTarget;
+            advancedEnergyTransmitterTransferBudgetPerTick = advancedEnergyTransmitter.transferBudgetPerTick;
+            advancedEnergyTransmitterOverclockTransferMultiplier = advancedEnergyTransmitter.overclockTransferMultiplier;
+            advancedEnergyTransmitterMeExtractionLimitPerTick = advancedEnergyTransmitter.meExtractionLimitPerTick;
+            advancedEnergyTransmitterExcludeTransmitters = advancedEnergyTransmitter.excludeTransmitters;
+            advancedEnergyTransmitterShowParticlesByDefault = advancedEnergyTransmitter.showParticlesByDefault;
+            advancedEnergyTransmitterMaxParticleTargetsPerTick = advancedEnergyTransmitter.maxParticleTargetsPerTick;
+            advancedEnergyTransmitterPlayerChargeMaxItemsPerTick = advancedEnergyTransmitter.playerChargeMaxItemsPerTick;
+            advancedEnergyTransmitterPlayerChargeMaxCallsPerItem = advancedEnergyTransmitter.playerChargeMaxCallsPerItem;
+
+            repairTalisman = new com.jdte.setup.config.RepairTalismanConfig(builder);
+            mineralExtractor = new com.jdte.setup.config.MineralExtractorConfig(builder);
             upgrades = new UpgradesConfig(builder);
             timeAccelerator = new TimeAcceleratorConfig(builder);
+            ultimateTimeWandFluidCapacity = timeAccelerator.ultimateTimeWandFluidCapacity;
+            ultimateTimeWandEnergyCapacity = timeAccelerator.ultimateTimeWandEnergyCapacity;
+            ultimateTimeWandDuration = timeAccelerator.ultimateTimeWandDuration;
+            ultimateTimeWandBaseCostMultiplier = timeAccelerator.ultimateTimeWandBaseCostMultiplier;
+            ultimateTimeWandEnergyCostMultiplier = timeAccelerator.ultimateTimeWandEnergyCostMultiplier;
+            ultimateTimeWandFractionalFluidSettlement = timeAccelerator.ultimateTimeWandFractionalFluidSettlement;
+
+            entityAccelerator = new com.jdte.setup.config.EntityAcceleratorConfig(builder);
             timeFreezer = new TimeFreezerConfig(builder);
             ultimatePortalGun = new UltimatePortalGunConfig(builder);
             bioCrusher = new BioCrusherConfig(builder);
@@ -404,6 +473,7 @@ public class JDTEConfig {
             this.factoryPackerChatNotifications = factoryPacker.factoryPackerChatNotifications;
 
             this.potionBrewerRejectPatternProviderFuelInput = advancedPotionBrewer.potionBrewerRejectPatternProviderFuelInput;
+            this.potionBrewerEnergyPerBlazePowder = advancedPotionBrewer.potionBrewerEnergyPerBlazePowder;
 
             this.crystalIncubatorFluidCapacity = crystalIncubator.crystalIncubatorFluidCapacity;
             this.crystalIncubatorEnergyCapacity = crystalIncubator.crystalIncubatorEnergyCapacity;

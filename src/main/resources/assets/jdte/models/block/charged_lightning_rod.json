@@ -1,0 +1,8 @@
+{
+  "textures": { "particle": "minecraft:block/copper_block", "copper": "minecraft:block/copper_block", "rod": "minecraft:block/lightning_rod" },
+  "elements": [
+    { "from": [2, 0, 2], "to": [14, 2, 14], "faces": { "north": { "texture": "#copper" }, "south": { "texture": "#copper" }, "east": { "texture": "#copper" }, "west": { "texture": "#copper" }, "up": { "texture": "#copper" }, "down": { "texture": "#copper", "cullface": "down" } } },
+    { "from": [6, 2, 6], "to": [10, 4, 10], "faces": { "north": { "texture": "#copper" }, "south": { "texture": "#copper" }, "east": { "texture": "#copper" }, "west": { "texture": "#copper" }, "up": { "texture": "#copper" } } },
+    { "from": [7, 4, 7], "to": [9, 15, 9], "faces": { "north": { "uv": [7, 0, 9, 16], "texture": "#rod" }, "south": { "uv": [7, 0, 9, 16], "texture": "#rod" }, "east": { "uv": [7, 0, 9, 16], "texture": "#rod" }, "west": { "uv": [7, 0, 9, 16], "texture": "#rod" }, "up": { "texture": "#rod" } } }
+  ]
+}

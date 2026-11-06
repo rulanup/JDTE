@@ -34,7 +34,9 @@ public final class GreenhouseOutputManager {
     public static void wake(BaseMachineBE machine) {
         int start;
         int count;
-        if (machine instanceof GreenhouseBE greenhouse) {
+        if (machine instanceof MineralExtractorBE mineral) {
+            start = mineral.outputStartSlot(); count = mineral.getActiveOutputSlots();
+        } else if (machine instanceof GreenhouseBE greenhouse) {
             start = GreenhouseBE.OUTPUT_START_SLOT;
             count = greenhouse.getActiveOutputSlots();
         } else if (machine instanceof LargeGreenhouseBE greenhouse) {
@@ -70,11 +72,13 @@ public final class GreenhouseOutputManager {
             for (Map.Entry<BaseMachineBE, PendingOutput> entry : snapshot) {
                 BaseMachineBE machine = entry.getKey();
                 PendingOutput pending = entry.getValue();
-                if (machine.isRemoved() || machine.getLevel() != level) {
+                if (machine.isRemoved() || machine.getLevel() != level || !level.isLoaded(machine.getBlockPos())
+                        || level.getBlockEntity(machine.getBlockPos()) != machine) {
                     AutoIoTransferHelper.forgetEventDrivenGreenhouse(machine);
                     machines.remove(machine);
                     continue;
                 }
+                GreenhouseEssenceConversionHelper.prepareOutput(level,machine);
                 pruneEmptySlots(machine, pending.slots);
                 if (pending.slots.isEmpty()) {
                     machines.remove(machine);

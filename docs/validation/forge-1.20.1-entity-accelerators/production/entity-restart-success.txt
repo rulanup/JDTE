@@ -1,0 +1,1 @@
+PASS: second production JVM restores both entity accelerators and live targets, all buffers/cards/filter/multiplier and fractional debt, then resumes natural paid work without stale scope

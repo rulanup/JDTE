@@ -31,6 +31,12 @@ final class GreenhouseCapacityLedger {
         return new GreenhouseCapacityLedger(types, counts, limits);
     }
 
+    static GreenhouseCapacityLedger empty(IItemHandler handler) {
+        var ledger=capture(handler);java.util.Arrays.fill(ledger.types,ItemStack.EMPTY);java.util.Arrays.fill(ledger.counts,0);return ledger;
+    }
+    static GreenhouseCapacityLedger captureWithout(IItemHandler handler,ItemStack template) {
+        var ledger=capture(handler);for(int i=0;i<ledger.counts.length;i++)if(ItemStack.isSameItemSameTags(ledger.types[i],template)){ledger.types[i]=ItemStack.EMPTY;ledger.counts[i]=0;}return ledger;
+    }
     boolean canFit(List<ItemStack> drops, int repetitions) {
         return insert(drops, repetitions, types.clone(), counts.clone());
     }

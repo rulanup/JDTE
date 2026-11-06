@@ -1,0 +1,38 @@
+{
+  "source_reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "starting_checkpoint": "62a90b9",
+  "gameplay_checkpoint": "b2d329e",
+  "production_probe_checkpoint": "f9c4a57",
+  "version": "0.5.8-forge-1.20.1",
+  "unit": {
+    "tests": 112,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "required_gametests_passed": 133,
+  "new_generator_unit_tests": 7,
+  "new_generator_gametests": 4,
+  "new_tier_unit_tests": 5,
+  "new_tier_gametests": 6,
+  "available_tier_conversions_tested": 15,
+  "missing_source_conversion_targets": 5,
+  "production_jvm_exit_codes": [
+    0,
+    0
+  ],
+  "production_fixture_mods": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "guideme-20.1.15.jar",
+    "just-dire-things-forge-1533501-8573107.jar"
+  ],
+  "production_sha256": "30d083ca9f39c668960b3f31ac743d798044aedbc4e7fc7c4d29f60263896f56",
+  "probe_sha256": "a565f0e2e5aac5c64b363889c4c069876c958f6e2301d532f3a05fb3c76191cb",
+  "probe_excluded_from_production": true,
+  "new_graphical_validation": "not run",
+  "new_independent_multiplayer": "not run",
+  "jdte_ae_whole_grid_backend": "unverified",
+  "long_running_multiplayer": "unverified",
+  "complete_operating_reactor": "unverified"
+}

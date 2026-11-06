@@ -1,0 +1,1 @@
+PASS: fresh production server and both actual reconnected clients restore exact inventory/potion effects/colors/pending slots and synchronized portable menu/empty cursor; two canisters/3000mB/pending1/loose1/twelve bottles conserved.

@@ -1,0 +1,9 @@
+{
+  "production": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "guideme-20.1.15.jar",
+    "just-dire-things-forge-1533501-8573107.jar"
+  ],
+  "graphical": "Actual mapped Forge development client: JDTE main + clientSmoke, JDT1.1.4, GuideME, AE2, Curios5.14.1, JEI15.20.0.127, Jade11.13.3, ModernFix; software rendering. Test-only transmitter_test slot/tag permits a validated real pickaxe recipient. No test slot is shipped in the main JAR."
+}

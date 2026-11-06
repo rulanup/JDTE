@@ -1,0 +1,7 @@
+{
+  "main_sha256": "522b06479fd1f825817b91ea3a49ac7f836945374aa476c75cd47df7f750df1e",
+  "same_as_production": true,
+  "smoke_classes_or_test_curios_datapack_in_main": false,
+  "native_smithing_recipes": 10,
+  "version": "0.5.8-forge-1.20.1"
+}

@@ -1,0 +1,55 @@
+{
+  "starting_commit": "a36c6c5",
+  "code_checkpoint": "b2466c558f6198bb8d3263c17a2987d63ef49691",
+  "reference_commit": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "mod_version": "0.5.8-forge-1.20.1",
+  "jar_sha256": "087ba8030d15cbb0d9c3c23cbb50188f4e8a34fa8f54a9bf68f15fbe56fad27a",
+  "probe_sha256": "369d17f616dec7020afc5be0e1dd014a5d5acd6c7b43ced9e368fa21ca0b96a3",
+  "junit_tests": 81,
+  "junit_failures": 0,
+  "junit_suites": {
+    "com.jdte.common.minerals.MineralProductionEngineTest": 16,
+    "com.jdte.common.integrations.ae2.AEExtractionTransferTest": 10,
+    "com.jdte.common.factory.FactoryTransformTest": 10,
+    "com.jdte.common.recipes.LifeSynthesisRecipeTest": 7,
+    "com.jdte.common.utils.StackCountLabelsTest": 4,
+    "com.jdte.common.integrations.ae2.AEItemBatchTransferTest": 5,
+    "com.jdte.common.blockentities.FluidMixerParallelLimitTest": 4,
+    "com.jdte.common.integrations.ae2.AECraftingReadPolicyTest": 4,
+    "com.jdte.common.minerals.MineralSurveyCodecTest": 6,
+    "com.jdte.common.minerals.MineralOutputPlannerTest": 8,
+    "com.jdte.common.items.machinesettings.MachineSettingsSnapshotTest": 7
+  },
+  "required_gametests": 108,
+  "gametest_failures": 0,
+  "production_probe_exits": [
+    0,
+    0
+  ],
+  "integrated_client_exit": 0,
+  "optional_client_exit": 0,
+  "production_smoke_classes_absent": true,
+  "production_optional_absence": [
+    "ae2",
+    "curios",
+    "jei",
+    "jade",
+    "mekanism",
+    "appflux"
+  ],
+  "runtime_tests": {
+    "production_seed": "PASS: both production mixer tiers unloaded/reloaded with exact tanks, FE, catalyst, upgrades and progress; retained endpoint rejected while unloaded",
+    "production_restart": "PASS: fresh production server restored both mixer tiers and naturally completed saved 73/100-tick work with exact fluid, catalyst and 5000 FE costs",
+    "integrated_client": "PASS: normal/large/survey, fluids/pages/count packets, JEI/Jade, basic/advanced bags, machine panel packet insertion/conservation advanced copier option packets 6.4M bulk-drop entity sync real crafting-pattern ghost/save packets and both mixer menus/high-bit tank data/capacity clamp/Shift mixing insertion/JEI",
+    "optional_client": "PASS: real client title, registrations and tank capability without AE2, Curios, JEI or Jade"
+  },
+  "captured_at": "2026-10-27T14:42:00.982422+00:00",
+  "unverified": [
+    "new mixer interactions by two independent remote clients",
+    "restart while an actual AE CPU job remains active",
+    "all machine families under real AE jobs",
+    "Mekanism Extras liquid uranium/silicon fuel recipe",
+    "exhaustive crop-pack loot sampling and new seed-specific graphical validation",
+    "long-running public-server stress and all optional-mod combinations"
+  ]
+}

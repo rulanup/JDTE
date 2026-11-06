@@ -29,7 +29,27 @@
     "PoweredMachineOverrideMaxEnergyMixin",
     "SpawnerMixin",
     "SpawnerMixin$ApothSpawnerMixin",
-    "TickSpeedPacketMixin"
+    "TickSpeedPacketMixin",
+    "MachineSettingsCopierMixin",
+    "TransmitterEnergyStorageMixin",
+    "EnergyTransmitterNetworkMixin",
+    "GeneratorSolidConservationMixin",
+    "JdtFluidDropChunkAccessMixin",
+    "EntityAccelerationLivingEntityMixin",
+    "EntityAccelerationMobMixin",
+    "EntityAccelerationServerTickMixin",
+    "LightningBoltEffectsMixin",
+    "ExperienceOrbAccessor",
+    "PotionCanisterCapacityMixin",
+    "LargePotionBowMixin",
+    "BaseBowInvoker",
+    "PocketGeneratorFuelMultiplierMixin",
+    "PocketGeneratorTransmitterMixin",
+    "NativeItemEnergyAccessor",
+    "TimeMultitoolGameModeMixin",
+    "TimeMultitoolUtilityMixin",
+    "TimeMultitoolBlockBreakerMixin",
+    "TimeMultitoolDropsMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",
@@ -42,5 +62,6 @@
     "ItemEntityRendererMixin",
     "ParticleEngineMixin"
   ],
-  "minVersion": "0.8"
+  "minVersion": "0.8",
+  "refmap": "mixins.jdte.refmap.json"
 }

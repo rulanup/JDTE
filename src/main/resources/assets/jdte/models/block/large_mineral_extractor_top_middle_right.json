@@ -1,0 +1,240 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "justdirethings:block/eclipsealloy_block",
+    "frame": "justdirethings:block/blazegold_block",
+    "foundation": "minecraft:block/polished_deepslate",
+    "rail": "minecraft:block/smooth_basalt",
+    "metal": "minecraft:block/iron_block",
+    "pipe": "minecraft:block/cut_copper",
+    "glass": "minecraft:block/tinted_glass",
+    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
+    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
+    "output": "jdte:block/advanced_item_receiver_top",
+    "particle": "minecraft:block/polished_deepslate"
+  },
+  "elements": [
+    {
+      "name": "right_window",
+      "from": [
+        10,
+        0,
+        0
+      ],
+      "to": [
+        11,
+        2,
+        16
+      ],
+      "faces": {
+        "up": {
+          "texture": "#glass",
+          "uv": [
+            10,
+            0,
+            11,
+            16
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#glass",
+          "uv": [
+            0,
+            14,
+            16,
+            16
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#glass",
+          "uv": [
+            0,
+            14,
+            16,
+            16
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "right_window_upper",
+      "from": [
+        9,
+        1,
+        0
+      ],
+      "to": [
+        12,
+        3,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#casing",
+          "uv": [
+            9,
+            0,
+            12,
+            16
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#casing",
+          "uv": [
+            9,
+            0,
+            12,
+            16
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            13,
+            16,
+            15
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            13,
+            16,
+            15
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "right_top_beam",
+      "from": [
+        8,
+        11,
+        0
+      ],
+      "to": [
+        13,
+        15,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#casing",
+          "uv": [
+            8,
+            0,
+            13,
+            16
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#casing",
+          "uv": [
+            8,
+            0,
+            13,
+            16
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            1,
+            16,
+            5
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            1,
+            16,
+            5
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "power_head",
+      "from": [
+        0,
+        4,
+        1
+      ],
+      "to": [
+        1,
+        13,
+        15
+      ],
+      "faces": {
+        "down": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            1,
+            1,
+            15
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            1,
+            1,
+            15
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            3,
+            1,
+            12
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#casing",
+          "uv": [
+            0,
+            3,
+            1,
+            12
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#casing",
+          "uv": [
+            1,
+            3,
+            15,
+            12
+          ],
+          "shade": false
+        }
+      }
+    }
+  ]
+}

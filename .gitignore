@@ -26,3 +26,6 @@ bin/
 
 # Eclipse
 .eclipse/
+
+# Standalone unit-test logging
+/logs/

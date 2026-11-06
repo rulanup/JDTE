@@ -2,21 +2,21 @@
 
 ## Project Overview
 
-JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds upgrade cards, time accelerators, extended machines, automation devices, and optional cross-mod integrations.
+JDT Extras (`jdte`) is a Forge 1.20.1 extension for Just Dire Things (JDT). It adds upgrade cards, time accelerators, extended machines, automation devices, and optional cross-mod integrations.
 
 | Property | Value |
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.5.6` |
-| Minecraft | `1.21.1` |
-| NeoForge | `21.1.233+` |
-| Just Dire Things | `1.5.7+` |
-| Java | `21` |
+| Current version | `0.5.8-forge-1.20.1` |
+| Minecraft | `1.20.1` |
+| Forge | `47.4.10` |
+| Just Dire Things Forge | `1.1.4` |
+| Java | `17` |
 
 Major features:
 
-- 13 upgrade items: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting, and Sharpness.
+- Standard upgrades: Capacity, Overclock, Underclock, Fluid, Fluid Storage, Generator, Range, Filter, Creative, Fortune, Precision, Looting and Sharpness, plus the currently mineral/mixer Ultimate Capacity and Ultimate Overclock cards.
 - Basic, Advanced, and Extended Advanced Time Accelerators.
 - Eight extended variants of JDT T2 machines, each with eight standard upgrade slots.
 - Glue Activators, Gel Generators, Fluid Stabilizers, and item/fluid sender and receiver families.
@@ -38,9 +38,31 @@ Major features:
 - Absolute-direction auto I/O configuration for machines with real item or fluid interfaces.
 - Wither, Ender Dragon, and Elder Guardian essences.
 
+The Mineral Extractor, Large Mineral Extractor and Mineral Survey are connected to the Forge game systems, with lifecycle/Factory Packer tests and real graphical client coverage. Basic/Advanced Upgrade Storage and the Advanced Machine Settings Copier are implemented, including native JDT basic copier compatibility. Crafting Pattern, basic/advanced Essence Conversion, AE Crafting Read, AE Extraction and basic/advanced AE Output are implemented. Seed Conversion is implemented for both greenhouse harvest paths. Real submitted AE crafting jobs now exercise Mineral Extractor read/output and fluid extraction. AE Acceleration is implemented for all three Time Accelerators with real native Inscriber/global-ticker tests and the source external-backend contract; the separately installed JDTE-AE backend remains unverified. Actual busy CPU jobs survive saved shutdown/restart. Two independent clients cover both mixer tiers, and the installed Forge Extras fuel/downstream recipe path is verified. Both Fluid Mixer tiers and Mixing/Ultimate Mixing Parallel are implemented with explicit three-tank Forge capabilities, atomic capacity-safe tier conversion, real AE processing jobs, graphical mixer checks and minimal production-server unload/restart checks. The current suite has 325 GameTests and 196 JUnit tests, retaining all previous 57/58 and the original 24 mineral core tests. Independent remote-client tests use two actual client JVMs and a separate production server; optional-absence runtime checks remove AE2, Curios, JEI and Jade. Packer storage paths must be captured on the server thread before asynchronous I/O. Read the latest checkpoint/evidence for exact tested scope; unchecked families remain unported.
+
+Energy Brewing and native/JDTE-transmitter Energy Overload are implemented with exact-cost/persistence/transfer tests. Advanced and Extended Energy Transmitters have scoped V acceptance including real graphical controls, online/dedicated Curios charging, installed ME production restart, real Draconic injector FE and mixed native-network conservation; see the latest transmitter acceptance evidence.
+
+Large Fuel Canister and both native-derived Extended generators are implemented, with handheld/Curios GUI, eight-slot upgrades, source fuel/FE rules, guarded automation, real conversion/rollback, full-inventory wrench, actual chunk unload and two-JVM production recovery evidence. Generator Upgrade now supports the large canister with verified resource accounting. Native global fluid-drop scans use non-loading chunk reads so dropped items do not pin chunks. See [fuel/generator acceptance](docs/validation/forge-1.20.1-generators/README.md); real two-client generator concurrency, repeated clicks/configuration races and saved dedicated-server recovery are now covered in [multiplayer evidence](docs/validation/forge-1.20.1-generators/multiplayer/README.md). Long-running public-server operation remains unverified.
+
+Advanced and Extended Bio Extractors implement source nonlethal harvesting, all nine recipes, real Forge milk, persistent shared creature cooldown, colored sheep wool, guarded FE/item/fluid ports, full-width menus, JEI/Jade, automatic output, source upgrades/Ultimate, state-preserving crafting and tier conversion. Real GUI/production acceptance is tracked in [Bio evidence](docs/validation/forge-1.20.1-bio-extractors/README.md). Two independent clients now cover shared Bio menus during natural production, upgrade/output races, exact resource ledgers and dedicated unload/restart. Prolonged multiplayer remains unverified.
+
+Advanced/Extended Entity Accelerators now implement source requested living-entity sub-ticks, FE/fractional Time Fluid, scoped AI/travel suppression, filters/Ultimate, configuration, safe crafting/conversion, real GUI/JEI/Jade and packaged production lifecycle acceptance. Ultimate Time Wand and Entity Acceleration Upgrade now have scoped V acceptance: source modes/caps/resource settlement, real capabilities and NBT-preserving inventory/crafting/smithing, shared guarded block/proxy/AE/random scheduling, persistent guarded entity effects and bounded tracking sync. Real independent clients, JEI, exact natural-work/resource ledgers and both optional-present/absent production JVM pairs verify unload/rejoin/restart. See [wand evidence](docs/validation/forge-1.20.1-ultimate-time-wand/README.md). See [entity evidence](docs/validation/forge-1.20.1-entity-accelerators/README.md).
+
+Charged Lightning Rod and Thunderstorm Upgrade now have scoped V acceptance: source10k/40k/100k per bolt and1/5/50 batches, full vanilla/AE2LT-tagged lightning, strict weather/card rules, independent render/sound, four selective slots, complete GUI/resources/copier, guarded FE/owned rods and saved cooldown. Real graphical and two packaged production JVMs verify the stated paths; actual uploaded NeoForge-only AE2LT, random weather arrival, cross-dimensional transport, independent multiplayer and prolonged load remain unverified. See [lightning evidence](docs/validation/forge-1.20.1-lightning/README.md).
+
+Extended Experience Holder now has scoped V acceptance for source integer XP/20mB conversion, player/orb/pulse work, eight slots/Ultimate, conserving player transactions, guarded capabilities, complete GUI/JEI/Jade/copy/bag/recipe and all20 pinned Extended Upgrade routes (plus the Forge-added Entity route).173 JUnit/270 GameTests, actual real-player graphical work and matching-JAR production transport/unload/fresh-BE/restart evidence are retained in [XP evidence](docs/validation/forge-1.20.1-experience-holder/README.md). Independent XP multiplayer/cross-dimensional/prolonged behavior remains unverified; Large Potion Canister now has scoped V acceptance: complete4000mB/full-content NBT/four-potion batches, bound handheld/Curios/P, preserving recipe/native bow, real GUI/JEI/C2S shots, minimal matching-JAR actual unload/two-JVM restart and two independent clients/stale packets/handoff/cursor pickup/exact saved inventory recovery. See [potion evidence](docs/validation/forge-1.20.1-potion-canister/README.md) for fixture setup and unverified boundaries.
+
+Large Pocket Generator now has scoped V acceptance: source configured4x FE/whole fuel ticks and both fuel canisters, shared persistent fuel/no-receive FE, native toggle/G and real inventory/equipped Curios charging.180 JUnit/302 GameTests plus real graphical natural resource ledgers/player save/rejoin/resume and matching-JAR minimal production actual unload/fresh BE/two-JVM recovery pass. Native forced-input/short-credit/transmitter compatibility fixes are scoped in [pocket evidence](docs/validation/forge-1.20.1-pocket-generator/README.md); independent multiplayer/prolonged/arbitrary-mod boundaries remain unverified.
+
+Time Multitool now has scoped V acceptance: source500kFE/1M Time Fluid/six modes and whole-batch fallback, paid native playerDestroy harvest/XP/abilities/settings/input gate, dynamic capabilities and NBT, ten native exact-base smithing variants and a fresh source construction recipe.196 JUnit/324 GameTests, actual graphical controller/native Hammer GUI/JEI and exact player save/rejoin/resume, plus matching-JAR minimal production real ice/7XP/diamond/native breaker/actual unload/fresh BE/two-JVM recovery pass. See [Time Multitool evidence](docs/validation/forge-1.20.1-time-multitool/README.md). Independent multiplayer/prolonged/cross-dimensional/unsaved-crash/arbitrary-mod coverage remains unverified. Cainiaoyo Fumo is implemented pending runtime acceptance; the other two stay N. See [read-only source findings](docs/forge-1.20.1-fumo-investigation.md).
+
+The full 120-item [feature matrix](docs/forge-1.20.1-feature-matrix.md) distinguishes tested paths, inherited unverified code, known partial behavior and absent registrations. Registration and a build do not imply complete source parity.
+
+The 0.6.5.2 backport is in progress; see [port tracking](docs/forge-1.20.1-port.md). Do not advertise feature parity until the new registrations and runtime checks are complete.
+
 ## Build and Run
 
-The project uses Gradle with NeoForge ModDev. JDT is resolved through CurseMaven file `7463040`; no machine-specific local jar path is required.
+This branch uses Gradle 8.6, ForgeGradle 6 and Java 17. JDT Forge is resolved through CurseMaven file `8573107`; no machine-specific local jar path is required.
 
 Common commands:
 
@@ -59,18 +81,18 @@ The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and Produ
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| NeoForge | `21.1.233` | Mod loader and API |
-| Just Dire Things | `1.5.7` | Base machines, interfaces, config, and Time Fluid |
-| GuideME | `21.1.16` | In-game documentation |
-| JEI | `19.27.0.340` | Recipe categories, catalysts, information pages, and GUI click areas |
-| Apothic Spawners | CurseForge `7492121` | Optional spawner cycle and XP compatibility |
-| Draconic Evolution | CurseForge `7584459` | Optional Chaos Guardian and dragon loot compatibility |
-| FTB Ultimine | CurseForge `8231400` | Optional bulk wrench and Upgrade Card operations |
-| Mystical Agriculture | CurseForge `8344249` | Optional Greenhouse crop registry integration |
-| Mystical Agradditions | CurseForge `7802027` | Optional high-tier Greenhouse crop integration through the shared registry |
-| Productive Bees | CurseForge `8022994` | Optional Bio Factory bee cages, flowering validation, hive products, Productivity Upgrades, and Life Fluid Bee content |
-| Mekanism | `10.7.19.85` | Optional Factory Packer fission-reactor shutdown and radioactive transmitter-content preservation through public APIs |
-| Parchment | `2024.11.17` | Minecraft mappings |
+| Forge | `47.4.10` | Mod loader and API |
+| Just Dire Things Forge | `1.1.4` | Base machines, interfaces and Time Fluid |
+| GuideME | `20.1.15` | In-game documentation |
+| JEI | `15.20.0.127` | Recipe categories, catalysts and GUI integration |
+| Jade | `11.13.3` (CurseForge `8479276`) | Machine and upgrade HUD |
+| AE2 | `15.4.10` | Optional network integrations |
+| Mekanism | `1.20.1-10.4.16.80` | Optional machine/factory integrations |
+| Curios | `5.14.1+1.20.1` | Optional worn-item integrations |
+| FTB Ultimine | CurseForge `7880472` | Optional bulk wrench and Upgrade Card operations |
+| Mystical Agriculture | CurseForge `8034376` | Optional Greenhouse crops |
+| Productive Bees | CurseForge `5566102` | Optional Bio Factory products |
+| Minecraft mappings | Official `1.20.1` | ForgeGradle development names |
 
 Important JDT packages:
 
@@ -111,7 +133,7 @@ src/main/
     |   |-- textures/
     |   `-- gui_layout.json               # Embedded upgrade panel and machine layouts
     |-- data/jdte/                        # Recipes, loot tables, and tags
-    `-- META-INF/neoforge.mods.toml
+    `-- META-INF/mods.toml
 ```
 
 ## Registration Flow
@@ -127,10 +149,10 @@ Core registration is performed from the `JDTE` constructor in this order:
 7. `JDTEEntities`
 8. `JDTEFluids` fluid types, fluids, blocks, and buckets
 9. `JDTERecipes` recipe types and serializers
-10. `JDTE.registerCapabilities()`
+10. Forge `AttachCapabilitiesEvent` listeners in `JDTEAttachments`; multipart relays override their own block entity capability access.
 11. `JDTEPacketHandler.registerNetworking()`
 
-Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItems`, `JDTEBlockEntities`, `JDTEMenus`, `JDTECreativeTabs`, `JDTEClientSetup`, and `JDTE.registerCapabilities()`.
+Adding a machine usually requires coordinated changes to `JDTEBlocks`, `JDTEItems`, `JDTEBlockEntities`, `JDTEMenus`, `JDTECreativeTabs`, `JDTEClientSetup`, and `JDTEAttachments` or a dedicated Forge capability provider.
 
 ## Upgrade System
 
@@ -217,7 +239,7 @@ Rules:
 
 - Constructors must pass their own `JDTEBlockEntities` type, not a parent type.
 - Container `stillValid()` checks must recognize the actual extended block.
-- Every required capability must be registered explicitly in `JDTE.registerCapabilities()`.
+- Every required capability must be registered explicitly in `JDTEAttachments` or a dedicated Forge capability provider.
 - Add conversion targets to `ExtendedUpgradeItem.UPGRADE_MAP`.
 
 ### Tiered machine families
@@ -356,7 +378,7 @@ Factory Packer v2 records use block-state NBT, mod-aware block entity move data,
 1. Create the block, block entity, container, and any client screen or renderer.
 2. Register it in `JDTEBlocks`, `JDTEItems`, `JDTEBlockEntities`, and `JDTEMenus`.
 3. Add it to `JDTECreativeTabs` and register the screen in `JDTEClientSetup`.
-4. Register all energy, fluid, and item capabilities in `JDTE.registerCapabilities()`.
+4. Register all energy, fluid, and item capabilities in `JDTEAttachments` or a dedicated Forge capability provider.
 5. Add blockstate, models, textures, translations, loot table, recipe, and GuideME page.
 6. Implement `ExtendedUpgradeMachine` for eight-slot machines and update `ExtendedUpgradeItem.UPGRADE_MAP` when conversion is supported.
 7. Define auto-I/O item/fluid semantics and test all six absolute directions when supported.
@@ -488,7 +510,7 @@ Recommended order:
 
 ## Configuration
 
-JDTE uses NeoForge `ModConfigSpec` with COMMON settings. The config is available through Mods > Config and takes effect after restart where required.
+JDTE uses Forge `ForgeConfigSpec` with COMMON settings. The config is available through Mods > Config and takes effect after restart where required.
 
 Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 
@@ -509,7 +531,7 @@ Config class: `src/main/java/com/jdte/setup/JDTEConfig.java`
 | Life Breeder | `jdte.lifeBreeder` | FE/Life Fluid capacity and costs, biological-tick conversion, fluid multiplier, breeding cooldown basis, processing interval, entity/pair/growth/drop budgets, population guard, and 1-32x speed |
 | Life Synthesis Vat | `jdte.lifeSynthesisVat` | FE/fluid capacity, base culture work rate, default/1-32x/64x speed, settlement interval, Time Fluid cost per boosted batch, pending queue cap, and batch budget |
 | Factory Packer | `jdte.factoryPacker` | Base radius, FE block/entity costs, batch budget, source recapture retries, chat notifications, axis/volume/entity/preview limits, migration toggles, link remapping, mod move strategies, and compressed/uncompressed package limits |
-| Advanced Potion Brewer | `jdte.advancedPotionBrewer` | Optional rejection of adjacent AE2 crafting providers for Blaze Powder automation |
+| Advanced Potion Brewer | `jdte.advancedPotionBrewer` | Optional rejection of adjacent AE2 crafting providers for Blaze Powder automation and configurable FE per 20-credit Energy Brewing fuel purchase |
 | Gel Generator | `jdte.gelGenerator` | Slots, capacity, conversion, and fuel use |
 | Generator upgrade | `jdte.generatorUpgrade` | Energy multiplier and fluid consumption |
 | Upgrade items | `jdte.upgradeItems` | Limits and damage values |

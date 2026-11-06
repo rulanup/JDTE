@@ -1,0 +1,1 @@
+PASS: production JAR, both Extended generators, full inventory wrench drop/restore, real chunk unload/reload, stale item/FE/fluid endpoints, exact Large Fuel Canister, FE, fluid, eight-slot cards and prepaid work conservation; optional AE2/Curios/JEI/Jade absent

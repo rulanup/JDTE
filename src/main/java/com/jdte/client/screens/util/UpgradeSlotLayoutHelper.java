@@ -232,6 +232,12 @@ public final class UpgradeSlotLayoutHelper {
                     .withStyle(current < 4 ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
         }
 
+        if(baseMachineBE instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE || UpgradeHelper.isEnergyTransmitter(baseMachineBE)) {
+            boolean brewing=baseMachineBE instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE;
+            int count=(brewing?UpgradeHelper.hasEnergyBrewingUpgrade(baseMachineBE):UpgradeHelper.hasEnergyOverloadUpgrade(baseMachineBE))?1:0;
+            lines.add(Component.literal("  ").append(Component.translatable("item.jdte."+(brewing?"energy_brewing_upgrade":"energy_overload_upgrade")))
+                    .append(": "+count+"/1").withStyle(count==0?ChatFormatting.GRAY:ChatFormatting.DARK_GRAY));
+        }
         return lines;
     }
 

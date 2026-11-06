@@ -1,0 +1,1 @@
+{"type":"forge:conditional","recipes":[{"conditions":[{"type":"forge:mod_loaded","modid":"ae2"}],"recipe":{"type":"jdte:ae_extraction_smithing"}}]}

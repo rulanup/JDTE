@@ -1,0 +1,2 @@
+PASS: production cards/recipes/Mixin active; natural brew saved at 175/400 ticks, 19 credits, 45000 FE and five retained Blaze Powder
+PASS: fresh production JVM restored both cards, FE, fuel and progress; resumed exactly one awkward potion for 300 FE without a second fuel purchase; native overload removal/reinsertion restored cap

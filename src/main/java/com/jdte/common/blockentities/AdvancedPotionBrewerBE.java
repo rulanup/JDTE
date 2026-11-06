@@ -333,7 +333,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
             return isAllowedByRecipeLock(slot, stack) && isBrewingIngredient(stack);
         }
         if (slot == FUEL_SLOT) {
-            return stack.is(Items.BLAZE_POWDER);
+            return !hasEnergyBrewingUpgrade() && stack.is(Items.BLAZE_POWDER);
         }
         return false;
     }
@@ -381,6 +381,8 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     public ItemStackHandler getMachineHandler() {
         return itemHandler;
     }
+
+    public boolean hasEnergyBrewingUpgrade() { return UpgradeHelper.hasEnergyBrewingUpgrade(this); }
 
     public IItemHandler getAutomationItemHandler() {
         return automationItemHandler;
@@ -447,12 +449,22 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         }
 
         if (fuel <= 0) {
-            ItemStack fuelStack = itemHandler.getStackInSlot(FUEL_SLOT);
-            if (!fuelStack.isEmpty() && fuelStack.is(Items.BLAZE_POWDER)) {
-                fuelStack.shrink(1);
-                itemHandler.setStackInSlot(FUEL_SLOT, fuelStack);
-                fuel = FUEL_PER_BLAZE;
-                setChanged();
+            if (hasEnergyBrewingUpgrade()) {
+                int cost=JDTEConfig.COMMON.potionBrewerEnergyPerBlazePowder.get();
+                if (EnergyBrewingFuel.tryCharge(cost, UpgradeHelper.hasCreativeUpgrade(this),
+                        energyStorage::getEnergyStored, amount -> energyStorage.extractEnergy(amount, true),
+                        amount -> energyStorage.extractEnergy(amount, false), energyStorage::setEnergy)) {
+                    fuel=FUEL_PER_BLAZE;
+                    setChanged();
+                }
+            } else {
+                ItemStack fuelStack = itemHandler.getStackInSlot(FUEL_SLOT);
+                if (!fuelStack.isEmpty() && fuelStack.is(Items.BLAZE_POWDER)) {
+                    fuelStack.shrink(1);
+                    itemHandler.setStackInSlot(FUEL_SLOT, fuelStack);
+                    fuel = FUEL_PER_BLAZE;
+                    setChanged();
+                }
             }
         }
 
@@ -884,6 +896,38 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
             copy.set(i, lockedRecipeTemplates.get(i).copy());
         }
         return copy;
+    }
+
+    public void applyCopiedRecipeLock(boolean locked, NonNullList<ItemStack> templates) {
+        if (templates == null || templates.size() != TOTAL_SLOTS) {
+            throw new IllegalArgumentException("Expected exactly " + TOTAL_SLOTS + " recipe-lock templates");
+        }
+
+        boolean hasTemplate = false;
+        for (int slot = 0; slot < TOTAL_SLOTS; slot++) {
+            ItemStack template = templates.get(slot);
+            if (template == null || !isRecipeLockedSlot(slot) && !template.isEmpty()) {
+                throw new IllegalArgumentException("Invalid recipe-lock template slot " + slot);
+            }
+            hasTemplate |= !template.isEmpty();
+        }
+        if (locked != hasTemplate) {
+            throw new IllegalArgumentException("Recipe lock and its templates must agree");
+        }
+
+        recipeLocked = locked;
+        clearLockedRecipeTemplates();
+        if (locked) {
+            for (int slot = 0; slot < TOTAL_SLOTS; slot++) {
+                ItemStack template = templates.get(slot);
+                if (!template.isEmpty()) {
+                    lockedRecipeTemplates.set(slot, template.copyWithCount(1));
+                }
+            }
+        }
+        hasValidIngredients = checkIngredients();
+        setChanged();
+        markDirtyClient();
     }
 
     public void setRecipeLocked(boolean locked) {

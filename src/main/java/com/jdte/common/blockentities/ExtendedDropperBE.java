@@ -27,4 +27,10 @@ public class ExtendedDropperBE extends DropperT2BE implements ExtendedUpgradeMac
         }
         return handler;
     }
+    @Override
+    public com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage getEnergyStorage() {
+        // JDT's DropperT2 owns an FE field that its inherited save/load does not persist.
+        return com.jdte.setup.JDTEAttachments.energy(this);
+    }
+
 }

@@ -1,0 +1,195 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "justdirethings:block/eclipsealloy_block",
+    "frame": "justdirethings:block/blazegold_block",
+    "foundation": "minecraft:block/polished_deepslate",
+    "rail": "minecraft:block/smooth_basalt",
+    "metal": "minecraft:block/iron_block",
+    "pipe": "minecraft:block/cut_copper",
+    "glass": "minecraft:block/tinted_glass",
+    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
+    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
+    "output": "jdte:block/advanced_item_receiver_top",
+    "particle": "minecraft:block/polished_deepslate"
+  },
+  "elements": [
+    {
+      "name": "foundation",
+      "from": [
+        0,
+        2,
+        0
+      ],
+      "to": [
+        16,
+        6,
+        14
+      ],
+      "faces": {
+        "down": {
+          "texture": "#foundation",
+          "uv": [
+            0,
+            0,
+            16,
+            14
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#foundation",
+          "uv": [
+            0,
+            0,
+            16,
+            14
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#foundation",
+          "uv": [
+            0,
+            10,
+            16,
+            14
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "back_rail",
+      "from": [
+        0,
+        6,
+        10
+      ],
+      "to": [
+        16,
+        8,
+        14
+      ],
+      "faces": {
+        "down": {
+          "texture": "#rail",
+          "uv": [
+            0,
+            10,
+            16,
+            14
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#rail",
+          "uv": [
+            0,
+            10,
+            16,
+            14
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#rail",
+          "uv": [
+            0,
+            8,
+            16,
+            10
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#rail",
+          "uv": [
+            0,
+            8,
+            16,
+            10
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "rear_power_bus",
+      "from": [
+        3,
+        8,
+        12
+      ],
+      "to": [
+        13,
+        15,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            3,
+            12,
+            13,
+            16
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            3,
+            12,
+            13,
+            16
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            3,
+            1,
+            13,
+            8
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            1,
+            13,
+            8
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            12,
+            1,
+            16,
+            8
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            12,
+            1,
+            16,
+            8
+          ],
+          "shade": false
+        }
+      }
+    }
+  ]
+}

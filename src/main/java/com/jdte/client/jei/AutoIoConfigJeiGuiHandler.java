@@ -27,10 +27,11 @@ public class AutoIoConfigJeiGuiHandler implements IGuiContainerHandler<BaseMachi
 
     @Override
     public List<Rect2i> getGuiExtraAreas(BaseMachineScreen<?> containerScreen) {
-        if (containerScreen instanceof AutoIoConfigScreenBridge bridge) {
-            return bridge.jdte$getAutoIoConfigExtraAreas();
-        }
-        return Collections.emptyList();
+        var areas = new java.util.ArrayList<Rect2i>();
+        if (containerScreen instanceof AutoIoConfigScreenBridge bridge) areas.addAll(bridge.jdte$getAutoIoConfigExtraAreas());
+        var storage = com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.getPanelArea(containerScreen);
+        if (storage != null) areas.add(storage);
+        return List.copyOf(areas);
     }
 
     @Override

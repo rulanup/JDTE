@@ -1,0 +1,4 @@
+2026-10-28; third production seed attempt
+Full-inventory packed drop and strict saved-state restoration passed after correct initial actor assignment.
+Failed at timeout stage 2: chunk did not unload within the bounded 900-tick probe. This is not accepted as unload/restart success.
+Next run adds chunk holder/forced-ticket diagnostics to distinguish retained fixture tickets from a machine lifecycle problem.

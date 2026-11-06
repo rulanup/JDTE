@@ -61,4 +61,15 @@ public class ExtendedFluidPlacerBE extends FluidPlacerT1BE implements PoweredMac
         return isStackValidFilter(targetState.getCloneItemStack(
                 new BlockHitResult(Vec3.ZERO, getDirectionValue(), pos, false), level, pos, null));
     }
+    @Override
+    public int getMaxEnergy() {
+        return com.jdte.common.upgrades.UpgradeHelper.adjustEnergyCapacity(this, 100000);
+    }
+
+    @Override
+    public int getMaxMB() {
+        // Keep the native T2 reservoir when inheriting T1's execution implementation.
+        return com.jdte.common.upgrades.UpgradeHelper.adjustFluidCapacity(this, 32000);
+    }
+
 }

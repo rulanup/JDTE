@@ -60,7 +60,7 @@ public abstract class BaseMachineContainerMixin {
         }
     }
 
-    @Inject(remap = false, method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
+    @Inject(remap = false, method = {"quickMoveStack", "m_7648_"}, at = @At("HEAD"), cancellable = true)
     private void jdte$quickMoveUpgrades(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
         if (baseMachineBE == null || index < 0) {
             return;
@@ -97,6 +97,7 @@ public abstract class BaseMachineContainerMixin {
         ItemStack originalStack = currentStack.copy();
 
         if (fromUpgradeSlot) {
+            if (!slot.mayPickup(player)) { cir.setReturnValue(ItemStack.EMPTY); return; }
             // 从升级槽移到玩家背包
             if (!moveItemStackTo(currentStack, upgradeEnd, container.slots.size(), true)) {
                 cir.setReturnValue(ItemStack.EMPTY);

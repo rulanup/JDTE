@@ -1,0 +1,6 @@
+2026-10-28; first successful two-JVM run after native drop lookup correction
+Command: JDTE_LIFECYCLE_SERVER=/tmp/jdte-optional-none JDTE_SMOKE_PREBUILT=1 scripts/run_generator_lifecycle_probe.sh
+PASS: production JAR, both Extended generators, full inventory wrench drop/restore, real chunk unload/reload, stale item/FE/fluid endpoints, exact Large Fuel Canister, FE, fluid, eight-slot cards and prepaid work conservation; optional AE2/Curios/JEI/Jade absent
+PASS: second production JVM restored exact generator state including large canister name/speed/fuel, FE, >16-bit fluid and progress, upgrades; resumed prepaid solid work without rebuying fuel and liquid x3 batch spends exactly two mB; no optional class linkage failure
+
+The opt-in diagnostic also traced the probe's intentional force/reload request after successful unload. Diagnostic flag is now disabled before intentional reload; final clean rerun recorded separately. The main gameplay behavior is unchanged.

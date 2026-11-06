@@ -1,0 +1,24 @@
+{
+  "forge": "47.4.10",
+  "java": "17.0.21",
+  "mods": [
+    {
+      "name": "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+      "sha256": "fb7fba8c4ff44618f22480e94d10c4895a4c85acfb5d871cef28516c2f3a4469"
+    },
+    {
+      "name": "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+      "sha256": "522b06479fd1f825817b91ea3a49ac7f836945374aa476c75cd47df7f750df1e"
+    },
+    {
+      "name": "guideme-20.1.15.jar",
+      "sha256": "cf8052ab3da121012efc59a20e731c24bfe7488dfa556c9b88809f42dea3b24a"
+    },
+    {
+      "name": "just-dire-things-forge-1533501-8573107.jar",
+      "sha256": "2d99e3540063becb52bc8a8d9b37c6b0115193a648440791ff559ee174134cfc"
+    }
+  ],
+  "optional_mods": "AE2, Curios, JEI, Jade absent; JDT/GuideME present",
+  "main_and_probe_match_build": true
+}

@@ -30,7 +30,7 @@ public final class AutoIoConfigHelper {
         if (machine == null || machine instanceof ExtendedSensorBE) {
             return false;
         }
-        if (machine instanceof FluidMachineBE) {
+        if (machine instanceof FluidMachineBE || machine instanceof com.jdte.common.blockentities.MineralExtractorBE) {
             return true;
         }
         if (machine instanceof GelGeneratorBE

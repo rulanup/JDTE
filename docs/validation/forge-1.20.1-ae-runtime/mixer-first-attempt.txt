@@ -1,0 +1,8 @@
+PASS: dedicated server ready
+PASS: two-client simultaneous interactions and first disconnect
+Traceback (most recent call last):
+  File "/workspace/JDTE/scripts/mineral_multiplayer_smoke.py", line 71, in <module>
+    wait_for(lambda: (CONTROL / 'seed-success').is_file(), 'reconnect, chunk unload and saved shutdown')
+  File "/workspace/JDTE/scripts/mineral_multiplayer_smoke.py", line 57, in wait_for
+    raise RuntimeError('; '.join(p.read_text() for p in failures))
+RuntimeError: java.lang.IllegalStateException: Mixer client Two: timeout phase=7 step=99 screen=com.jdte.client.screens.ExtendedFluidMixerScreen@74684191

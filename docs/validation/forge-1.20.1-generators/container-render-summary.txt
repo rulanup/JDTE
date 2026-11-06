@@ -1,0 +1,7 @@
+2026-10-28; parent e14381f
+Command: gradlew test build runGameTestServer --no-daemon --max-workers=2 (configured proxy)
+JUnit: 140, zero failures/errors/skips. All 181 required GameTests passed.
+BUILD SUCCESSFUL in 1m 18s; main/probe reobfuscations passed.
+Added actual Lava Bucket/source remainder exception, Refined Fuel bucket/partial-headroom test and wide bar arithmetic unit test.
+Original: /tmp/jdte-generator-gt7.log (ephemeral).
+Graphical bar rerun and production acceptance pending when recorded.

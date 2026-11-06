@@ -1,0 +1,1 @@
+PASS: real graphical Forge client native four-single-potion fill/bottle/full pending recovery, full NBT/Curios/P event/menus/JEI both portable recipes; actual C2S native bow draw/release spawns custom-effect arrow, exact100mB/one ammo, preserves3900mB. Controlled server inventory/Curios material setup, not independent multiplayer.

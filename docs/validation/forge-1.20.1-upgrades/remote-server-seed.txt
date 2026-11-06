@@ -1,0 +1,11 @@
+[13:01:33] [Server thread/INFO] [minecraft/DedicatedServer]: Done (12.172s)! For help, type "help"
+[13:03:13] [Server thread/INFO] [minecraft/MinecraftServer]: JDTETwo joined the game
+[13:03:20] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[13:04:00] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: Disconnected
+[13:04:02] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[13:04:02] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTETwo lost connection: JDTE restart fixture
+[13:04:02] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: JDTE restart fixture
+[13:04:04] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[13:04:04] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[13:04:04] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[13:04:05] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved

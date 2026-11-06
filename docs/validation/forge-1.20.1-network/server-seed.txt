@@ -1,0 +1,12 @@
+[12:15:47] [Server thread/INFO] [minecraft/DedicatedServer]: Done (1.752s)! For help, type "help"
+[12:16:35] [Server thread/INFO] [minecraft/PlayerList]: JDTEOne[/127.0.0.1:41468] logged in with entity id 203 at (1024.5043653743423, 80.0, 1024.607649664616)
+[12:16:35] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[12:16:38] [Server thread/INFO] [minecraft/PlayerList]: JDTETwo[/127.0.0.1:41476] logged in with entity id 228 at (1025.5, 80.0, 1027.5)
+[12:16:38] [Server thread/INFO] [minecraft/MinecraftServer]: JDTETwo joined the game
+[12:17:12] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: Disconnected
+[12:17:13] [Server thread/INFO] [minecraft/PlayerList]: JDTEOne[/127.0.0.1:42498] logged in with entity id 252 at (1024.5, 80.0, 1027.5)
+[12:17:13] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[12:17:15] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTETwo lost connection: JDTE restart fixture
+[12:17:15] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: JDTE restart fixture
+[12:17:19] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[12:17:19] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved

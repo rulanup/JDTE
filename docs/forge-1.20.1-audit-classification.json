@@ -1,0 +1,726 @@
+{
+  "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "starting_commit": "020109b",
+  "rows": [
+    {
+      "id": "capacity_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "overclock_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "thunderstorm_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Scoped V: rod-only max-one card with exact source recipe/model/tooltip; bypasses rain+thunder condition without changing weather. 170/252 regression plus actual client inventory insertion/removal/slot sync and clear-weather native bolt work in packaged survival relocation/restart evidence. Actual NeoForge-only AE2LT integration and independent multiplayer remain unverified."
+    },
+    {
+      "id": "underclock_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "fluid_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "fluid_storage_upgrade",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "generator_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "Source solid/canister and fluid rules verified on native/Extended generators: two ordinary items/two complete canister units or two mB buy x3 credit; other container fuels retain source one-container exception. Insufficient/partial buffers and overflowing credit reject before consumption; accepted FE preserves prepaid work. Prior odd-mB production evidence retained; new large-canister GUI and dedicated resumed solid/fluid conservation pass. See energy-upgrades and generators evidence."
+    },
+    {
+      "id": "range_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "filter_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "creative_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "fortune_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "precision_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "ae_acceleration_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "ae_crafting_read_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "ae_output_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "advanced_ae_output_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "essence_conversion_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "advanced_essence_conversion_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "crafting_pattern",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "ultimate_capacity_upgrade",
+      "initial_list": true,
+      "status": "partial",
+      "note": "Mineral/mixer and both transmitter physical capacity/ticker paths have behavioral evidence; source support in other registered machine families remains incomplete or restricted. Keep P; see transmitter acceptance for the new host scope. Both new Extended generator hosts now have tested physical capacity, ten-execution ticker and safe capacity-card removal; other outstanding host gaps remain P."
+    },
+    {
+      "id": "ultimate_overclock_upgrade",
+      "initial_list": true,
+      "status": "partial",
+      "note": "Mineral/mixer and both transmitter physical capacity/ticker paths have behavioral evidence; source support in other registered machine families remains incomplete or restricted. Keep P; see transmitter acceptance for the new host scope. Both new Extended generator hosts now have tested physical capacity, ten-execution ticker and safe capacity-card removal; other outstanding host gaps remain P."
+    },
+    {
+      "id": "ae_extraction_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "seed_conversion_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "extended_upgrade",
+      "initial_list": false,
+      "status": "verified",
+      "note": "All20 pinned source mappings and the extra Forge Entity Accelerator route are wired (21 total). Retained15-route and transmitter/generator/Bio/Entity tests plus XP Holder conversion/rollback verify actual inventory/filter/FE/fluid/XP/card ownership. Shared transaction rollback and preserving recipes retain state; real XP graphical/production transport/unload/restart close the previously missing source target. Scoped V for tier-conversion behavior; this does not promote partial host-machine features, arbitrary mod/event handlers or prolonged multiplayer. See upgrades, generators, Bio/Entity and experience-holder evidence."
+    },
+    {
+      "id": "upgrade_storage",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "advanced_upgrade_storage",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "eclipsealloy_wrench",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "advanced_machine_settings_copier",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "time_fluid_catalyst",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "ultimate_portal_gun",
+      "initial_list": false,
+      "status": "verified",
+      "note": "Source manual 500 mB cross-dimension / 25 mB per block / 25000 mB cap, native Forge V2 FE setting, recorded/previous routing, configured capacities, item NBT, insufficient funds and rejected-projectile conservation verified by eight unit/seven Forge tests and real production native shots. Graphical editor not revalidated."
+    },
+    {
+      "id": "big_fluid_tank",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Core capability, AE refill, Curios and optional-absence checks passed; dedicated bucket pickup/placement and all inherited fill modes remain unverified."
+    },
+    {
+      "id": "time_multitool",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Scoped V: source500kFE/1M Time Fluid/six modes/whole-batch fallback, paid native harvest callbacks/XP/abilities/settings/caps/NBT/resources and ten native smithing variants.196 JUnit/324 GameTests/full build+reobfuscation; actual graphical input/controller/native Hammer7-off3-on3-5-7/JEI and exact player save/rejoin/resume; matching-JAR minimal production real ice+7XP/diamond, native breaker, transport/actual unload/fresh BE/two-JVM exact recovery. Independent multiplayer/prolonged/unsaved-crash/arbitrary block/protection integrations remain unverified. See Time Multitool evidence."
+    },
+    {
+      "id": "ultimate_time_wand",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Scoped V: source modes/1024-32768x/full-result FE and fractional Time Fluid, real capabilities/recipes/NBT, guarded shared/proxy/AE/random scheduling and renderer. 167 JUnit/238 GameTests; real independent clients verify inventory/modes/renderer/JEI and exact conservation across unload/reconnect/two-JVM restart. Optional-absence production passes. See wand evidence; arbitrary tickers, prolonged uptime and external JDTE-AE backend remain unverified."
+    },
+    {
+      "id": "large_pocket_generator",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Scoped V: source4x configured FE/whole fuel ticks/speed, no-receive FE/shared persistent fuel, inventory+equipped Curios charging, native toggle/bound GUI/G and preserving recipe. 180 JUnit/302 GameTests/build/reobfuscation; real GUI/natural exact-credit ledger/Curios recipient/key/player save/rejoin/resume and matching-JAR minimal production actual unload/fresh BE/exact NBT/two-JVM recovery pass. Native internal-generation/short-credit/transmitter repairs tested. See pocket evidence; independent multiplayer/prolonged/cross-dimensional/arbitrary-mod boundaries remain unverified."
+    },
+    {
+      "id": "large_potion_canister",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Scoped V: source4000mB/four matching potions/1000mB/four bottles, complete base/custom effects/color, shared bound handheld/Curios menus, preserving recipe/native bow25/25/50mB. 176 JUnit/284 GameTests; real GUI/P/JEI/C2S shot, matching-JAR minimal production actual unload/fresh BE/exact NBT/two-JVM recovery and two actual independent clients with stale clicks/handoff/cursor dropout/pickup/reconnect/restart prove exact ledgers. See potion evidence for controlled fixture setup and unverified cross-dimensional/prolonged/arbitrary-mod boundaries."
+    },
+    {
+      "id": "large_fuel_canister",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Source capacity x4/unit x10/weighted-and-resolved speed preserved. Bound handheld and Curios F menus, source-preserving recipe, real fuels/rejections/remainders, full/native/upgraded FE accounting pass unit/Forge tests. Real GUI fills/NBT sync and dedicated full-inventory packing, real unload/reload and two-JVM recovery preserve fuel/name/speed exactly. Large Pocket Generator and Potion acceptance are tracked separately; see generators evidence."
+    },
+    {
+      "id": "factory_package",
+      "initial_list": false,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "mineral_survey",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "basic_time_accelerator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported."
+    },
+    {
+      "id": "advanced_time_accelerator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported."
+    },
+    {
+      "id": "extended_time_accelerator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported."
+    },
+    {
+      "id": "advanced_entity_accelerator",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Pinned source living-entity work/FE/fractional Time Fluid, 32/64 targets, 128/1024 Ultimate, filters/AE gate/config and guarded ports implemented. 150 JUnit/217 GameTests include actual age/work conservation, recursion/exception/removal, real Forge dimension transfer, off-thread rejection, separately paid overlap, conversion/rollback and safe packed crafting. Real GUI/JEI/Jade/clamped packets/client rejection plus two packaged minimal production JVMs verify actual survival packing/placement, unload/reload, debt/resource restoration and resumed work. Independent entity-machine two-client/prolonged/mod-creature coverage unverified. See entity evidence."
+    },
+    {
+      "id": "extended_entity_accelerator",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Pinned source living-entity work/FE/fractional Time Fluid, 32/64 targets, 128/1024 Ultimate, filters/AE gate/config and guarded ports implemented. 150 JUnit/217 GameTests include actual age/work conservation, recursion/exception/removal, real Forge dimension transfer, off-thread rejection, separately paid overlap, conversion/rollback and safe packed crafting. Real GUI/JEI/Jade/clamped packets/client rejection plus two packaged minimal production JVMs verify actual survival packing/placement, unload/reload, debt/resource restoration and resumed work. Independent entity-machine two-client/prolonged/mod-creature coverage unverified. See entity evidence."
+    },
+    {
+      "id": "time_freezer",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "extended_time_freezer",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "extended_clicker",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
+    },
+    {
+      "id": "extended_generator",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Native-derived eight-slot generator with real owned FE/tank, validators/automation, source export rates, full-width menus, recipes/packing and actual Ultimate behavior. Forge tests cover actual fuels/containers, capacity, overflow, both conversions/protection rollback, stale ports and short neighbor acceptance. Real GUIs/card transfer and dedicated packed/unloaded/restarted FE/fluid/inventory/progress conservation pass. Source bugs fixed: accepted-FE accounting, packed recipe data, unsafe capacity removal, bar overflow and native global-drop chunk pinning. Scoped acceptance; prolonged multiplayer/external fuel packs not certified."
+    },
+    {
+      "id": "extended_experience_holder",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Pinned standalone integer XP/20mB fluid and source level/target/orb/pulse/particle behavior, guarded ports, eight-slot upgrades/Ultimate, full-width menu/copier/bag/preserving recipe and native conversion/rollback implemented. 173 JUnit/270 GameTests retain all prior170/252. Real graphical client mouse controls/JEI/actual Jade packets and connected-player natural target37 work conserve exact XP. Two minimal reobfuscated production JVMs verify full-inventory survival transport, merged XP ledger, actual ChunkEvent.Unload/fresh BE, stale port revocation, exact complete NBT restart/resumed work on matching JAR. Intentional conservation fixes and eight-slot marker correction documented. Independent multiplayer, cross-dimensional transport and prolonged uptime remain unverified; see experience-holder evidence."
+    },
+    {
+      "id": "extended_fluid_generator",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Native-derived eight-slot generator with real owned FE/tank, validators/automation, source export rates, full-width menus, recipes/packing and actual Ultimate behavior. Forge tests cover actual fuels/containers, capacity, overflow, both conversions/protection rollback, stale ports and short neighbor acceptance. Real GUIs/card transfer and dedicated packed/unloaded/restarted FE/fluid/inventory/progress conservation pass. Source bugs fixed: accepted-FE accounting, packed recipe data, unsafe capacity removal, bar overflow and native global-drop chunk pinning. Scoped acceptance; prolonged multiplayer/external fuel packs not certified."
+    },
+    {
+      "id": "extended_energy_transmitter",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Source native-FE contract verified: real graphical menu/filter/card packets, actual 8 slots, physical Ultimate capacity/ten-tick execution/removal, all faces/stale ports, rate/distance loss, wide pooled accounting, native-originated mixed-network production restart and prior real wrench/unload. Scoped evidence: validation/forge-1.20.1-energy-transmitters/acceptance/README.md."
+    },
+    {
+      "id": "extended_block_breaker",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
+    },
+    {
+      "id": "extended_block_placer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
+    },
+    {
+      "id": "extended_block_swapper",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
+    },
+    {
+      "id": "extended_dropper",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
+    },
+    {
+      "id": "extended_sensor",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
+    },
+    {
+      "id": "extended_fluid_collector",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
+    },
+    {
+      "id": "extended_fluid_placer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Native tier conversion, actual inventory/FE/filter storage and reload now tested. Normal Capacity works on inherited interfaces; source T2 fluid reservoir preserved. Broader Ultimate support and full operation parity remain incomplete."
+    },
+    {
+      "id": "advanced_item_collector",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "entity_suppressor",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "range_blocker",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "charged_lightning_rod",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Scoped V: source 10k/40k/100k FE modes and 1/5/50 batches, real full vanilla lightning with AE2LT weather marker, guarded FE/ownership/NBT, synchronized render/sound and copier. 170 JUnit/252 GameTests plus real GUI/JEI/flash/sound and two packaged production JVMs verify survival transport, actual unload, exact nonzero-cooldown restart and resumed payment. Real AE2LT, random weather arrival, cross-dimensional transport, multiplayer/stress remain unverified."
+    },
+    {
+      "id": "crystal_incubator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "greenhouse",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Core harvest/essence/seed paths tested, but source greenhouse matrix member/runtime hooks and general Ultimate support are absent."
+    },
+    {
+      "id": "large_greenhouse",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Core harvest/structure paths exist, but source matrix hooks and general Ultimate support are absent."
+    },
+    {
+      "id": "life_synthesis_vat",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "bio_factory",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "life_breeder",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "factory_packer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "mineral_extractor",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "large_mineral_extractor",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "xingye_fumo",
+      "initial_list": true,
+      "status": "implemented_unverified",
+      "note": "Shared source decorative block/facing shapes, self loot, model, texture, translations and default-hidden creative/JEI setting implemented; build and runtime validation pending. No source recipe or block entity."
+    },
+    {
+      "id": "cainiaoyo_fumo",
+      "initial_list": true,
+      "status": "implemented_unverified",
+      "note": "Source decorative block, facing shapes, self loot, model/texture, translations and default-hidden creative/JEI setting ported. 196 JUnit and 325 GameTests pass in a fresh world; first reused-world run failed an existing Time Multitool assertion. Graphical, creative/JEI visibility and independent server lifecycle remain unverified. No source recipe or block entity."
+    },
+    {
+      "id": "maiqilin_fumo",
+      "initial_list": true,
+      "status": "implemented_unverified",
+      "note": "Shared source decorative block/facing shapes, self loot, model, texture, translations and default-hidden creative/JEI setting implemented; build and runtime validation pending. No source recipe or block entity."
+    },
+    {
+      "id": "basic_glue_activator",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "advanced_glue_activator",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "extended_glue_activator",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "advanced_gel_generator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_gel_generator",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "basic_fluid_stabilizer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "advanced_fluid_stabilizer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_fluid_stabilizer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "basic_item_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "advanced_item_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_item_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "basic_fluid_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "advanced_fluid_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_fluid_sender",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "basic_item_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "advanced_item_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_item_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "basic_fluid_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "advanced_fluid_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_fluid_receiver",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "advanced_life_extractor",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_life_extractor",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "life_apple",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "advanced_bio_extractor",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Source harvesting/nine real recipes/milk/shared cooldown, upgrades/Ultimate, guarded ports/auto output, GUI/JEI/Jade and bags/copier verified. Full 150 JUnit/217 GameTests retain prior Bio tests. Two real clients operate each shared naturally producing Bio machine, race outputs/cards and real auto output, conserve 24 cow/22 sheep operations, exact FE/24,000 mB milk including 13 external mB/44 wool/four cards, reconnect/unload/save/restart and exact two-client menu sync. Separate minimal production and packing evidence retained. Prolonged/arbitrary packs unverified."
+    },
+    {
+      "id": "extended_bio_extractor",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Source harvesting/nine real recipes/milk/shared cooldown, upgrades/Ultimate, guarded ports/auto output, GUI/JEI/Jade and bags/copier verified. Full 150 JUnit/217 GameTests retain prior Bio tests. Two real clients operate each shared naturally producing Bio machine, race outputs/cards and real auto output, conserve 24 cow/22 sheep operations, exact FE/24,000 mB milk including 13 external mB/44 wool/four cards, reconnect/unload/save/restart and exact two-client menu sync. Separate minimal production and packing evidence retained. Prolonged/arbitrary packs unverified."
+    },
+    {
+      "id": "advanced_infusion_machine",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_infusion_machine",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "advanced_potion_brewer",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Energy Brewing and canonical Forge empty-template copier compatibility are now implemented and tested. Source coalesced accelerated processing and broader Ultimate support remain incomplete; normal six-step brewing exists."
+    },
+    {
+      "id": "advanced_bio_crusher",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "extended_bio_crusher",
+      "initial_list": false,
+      "status": "partial",
+      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+    },
+    {
+      "id": "loot_fabricator",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "advanced_energy_transmitter",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Source area/FE/overload/Ultimate, graphical/filter/card/Jade, actual online armor/hotbar/offhand/validated Curios and registered Draconic injector paths verified. Dedicated server remains running through real logout, 100 offline ticks, actual unload/reload and same-client reconnect/refill. Real installed AE2/AppFlux disk and managed node recover across two production JVMs with exact FE conservation. Scoped evidence: transmitter acceptance/dedicated; prolonged uptime/full fusion and external JDTE-AE backend are separate unverified scope."
+    },
+    {
+      "id": "advanced_fluid_mixer",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "extended_fluid_mixer",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "wither_essence",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "ender_dragon_essence",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "elder_guardian_essence",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "wither_spawn_egg",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "ender_dragon_spawn_egg",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "looting_upgrade",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "sharpness_upgrade",
+      "initial_list": false,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    },
+    {
+      "id": "energy_brewing_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Source 5000 FE/20-credit fuel, compatible slots/bags/copier, exact costs, persistence and menu validation pass nine energy integration tests. New graphical appearance remains unverified; see energy-upgrade evidence."
+    },
+    {
+      "id": "energy_overload_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Native JDT and new Advanced/Extended JDTE transmitter rate/budget override, real FE-conserving transfer, removal/restoration and saved-card behavior tested. New transmitter hosts have separate U acceptance rows; this verified card does not imply complete host verification."
+    },
+    {
+      "id": "mixing_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "ultimate_mixing_parallel_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "entity_acceleration_upgrade",
+      "initial_list": true,
+      "status": "verified",
+      "note": "Scoped V: actual wand inventory/crafting/exact-count smithing preserves NBT; persistent living/nonliving effects use guarded completed-natural-tick execution and tracking sync. 167/238 tests include native Entity Accelerator stacking, TNT, real dimension transfer/UUID deduplication and callback rollback. Two real clients and minimal production verify exact card/FE/fluid and saved effect recovery. Arbitrary mod creatures/prolonged workloads remain unverified."
+    },
+    {
+      "id": "repair_talisman",
+      "initial_list": true,
+      "status": "implemented_unverified",
+      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+PASS: both production transmitters: full-inventory wrench transport, stale ports, real chunk unload/reload, exact FE/reserve/battery/upgrades/filter/binding conservation; optional AE2/Curios/JEI/Jade absent

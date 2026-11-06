@@ -1,0 +1,22 @@
+[02:02:53] [Server thread/INFO] [minecraft/DedicatedServer]: Done (5.113s)! For help, type "help"
+[02:03:55] [Server thread/INFO] [minecraft/PlayerList]: JDTEOne[/127.0.0.1:49996] logged in with entity id 192 at (1023.5, 80.0, 1026.5)
+[02:03:56] [Server thread/INFO] [ModernFix/]: Using enhanced recipe sync for player JDTEOne
+[02:03:56] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[02:03:56] [Server thread/INFO] [Jade/]: Syncing config to JDTEOne (d3ab1680-3a7d-3226-af85-8613ddd1a502)
+[02:03:59] [Server thread/INFO] [minecraft/PlayerList]: JDTETwo[/127.0.0.1:50006] logged in with entity id 226 at (1023.5, 80.0, 1026.5)
+[02:03:59] [Server thread/INFO] [ModernFix/]: Using enhanced recipe sync for player JDTETwo
+[02:03:59] [Server thread/INFO] [minecraft/MinecraftServer]: JDTETwo joined the game
+[02:03:59] [Server thread/INFO] [Jade/]: Syncing config to JDTETwo (1fa50e9d-eae6-3802-bace-d8dc07e6c4b7)
+[02:04:25] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: Disconnected
+[02:04:25] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne left the game
+[02:04:26] [Server thread/INFO] [minecraft/PlayerList]: JDTEOne[/127.0.0.1:39972] logged in with entity id 240 at (1023.5, 80.0, 1026.5)
+[02:04:26] [Server thread/INFO] [ModernFix/]: Using enhanced recipe sync for player JDTEOne
+[02:04:26] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[02:04:27] [Server thread/INFO] [Jade/]: Syncing config to JDTEOne (d3ab1680-3a7d-3226-af85-8613ddd1a502)
+[02:04:27] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTETwo lost connection: Mixer restart fixture
+[02:04:27] [Server thread/INFO] [minecraft/MinecraftServer]: JDTETwo left the game
+[02:04:27] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: Mixer restart fixture
+[02:04:27] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne left the game
+[02:04:30] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[02:04:30] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[02:04:30] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved

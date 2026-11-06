@@ -1,0 +1,7 @@
+Java 17 / Gradle 8.6 test build runGameTestServer serverSmokeJar
+170 JUnit tests; all previous167/238 retained
+> Task :reobfJar
+> Task :reobfJarJar SKIPPED
+> Task :reobfServerSmokeJar
+[01:40:23] [Server thread/INFO] [minecraft/GameTestServer]: All 248 required tests passed :)
+BUILD SUCCESSFUL in 1m 6s

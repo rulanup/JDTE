@@ -1,0 +1,26 @@
+{
+  "implementation_checkpoint": "8ff073f",
+  "version": "0.5.8-forge-1.20.1",
+  "built_jar_sha256": "2f147f53e9cfb90667030abb5199b5c12b8621e69c4f90ddac6c67940238e3f8",
+  "installed_production_jar_sha256": "2f147f53e9cfb90667030abb5199b5c12b8621e69c4f90ddac6c67940238e3f8",
+  "probe_and_client_test_classes_excluded": true,
+  "production_mods": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "guideme-20.1.15.jar",
+    "just-dire-things-forge-1533501-8573107.jar"
+  ],
+  "client_profile": [
+    "minecraft",
+    "forge",
+    "jdte",
+    "justdirethings",
+    "guideme",
+    "ae2",
+    "curios",
+    "jei",
+    "jade",
+    "modernfix"
+  ],
+  "notes": "Real mapped client plus separately reobfuscated production servers; weather deterministically set via real APIs, no random-arrival weather or AE2LT runtime claim."
+}

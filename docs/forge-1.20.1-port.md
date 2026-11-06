@@ -1,0 +1,956 @@
+# Forge 1.20.1 port — work in progress
+
+Source: JDTE 0.6.5.2 (`ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`).
+Target baseline: `ac1d813`, Forge 47.4.10, Just Dire Things Forge 1.1.4, Java 17, Gradle 8.6.
+
+This is an ongoing port, not a completed 0.6.5.2 Forge release. The existing version remains 0.5.8 until feature migration and validation finish.
+
+## Current Status
+
+<!-- current-status:start -->
+- Latest baseline **`bfbbff0`**; all three Fumo registrations and source resources are now present, with new runtime validation pending. Prior implementation/runtime checkpoint: **`3852fe8`** (preceded by `a73f98b`, `cd01c50`, `ef4abe7`); this acceptance/documentation checkpoint adds the final rendered-client replay and120-item audit.
+- Environment/version: Forge47.4.10, JDT Forge1.1.4, Java17, Gradle8.6; **0.5.8-forge-1.20.1** unchanged.
+- Latest complete regression: **196 JUnit /325 required GameTests**, all passing in a fresh test world; previous180/302 and24 mineral core tests preserved. Full build/main+probe reobfuscation pass. Final real graphical mode/controller/native Hammer GUI/JEI/player save/rejoin/resume and two matching-JAR minimal production JVMs pass; fixtures and actual packets are distinguished in evidence.
+- 120-item status: V **52**, U **22**, P **46**, N **0**; **120** source items registered in Forge. Time Multitool N→U→scoped V; the [Feature Migration Matrix](forge-1.20.1-feature-matrix.md) remains authoritative.
+- Persistence: all implementation checkpoints above pushed on the development branch. Original energy recovery branch remains `cd8aaaa`; all seven original backup hashes pass. Pre-existing Python cache preserved. No reset/main merge/release.
+- Next bounded priority: validate all three decorative Fumo items using [pinned source findings](forge-1.20.1-fumo-investigation.md), including default hidden-but-registered content/JEI behavior. All three are implemented and await dedicated runtime validation.
+- Still unverified: independent Time Multitool multiplayer, prolonged/cross-dimensional/unsaved-crash/arbitrary mod blocks/protection/recipe packs and every ability/JEI layout; previous pocket/potion/XP scopes, external JDTE-AE whole-grid backend, operating reactors/full fusion and other matrix boundaries. Full0.6.5.2 parity is unfinished.
+<!-- current-status:end -->
+
+This file is a chronological development log. Sections below preserve the implementation, limitations, failures and test results **at their recorded checkpoint**; old limitations are not current acceptance decisions. Consult Current Status and the matrix for the latest state. Earlier evidence retains its original scope and counts.
+
+## Progress
+
+- Selected the existing `forge-1.20.1` branch.
+- Installed Java 17 and Gradle 8.6 and verified official SHA-256 checksums.
+- Imported the environment proxy CA into the task JDK trust store, preserving TLS verification.
+- Forge dependency resolution and compilation passed under Java 17.
+- The two migrated mineral core test classes passed all 24 tests.
+- Repair Talisman item, tick handler, energy capabilities, recipe, model, texture, config and translations compile.
+- Dedicated-server validation found missing server-side Glodium and an unnecessary Mixin bootstrap JAR. Glodium is now available on both sides, and the standard ForgeGradle/Mixin launch path boots to `Done`.
+- The server completed startup with the existing branch content and Repair Talisman; this is not validation of the still-unported machines.
+- Integrated the mineral production engine, output planner and survey codecs into registered Forge machines, menus, capabilities and server datapack lifecycle hooks. See the verified mineral checkpoint below.
+
+## Original registry-delta checklist
+
+This historical checklist records the initial registration delta, not complete 0.6.5.2 behavior parity. The [full 120-item feature matrix](forge-1.20.1-feature-matrix.md) is authoritative for verified, unverified, partial and absent implementations.
+
+- [x] `jdte:advanced_ae_output_upgrade` (implemented; see the latest validation checkpoint)
+- [ ] `jdte:advanced_bio_extractor`
+- [ ] `jdte:advanced_energy_transmitter`
+- [ ] `jdte:advanced_entity_accelerator`
+- [x] `jdte:advanced_essence_conversion_upgrade` (implemented; see the latest validation checkpoint)
+- [x] `jdte:advanced_fluid_mixer` (implemented; see production-chain runtime evidence)
+- [x] `jdte:advanced_machine_settings_copier` (typed Forge presets, upgrade exchange and storage sources implemented)
+- [x] `jdte:advanced_upgrade_storage` (36 slots, machine actions, Curios lookup and Forge persistence implemented)
+- [x] `jdte:ae_acceleration_upgrade` (three Time Accelerator tiers, per-device AE service and source external-backend contract implemented)
+- [x] `jdte:ae_crafting_read_upgrade` (implemented; see the latest validation checkpoint)
+- [x] `jdte:ae_extraction_upgrade` (implemented; see the latest validation checkpoint)
+- [x] `jdte:ae_output_upgrade` (implemented; see the latest validation checkpoint)
+- [ ] `jdte:cainiaoyo_fumo`
+- [ ] `jdte:charged_lightning_rod`
+- [x] `jdte:crafting_pattern` (implemented; see the latest validation checkpoint)
+- [x] `jdte:energy_brewing_upgrade` (source fuel behavior and Forge integration tested; see energy evidence)
+- [x] `jdte:energy_overload_upgrade` (native JDT transmitter tested; JDTE advanced/extended transmitters remain absent)
+- [ ] `jdte:entity_acceleration_upgrade`
+- [x] `jdte:essence_conversion_upgrade` (implemented; see the latest validation checkpoint)
+- [ ] `jdte:extended_bio_extractor`
+- [ ] `jdte:extended_energy_transmitter`
+- [ ] `jdte:extended_entity_accelerator`
+- [ ] `jdte:extended_experience_holder`
+- [ ] `jdte:extended_fluid_generator`
+- [x] `jdte:extended_fluid_mixer` (implemented; see production-chain runtime evidence)
+- [ ] `jdte:extended_generator`
+- [ ] `jdte:large_fuel_canister`
+- [x] `jdte:large_mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
+- [ ] `jdte:large_pocket_generator`
+- [ ] `jdte:large_potion_canister`
+- [ ] `jdte:maiqilin_fumo`
+- [x] `jdte:mineral_extractor` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
+- [x] `jdte:mineral_survey` (implemented; server integration tests passed; graphical integrated-client and dedicated-server checks passed; independent remote clients passed; see the latest checkpoint)
+- [x] `jdte:mixing_upgrade` (implemented; see production-chain runtime evidence)
+- [x] `jdte:repair_talisman` (ported; runtime validation pending)
+- [x] `jdte:seed_conversion_upgrade` (normal/large harvest paths, source recipe and NBT verified)
+- [ ] `jdte:thunderstorm_upgrade`
+- [ ] `jdte:time_multitool`
+- [x] `jdte:ultimate_capacity_upgrade` (mineral machines and fluid mixers; other machine families remain pending)
+- [x] `jdte:ultimate_mixing_parallel_upgrade` (implemented; see production-chain runtime evidence)
+- [x] `jdte:ultimate_overclock_upgrade` (mineral machines and fluid mixers; other machine families remain pending)
+- [ ] `jdte:ultimate_time_wand`
+- [x] `jdte:upgrade_storage` (basic storage implemented; client and dedicated-server tests passed)
+- [ ] `jdte:xingye_fumo`
+
+## Validation required
+
+- [x] Compile the Forge branch and migrated mineral core.
+- [ ] Compile and test every remaining migrated subsystem (mineral core: 24 passed).
+- [x] Clean build and production JAR reobfuscation completed.
+- [x] Dedicated server booted to `Done` after a clean build.
+- [ ] Exercise remaining new machine/upgrade registration and saved data after their migration.
+- Validate optional dependencies and client-only screens separately.
+
+## Historical validation summary (energy-upgrade checkpoint)
+
+This retained summary describes that checkpoint. Current Status above contains the latest suite and acceptance counts.
+
+- Latest Java 17 build: passed, including production/probe reobfuscation; 100 JUnit and 123 required GameTests passed. All earlier tests are retained.
+- MineralProductionEngineTest: 16 passed.
+- MineralOutputPlannerTest: 8 passed.
+- Clean dedicated Forge server: reached Done and shut down with saved dimensions.
+- Full 0.6.5.2 feature parity: not complete; unchecked registrations above are not implemented yet.
+
+- The inherited cat-gift and chicken Bio Factory recipes used 1.21-style ingredient item lists. Both now use Forge 1.20.1 ingredient arrays; a subsequent dedicated-server restart reported no JDTE recipe parsing errors and reached Done.
+- The environment start instructions were saved as an onboarding draft. Publishing that environment draft is separate from publishing a mod release.
+
+## Mineral machines checkpoint (2026-10-26)
+
+### Implemented
+
+- Mineral Extractor: registered block/item, block entity, menu, screen and animated ore renderer. Runs the original batched weighted production and output-fitting algorithms, rather than placeholder processing.
+- Large Mineral Extractor: original 3x3x2 structure, four reusable survey slots, 4x base work, 17 parts, placement checks, rollback and whole-structure dismantling. Forge requires a small block entity at each part for capability forwarding; these parts own no inventory, energy, fluids or production queue.
+- Mineral Survey: right-click recording of the actual biome/dimension/index version, reusable machine input, NBT codec, recorded-survey inspection screen, tooltips and server-authoritative opening packets.
+- Server mineral index: vanilla/modded world-generation feature analysis, bounded holder/codec traversal from the source #22 fix, deterministic profile fingerprints, biome/tag datapack overrides, rebuild on reload and cleanup on server stop. Forge's already-applied biome modifiers are read without applying them a second time.
+- Original mineral behavior: 64 base work per regular tick, 20 work per cycle, 5,000 FE per completed cycle; optional XP Fluid consumes 25 mB per fortune cycle for a 100% yield bonus, and optional Time Fluid consumes 5 mB per additional cycle. Empty fluid tanks still permit base production. Settings remain configurable.
+- Redstone, ore filters, JDT Smelter recipes and double smelting FE cost, Creative behavior, standard Capacity/Fluid/Filter/Overclock upgrades, transient accelerator coalescing, persistent pending-work backpressure and output-capacity planning are connected.
+- Output supports 16-64 slots and the source limits of 64 / 2,048 / 4,096 / 8,192 items with ordinary Capacity cards, or 6,400,000 with Ultimate Capacity. Removing capacity retains occupied output slots. Oversized counts use the existing extended NBT serializer and a new count-safe menu snapshot packet; cursor pickup stays at vanilla stack size.
+- The normal machine exposes restricted item automation, FE and two independently routed fluid inputs. Large-machine outer parts forward to the controller, without forcing unloaded chunks or retaining a detached controller. The large controller also exposes the same restricted storage capabilities, matching the source `MachineCapabilities` registration table. Absolute-direction automatic input/output and event-coalesced output are connected, including large-machine boundary neighbors.
+- Ultimate Capacity and Ultimate Overclock are registered with recipes/assets and real mineral-machine behavior: 50x FE/fluid capacity and a default 640x selectable speed limit respectively. Speed cards conflict. Other machine families deliberately reject these cards until their respective behavior is ported; tooltips state this current scope.
+- JEI category, mineral probabilities, paged biome recipes, non-consumed survey catalysts, optional-fluid explanations and a bounded chunked server catalog sync are implemented. Recipe reload and disconnect refresh/reset the client cache. Jade displays mineral status/source/count/speed and controller upgrades through both controller and part blocks.
+- Source models, blockstates, textures, crafting recipes, block loot tables, pickaxe tag, English/Chinese translations and GuideME/Patchouli entries are installed. Newly added Markdown pages are English.
+
+### Forge-specific corrections
+
+- JDT Forge 1.1.4 registers source fluids as `justdirethings:xp_fluid` and `justdirethings:time_fluid`, rather than the 1.21 `_source` IDs. Recipe validation and all defaults use the real Forge IDs.
+- Custom recipe serializers use 1.20.1 JSON/FriendlyByteBuf APIs; crafting results use `item`, with plural `recipes`, `loot_tables` and `tags/blocks` directories.
+- Mineral NBT and packet codecs bound decoded list sizes and preserve long weights/versions. Invalid confidence strings produce codec errors; the optional field retains DFU's declared schema-default behavior.
+- Fluid amounts/capacities are split across signed-short-safe container data fields. Fluid rendering uses long arithmetic and clamps the height to the GUI; empty tanks show the configured fluid as a ghost.
+- Mineral energy, tank, inventory and pending-work mutations mark the controller dirty for saving. Filter/output page requests are clamped, and the output-page packet validates the current menu ID and player access.
+- Optional metadata reflection catches expected reflection/runtime failures and logs diagnostics; it does not swallow `Throwable` or VM errors. The source's unsupported metadata fallbacks remain available.
+
+### Validation performed
+
+| Check | Result |
+|---|---|
+| Java 17 `test build runGameTestServer` | Passed, including production `reobfJar` |
+| Existing mineral engine tests | 16 passed, preserved |
+| Existing mineral output planner tests | 8 passed, preserved |
+| New survey/container-data codec tests | 6 passed |
+| Existing factory transform / life synthesis recipe tests | 10 + 7 passed |
+| Real Forge mineral GameTests | All 18 required tests passed |
+| Normal dedicated server | Reached `Done`; no JDTE recipe parsing errors; dimensions saved on SIGINT |
+| Mineral model texture references | Six unique non-vanilla textures checked against project resources/JDT Forge JAR; none missing |
+| Interactive client, GUI rendering, JEI/Jade and remote-player networking | Not run; this environment has no graphical display/Xvfb |
+
+The 18 GameTests cover base FE-only production, paid optional fluid bonuses, full-output backpressure, stale surveys, real smelting recipes, 6.4-million-item inventory saving, large structure/relay teardown, oversized packet counts, vanilla and Mekanism mineral index entries, actual menu paging/Shift-click/cursor behavior, all six automatic output directions, pending-work reload, registered resource recipes/invalid flowing-fluid rejection, survey NBT/network round trips, blank-survey right-click recording, redstone/filter gating, bucket interaction through a large part and ultimate upgrade effects/conflicts.
+
+Validation initially exposed the wrong JDT fluid IDs; those were corrected and the tests rerun successfully. Test harness setup also needed Forge's unqualified structure-template name and a mock player without a network connection for local menu operations. A codec assertion was corrected to distinguish a direct invalid confidence value from DFU's optional-field default. The final suite has no failing tests. The normal server's deliberate SIGINT shutdown yields Gradle exit 130 after successful world saves; this is separate from the successful build and GameTest tasks. Optional development mods still log unrelated missing integration recipes and outbound version/authentication connection failures.
+
+### Unverified / still pending
+
+- A real client must verify both machine screens, rotated models, large renderer culling, filter controls, tooltips, JEI refresh/bookmarks, Jade through parts and two-player page/snapshot synchronization. Packet round trips and dedicated-server isolation are covered; that is not an interactive client test.
+- Full chunk unload/reload across a large-machine boundary and Factory Packer/wrench relocation need gameplay checks. NBT load/save and retained capability invalidation are tested, but large-storage destruction and long-running stress tests are not.
+- AE Crafting Read/Output/Extraction, essence/seed conversion and other unchecked upgrades are not ported. The mineral machine runs with redstone gating and standard output; its missing AE/conversion extensions are not represented by fake always-successful adapters.
+- Inventory Profiles Next annotations are not present in this Forge dependency set. JEI/Jade code compiles, but an optional-mod matrix without those clients was not launched.
+- Ultimate card behavior outside mineral machines remains pending. The overall source-feature port is incomplete; the version is still `0.5.8-forge-1.20.1` and no Mod release was made.
+
+### Saved work and next starting point
+
+Development checkpoint branch: `codex/forge-1.20.1-mineral-machines`, based on the existing Forge work including `c54150d`, not a reset to `ac1d813`. Use this branch on `origin` as the continuation point; it preserves both the earlier foundation commit and the mineral implementation. No merge into `main` or Mod release is part of this task.
+
+Next session:
+
+1. Fetch and check out this checkpoint branch, then read this document and its Git status. Reuse the configured Java 17/Gradle 8.6 environment.
+2. Run `./gradlew test build runGameTestServer` under Java 17. This cloud requires the existing proxy settings for Java dependency resolution.
+3. Complete the real-client checks above before marking the mineral subsystem fully validated.
+4. Continue with Upgrade Storage and the settings copier, then crafting patterns/essence conversion and AE output/read upgrades in dependency order. Extend Ultimate upgrades to each machine only together with its actual behavior/tests.
+5. Keep version 0.5.8 until the full port and validation finish. The unchecked registration inventory remains the source of truth for the remaining item families.
+
+## Mineral follow-up and Upgrade Storage checkpoint (2026-10-27)
+
+### Actual code changes
+
+- Corrected the mineral menus' inherited `MACHINE_SLOTS`: the normal menu has 17 visible machine slots and the large menu has 20, while their block entities still own all output pages. JDT 1.20.1 uses this field to route ghost-filter clicks. The old total-inventory value incorrectly blocked late hotbar slots and missed the real filter boundary.
+- Connected Eclipse Alloy Wrench interactions through large-mineral parts to the controller, including static bulk-pickup/rotation entry points. Parts return `PASS` for wrench/settings-copier item interactions. A populated large machine can now be picked up through a part and placed again with its four survey slots, 6.4-million-item output, FE, upgrades and multiplier intact.
+- Added the large mineral block entity's full 3x3x2 render bounds. All four orientations are covered by a server test; the actual client also renders the structure.
+- Corrected the mineral screen's vertical origin for Forge JDT's title placement, including the existing window/GUI-scale refresh logic. Added compact oversized output labels and an exact-count tooltip. The private vanilla `renderSlot` method requires a client mixin on 1.20.1.
+- Extended progress/process-length synchronization to signed-short-safe low/high halves, covering the configurable 72,000-tick process length. Mineral channel protocol is now `2`, so incompatible earlier WIP clients cannot exchange a different container-data layout under protocol `1`. Mod version remains unchanged.
+- Added basic `jdte:upgrade_storage`: the source 4x5 GUI, 20 slots at up to 64 upgrades each, upgrade-only validation, native JDT unstackable-upgrade compression, Forge item-handler capability, persistent NBT, both-hand opening, Shift transfers, tooltip summaries and expanded contents, item model/texture, recipe, creative tab and English/Chinese translations.
+- The storage handler replaces the source's component inventory with a live item-tag-backed Forge handler. Independently created wrappers observe the same saved state; simulated operations do not mutate NBT. Saved `Size` cannot resize the fixed inventory. Normal player inventory limits remain in force when extracting unstackable upgrades.
+- The storage menu protects its held item against pickup, Shift movement, number-key swaps and offhand swaps. Server validity uses the bound stack identity; client validity tolerates the normal replacement of its inventory stack by server NBT packets. Dedicated-server tooltip execution never initializes client key classes.
+- Corrected the mineral Patchouli addon category to `justdirethings:machines`, which actually exists in JDT Forge 1.1.4. Added GuideME and Patchouli Upgrade Storage entries. Updated the documentation validator's large-mineral alias/internal-part rules, and filled the inherited missing Time Freezer documentation from its actual Forge behavior; no new Time Freezer gameplay validation is claimed.
+
+### Verification and reproducible commands
+
+| Check | Result |
+|---|---|
+| Java 17 `test build runGameTestServer` | Passed, including production reobfuscation |
+| JUnit tests | 51 passed, including all original 24 mineral core tests |
+| Mineral server GameTests | 24 passed: original 18 plus hotbar/filter boundaries, independent viewers, populated wrench pickup/replacement, all-facing render bounds, recreated-controller capability routing and long process synchronization |
+| Upgrade Storage server GameTests | 11 passed: capability/NBT round trip, whitelist/nesting, simulation, live wrappers, distinct NBT, bound item locks, offhand swap, Shift persistence/conservation, server-safe tooltip, legal unstackable extraction and bounded NBT size |
+| Dedicated server | Reached `Done`, no JDTE recipe parsing errors, all dimensions saved on deliberate SIGINT; the launcher returns 130 for that manual stop |
+| Graphical client | Passed with an actual Forge client and integrated server on existing Xorg dummy/llvmpipe; no JDK or Gradle reinstallation |
+| Client network/UI checks | Normal/large menus, visible title, GUI-scale change, 80,000 mB fluid synchronization, server-acknowledged output page, 6.4M count snapshots, legal cursor pickup, recorded survey screen, synced biome catalog, actual JEI mineral category, Jade mineral server data through controllers and large-machine parts, and live Upgrade Storage item/menu/NBT updates |
+| Documentation validator | Passed: English/Chinese key parity, registered block names and guide coverage |
+| Production JAR isolation | The graphical harness is in `src/clientSmoke`, outside production main sources |
+
+The final server suites have no failures. Initial smoke fixtures needed to wait for login/ground/chunk updates and keep both machines within player interaction reach. A removed-but-still-present entity block recreates its block entity on access; the capability test now checks that transfers reach that replacement rather than the detached instance. Fresh-world Jade checks use actual visible collision shapes when aiming at the machine. These fixture corrections are recorded separately from the menu/wrench/rendering fixes above.
+
+The client harness is opt-in and never activates in normal gameplay or ships in the mod JAR. It creates an integrated-server test scene, sends real Forge/vanilla packets, checks server/client outcomes, saves screenshots and stops the client only after success. `scripts/run_mineral_client_smoke.sh` uses an existing display or starts an existing Xorg dummy driver. It copies a development world into an explicitly marked disposable test fixture, sets lightweight client options and refuses to replace an unmarked world. It does not install tools. Screenshots and the success marker are written under `runs/client`.
+
+```bash
+# Use the existing Java 17 installation and Gradle user home.
+export JAVA_HOME=/workspace/.jdks/jdk17
+export GRADLE_USER_HOME=/workspace/.gradle
+bash gradlew -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 \
+  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 test build runGameTestServer --no-daemon --max-workers=2
+
+# A development server test world must exist first. Override JDTE_SMOKE_SOURCE_WORLD if needed.
+bash scripts/run_mineral_client_smoke.sh \
+  -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080
+python scripts/validate_docs.py
+```
+
+The older "no graphical display" entry describes the previous checkpoint. This session found the already-installed Xorg dummy driver and obtained the graphical coverage above. Client checks use one integrated client, not two independent remote clients. There is no full optional-mod absence matrix, long-running throughput benchmark, actual cross-chunk unload/reload test or Factory Packer relocation/rotation test. Ultimate-capacity inventory destruction also still needs a bounded-drop/load investigation before a production release; wrench pickup is the verified preservation path.
+
+### Continuation
+
+Keep using `codex/forge-1.20.1-mineral-machines` on `origin`; this session adds commits on top of `bf85f53` without resetting or merging the Forge baseline. Keep Mod version `0.5.8-forge-1.20.1` until the overall port is finished. No release or merge to `main` is authorized here.
+
+Next: validate independent-client synchronization and the remaining large-machine lifecycle cases, then port Advanced Upgrade Storage (modes/actions/Curios) and the Advanced Machine Settings Copier against the now-working basic storage handler. Continue crafting patterns/essence conversion and AE read/output upgrades after those inventory dependencies. Unchecked registrations above remain unported; a working basic bag does not mark the advanced bag or copier complete.
+
+## Lifecycle, advanced storage and settings copier checkpoint (2026-10-27)
+
+This checkpoint continues `2bdf14e` on `codex/forge-1.20.1-mineral-machines`. The pinned reference remains `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`; the Mod version remains `0.5.8-forge-1.20.1`. Earlier limitations above describe earlier checkpoints.
+
+### Lifecycle fixes and actual behavior
+
+- Added `BulkItemEntity` for mineral output stacks larger than the item's normal stack limit. One full normal/large machine has 64 output entities rather than hundreds of thousands. Real counts use an integer entity-data field and integer NBT; the vanilla tracked item and saved `Item` node use a legal count. Vanilla/Forge pickup rules still govern inventory insertion, ownership, events and remainder handling. Full/partially full player inventories and entity NBT are covered by GameTests.
+- Replaced broad removal of `JustDiresBEData` from ordinary machine loot with `MachineDropDataHelper`. The helper removes separately dropped machine inventories and upgrade handlers while retaining FE, fluids, filters, configuration and pending work. Mineral machines explicitly save non-default machine state when generating loot. Wrench pickup remains a whole-machine preservation path.
+- Factory Packer now validates that every coordinate of a selected Large Mineral Extractor is inside the capture bounds. An orphan part or partial selection reports error 21 before world removal. Removal uses the moving-block flag for this structure, preventing part/controller teardown from destroying records the packer is still moving.
+- Part capability relays now check their own loaded chunk and current block-entity identity, in addition to the controller. Even a detached object whose removed flag is cleared cannot write through its replacement. The probe distinguishes live chunk-object reuse from detached endpoints.
+- Oversized inventory loading bounds `Size` to the actual fixed handler size before allocation and rejects non-positive integer count overrides. This shared loader also protects the already ported greenhouse inventories.
+- Fixed a production-only startup failure: `mixins.jdte.json` now declares its generated refmap. JDT overrides of Minecraft methods use both development and SRG selectors where their JDT-target mixin deliberately disables automatic remapping. This was verified with a real reobfuscated JAR in a standalone production Forge server, not just `runServer`.
+
+### Advanced Upgrade Storage
+
+- Ported the pinned source's actual 6x6/36-slot advanced case, with up to 64 upgrades per slot, including compressed unstackable JDT upgrades. The live item-backed Forge handler, capability, fixed NBT size, both-hand menu opening, safe Shift transfers and bound-item swap protections are shared with the basic case.
+- Ported the source machine side panel, case switching, collapse button, compatibility indicators, tooltips and all six actions: insert one/max, take one onto the cursor, withdraw a legal inventory stack, deposit all/one from the cursor. Bio Crusher Looting/Sharpness handlers are supported alongside standard handlers. The Bio Factory indicator uses the already ported Forge handler's actual limits.
+- Server messages validate the active machine menu, its window ID, interaction validity, case index and slot before mutation. JEI excludes the panel area. The main channel protocol is now `2`; the mineral channel remains `2`.
+- Case discovery checks main hand, offhand, inventory and optional Curios inventories, deduplicating the same stack by identity. No new Curios slot is created. Worn-case discovery and copier withdrawals are exercised against the real Curios capability in the server suite.
+- Added the original item/GUI textures and model, adapted shaped recipe, creative tab, translations and guide content. The pinned source does **not** implement the “collection modes” described in an earlier continuation note; no collection mode is claimed here.
+
+### Machine Settings Copiers
+
+- The basic copier is the existing `justdirethings:machine_settings_copier` in JDT Forge 1.1.4. Its filter/redstone behavior is integration-tested against mineral machines; it is not duplicated under a second registry ID.
+- Ported `AdvancedMachineSettingsCopierItem`, its typed/versioned snapshot data, machine codec registry, native/JDTE machine codecs, named upgrade handlers and planned upgrade exchange. Only machine families actually available in this Forge port/JDT 1.1.4 are registered; absent source families are still unported.
+- Presets retain common tick/direction settings, supported custom options, auto-I/O masks and dedicated upgrade handlers. Native area/offset/filter/redstone option switches remain available. Advanced Potion Brewer recipe-lock templates apply as configuration without resetting an active brew or producing ingredients.
+- Pasting reuses installed matching cards, consumes missing cards from the player/basic case/advanced case/Curios case, and refunds surplus cards to inventory or as player drops. Empty presets remove and refund old cards. Missing costs or invalid/type-mismatched/schema-mismatched presets reject the paste before mutation. Planned withdrawals support compressed unstackable upgrades and rollback.
+- Both copier tiers resolve Large Mineral Extractor parts to their controller. Real machine inventories, FE, stored fluids, surveys and work queues are excluded from the configuration codecs. Removing a capacity card still applies the machine's ordinary capacity rules.
+- Added source item resources/recipe and guides. The native Forge copier ingredient ID differs from the newer source and is adapted to `justdirethings:machine_settings_copier`.
+
+### Verification and limits
+
+- Java 17/Gradle 8.6 `test build serverSmokeJar runGameTestServer`: **58 JUnit tests passed**, including the original 24 mineral core tests; **57 required GameTests passed**. The server suite comprises 25 mineral interaction/production tests, 7 lifecycle/packer tests, 11 basic-case tests, 6 advanced-case tests and 8 copier tests.
+- New lifecycle coverage includes all 409.6 million output items on destruction, bounded drops, entity save/partial pickup, malformed inventory size/count, full-player-inventory wrench pickup with both fluids/work queues, actual complete Factory Packer capture/place, horizontal rotation, and rejection of partial structure capture. Packer tests use a larger isolated template and a registered fake-owner lookup entry for permission checks, not a real multiplayer connection.
+- `src/serverSmoke` is a separate test mod outside the production JAR. `serverSmokeJar` is separately reobfuscated with the main classes on its mapping classpath. `scripts/run_mineral_lifecycle_probe.sh` requires an explicitly marked, loopback-only disposable production Forge 47.4.10 server. It runs **two different JVMs**, checks success markers/exit codes, and retains per-phase logs.
+- The production probe seeds normal and large machines with 64 full 6.4-million-item output slots, all survey slots, 50 million FE, both fluids, an Ultimate Capacity card, multiplier and both pending work queues. It releases all nearby test chunk tickets, observes an actual controller chunk unload, checks stale endpoint rejection, reloads the chunks and compares persisted fields. It then saves/shuts down normally. A fresh server process restores those fields from disk and resumes exactly seven fortune cycles into the final available output space, charging exactly 35,000 FE and 175 mB XP Fluid without overflowing the slot.
+- Production runtime contains the configured optional-mod set. Some third-party missing optional recipe/tag references and update/authentication network failures occur in these cloud logs; they are not JDTE parsing failures. There is no full optional-mod absence matrix or claim that unrelated optional integrations have been validated.
+- Graphical checks and exact retained evidence are listed in `docs/validation/forge-1.20.1-lifecycle/README.md`. The opt-in client harness remains outside the production JAR. These checks use a real client with an integrated server. **Two independent remote clients connected to a dedicated server remain unverified.**
+- Earlier test attempts exposed fixture issues: neighbor forced tickets prevented unloading; a genuinely detached endpoint must stay invalid while a reused live chunk object may legitimately reconnect; repeated seeds needed fixture cleanup; fake networkless login could not run Forge login integrations; running capture fixtures needed explicit redstone pause; mock-player drops were located at the player's position. Each final assertion checks the intended behavior, and the final suites pass. One concurrent development compile invalidated a running test classpath; final validation uses completed compilation before starting the runtime checks.
+
+### Next continuation
+
+1. Continue from this branch's pushed checkpoint; retain all subsequent work rather than resetting to `ac1d813` or `2bdf14e`.
+2. Complete two independent remote-client synchronization checks and longer-running production/automation tests before a release. Extend the packaged client checks if additional production-only mapping issues appear.
+3. Continue crafting patterns and essence conversion (including Advanced Essence Conversion), then AE read/output upgrades against the now available case/copier inventory infrastructure. Add actual machine-specific behavior/tests before widening Ultimate upgrade compatibility.
+4. The unchecked registration inventory at the start of this document still identifies unported machines, items and upgrade families. This checkpoint does not claim full 0.6.5.2 parity. Keep Mod version 0.5.8 until the overall port and validation finish. No release or merge into `main` was performed.
+
+
+## Multiplayer, conversion and AE upgrades checkpoint (2026-10-27)
+
+This checkpoint continues `8563466` on `codex/forge-1.20.1-mineral-machines`. The source is still pinned to `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`; version remains `0.5.8-forge-1.20.1`. Earlier limitations are historical. No release or merge is performed.
+
+### Implemented and fixed
+
+- Added opt-in remote-client and optional-client harnesses outside the production JAR. Two independent graphical clients connected to a real production dedicated server simultaneously, exercised shared output and independent pages, concurrent upgrade-panel and copier operations, both bag menus, logout with a carried stack, natural pickup after reconnect, observed chunk unload, saved shutdown and reconnection to a fresh server JVM. The first-phase evidence identifies its exact JAR separately from the later upgrade JAR.
+- Fixed missing-Curios startup: `BigFluidTankItem` no longer directly implements an optional Curios interface. Curios-present behavior uses guarded item registration; the Forge fluid capability remains intact. Missing client block-entity upgrade queries now return no upgrades safely while a chunk arrives.
+- Ported Crafting Pattern's held-item menu and screen, real 3x3 recipe validation, ghost ingredients, non-extractable result, save/clear buttons, both-hand bound-item protection, inventory synchronization, fixed-size version-independent Forge NBT, model, recipe and translations. Saved patterns revalidate recipe identity, input matching and actual output against server recipes.
+- Ported basic/advanced Essence Conversion, including anvil binding of one/three distinct patterns, one-level/one-pattern costs, rename handling, native smithing NBT preservation, tooltips and Jade server-side validity status. Advanced patterns sharing an ingredient rotate fairly; different input groups craft independently. Machine NBT retains the rotation. Both greenhouses convert batch production and stored output, preserve crafting remainders, reserve incomplete inputs and reject conversions that cannot fit. Conversion runs before adjacent output and AE output. Unconfigured cards retain the source's unambiguous Mystical Agriculture essence-only conversion.
+- Ported AE Crafting Read's Wireless Access Point binding and five-tick server/grid-scoped cache. A busy CPU must also have an active job. Unbound, unavailable, inactive, booting or unloaded targets fail closed. Normal and accelerated work boundaries, event-driven collectors/suppressors, freezers and factory operations use the gate; factory rollback remains possible. Mineral pending work pauses instead of being discarded. Only machine families already available in this Forge port are integrated.
+- Ported AE Extraction's standalone linked template, dynamic two-input smithing recipe, equipment NBT/capability preservation, carried/Curios item discovery and capability identity deduplication. Matching existing fluids refill from ME; an empty tank requires a unique accepted fluid type. Applied Flux FE transfer is guarded by its own optional bridge. Extract/insert simulation and refund logic preserve resources on commit shortfalls.
+- Ported basic/advanced AE Output with real output-only machine routes, conversion-before-export, oversized grouped long-count item transfers and rollback. Basic transfer defaults to five ticks (configurable 1–1200) and 64,000 mB; advanced output allows ten passes per tick, up to integer-max fluid per pass and a flush after actual machine ticker executions. Output tiers are mutually exclusive. Binding is persistent dimension/position NBT; it never forces the target chunk to load. Models, textures, recipes, creative entries, language keys, bag tag and English guide pages are included. The pinned source contains no survival recipe for Crafting Read; no replacement recipe is invented.
+- Real concurrency testing exposed a preexisting Factory Packer race: asynchronous operations called Minecraft's mutable world-path cache. Packer write/read/claim/release/delete and package preview now capture the world root on the server thread and pass an immutable `Path` to asynchronous storage. Eight parallel complete package I/O operations are regression-tested.
+- Optional integration GameTests register only when their own APIs are present, using separate AE2/Applied Flux/Curios classes. This fixes a development-client discovery crash without dropping tests from the full configured suite.
+- Added current-world-object checks to queued adjacent output and AE output. A detached controller with its removed flag cleared cannot export a second copy or access invalidated capabilities after replacement. This fixes a server crash exposed by the new replacement test as well as preventing duplicate output.
+
+### Verified in the final development suite
+
+- Java 17 / Gradle 8.6 `test build runGameTestServer compileClientSmokeJava`: **77 JUnit tests passed**, preserving all previous 58 and the original 24 mineral core tests; **85 required Forge GameTests passed**, preserving all previous 57. Production and separate probe JAR reobfuscation passed.
+- New JUnit coverage exercises grouped oversized/long-max item transfer, simulated acceptance, commit-shortfall refunds, resource transfer bounds and machine safety decisions. Tests requiring Minecraft registries run as GameTests rather than pretending a plain JUnit VM has bootstrapped Forge.
+- New GameTests cover optional Curios registration, pattern ghost/menu/NBT validation, binding limits, fair rotation and save/load, output capacity and ingredient reservation, both greenhouse variants, native smithing pattern preservation, real AE2 link handlers, idle real-grid read rejection, paused mineral production, five-tick cache expiry/invalidation/server isolation, ordinary/advanced real-grid oversized output, conversion before real ME insertion, extraction equipment persistence, real ME fluid refill, real Applied Flux FE refill, empty-fluid ambiguity, discovery deduplication, stale-controller output rejection and concurrent factory storage.
+- The AE fixtures use actual powered/channelled Wireless Access Points, drives and item/fluid/FE storage cells, not an always-successful network stub. Initial fixture failures came from a drive facing the wrong way, and a non-energy item chosen for an FE test; those fixtures were corrected. The packer path race and stale-output crash were actual defects and were fixed.
+- `scripts/validate_docs.py` and `git diff --check` passed. Full configured development runtime logs contain unrelated third-party absent-item recipes/update checks; there are no JDTE recipe parsing errors in the final suite.
+
+### Runtime scope and continuation
+
+See `docs/validation/forge-1.20.1-network/README.md` and `docs/validation/forge-1.20.1-upgrades/README.md` for exact JAR checksums and runtime outcomes. The final JAR passed the full graphical integrated-client smoke, two simultaneous independent remote clients, a production server save/restart with those clients reconnecting, and both minimal server/client launches without AE2, Curios, JEI or Jade. The same remote clients and final full test suite also ran with Applied Flux absent/present respectively. All final test JVMs exited 0. The upgrade evidence records exact final checksums, inspected screenshots and selected log lines. Code commit `1588372` is pushed to the current development branch; subsequent evidence commits preserve this final runtime record.
+
+Still unverified: an actually submitted nonempty AE crafting CPU job controlling every machine family, long-running public-server throughput/concurrency, all combinations of optional mods, full UI interaction for every AE2 equipment variant, and exhaustive Mystical Agriculture recipe-pack compatibility. Snapshot/cache tests do not claim those scenarios passed. Earlier unported registrations remain unchecked above.
+
+Next: finish any runtime follow-up explicitly left pending in the evidence, then continue Seed Conversion / AE Acceleration and the remaining machine families according to dependencies. Keep the Forge version at 0.5.8 until the entire port and validation are finished. Continue from the pushed branch; do not reset to older baselines or publish a release.
+
+
+## Real crafting jobs and production-chain follow-up (2026-10-27)
+
+Starting checkpoint: `a36c6c5`, continuing the same development branch and version `0.5.8-forge-1.20.1`. Source remains pinned to JDTE 0.6.5.2 `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`.
+
+### AE job checkpoint
+
+- Added two conditional AE2 GameTests using real crafting storage, a Pattern Provider, an encoded processing pattern, an actual asynchronous calculation and CPU submission. The completion case waits for a real CPU to finish; the cancellation case cancels the actual CPU. Neither uses a fake busy-CPU snapshot.
+- A linked Mineral Extractor stays paused on the idle grid, runs when the submitted job is busy, pays FE and returns generated ore through its installed ordinary AE Output card. The standalone job finishes with its requested output in ME. Linked extraction equipment also refills from the same busy grid. Once the job completes or is canceled and the existing five-tick cache expires, FE and pending work remain unchanged during the paused observation interval.
+- The processing pattern's cobblestone trigger is delivered to a neighboring chest. It is a fixture for an actual pending processing job; Mineral Extractor remains an independent ore producer and does not claim to process cobblestone. The source read upgrade gates on any active crafting job, rather than matching each machine to a recipe or limiting output to requested counts. A fast producer may generate extra items while a slow CPU/provider is still busy; those items legitimately remain in ME storage.
+- Fixture corrections: asynchronous planners need a real network action host captured on the server thread; requesting a standalone job returns no requester link, so completion/cancellation is observed through the selected actual CPU. The fixture supplies sufficient FE for production throughout CPU scheduling. These were fixture changes; no production semantics were changed to satisfy the tests.
+- Java 17 / Gradle 8.6 `test build runGameTestServer`: **77 JUnit tests and 87 required GameTests passed**, retaining all previous tests; JAR and separate probe reobfuscation passed. Selected evidence is in `docs/validation/forge-1.20.1-production-chain/ae-jobs.txt`.
+- This verifies the native Mineral Extractor/ordinary AE Output/extraction path against real jobs. Every machine family, advanced-output job variants, active-job server restart and long-running multiplayer load are still separate validation work. Seed Conversion and the mixer family are the next implementation checkpoints.
+
+
+### Seed Conversion checkpoint
+
+- Registered the source one-per-machine Seed Conversion card, restricted to both greenhouse tiers. Newly harvested drops matching the planted seed are replaced one-for-one by the primary output only when that output has the Mystical Agriculture essence tag. Reusable planted templates, other drops and previously stored seeds remain untouched.
+- Both real harvest paths perform seed replacement before fortune/capacity fitting and essence conversion. Converted amounts participate in capacity reservation; blocked output does not commit a harvest. The installed card uses the existing persisted upgrade handlers and generic bag/copier item rules.
+- Added the pinned model/texture, Forge-conditional Mystical Agriculture crafting recipe, creative entry, translations and paired English guide pages. No optional MA API is referenced by the common upgrade implementation.
+- Java 17 `test build runGameTestServer`: **77 JUnit and 93 required GameTests passed**, including both real AE-job tests and all prior tests. Six new tests cover upgrade compatibility/limit/NBT, non-essence crops, normal/large deterministic actual harvest boundaries, preserved planted templates/old stored seeds, converted-capacity backpressure and composition with recorded essence crafting. The MA-specific fixtures register only when MA is present.
+- `seed-conversion.txt` retains selected actual suite output. A new graphical seed-specific check is not claimed here; mixer GUI/runtime validation is the next checkpoint.
+
+
+### Fluid Mixer server checkpoint
+
+- Ported both source registry tiers: `advanced_fluid_mixer` (100,000 FE/four upgrade slots) and `extended_fluid_mixer` (200,000 FE/eight slots). Both have two 8,000 mB inputs, an 8,000 mB output, a consumed catalyst slot, unordered inputs and optional second input. The original 100-tick/5,000-FE water/catalyst recipe produces 250 mB Time Fluid using Forge JDT 1.1.4's actual fluid ID.
+- Ported source processing/accelerated batching, 8-batch Mixing Upgrade and the related Ultimate Mixing Parallel Upgrade bounded by real resources/output. Parallel tiers are mutually exclusive. Basic/advanced upgrade bags, Shift insertion and the typed copier accept the plain mixing items. Extended Upgrade conversion recognizes the mixer pair.
+- Added full block/entity/menu/screen registrations, native models/loot/recipes/textures, translations, guide pages, JEI category/catalysts/click areas/stable recipe IDs and recipe-update refresh. A graphical mixer-specific check is still pending in this checkpoint.
+- Forge-specific fixes: the JDT superclass intercepts fluid queries before attached capabilities, so the mixer explicitly exposes its combined three-tank capability. The machine controls its own recipe clock and does not apply JDT's inherited generic work delay again. All three tanks persist dirty state and resize/clamp together. Data slots split all tank quantities/capacity and progress/duration into 16-bit pieces, and rendering clamps to the visible bars.
+- Normal/accelerated work respects AE read gating. Auto I/O accepts catalyst/inputs and exports only the product tank; AE output cannot extract input fluids/catalysts. Invalidated or detached combined endpoints cannot access a replacement machine. Ordinary destruction preserves FE, all fluids and progress but removes inventories/cards that drop separately.
+- Ultimate Capacity and Ultimate Overclock now support this newly ported family in addition to mineral machines. Mixer Ultimate Overclock executes ten real ticks per server tick, one-tick recipes and fiftyfold FE per batch. Other previously unported Ultimate-compatible families remain restricted.
+- Optional Mekanism integration adapts Forge 1.20's typed gas Chemical Infuser recipes to same-ID fluid equivalents, with the original 100 ticks/5,000 FE defaults. Unknown/unregistered equivalents are rejected; unexpected third-party recipe failures are logged rather than swallowed globally. Cache snapshots are scoped to recipe managers and reload generations. The configured runtime does not include Mekanism Extras; its specific liquid uranium/silicon fuel chain is not claimed as tested here.
+- Java 17 `test build runGameTestServer`: **81 JUnit and 104 required GameTests passed**, preserving all prior 77/93. This adds four original parallel-limit unit tests and eleven game tests covering both tiers, resource costs, single/dual input, fresh-BE restoration, capability simulation/direction, high-bit menu values, all-tank capacity removal, codec validation, acceleration/read pause, Ultimate Overclock, ordinary-drop conservation, detached endpoints and bag/copier integration. Production and probe reobfuscation passed. Selected output is in `mixer-server.txt`.
+- Next checkpoint: real processing-pattern fluid tasks with AE read/output, mixer GUI/JEI checks, optional-absence runtime checks and final evidence. No new server/client runtime pass is claimed before those checks run.
+
+### Mixer AE processing-job checkpoint
+
+- Added two real fluid processing-pattern jobs. The actual AE Pattern Provider pushes both the catalyst and 1,000 mB water directly into the real mixer capabilities; a real CPU waits for 250 mB Time Fluid. The Advanced mixer uses ordinary AE Output and the Extended mixer uses Advanced AE Output. Both finish, return exactly 250 mB, consume inputs once, pay exactly 5,000 FE and pause again when the CPU becomes idle.
+- The full suite passed **81 JUnit and 106 required GameTests**, with all prior tests retained. `mixer-ae-jobs.txt` preserves selected output.
+- Added compiled opt-in graphical checks for both mixer menus, high-bit fluid synchronization, Shift insertion of plain mixing cards, capacity removal and the actual JEI category. Added a separately reobfuscated production probe for both mixer tiers across actual chunk unload and a second server JVM. These runtime harnesses are outside the production JAR; execution results will be recorded by the next evidence checkpoint.
+
+### Mixer runtime corrections checkpoint
+
+- The first actual graphical run passed menu/data/JEI assertions, but screenshot inspection exposed Forge JDT's top-panel/menu-origin difference: the catalyst background and real clickable slot were offset by 30/26 pixels. Corrected the menu coordinates and extended the graphical probe to click the displayed catalyst slot through the actual screen and vanilla inventory packets. The corrected graphical run remains pending at this checkpoint.
+- Added a real Extended Upgrade interaction regression. Forge stores separate four/eight-slot capability handlers; merely loading the old machine snapshot leaves installed cards in the inactive four-slot handler. Mixer tier conversion now migrates the tagged cards to the active eight-slot handler, clears the inactive copy and refreshes capacities/client state. The regression preserves all three tanks, FE, catalyst, 73 ticks of progress and the installed read gate.
+- The full Java 17 `test build runGameTestServer compileClientSmokeJava` run passed **81 JUnit and 107 required GameTests**, including production/probe reobfuscation. No previous tests were removed.
+- The production optional-absence seed JVM passed real unload/reload and exact snapshots. The first restart fixture checked resumed work after a fixed 35 startup ticks and failed its completion assertion even though its disk-restoration comparison passed. The rerun records the actual state at that point and waits, with a bounded timeout, for natural work completion. Final restart results are pending; no restart pass is claimed here.
+
+### Capacity-safe mixer tier migration
+
+- Expanded tier-conversion coverage to Ultimate Capacity in the last slot, with 4,000,000 FE and 120,000/130,000/140,000 mB stored fluids. Per-slot migration could temporarily expose base capacity before the last card arrived. Restoring the full eight-slot handler before any capacity refresh prevents this resource loss, and clears the inactive four-slot copy without intermediate callbacks.
+- Full build/reobfuscation and the complete suite passed **81 JUnit and 108 required GameTests**. Earlier 107/81 results remain historical checkpoints. Final graphical and production runs are being repeated with the final production JAR.
+
+### Mixer small-window presentation
+
+- Clamped mixer GUI placement so Forge JDT's title, drawn above the inventory origin, remains visible at the actual 240-pixel minimum scaled height. Dynamic resize validation now recognizes the mixer origin, preventing repeated stale-layout rebuilds.
+- The graphical catalyst fixture now sends both mouse press and release and separates cursor pickup from the displayed-slot click across server synchronization. Earlier click-fixture assertions failed; a diagnostic rerun passed the full previous graphical suite and real catalyst click before this final title adjustment. Final screenshots/results follow after the new runtime run.
+- Repeated the complete suite after the GUI changes: **81 JUnit and 108 required GameTests passed**, with production/probe reobfuscation and compiled graphical harnesses.
+
+### Final production-chain runtime checkpoint
+
+- Final source checkpoint `b2466c5` passed the complete **81 JUnit / 108 required GameTest** suite, JAR/probe reobfuscation, the actual graphical client and two actual minimal production server JVMs. Final graphical/prod/optional client process exits were 0, 0/0 and 0. The production JAR checksum and selected logs are saved in [production-chain evidence](validation/forge-1.20.1-production-chain/README.md).
+- The real client repeated all previous mineral/survey/storage/copier/pattern checks and passed both mixer menus, high-bit quantities, plain Mixing Shift insertion, real displayed catalyst mouse interaction, all-tank capacity clamping and JEI. Inspected screenshots show correctly aligned catalyst items and fully visible titles at the minimum scaled height.
+- Both production mixers genuinely unloaded/reloaded with exact FE, all three fluids, catalyst, upgrade cards and progress. A fresh server JVM restored those fields and naturally completed the saved 73/100-tick recipe once with exact 1,000 mB water, catalyst, 5,000 FE and 250 mB Time Fluid accounting. AE2/Curios/JEI/Jade/Mekanism/Applied Flux were absent in that server; the actual optional-absence graphical title/registration check also passed.
+- Earlier probe assertion failures and their final reruns are retained in the evidence README. A compiler pass is not presented as a runtime pass. New independent two-player mixer checks, active-AE-job restart, the Mekanism Extras liquid-fuel chain, exhaustive crop-pack behavior and long-running stress remain unverified.
+- Seed Conversion, both source mixer tiers, Mixing and the related Ultimate Mixing Parallel are now implemented. Real AE CPU completion/cancellation and ordinary/advanced mixer-output jobs are verified. Unchecked registrations above remain unported; AE Acceleration and the remaining energy/entity/biological machinery are useful next checkpoints. Keep version 0.5.8, preserve this branch's commits and do not publish a release or merge main.
+
+## AE acceleration and mixer concurrency follow-up (2026-10-28)
+
+Starting commit: `5498124`; reference remains `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859`. Version remains `0.5.8-forge-1.20.1`. This work is limited to AE Acceleration, mixer multiplayer, active-job restart and available Mekanism Extras fuel compatibility.
+
+### AE Acceleration implementation checkpoint
+
+- Added the source one-per-machine AE Acceleration card, restricted to Basic/Advanced/Extended Time Accelerators, including the AE2-conditional speed-card/overclock/time-crystal recipe, original model, creative entry, translations and paired English guide updates. Existing upgrade handlers provide NBT, menu, insertion, bag and copier integration.
+- Each accelerator now needs its own card to discover native AE2 `IGridTickable` services. Removing the card or disabling AE2 acceleration removes its queued AE contribution; overlapping unupgraded accelerators cannot borrow another contributor's card. Native block-entity/random tick behavior and existing fluid-cost/budget settings remain in place.
+- Ported the source external-backend registration contract and frame ordering for optional JDTE-AE integration. Active external handles receive submissions; inactive targets reject fallback and charging; backend-owned routing suppresses built-in per-device AE calls. Cleanup is performed after execution and on level/server shutdown. No third-party backend mod is bundled or claimed as runtime-tested.
+- Corrected the older bridge's sleep accounting to match 0.6.5.2: a request that only makes endpoints sleep is not counted as useful work. Loaded-position checks prevent queued target lookups from forcing chunks.
+- Java 17 `test build runGameTestServer`: **91 JUnit and 112 required GameTests passed**, retaining all previous 81/108. Ten original backend-registry tests and four new GameTests cover registration/limit/recipe/NBT, real powered Inscriber service calls and sided deduplication, per-contributor scheduler gating/backlog removal and external routing. The native Inscriber advances two processing units per one-tick service call; early fixture expectations of one unit were corrected without changing production behavior.
+- Production and probe JAR reobfuscation passed. Real two-client mixer, active CPU restart and Mekanism Extras production checks are the next checkpoints; no new runtime pass is claimed here.
+
+### Active-job restart and compiled runtime fixtures
+
+- Two actual production Forge JVMs passed active real AE CPU save/shutdown/restart. A real provider feeds the Extended mixer; the first server saves partial work while the CPU remains busy. The next server restores the actual CPU job and exact machine NBT, completes exactly 500 mB through Advanced AE Output at 10,000 FE for two batches, then pauses. See [AE runtime evidence](validation/forge-1.20.1-ae-runtime/README.md).
+- Added four unit tests for frame ordering and failure propagation/cleanup. Registry-dependent world discovery is separated from the pure frame runner. The complete build now passes **95 JUnit and 112 required GameTests**, retaining earlier 81/108; production/probe reobfuscation and remote-client compilation passed.
+- Added compiled two-client mixer fixtures and opt-in actual Extras fuel probes. Their execution remains pending in this checkpoint. Extras 1.5.0 for Forge 1.20.1 was obtained from its public release metadata with a verified artifact hash; the exact historical uranium/silicon recipe is not present in its datapack resources.
+
+### Mekanism Extras fuel checkpoint
+
+- Actual Forge Extras 1.5.0 + Mekanism 10.4.16.80 production runtime passed both mixer tiers with the source chemical-infuser fuel recipe, reversed inputs, exact 8/25 batch output and 5,000 FE per batch. The real downstream rotary recipe accepts the output and returns the correct fuel gas. This tests the actual addon's recipe rather than a synthetic substitute.
+- The registered output is `mekanism_extras:fluorinated_naquadah_uranium_fuel`, localized as 液态含氟硅岩铀燃料. The addon uses naquadah/硅岩; absence of an elemental `silicon` recipe name does not imply this fuel chain is absent. Exact IDs, release hashes, selected third-party warnings and reproduction are retained in [AE runtime evidence](validation/forge-1.20.1-ae-runtime/README.md). No full reactor cycle or all-Extras compatibility is claimed.
+- A repeat two-JVM active crafting job test also passed with the later frame-helper refactor and AE2 present but Curios/JEI/Jade absent. Mixer multiplayer reruns exposed fixture-only logout pickup and delayed old-world entity loading; the baseline cleanup and natural pickup setup have been corrected. No passing full multiplayer result is claimed until its final rerun.
+
+### Natural AE acceleration and fixture corrections
+
+- Added a fifth AE Acceleration GameTest using actual natural server block ticks and the global scheduler, rather than manually driving a frame. The installed card finishes a real Inscriber silicon-print recipe with exactly one output and a reusable press, and records the source whole/fractional Time Fluid cost. Added explicit config-disable backlog invalidation to the existing per-contributor test.
+- Full Java 17 build/reobfuscation and **95 JUnit / 113 required GameTests passed**, retaining all earlier tests. A subsequent resources/build pass corrected the guide's opening text: only linked AE cards need a Wireless Access Point; local AE Acceleration needs no binding.
+- The early natural-cost assertion expected a whole-mB decrement too soon. The source retains fractional cost in `pendingFluidCost`, so the corrected test checks a whole debit or saved positive fractional debt. Production costs were not changed.
+- Two early mixer multiplayer attempts are retained in the evidence folder: the first waited for a randomly tossed logout cursor stack outside stationary player reach; the second included 64 old world items loaded after ServerStarted, before any client interaction. The fixture now performs its one-time old-drop cleanup after client chunks are ready and before establishing the 128-catalyst/5-card baseline, then observes every subsequent transfer/drop without deleting items. Reconnected players are moved into natural pickup range. Control phases are written atomically. The full rerun is next; these attempts are not counted as passing validation.
+
+### Submitted accelerator lifecycle guard
+
+- Final review found a capability-lifetime risk when an accelerator is dismantled after submission but before END-phase processing. The scheduler now admits only nonremoved, loaded contributors belonging to the current level and current world block-entity object before querying upgrades or retaining backlog.
+- Added a regression that queues real Inscriber work, dismantles the accelerator and clears the old object's removed flag. Neither invalidated capabilities nor the detached reference can execute queued work. Full build/reobfuscation and **95 JUnit / 114 required GameTests passed**, preserving original 81/108. No public-server crash is claimed; this risk was found during review.
+- Previous final same-JAR multiplayer, active-job restart and fuel tests passed at the 113-test checkpoint. The final runtime rerun is being repeated with this guard; no other machine family is being expanded.
+
+### Final bounded follow-up runtime checkpoint
+
+- Final source checkpoint `9970bd6` passed **95 JUnit and 114 required GameTests**, full build/reobfuscation and the final same-JAR runtime checks. All original 81/108 tests remain. Final checksums, exact unit suites, logs, process exits and inspected screenshots are in [AE runtime evidence](validation/forge-1.20.1-ae-runtime/README.md).
+- Two actual independent client JVMs passed simultaneous Advanced/Extended mixer catalyst races, Shift/bag upgrade insertion, concurrent copier pastes, authoritative menu snapshots, disconnect with a cursor, natural pickup, real chunk unload, saved shutdown and reconnection to a fresh dedicated server. All phases conserved 128 catalysts/five Mixing cards and exact three-tank/FE/progress state. Both servers and both clients exited 0.
+- The final two-JVM active-job test restored the actual nonempty busy CPU and mixer state, resumed partial work, returned exactly 500 mB through Advanced AE Output at 10,000 FE and paused. No plan was recreated after loading. The final actual Extras fuel/downstream recipe test also passed against the same production JAR.
+- The first multiplayer attempts failed at fixture-only pickup/pre-interaction contamination boundaries and are retained with their corrections. No item-bearing state was excluded from persistence comparisons, and no gameplay-phase drops were deleted to obtain a passing ledger.
+- This follow-up implements AE Acceleration and verifies the requested mixer/AE persistence/fuel paths. Real third-party JDTE-AE whole-grid scheduling, prolonged public-server stress, full operating reactor cycles and all other Extras/mod combinations remain unverified. Other large machine families were not expanded. Keep 0.5.8, preserve the pushed checkpoints and do not merge main or publish a release.
+
+## Complete inventory audit and bounded energy-upgrade work (2026-10-28)
+
+Starting checkpoint: `020109b`. Rebuilt the complete pinned-source inventory rather than inferring completion from the initial registry delta. At audit start, source has **120** fixed item registrations, Forge **98**; **22** are absent. The initial classifications are **30 verified paths / 19 implemented but unverified / 49 partial / 22 absent**. The full English matrix, curated behavior notes and generated JSON include every item from the original checklist, concrete implementation paths, named BE/menu wiring and static resource signals. Run `python scripts/audit_forge_port.py --check` to detect drift without starting Minecraft.
+
+Known gaps include Ultimate support on many already registered machines, newer Time Accelerator timing/proxy behavior, greenhouse matrix hooks, accelerated brewing, ordinary native tier migration and differing Ultimate Portal Gun manual-fluid costs. Missing method names alone were not treated as missing gameplay: inherited Forge methods are considered. Existing core/runtime tests remain valid for their stated paths but do not certify those missing behaviors.
+
+Selected bounded implementation: **Energy Brewing Upgrade + Energy Overload Upgrade**, including real fuel/FE behavior, one-card compatibility, configuration, common bag/copier/menu persistence, recipes/resources and tooltips. Existing JDT Energy Transmitter is a source-supported overload target; the absent advanced/extended transmitter families remain absent and are not being implemented in this pass. The independent JDTE-AE backend, long-running multiplayer and complete reactor operation stay explicitly unverified. No expensive repeated multiplayer/reactor runs are planned for these changes.
+
+
+## Full inventory and energy upgrade checkpoint (2026-10-28)
+
+### Audit and bounded implementation
+
+- Rechecked all **120** source item registrations at `ccf46472abaf3856fa9eebe0f5ebd25d8f28e859` against actual Forge items, blocks, BE/menu registries, models, language entries, recipe names and concrete implementations. The [full matrix](forge-1.20.1-feature-matrix.md) replaces checkbox presence as the authoritative parity classification; JSON and a cheap `--check` generator are retained.
+- Forge now registers **100** of the source items. The conservative matrix has **32 verified / 19 implemented-unverified / 49 partial / 20 absent** entries. Verified refers only to stated paths; a verified card does not complete all behavior of its host machine.
+- Implemented Energy Brewing Upgrade and Energy Overload Upgrade as the source's single-card plain items, including original models/textures, Forge-shaped recipes, translations, creative-tab entries and paired English guide pages. Restored the source upgrade tag for currently registered items only, without dangling unported IDs.
+- Energy Brewing buys the source **20 fuel credits / 5000 FE**, configurable from 0 to 1,000,000, with Creative/free-price bypass and the normal per-stage FE charge preserved. Purchases require valid ingredients and output room. Existing powder remains intact; manual/Shift/automation fuel insertion is rejected while installed and restored on removal. The canonical Forge upgrade capability persists the card alongside existing credits/progress, avoiding a second unsaved handler.
+- Energy Overload returns `Integer.MAX_VALUE` from native JDT `EnergyTransmitterBE.fePerTick()`. Actual transfer still spends stored FE and respects recipients. It uses real native transfer, not simulated generation. Advanced/Extended JDTE transmitters remain unported and are explicitly excluded from this checkpoint.
+- Both cards integrate with existing machine slots, Shift insertion, basic/advanced bags, typed copier validation, machine storage-panel limits and Jade's generic installed-card serialization. Graphical appearance of these new cards has not been run.
+- The new copier regression exposed a real Forge data-format bug: unlocked/partly empty brewing templates serialize as `air/Count:0`, but the decoder only accepted `{}`. New saves use `{}` and both canonical empty formats decode; unknown items, positive-count air and malformed templates still reject. Paste spends exactly one bagged brewing card without copying FE.
+
+### Validation and limits
+
+- Java 17 / Gradle 8.6 `test build runGameTestServer`: **100 JUnit and 123 required GameTests passed**, including production and separate probe JAR reobfuscation. Original 95/114 and the original 24 mineral core tests remain intact. Added five pure transaction tests and nine actual Forge integration tests.
+- New tests cover real twenty/next brews, exact costs, no-input/full-output/insufficient-FE behavior, retained powder, all six input faces, menu/Shift validation, mid-brew BE restoration, Creative/zero-price/legacy fuel, bags/copier costs, both empty template formats and actual native transmitter delivery/conservation/removal/persistence.
+- Production reobfuscated JAR two-JVM saved-shutdown/restart verification **passed** with optional AE2/Curios/JEI/Jade absent: normal shutdown at live brew tick 175/400 restored exactly in a fresh JVM, finished one Awkward Potion for only 300 additional FE, retained powder/19 credits and preserved both cards. Live overload Mixin and removal/reinsertion passed; both processes exited 0. See [energy-upgrade evidence](validation/forge-1.20.1-energy-upgrades/README.md) for logs, checksums and the reproducible harness.
+- Did not repeat the unaffected expensive two-client, real AE-job or Mekanism fuel runs. Their previous scoped evidence remains valid; this is not a new certification of those paths. Installed JDTE-AE whole-grid backend, prolonged multiplayer uptime and complete operating reactors remain **unverified**.
+- First attempts failed on a JDT-only type accidentally referenced from the plain unit-test classpath, test fixtures that reused an existing brewer and assumed Shift-kept powder in its original player slot, and the real empty-template copier bug. The final full passing run uses a Minecraft-independent FE transaction boundary, fresh fixtures, item-conservation checks and the codec fix. No tests were deleted or disabled.
+
+### Next development boundary
+
+Use the matrix before choosing work. A bounded next energy slice is fixing the Generator Upgrade's one-mB drain edge case and validating its native generator paths, or adding one source energy-transmitter tier with its full settings/filter/energy contract. Do not silently expand Ultimate card support across all inherited machines: each host needs its own operation/capacity tests. Time Accelerator timing/proxy/cache additions, Greenhouse matrix support, brewing coalesced acceleration and the Ultimate Portal Gun numeric mismatch are recorded partial work. Keep version 0.5.8; no main merge or release.
+
+
+## Generator Upgrade fuel correction (2026-10-28)
+
+- Fixed upgraded fluid generation to simulate the complete two-mB fuel debit and full three-times-native FE credit before mutation. One leftover mB survives repeated attempts and BE reload. Full/partially full FE buffers and inactive redstone do not consume fluid. Unexpected short commits restore both owned buffers; integer-overflowing output is rejected.
+- New native solid-generator coverage exposed two previously unexercised Forge port bugs: vanilla coal needs `ForgeHooks.getBurnTime`, and the non-Mixin helper cannot live in the reserved Mixin package. Corrected both and verified the two-coal/three-times-output behavior while retaining the insufficient-single-coal path and ordinary one-mB non-upgraded fluid behavior.
+- **107 JUnit / 127 required GameTests passed**, retaining all previous 100/123. Added seven pure batch-policy tests and four actual native-generator tests. Initial solid-fuel runs failed on the raw burn-time hook and helper-package classloading restriction; the final rerun passed after actual fixes, without deleting or disabling tests.
+- Generator Upgrade remains **P**: the native defect is fixed and tested, but the source Large Fuel Canister-specific path cannot be complete while that item remains unported. No broad Ultimate compatibility gate was removed. Final combined production JAR/dedicated-server checks will follow the other requested corrections.
+- Documentation roles are now explicit: the complete matrix remains authoritative for functional acceptance; this file keeps chronological historical evidence. Current Status replaces the stale latest-checkpoint pointer, and `audit_forge_port.py --check` also checks its 120-item counts against the matrix. These documentation checks do not start Minecraft.
+
+
+## Extended Upgrade interface and transaction correction (2026-10-28)
+
+- Implemented real state migration for **all 15 currently available conversions**: eight native T2 variants, Advanced/Extended Time Accelerator, Time Freezer, Fluid Stabilizer, Life Extractor, Infusion Machine, Gel Generator and Fluid Mixer. Restored the omitted existing Gel Generator conversion map entry. The five source targets whose extended machines are absent remain unsupported and keep the upgrade's **P** classification.
+- Preflight loads a prepared target with a complete four-to-eight-slot upgrade transfer. It preserves slot positions, NBT and counts, clears the inactive four-slot storage, checks the actual item/FE/fluid/filter interfaces and refuses occupied inactive data instead of erasing it. Capacity cards are installed as one complete state before capacity synchronization, preventing transient FE/fluid clamping.
+- Native T2 fields and Forge attachment storage differ. Explicitly migrated actual FE and filter pages; corrected normal Capacity scaling on the seven extended classes inheriting T1 execution, kept the native T2 **32,000-mB** base for both extended fluid machines, and made Extended Dropper's real FE storage persistent. These are real capacity/interface fixes, not removal of Ultimate compatibility limits.
+- Successful conversion clears the detached original item, upgrade, energy and fluid buffers. Invalidating a LazyOptional alone cannot revoke a handler already held by a caller. Failed replacement restores one original inventory and all actual FE, keeps the upgrade card, clears detached/staged copies, and logs the failure; rollback failure is propagated rather than swallowed.
+- Added the Forge placement-protection path: the conversion owns its source snapshot while temporarily suspending the outer generic item placement snapshot capture. It posts the real placement event before accepting the transaction, restores capture state in `finally`, and rolls back a cancellation with source BE data intact. This avoids a generic snapshot captured after detachment restoring an empty original block.
+- **112 JUnit / 133 required GameTests passed** with full production/probe build and reobfuscation. Added five pure slot-expansion tests and six Forge tests, including a test that loops through every available conversion with tagged inventory, all four cards, nearly full FE, applicable tanks, live automation, the eighth slot and a fresh BE reload. Dedicated tests exercise native filter pages, stale interfaces, denied/wrong replacements, occupied inactive storage, clicker auxiliary fluid/facing and real cancelled Forge placements for both native placer and dropper.
+- Earlier runs uncovered actual missing inherited capacity scaling, Extended Dropper FE persistence and T1-versus-T2 reservoir shrinkage; all were fixed and the final run includes all 15 paths. Fixture corrections supplied Forge LazyOptional exception suppliers and injected replacement failures through the transaction boundary instead of constructing an unregistered Item after registry freeze. No failed path or baseline test was skipped.
+- Actual production-JAR two-JVM save/restart checks remain pending at this code checkpoint. New graphical and independent multiplayer runs have not been performed. Installed JDTE-AE whole-grid scheduling, prolonged multiplayer uptime and full reactor operation remain unverified.
+
+
+## Production tier restart and acceptance checkpoint (2026-10-28)
+
+- Production gameplay checkpoint `b2d329e` and the separate probe passed **all 15 available real conversion paths** in one dedicated seed JVM and exact full-BE NBT restoration/live capability checks in a fresh JVM. Both final processes normally saved all dimensions and exited **0**, with AE2/Curios/JEI/Jade absent. This is new production disk-state evidence in addition to 112 JUnit/133 required GameTests and the full reobfuscated build.
+- The seed checks physical inventory/card NBT, actual FE, applicable almost-full fluid tanks, native filter templates, empty inactive slots, detached endpoint conservation and a working eighth slot. It exercises an actual native-dropper Forge placement cancellation before successful conversion. The fresh process restores every tested BE and naturally ticks them before withdrawing through real item/energy capabilities.
+- The production Generator conserves one-mB fuel during natural ticks, consumes a two-mB batch atomically, restores the odd remainder across a real saved shutdown and rejects 200 further incomplete attempts without FE generation or fuel loss.
+- The first probe fixture failed by assuming native SensorT2 implements RedstoneControlledBE. The pause helper was corrected to inspect the actual interface; final full-state/live-interface checks include the sensor. No source path was dropped. Selected logs, first failure, checksums, process outcomes and reproduction are in [parity-fix evidence](validation/forge-1.20.1-parity-fixes/README.md).
+- Acceptance remains **V 32 / U 19 / P 49 / N 20**, all 120 items accounted for. Generator Upgrade remains P because the source Large Fuel Canister path is absent. Extended Upgrade remains P because five source target machines remain absent. Eight extended machine rows retain P because broader Ultimate/operation parity is not proved by conversion tests. No item was promoted to V from compilation alone.
+- No new graphical, independent multiplayer or stress runs were necessary for these server/interface corrections. Their absence is explicit; existing historical evidence is unchanged. Ultimate Portal Gun consumption, broader Ultimate hosts, installed JDTE-AE whole-grid scheduling, prolonged multiplayer and complete reactors remain the stated next work/unverified boundaries.
+
+
+## Ultimate Portal Gun source consumption correction (2026-10-28)
+
+- Restored the pinned source's actual manual prices: **500 mB** cross-dimension, **25 mB/block** in the same dimension, rounded up and capped at **25,000 mB**. The old Forge values were 1,000,000 / 1000 / 500,000. Zero-distance manual shots may use an empty fluid tank while still paying the normal native FE cost.
+- Source firing uses JDT's `PORTAL_GUN_V2_RF_COST`; its Forge 1.20.1 counterpart is **`Config.PORTAL_GUN_FE_COST`**, as confirmed against the actual native `PortalGunV2` bytecode. The source JDTE `ultimatePortalGun.energyCost` field is unused; retain it for config compatibility and clarify it in the config comment/guide instead of incorrectly charging it.
+- Restored separate pricing for recorded favorites and previous destinations. Holding Shift must call native JDT pricing even when a manual slot is selected. Source-compatible public calculation helpers now delegate to a pure tested policy. Whole FE/fluid checks precede firing; a cancelled native projectile addition no longer charges resources.
+- Actual item capabilities retain the source default **1,000,000 mB / 1,000,000 FE**, configured through the existing JDTE capacity fields. Tests fill 30,000-mB/12,000-FE configured buffers, reject overfill/wrong fluid, save/reload the item and preserve resource amounts/manual flags. Added paired English GuideME pages and clarified native versus legacy energy settings.
+- **120 JUnit / 140 required GameTests passed**, including all earlier 112/133, with full build and production/probe reobfuscation. Added eight pure pricing tests and seven actual Forge tests: native projectiles and exact debits, cross/same dimensions, previous/recorded/manual routing, rounding/cap/zero cost, configured capacities/item NBT, insufficient funds and real cancelled entity joins.
+- A separate reobfuscated production server with JDT/GuideME and AE2/Curios/JEI/Jade absent passed real native shots, native 173-FE pricing despite a different legacy JDTE value, manual 500/250-mB debits, configured capacities, saved-item restoration, previous routing and the cap; normal saved shutdown and **exit 0**. The first test fixture assumed immediate spatial-query visibility in a newly loaded chunk and failed that assertion. The final fixture records actual per-owner Forge entity joins and requires accepted live native projectile objects; the GameTests retain their actual spatial-query checks. Initial NeoForge config-field naming also failed compilation and was corrected to the verified Forge API. No gameplay test was removed or disabled.
+- The matrix promotes only Ultimate Portal Gun's verified stated paths from **P to V**. Current totals: **V 33 / U 19 / P 48 / N 20**, 120 items / 100 registrations. Fresh graphical portal-editor validation and a new independent multiplayer run were not performed. Generator and Extended Upgrade retain P for their source features blocked by absent items/targets.
+- This bounded round completed the three requested resource/interface corrections. Broader Ultimate support was analyzed but not unconditionally enabled: common scaling helpers do not prove every host's capacity and per-operation behavior. Next work can start with a narrow extended-native Capacity group; Ultimate Overclock must also implement and verify host-specific batching and FE costs. Whole-grid JDTE-AE, prolonged multiplayer and full operating reactors remain unverified.
+
+
+## 2026-10-28 — interrupted transmitter workspace recovered
+
+The current workspace retained the full uncommitted transmitter port from `fb64caa`. Before changing source, a complete binary tracked diff, all 41 untracked files (including the pre-existing Python cache), prior logs, JUnit XML and SHA-256 checksums were saved at `/workspace/jdte-recovery-20261028`. Source and retained full successful core log were then committed as **`a115219`**, explicitly WIP, and pushed to independent branch `codex/recovery-energy-transmitters-20261028`. No reset, clean, main-branch merge or release was performed.
+
+The prior log reports **151 required GameTests**, and retained XML totals **131 JUnit tests, zero failures/errors/skips**. These are recovered evidence, not a claim that recovery itself reran those checks. The previously unchecked native-to-Extended converter moves owned FE rather than a network aggregate. Advanced and Extended are separate source machine paths, not successive tiers.
+
+Follow-up implementation adds explicit unloaded-state guards, source particle/player-binding copier codecs, source Jade network/player status and English guide pages. Dedicated optional tests now connect a real powered AE grid and Applied Flux disk. A separate production probe exercises two transmitter tiers with optional mods absent, full-inventory wrench transport, actual chunk unload and a fresh JVM.
+
+Initial follow-up failures are retained and being corrected: Forge `LazyOptional.orElseThrow` requires a supplier; invoking `onLoad` on an explicitly unloaded object does not rebuild its invalidated attachment capabilities (use a fresh deserialized BE); native transmitter network FE is unavailable before native discovery; Forge FakePlayer suppresses dropped items (use an ordinary server-player actor for the full-inventory branch); the partial-receiver Applied Flux fixture needs further diagnosis. These failed attempts are not accepted validation.
+
+The fresh-BE regression exposed a real Forge API gap: the inherited JDT transmitter save method does not persist its owned `TransmitterEnergyStorage` field. The Extended tier now explicitly writes/loads its local `energy`, clamped to actual capacity; this remains under regression validation. Early production-drop lookup also ran during `ServerStartedEvent`, before normal entity tracking; the transport phase now waits for running server ticks. No failing assertion was removed or relaxed.
+
+### Follow-up regression checkpoint
+
+The complete `build runGameTestServer` run now passes **131 JUnit / 154 required GameTests**, full build and both JAR reobfuscation tasks. The unload/fresh-load test confirms the Extended owned-FE persistence fix. The Applied Flux zero-extraction failure was a fixture topology error: the extra energy cell powered an isolated channelled grid beside the AP's unexposed side. Bridging through the existing energy cell and asserting grid identity makes real 50,000 FE disk delivery pass. A real 1,000 FE extraction/40 FE partial receive/960 FE failed refund now survives snapshot and node teardown, and a fresh BE refunds that credit exactly once after reconnecting. See retained compressed logs/XML and failure excerpts in [transmitter evidence](validation/forge-1.20.1-energy-transmitters/README.md). Production checks are separate and still pending at this checkpoint.
+
+### Production recovery completed
+
+Both fresh production Forge JVMs exited **0** using the actual reobfuscated mod and separate probe, with AE2/AppFlux/Curios/JEI/Jade/Draconic absent. Advanced and Extended pass full-inventory actual wrench pickup/replacement, old endpoint rejection, real chunk absence/reload, normal saved shutdown and second-JVM state restoration. The strengthened final probe exercises non-default actual native/Forge filters, NBT comparison, area settings, particles, battery, first/eighth upgrade slots, offline binding, 1.9B owned FE and a synthetic 5B long credit; each restarted capability then spends exactly 123 FE. Full NBT comparison excludes position/type and placement owner, not runtime resources. Retained logs, expected NBT, markers and JAR SHA-256 values are in transmitter evidence.
+
+The drop fixture required actual ticking entity tracking and removal of leftovers from aborted attempts in the marked disposable test area. These were fixture corrections, not relaxed conservation assertions. Source-original teardown refunds are intentionally omitted: refunding credit after a save/pickup snapshot can duplicate that saved FE. Normal live ticks refund the credit; real Applied Flux failed-refund conservation is separately verified.
+
+Guides and source-derived Jade/copier wiring are implemented. No new graphical transmitter run, online bound-player/Curios charge, Draconic injector test, arbitrary native peer-network proof or installed ME production-JVM restart was performed. Both transmitters remain **U**; counts are **V33/U21/P48/N18**, registered **102/120**. The native-to-Extended conversion is a 16th real-item GameTest path; the previous 15 conversions retain their own production evidence. Four remaining conversion targets and the Large Fuel Canister are still absent. Audit normal/`--check` and guide/language validation pass. No version change, main-branch merge or release.
+
+### Recovery branch integration
+
+After source recovery, passing full regression and successful two-JVM production probes, the development branch `codex/forge-1.20.1-mineral-machines` was fast-forwarded from `fb64caa` through `083e95f`. Recovery commits remain reachable on the independent recovery branch. The original pre-existing untracked `scripts/__pycache__/` directory remains untouched and excluded from commits. No main branch was merged or changed.
+
+Final post-guide `test build` and main/probe reobfuscation passed (14 seconds). Entry-level comparison of final versus production-tested main JAR finds only two guide Markdown pages changed; runtime classes and all other resources are identical. Both tested and final SHA-256 hashes and the equivalence report are retained. No unrelated multiplayer/pressure test was repeated.
+
+## 2026-10-28 — transmitter remaining-acceptance network checkpoint
+
+Continued from `cd8aaaa`; retained original backup/recovery branch and all tests. Seven new GameTests bring the complete suite to **131 JUnit / 161 required GameTests**, full build/reobfuscation passed. Three genuine failures were reproduced before repair: negative local FE after pooled extraction, int overflow above 2B, and smaller-peer overfill during balancing. Extended now debits real buffers, preserves long totals internally, bounds balancing by each capacity and marks actual FE mutations dirty. Advanced capability mutations also mark the chunk dirty. Actual stale peers, direction changes, distance-loss accounting, rate/overload/full/insufficient boundaries and reload conservation pass.
+
+The installed Draconic dependency permits a real registered injector test: public demand set to 10,000, transmitter spends 6,500 then 3,500 and stops; exact FE conservation passes. No full fusion recipe or reactor proof is inferred. Retained RED/GREEN logs are in transmitter evidence. GUI/player/Curios/reconnect validation is ongoing. The first GUI attempt used an ordinary inventory packet for a ghost slot; corrected to JDT's real screen mouse path. Asynchronous server-check failures now abort client acceptance; reentrant disconnect ticks are guarded. These incomplete runs are not claimed successful. Both items stay U and the matrix remains V33/U21/P48/N18.
+
+### Native-originated mixed-network checkpoint
+
+Pooled accounting is now shared with native Forge JDT peers via two narrowly targeted Mixins and a helper outside the Mixin package. This is necessary because native peers can originate traffic too: fixing only the JDTE storage would leave negative native buffers, overflowing native totals/balancing and missing native owned-FE persistence. Current peer resolution checks live world identity, loaded chunks and actual facing; no stale cache or forced-load lookup is used by pooled FE queries. The source distinction that peers discover native JDT transmitter blocks is retained.
+
+**131 JUnit / 162 required GameTests**, complete build and main/probe reobfuscation pass. New native-originated three-node traffic preserves actual ownership through repeated transactions and fresh NBT load. A new, separate two-JVM production probe also passes: one Extended and two native transmitters perform 96 round-trip packets, a native-originated 5,000 FE withdrawal, save exactly 5,000 owned FE per node, restore full NBT in a fresh JVM and withdraw another 5,000 leaving 10,000. Both exits are 0; optional AE/Curios/Jade/Draconic remain absent in that minimal production fixture. This tests a new native-peer path; the already verified wrench/unload production probe was not repeated.
+
+Client testing remains in progress. Ghost templates now pass with a real mouse event/rendered hover and native screen packet. The subsequent button attempt reused the previous ghost hover at unrelated coordinates; the harness now clicks each actual rendered widget directly. Asynchronous assertions abort the harness, so no incomplete run is accepted. Both transmitter rows remain U pending completion.
+
+### Graphical and online-player acceptance checkpoint
+
+The complete real client run now passes, including both menus, 1.9B FE packets, real filter ghost input with 64 retained templates, upgrade installation/removal, particles/binding and Jade HUD. Actual hotbar/boots/offhand/validated Curios gaps consume exactly 4,000 FE, and real integrated-world disconnect/reopen restores binding, Curios state and a further exact 1,000 FE refill. At 1280x720/GUI scale 2 the complete title, control sections and both four-slot upgrade columns are visible; screenshots were visually inspected. Test-only Curios slot data is excluded from production. The earlier failed harness attempts remain failures.
+
+Full **131 JUnit / 164 GameTests**, build/reobfuscation pass. Added actual Extended Ultimate capacity/ticker/removal and six-face/retained-port tests also pass. Extended is admitted to V for its source native-FE contract; Advanced remains U pending dedicated running-server logout and installed ME production-JVM recovery. Counts: **V34/U20/P48/N18**, 102 registered. See [acceptance evidence](validation/forge-1.20.1-energy-transmitters/acceptance/README.md). Existing unrelated backend/long-term/reactor limits remain unverified.
+
+### Advanced dedicated and installed ME acceptance completed
+
+After checkpoint `f87b93e` admitted Extended, the existing remote launch/libraries and installed mods were reused in a separate marked loopback-only fixture. A real independent client connects, receives four actual equipment/Curios refills costing 4,000 FE, disconnects while the dedicated server keeps ticking for 100 ticks with 7,777 FE unchanged, and reconnects after actual offline source chunk unload/reload. The saved UUID/real Curios inventory restore; one 1,000 FE gap consumes exactly 1,000, leaving 6,777 which is then explicitly withdrawn. No FakePlayer is used.
+
+The same production server has an actual powered/channelled AE2 grid and Applied Flux disk. With a real receiver at 60,000/100,000, 50,000 FE on disk supplies only the 40,000 demand and saves the remaining 10,000. A second production JVM restores disk/source/node/binding data; after a deliberate 50,000 receiver withdrawal, exactly the final disk 10,000 is delivered once, ending at receiver 60,000 and disk/source/credit zero. Both production JVMs and the client exit 0. The final main artifact is byte-identical to the production-tested artifact.
+
+Advanced is now also admitted to V. Authoritative counts are **V35/U19/P48/N18**, registered **102/120**. Full regression remains **131 JUnit / 164 required GameTests**, all previous tests retained; final `test build`/reobfuscation passes. The added final code is in test-only source sets; fixture Curios JSON and smoke classes are excluded from the production JAR. Full logs, actual player/source NBT, markers, screenshots and hashes are retained in [dedicated acceptance evidence](validation/forge-1.20.1-energy-transmitters/acceptance/dedicated/README.md). Global JDTE-AE external backend, prolonged multiplayer and complete fusion/reactor operation remain explicitly unverified. Recovery branch/backup remain unchanged; no version change, main merge or release.
+
+## 2026-10-28 — Large Fuel Canister core
+
+Implemented the source fuel item, weighted burn speed, ×4 capacity/×10 unit, bound transient menu, Curios shortcut/slot, models, language, guide and registered preserving upgrade recipe. Large Pocket Generator/Potion Canister are separate unported items; the two Extended generators depend directly on native machines and the existing Extended Upgrade.
+
+Fixed caller-owned fuel stacks being mutated by synchronous staging-slot callbacks and native solid generation consuming prepaid FE while its output buffer was full. Checked overflow before consuming fuel, and require two complete canister units for Generator Upgrade. The upgrade recipe consumes four actual ingot cells and does not return the old canister (which would duplicate stored fuel).
+
+Validation: **138 JUnit / 169 required GameTests**, build and main/probe reobfuscation pass. Previous runs exposed input-stack ownership and an incorrect expected speed omitting native configuration; both were corrected before the passing run. All previous tests remain enabled. [Evidence and outstanding acceptance](validation/forge-1.20.1-generators/README.md). Canister U; Generator Upgrade remains P pending remaining acceptance.
+
+## 2026-10-28 — Extended generator core
+
+Added both native-derived Extended generator blocks/entities, eight-slot upgrades, Forge menus/screens, full-width burn/fluid menu properties, preserving shaped recipes, conversions, models/loot/tags/translations and English guides. Reuse real native energy/tank ownership, refined-fuel validation and configured output rates (including native fluid export ×10 per face); do not create parallel buffers. Source-compatible Ultimate Capacity ×50 and Ultimate Overclock ten executions are narrowly enabled and tested for these two hosts. Unsupported filter cards remain rejected.
+
+Added guarded live FE/item/fluid capabilities and fresh neighboring-port resolution. Export debits actual acceptance instead of native simulation results. Packed crafting now retains machine NBT and migrates four active upgrade slots without leaving a second inventory. Menus reject detached owners. Found and fixed attached capability handles never recovering after Forge invalidation/revival; fresh handles now point to the same retained buffers, and detached ticker callbacks are rejected before querying upgrades.
+
+Nine new Forge tests cover real fuel insertion/extraction, full buffers/whole batches, validation, capacities, actual ten-execution ticker, both native conversions, real protection-event cancellation/rollback, raw save/load, retained endpoints, wrench/actual BlockItem placement, partial receiving neighbors/direction/rates and packed crafting. Early runs exposed fixture errors (T1 unpowered receiver, mock player's crafting menu, replacing a speed card instead of conflicting with it) and the real capability-revival defect. Final **138 JUnit / 178 required GameTests**, complete build, both reobfuscations and client harness compilation pass. No tests/assertions removed. Graphical and production-JVM checks remain pending at this checkpoint.
+
+## 2026-10-28 — Graphical fuel/generator acceptance and capacity removal safety
+
+The real Forge graphical client passed handheld and dedicated Curios-slot canister opening, F input-event/network dispatch, actual shift-fill and exact synchronized fuel/item counts. Both generator screens show real menus with full-width FE/burn/fluid data and eight slots. A single Generator Upgrade was installed, removed and moved between both machines with server/client assertions and no duplicate. [Screenshots and run summary](validation/forge-1.20.1-generators/graphical/run-summary.txt).
+
+Further boundary review found inherited capacity removal could clip FE/fluid. New generator hosts refuse a card removal/replacement when the resulting buffer could not retain existing resources. Menu shift-click now respects the slot extraction guard. Actual API, direct replacement and menu paths plus independent fluid excess have regression tests. Fuel speed/production/export multiplications saturate rather than wrapping; overflowing normal/upgraded fuel credits reject before consuming fuel. One numeric and two Forge tests added: **139 JUnit / 180 required GameTests**, full build and both reobfuscations pass.
+
+The first production seed attempt failed immediate full-inventory packed-drop lookup in a new remote chunk. [Failure record](validation/forge-1.20.1-generators/production-first-failure.txt) retains the actual failure and the fixture-timing hypothesis. Production acceptance is still pending here. Documentation validation exposed machine-family guide filename requirements; added the correct family pages, preserving English project Markdown. Docs validation now passes (929 language keys / 62 blocks / 45 pages).
+
+## 2026-10-28 — Container fuels, graphical overflow and production diagnostics
+
+Added a real Forge test for the source container-fuel exception (one Lava Bucket and one empty remainder, tripled credit) and the native Refined Fuel bucket path, including refusal to partially drain a bucket when only one mB fits. Guides now state this exception instead of promising two buckets. Full regression **140 JUnit / 181 required GameTests**, build/main/probe reobfuscation pass; all previous assertions remain enabled.
+
+The graphical capacity-guard rerun passed real Shift-click rejection while FE is full. Screenshot review then exposed a real native screen integer multiplication overflow (`stored FE * 70`) at enlarged capacity: numeric menu values were correct but the bar was empty. The two new generator screens now use wide/clamped arithmetic in the native render path; an additional unit test covers full/half/invalid/overflow bar values. This rendering fix still requires the next graphical rerun at this checkpoint.
+
+Production investigation retained failures rather than declaring success: [second attempt](validation/forge-1.20.1-generators/production-second-failure.txt) identified the fixture's missing initial placer UUID, fixed without excluding fields; full packed state now compares exactly. [Third](validation/forge-1.20.1-generators/production-third-failure.txt) and [fourth](validation/forge-1.20.1-generators/production-fourth-failure.txt) attempts reached real unload but timed out with a FULL/33 holder despite unforcing the generator chunk. Further ticket diagnostics are in the probe. No production unload/restart acceptance claimed yet.
+
+## 2026-10-28 — Native chunk-pinning fix and fuel/generator acceptance
+
+A separate opt-in probe Mixin captured the actual post-unforce loading stack: native JDT `EntityEvents.levelTick` reads a block for every globally tracked ItemEntity through `Level.getBlockState`, refreshing UNKNOWN/33 tickets in otherwise idle chunks. Replaced only that lookup with a non-loading loaded-chunk read (`getChunkNow`). This is a real lifecycle fix, not fixture entity deletion or forced unload. Separate probe diagnostics are excluded from the main Mod JAR. Actual native loaded-fluid crafting remains functional, spending one catalyst; a registered position-proxy item verifies the global event cannot load a missing chunk. Initial proxy fixture registration used the invisible far section; corrected registration before switching its view and retained all assertions.
+
+Final **140 JUnit / 183 required GameTests**, full build and main/probe reobfuscation pass; final `test build` also passes. [Regression summary](validation/forge-1.20.1-generators/final-regression-summary.txt). Real client verification confirms handheld and Curios fills, full-width menus, upgrade install/remove/transfer, blocked unsafe capacity removal, and corrected full enlarged FE bars ([final screenshots](validation/forge-1.20.1-generators/graphical-final/run-summary.txt)).
+
+The production probe now passes two separate actual reobfuscated Forge server JVMs with AE2/Curios/JEI/Jade absent. Both generators survive full-inventory wrench drop/placement, real chunk unload/reload, saved shutdown and restart with exact inventory, fuel canister NBT, FE, fluid, upgrades and generation credit/progress. Retained public interfaces become inert while unloaded/detached; resumed solid work does not repurchase fuel, and restored upgraded liquid generation spends exactly two mB for x3 FE. [First passing markers](validation/forge-1.20.1-generators/production-first-pass.txt); earlier failed attempts remain retained and are not rewritten as passes.
+
+Large Fuel Canister, both Extended generators and Generator Upgrade change to scoped V based on the combined behavioral evidence, not compilation. Inventory becomes **V39 / U19 / P47 / N15**, 105/120 registered. Extended Upgrade remains P for its two absent targets. Independent two-player concurrency for these new menus, prolonged uptime and arbitrary third-party fuel/data packs remain unverified; no unrelated expensive multiplayer/AE/reactor validation was repeated. Version remains 0.5.8; no merge/release.
+
+## 2026-10-28 — Final packaged runtime evidence
+
+Code checkpoint **`ac344f2`** is pushed. The final clean seed/verify production run exits 0 in both JVMs, after disabling the opt-in diagnostic before the probe's intentional reload. [Full retained logs, exact marker files, saved NBT and JAR SHA-256](validation/forge-1.20.1-generators/production-final/run-summary.txt) are committed separately from the Mod artifacts. Installed JARs match the final built/reobfuscated pair byte for byte. Main JAR excludes the diagnostic source set. No unexpected ticket trace or probe assertion occurs in final logs.
+
+Final checks: **140 JUnit / 183 GameTests**, final `test build`, both JAR reobfuscations, audit regeneration/`--check`, documentation validation and `git diff --check` pass. Status remains **V39 / U19 / P47 / N15**. No new independent two-player session or unrelated reactor/AE whole-grid test was run. Version/recovery branch/backup remain preserved; no main merge or release.
+
+## 2026-10-29 — Bio Extractor implementation checkpoint (acceptance pending)
+
+Started from clean tracked baseline `1c7de1f`; pre-existing `scripts/__pycache__/` is preserved. Existing generator implementation and evidence were retained. Added a real two-client generator probe using existing remote runtime infrastructure. Initial launch failed client/server dependency matching (Create/Mekanism datapack registries); matched isolated runtime reuses installed Forge/libraries. A subsequent phase-5 failure was a test helper still shifting coal instead of the fluid fuel bucket; corrected without changing resource assertions. Current multiplayer acceptance remains pending.
+
+Pinned source Bio Extractors harvest products nonlethally, using entity-persistent shared cooldown, sheep shearing/color, recipe chances and optional damage. Advanced is 100k FE/16k mB/9 outputs/four cards/one target per scan; Extended 200k/32k/18/eight/four. Overclock/Creative target limits are two/eight. Preserved source 20/5/40 counter intervals and the Ultimate ten-execution/50x-energy behavior. Source area initialization is 5/9 but both are clamped by the shared configured area maximum (default 5); this source quirk is documented rather than silently advertising an unconditional radius 9.
+
+Implemented real Forge registrations, engine, nine processing recipes, bounded network serializer, milk alias (`minecraft:milk` source -> enabled Forge milk), menus with full-width fluid/progress, screens/JEI, source models/translations/crafting and English guide. Native source's internal item insertion wrongly uses its own output-only validator; planned internal slot commits fix that loss path. FE/fluid commits roll back on short mutation, new ports reject stale owners, scan progress is saved, and upgrade/tier/copy/automatic output routes are wired. New rows are U, not V. First compile found the 1.21 entity-filter API; reused existing Forge EntityFilterHelper and compilation now passes. Dedicated new tests and runtime acceptance follow; no success claimed yet.
+
+## 2026-10-29 — Independent generator concurrency accepted
+
+[Two-client evidence](validation/forge-1.20.1-generators/multiplayer/README.md) now covers two independent graphical client JVMs simultaneously connected to a real dedicated server, racing shared coal/fuel inventory and repeated upgrade Shift-clicks, concurrent copier pastes/bag-panel installation, actual automation item/FE/fluid interfaces, logout with cursor, reconnect/pickup, observed chunk unload and a fresh server JVM. Resource ledger stays 64 coal / one Refined Fuel bucket / five Generator Upgrades, exact remaining owned FE/fluid plus recorded external extraction (74 FE/seven mB). Both clients/server JVMs exit 0 and restore exact machine/player state.
+
+Initial dependency handshake failure and phase-5 test-helper predicate failure are retained and corrected; no resource assertion was weakened. No main source classes were rebuilt during live clients. The probe's inherited three-tank marker label is corrected to fuel/FE menus; actual generator assertions never depended on mixer tanks. This closes the prior new-generator-menu two-client gap, not prolonged multiplayer certification. Bio Extractor acceptance remains U; its new processing JSON check exposed a custom nested-item schema mismatch, corrected before upcoming full tests.
+
+## 2026-10-29 — Bio core behavior, source resource fixes and Forge menu regression
+
+Full build/reobfuscation and **146 JUnit / 198 required GameTests** pass, retaining all old tests. [Bio evidence](validation/forge-1.20.1-bio-extractors/README.md). Fixed processing JSON nested item IDs to match the existing Forge custom parser; all nine pinned recipes now load and round-trip over real recipe sync. Milk is the actual enabled Forge fluid, not a placeholder.
+
+New behavior tests exercise production/resource costs/backpressure, shared cooldown, colored wool, configured filters, physical buffers, source Ultimate timing, item output routing, native conversion/real Forge protection rollback, expanded output inventories and actual wrench/BlockItem placement. Initial filter-page failure revealed storage only expanding with menus; preserve and expand it before UI use. Real graphical test exposed a Forge private-method collision in output Shift transfer; use existing mapped AbstractContainerMenuInvoker and retain an explicit regression. JEI refreshes when client recipes/runtime arrive, guarded for optional absence. Jade sends machine scan/slot status. Final client and production probes are running; rows remain U at this checkpoint.
+
+## 2026-10-29 — Final resource-boundary follow-up (in progress)
+
+Actual graphical Bio GUIs, item Shift extraction/rejected insertion, four/eight slots, full-width FE/milk/progress, all nine live JEI recipes, real Jade status and natural sheep/cow production pass. Two actual production JVMs also pass complete packing/unload/reload and entity cooldown restoration; final retained artifacts/evidence are being prepared.
+
+Additional boundary checks found that ordinary construction of Bio Extractor from a packed Advanced Life Extractor would discard the prerequisite's buffers. The existing preserving crafting serializer now keeps real FE/fluid/four-slot upgrades for that pair; a nonzero pending Life Fluid fraction is rejected instead of silently dropping it. Advanced-to-Extended recipes still migrate to eight slots. Normal-break output/NBT duplication is checked separately from wrench packing.
+
+Copier remains intentionally exact-type as in pinned source. A new test originally assumed cross-tier paste; corrected it to require cross-tier rejection with unchanged state/cards and actual same-type bag withdrawal. Testing also found a real bulk capacity loophole: whole-handler paste could bypass per-slot removal guards, and temporary validation handlers could reject valid layouts with a late-slot Ultimate card. Preflight now validates the complete desired layout against actual stored FE/fluid; per-slot checks apply only to the real active handler. Tests retain exact-resource rejection/idempotent/safe-refund assertions. First capability snapshots now establish full filter storage during construction, avoiding lazy first-save metadata changes. Stale direct menu clicks are guarded as well as public ports.
+
+The latest successful full regression remains 146/198. Follow-up 202-test attempts retained failures, including a normal-drop query made before entity tracking; the current run waits two real ticks and keeps the exact drop/NBT assertions. New rows remain U until the final complete passing regression/runtime evidence is retained. No failed run is recorded as passed.
+
+
+## 2026-10-29 — Bio scoped acceptance and final conservation evidence
+
+Code checkpoints **`c254b8a`** and **`64742ee`** preserve crafting/copier fixes and isolated ordinary-break regression. The complete regression passes **146 JUnit / 202 required GameTests** with no test deletions or weakened assertions, plus build and main/probe reobfuscation. The normal-break failure counted old tagged eggs from previous failed runs in the persistent test world. Per-invocation UUIDs, captured newly spawned machine entities and two real tracking ticks retain the exact 31-eggs/one-machine/no-duplicate-NBT requirement.
+
+A full real graphical acceptance passes both Bio menus, high-bit buffers/progress, four/eight upgrades, Shift extraction/rejected input, actual JEI nine-recipe lookup and Jade packets, plus natural colored sheep wool/cow milk at exact FE/cooldown. Visual review caught a missing JEI fluid-frame resource reference; fixed `fluid_bar.png` to the existing `fluidbar.png`, added a live resource-manager assertion and reran the complete graphical test. Final screenshots show the correct milk/frame. [Retained screenshots and markers](validation/forge-1.20.1-bio-extractors/client/run-summary.txt).
+
+Two actual packaged Forge server JVMs, with AE2/Curios/JEI/Jade absent, pass exact-resource cow production, full-inventory wrench/actual placement, actual chunk unload/reload/stale ports, complete NBT (outputs, FE/fluid, filters/cards, configured area, normal/coalesced progress) and persisted real cow cooldown. The restart probe first confirms the active cooldown prevents duplicates, explicitly expires its timestamp, then observes one further exact-cost natural extraction; it does not claim to wait the complete natural cooldown. [Full runtime logs, snapshots and artifact hashes](validation/forge-1.20.1-bio-extractors/production-final/run-summary.txt).
+
+Both Bio rows move from U to scoped V: **V41 / U19 / P47 / N13**, 107 registered. The source defaults/clamp and Ultimate timing quirks remain documented; internal output-only insertion loss is deliberately fixed. Extended Upgrade stays P (19/20 targets; Experience Holder absent), and unrelated Ultimate hosts remain P. Independent Bio two-client operation, arbitrary packs, prolonged multiplayer, external JDTE-AE whole-grid backend and complete reactors remain unverified. Recovery branch/backup/version remain preserved; no main merge or release.
+
+Final artifact verification: after the JEI correction and final `test build` (15s), both packaged production JVMs were rerun successfully with the exact final main/probe pair; installed SHA-256 matches built artifacts. Audit regeneration/`--check`, documentation validation (933 language keys / 64 blocks / 46 guide pages), main-JAR smoke exclusion and `git diff --check` pass. Full logs/markers/NBT/hashes and final GUI screenshots are retained.
+
+
+## 2026-10-29 — Live Bio concurrency and entity acceleration implementation (pending acceptance)
+
+Continued from pushed `46a06fc`, preserving the pre-existing untracked Python cache and recovery branch/backup. A two-independent-client probe runs both shared Bio machines during natural cow/sheep production, repeated output clicks, card installation/removal, automatic chest output and milk extraction. First run reached disconnect but exposed an actual missing Jade plugin-config translation and client assertion; the translation is fixed. A repeated run against the shared old fixture counted previously persisted creatures/cooldowns in the new ledger; a separate fresh disposable Bio world now isolates this scenario without deleting the old evidence. Acceptance remains pending until the full reconnect/unload/restart run succeeds.
+
+Pinned source investigation: Advanced/Extended Entity Accelerators apply extra living-entity ticks using FE and fractional Time Fluid, suppressing AI/travel/pushing during sub-ticks. The new manager uses a per-entity server-thread scope, rejects recursion/player/client work, and stops on removal, unload, replacement or dimension change; no cross-tick entity cache. Both tier registrations, original configs/algorithms/resources, guarded ports, full-width menus, multiplier packet, source upgrade whitelist/Ultimate, preserving crafting and Extended conversion are wired. Compilation passes; new tests/runtime acceptance are pending, so both rows are U. Initial Forge compile failures were API config-name differences; corrected to native TIME_WAND_FE_COST/TIME_WAND_FLUID_COST.
+
+The Entity Acceleration Upgrade is required to craft the machines. It has the source crafting recipe and one-time inventory attachment action, but its real Ultimate Time Wand host is still absent. Wand smithing/timed-acceleration integration is not implemented and the card remains P. This avoids treating a crafting ingredient as complete wand functionality. The new GameTest fixture initially referenced a nonexistent empty structure; use the existing mineral_empty fixture and retain all assertions. Current latest fully passed regression remains 146/202 until new acceptance completes. Version stays 0.5.8; no release or main merge.
+
+
+## 2026-10-29 — Entity core regression checkpoint
+
+**150 JUnit / 213 required GameTests** pass, retaining every previous 146/202 test. Full build/main+probe reobfuscation and client-smoke compilation pass. Eleven new Forge tests cover both actual tiers' age advancement without travel, exact FE/fractional Time Fluid, empty/insufficient resources, short-debit rollback, actual 32/64 target caps, spawn-egg/cache/player/removal filtering, source Ultimate ten-execution behavior, ports/NBT/capacity-card protection, recursion/exception-scope cleanup, actual upgrade conversion/Forge protection rollback and preserving filled-prerequisite crafting. Four pure numeric tests cover cost/fraction/saturation.
+
+Failures and corrections: no empty structure exists, so reuse mineral_empty; a simulated chunk-unload fixture must revive a still-placed test machine before the actual world ticks again; native BaseMachineBE.canRun is an operation-counter gate and must not be called twice or used by direct work fixtures. The work entry independently guards empty buffers. Persistent failed-run creatures polluted a target-count fixture; discard prior local creatures before creating the bounded herd, retaining exact 32/64 assertions. Actual transfer input is output-incompatible if source cards/buffers exceed the destination; preserving crafting now preflights exact card rules, FE/fluid capacity, fluid type and fractional debt. Preserving recipes inherit ShapedRecipe so JEI can render their actual layouts. GUI multiplier widgets follow server data.
+
+Bio live concurrency has passed first-JVM production/ledger/unload/shutdown. The restart exposed a holding-pen fixture problem: the herd was crowded on an uncleared off-platform position and could die while waiting for unload. Use a cleared floor, disable only fixture entity cramming, and wait for persisted entities to load before comparing exact cooldown timestamps. No redstone production pause or weakened resource assertions. Also require a nonzero exact 13-mB extraction from the milk-producing machine and exact saved FE/milk on both independent client menus. A fresh named world is selected for each seed while all previous worlds and failed evidence remain intact. Final acceptance is still pending.
+
+
+## 2026-10-29 — Live Bio two-client production acceptance
+
+The final [live multiplayer scenario](validation/forge-1.20.1-bio-extractors/multiplayer/README.md) passes both independent clients and two dedicated server JVMs, all exit 0. Both players operate each same Bio machine while it naturally harvests overlapping targets. Repeated output Shift clicks, simultaneous filter install/removal, actual automatic chest output and exactly 13 mB external milk extraction conserve 24 cow operations / 22 sheep operations / 44 wool / four cards and exact FE/milk. Creature shared-cooldown changes are monitored every server tick; no redstone pause is used during production or checkpointing. A safe holding pen isolates the final exact snapshot.
+
+Actual one-client disconnect/rejoin, both-client departure, observed chunk unload and saved shutdown precede a fresh server JVM. Both original client JVMs reconnect and compare exact saved FE/milk menus; complete machine/player inventory/config/card/filter and creature cooldown data match. Earlier Jade translation and world/pen fixture failures are retained and not counted as passes. Independent Bio concurrency is now covered for this bounded live scenario; prolonged uptime remains unverified. Entity Accelerator runtime acceptance continues separately; no unrelated expensive workload was repeated.
+
+
+## 2026-10-29 — Entity lifecycle-boundary regression
+
+Full **150 JUnit / 217 required GameTests**, build/main+probe reobfuscation and client-smoke compilation pass. Added real Forge Nether movement, off-server-thread rejection, overlapping-machine separately paid batching and preserving filled Time Accelerator construction/unsupported-card rejection. Both tiers execute actual source Ultimate limits (128/1024) ten times through the real block ticker. Source machine work is synchronous, no persistent entity queue; the scope clears on exceptions and stops at removal, dimension/unload or server shutdown.
+
+[Entity evidence](validation/forge-1.20.1-entity-accelerators/README.md) records precise source costs, fixes and remaining wand dependency. The source Extended Upgrade has no entity-accelerator mapping: Forge adds a tested transactional route. There are still only nineteen of twenty pinned mappings (Experience Holder missing), plus this extra route; do not claim Extended Upgrade complete from raw route count. Actual graphical/packaged acceptance is running; machines remain U until evidence is retained.
+
+
+## 2026-10-29 — Entity real GUI acceptance; production fixture follow-up
+
+[Complete graphical client](validation/forge-1.20.1-entity-accelerators/client/run-summary.txt) exits 0 for both tiers' menus/high-bit buffers/multipliers/four-eight slots, hostile multiplier clamp, live JEI layouts, actual Jade packets, natural paid entity acceleration and client-sub-tick rejection. Screenshots are visually reviewed.
+
+The first production probe sampled a fixed startup tick before observed work. It now waits for real target ticking, isolates prior failed-run creatures and resets the fixture baseline before measured production. Strict accounting additionally reconciles actual natural tickCount + paid sub-ticks with creature age and exact whole/fractional Time Fluid. The second attempt passes production accounting, then reveals omitted fixture owner UUID in exact wrench/re-placement equality. Initialize the real owner, keep complete NBT equality and strengthen to actual survival BlockItem placement with exactly one packed item consumed. Dedicated acceptance remains pending; no assertions are removed and neither failed attempt is counted as passed.
+
+
+## 2026-10-29 — Entity packaged acceptance completed
+
+Both actual production JVMs now exit 0. The final probe first observes target world ticking and establishes an isolated accounting baseline. Real creature age equals natural tickCount + paid sub-ticks; FE and whole/fractional Time Fluid match requested work. The initial placement-owner mismatch is corrected by seeding the legitimate actor UUID, not weakening NBT equality. An actual FakePlayer lifecycle actor fills its inventory, wrench-packs into one drop and places through survival BlockItem.useOn, consuming exactly one packed machine. Complete NBT remains equal. Actual chunk unload invalidates retained FE/fluid endpoints; reload and a fresh server JVM restore both machines, targets, buffers/cards/filter/multiplier/fractional debt, then resume naturally paid work. [Full logs/NBT/markers/hashes](validation/forge-1.20.1-entity-accelerators/production/run-summary.txt).
+
+Together with the real graphical acceptance and **150 JUnit / 217 required GameTests**, this admits both entity machines to scoped V: **V43 / U19 / P48 / N10**, 110 registered. The Entity Acceleration Upgrade remains P because Ultimate Time Wand, its smithing recipe and timed target integration are absent. Source cost/tier semantics are preserved; deliberate safety fixes and the extra Forge transactional conversion are recorded in the evidence. Independent Entity Accelerator two-client menus/prolonged operation/arbitrary creatures and the external JDTE-AE/complete reactor backends remain unverified. No unrelated stress run, version change, main merge or release.
+
+Final checks: `test build` succeeds (13s), main/probe reobfuscation succeeds, final artifacts match the production-tested pair byte for byte, main JAR excludes smoke classes, audit regeneration/`--check` succeeds, documentation validation succeeds (942 language keys / 66 blocks / 47 guide pages), and `git diff --check` passes. Recovery branch/backup and version0.5.8 remain preserved.
+
+
+## 2026-10-29 — Ultimate Time Wand implementation checkpoint (acceptance pending)
+
+Continued from pushed `24b8498`, preserving all prior entity machines, tests, recovery branch/backup and the pre-existing untracked Python cache. Pinned source has four air modes (exponent steps1/2/4 or maximum), default cap10/Ultimate cap15, 600 loaded-tick effects, full-new-multiplier upfront FE/Time Fluid cost and half-elapsed timer restoration. No separate item cooldown is invented. Base crafting produces a fresh empty wand as source; attachment/crafting/smithing copies all original wand NBT.
+
+Implemented actual registered item/FE+Time Fluid ports, source common configs/resources/tooltip/mode interactions, persistent rendered block-request entity and timed generic entity effects. Block work joins the existing rotating scheduler/budget; loaded proxy resolution, AE precedence, coalesced batching, removed-target checks and recursion guards are wired. The original process-all server budget switch has an authoritative Forge SERVER flag and integrated-only local defaults; unrelated area-machine duration-policy gaps remain P. Entity effects use a completed natural ServerLevel tick hook (Forge lacks NeoForge's generic post event), existing EntityAccelerationManager sub-ticks and UUID/server-tick deduplication, with persistent NBT and bounded S2C tracking snapshots. Direct machine sub-ticks cannot recursively decrement/apply wand timers. Reach/permission/ownership and loaded-target validation precede payment. Staged real capability copies and optimistic NBT commits roll back canceled/new requests without partial wand payment.
+
+Compilation initially found the native Forge JDT renderBoxSolid signature difference; corrected. Numeric tests pass and all twelve newly added actual Forge cases pass (activation/cost/merge/saturation, resource rejection, Creative/modes, real furnace expiry, real EntityJoin cancellation/optimistic rollback/reentry, two-player server serialization, living/TNT natural work, crafting/smithing/menu consumption, persistence/permission/proxy/unloaded guards). The first complete run still fails four old cases: three reflection callers require the original private execute(ServerLevel,int) entry alongside the new long-budget implementation; preserve it as a real delegating overload. An old Bio herd-bound fixture also failed in the persistent reused world; isolate a fresh test world while preserving the old world/logs to determine whether it is fixture contamination. Do not weaken or remove old assertions. Both new rows remain U until the complete regression and runtime acceptance pass. Version remains0.5.8; no release/main merge.
+
+
+## 2026-10-29 — Wand core complete regression passed
+
+After preserving the old world at `runs/gameTestServer/world-wand-before-isolation-93594126`, a fresh GameTest world passes **167 JUnit / 238 required GameTests**, complete build and main/probe reobfuscation. All original 150/217 tests/assertions remain unchanged. The compatibility overload delegates to the actual long-budget implementation, restoring the existing reflection test entry; the prior Bio herd fixture passes without any assertion edit in the fresh world. This establishes prior-world creature contamination rather than a gameplay regression. All twelve new actual Forge cases pass, including real smithing-menu single-consumption, item capability/NBT and activation cancellation/reentry/optimistic rollback. Additional shared-source/AE/coalesced/dimension checks and real client/production acceptance follow; both rows stay U.
+
+## 2026-10-29 — Wand expanded core checkpoint; remote acceptance in progress
+
+- All **167 JUnit / 238 required GameTests** pass with the original 150/217 retained. Additional real Forge cases cover Ultimate Overclock/ceiling settlement, shared machine+wand queues, source coalesced Bio work, real Nether transfer/UUID deduplication, saved marker dimension binding, proxy budget and powered native AE2 Inscriber processing.
+- The main and separate production-probe JARs reobfuscate successfully; client/probe source sets compile. The new opt-in remote fixture uses two independent clients with ordinary inventory/block/entity packets and a source-supported 6000-tick duration for login/unload/restart; default 600-tick behavior is covered separately by GameTests. This fixture is **not yet accepted** at this checkpoint.
+- No item acceptance promoted: V43/U21/P47/N9. See `validation/forge-1.20.1-ultimate-time-wand/expanded-core-checkpoint.txt`.
+
+## 2026-10-29 — Wand callback ownership guard and 167/237 regression
+
+- Real Forge callback replacement now revalidates actual held-item ownership and the resolved target BE/route before committing staged payment. Replacing the held wand with an identical copy cannot leave an unpaid marker; replacing a valid ticker with a new valid BE cancels the old plan. One additional GameTest covers both exact no-charge/no-marker outcomes. Entity settlement also checks the current authoritative target/holder.
+- Full **167 JUnit /237 required GameTests**, complete build, production/probe reobfuscation and client-smoke compilation pass. All original 150/217 tests/assertions remain enabled.
+- Third remote attempt passed real shared block/entity activation and exact FE/fraction/card ledgers, then exposed a fixture assumption: vanilla `tickCount` counts natural ticks, not direct extra `entity.tick()` calls. Correct the fixture to assert exactly16x actual biological age while both tickCount and countdown advance once per natural tick. No production algorithm or resource assertion weakened.
+- Minimal production seed passed actual optional-absence work/unload, but restart rejected the exact saved request in a prior failed world's duplicate-marker fixture. Preserve prior worlds and isolate each seed; no restart success claimed yet. Both new audit rows remain U.
+
+## 2026-10-29 — Real remote/restart acceptance and random-tick API correction
+
+- The fourth remote run completed with both actual clients and two production server JVMs: inventory attachment, four echoed air modes, shared block/living activations, exact FE/fraction/card ledger, real 16x biological work and smelting, tracking sync, disconnect/reconnect, actual unload, exact load-state recovery and both JEI crafting/smithing layouts. Screenshots exposed overlapping fixture player positions obscuring the block display; separate their stands for final visual evidence.
+- Both minimal optional-absence production JVMs now pass exact entity/request/wand recovery and resumed naturally paid work. Isolated seeds preserve the failed worlds. Entity setup waits for actual world indexing rather than activating inside ServerStarted.
+- A new deterministic real sugar-cane test found a real API gap: Forge JDT1.1.4 unconditionally rejects a null BE, whereas pinned Neo JDT1.5.7 accepts random-only blocks. The wand/shared scheduler now explicitly supports those targets while retaining deny tags and the Forge configured regex blacklist. Each random-tick iteration refetches the current state and checks loading/validity. The test verifies age14→15→growth/reset, exact activation payment, and blacklist rejection without payment.
+- Full **167 JUnit /238 required GameTests**, complete build, both reobfuscated JARs and client/probe compilation pass. Final same-JAR visual/runtime check follows; both item rows stay U until it is complete.
+
+## 2026-10-29 — Ultimate Time Wand and Entity Acceleration Upgrade accepted
+
+- Final same-implementation JAR passes the two-client/two-dedicated-JVM scenario and the two minimal optional-absence production JVMs (all exit0). Clear screenshots show actual wand texture, x16 block bars/countdown, inventory attachment and both real JEI layouts. Test stands are separated; no gameplay algorithm was changed to improve screenshots.
+- Two clients apply four block and four entity activations. The exact aggregate ledger is **19994000 FE remaining /0.05 mB Time Fluid spent including fractional debt**, with two embedded/two loose cards and original custom NBT. Over42 natural ticks, biological age advances exactly672 and the countdown42; timed work does not charge again. Saved furnace/request/entity effect/age/wand/card state is checked at the actual load boundary, before natural ticking, then work resumes.
+- Default600-tick expiry/merge semantics are verified by real GameTests. Production fixtures use the source-supported 6000-tick setting to allow login/unload/restart. Native AE2 Inscriber, random growth/blacklist, coalesced Ultimate work, overlapping area requests, nonliving TNT, permission/reach, callback mutation/holder replacement/target replacement, dimension change and nested activation are covered by the retained167/238 suite.
+- Both rows promoted U→V on this evidence: **V45/U19/P47/N9** (120 items,111 registered). This does not promote area accelerators, external JDTE-AE, arbitrary mod creatures/tickers, operating reactors or prolonged public servers.
+- Evidence, exact ledgers, screenshots, compressed complete logs, failure logs, JUnit XML, expected compressed NBT and runtime JAR hashes: [wand acceptance](validation/forge-1.20.1-ultimate-time-wand/README.md). Guide corrections remove the old unfinished-wand notice and explain sneak-use for vanilla interactive blocks. No new standalone GUI was invented.
+
+## 2026-10-30 — Charged Lightning Rod core implemented; runtime acceptance pending
+
+- Reference source inspected at ccf46472; no weather/recipe behavior guessed. Normal10000FE/one strike/200ticks, Overclock40000FE/five per tick, Ultimate100000FE/fifty per tick; capacity10MFE adjusted by allowed capacity cards. Rain plus thunder required unless the rod-only one-copy Thunderstorm card is installed. The source has no extra fluid/redstone/creative support or sky visibility requirement.
+- Real vanilla LightningBolt entities use `ae2lt.natural_weather_lightning=true`, no command/player cause and full effects. Two native menu buttons independently synchronize render/sky flash and sound. Upgrades, menu high-bit FE, creative entry, recipes/models/translations/loot and explicit copier settings are wired.
+- Forge safety additions: loaded/thread/current-BE checks; retained FE generations become inert; same-game-time/recursive spawning guards; failed/canceled/changed-resource joins discard unpaid lightning; filled capacity removal is rejected. Saved source-owned rod placement anchors support relocation without granting another rod after a removed owned rod.
+- Full **170 JUnit /248 required GameTests** pass, retaining all prior167/238. Actual hidden/silent bolts power a vanilla rod and transform a real pig. Initial compile fixed static registration order; first suite's new stale-menu fixture reinserted an invalidated BE, corrected by reviving its capabilities before cleanup. No old assertions changed. Full build and both JAR reobfuscations pass.
+- Both new items N→U: V45/U21/P47/N7;113 registered. Actual client/production unload/restart evidence remains pending. Controlled GameTest weather flags are deterministic setup, not observation of a randomly arriving thunderstorm. AE2LT uploaded dependency is examined separately; marker tests do not claim real optional-mod acceptance.
+
+## 2026-10-30 — Lightning transport/menu guards; 170/250 regression
+
+- Real integrated-client check initially opened before its target BE arrived, causing unequal native data-slot counts. The rod menu now builds a full client-only view if the chunk is missing, retaining exact powered data and four upgrade slots without loading/ticking a target. The runtime harness also waits for physically loaded click targets and explicitly tests the missing-chunk protocol view.
+- Packaged-server testing found that the Eclipse Alloy Wrench removes a BE before block.onRemove. The shared pickup helper now cleans a Charged Rod's owned vanilla rod after saving NBT and before removing the BE. Other machine paths are unchanged. Added real survival packing/relocation and player-owned rod preservation/unloaded-target regressions.
+- Full170 JUnit/250 required GameTests, full build, production/probe reobfuscation and client harness compilation pass; all prior167/238 tests retained. First actual client run after waiting for target load passed full-width FE, real upgrade installation/removal, no-flash/no-sound hidden lightning and restored visible/sound events, plus actual JEI recipes. Final guarded-client and packaged lifecycle runs remain pending.
+- The first production attempt correctly rejected an owned rod left behind during packing. The second attempt sampled at a fixed startup tick before observed block ticking; the fixture now waits for the first actual natural bolt, retaining strict one-strike/10000FE checks and a bounded timeout. No production success claimed yet.
+- Uploaded AE2LT2.1.2-beta3 metadata requires Minecraft1.21.1/NeoForge21/AE2 19 and class major65 (Java21). Its real reader contains the same natural-weather marker key. It cannot be loaded into this Forge1.20.1/Java17 runtime; actual AE2LT transformation integration remains unverified regardless of vanilla/tag tests. Both new rows stay U.
+
+## 2026-10-30 — Late BlockItem NBT restore fixed; complete regression retained
+
+- The packaged survival relocation fixture exposed actual Forge placement order: onLoad may precede JustDiresBEData restoration. Owned-rod relocation is now checked after NBT load as well as onLoad. The real BlockItem GameTest no longer manually supplies an onLoad call; the same strict restored-state/one-rod/one-payment assertions pass on actual placement order.
+- Full170 JUnit/250 GameTests, build, both reobfuscated JARs and client compilation pass again. Native original167/238 tests/assertions remain intact.
+- The client missing-chunk regression initially used ClientLevel.hasChunkAt, which is not a cache-presence query. It now checks getChunk(FULL,false) before and after constructing the menu view. This is a test-fixture correction, not a relaxed menu/FE assertion. The earlier main GUI pipeline already passed actual no-flash/no-sound and restored visible/sound events. Final corrected client and packaged-server runs follow.
+
+## 2026-10-30 — Lightning NBT bounds and final regression
+
+- Forge MachineEnergyStorage.setEnergy assigns raw integers. Rod load now bounds negative/over-capacity NBT to zero/actual upgraded capacity, after the upgrade layout is restored. A new real Forge test verifies negative, INT_MAX and valid15MFE-with20M-capacity saves. Full170 JUnit/251 GameTests, complete build/reobfuscation/client compilation pass.
+- Corrected guarded-client pipeline passed, including the missing-chunk view, actual no-flash/no-sound and restored client events. Packaged seed passed survival relocation, exact single owned rod, real unload/reload and retained-port rejection. Fresh production JVM passed exact full NBT including nonzero200-tick cooldown at startup. Its old210-global-tick resume sample still saw cooldown177: the remote block had only23 actual ticking frames. The fixture now waits for the first real resumed bolt under the same bounded timeout and unchanged exact payment assertion; final paired run follows.
+
+## 2026-10-30 — Destination-owned rod protection
+
+- Final ownership review found that transporting an owned controller under a pre-existing player rod could incorrectly transfer the old ownership claim. Relocation now relinquishes any old ownership; air re-arms the owned placement credit, while a pre-existing block is reused without claiming it. A new actual wrench/BlockItem placement regression proves the destination player rod survives controller removal.
+- Full170 JUnit/252 required GameTests, build, both reobfuscated JARs and client compilation pass. Before this last ownership guard, actual client and both packaged production JVMs passed all GUI/sound/flash, transport/unload/nonzero-cooldown restart/resumed-payment checks. Final guarded-JAR rerun follows; no unsupported AE2LT/runtime claim is added.
+
+## 2026-10-30 — Lightning source behavior accepted with explicit integration boundaries
+
+- Final **170 JUnit/252 GameTests** pass, retaining all previous167/238. Full build, main/probe reobfuscation and client/probe compilation pass. No inherited assertion was removed or weakened.
+- Final guarded-JAR graphical client and both separate packaged production JVMs exit0. The actual client checks missing-chunk protocol view,9000001FE sync, two independent toggles, install/remove/max-one card conservation, JEI both recipes, actual no-flash/no-sound events and restored visible/sound events.
+- Production checks actual source-tagged vanilla bolts at exact10kFE/base strike under configured storm, same-time suppression, full-inventory survival wrench/BlockItem cross-chunk relocation, one owned rod/no item duplication, clear-weather card operation, actual unload/reload with exact full NBT and inert old FE endpoint. Restart restores a real nonzero200-tick cooldown before world ticking, then waits for the first genuinely resumed bolt and checks its exact debit. Final source-owned/player-owned relocation guard is additionally covered by actual survival GameTest placement.
+- Two items U→V from behavior evidence: **V47/U19/P47/N7**,113 source registrations present. Weather was set through real server APIs; no random weather arrival, independently connected multiplayer, cross-dimensional machine transport or real AE2LT integration is claimed. Uploaded AE2LT's reader/metadata proof and exact marker are retained.
+- [Lightning evidence](validation/forge-1.20.1-lightning/README.md) includes all failed fixture/runtime attempts, passing complete logs, screenshots, JUnit XML, expected compressed NBT and matching installed/build JAR hashes. The source rates, allowed upgrades, resources and independent controls are retained; guards fix Forge lifecycle/protocol/resource hazards without adding unrelated systems.
+
+
+## 2026-10-30 — Extended Experience Holder core (acceptance pending)
+
+Baseline `6c9d35f`, clean except preserved untracked Python cache. Read pinned `ccf46472` BE/block/menu/screen/renderer/packets/recipes, native Forge1.1.4 XP code and portable-potion dependencies. The two requested items are independent; XP holder is first. No FE consumption or adjacent auto-export was invented: the source tank-cache helper is unused. The holder stores int XP and projects20mB/XP through Forge's int fluid view. Source level controls,0–1000 target, pulse acquisition/continuous balancing, area/orb/particle options and typed copier are wired. Explicit eight-slot marker follows the extended-machine contract (the pinned standalone class omitted it).
+
+Conservation repairs: whole merged-orb multiplicities, overflow left in world, only accepted player XP removed, nonnegative/clamped NBT and overflow-safe fluid arithmetic; loaded/current/server-thread/capability-generation checks and invalid player release. Actual native-to-extended conversion now preserves XP and clears detached XP ownership on success/rollback. Same-shaped recipe reuses the established preserving serializer. Menu uses split32-bit XP/settings and server actions; boolean toggle actions do not overwrite another viewer's unrelated settings. Client missing-chunk inventory view preserves the protocol.
+
+Initial `/tmp/jdte-xp-regression1.log`:173 JUnit/263 required GameTests pass, full build and main reobfuscation pass. Original170/252 unchanged. Eleven new GameTests cover actual Forge fluid/player/orb/menu/rollback/recipe/wrench paths; three pure numeric tests. First compile found four API mismatches (channel send and native grayscale methods), corrected against native signatures. Follow-up fluid-container path now uses Forge FluidUtil to preserve stacked containers; not yet rerun at this checkpoint. Real GUI/unload/restart not claimed. Holder N→U only;47/20/47/6. Large Potion Canister remains N.
+
+
+## 2026-10-30 — Experience Holder container/drop regression checkpoint
+
+Core `114f578` pushed. `/tmp/jdte-xp-regression2.log`:173 JUnit/267 required GameTests, full build/main reobfuscation pass. Four additional actual game tests preserve stacked empty/full XP buckets, separate normal-drop upgrade ownership, typed settings-only copying and bag/eighth-slot save roundtrip, int-maximum player transfer and non-loading detached targets. Existing170/252 unchanged. All20 pinned Extended Upgrade mappings are wired (21 including the extra Forge Entity Accelerator route); old "Experience Holder absent" limitation is now historical. Extended Upgrade remains P until this target's runtime acceptance completes.
+
+Added opt-in client/probe harnesses, compiled/reobfuscated successfully (`/tmp/jdte-xp-runtime-build.log`). Reuses existing Java/Forge/display setup. Client source control feedback preserves pending target values briefly under network latency, then reconciles to authoritative values. Actual graphical client and two production processes are in progress, not claimed passed. Scope remains47/20/47/6; Large Potion Canister source investigation confirms4000mB/four matching potion→1000mB with four bottles, native effects and separate identity-bound handheld/Curios menus. Neo data components and native1.20 potion tick semantics still need adaptation; it remains N.
+
+
+## 2026-10-30 — Experience Holder real controls and unload timing investigation
+
+Checkpoint `63153c4` pushed. First runtime attempts deliberately retained: GUI fixture initially expected one shift-clicked Range card, while vanilla correctly repeated quick-move into two legal one-card slots. Fixture now asserts both installed cards and zero loose, then recovers exactly two cards. No gameplay assertion was disabled. Real client native mouse controls,32-bit XP ledger, target/boolean synchronization, missing-chunk protocol, actual JEI recipe and actual Jade XP/target packets passed on attempt2.
+
+Production attempt1/2 failed the requirement for a fresh BE after unload: full NBT was exactly equal but `sameOwner=true`, because `hasChunk=false` occurred while Forge still cached a pending unload. The probe now waits for the actual `ChunkEvent.Unload` and forces the pending save before reload; it still asserts different BE identity and exact complete NBT. Attempt3 passes both packaged production JVMs, including source conversion,185 merged-orb XP, full-inventory real survival transport,35 resumed XP, actual unload/stale-cap revocation, full saved state and a fresh JVM's33 resumed XP. Minimal profile has no AE2/Curios/JEI/Jade. Logs preserve failures and passing phases separately.
+
+Visual inspection found the added exact-XP text overlapped native area controls. It is now an XP-bar tooltip; a final graphical rerun remains required. A further resource review replaces synthetic `giveExperiencePoints(0)` notification with vanilla ServerPlayer /experience setters: an external XP-gain listener can rewrite a zero grant into an unpaid bonus. A targeted real Forge event regression is running; no success is claimed before its result. The preceding complete source-Ultimate ticker regression passed173 JUnit/268 GameTests with ten real level settlements/exact160XP. Source gameplay changes still require final full build and current-artifact runtime acceptance. Matrix remains47/20/47/6 until that evidence is complete.
+
+
+## 2026-10-30 — Protected player transaction and GUI repair regression
+
+`/tmp/jdte-xp-transaction-regression.log`:173 JUnit/269 required GameTests all pass, full build/main and probe JAR reobfuscation/client harness compilation pass. New actual ticker test asserts ten Ultimate settlements cost160XP without generation; a real Forge XP-change listener rewrites all gain events to100XP and verifies both a player and ServerPlayer transactions still transfer exact7XP/return7XP without invoking gain callbacks. All previous170/252 remain unchanged. Visual overlap fixed by moving the exact-XP readout to a bar tooltip. Final graphical/production rerun on the rebuilt artifact is next; no V promotion yet.
+
+
+## 2026-10-30 — Source pulse/overclock boundary and real online balancing
+
+At `257adc4`, final graphical client verifies the repaired layout, native controls/exact XP/card operations/JEI/actual Jade and a real connected ServerPlayer naturally reaching target37 after one deliberately configured pulse. The source and Forge wrapper review found standard fallback double-ticks were not gated by `redstoneActive`, unlike the pinned source. The one-condition shared wrapper correction now prevents both normal and Ultimate cards from continuing extra sub-ticks after a pulse ends. It leaves the source acquired-player continuation at one settlement per world tick.
+
+`/tmp/jdte-xp-pulse-regression.log`:173 JUnit/270 required GameTests, full build/main+probe reobfuscation and client compilation pass. The new actual Forge ticker test separately requires initial2/10-level work, then exactly one level after the pulse, with the complete XP ledger unchanged. All previous tests/conditions remain enabled. Final rebuilt-artifact graphical/production replay follows;47/20/47/6 remains interim U/P until acceptance. Large Potion Canister was investigated only, to avoid introducing its independent component/potion-effect/menu adaptation before XP lifecycle acceptance.
+
+
+## 2026-10-30 — Extended Experience Holder scoped acceptance
+
+Implementation checkpoints `114f578`, `63153c4`, `257adc4`, `804fed9` pushed. Final `/tmp/jdte-experience-client-delivery.log` and `/tmp/jdte-experience-production-delivery.log` pass, with logs/screenshots/markers/artifact hashes retained in [experience evidence](validation/forge-1.20.1-experience-holder/README.md). Full173/270 regression, main/probe reobfuscation and client compilation pass; no previous tests deleted/skipped/relaxed. Graphical client validates actual mouse controls, full32-bit properties and eight card slots, wrong-chunk client view, settings, both legal shift-clicked cards, exact deposit/extract/all XP, actual JEI/Jade and natural target37 balance for a real connected player after a deliberately configured pulse. Screenshots are visually inspected: the extra text overlap is repaired.
+
+Two actual production JVMs run the minimal Forge/JDT/GuideME/main/probe profile (AE2, Curios, JEI and Jade absent). Source native tier conversion transfers500000XP/four cards once. Natural merged-orb work adds185XP, full-inventory survival wrench/crosschunk placement retains complete NBT, then resumes35XP. Probe waits for `ChunkEvent.Unload` and a completed save, requires a different restored BE, exact full NBT and inert captured port. The next JVM restores the same500220XP/owner/area/settings/five cards including slot7, then naturally collects exactly33XP. Final main JAR SHA256 matches the installed production JAR; client/probe code is excluded from the main JAR.
+
+Source contract differences are deliberate resource/lifecycle fixes: merged orb multiplicities and overflow remainder preservation; only accepted player XP removed; absolute vanilla XP setters avoid rerunning gain-bonus events; whole-XP fluid arithmetic cannot overflow; current/unloaded/removed/off-thread endpoints cannot mutate XP; source standalone class's omitted eight-slot marker is made explicit. XP remains fixed int capacity, no FE or invented adjacent automatic export. The final source-wrapper redstone correction applies to the common overclock fallback and passes all prior regression assertions.
+
+Authority update: XP holder N→U→V and Extended Upgrade P→V (all20 pinned routes plus the extra Forge route). Final120 counts **V49/U19/P46/N6**,114 registrations. V is scoped to retained evidence. Independent XP multiplayer, cross-dimensional transport, prolonged load, arbitrary event handlers and a genuine disconnect/rejoin mid-balance remain unverified; source active-player selection is transient, not falsely restored as a saved player reference.
+
+Large Potion Canister remains N: read-only source/native investigation confirms it feeds native bow Potion Arrow/Splash/Lingering abilities, not an invented passive player buff. Forge BaseBow uses two canister slots and25/25/50mB per enabled ability; its static `PotionCanister.setPotionAmount` clamps to1000mB, so simply subclassing/registering a4000mB item would lose most contents on first consumption. Preserve `StoredPotionId`/custom effects/color and adapt native consumers/component semantics, portable binding/Curios, batch stacking/bottles and the existing fuel-only portable recipe serializer in the next scoped subsystem. Earlier "potion tick semantics" wording was preliminary; this specific bow consumption path is now established. No potion placeholders or registrations were added.
+
+Version0.5.8 unchanged, no main merge/release. Recovery branch `cd8aaaa` and original recovery directory intact; pre-existing untracked Python cache preserved. Final audit/guide checks pass; chronologically earlier limits and failed attempts remain retained.
+
+
+## 2026-10-30 — Large Potion Canister core checkpoint (U)
+
+Baseline `ee84a21`, preserved untracked Python cache. Reused prior source investigation and inspected pinned item/handler/menu/binding/screen/key/assets/recipe plus actual JDT Forge and Neo bow paths. Source4000mB, four matching potions→1000mB/four bottles, no FE or fluid capability. Full base/custom effects/color use Forge native tags plus `JDTEPotionContents`; source components map to a shared item-backed one-slot handler and native `PotionSlot`. Four-slot limit prevents the source handler's oversized-batch missing-bottle case. Partial/mismatched/full batches remain recoverable, simulation/caller references are unchanged, and stale item-bound menu actions are rejected.
+
+Registered real item/menu/client property/P-key/dedicated Curios slot, copied exact pinned models/texture/recipe/translations, added English guide. Generalized the existing fuel-only portable recipe to the two implemented source/result pairs, retaining four separately consumed ingot slots and preserving all item NBT; both source/result IDs now cross the recipe wire. Native static potion accessors preserve4000mB rather than clamping a large remainder to1000. The bow mixin changes only the potion branch when a large canister is present, preserving native phase/epic/homing and source25/25/50mB per ability/per usable slot, including custom-only effects and source water/no-effect behavior.
+
+Initial `/tmp/jdte-potion-core1.log`:176 JUnit/280 required GameTests pass; full build/main reobfuscation pass. Three new pure tests plus ten actual GameTests cover actual batch/slot/caller/simulation/resource boundaries, full content mismatch, canonical shared saved views, static native consumers, real native bow method/effects/costs/disabled/insufficient/water, menu identity/manual/quick moves/full inventory and preserving recipe/wire. Additional actual release/handoff/malformed/equivalent-component tests plus normalization changes are being verified. Runtime/independent clients not yet accepted. Counts49/20/46/5; no V promotion from compilation. Version0.5.8 unchanged.
+
+
+## 2026-10-30 — Potion semantic/resource tests and opt-in runtime harness checkpoint
+
+`f1f0fad` pushed. `/tmp/jdte-potion-core2.log`:176 JUnit/284 required GameTests, full build/reobfuscation pass. Four further tests execute an actual native release spawning a real custom-effect arrow with100mB/one-ammo settlement, physical item transfer/stale menu guard, invalid NBT/off-thread/absence of invented FE/fluid caps, and semantic default/custom-only PotionContents. Equivalent empty optional fields and canonical effect encodings no longer falsely reject a matching composition. Original173/270 unchanged.
+
+Compiled/reobfuscated production probe, graphical client and targeted independent-client harnesses (`/tmp/jdte-potion-harness-build3.log`). Existing multiplayer launcher adds only opt-in potion scenario. Materials and the remote handoff are explicitly server-controlled fixture setup; all menu inputs/replay/logout/reconnect are actual client packets. Do not report FakePlayer server method tests as human/remote input.
+
+First graphical runtime passes four-single batches,16 bottles, full capacity/pending recovery, actual Curios/P-key/JEI both portable recipes; it fails the bow draw assertion because the driver did not hold the native use key, which Minecraft automatically releases. Driver now holds/release the real key state. First production attempt fails querying the newly shot entity in ServerStarted; a direct join/admission/effect diagnostic now distinguishes pending entity-section visibility from an actual missing shot. Logs retained under attempt1; second executions running, not claimed passed. No assertions disabled; target still U49/20/46/5. No new gameplay subsystem started/version changed.
+
+
+## 2026-10-30 — Potion real GUI/production pass and native read interoperability
+
+At `ef6b2a2`, revised actual client holds the vanilla use key through bow draw/release. `/tmp/jdte-potion-client-run2.log` passes all real handheld/Curios/P/JEI/batch/pending/bottle tests and actual C2S native arrow with custom effects,100mB/one-ammo settlement and3900mB remainder. Screenshots inspected, source layout retained. The independent packaged pair `/tmp/jdte-potion-production-run2.log` passes native method shots (explicit FakePlayer fixture), full/nested/pending item move, actual unload/new chest/exact whole NBT, saved restart and ten-shot1000mB/resumed pending batch/four bottles. Startup world entity queries can lag admission; the probe now requires the actual uncanceled join, `isAddedToWorld`, effects and exact ammo/payment, with visibility diagnostics retained.
+
+Native API review found the inherited `getPotionColor` ignored stored custom color and `getStoredPotion` could throw on malformed legacy IDs. Large-item-only read adapters now use the canonical full contents; native small items retain their original behavior. Added assertions to existing tests require native color0x12ab34/base type, invalid ID→EMPTY/-1 with unchanged NBT. `/tmp/jdte-potion-interop-regression.log`:176 JUnit/284 required GameTests/full build/main+probe reobfuscation/client compilation pass. No previous assertions changed or skipped.
+
+First two-independent-client run reaches real simultaneous partial/completed batches, repeated extraction, server-controlled physical handoff and actual stale-C2S rejection, then fails its ledger after logout:3000mB/pending1/twelve bottles but zero loose potion in player inventories. Vanilla drops a disconnected cursor into the world; the fixture omitted that location. Corrected ledger retains the exact one-potion requirement across inventories/cursors/real ItemEntities, and the reconnected owner must actually pick it up; observer is moved aside. Failure logs/control directory preserved. Remote rerun and final current-artifact runtime checks pending. Counts remain49/20/46/5; no premature V.
+
+## 2026-10-30 — Potion held-slot prediction and remote fixture corrections
+
+- Full176 JUnit/284 required GameTests, build and main/probe reobfuscation pass again (`delivery-regression.log.gz`); client harness compiles. Main-hand selected slot now has an explicit numeric guard on both sides: client bound stacks are decoded snapshots, so server identity protection alone allowed transient client pickup prediction. Real GUI self-click regression is included in the final graphical rerun.
+- Remote attempt2 reached actual reconnect but timed out. The preserved failure is not accepted as a pass. The fixture now waits for held inventory synchronization before opening, teleports the returning owner to the actual disconnected-cursor drop, and requires normal world pickup plus the unchanged complete resource ledger. Fixture-only flat-world generation avoids repeated noise-world startup. Third independent-client attempt and final packaged pair are running; no V promotion yet.
+
+## 2026-10-30 — Large Potion Canister final behavior acceptance
+
+Final gameplay `3ff5008`:176 JUnit/284 required GameTests, full build and both reobfuscations pass. Final graphical client passes the new no-ghost self-click and native custom-color/base assertions, batches/bottles/full recovery, Curios/P, JEI both portable recipes and actual C2S bow draw/release with100mB/one ammo/3900mB and custom effects.
+
+Minimal packaged production pair passes actual native arrow method (explicit FakePlayer), real inventory relocation/ChunkEvent.Unload/fresh BE/exact NBT, saved shutdown and fresh-JVM work. Independent two-client attempt3 passes simultaneous/repeated menu packets, controlled item handoff, actual stale-C2S rejection, cursor dropout/real pickup/reconnect and exact two-canister3000mB/pending1/loose1/twelve-bottle ledger. Fresh production server restores exact full player inventories before both actual clients reopen synchronized menus. No native expectation or resource assertion was relaxed. The old generic remote coordinator label mentioned unload; only the separate production pair asserts an actual unload. The label is now accurate.
+
+Retained [potion evidence](validation/forge-1.20.1-potion-canister/README.md) includes full passing and failed logs, six graphical/two remote screenshots, JUnit XML, expected compressed NBT, exact matching build/installed JAR SHA256 and present/absent runtime profiles. Main JAR excludes runtime smoke classes. U→V acceptance is scoped, not arbitrary-mod or long-running certification: **V50/U19/P46/N5**. Version remains0.5.8.
+
+Saving issue: earlier three commits pushed, but the next push of `3ff5008` was rejected (GitHub Invalid username or token; gh confirms GH_TOKEN invalid). Local checkpoints plus verified `/workspace/jdte-potion-recovery-3ff5008.bundle` and the final recovery bundle retain all changes. Remote success is not claimed for those later checkpoints. Existing energy recovery branch/backup retained.
+
+### Remaining N dependency review (read-only)
+
+| Items | Pinned dependencies / next boundary |
+| --- | --- |
+| Large Pocket Generator | Native PocketGenerator, no-receive FE, configured4x capacity, burn counter/fuel multiplier, shared portable menus/recipe; closest remaining portable family, but actual source burn/charging consumers and preserving NBT require their own port/tests. |
+| Time Multitool | EclipseAlloyPaxel,500000FE/1000000mB Time Fluid, modes/speed storage, client/server continuous mining, block event/break tracker, permissions/tool actions; separate scoped subsystem. |
+| Xingye/Cainiaoyo/Maiqilin Fumo | Shared horizontal decorative block, directional voxel shapes/placement/rotation, wool sound/strength0.2, source models/textures/loot with Forge resource paths; no BE or machine dependency. |
+
+No registrations, gameplay placeholders or V changes for these five N items were added.
+
+## 2026-10-30 — Potion checkpoint push recovered
+
+The initial invalid-token rejection above describes that attempt, not the final remote state. A later authenticated retry succeeded: remote development branch advanced from `0da09ae` to **`2386d1c`**, including `3ff5008` and final acceptance/evidence. Existing recovery branch remains `cd8aaaa`; all seven original backup hashes still pass. The final Git bundle is retained as an additional recovery path. Audit --check/docs validation/diff checks pass after the acceptance-only update; no unrelated expensive runtime was repeated.
+
+## 2026-10-30 — Large Pocket Generator core and native compatibility
+
+Baseline `b852406`; only pre-existing Python cache untracked. Read pinned item/menu/screen/portable logic/recipe/Curios tick and key binding plus actual Forge1.1.4 PocketGenerator, energy storage, config, menu and transmitter code. Source configured4x FE capacity (default4M), fuel burn time/speed/whole-tick rounding, per-item inventory charging, active-item exclusion, native toggle, Curios tick/G menu, source assets and preserving recipe are wired. No fluid interface or machine upgrades invented. Dynamic native-format Energy/FuelInventory/counter/maxburn/fuelmultiplier/enabled views avoid stale menu/cap caches; simulation/caller copies, bound-item identity/client prediction, server-thread mutation, overflow and smaller actual receiver acceptance are guarded. Source partial-last-space loss and last-tick next-fuel prefetch are retained with explicit future credit.
+
+Initial compile caught the native Fuel_Canister registry spelling. GameTest attempts2/3 retained fixture errors: missing PrefixGameTestTemplate(false) and vanilla recipe hooks requiring ServerPlayer from a mock's inventory menu. Corrected fixtures keep all resource assertions. A remaining native consumer test exposed actual JDT Forge forceReceiveEnergy delegating to EnergyStorage.receiveEnergy while canReceive=false; it produced zero. Narrow native PocketGenerator internal settlement now bypasses that rejection, preserving no external input, native capacity and the pinned resolved large-canister multiplier. Native transmitter also casts item storage to unrelated machine storage before calling tryBurn; a Large-item-only path now calls the real generator and conserving transfer.
+
+`core5.log.gz`: **180 JUnit/298 required GameTests**, full build, main/probe reobfuscation and client harness compilation pass. Four new pure tests/fourteen new Forge tests; previous176/284 unchanged. Real graphical/production harnesses are compiled, not yet accepted. N→U,50/20/46/4. Version0.5.8; other four absent items and existing recovery branch/backup untouched.
+
+## 2026-10-30 — Pocket Neo recipient parity and real GUI key investigation
+
+`f8e7437` pushed safely. Original JDTE inherits Neo JDT1.5.7 PocketGenerator.inventoryTick, which also traverses actual equipped Curios and charges active inventory tools; Forge1.1.4 lacks the former and skips the latter. Corrected the large item to match its pinned parent rather than silently retaining those Forge differences. Existing optional Curios boundary supplies actual non-cosmetic equipment, never retains entity references. A real installed handler regression requires5000 transferred/1000 retained, with actual max-int config and throwing-receiver refund regressions added. `curios-regression.log.gz`:180 JUnit/301 required GameTests, full build/main+probe reobfuscation and client compilation pass. Previous176/284 and first14 new assertions unchanged.
+
+First real graphical attempt verified inventory generation/charging and repeated fuel moves under a source credit/FE ledger, plus equipped generation, then timed out waiting for G menu. Shared-key click dispatch is now explicit configured-key press matching; final driver logs screen/menu/key and uses a bounded real screen assertion. A test-only existing transmitter_test datapack enables a validated real pickaxe recipient, with actual native FE capability and explicit fixture initial charging gaps. Final driver includes both held and worn source charging of actual Curios equipment. No synthetic work is reported as natural production.
+
+First minimal production pair passed actual unload/fresh chest/exact whole NBT and fresh-JVM resume on the preceding JAR; final matching-JAR replay follows. Logs retain the G-key failure separately. Counts remain50/20/46/4 until final runtime acceptance; no unrelated absent item is started.
+
+## 2026-10-30 — Pocket actual G menu, player recovery and native short-fuel guard
+
+Retained real graphical failures2/3 distinguish two wiring issues: Curios also uses G and opens its own screen on the next client tick; after consuming that conflict, the new C2S payload still resolved the potion menu due to a copied callback. The payload now resolves the actual server pocket slot. The conflict is consumed only for the matched pocket binding when a real large generator is equipped; ordinary Curios opening remains available when unequipped. Both paths are real packet checks, not mock openings.
+
+Actual graphical attempt4 passes held/worn production plus inventory/equipped-Curios charging, repeated extraction/reinsert under exact fuel-credit/FE ledgers, native toggle C2S, real G and normal Curios keys,3456789FE sync and JEI all three portable recipes. It additionally disconnects the real player, saves/stops the integrated server, rejoins a new server instance and requires exact whole vanilla inventory/Curios generator/recipient NBT before resuming a new charge ledger.423 observations/126 worn samples pass.
+
+Review of the repaired native internal generation path found that native initBurn could consume an extremely fast canister for zero burn ticks and still emit one oversized FE tick. It now validates a whole fuel credit before mutation (retaining native coal-block special speed); a real native high-speed canister regression requires zero FE and byte-equivalent state. `native-guard-regression.log.gz`:180 JUnit/**302 required GameTests**, complete build/main+probe reobfuscation/client compilation pass. Previous tests unchanged. Matching final-JAR packaged and graphical replay follows; status remains U pending that delivery check.
+
+## 2026-10-30 — Large Pocket Generator final acceptance
+
+Final implementation **`c30ced4`**;180 JUnit/302 required GameTests/full build/main+probe reobfuscation/client compilation pass. All previous176/284 and24 mineral core tests retained. Final graphical run exits0 with406 exact coal/burn-credit/FE ledger observations (123 worn), actual native toggle and G C2S, validated Curios receiver charging from held/worn generators, repeated live fuel moves, no bound-item prediction,3456789FE sync, all three JEI portable recipes and ordinary unequipped Curios shortcut. Real player disconnect/save/new integrated server/rejoin requires exact full vanilla and Curios item data, reopens the saved menu and naturally resumes charging under a new ledger. Controlled setup is identified separately from actual packets and natural work.
+
+Final matching-JAR minimal production pair exits0 with actual inventory move, ChunkEvent.Unload/fresh chest/exact whole NBT and saved restart. Explicit FakePlayer method calls retain600+660FE/379 ticks/two coal; fresh JVM resumes one genuine tick/660FE charge to1320 target/378 ticks/two coal, without duplicate callback debit. Full4M/disabled/fuel and names/native fields persist. No AE2/Curios/JEI/Jade installed in this profile; real Curios/client path is tested in the graphical profile. No independent two-client/public-load/cross-dimensional/unsaved-crash/arbitrary-mod success is claimed.
+
+Evidence in [pocket acceptance](validation/forge-1.20.1-pocket-generator/README.md): passing/failed full logs, eight screenshots (full-width/restored layout inspected), JUnit XML, expected compressed client/production NBT, source-asset hashes and exact matching installed/build JAR SHA256. Main JAR excludes smoke harnesses and test-only Curios slot. Large Pocket Generator U→V; **V51/U19/P46/N4**,116 source registrations. English matrix/audit inventory and chronological log updated independently; other four N items and all other statuses unchanged. Version remains0.5.8, no main merge or release.
+
+## 2026-10-30 — Time Multitool core checkpoint
+
+Baseline `7dd2a4b`, preserving pre-existing Python cache. Read pinned item/modes/policy/tracker/client gate/config/recipe plus both native Neo1.5.7 and Forge1.1.4 paxel/helper/game-mode/upgrade implementations. This tool accelerates mining, not block/entity ticking, and shares no wand scheduler. Source500kFE/1M Time Fluid,1/2/4/16/256/1024 modes, server air-cycle/native block settings, FE/fraction-free per-success Time Fluid and full-batch fallback are wired. Scoped resource leases, primary-first event validation, loaded-only vein/tree/hammer/sky, snapshot identity, recursive rejection and native drops/XP protect real operations. Forge's native breaker second pass is bypassed only for the multitool.
+
+Neo adds BasePaxel axe/shovel actions absent from Forge; copied actual strip/scrape/wax/flatten/douse behavior with native1.20 campfire API. Native inherited ability recipe bases are exact items, so subtype alone cannot actually install cards: ten explicit native smithing recipes preserve the new tool's data. Source ordinary shapeless construction remains a fresh item and does not copy ingredient FE/upgrade data. Native holder/energy/fluid conventions use Forge NBT; client input config is isolated in a dedicated client spec rather than adding settings to the existing server acceleration policy.
+
+`core1`: compile/195 pure tests pass. `core2`:196 JUnit, one new Forge fixture assertion fails because unrelated nearby drops were counted as the one cobblestone; now exact full drop snapshots must remain unchanged across the duplicate request, preserving one-cobble/last-FE assertions. `core3`: compile finds missing Forge SHOVEL_DOUSE; adapts to actual CampfireBlock.dowse rather than dropping the action. `core4`: **196 JUnit/321 required GameTests**, full build/main reobfuscation pass.16 new pure tests/19 new Forge tests; original180/302 unchanged. [Core evidence](validation/forge-1.20.1-time-multitool/README.md) records exact scope; runtime/independent clients not claimed. N→U,51/20/46/3. Version0.5.8 and original recovery preserved.
+
+## 2026-10-30/31 — Time Multitool runtime and harvest parity repair
+
+`cd01c50` pushed: real graphical controller/input/native settings/JEI and exact player save/new integrated-server rejoin/resume, plus two reobfuscated production JVMs with actual unload/fresh BE/exact whole chest NBT. Initial fixture wrongly required inventory split to preserve Java object identity; replaced by exact full-NBT equality, one result and emptied source, retaining the failure log. Fumo investigation is read-only in [source findings](forge-1.20.1-fumo-investigation.md); all three stay N.
+
+Further source review found that manual loot-table reads omit special playerDestroy callbacks and `spawnAfterBreak(true)` can duplicate Forge event XP. The tool now invokes actual native playerDestroy, with a synchronous thread-local block-pop capture solely for its harvest, preserving custom callbacks, statistics, exhaustion, doTileDrops and native smelt/drop-teleport processing. Forge's ordinary playerDestroy suppresses extra ore XP; the actual BreakEvent XP is awarded once. Capture restores its prior state in finally and has no retained world/player target. Added real ice/water/silk, complete XP-ledger (including merged-orb Count), drop-rule and smelt→bound-inventory tests.196 JUnit/**324 required GameTests**, full build/main+probe reobfuscation pass; previous180/302 and all initial Time Multitool assertions retained.
+
+The first XP/diamond assertion failed; the retained regression now checks exact before/after XP and diamond ledgers, including merged orb multiplicity, rather than assuming the whole shared neighborhood starts empty. The initial two extra GUI fixtures assumed a disabled/default3 Hammer. Native source getSetting defaults true, and the three-argument AbilityParams defaults to its maximum7; native7/off3/on3/5/7 cycle is now the acceptance target. Those failures are retained and are not reported as passing UI checks. Final updated-JAR runtime replay remains pending at this checkpoint; classification stays U.
+
+## 2026-10-31 — Final Time Multitool harvest regression and production replay
+
+`ef4abe7` pushed.196 JUnit/**324 required GameTests**, full build/main+probe reobfuscation pass again after native XP doTileDrops/snapshot guards; added disabled-drop diamond event7XP assertion retains the existing exact enabled XP/diamond and all FE/fluid assertions. Two matching-final-JAR production JVMs pass, now also covering real native ice/water and one diamond/exact7XP. Immediate end-tick entity queries initially saw0/0; next-tick observation resolves queued spawning without weakening the seven-XP/one-diamond checks. All failure logs retained. Original recovery branch unchanged, seven backup hashes pass.
+
+Native GUI full7/off3/on3/5/7 C2S button cycle passed. A later graphical replay reached final mining with three paid removals because its7x7 upward plane reached two uncontrolled blocks beyond the cleared fixture; expanded the setup volume to cover every possible native plane and retained the exact one-removal4850FE/9712mB assertion. Final graphical replay is running; classification remains U pending that result.
+
+## 2026-10-31 — Time Multitool scoped acceptance
+
+`3852fe8` pushed with final native XP rules,196/324 full regression/reobfuscation, matching packaged production native harvest/resource/unload/restart and retained failed fixture evidence. Final graphical replay now passes native7/off3/on3/5/7 real GUI button C2S synchronization, source air modes/250ms input gate/actual controller mining, JEI construction/all10 client-decoded native recipes, full player save/old integrated-server stop/new server rejoin and resumed256x one-block mining. The original4850FE/9712mB assertion is unchanged; the controlled fixture volume now covers every possible native Hammer plane. Four screenshots and complete logs are retained in [acceptance](validation/forge-1.20.1-time-multitool/README.md).
+
+Updated classification/inventory/matrix and developer guide. Time Multitool alone moves U→scoped V: **52V/19U/46P/3N**,117/120 registrations. All three Fumo items remain absent; their shared class/vanilla behavior/local textures/default-false visibility/optional-JEI hooks/source tests/no recipes are investigated without implementing them. Existing external-backend/long-term multiplayer/reactor limitations stay unverified. Version0.5.8, recovery branch/backup and history preserved; no main merge or release. Final acceptance-only edits do not rerun unrelated expensive systems.
+
+Delivery checks: the first audit --check rejected a shortened Current Status registration-count sentence; restored the audit's canonical wording without changing its assertions. Audit generation/--check, guide validation, diff checks, final main/probe artifact matching and smoke exclusion now pass. No additional Minecraft run was needed for these documentation-only edits.
+
+## Cainiaoyo Fumo implementation checkpoint
+
+Added the shared horizontal decorative block, Cainiaoyo block/item registration, source model, texture, blockstate, self loot, translations and default-false creative/JEI visibility setting. No recipe or block entity exists in the pinned source. The Gradle build and main JAR reobfuscation passed; a targeted Forge GameTest covers facing shapes and loot but has not yet run. Graphical and dedicated runtime checks remain pending. Maiqilin and Xingye remain absent. Version0.5.8.
+
+Cainiaoyo validation:196 JUnit and Gradle build/reobfuscation passed. The first full GameTest run failed the existing Time Multitool silk-ice count assertion; log retained in [Fumo evidence](validation/forge-1.20.1-fumo/README.md). Preserved the prior reusable world and started a fresh-world rerun without modifying assertions. Documentation validation originally classified the decorative block as a machine; scoped non-machine exclusion restores the existing guide checks. Fresh-world result and graphical/JEI runtime remain pending.
+
+Fresh-world Cainiaoyo regression: **325 required GameTests passed** including real facing/self-drop checks and the existing Time Multitool assertion, with no assertion changes. The initial reused-world failure and both logs remain in [Fumo evidence](validation/forge-1.20.1-fumo/README.md); its precise cause was not established. Original test world was preserved. Source configuration title/description translations are now included. Graphical model and actual creative/JEI visibility remain unverified; Cainiaoyo stays U. The other two Fumo items remain N.
+
+Final Cainiaoyo build/reobfuscation and JUnit suite passed after the configuration translation update. The 325 GameTest run preceded that translation-only metadata change; no additional gameplay edits were made after it. Audit and documentation checks pass.
+
+## Fumo family and reused-world investigation checkpoint
+
+The preserved original entity region contains four ice items in three item entities near (45,-60,75); the old assertion counted every ice item in a ten-block-wide box rather than a per-action result. That independently establishes the old world contained contamination and exposes a fixture isolation defect, though the failed test origin was not recorded and the precise historical count at that origin remains unproven. The ice test now explicitly seeds a preexisting ice entity, verifies it exists, and requires exactly one *additional* silk-ice drop alongside the existing FE/fluid/block assertions. An old-world copy and fresh-world tests are pending. Original world and failure logs are preserved.
+
+Maiqilin and Xingye now reuse the registered Fumo block, each with source model, texture, facing variants, block item, self loot and translations. All three follow the source default-hidden creative/JEI setting. Shared GameTest now checks each item's shapes and real self loot. No source recipe or BE exists. Classifications are U pending build, test and graphical verification. Version0.5.8.

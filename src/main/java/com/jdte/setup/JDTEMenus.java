@@ -11,6 +11,11 @@ import net.minecraftforge.registries.DeferredRegister;
 public class JDTEMenus {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, JDTE.MODID);
 
+    public static final RegistryObject<MenuType<com.jdte.common.containers.LargeFuelCanisterContainer>> LARGE_FUEL_CANISTER = MENUS.register("large_fuel_canister", () -> IForgeMenuType.create(com.jdte.common.containers.LargeFuelCanisterContainer::new));
+    public static final RegistryObject<MenuType<AdvancedEnergyTransmitterContainer>> ADVANCED_ENERGY_TRANSMITTER = MENUS.register("advanced_energy_transmitter", () -> IForgeMenuType.create(AdvancedEnergyTransmitterContainer::new));
+    public static final RegistryObject<MenuType<ExtendedEnergyTransmitterContainer>> EXTENDED_ENERGY_TRANSMITTER = MENUS.register("extended_energy_transmitter", () -> IForgeMenuType.create(ExtendedEnergyTransmitterContainer::new));
+    public static final RegistryObject<MenuType<AdvancedFluidMixerContainer>> ADVANCED_FLUID_MIXER = MENUS.register("advanced_fluid_mixer", () -> IForgeMenuType.create(AdvancedFluidMixerContainer::new));
+    public static final RegistryObject<MenuType<ExtendedFluidMixerContainer>> EXTENDED_FLUID_MIXER = MENUS.register("extended_fluid_mixer", () -> IForgeMenuType.create(ExtendedFluidMixerContainer::new));
     public static final RegistryObject<MenuType<BasicTimeAcceleratorContainer>> BASIC_TIME_ACCELERATOR = MENUS.register(
             "basic_time_accelerator", () -> IForgeMenuType.create(BasicTimeAcceleratorContainer::new));
     public static final RegistryObject<MenuType<AdvancedTimeAcceleratorContainer>> ADVANCED_TIME_ACCELERATOR = MENUS.register(
@@ -135,4 +140,22 @@ public class JDTEMenus {
             "extended_bio_crusher", () -> IForgeMenuType.create(ExtendedBioCrusherContainer::new));
     public static final RegistryObject<MenuType<LootFabricatorContainer>> LOOT_FABRICATOR = MENUS.register(
             "loot_fabricator", () -> IForgeMenuType.create(LootFabricatorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.MineralExtractorContainer>> MINERAL_EXTRACTOR = MENUS.register("mineral_extractor", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.MineralExtractorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.LargeMineralExtractorContainer>> LARGE_MINERAL_EXTRACTOR = MENUS.register("large_mineral_extractor", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.LargeMineralExtractorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.CraftingPatternContainer>> CRAFTING_PATTERN = MENUS.register("crafting_pattern",()->net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.CraftingPatternContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.AdvancedUpgradeStorageContainer>> ADVANCED_UPGRADE_STORAGE = MENUS.register("advanced_upgrade_storage", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.AdvancedUpgradeStorageContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.UpgradeStorageContainer>> UPGRADE_STORAGE = MENUS.register("upgrade_storage", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(com.jdte.common.containers.UpgradeStorageContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedGeneratorContainer>> EXTENDED_GENERATOR = MENUS.register("extended_generator", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedGeneratorContainer::new));
+
+    public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedFluidGeneratorContainer>> EXTENDED_FLUID_GENERATOR = MENUS.register("extended_fluid_generator", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedFluidGeneratorContainer::new));
+
+    public static final RegistryObject<MenuType<com.jdte.common.containers.AdvancedEntityAcceleratorContainer>> ADVANCED_ENTITY_ACCELERATOR = MENUS.register("advanced_entity_accelerator", () -> IForgeMenuType.create(com.jdte.common.containers.AdvancedEntityAcceleratorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedEntityAcceleratorContainer>> EXTENDED_ENTITY_ACCELERATOR = MENUS.register("extended_entity_accelerator", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedEntityAcceleratorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.AdvancedBioExtractorContainer>> ADVANCED_BIO_EXTRACTOR = MENUS.register("advanced_bio_extractor", () -> IForgeMenuType.create(com.jdte.common.containers.AdvancedBioExtractorContainer::new));
+    public static final RegistryObject<MenuType<com.jdte.common.containers.ExtendedBioExtractorContainer>> EXTENDED_BIO_EXTRACTOR = MENUS.register("extended_bio_extractor", () -> IForgeMenuType.create(com.jdte.common.containers.ExtendedBioExtractorContainer::new));
+
+    public static final RegistryObject<MenuType<com.jdte.common.containers.ChargedLightningRodContainer>> CHARGED_LIGHTNING_ROD = MENUS.register("charged_lightning_rod", () -> IForgeMenuType.create(com.jdte.common.containers.ChargedLightningRodContainer::new));
+    public static final RegistryObject<MenuType<ExtendedExperienceHolderContainer>> EXTENDED_EXPERIENCE_HOLDER = MENUS.register("extended_experience_holder", () -> IForgeMenuType.create(ExtendedExperienceHolderContainer::new));
+    public static final RegistryObject<MenuType<LargePocketGeneratorContainer>> LARGE_POCKET_GENERATOR = MENUS.register("large_pocket_generator",() -> IForgeMenuType.create(LargePocketGeneratorContainer::new));
+    public static final RegistryObject<MenuType<LargePotionCanisterContainer>> LARGE_POTION_CANISTER = MENUS.register("large_potion_canister",() -> IForgeMenuType.create(LargePotionCanisterContainer::new));
 }

@@ -1,0 +1,8 @@
+Disposable wand world: wand-live-3aca4bf4b2f9
+PASS: dedicated server ready
+PASS: two-client simultaneous interactions and first disconnect
+PASS: reconnect, chunk unload and saved shutdown
+PASS: fresh dedicated server ready
+PASS: disk restoration and two-client synchronized menus
+PASS: two independent clients attached cards through real inventory packets, raced four block/four entity activations, exact shared FE/fractional Time Fluid and card ledger, natural 16x biological ticks/real smelting, S2C timers, disconnect/reconnect and actual unload. Fixture source duration=6000; default 600 covered by GameTests.
+PASS: new production JVM restored exact furnace/marker/effect state at load, both original clients reconnected with exact wand FE/fluid/fraction/custom NBT/cards and synchronized active timers.

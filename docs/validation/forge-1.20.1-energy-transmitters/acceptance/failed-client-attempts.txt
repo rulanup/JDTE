@@ -1,0 +1,28 @@
+## jdte-transmitter-client.log
+/workspace/JDTE/src/clientSmoke/java/com/jdte/client/smoke/TransmitterClientSmoke.java:84: error: cannot find symbol
+BUILD FAILED in 11s
+## jdte-transmitter-client2.log
+BUILD FAILED in 1m 17s
+## jdte-transmitter-client3.log
+java.lang.IllegalStateException: Transmitter client stage 3: GUI filter packets and ghost template reach server
+BUILD FAILED in 4m 18s
+## jdte-transmitter-client4.log
+java.lang.IllegalStateException: Transmitter client stage 4: GUI filter packets and ghost template reach server: allow=true, NBT=true, template=0 air
+Caused by: java.lang.IllegalStateException: Transmitter client stage 4: GUI filter packets and ghost template reach server: allow=true, NBT=true, template=0 air
+Caused by: java.lang.IllegalStateException: Transmitter client stage 4: GUI filter packets and ghost template reach server: allow=true, NBT=true, template=0 air
+Caused by: java.lang.IllegalStateException: Transmitter client stage 4: GUI filter packets and ghost template reach server: allow=true, NBT=true, template=0 air
+BUILD FAILED in 1m 15s
+## jdte-transmitter-client5.log
+java.lang.IllegalStateException: Transmitter client stage 201: actual rendered hover selects filter slot: expected=1, actual=null
+java.lang.IllegalStateException: Transmitter client stage 201: actual rendered hover selects filter slot: expected=1, actual=null
+java.lang.IllegalStateException: Transmitter client stage 201: actual rendered hover selects filter slot: expected=1, actual=null
+BUILD FAILED in 1m 24s
+## jdte-transmitter-client6.log
+java.lang.IllegalStateException: Transmitter client stage 4: removal, binding and particles synchronized
+java.lang.IllegalStateException: Transmitter client stage 4: removal, binding and particles synchronized
+java.lang.IllegalStateException: Transmitter client stage 4: removal, binding and particles synchronized
+BUILD FAILED in 2m 7s
+## jdte-transmitter-client7.log
+BUILD FAILED in 3m 4s
+## Disconnect wait diagnosis
+Incomplete clearLevel-only attempts were terminated; they are not passes. A Render-thread stack waited for isShutdown while the dedicated/integrated Server thread was still ticking, because ClientLevel.disconnect() had not been called. The final successful run follows the actual vanilla disconnect-before-clear sequence.

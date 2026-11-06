@@ -1,0 +1,9 @@
+2026-10-28; fourth seed attempt (diagnostic)
+[13:45:24] [Server thread/INFO] [co.jd.sm.GeneratorLifecycleProbe/]: Generator unload diagnostic: forced=[1073741824250, 266287972414, 803158884541, 803158884539, 266287972415, 545460846719, 884763263182], holder=33
+[13:45:34] [Server thread/INFO] [co.jd.sm.GeneratorLifecycleProbe/]: Generator unload diagnostic: forced=[1073741824250, 266287972414, 803158884541, 803158884539, 266287972415, 545460846719, 884763263182], holder=33
+[13:45:44] [Server thread/INFO] [co.jd.sm.GeneratorLifecycleProbe/]: Generator unload diagnostic: forced=[1073741824250, 266287972414, 803158884541, 803158884539, 266287972415, 545460846719, 884763263182], holder=33
+[13:45:54] [Server thread/INFO] [co.jd.sm.GeneratorLifecycleProbe/]: Generator unload diagnostic: forced=[1073741824250, 266287972414, 803158884541, 803158884539, 266287972415, 545460846719, 884763263182], holder=33
+[13:45:59] [Server thread/ERROR] [ne.mi.ev.EventBus/EVENTBUS]: Exception caught during firing event: Generator lifecycle: timeout stage 2
+java.lang.IllegalStateException: Generator lifecycle: timeout stage 2
+java.lang.IllegalStateException: Generator lifecycle: timeout stage 2
+Forced set excludes generator chunk. Holder stays FULL at level 33. Next diagnostic inspects the live ticket type. No successful unload claimed.

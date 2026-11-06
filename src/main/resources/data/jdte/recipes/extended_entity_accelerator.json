@@ -1,0 +1,27 @@
+{
+  "type": "jdte:extended_generator",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "jdte:advanced_entity_accelerator"
+    },
+    "C": {
+      "item": "justdirethings:celestigem"
+    },
+    "D": {
+      "item": "minecraft:diamond_block"
+    },
+    "E": {
+      "item": "jdte:extended_upgrade"
+    }
+  },
+  "pattern": [
+    "CDC",
+    "EAE",
+    "CDC"
+  ],
+  "result": {
+    "count": 1,
+    "item": "jdte:extended_entity_accelerator"
+  }
+}

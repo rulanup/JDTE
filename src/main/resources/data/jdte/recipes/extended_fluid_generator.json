@@ -1,0 +1,21 @@
+{
+  "type": "jdte:extended_generator",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "jdte:extended_upgrade"
+    },
+    "M": {
+      "item": "justdirethings:generatorfluidt1"
+    }
+  },
+  "pattern": [
+    " E ",
+    " M ",
+    "   "
+  ],
+  "result": {
+    "count": 1,
+    "item": "jdte:extended_fluid_generator"
+  }
+}

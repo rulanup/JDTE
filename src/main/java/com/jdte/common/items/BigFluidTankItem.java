@@ -19,12 +19,11 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.List;
 
 /** A 1000 bucket canister with the four fill modes introduced in JDTE 0.5.8. */
-public class BigFluidTankItem extends FluidCanister implements ICurioItem {
+public class BigFluidTankItem extends FluidCanister {
     private static final String FILL_MODE_KEY = "JDTEBigFluidTankFillMode";
     public static final int MAX_MB = 1_000_000;
 

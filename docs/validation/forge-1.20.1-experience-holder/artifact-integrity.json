@@ -1,0 +1,9 @@
+{
+  "main_jar": "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+  "sha256": "b301ed17f44d2f94d93b2f4b75396f519196f003d524ee69af448f1ea61991c5",
+  "production_jar_sha256": "b301ed17f44d2f94d93b2f4b75396f519196f003d524ee69af448f1ea61991c5",
+  "matches_installed": true,
+  "contains_probe_or_client_smoke": false,
+  "mods_toml": "modLoader=\"javafml\"\nloaderVersion=\"[47,)\"\nlicense=\"MIT\"\n\n[[mods]]\nmodId=\"jdte\"\nversion=\"0.5.8-forge-1.20.1\"\ndisplayName=\"JDT Extras\"\nauthors=\"JDTE\"\ndescription='''Machine upgrade addon for Just Dire Things.'''\n\n[[dependencies.jdte]]\nmodId=\"forge\"\nmandatory=true\nversionRange=\"[47,)\"\nordering=\"NONE\"\nside=\"BOTH\"\n\n[[dependencies.jdte]]\nmodId=\"minecraft\"\nmandatory=true\nversionRange=\"[1.20.1,1.21)\"\nordering=\"NONE\"\nside=\"BOTH\"\n\n[[dependencies.jdte]]\nmodId=\"justdirethings\"\nmandatory=true\nversionRange=\"[1.1.4,)\"\nordering=\"AFTER\"\nside=\"BOTH\"\n\n[[mixins]]\nconfig=\"mixins.jdte.json\"\n",
+  "source_checkpoint": "804fed9"
+}

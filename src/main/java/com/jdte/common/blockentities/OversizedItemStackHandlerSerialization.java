@@ -41,7 +41,9 @@ final class OversizedItemStackHandlerSerialization {
     }
 
     static void deserialize(ItemStackHandler handler, CompoundTag tag) {
-        handler.deserializeNBT(tag);
+        CompoundTag bounded = tag.copy();
+        bounded.putInt("Size", handler.getSlots());
+        handler.deserializeNBT(bounded);
         ListTag items = tag.getList("Items", Tag.TAG_COMPOUND);
         for (int index = 0; index < items.size(); index++) {
             CompoundTag itemTag = items.getCompound(index);
@@ -49,7 +51,12 @@ final class OversizedItemStackHandlerSerialization {
 
             int slot = itemTag.getInt("Slot");
             int realCount = itemTag.getInt(REAL_COUNT_TAG);
-            if (slot < 0 || slot >= handler.getSlots() || realCount <= MAX_CODEC_COUNT) continue;
+            if (slot < 0 || slot >= handler.getSlots()) continue;
+            if (realCount <= 0) {
+                com.mojang.logging.LogUtils.getLogger().warn("Invalid oversized item count {} in saved slot {}", realCount, slot);
+                handler.setStackInSlot(slot, ItemStack.EMPTY);
+                continue;
+            }
             ItemStack stack = handler.getStackInSlot(slot);
             if (!stack.isEmpty()) handler.setStackInSlot(slot, stack.copyWithCount(realCount));
         }

@@ -1,0 +1,27 @@
+2026-10-29; runtime built from Bio/core checkpoint fa53329 (Bio acceptance pending).
+Command: JDTE_LIFECYCLE_SERVER=/tmp/jdte-generator-network-server JDTE_SMOKE_PREBUILT=1 JDTE_REMOTE_SCENARIO=generator scripts/run_mineral_multiplayer_smoke.sh
+Two independent graphical Forge client JVMs, two production server JVMs. All exit 0.
+PASS: dedicated server ready
+PASS: two-client simultaneous interactions and first disconnect
+PASS: reconnect, chunk unload and saved shutdown
+PASS: fresh dedicated server ready
+PASS: disk restoration and two-client synchronized menus
+PASS: two independent clients raced shared catalysts and Shift upgrades, pasted configs, repeated Extended generator transfers, disconnected with cursor, reconnected, conserved 64 coal/one real fuel bucket/five generator cards, owned FE plus 74 external FE and seven external mB, then observed chunk unload and saved shutdown
+PASS: fresh dedicated server restored both generator tiers and exact player inventories; both independent clients reopened synchronized three-tank menus with correct upgrade slots and empty cursors
+
+## server-seed.log
+[00:36:30] [Server thread/INFO] [minecraft/DedicatedServer]: Done (2.120s)! For help, type "help"
+[00:37:12] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[00:37:16] [Server thread/INFO] [minecraft/MinecraftServer]: JDTETwo joined the game
+[00:37:42] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: Disconnected
+[00:37:43] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[00:37:44] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTETwo lost connection: Generator restart fixture
+[00:37:44] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: Generator restart fixture
+[00:37:45] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+## server-restart.log
+[00:38:13] [Server thread/INFO] [minecraft/DedicatedServer]: Done (3.133s)! For help, type "help"
+[00:38:16] [Server thread/INFO] [minecraft/MinecraftServer]: JDTETwo joined the game
+[00:38:16] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[00:38:20] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[00:38:20] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTETwo lost connection: Generator concurrency passed
+The inherited marker says three-tank menus, a copied mixer label. Generator assertions actually inspect the solid menu and the single fluid-generator tank, full-width FE, eight upgrades and empty cursors; source label corrected for future runs.

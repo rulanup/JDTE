@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "jdte:block/extended_generator"
+    }
+  }
+}

@@ -51,7 +51,7 @@ public class TimeFreezerBE extends BaseMachineBE implements FluidMachineBE, Reds
         }
         boolean wantsAnything = timeFreezeEnabled || weatherFreezeEnabled;
         boolean creative = UpgradeHelper.hasCreativeUpgrade(this);
-        boolean wantsFreeze = wantsAnything && isActiveRedstone()
+        boolean wantsFreeze = wantsAnything && isActiveRedstone() && UpgradeHelper.mayRunWithUpgrades(this)
                 && (creative
                 || (energy.extractEnergy(getEnergyCostPerTick(), true) == getEnergyCostPerTick()
                 && fluidTank.getFluidAmount() >= getFluidCostPerTick()));

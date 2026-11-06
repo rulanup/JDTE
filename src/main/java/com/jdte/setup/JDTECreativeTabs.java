@@ -20,6 +20,7 @@ public class JDTECreativeTabs {
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
             .icon(() -> new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()))
             .displayItems((parameters, output) -> {
+                if (JDTEConfig.COMMON.showFumoDolls.get()) { output.accept(JDTEItems.CAINIAOYO_FUMO.get()); output.accept(JDTEItems.MAIQILIN_FUMO.get()); output.accept(JDTEItems.XINGYE_FUMO.get()); }
                 // Upgrade cards
                 JDTEItems.upgrades().forEach(item -> output.accept(item.get()));
                 output.accept(JDTEItems.LOOTING_UPGRADE.get());
@@ -32,6 +33,48 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.EXTENDED_TIME_FREEZER.get());
                 output.accept(JDTEItems.ULTIMATE_PORTAL_GUN.get());
                 output.accept(JDTEItems.BIG_FLUID_TANK.get());
+                output.accept(JDTEItems.EXTENDED_GENERATOR.get());
+                output.accept(JDTEItems.EXTENDED_FLUID_GENERATOR.get());
+                output.accept(JDTEItems.ADVANCED_ENTITY_ACCELERATOR.get());
+                output.accept(JDTEItems.CHARGED_LIGHTNING_ROD.get());
+                output.accept(JDTEItems.EXTENDED_EXPERIENCE_HOLDER.get());
+                output.accept(JDTEItems.THUNDERSTORM_UPGRADE.get());
+                output.accept(JDTEItems.EXTENDED_ENTITY_ACCELERATOR.get());
+                output.accept(JDTEItems.ULTIMATE_TIME_WAND.get());
+                output.accept(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
+                output.accept(JDTEItems.ADVANCED_BIO_EXTRACTOR.get());
+                output.accept(JDTEItems.EXTENDED_BIO_EXTRACTOR.get());
+                output.accept(JDTEItems.LARGE_FUEL_CANISTER.get());
+                output.accept(JDTEItems.LARGE_POCKET_GENERATOR.get());
+                output.accept(JDTEItems.TIME_MULTITOOL.get());
+                output.accept(JDTEItems.LARGE_POTION_CANISTER.get());
+                output.accept(JDTEItems.REPAIR_TALISMAN.get());
+                output.accept(JDTEItems.ADVANCED_ENERGY_TRANSMITTER.get());
+                output.accept(JDTEItems.EXTENDED_ENERGY_TRANSMITTER.get());
+                output.accept(JDTEItems.ADVANCED_FLUID_MIXER.get());
+                output.accept(JDTEItems.EXTENDED_FLUID_MIXER.get());
+                output.accept(JDTEItems.ENERGY_BREWING_UPGRADE.get());
+                output.accept(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get());
+                output.accept(JDTEItems.MIXING_UPGRADE.get());
+                output.accept(JDTEItems.ULTIMATE_MIXING_PARALLEL_UPGRADE.get());
+                output.accept(JDTEItems.CRAFTING_PATTERN.get());
+                output.accept(JDTEItems.SEED_CONVERSION_UPGRADE.get());
+                output.accept(JDTEItems.AE_ACCELERATION_UPGRADE.get());
+                output.accept(JDTEItems.AE_CRAFTING_READ_UPGRADE.get());
+                output.accept(JDTEItems.AE_EXTRACTION_UPGRADE.get());
+                output.accept(JDTEItems.AE_OUTPUT_UPGRADE.get());
+                output.accept(JDTEItems.ADVANCED_AE_OUTPUT_UPGRADE.get());
+
+                output.accept(JDTEItems.ESSENCE_CONVERSION_UPGRADE.get());
+                output.accept(JDTEItems.ADVANCED_ESSENCE_CONVERSION_UPGRADE.get());
+                output.accept(JDTEItems.UPGRADE_STORAGE.get());
+                output.accept(JDTEItems.ADVANCED_UPGRADE_STORAGE.get());
+                output.accept(JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get());
+                output.accept(JDTEItems.MINERAL_EXTRACTOR.get());
+                output.accept(JDTEItems.LARGE_MINERAL_EXTRACTOR.get());
+                output.accept(JDTEItems.MINERAL_SURVEY.get());
+                output.accept(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get());
+                output.accept(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get());
 
                 // Time Accelerators
                 output.accept(JDTEItems.BASIC_TIME_ACCELERATOR.get());

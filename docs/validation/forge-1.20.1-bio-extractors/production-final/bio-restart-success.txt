@@ -1,0 +1,1 @@
+PASS: second production JVM restores both tiers, 9/18 slots, FE/fluid/filters/cards/area and scan/accelerated progress plus real entity cooldown; active cooldown prevents duplicates, explicit timestamp expiry permits one further exact-cost natural extraction

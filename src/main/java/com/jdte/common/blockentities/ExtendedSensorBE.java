@@ -52,4 +52,9 @@ public class ExtendedSensorBE extends SensorT1BE implements FilterableBE, Powere
                 .sorted(Comparator.comparingDouble(pos -> pos.distSqr(getBlockPos())))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+    @Override
+    public int getMaxEnergy() {
+        return com.jdte.common.upgrades.UpgradeHelper.adjustEnergyCapacity(this, 100000);
+    }
+
 }

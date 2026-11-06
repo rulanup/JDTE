@@ -1,0 +1,1 @@
+PASS: fresh production JVM restores exact full NBT, native ten-shot1000mB/ammo ledger and preserved pending3; one new potion resumes1000mB/four bottles, total36 bottles. FakePlayer method fixture, not real-client interaction.

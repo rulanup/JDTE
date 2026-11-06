@@ -25,6 +25,9 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 public class JDTEClientSetup {
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ItemProperties.register(JDTEItems.LARGE_POCKET_GENERATOR.get(), new ResourceLocation("justdirethings","enabled"), (stack,level,entity,seed) -> JDTEItems.LARGE_POCKET_GENERATOR.get().getEnabled(stack) ? 1f : 0f));
+        event.enqueueWork(() -> ItemProperties.register(JDTEItems.LARGE_POTION_CANISTER.get(), new ResourceLocation("justdirethings","potion_fullness"), (stack,level,entity,seed) -> com.jdte.common.items.LargePotionCanisterItem.getFullness(stack)));
+        event.enqueueWork(() -> ItemProperties.register(JDTEItems.LARGE_FUEL_CANISTER.get(), net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("justdirethings","fullness"), (stack,level,entity,seed) -> com.jdte.common.items.LargeFuelCanisterItem.getFullness(stack)));
         event.enqueueWork(() -> ItemProperties.register(
                 JDTEItems.FACTORY_PACKAGE.get(),
                 ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),
@@ -36,6 +39,26 @@ public class JDTEClientSetup {
     }
 
     private static void registerScreens() {
+        MenuScreens.register(JDTEMenus.LARGE_POCKET_GENERATOR.get(),com.jdte.client.screens.LargePocketGeneratorScreen::new);
+        MenuScreens.register(JDTEMenus.LARGE_POTION_CANISTER.get(),com.jdte.client.screens.LargePotionCanisterScreen::new);
+        MenuScreens.register(JDTEMenus.EXTENDED_EXPERIENCE_HOLDER.get(), com.jdte.client.screens.ExtendedExperienceHolderScreen::new);
+        MenuScreens.register(JDTEMenus.CHARGED_LIGHTNING_ROD.get(), com.jdte.client.screens.ChargedLightningRodScreen::new);
+        MenuScreens.register(JDTEMenus.EXTENDED_GENERATOR.get(), com.jdte.client.screens.ExtendedGeneratorScreen::new);
+            MenuScreens.register(JDTEMenus.EXTENDED_FLUID_GENERATOR.get(), com.jdte.client.screens.ExtendedFluidGeneratorScreen::new);
+            MenuScreens.register(JDTEMenus.ADVANCED_ENTITY_ACCELERATOR.get(), com.jdte.client.screens.AdvancedEntityAcceleratorScreen::new);
+            MenuScreens.register(JDTEMenus.EXTENDED_ENTITY_ACCELERATOR.get(), com.jdte.client.screens.ExtendedEntityAcceleratorScreen::new);
+            MenuScreens.register(JDTEMenus.ADVANCED_BIO_EXTRACTOR.get(), com.jdte.client.screens.AdvancedBioExtractorScreen::new);
+            MenuScreens.register(JDTEMenus.EXTENDED_BIO_EXTRACTOR.get(), com.jdte.client.screens.ExtendedBioExtractorScreen::new);
+            MenuScreens.register(JDTEMenus.LARGE_FUEL_CANISTER.get(), com.jdte.client.screens.LargeFuelCanisterScreen::new);
+        MenuScreens.register(JDTEMenus.ADVANCED_ENERGY_TRANSMITTER.get(), com.jdte.client.screens.AdvancedEnergyTransmitterScreen::new);
+        MenuScreens.register(JDTEMenus.EXTENDED_ENERGY_TRANSMITTER.get(), com.jdte.client.screens.ExtendedEnergyTransmitterScreen::new);
+        MenuScreens.register(JDTEMenus.ADVANCED_FLUID_MIXER.get(), com.jdte.client.screens.AdvancedFluidMixerScreen::new);
+        MenuScreens.register(JDTEMenus.EXTENDED_FLUID_MIXER.get(), com.jdte.client.screens.ExtendedFluidMixerScreen::new);
+        MenuScreens.register(JDTEMenus.CRAFTING_PATTERN.get(),CraftingPatternScreen::new);
+        MenuScreens.register(JDTEMenus.UPGRADE_STORAGE.get(), UpgradeStorageScreen::new);
+        MenuScreens.register(JDTEMenus.ADVANCED_UPGRADE_STORAGE.get(), AdvancedUpgradeStorageScreen::new);
+        MenuScreens.register(JDTEMenus.MINERAL_EXTRACTOR.get(), com.jdte.client.screens.MineralExtractorScreen::new);
+        MenuScreens.register(JDTEMenus.LARGE_MINERAL_EXTRACTOR.get(), com.jdte.client.screens.MineralExtractorScreen::new);
         // Time Accelerators
         MenuScreens.register(JDTEMenus.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorScreen::new);
         MenuScreens.register(JDTEMenus.ADVANCED_TIME_ACCELERATOR.get(), AdvancedTimeAcceleratorScreen::new);
@@ -117,14 +140,22 @@ public class JDTEClientSetup {
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(JDTEKeyMappings.WRENCH_AREA_MODIFIER);
+        event.register(JDTEKeyMappings.LARGE_FUEL_CANISTER);
+        event.register(JDTEKeyMappings.LARGE_POCKET_GENERATOR);
+        event.register(JDTEKeyMappings.LARGE_POTION_CANISTER);
     }
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), com.jdte.client.renderers.ExtendedExperienceHolderBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.MINERAL_EXTRACTOR.get(), com.jdte.client.renderers.MineralExtractorBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.LARGE_MINERAL_EXTRACTOR.get(), com.jdte.client.renderers.MineralExtractorBER::new);
         // Time Accelerators
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_TIME_ACCELERATOR.get(), TimeAcceleratorBER::new);
+        event.registerEntityRenderer(JDTEEntities.BULK_ITEM.get(), net.minecraft.client.renderer.entity.ItemEntityRenderer::new);
+        event.registerEntityRenderer(JDTEEntities.ULTIMATE_TIME_WAND.get(),com.jdte.client.entityrenders.UltimateTimeWandRenderer::new);
         event.registerEntityRenderer(JDTEEntities.TIME_ACCELERATOR_EFFECT.get(), TimeAcceleratorEffectRenderer::new);
 
         // Extended Machines
@@ -141,6 +172,8 @@ public class JDTEClientSetup {
         event.registerBlockEntityRenderer(JDTEBlockEntities.RANGE_BLOCKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.FACTORY_PACKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
 
+        event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), com.jdte.client.renderers.AdvancedEnergyTransmitterBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         // Glue Activators - 使用AreaAffectingBER渲染区域
         event.registerBlockEntityRenderer(JDTEBlockEntities.BASIC_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_GLUE_ACTIVATOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);

@@ -1,0 +1,6 @@
+Final probe checkpoint b8f0172; main implementation/regression e8b9737; Forge47.4.10/JDT1.1.4/Java17.
+Command: JDTE_LIFECYCLE_SERVER=/tmp/jdte-optional-none JDTE_SMOKE_PREBUILT=1 bash scripts/run_entity_accelerator_lifecycle_probe.sh
+Both actual independent production JVMs exit 0. No AE2/Curios/JEI/Jade installed.
+PASS: packaged tiers naturally accelerate real cows with exact FE and fractional Time Fluid, preserve full-inventory wrench placement and actual unload/reload, retained ports inert; optional AE2/Curios/JEI/Jade absent
+PASS: second production JVM restores both entity accelerators and live targets, all buffers/cards/filter/multiplier and fractional debt, then resumes natural paid work without stale scope
+A real FakePlayer actor performs full-inventory wrench pickup and actual survival BlockItem.useOn placement; exactly one packed stack is consumed. GUI acceptance separately uses real graphical player packets.

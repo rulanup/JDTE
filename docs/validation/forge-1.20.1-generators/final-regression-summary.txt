@@ -1,0 +1,8 @@
+2026-10-28; parent f77b068
+Command: gradlew test build runGameTestServer --no-daemon --max-workers=2 (configured proxy)
+JUnit: 140 tests, 0 failures/errors/skips. All 183 required GameTests passed.
+BUILD SUCCESSFUL in 2m 5s; main/probe JAR reobfuscation passed. Existing 131 JUnit / 164 GameTests unchanged.
+Added total: 9 numeric tests, 5 canister GameTests and 14 generator/native-lifecycle GameTests.
+The first global-scan regression fixture registered its proxy in an invisible far section; fixed fixture registration position before enabling proxy and isolated vanilla physics. Original assertions retained. Actual native loaded-fluid recipe consumes exactly one catalyst and remains functional.
+Final test/build after probe diagnostic flag cleanup also passed (18s); no gameplay changes after full GameTest run.
+Original full regression: /tmp/jdte-generator-gt9.log; final build: /tmp/jdte-generator-final-build.log (ephemeral originals).

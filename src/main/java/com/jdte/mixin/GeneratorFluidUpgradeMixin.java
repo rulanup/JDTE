@@ -2,6 +2,7 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
 import com.jdte.common.upgrades.UpgradeHelper;
+import com.jdte.common.upgrades.GeneratorFuelBatch;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,17 +23,24 @@ public abstract class GeneratorFluidUpgradeMixin {
             ci.cancel();
             return;
         }
-        int generated = generator.getFePerFuelTick() * 3;
-        if (generated == 0 || generator.insertEnergy(generated, true) != generated) {
+        int generated = GeneratorFuelBatch.energyOutput(generator.getFePerFuelTick());
+        FluidStack available = generator.getFluidTank().drain(GeneratorFuelBatch.FLUID_COST, IFluidHandler.FluidAction.SIMULATE);
+        if (!GeneratorFuelBatch.canCommit(available.getAmount(), generated,
+                generated > 0 ? generator.insertEnergy(generated, true) : 0)) {
             ci.cancel();
             return;
         }
-        FluidStack extracted = generator.getFluidTank().drain(2, IFluidHandler.FluidAction.EXECUTE);
-        if (extracted.getAmount() < 2) {
+        FluidStack previousFluid = generator.getFluidStack().copy();
+        int previousEnergy = generator.getEnergyStorage().getEnergyStored();
+        FluidStack extracted = generator.getFluidTank().drain(GeneratorFuelBatch.FLUID_COST, IFluidHandler.FluidAction.EXECUTE);
+        if (extracted.getAmount() != GeneratorFuelBatch.FLUID_COST
+                || generator.insertEnergy(generated, false) != generated) {
+            // Both buffers belong to this machine. Restore them if a commit is unexpectedly short.
+            generator.getFluidTank().setFluid(previousFluid);
+            generator.getEnergyStorage().setEnergy(previousEnergy);
             ci.cancel();
             return;
         }
-        generator.insertEnergy(generated, false);
         generator.setChanged();
         ci.cancel();
     }
@@ -40,7 +48,7 @@ public abstract class GeneratorFluidUpgradeMixin {
     @Inject(remap = false, method = "getFEOutputPerTick", at = @At("RETURN"), cancellable = true)
     private void jdte$generatorUpgradeOutput(CallbackInfoReturnable<Integer> cir) {
         if (UpgradeHelper.hasGeneratorUpgrade((GeneratorFluidT1BE) (Object) this)) {
-            cir.setReturnValue(cir.getReturnValue() * 3);
+            cir.setReturnValue(com.jdte.common.items.FuelCanisterMath.rate(cir.getReturnValue(), 3));
         }
     }
 }

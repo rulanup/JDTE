@@ -1,0 +1,7 @@
+Java17/Gradle8.6 test build runGameTestServer serverSmokeJar compileClientSmokeJava
+167 JUnit; all original150/217 retained
+> Task :reobfJar
+> Task :reobfJarJar SKIPPED
+> Task :reobfServerSmokeJar
+[15:50:20] [Server thread/INFO] [minecraft/GameTestServer]: All 238 required tests passed :)
+BUILD SUCCESSFUL in 1m 14s

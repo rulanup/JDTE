@@ -1,0 +1,6 @@
+[06:39:51] [Server thread/INFO] [minecraft/DedicatedServer]: Done (5.258s)! For help, type "help"
+[06:39:53] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[06:39:53] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[06:39:53] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[06:39:58] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+PASS: actual production native projectiles charge 500/250 mB manual prices and native 173 FE; configured 30000 mB/12000 FE capacities, item NBT restoration, previous routing and 25000 mB cap verified

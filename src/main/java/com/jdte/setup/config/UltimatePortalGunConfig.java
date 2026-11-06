@@ -22,7 +22,7 @@ public class UltimatePortalGunConfig {
                 .translation("config.jdte.jdte.ultimatePortalGun.energyCapacity")
                 .defineInRange("energyCapacity", 1000000, 1000, Integer.MAX_VALUE);
         energyCost = builder
-                .comment("FE consumed per teleport")
+                .comment("Legacy source compatibility setting; firing uses JDT Portal Gun V2 FE cost")
                 .translation("config.jdte.jdte.ultimatePortalGun.energyCost")
                 .defineInRange("energyCost", 100, 1, 100000);
         teleportDimensionBlacklist = builder

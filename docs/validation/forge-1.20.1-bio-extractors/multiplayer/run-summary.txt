@@ -1,0 +1,10 @@
+Source code checkpoint fd5bd33; two graphical client JVMs and two actual dedicated Forge JVMs all exit 0.
+Command: JDTE_LIFECYCLE_SERVER=/tmp/jdte-bio-network-server JDTE_SMOKE_PREBUILT=1 JDTE_REMOTE_SCENARIO=bio bash scripts/run_mineral_multiplayer_smoke.sh (existing Java17/cache/Xorg).
+Disposable Bio world: bio-live-e53730b86482
+PASS: dedicated server ready
+PASS: two-client simultaneous interactions and first disconnect
+PASS: reconnect, chunk unload and saved shutdown
+PASS: fresh dedicated server ready
+PASS: disk restoration and two-client synchronized menus
+PASS: two independent clients operated each shared live Bio machine, raced natural output, repeated upgrade install/remove, automatic chest output, real milk extraction, shared cooldown resource ledger, disconnect/reconnect and real unload; no redstone pause
+PASS: fresh dedicated JVM restored both Bio inventories/FE/milk/cards/config and shared entity cooldown; both original clients rejoined synchronized Advanced menu

@@ -1,0 +1,6 @@
+{
+  "size": 1,
+  "validators": [
+    "curios:tag"
+  ]
+}

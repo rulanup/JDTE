@@ -1,0 +1,42 @@
+> Task :downloadMcpConfig
+> Task :extractSrg UP-TO-DATE
+> Task :createMcpToSrg UP-TO-DATE
+> Task :compileJava
+> Task :addMixinsToJar
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :jar
+> Task :configureReobfTaskForReobfJar
+> Task :reobfJar
+> Task :addMixinsToJarJar
+> Task :jarJar SKIPPED
+> Task :addMixinsToServerSmokeJar
+> Task :compileServerSmokeJava
+> Task :processServerSmokeResources UP-TO-DATE
+> Task :serverSmokeClasses
+> Task :serverSmokeJar
+> Task :configureReobfTaskForReobfServerSmokeJar
+> Task :reobfServerSmokeJar
+> Task :addMixinsToSourcesJar
+> Task :sourcesJar
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+> Task :test
+> Task :configureReobfTaskForReobfJarJar
+> Task :reobfJarJar SKIPPED
+> Task :assemble
+> Task :check
+> Task :build
+> Task :createSrgToMcp UP-TO-DATE
+> Task :downloadMCMeta UP-TO-DATE
+> Task :downloadAssets UP-TO-DATE
+> Task :extractNatives UP-TO-DATE
+> Task :makeSrcDirs
+> Task :prepareRuns
+> Task :prepareRunGameTestServer
+> Task :prepareRunGameTestServerCompile
+> Task :runGameTestServer
+[06:34:43] [Server thread/INFO] [minecraft/GameTestServer]: All 140 required tests passed :)
+BUILD SUCCESSFUL in 1m 4s
+JUnit XML totals: {"tests": 120, "failures": 0, "errors": 0, "skipped": 0}

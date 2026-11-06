@@ -1,0 +1,18 @@
+{
+  "code_checkpoint": "ac344f2",
+  "version": "0.5.8-forge-1.20.1",
+  "minecraft": "1.20.1",
+  "forge": "47.4.10",
+  "jdt": "1.1.4",
+  "java": "17",
+  "artifacts": {
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar": {
+      "bytes": 2881173,
+      "sha256": "ca66f33e686e3273ef1159d65db7304a4961fa017c320f0ba2302de1789b173a"
+    },
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar": {
+      "bytes": 106333,
+      "sha256": "d74e1308a8574a17c2710d6e8f6b40507c12822edbd97d5531b026d2a1d3add7"
+    }
+  }
+}

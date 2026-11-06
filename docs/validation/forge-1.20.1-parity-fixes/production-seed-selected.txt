@@ -1,0 +1,7 @@
+[06:28:01] [Server thread/INFO] [minecraft/DedicatedServer]: Done (5.067s)! For help, type "help"
+[06:28:02] [Server thread/WARN] [co.jd.co.it.MachineTierConversion/]: JDTE tier conversion failed at BlockPos{x=3120, y=90, z=3104}; restored the original machine without spending the card
+java.lang.IllegalStateException: Tier replacement was denied by a placement event
+[06:28:03] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[06:28:03] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[06:28:03] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[06:28:06] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved

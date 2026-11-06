@@ -1,0 +1,7 @@
+[13:03:59] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEDev joined the game
+[13:05:26] [Render thread/INFO] [co.jd.cl.sm.MineralClientSmoke/]: JDTE_MINERAL_CLIENT_SMOKE_PASS
+[13:05:26] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEDev lost connection: Disconnected
+[13:05:26] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[13:05:26] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[13:05:26] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+BUILD SUCCESSFUL in 5m 6s

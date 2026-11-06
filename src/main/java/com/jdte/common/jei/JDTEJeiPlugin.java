@@ -1,6 +1,9 @@
 package com.jdte.common.jei;
 
 import com.jdte.JDTE;
+import com.jdte.client.jei.fluidmixer.*;
+import com.jdte.client.jei.mineralextractor.MineralExtractorJeiRecipe;
+import com.jdte.client.jei.mineralextractor.MineralExtractorRecipeCategory;
 import com.jdte.client.jei.AutoIoConfigJeiGuiHandler;
 import com.jdte.common.jei.gelgenerator.GelGeneratorJeiRecipe;
 import com.jdte.common.jei.gelgenerator.GelGeneratorRecipeCategory;
@@ -38,6 +41,7 @@ import com.jdte.setup.JDTEItems;
 public class JDTEJeiPlugin implements IModPlugin {
     private static final ResourceLocation PLUGIN_ID = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "jei_plugin");
     private static IJeiRuntime runtime;
+    private static java.util.List<MineralExtractorJeiRecipe> visibleMineralRecipes = java.util.List.of();
     private static java.util.List<InfusionJeiRecipe> visibleSpawnEggRecipes = java.util.List.of();
     private static boolean infusionRecipesRegistered;
     private static java.util.List<LootFabricatorJeiRecipe> visibleLootFabricatorRecipes = java.util.List.of();
@@ -58,16 +62,23 @@ public class JDTEJeiPlugin implements IModPlugin {
                 new LootFabricatorRecipeCategory(guiHelper),
                 new GreenhouseRecipeCategory(guiHelper),
                 new BioFactoryRecipeCategory(guiHelper),
-                new LifeSynthesisRecipeCategory(guiHelper)
+                new com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory(guiHelper),
+                new LifeSynthesisRecipeCategory(guiHelper),
+                new FluidMixerRecipeCategory(guiHelper),
+                new MineralExtractorRecipeCategory(guiHelper)
         );
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
+        visibleMixerRecipes=FluidMixerJeiRecipe.getRecipes();
+        registration.addRecipes(FluidMixerRecipeCategory.RECIPE_TYPE, visibleMixerRecipes);
         registration.addRecipes(GelGeneratorRecipeCategory.RECIPE_TYPE, GelGeneratorJeiRecipe.getRecipes());
         registration.addRecipes(PotionBrewerRecipeCategory.RECIPE_TYPE, PotionBrewerJeiRecipe.getRecipes());
         registration.addRecipes(GreenhouseRecipeCategory.RECIPE_TYPE, GreenhouseJeiRecipe.getRecipes());
         registration.addRecipes(BioFactoryRecipeCategory.RECIPE_TYPE, BioFactoryJeiRecipe.getRecipes());
+        visibleBioRecipes=com.jdte.client.jei.bioextractor.BioExtractorJeiRecipe.getRecipes();
+        registration.addRecipes(com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE,visibleBioRecipes);
         registration.addRecipes(LifeSynthesisRecipeCategory.RECIPE_TYPE, LifeSynthesisJeiRecipe.getRecipes());
         java.util.List<LootFabricatorJeiRecipe> lootFabricatorRecipes = LootFabricatorJeiRecipe.getRecipes();
         registration.addRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, lootFabricatorRecipes);
@@ -97,8 +108,13 @@ public class JDTEJeiPlugin implements IModPlugin {
         for (ItemStack machine : LootFabricatorJeiRecipe.getMachines()) {
             registration.addRecipeCatalyst(machine, LootFabricatorRecipeCategory.RECIPE_TYPE);
         }
+        for (ItemStack machine : MineralExtractorJeiRecipe.getMachines())
+            registration.addRecipeCatalyst(machine, MineralExtractorRecipeCategory.RECIPE_TYPE);
+        for(ItemStack machine : FluidMixerJeiRecipe.getMachines()) registration.addRecipeCatalyst(machine,FluidMixerRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.LARGE_GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(JDTEItems.ADVANCED_BIO_EXTRACTOR.get()),com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(JDTEItems.EXTENDED_BIO_EXTRACTOR.get()),com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.BIO_FACTORY.get()), BioFactoryRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.LIFE_SYNTHESIS_VAT.get()), LifeSynthesisRecipeCategory.RECIPE_TYPE);
     }
@@ -106,6 +122,8 @@ public class JDTEJeiPlugin implements IModPlugin {
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGenericGuiContainerHandler(BaseMachineScreen.class, new AutoIoConfigJeiGuiHandler());
+        registration.addRecipeClickArea(com.jdte.client.screens.AdvancedFluidMixerScreen.class,91,42,24,17,FluidMixerRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeClickArea(com.jdte.client.screens.ExtendedFluidMixerScreen.class,91,42,24,17,FluidMixerRecipeCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(GreenhouseScreen.class, 36, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(LargeGreenhouseScreen.class, 64, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(BioFactoryScreen.class, 35, 6, 32, 12, BioFactoryRecipeCategory.RECIPE_TYPE);
@@ -115,6 +133,10 @@ public class JDTEJeiPlugin implements IModPlugin {
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         runtime = jeiRuntime;
+        if (!com.jdte.setup.JDTEConfig.COMMON.showFumoDolls.get()) jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, java.util.List.of(new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.CAINIAOYO_FUMO.get()), new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.MAIQILIN_FUMO.get()), new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.XINGYE_FUMO.get())));
+        refreshMineralExtractorRecipes();
+        refreshFluidMixerRecipes();
+        refreshBioExtractorRecipes();
         refreshSpawnEggRecipes();
         refreshLootFabricatorRecipes();
     }
@@ -122,10 +144,29 @@ public class JDTEJeiPlugin implements IModPlugin {
     @Override
     public void onRuntimeUnavailable() {
         runtime = null;
+        visibleMixerRecipes = java.util.List.of();
+        visibleBioRecipes = java.util.List.of();
+        visibleMineralRecipes = java.util.List.of();
         visibleSpawnEggRecipes = java.util.List.of();
         infusionRecipesRegistered = false;
         visibleLootFabricatorRecipes = java.util.List.of();
         lootFabricatorRecipesRegistered = false;
+    }
+
+    private static java.util.List<FluidMixerJeiRecipe> visibleMixerRecipes=java.util.List.of();
+    public static void refreshFluidMixerRecipes() {
+        if(runtime==null)return;
+        var current=FluidMixerJeiRecipe.getRecipes();
+        if(!visibleMixerRecipes.isEmpty())runtime.getRecipeManager().hideRecipes(FluidMixerRecipeCategory.RECIPE_TYPE,visibleMixerRecipes);
+        if(!current.isEmpty())runtime.getRecipeManager().addRecipes(FluidMixerRecipeCategory.RECIPE_TYPE,current);
+        visibleMixerRecipes=current;
+    }
+    public static void refreshMineralExtractorRecipes() {
+        if (runtime == null || !com.jdte.client.MineralSurveyClientCache.isSynced()) return;
+        var current = MineralExtractorJeiRecipe.getRecipes();
+        if (!visibleMineralRecipes.isEmpty()) runtime.getRecipeManager().hideRecipes(MineralExtractorRecipeCategory.RECIPE_TYPE, visibleMineralRecipes);
+        if (!current.isEmpty()) runtime.getRecipeManager().addRecipes(MineralExtractorRecipeCategory.RECIPE_TYPE, current);
+        visibleMineralRecipes = current;
     }
 
     public static void refreshSpawnEggRecipes() {
@@ -175,5 +216,12 @@ public class JDTEJeiPlugin implements IModPlugin {
         if (!removed.isEmpty()) runtime.getRecipeManager().hideRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, removed);
         if (!added.isEmpty()) runtime.getRecipeManager().addRecipes(LootFabricatorRecipeCategory.RECIPE_TYPE, added);
         visibleLootFabricatorRecipes = current;
+    }
+    private static java.util.List<com.jdte.client.jei.bioextractor.BioExtractorJeiRecipe> visibleBioRecipes=java.util.List.of();
+    public static void refreshBioExtractorRecipes(){
+        if(runtime==null)return;
+        var current=com.jdte.client.jei.bioextractor.BioExtractorJeiRecipe.getRecipes();var type=com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE;
+        if(!visibleBioRecipes.isEmpty())runtime.getRecipeManager().hideRecipes(type,visibleBioRecipes);
+        if(!current.isEmpty())runtime.getRecipeManager().addRecipes(type,current);visibleBioRecipes=current;
     }
 }

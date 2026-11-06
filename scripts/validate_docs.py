@@ -19,6 +19,7 @@ BLOCKS_JAVA = ROOT / "src/main/java/com/jdte/setup/JDTEBlocks.java"
 
 # Machines documented on a shared page instead of a family page of their own.
 GUIDE_ALIASES = {
+    "large_mineral_extractor": "mineral-extractor",
     "extended_clicker": "extended-machines",
     "extended_block_breaker": "extended-machines",
     "extended_block_placer": "extended-machines",
@@ -29,8 +30,8 @@ GUIDE_ALIASES = {
     "extended_fluid_placer": "extended-machines",
 }
 
-# Internal structure blocks are registered for world state, not as standalone machines.
-NON_GUIDE_BLOCKS = {"large_greenhouse_part", "life_synthesis_part"}
+# Internal structure blocks and source-hidden decorative blocks are not standalone machines.
+NON_GUIDE_BLOCKS = {"large_greenhouse_part", "large_mineral_extractor_part", "life_synthesis_part", "cainiaoyo_fumo", "maiqilin_fumo", "xingye_fumo"}
 
 TIER_PREFIXES = ("basic_", "advanced_", "extended_")
 

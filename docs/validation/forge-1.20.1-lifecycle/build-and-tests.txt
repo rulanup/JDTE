@@ -1,0 +1,9 @@
+Selected verbatim log lines (UTC timestamps)
+
+> Task :reobfJar
+> Task :test
+> Task :reobfServerSmokeJar
+> Task :build
+> Task :runGameTestServer
+[04:06:18] [Server thread/INFO] [minecraft/GameTestServer]: All 57 required tests passed :)
+BUILD SUCCESSFUL in 57s

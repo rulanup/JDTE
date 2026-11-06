@@ -1,0 +1,7 @@
+Selected verbatim log lines (UTC timestamps)
+
+[04:08:37] [Server thread/INFO] [minecraft/DedicatedServer]: Done (3.039s)! For help, type "help"
+[04:08:41] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[04:08:43] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+
+PASS: fresh server JVM restored inventory, FE, both fluids, surveys, upgrades, multiplier and pending work; resumed with bounded output/resource costs

@@ -1,0 +1,9 @@
+2026-10-28; baseline 2d630d4; Java 17 / Forge 47.4.10 / JDT 1.1.4
+Command: gradlew test build runGameTestServer --no-daemon --max-workers=2 (environment proxy configured)
+JUnit: 138 tests, zero failures/errors/skips. Existing 131 retained.
+GameTest: All 169 required tests passed; existing 164 retained.
+BUILD SUCCESSFUL; main and lifecycle-probe reobfJar tasks succeeded.
+Source: /tmp/jdte-fuel-core3.log (ephemeral original log).
+Fuel-specific JUnit: FuelCanisterMathTest (7).
+Fuel-specific GameTests: LargeFuelCanisterGameTests (5).
+Previous runs exposed caller ItemStack mutation and a test incorrectly omitting native configured burn-speed multiplier. Both corrected before this run.

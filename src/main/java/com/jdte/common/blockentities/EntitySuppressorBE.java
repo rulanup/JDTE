@@ -121,7 +121,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     boolean canOperateThisTick() {
-        if (isRemoved() || level == null || !isActiveRedstone()) return false;
+        if (isRemoved() || level == null || !isActiveRedstone() || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         if (UpgradeHelper.hasCreativeUpgrade(this)) return true;
         long gameTime = level.getGameTime();
         if (paidGameTime == gameTime) return true;
@@ -133,7 +133,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     private boolean canActivateWithoutConsuming() {
-        if (isRemoved() || level == null || !isActiveRedstone()) return false;
+        if (isRemoved() || level == null || !isActiveRedstone() || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
         return UpgradeHelper.hasCreativeUpgrade(this)
                 || energy.extractEnergy(getStandardEnergyCost(), true) == getStandardEnergyCost();
     }

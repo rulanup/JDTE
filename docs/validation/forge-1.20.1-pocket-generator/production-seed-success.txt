@@ -1,0 +1,1 @@
+PASS: minimal packaged Forge actual native-compatible FE/fuel generation+inventory charge (explicit FakePlayer method),600+660FE/379ticks/two coal, full4M/disabled generator; real inventory move, ChunkEvent.Unload/fresh chest/exact complete NBT and saved shutdown.

@@ -1,0 +1,16 @@
+[02:04:58] [Server thread/INFO] [minecraft/DedicatedServer]: Done (4.303s)! For help, type "help"
+[02:05:00] [Server thread/INFO] [minecraft/PlayerList]: JDTEOne[/127.0.0.1:36668] logged in with entity id 191 at (1023.5577559461107, 81.0, 1023.9737276968765)
+[02:05:01] [Server thread/INFO] [ModernFix/]: Using enhanced recipe sync for player JDTEOne
+[02:05:01] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne joined the game
+[02:05:01] [Server thread/INFO] [Jade/]: Syncing config to JDTEOne (d3ab1680-3a7d-3226-af85-8613ddd1a502)
+[02:05:01] [Server thread/INFO] [minecraft/PlayerList]: JDTETwo[/127.0.0.1:36676] logged in with entity id 192 at (1023.5, 80.0, 1026.5)
+[02:05:01] [Server thread/INFO] [ModernFix/]: Using enhanced recipe sync for player JDTETwo
+[02:05:01] [Server thread/INFO] [minecraft/MinecraftServer]: JDTETwo joined the game
+[02:05:01] [Server thread/INFO] [Jade/]: Syncing config to JDTETwo (1fa50e9d-eae6-3802-bace-d8dc07e6c4b7)
+[02:05:05] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTEOne lost connection: Mixer concurrency passed
+[02:05:05] [Server thread/INFO] [minecraft/MinecraftServer]: JDTEOne left the game
+[02:05:06] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[02:05:06] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[02:05:06] [Server thread/INFO] [minecraft/ServerGamePacketListenerImpl]: JDTETwo lost connection: Mixer concurrency passed
+[02:05:06] [Server thread/INFO] [minecraft/MinecraftServer]: JDTETwo left the game
+[02:05:06] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved

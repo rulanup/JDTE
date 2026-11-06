@@ -8,6 +8,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(AbstractContainerMenu.class)
 public interface AbstractContainerMenuInvoker {
+    @Invoker("moveItemStackTo")
+    boolean jdte$invokeMoveItemStackTo(net.minecraft.world.item.ItemStack stack, int start, int end, boolean reverse);
+
     @Invoker("addSlot")
     Slot jdte$invokeAddSlot(Slot slot);
 

@@ -17,6 +17,14 @@ public class JDTERecipes {
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, JDTE.MODID);
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, JDTE.MODID);
 
+    public static final RegistryObject<com.jdte.common.recipes.UltimateTimeWandUpgradeRecipe.Serializer> ULTIMATE_TIME_WAND_UPGRADE_RECIPE_SERIALIZER=RECIPE_SERIALIZERS.register("ultimate_time_wand_entity_upgrade",com.jdte.common.recipes.UltimateTimeWandUpgradeRecipe.Serializer::new);
+    public static final RegistryObject<com.jdte.common.recipes.EntityAccelerationSmithingRecipe.Serializer> ENTITY_ACCELERATION_SMITHING_RECIPE_SERIALIZER=RECIPE_SERIALIZERS.register("entity_acceleration_smithing",com.jdte.common.recipes.EntityAccelerationSmithingRecipe.Serializer::new);
+
+    public static final RegistryObject<com.jdte.common.recipes.LargePortableContainerRecipe.Serializer> LARGE_PORTABLE_CONTAINER_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("large_portable_container", com.jdte.common.recipes.LargePortableContainerRecipe.Serializer::new);
+    public static final RegistryObject<com.jdte.common.recipes.AEExtractionSmithingRecipe.Serializer> AE_EXTRACTION_SMITHING_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("ae_extraction_smithing", com.jdte.common.recipes.AEExtractionSmithingRecipe.Serializer::new);
+
+    public static final RegistryObject<RecipeType<com.jdte.common.recipes.FluidMixerRecipe>> FLUID_MIXER_RECIPE_TYPE = RECIPE_TYPES.register("fluid_mixer", () -> RecipeType.simple(JDTE.id("fluid_mixer")));
+    public static final RegistryObject<com.jdte.common.recipes.FluidMixerRecipe.Serializer> FLUID_MIXER_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("fluid_mixer", com.jdte.common.recipes.FluidMixerRecipe.Serializer::new);
     public static final RegistryObject<RecipeType<InfusionRecipe>> INFUSION_RECIPE_TYPE = RECIPE_TYPES.register(
             "infusion", () -> RecipeType.simple(com.jdte.JDTE.id("infusion")));
 
@@ -40,4 +48,9 @@ public class JDTERecipes {
 
     public static final Supplier<LifeSynthesisRecipe.Serializer> LIFE_SYNTHESIS_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
             "life_synthesis", LifeSynthesisRecipe.Serializer::new);
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.item.crafting.RecipeType<com.jdte.common.recipes.MineralExtractorResourcesRecipe>> MINERAL_EXTRACTOR_RESOURCES_RECIPE_TYPE = RECIPE_TYPES.register("mineral_extractor_resources", () -> net.minecraft.world.item.crafting.RecipeType.simple(JDTE.id("mineral_extractor_resources")));
+    public static final net.minecraftforge.registries.RegistryObject<com.jdte.common.recipes.MineralExtractorResourcesRecipe.Serializer> MINERAL_EXTRACTOR_RESOURCES_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("mineral_extractor_resources", com.jdte.common.recipes.MineralExtractorResourcesRecipe.Serializer::new);
+    public static final RegistryObject<com.jdte.common.recipes.ExtendedGeneratorRecipe.Serializer> EXTENDED_GENERATOR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("extended_generator", com.jdte.common.recipes.ExtendedGeneratorRecipe.Serializer::new);
+    public static final RegistryObject<RecipeType<com.jdte.common.recipes.BioExtractorRecipe>> BIO_EXTRACTOR_RECIPE_TYPE = RECIPE_TYPES.register("bio_extractor", () -> RecipeType.simple(com.jdte.JDTE.id("bio_extractor")));
+    public static final RegistryObject<com.jdte.common.recipes.BioExtractorRecipe.Serializer> BIO_EXTRACTOR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("bio_extractor", com.jdte.common.recipes.BioExtractorRecipe.Serializer::new);
 }

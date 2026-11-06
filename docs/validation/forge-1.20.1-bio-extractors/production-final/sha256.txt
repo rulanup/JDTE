@@ -1,0 +1,2 @@
+cf47b634e816ddb3d73fab66cf3a7459d5e96760bfb4e2dcfd0ef92884270d7b  [Forge] jdte-0.5.8-forge-1.20.1.jar
+aa561da992fad02aadf6cad8824d335d9bd083219b7581a1bde008fb0275b9e3  [Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar

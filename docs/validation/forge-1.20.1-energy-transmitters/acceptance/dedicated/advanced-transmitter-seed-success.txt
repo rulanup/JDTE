@@ -1,0 +1,1 @@
+PASS: actual dedicated player/Curios charge, real logout with 100 running offline ticks, true offline chunk unload/reload, same-client reconnect, exact refill; installed real ME disk spends 40000 and saves 10000 across shutdown

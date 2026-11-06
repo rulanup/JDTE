@@ -23,6 +23,9 @@ import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.blockentities.TimeAcceleratorMachine;
 import com.jdte.common.items.UpgradeCardItem;
+import com.jdte.common.integrations.ae2.AE2CraftingReadNetwork;
+import com.jdte.common.blockentities.BasicTimeAcceleratorBE;
+import com.jdte.common.blockentities.AdvancedTimeAcceleratorBE;
 import com.jdte.mixin.EnergyStorageAccessor;
 import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEAttachments;
@@ -36,11 +39,14 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 public class UpgradeHelper {
+    // Optional AE2 types remain behind the common facade.
+
     public static int getFilterSlotsPerUpgrade() {
         return JDTEConfig.COMMON.filterSlotsPerUpgrade.get();
     }
 
     public static UpgradeItemStackHandler getUpgradeHandler(BaseMachineBE machine) {
+        if (machine == null) return null;
         if (machine instanceof com.jdte.common.blockentities.LootFabricatorBE fabricator) {
             return fabricator.getUpgradeHandler();
         }
@@ -53,15 +59,174 @@ public class UpgradeHelper {
         return JDTEAttachments.upgrades(machine);
     }
 
+    public static boolean isMixingUpgrade(ItemStack stack) { return stack.getItem() instanceof com.jdte.common.items.MixingUpgradeItem || isUltimateMixingParallelUpgrade(stack); }
+    public static boolean isUltimateMixingParallelUpgrade(ItemStack stack) { return stack.getItem() instanceof com.jdte.common.items.UltimateMixingParallelUpgradeItem; }
+    public static boolean hasMixingUpgrade(BaseMachineBE machine) {
+        var handler = getUpgradeHandler(machine);if(handler==null)return false;
+        for(int i=0;i<handler.getSlots();i++)if(isMixingUpgrade(handler.getStackInSlot(i)))return true;return false;
+    }
+    public static boolean hasUltimateMixingParallelUpgrade(BaseMachineBE machine) {
+        var handler = getUpgradeHandler(machine);if(handler==null)return false;
+        for(int i=0;i<handler.getSlots();i++)if(isUltimateMixingParallelUpgrade(handler.getStackInSlot(i)))return true;return false;
+    }
     public static boolean isUpgrade(ItemStack stack) {
-        return stack.getItem() instanceof UpgradeCardItem;
+        return stack.getItem() instanceof UpgradeCardItem || isMixingUpgrade(stack) || isEnergyUpgrade(stack);
+    }
+
+    public static boolean isEnergyBrewingUpgrade(ItemStack stack) { return stack.getItem() instanceof com.jdte.common.items.EnergyBrewingUpgradeItem; }
+    public static boolean isEnergyOverloadUpgrade(ItemStack stack) { return stack.getItem() instanceof com.jdte.common.items.EnergyOverloadUpgradeItem; }
+    public static boolean isEnergyUpgrade(ItemStack stack) { return isEnergyBrewingUpgrade(stack) || isEnergyOverloadUpgrade(stack); }
+    public static boolean isEnergyTransmitter(BaseMachineBE machine) { return machine instanceof com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE; }
+    public static boolean hasEnergyOverloadUpgrade(BaseMachineBE machine) { return hasSpecialUpgrade(machine,false); }
+    public static boolean hasEnergyBrewingUpgrade(BaseMachineBE machine) { return hasSpecialUpgrade(machine,true); }
+    private static boolean hasSpecialUpgrade(BaseMachineBE machine,boolean brewing) {
+        if(machine==null || machine.isRemoved())return false;
+        var handler=getUpgradeHandler(machine);if(handler==null)return false;
+        for(int slot=0;slot<handler.getSlots();slot++)if(brewing?isEnergyBrewingUpgrade(handler.getStackInSlot(slot)):isEnergyOverloadUpgrade(handler.getStackInSlot(slot)))return true;
+        return false;
     }
 
     public static boolean isUpgrade(ItemStack stack, UpgradeType type) {
         return stack.getItem() instanceof UpgradeCardItem upgradeCard && upgradeCard.getType() == type;
     }
 
+    public static boolean hasAEAccelerationUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.AE_ACCELERATION)>0; }
+
+    public static boolean hasAeCraftingReadUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.AE_CRAFTING_READ) > 0;
+    }
+
+    /** Returns whether normal machine work is allowed by the optional AE crafting binding. */
+    public static boolean mayRunWithUpgrades(BaseMachineBE machine) {
+        if (machine == null || !hasAeCraftingReadUpgrade(machine)) {
+            return true;
+        }
+        if (!(machine.getLevel() instanceof net.minecraft.server.level.ServerLevel level)) {
+            return true;
+        }
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return false;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack upgrade = handler.getStackInSlot(slot);
+            if (isUpgrade(upgrade, UpgradeType.AE_CRAFTING_READ)
+                    && AE2CraftingReadNetwork.hasActiveCraftingTask(level, upgrade)) return true;
+        }
+        return false;
+    }
+
+    public static boolean mayRunWithUpgrades(UpgradeItemStackHandler handler, boolean activeCraftingTask) {
+        return handler == null || countUpgrades(handler, UpgradeType.AE_CRAFTING_READ) == 0 || activeCraftingTask;
+    }
+
+    public static boolean mayRunWithUpgrades(UpgradeItemStackHandler handler, long gameTime,
+                                             AE2CraftingReadNetwork.TargetResolver resolver,
+                                             java.util.function.Predicate<ItemStack> isBound) {
+        if (handler == null) return true;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack upgrade = handler.getStackInSlot(slot);
+            if (isUpgrade(upgrade, UpgradeType.AE_CRAFTING_READ)
+                    && isBound.test(upgrade)
+                    && AE2CraftingReadNetwork.hasActiveCraftingTask(upgrade, gameTime, resolver)) return true;
+        }
+        return countUpgrades(handler, UpgradeType.AE_CRAFTING_READ) == 0;
+    }
+
+    /** Returns whether the whole ticker is a safe boundary for the common AE work gate. */
+    public static boolean usesCommonAeTickerGate(BaseMachineBE machine) {
+        return !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+                && !(machine instanceof LifeSynthesisVatBE || machine instanceof com.jdte.common.blockentities.MineralExtractorBE)
+                && !(machine instanceof LifeBreederBE || machine instanceof com.jdte.common.blockentities.TimeFreezerBE)
+                && !(machine instanceof AdvancedItemCollectorBE)
+                && !(machine instanceof TimeAcceleratorMachine || machine instanceof EntitySuppressorBE)
+                && !(machine instanceof RangeBlockerBE || machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE)
+                && !(machine instanceof FactoryPackerBE)
+                && !(machine instanceof CrystalIncubatorBE);
+    }
+
+    /** Executes the actual machine ticker while preserving the original redstone-off reset path. */
+    public static void runServerTicker(boolean redstoneActive, java.util.function.BooleanSupplier mayRun,
+                                       boolean overclock, Runnable originalTicker) {
+        runServerTicker(true, redstoneActive, mayRun, overclock ? 2 : 1, originalTicker);
+    }
+
+    public static void runServerTicker(boolean useCommonGate, boolean redstoneActive, java.util.function.BooleanSupplier mayRun,
+                                       boolean overclock, Runnable originalTicker) {
+        runServerTicker(useCommonGate, redstoneActive, mayRun, overclock ? 2 : 1, originalTicker);
+    }
+
+    public static void runServerTicker(boolean useCommonGate, boolean redstoneActive, java.util.function.BooleanSupplier mayRun,
+                                       int executions, Runnable originalTicker) {
+        if (!useCommonGate) {
+            for (int i = 0; i < executions; i++) {
+                originalTicker.run();
+            }
+            return;
+        }
+        if (!redstoneActive) {
+            originalTicker.run();
+            return;
+        }
+        if (!mayRun.getAsBoolean()) {
+            return;
+        }
+        for (int i = 0; i < executions; i++) {
+            originalTicker.run();
+        }
+    }
+
+    private static int countUpgrades(UpgradeItemStackHandler handler, UpgradeType type) {
+        int count = 0;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (isUpgrade(handler.getStackInSlot(slot), type)) count++;
+        }
+        return count;
+    }
+
+    public static boolean hasAEOutputUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.AE_OUTPUT) > 0
+                || countUpgrades(machine, UpgradeType.ADVANCED_AE_OUTPUT) > 0;
+    }
+
+    public static boolean hasAdvancedAEOutputUpgrade(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ADVANCED_AE_OUTPUT) > 0;
+    }
+
+    public static ItemStack getAEOutputUpgrade(BaseMachineBE machine) {
+        UpgradeItemStackHandler handler = getUpgradeHandler(machine);
+        if (handler == null) return ItemStack.EMPTY;
+        ItemStack fallback = ItemStack.EMPTY;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack stack = handler.getStackInSlot(slot);
+            if (isUpgrade(stack, UpgradeType.ADVANCED_AE_OUTPUT)) return stack;
+            if (fallback.isEmpty() && isUpgrade(stack, UpgradeType.AE_OUTPUT)) fallback = stack;
+        }
+        return fallback;
+    }
+
+    public static boolean hasSeedConversionUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.SEED_CONVERSION)>0; }
+
+    public static boolean hasEssenceConversionUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.ESSENCE_CONVERSION)>0; }
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
+        if(type==UpgradeType.THUNDERSTORM)return machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE;
+        if(machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE rod)return rod.isUpgradeAllowed(type);
+        if(machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE accelerator)return accelerator.isUpgradeAllowed(type);
+        if(type==UpgradeType.AE_ACCELERATION)return machine instanceof BasicTimeAcceleratorBE || machine instanceof AdvancedTimeAcceleratorBE;
+        if(type==UpgradeType.AE_CRAFTING_READ || type.isAEOutputUpgrade()) return true;
+        if(type==UpgradeType.ESSENCE_CONVERSION || type==UpgradeType.SEED_CONVERSION)return machine instanceof GreenhouseBE||machine instanceof LargeGreenhouseBE;
+        if (machine instanceof com.jdte.common.blockentities.BioExtractorBE) return type==UpgradeType.CAPACITY||type==UpgradeType.ULTIMATE_CAPACITY||type==UpgradeType.FLUID||type==UpgradeType.OVERCLOCK||type==UpgradeType.ULTIMATE_OVERCLOCK||type==UpgradeType.UNDERCLOCK||type==UpgradeType.RANGE||type==UpgradeType.FILTER||type==UpgradeType.CREATIVE;
+        if (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE)
+            return type == UpgradeType.RANGE || type == UpgradeType.FILTER || type == UpgradeType.CAPACITY
+                    || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.OVERCLOCK
+                    || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
+        if (machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE
+                && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
+        if (machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
+        if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
+            return machine instanceof com.jdte.common.blockentities.MineralExtractorBE || machine instanceof com.jdte.common.blockentities.FluidMixerBE || isExtendedGenerator(machine);
+        if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE)
+            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID || type == UpgradeType.FILTER
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
+
         if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
             return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
                     || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
@@ -175,12 +340,12 @@ public class UpgradeHelper {
     }
 
     public static int adjustEnergyCapacity(BaseMachineBE machine, int original) {
-        return multiplyByPowersOfTwo(original, countUpgrades(machine, UpgradeType.CAPACITY));
+        return multiplyByPowersOfTwo(scaledUltimateCapacity(machine, original), countUpgrades(machine, UpgradeType.CAPACITY));
     }
 
     public static int adjustFluidCapacity(BaseMachineBE machine, int original) {
         int upgrades = countUpgrades(machine, UpgradeType.CAPACITY) + countUpgrades(machine, UpgradeType.FLUID);
-        return multiplyByPowersOfTwo(original, upgrades);
+        return multiplyByPowersOfTwo(scaledUltimateCapacity(machine, original), upgrades);
     }
 
     public static int adjustEnergyCost(BaseMachineBE machine, int original) {
@@ -190,6 +355,7 @@ public class UpgradeHelper {
         if (hasCreativeUpgrade(machine)) {
             return 0;
         }
+        if ((machine instanceof com.jdte.common.blockentities.FluidMixerBE || machine instanceof com.jdte.common.blockentities.BioExtractorBE) && hasUltimateOverclock(machine)) return (int)Math.min(Integer.MAX_VALUE,(long)original*50);
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
             return Math.max(1, (int) Math.ceil(original * JDTEConfig.COMMON.underclockEnergyMultiplier.get()));
         }
@@ -204,7 +370,7 @@ public class UpgradeHelper {
         if (!usesLockedDelay(machine)) {
             return original;
         }
-        if (hasCreativeUpgrade(machine)) {
+        if (hasCreativeUpgrade(machine) || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || isExtendedGenerator(machine) || machine instanceof com.jdte.common.blockentities.BioExtractorBE || machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE) && hasUltimateOverclock(machine)) {
             return 1;
         }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
@@ -221,13 +387,14 @@ public class UpgradeHelper {
     }
 
     public static boolean usesLockedDelay(BaseMachineBE machine) {
-        return !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+        return !(machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE) && !(machine instanceof com.jdte.common.blockentities.MineralExtractorBE) && !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof BioFactoryBE) && !(machine instanceof LifeBreederBE)
                 && !(machine instanceof LifeSynthesisVatBE);
     }
 
     public static boolean hasOverclock(BaseMachineBE machine) {
-        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasCreativeUpgrade(machine);
+        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasCreativeUpgrade(machine)
+                || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || isExtendedGenerator(machine) || machine instanceof com.jdte.common.blockentities.BioExtractorBE || machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE || machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE) && hasUltimateOverclock(machine);
     }
 
     public static boolean hasUndercLock(BaseMachineBE machine) {
@@ -296,6 +463,7 @@ public class UpgradeHelper {
             }
         }
 
+        if(machine instanceof com.jdte.common.blockentities.FluidMixerBE mixer)mixer.syncTankCapacities();
         syncClickerFluidTank(machine);
         trimInactiveFilterSlots(machine);
     }
@@ -352,5 +520,27 @@ public class UpgradeHelper {
         }
         long result = (long) original << powers;
         return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
+    }
+
+    public static boolean isSmelterUpgrade(ItemStack stack) {
+        return stack.is(com.direwolf20.justdirethings.setup.Registration.UPGRADE_SMELTER.get());
+    }
+    public static boolean hasSmelterUpgrade(BaseMachineBE machine) {
+        var handler = getUpgradeHandler(machine);
+        for (int slot = 0; slot < handler.getSlots(); slot++)
+            if (isSmelterUpgrade(handler.getStackInSlot(slot))) return true;
+        return false;
+    }
+    public static boolean hasUltimateCapacity(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ULTIMATE_CAPACITY) > 0;
+    }
+    public static boolean hasUltimateOverclock(BaseMachineBE machine) {
+        return countUpgrades(machine, UpgradeType.ULTIMATE_OVERCLOCK) > 0;
+    }
+    private static int scaledUltimateCapacity(BaseMachineBE machine, int original) {
+        return hasUltimateCapacity(machine) ? (int) Math.min(Integer.MAX_VALUE, (long) original * 50) : original;
+    }
+    public static boolean isExtendedGenerator(BaseMachineBE machine) {
+        return machine instanceof com.jdte.common.blockentities.ExtendedGeneratorBE || machine instanceof com.jdte.common.blockentities.ExtendedFluidGeneratorBE;
     }
 }

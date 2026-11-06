@@ -90,7 +90,8 @@ public final class AutoIoTransferHelper {
     }
 
     public static void tick(BaseMachineBE machine) {
-        if (machine == null || !(machine.getLevel() instanceof ServerLevel serverLevel)) {
+        if (machine == null || !(machine.getLevel() instanceof ServerLevel serverLevel) || machine.isRemoved()
+                || !serverLevel.isLoaded(machine.getBlockPos()) || serverLevel.getBlockEntity(machine.getBlockPos())!=machine) {
             return;
         }
         if (!AutoIoConfigHelper.hasConfigurableIo(machine)) {
@@ -103,7 +104,8 @@ public final class AutoIoTransferHelper {
         }
         int inputMask = data.getInputMask();
         int outputMask = data.getOutputMask();
-        boolean eventDrivenGreenhouse = machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
+        boolean eventDrivenGreenhouse = machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE
+                || machine instanceof com.jdte.common.blockentities.MineralExtractorBE;
         int periodicOutputMask = eventDrivenGreenhouse ? 0 : outputMask;
         if (inputMask == 0 && periodicOutputMask == 0) {
             data.resetTransferState();
@@ -142,9 +144,13 @@ public final class AutoIoTransferHelper {
     }
 
     public static EventOutputResult flushEventDrivenGreenhouseOutput(BaseMachineBE machine, int[] sourceSlots) {
-        if (!(machine.getLevel() instanceof ServerLevel level) || sourceSlots.length == 0) {
+        if (!(machine.getLevel() instanceof ServerLevel level) || sourceSlots.length == 0 || machine.isRemoved()
+                || !level.isLoaded(machine.getBlockPos()) || level.getBlockEntity(machine.getBlockPos())!=machine) {
             return new EventOutputResult(false, false);
         }
+        com.jdte.common.blockentities.GreenhouseEssenceConversionHelper.prepareOutput(level,machine);
+        sourceSlots = java.util.Arrays.stream(sourceSlots).filter(slot -> !com.jdte.common.blockentities.GreenhouseEssenceConversionHelper.shouldRetainForConversion(
+                level,machine,machine.getMachineHandler().getStackInSlot(slot))).toArray();
         AutoIoConfigData data = JDTEAttachments.autoIo(machine);
         int outputMask = data.getOutputMask();
         if (outputMask == 0 || OverclockDirectTransferHelper.isEnabled(machine)) {
@@ -277,6 +283,10 @@ public final class AutoIoTransferHelper {
     }
 
     private static List<BlockPos> externalNeighbors(ServerLevel level, BaseMachineBE machine, Direction side) {
+        if (machine instanceof com.jdte.common.blockentities.LargeMineralExtractorBE mineral) {
+            return mineral.getBoundaryNeighbors().stream().filter(n -> n.exposedSide() == side)
+                    .map(com.jdte.common.blocks.LargeMineralExtractorStructure.BoundaryNeighbor::pos).distinct().toList();
+        }
         if (machine instanceof LargeGreenhouseBE greenhouse) {
             return greenhouse.getBoundaryNeighbors().stream()
                     .filter(neighbor -> neighbor.exposedSide() == side)
@@ -294,6 +304,14 @@ public final class AutoIoTransferHelper {
         return List.of(machine.getBlockPos().relative(side));
     }
 
+    public record AEOutputRoutes(int[] itemSlots, IFluidHandler fluidOutput) {}
+    public static boolean supportsAEOutput(BaseMachineBE machine) { return machine != null; }
+    public static AEOutputRoutes getAEOutputRoutes(BaseMachineBE machine) {
+        if (machine instanceof com.jdte.common.blockentities.ItemReceiverBE || machine instanceof com.jdte.common.blockentities.FluidReceiverBE)
+            return new AEOutputRoutes(new int[0], null);
+        IoRoutes routes = getRoutes(machine);
+        return new AEOutputRoutes(routes.itemOutputs().clone(), routes.fluidOutput());
+    }
     private static IoRoutes getRoutes(BaseMachineBE machine) {
         ItemStackHandler handler = machine.getMachineHandler();
         int[] itemInputs = NO_SLOTS;
@@ -301,7 +319,17 @@ public final class AutoIoTransferHelper {
         IFluidHandler fluidInput = null;
         IFluidHandler fluidOutput = null;
 
-        if (machine instanceof GelGeneratorBE generator) {
+        if (machine instanceof com.jdte.common.blockentities.BioExtractorBE bio) {
+            itemOutputs=allSlots(handler);fluidOutput=bio.getFluidTank();
+        } else if (machine instanceof com.jdte.common.blockentities.FluidMixerBE mixer) {
+            itemInputs = boundedSlots(handler,0);
+            fluidInput = mixer.getCombinedFluidHandler();
+            fluidOutput = mixer.outputTank;
+        } else if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE mineral) {
+            itemInputs = boundedSlots(handler, range(0, mineral.surveySlotCount()));
+            itemOutputs = boundedSlots(handler, range(mineral.outputStartSlot(), mineral.getActiveOutputSlots()));
+            fluidInput = mineral.getCombinedFluidHandler();
+        } else if (machine instanceof GelGeneratorBE generator) {
             itemInputs = boundedSlots(handler,
                     GelGeneratorBE.GEL_SLOT,
                     GelGeneratorBE.FOOD_SLOT,

@@ -1,0 +1,19 @@
+{
+  "main_sha256": "d17db0692923564af7178d4e44bffdebf82b10388f792677753ad41875161514",
+  "final_main_byte_identical_to_production_tested_main": true,
+  "probe_sha256": "5ef44b6b7b44659868a789777431ce88365c9ca39caa1d8e41fc5c74b1a79c1d",
+  "installed_mod_jars": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "applied-energistics-2-223794-7148487.jar",
+    "applied-flux-965012-7651647.jar",
+    "curios-309927-6418456.jar",
+    "glodium-957920-5226922.jar",
+    "guideme-20.1.15.jar",
+    "jade-324717-8479276.jar",
+    "jei-1.20.1-forge-15.20.0.127.jar",
+    "just-dire-things-forge-1533501-8573107.jar",
+    "modernfix-ZxDvSMHV.jar"
+  ],
+  "all_jvms_exit_code": 0
+}

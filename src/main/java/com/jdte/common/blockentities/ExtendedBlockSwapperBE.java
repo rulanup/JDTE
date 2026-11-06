@@ -65,4 +65,9 @@ public class ExtendedBlockSwapperBE extends BlockSwapperT1BE implements PoweredM
                 .sorted(Comparator.comparingDouble(pos -> pos.distSqr(getBlockPos())))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+    @Override
+    public int getMaxEnergy() {
+        return com.jdte.common.upgrades.UpgradeHelper.adjustEnergyCapacity(this, 100000);
+    }
+
 }

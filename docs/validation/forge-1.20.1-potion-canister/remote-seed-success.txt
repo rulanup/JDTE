@@ -1,0 +1,1 @@
+PASS: two actual independent clients concurrently fill/recover distinct portable menus, controlled server handoff plus actual stale-C2S replay rejection, fourth potion resumes exactly once, real cursor logout/reconnect; exact two canisters/3000mB/pending1/loose1/twelve bottles saved. Handoff/material setup is instrumented, not player-driven drag/drop.

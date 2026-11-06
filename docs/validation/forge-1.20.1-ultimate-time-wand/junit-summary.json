@@ -1,0 +1,261 @@
+{
+  "tests": 167,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": [
+    {
+      "file": "TEST-com.jdte.common.blockentities.BioExtractionClockTest.xml",
+      "name": "com.jdte.common.blockentities.BioExtractionClockTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.004"
+    },
+    {
+      "file": "TEST-com.jdte.common.minerals.MineralProductionEngineTest.xml",
+      "name": "com.jdte.common.minerals.MineralProductionEngineTest",
+      "tests": "16",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.04"
+    },
+    {
+      "file": "TEST-com.jdte.common.blockentities.TimeAcceleratorExecutionPolicyTest.xml",
+      "name": "com.jdte.common.blockentities.TimeAcceleratorExecutionPolicyTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.004"
+    },
+    {
+      "file": "TEST-com.jdte.common.integrations.ae2.AEExtractionTransferTest.xml",
+      "name": "com.jdte.common.integrations.ae2.AEExtractionTransferTest",
+      "tests": "10",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.028"
+    },
+    {
+      "file": "TEST-com.jdte.common.factory.FactoryTransformTest.xml",
+      "name": "com.jdte.common.factory.FactoryTransformTest",
+      "tests": "10",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.63"
+    },
+    {
+      "file": "TEST-com.jdte.common.recipes.LifeSynthesisRecipeTest.xml",
+      "name": "com.jdte.common.recipes.LifeSynthesisRecipeTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.005"
+    },
+    {
+      "file": "TEST-com.jdte.common.utils.StackCountLabelsTest.xml",
+      "name": "com.jdte.common.utils.StackCountLabelsTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.004"
+    },
+    {
+      "file": "TEST-com.jdte.common.blockentities.TimeAcceleratorCostMathTest.xml",
+      "name": "com.jdte.common.blockentities.TimeAcceleratorCostMathTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.006"
+    },
+    {
+      "file": "TEST-com.jdte.common.items.portal.PortalGunCostsTest.xml",
+      "name": "com.jdte.common.items.portal.PortalGunCostsTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.005"
+    },
+    {
+      "file": "TEST-com.jdte.common.integrations.ae2.AEItemBatchTransferTest.xml",
+      "name": "com.jdte.common.integrations.ae2.AEItemBatchTransferTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.006"
+    },
+    {
+      "file": "TEST-com.jdte.common.blockentities.FluidMixerParallelLimitTest.xml",
+      "name": "com.jdte.common.blockentities.FluidMixerParallelLimitTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.002"
+    },
+    {
+      "file": "TEST-com.jdte.common.integrations.ae2.AECraftingReadPolicyTest.xml",
+      "name": "com.jdte.common.integrations.ae2.AECraftingReadPolicyTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.007"
+    },
+    {
+      "file": "TEST-com.jdte.common.blockentities.EnergyBrewingFuelTest.xml",
+      "name": "com.jdte.common.blockentities.EnergyBrewingFuelTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.004"
+    },
+    {
+      "file": "TEST-com.jdte.common.acceleration.ExternalTimeAccelerationBackendsTest.xml",
+      "name": "com.jdte.common.acceleration.ExternalTimeAccelerationBackendsTest",
+      "tests": "10",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.014"
+    },
+    {
+      "file": "TEST-com.jdte.common.minerals.MineralSurveyCodecTest.xml",
+      "name": "com.jdte.common.minerals.MineralSurveyCodecTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.106"
+    },
+    {
+      "file": "TEST-com.jdte.common.items.FuelCanisterMathTest.xml",
+      "name": "com.jdte.common.items.FuelCanisterMathTest",
+      "tests": "9",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.006"
+    },
+    {
+      "file": "TEST-com.jdte.common.minerals.MineralOutputPlannerTest.xml",
+      "name": "com.jdte.common.minerals.MineralOutputPlannerTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.008"
+    },
+    {
+      "file": "TEST-com.jdte.common.blockentities.AdvancedEnergyTransmitterSchedulerTest.xml",
+      "name": "com.jdte.common.blockentities.AdvancedEnergyTransmitterSchedulerTest",
+      "tests": "11",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.008"
+    },
+    {
+      "file": "TEST-com.jdte.common.items.machinesettings.MachineSettingsSnapshotTest.xml",
+      "name": "com.jdte.common.items.machinesettings.MachineSettingsSnapshotTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.044"
+    },
+    {
+      "file": "TEST-com.jdte.common.upgrades.GeneratorFuelBatchTest.xml",
+      "name": "com.jdte.common.upgrades.GeneratorFuelBatchTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.004"
+    },
+    {
+      "file": "TEST-com.jdte.common.items.UltimateTimeWandDataTest.xml",
+      "name": "com.jdte.common.items.UltimateTimeWandDataTest",
+      "tests": "13",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.012"
+    },
+    {
+      "file": "TEST-com.jdte.common.acceleration.AEAccelerationFrameTest.xml",
+      "name": "com.jdte.common.acceleration.AEAccelerationFrameTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:34",
+      "hostname": "ecbd65fc6699",
+      "time": "0.032"
+    },
+    {
+      "file": "TEST-com.jdte.common.upgrades.SlotExpansionTest.xml",
+      "name": "com.jdte.common.upgrades.SlotExpansionTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-29T15:49:35",
+      "hostname": "ecbd65fc6699",
+      "time": "0.009"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.upgrades.UpgradeHelper;
+
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
@@ -99,7 +101,7 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
 
     boolean canCollect(ItemStack stack) {
         return !stack.isEmpty() && !isRemoved() && level instanceof ServerLevel
-                && isActiveRedstone() && isStackValidFilter(stack);
+                && isActiveRedstone() && UpgradeHelper.mayRunWithUpgrades(this) && isStackValidFilter(stack);
     }
 
     ItemStack insertCollectedStack(ItemStack stack) {
@@ -107,7 +109,7 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
     }
 
     ItemStack insertCollectedStack(ItemStack stack, boolean simulate) {
-        if (stack.isEmpty() || isRemoved() || !(level instanceof ServerLevel) || !isActiveRedstone()) {
+        if (stack.isEmpty() || isRemoved() || !(level instanceof ServerLevel) || !isActiveRedstone() || !UpgradeHelper.mayRunWithUpgrades(this)) {
             return stack;
         }
         IItemHandler inventory = getAttachedInventory();

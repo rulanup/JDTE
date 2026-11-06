@@ -47,8 +47,14 @@ public class JDTE {
     public static final String MODID = "jdte";
 
     public JDTE() {
+        net.minecraftforge.common.ForgeMod.enableMilkFluid();
+        MinecraftForge.EVENT_BUS.addListener(net.minecraftforge.eventbus.api.EventPriority.LOWEST, com.jdte.common.items.TimeMultitoolMiningEvents::onBreakSpeed);
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, JDTEConfig.COMMON_SPEC, JDTE.MODID + "/jdte.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER,JDTEConfig.SERVER_SPEC,"jdte/time-accelerator-server.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,JDTEConfig.MULTITOOL_CLIENT_SPEC,"jdte/time-multitool-client.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,JDTEConfig.LOCAL_SPEC,"jdte/time-accelerator-local.toml");
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.server.ServerAboutToStartEvent event)->{if(!event.getServer().isDedicatedServer()&&JDTEConfig.LOCAL_SPEC.isLoaded()&&JDTEConfig.SERVER_SPEC.isLoaded())JDTEConfig.SERVER.timeAcceleratorAccelerateAllMachines.set(JDTEConfig.LOCAL.timeAcceleratorAccelerateAllMachines.get());});
         JDTEBlocks.BLOCKS.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
         JDTEBlockEntities.BLOCK_ENTITIES.register(modEventBus);
@@ -65,6 +71,29 @@ public class JDTE {
         modEventBus.addListener(JDTEPacketHandler::registerNetworking);
         MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.level.block.entity.BlockEntity.class, JDTEAttachments::attachBlockCapabilities);
         MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.entity.Entity.class, JDTEAttachments::attachPlayerCapabilities);
+        com.jdte.common.network.MineralPackets.register();
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.AddReloadListenerEvent event) ->
+                event.addListener(new com.jdte.common.minerals.MineralSourceReloadListener()));
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.OnDatapackSyncEvent event) -> {
+            if (event.getPlayer() == null) {
+                com.jdte.common.minerals.MineralSurveyIndex.rebuild(event.getPlayerList().getServer());
+                event.getPlayerList().getPlayers().forEach(com.jdte.common.network.MineralPackets::sendCatalog);
+            } else com.jdte.common.network.MineralPackets.sendCatalog(event.getPlayer());
+        });
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.server.ServerStoppedEvent event) ->
+                com.jdte.common.minerals.MineralSurveyIndex.clear(event.getServer()));
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.items.RepairTalismanEvents::onPlayerTick);
+        modEventBus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) -> event.enqueueWork(() -> {
+            com.jdte.common.integrations.ae2.AE2CraftingReadNetwork.registerLinkable();
+            com.jdte.common.integrations.ae2.AEOutputNetwork.registerLinkable();
+            com.jdte.common.integrations.ae2.AEExtractionNetwork.registerLinkable();
+        }));
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEOutputManager::onServerTickPost);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEOutputManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEOutputManager::onServerStopped);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.integrations.ae2.AE2CraftingReadNetwork::onServerStopped);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEExtractionPlayerManager::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.AEExtractionPlayerManager::onTooltip);
         MinecraftForge.EVENT_BUS.addListener(JDTECommands::register);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingDrops);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, BioCrusherDropCapture::onLivingExperienceDrop);
@@ -75,6 +104,10 @@ public class JDTE {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, AdvancedItemCollectorManager::onEntityJoin);
         MinecraftForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onServerTick);
         MinecraftForge.EVENT_BUS.addListener(AdvancedItemCollectorManager::onLevelUnload);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onEntityInteract);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onStartTracking);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onServerStopped);
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerTickPost);
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onLevelUnload);
         MinecraftForge.EVENT_BUS.addListener(ExtendedTimeAccelerationManager::onServerStopped);
@@ -96,6 +129,7 @@ public class JDTE {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
         if (ModList.get().isLoaded("curios")) {
             MinecraftForge.EVENT_BUS.addListener(BigFluidTankCuriosIntegration::onPlayerLoggedIn);
+            modEventBus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) -> event.enqueueWork(BigFluidTankCuriosIntegration::registerItems));
         }
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> com.jdte.client.JDTEClientMod::new);
         if (ModList.get().isLoaded("ftbultimine")) {

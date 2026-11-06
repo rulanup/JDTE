@@ -71,7 +71,7 @@ import java.util.function.Supplier;
 
 /** Forge 1.20.1 message registration for all JDTE client/server interactions. */
 public final class JDTEPacketHandler {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             JDTE.id("main"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
     private static int nextPacketId;
@@ -80,6 +80,15 @@ public final class JDTEPacketHandler {
     }
 
     public static void registerNetworking(FMLCommonSetupEvent event) {
+        registerServer(com.jdte.common.network.data.ExtendedExperienceHolderSettingsPayload.class,com.jdte.common.network.data.ExtendedExperienceHolderSettingsPayload::encode,com.jdte.common.network.data.ExtendedExperienceHolderSettingsPayload::decode,com.jdte.common.network.handler.ExtendedExperienceHolderSettingsPacket::handle);
+        registerServer(com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload.class,
+                com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload::encode,
+                com.jdte.common.network.data.AdvancedUpgradeStorageActionPayload::decode,
+                com.jdte.common.network.handler.AdvancedUpgradeStorageActionPacket::handle);
+        registerServer(com.jdte.common.network.data.OpenLargeFuelCanisterPayload.class, com.jdte.common.network.data.OpenLargeFuelCanisterPayload::encode, com.jdte.common.network.data.OpenLargeFuelCanisterPayload::decode, (payload, context) -> context.enqueueWork(() -> com.jdte.common.containers.LargeFuelCanisterMenuAccess.open(context.player(), true)));
+        registerServer(com.jdte.common.network.data.AdvancedEnergyTransmitterPayload.class, com.jdte.common.network.data.AdvancedEnergyTransmitterPayload::encode, com.jdte.common.network.data.AdvancedEnergyTransmitterPayload::decode, com.jdte.common.network.handler.AdvancedEnergyTransmitterPacket::handle);
+        registerServer(com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload.class, com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload::encode, com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload::decode, com.jdte.common.network.handler.AdvancedEnergyTransmitterBindingPacket::handle);
+        registerServer(com.jdte.common.network.data.ExtendedEnergyTransmitterSettingPayload.class, com.jdte.common.network.data.ExtendedEnergyTransmitterSettingPayload::encode, com.jdte.common.network.data.ExtendedEnergyTransmitterSettingPayload::decode, com.jdte.common.network.handler.ExtendedEnergyTransmitterPacket::handle);
         registerServer(TimeAcceleratorPayload.class, TimeAcceleratorPayload::encode, TimeAcceleratorPayload::decode,
                 TimeAcceleratorPacket.get()::handle);
         registerServer(TimeFreezerPayload.class, TimeFreezerPayload::encode, TimeFreezerPayload::decode,
@@ -96,6 +105,8 @@ public final class JDTEPacketHandler {
                 FilterPagePacket.get()::handle);
         registerServer(AutoIoConfigPayload.class, AutoIoConfigPayload::encode, AutoIoConfigPayload::decode,
                 AutoIoConfigPacket.get()::handleServer);
+        registerClient(com.jdte.common.network.data.EntityAccelerationSyncPayload.class,com.jdte.common.network.data.EntityAccelerationSyncPayload::encode,com.jdte.common.network.data.EntityAccelerationSyncPayload::decode,
+            (payload,context)->context.enqueueWork(()->com.jdte.client.EntityAccelerationClientSync.accept(payload)));
         registerClient(AutoIoConfigSyncPayload.class, AutoIoConfigSyncPayload::encode, AutoIoConfigSyncPayload::decode,
                 AutoIoConfigPacket.get()::handleClient);
         registerServer(PotionBrewerRecipeLockPayload.class, PotionBrewerRecipeLockPayload::encode,
@@ -134,6 +145,8 @@ public final class JDTEPacketHandler {
                 LifeBreederModePacket::handle);
         registerClient(LifeSynthesisRunningPayload.class, LifeSynthesisRunningPayload::encode,
                 LifeSynthesisRunningPayload::decode, LifeSynthesisRunningPacket::handle);
+        registerServer(com.jdte.common.network.data.OpenLargePotionCanisterPayload.class,com.jdte.common.network.data.OpenLargePotionCanisterPayload::encode,com.jdte.common.network.data.OpenLargePotionCanisterPayload::decode,(payload,context)->context.enqueueWork(()->com.jdte.common.containers.LargePotionCanisterMenuAccess.open(context.player(),true)));
+        registerServer(com.jdte.common.network.data.OpenLargePocketGeneratorPayload.class,com.jdte.common.network.data.OpenLargePocketGeneratorPayload::encode,com.jdte.common.network.data.OpenLargePocketGeneratorPayload::decode,(payload,context)->context.enqueueWork(()->com.jdte.common.containers.LargePocketGeneratorMenuAccess.open(context.player(),true)));
     }
 
     public static void sendToPlayer(ServerPlayer player, Object message) {

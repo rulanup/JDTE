@@ -1,0 +1,35 @@
+{
+  "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "implementation_checkpoint": "0adba75",
+  "version": "0.5.8-forge-1.20.1",
+  "runtime_jar_sha256": "7ff543b516f3bc620e997fc02691287d908661f8e06e497fb1cd0314dcc333e0",
+  "installed_network_jar_sha256": "7ff543b516f3bc620e997fc02691287d908661f8e06e497fb1cd0314dcc333e0",
+  "installed_optional_absence_jar_sha256": "7ff543b516f3bc620e997fc02691287d908661f8e06e497fb1cd0314dcc333e0",
+  "network_mods": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "applied-energistics-2-223794-7148487.jar",
+    "curios-309927-6418456.jar",
+    "guideme-20.1.15.jar",
+    "jade-324717-8479276.jar",
+    "jei-1.20.1-forge-15.20.0.127.jar",
+    "just-dire-things-forge-1533501-8573107.jar",
+    "modernfix-ZxDvSMHV.jar"
+  ],
+  "optional_absence_mods": [
+    "[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar",
+    "[Forge] jdte-0.5.8-forge-1.20.1.jar",
+    "guideme-20.1.15.jar",
+    "just-dire-things-forge-1533501-8573107.jar"
+  ],
+  "no_test_only_probe_in_main_jar": true,
+  "final_jar_sha256": "3aeda81f3f0d6085a5afaca5f3f2cee7bff118984ae2d2611732e5f03af3ada3",
+  "runtime_to_final_changed_entries": [
+    "assets/jdte/guides/jdte/guide/_en_us/entity-accelerator.md",
+    "assets/jdte/guides/jdte/guide/_en_us/ultimate-time-wand.md",
+    "assets/jdte/guides/jdte/guide/entity-accelerator.md",
+    "assets/jdte/guides/jdte/guide/ultimate-time-wand.md"
+  ],
+  "all_classes_and_non_guide_resources_byte_identical": true,
+  "final_resource_only_build": "Java17/Gradle8.6 build serverSmokeJar; all167 JUnit tests; reobfuscation pass; no GameTest/client/server repetition after four guide-only edits"
+}

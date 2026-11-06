@@ -1,0 +1,59 @@
+{
+  "starting_commit": "8563466",
+  "reference_commit": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "mod_version": "0.5.8-forge-1.20.1",
+  "jar_sha256": "65be182f551da8a532a59b8279f659f8a97a6c83e765bc3ce7ad625d3651c227",
+  "probe_sha256": "9aa184f9b4a47fce2f42518c22ad29b427740824478cfae869142259042d727f",
+  "junit_tests": 77,
+  "junit_failures": 0,
+  "required_gametests": 85,
+  "gametest_failures": 0,
+  "junit_suites": {
+    "com.jdte.common.minerals.MineralProductionEngineTest": 16,
+    "com.jdte.common.integrations.ae2.AEExtractionTransferTest": 10,
+    "com.jdte.common.factory.FactoryTransformTest": 10,
+    "com.jdte.common.recipes.LifeSynthesisRecipeTest": 7,
+    "com.jdte.common.utils.StackCountLabelsTest": 4,
+    "com.jdte.common.integrations.ae2.AEItemBatchTransferTest": 5,
+    "com.jdte.common.integrations.ae2.AECraftingReadPolicyTest": 4,
+    "com.jdte.common.minerals.MineralSurveyCodecTest": 6,
+    "com.jdte.common.minerals.MineralOutputPlannerTest": 8,
+    "com.jdte.common.items.machinesettings.MachineSettingsSnapshotTest": 7
+  },
+  "runtime_tests": {
+    "optional_server_seed": "PASS: real boundary chunk unload/reload, retained capability, all saved machine fields",
+    "optional_server_restart": "PASS: fresh server JVM restored inventory, FE, both fluids, surveys, upgrades, multiplier and pending work; resumed with bounded output/resource costs",
+    "optional_client": "PASS: real client title, registrations and tank capability without AE2, Curios, JEI or Jade",
+    "remote_seed": "PASS: two remote clients, shared and independent output pages, concurrent cards/copiers/bags, disconnect with cursor, reconnect, actual chunk unload and saved shutdown",
+    "remote_restart": "PASS: fresh dedicated server and independent clients restored exact player/machine inventories and reopened synchronized menus",
+    "integrated_client": "PASS: normal/large/survey, fluids/pages/count packets, JEI/Jade, basic/advanced bags, machine panel packet insertion/conservation advanced copier option packets 6.4M bulk-drop entity sync and real crafting-pattern ghost/save packets"
+  },
+  "remote_server_exits": [
+    0,
+    0
+  ],
+  "remote_client_exits": [
+    0,
+    0
+  ],
+  "optional_server_exits": [
+    0,
+    0
+  ],
+  "optional_client_exit": 0,
+  "integrated_client_exit": 0,
+  "optional_absence": [
+    "ae2",
+    "curios",
+    "jei",
+    "jade",
+    "appflux"
+  ],
+  "captured_at": "2026-10-27T13:06:54.298298+00:00",
+  "unverified": [
+    "real submitted busy crafting CPU job controlling each machine family",
+    "long-running public-server stress",
+    "all optional-mod combinations",
+    "all equipment and recipe-pack combinations"
+  ]
+}

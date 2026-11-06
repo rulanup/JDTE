@@ -1,0 +1,1 @@
+PASS: actual graphical handheld and Curios F-event canister menus, coal shift-fill and exact NBT/item counts over real packets; Extended solid/fluid screens, >16-bit FE/burn/fluid synchronization, eight upgrade slots, card install/remove and transfer without duplication.

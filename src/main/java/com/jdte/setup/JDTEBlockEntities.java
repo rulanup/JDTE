@@ -20,6 +20,10 @@ public class JDTEBlockEntities {
             "time_freezer", () -> BlockEntityType.Builder.of(TimeFreezerBE::new, JDTEBlocks.TIME_FREEZER.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedTimeFreezerBE>> EXTENDED_TIME_FREEZER = BLOCK_ENTITIES.register(
             "extended_time_freezer", () -> BlockEntityType.Builder.of(ExtendedTimeFreezerBE::new, JDTEBlocks.EXTENDED_TIME_FREEZER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<AdvancedEnergyTransmitterBE>> ADVANCED_ENERGY_TRANSMITTER = BLOCK_ENTITIES.register("advanced_energy_transmitter", () -> BlockEntityType.Builder.of(AdvancedEnergyTransmitterBE::new, JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedEnergyTransmitterBE>> EXTENDED_ENERGY_TRANSMITTER = BLOCK_ENTITIES.register("extended_energy_transmitter", () -> BlockEntityType.Builder.of(ExtendedEnergyTransmitterBE::new, JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<AdvancedFluidMixerBE>> ADVANCED_FLUID_MIXER = BLOCK_ENTITIES.register("advanced_fluid_mixer", () -> BlockEntityType.Builder.of(AdvancedFluidMixerBE::new,JDTEBlocks.ADVANCED_FLUID_MIXER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedFluidMixerBE>> EXTENDED_FLUID_MIXER = BLOCK_ENTITIES.register("extended_fluid_mixer", () -> BlockEntityType.Builder.of(ExtendedFluidMixerBE::new,JDTEBlocks.EXTENDED_FLUID_MIXER.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedClickerBE>> EXTENDED_CLICKER = BLOCK_ENTITIES.register(
             "extended_clicker", () -> BlockEntityType.Builder.of(ExtendedClickerBE::new, JDTEBlocks.EXTENDED_CLICKER.get()).build(null));
     public static final RegistryObject<BlockEntityType<ExtendedBlockBreakerBE>> EXTENDED_BLOCK_BREAKER = BLOCK_ENTITIES.register(
@@ -135,4 +139,18 @@ public class JDTEBlockEntities {
             "extended_bio_crusher", () -> BlockEntityType.Builder.of(ExtendedBioCrusherBE::new, JDTEBlocks.EXTENDED_BIO_CRUSHER.get()).build(null));
     public static final RegistryObject<BlockEntityType<LootFabricatorBE>> LOOT_FABRICATOR = BLOCK_ENTITIES.register(
             "loot_fabricator", () -> BlockEntityType.Builder.of(LootFabricatorBE::new, JDTEBlocks.LOOT_FABRICATOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.MineralExtractorBE>> MINERAL_EXTRACTOR = BLOCK_ENTITIES.register("mineral_extractor", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.MineralExtractorBE::new, JDTEBlocks.MINERAL_EXTRACTOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.LargeMineralExtractorBE>> LARGE_MINERAL_EXTRACTOR = BLOCK_ENTITIES.register("large_mineral_extractor", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.LargeMineralExtractorBE::new, JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.LargeMineralExtractorPartBE>> LARGE_MINERAL_EXTRACTOR_PART = BLOCK_ENTITIES.register("large_mineral_extractor_part", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.LargeMineralExtractorPartBE::new, JDTEBlocks.LARGE_MINERAL_EXTRACTOR_PART.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedGeneratorBE>> EXTENDED_GENERATOR = BLOCK_ENTITIES.register("extended_generator", () -> BlockEntityType.Builder.of(ExtendedGeneratorBE::new, JDTEBlocks.EXTENDED_GENERATOR.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ExtendedFluidGeneratorBE>> EXTENDED_FLUID_GENERATOR = BLOCK_ENTITIES.register("extended_fluid_generator", () -> BlockEntityType.Builder.of(ExtendedFluidGeneratorBE::new, JDTEBlocks.EXTENDED_FLUID_GENERATOR.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.AdvancedEntityAcceleratorBE>> ADVANCED_ENTITY_ACCELERATOR = BLOCK_ENTITIES.register("advanced_entity_accelerator", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.AdvancedEntityAcceleratorBE::new, JDTEBlocks.ADVANCED_ENTITY_ACCELERATOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.ExtendedEntityAcceleratorBE>> EXTENDED_ENTITY_ACCELERATOR = BLOCK_ENTITIES.register("extended_entity_accelerator", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.ExtendedEntityAcceleratorBE::new, JDTEBlocks.EXTENDED_ENTITY_ACCELERATOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<AdvancedBioExtractorBE>> ADVANCED_BIO_EXTRACTOR = BLOCK_ENTITIES.register("advanced_bio_extractor", () -> BlockEntityType.Builder.of(AdvancedBioExtractorBE::new, JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedBioExtractorBE>> EXTENDED_BIO_EXTRACTOR = BLOCK_ENTITIES.register("extended_bio_extractor", () -> BlockEntityType.Builder.of(ExtendedBioExtractorBE::new, JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<com.jdte.common.blockentities.ChargedLightningRodBE>> CHARGED_LIGHTNING_ROD = BLOCK_ENTITIES.register("charged_lightning_rod", () -> BlockEntityType.Builder.of(com.jdte.common.blockentities.ChargedLightningRodBE::new, JDTEBlocks.CHARGED_LIGHTNING_ROD.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ExtendedExperienceHolderBE>> EXTENDED_EXPERIENCE_HOLDER = BLOCK_ENTITIES.register("extended_experience_holder", () -> BlockEntityType.Builder.of(ExtendedExperienceHolderBE::new, JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get()).build(null));
 }

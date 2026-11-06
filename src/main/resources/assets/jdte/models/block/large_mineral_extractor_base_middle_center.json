@@ -1,0 +1,495 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "justdirethings:block/eclipsealloy_block",
+    "frame": "justdirethings:block/blazegold_block",
+    "foundation": "minecraft:block/polished_deepslate",
+    "rail": "minecraft:block/smooth_basalt",
+    "metal": "minecraft:block/iron_block",
+    "pipe": "minecraft:block/cut_copper",
+    "glass": "minecraft:block/tinted_glass",
+    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
+    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
+    "output": "jdte:block/advanced_item_receiver_top",
+    "particle": "minecraft:block/polished_deepslate"
+  },
+  "elements": [
+    {
+      "name": "foundation",
+      "from": [
+        0,
+        2,
+        0
+      ],
+      "to": [
+        16,
+        6,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#foundation",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#foundation",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "shaft_coupler",
+      "from": [
+        3,
+        15,
+        3
+      ],
+      "to": [
+        13,
+        16,
+        13
+      ],
+      "faces": {
+        "down": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            0,
+            13,
+            1
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            0,
+            13,
+            1
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            0,
+            13,
+            1
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#frame",
+          "uv": [
+            3,
+            0,
+            13,
+            1
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "lower_shaft",
+      "from": [
+        6,
+        9,
+        6
+      ],
+      "to": [
+        10,
+        15,
+        10
+      ],
+      "faces": {
+        "down": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            1,
+            10,
+            7
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            1,
+            10,
+            7
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            1,
+            10,
+            7
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            1,
+            10,
+            7
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "drill_collar",
+      "from": [
+        2,
+        7,
+        2
+      ],
+      "to": [
+        14,
+        10,
+        14
+      ],
+      "faces": {
+        "down": {
+          "texture": "#casing",
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#casing",
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#casing",
+          "uv": [
+            2,
+            6,
+            14,
+            9
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#casing",
+          "uv": [
+            2,
+            6,
+            14,
+            9
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#casing",
+          "uv": [
+            2,
+            6,
+            14,
+            9
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#casing",
+          "uv": [
+            2,
+            6,
+            14,
+            9
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "drill_bit_upper",
+      "from": [
+        5,
+        5,
+        5
+      ],
+      "to": [
+        11,
+        8,
+        11
+      ],
+      "faces": {
+        "down": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            8,
+            11,
+            11
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            8,
+            11,
+            11
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            8,
+            11,
+            11
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#metal",
+          "uv": [
+            5,
+            8,
+            11,
+            11
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "drill_bit_middle",
+      "from": [
+        6,
+        3,
+        6
+      ],
+      "to": [
+        10,
+        5,
+        10
+      ],
+      "faces": {
+        "down": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            11,
+            10,
+            13
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            11,
+            10,
+            13
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            11,
+            10,
+            13
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#metal",
+          "uv": [
+            6,
+            11,
+            10,
+            13
+          ],
+          "shade": false
+        }
+      }
+    },
+    {
+      "name": "drill_bit_tip",
+      "from": [
+        7,
+        1,
+        7
+      ],
+      "to": [
+        9,
+        3,
+        9
+      ],
+      "faces": {
+        "down": {
+          "texture": "#metal",
+          "uv": [
+            7,
+            7,
+            9,
+            9
+          ],
+          "shade": false
+        },
+        "up": {
+          "texture": "#metal",
+          "uv": [
+            7,
+            7,
+            9,
+            9
+          ],
+          "shade": false
+        },
+        "north": {
+          "texture": "#metal",
+          "uv": [
+            7,
+            13,
+            9,
+            15
+          ],
+          "shade": false
+        },
+        "south": {
+          "texture": "#metal",
+          "uv": [
+            7,
+            13,
+            9,
+            15
+          ],
+          "shade": false
+        },
+        "west": {
+          "texture": "#metal",
+          "uv": [
+            7,
+            13,
+            9,
+            15
+          ],
+          "shade": false
+        },
+        "east": {
+          "texture": "#metal",
+          "uv": [
+            7,
+            13,
+            9,
+            15
+          ],
+          "shade": false
+        }
+      }
+    }
+  ]
+}

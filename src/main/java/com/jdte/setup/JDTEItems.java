@@ -25,6 +25,8 @@ import java.util.List;
 public class JDTEItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, JDTE.MODID);
 
+    public static final RegistryObject<com.jdte.common.items.LargeFuelCanisterItem> LARGE_FUEL_CANISTER = ITEMS.register("large_fuel_canister", com.jdte.common.items.LargeFuelCanisterItem::new);
+
     public static final RegistryObject<UpgradeCardItem> CAPACITY_UPGRADE = ITEMS.register("capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.CAPACITY));
     public static final RegistryObject<UpgradeCardItem> OVERCLOCK_UPGRADE = ITEMS.register("overclock_upgrade", () -> new UpgradeCardItem(UpgradeType.OVERCLOCK));
     public static final RegistryObject<UpgradeCardItem> UNDERCLOCK_UPGRADE = ITEMS.register("underclock_upgrade", () -> new UpgradeCardItem(UpgradeType.UNDERCLOCK));
@@ -71,6 +73,24 @@ public class JDTEItems {
     public static final RegistryObject<BlockItem> LIFE_BREEDER = ITEMS.register("life_breeder", () -> new BlockItem(JDTEBlocks.LIFE_BREEDER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> FACTORY_PACKER = ITEMS.register("factory_packer", () -> new BlockItem(JDTEBlocks.FACTORY_PACKER.get(), new Item.Properties()));
 
+    public static final RegistryObject<UpgradeCardItem> AE_ACCELERATION_UPGRADE = ITEMS.register("ae_acceleration_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_ACCELERATION));
+    public static final RegistryObject<UpgradeCardItem> AE_CRAFTING_READ_UPGRADE = ITEMS.register("ae_crafting_read_upgrade", () -> new UpgradeCardItem(UpgradeType.AE_CRAFTING_READ));
+    public static final RegistryObject<com.jdte.common.items.AEExtractionUpgradeItem> AE_EXTRACTION_UPGRADE = ITEMS.register("ae_extraction_upgrade", com.jdte.common.items.AEExtractionUpgradeItem::new);
+    public static final RegistryObject<com.jdte.common.items.AEOutputUpgradeItem> AE_OUTPUT_UPGRADE = ITEMS.register("ae_output_upgrade", com.jdte.common.items.AEOutputUpgradeItem::new);
+    public static final RegistryObject<com.jdte.common.items.AdvancedAEOutputUpgradeItem> ADVANCED_AE_OUTPUT_UPGRADE = ITEMS.register("advanced_ae_output_upgrade", com.jdte.common.items.AdvancedAEOutputUpgradeItem::new);
+
+    public static final RegistryObject<BlockItem> ADVANCED_ENERGY_TRANSMITTER = ITEMS.register("advanced_energy_transmitter", () -> new BlockItem(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> EXTENDED_ENERGY_TRANSMITTER = ITEMS.register("extended_energy_transmitter", () -> new BlockItem(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> ADVANCED_FLUID_MIXER = ITEMS.register("advanced_fluid_mixer", () -> new BlockItem(JDTEBlocks.ADVANCED_FLUID_MIXER.get(),new Item.Properties()));
+    public static final RegistryObject<BlockItem> EXTENDED_FLUID_MIXER = ITEMS.register("extended_fluid_mixer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_MIXER.get(),new Item.Properties()));
+    public static final RegistryObject<com.jdte.common.items.MixingUpgradeItem> MIXING_UPGRADE = ITEMS.register("mixing_upgrade",com.jdte.common.items.MixingUpgradeItem::new);
+    public static final RegistryObject<com.jdte.common.items.UltimateMixingParallelUpgradeItem> ULTIMATE_MIXING_PARALLEL_UPGRADE = ITEMS.register("ultimate_mixing_parallel_upgrade",com.jdte.common.items.UltimateMixingParallelUpgradeItem::new);
+    public static final RegistryObject<com.jdte.common.items.EnergyBrewingUpgradeItem> ENERGY_BREWING_UPGRADE = ITEMS.register("energy_brewing_upgrade",com.jdte.common.items.EnergyBrewingUpgradeItem::new);
+    public static final RegistryObject<com.jdte.common.items.EnergyOverloadUpgradeItem> ENERGY_OVERLOAD_UPGRADE = ITEMS.register("energy_overload_upgrade",com.jdte.common.items.EnergyOverloadUpgradeItem::new);
+    public static final RegistryObject<BlockItem> CAINIAOYO_FUMO = ITEMS.register("cainiaoyo_fumo", () -> new BlockItem(JDTEBlocks.CAINIAOYO_FUMO.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockItem> MAIQILIN_FUMO = ITEMS.register("maiqilin_fumo", () -> new BlockItem(JDTEBlocks.MAIQILIN_FUMO.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> XINGYE_FUMO = ITEMS.register("xingye_fumo", () -> new BlockItem(JDTEBlocks.XINGYE_FUMO.get(), new Item.Properties()));
     // Glue Activator
     public static final RegistryObject<BlockItem> BASIC_GLUE_ACTIVATOR = ITEMS.register("basic_glue_activator", () -> new BlockItem(JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> ADVANCED_GLUE_ACTIVATOR = ITEMS.register("advanced_glue_activator", () -> new BlockItem(JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get(), new Item.Properties()));
@@ -122,6 +142,9 @@ public class JDTEItems {
     public static final RegistryObject<BlockItem> EXTENDED_BIO_CRUSHER = ITEMS.register("extended_bio_crusher", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_CRUSHER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> LOOT_FABRICATOR = ITEMS.register("loot_fabricator", () -> new BlockItem(JDTEBlocks.LOOT_FABRICATOR.get(), new Item.Properties()));
 
+    public static final RegistryObject<com.jdte.common.items.RepairTalismanItem> REPAIR_TALISMAN = ITEMS.register("repair_talisman",
+            () -> new com.jdte.common.items.RepairTalismanItem(new Item.Properties().stacksTo(1)));
+
     // Boss Essences
     public static final RegistryObject<BossEssenceItem> WITHER_ESSENCE = ITEMS.register("wither_essence", BossEssenceItem::new);
     public static final RegistryObject<BossEssenceItem> ENDER_DRAGON_ESSENCE = ITEMS.register("ender_dragon_essence", BossEssenceItem::new);
@@ -141,4 +164,33 @@ public class JDTEItems {
         return List.of(CAPACITY_UPGRADE, OVERCLOCK_UPGRADE, UNDERCLOCK_UPGRADE, FLUID_UPGRADE, FLUID_STORAGE_UPGRADE,
                 GENERATOR_UPGRADE, RANGE_UPGRADE, FILTER_UPGRADE, CREATIVE_UPGRADE, FORTUNE_UPGRADE, PRECISION_UPGRADE);
     }
+    public static final RegistryObject<UpgradeCardItem> SEED_CONVERSION_UPGRADE = ITEMS.register("seed_conversion_upgrade",()->new UpgradeCardItem(UpgradeType.SEED_CONVERSION));
+    public static final RegistryObject<com.jdte.common.items.CraftingPatternItem> CRAFTING_PATTERN = ITEMS.register("crafting_pattern",com.jdte.common.items.CraftingPatternItem::new);
+    public static final RegistryObject<com.jdte.common.items.EssenceConversionUpgradeItem> ESSENCE_CONVERSION_UPGRADE = ITEMS.register("essence_conversion_upgrade",()->new com.jdte.common.items.EssenceConversionUpgradeItem(1));
+    public static final RegistryObject<com.jdte.common.items.EssenceConversionUpgradeItem> ADVANCED_ESSENCE_CONVERSION_UPGRADE = ITEMS.register("advanced_essence_conversion_upgrade",()->new com.jdte.common.items.EssenceConversionUpgradeItem(3));
+    public static final RegistryObject<com.jdte.common.items.AdvancedMachineSettingsCopierItem> ADVANCED_MACHINE_SETTINGS_COPIER = ITEMS.register("advanced_machine_settings_copier", com.jdte.common.items.AdvancedMachineSettingsCopierItem::new);
+    public static final RegistryObject<com.jdte.common.items.AdvancedUpgradeStorageItem> ADVANCED_UPGRADE_STORAGE = ITEMS.register("advanced_upgrade_storage", com.jdte.common.items.AdvancedUpgradeStorageItem::new);
+    public static final RegistryObject<com.jdte.common.items.UpgradeStorageItem> UPGRADE_STORAGE = ITEMS.register("upgrade_storage", com.jdte.common.items.UpgradeStorageItem::new);
+    public static final RegistryObject<BlockItem> MINERAL_EXTRACTOR = ITEMS.register("mineral_extractor", () -> new BlockItem(JDTEBlocks.MINERAL_EXTRACTOR.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> LARGE_MINERAL_EXTRACTOR = ITEMS.register("large_mineral_extractor", () -> new BlockItem(JDTEBlocks.LARGE_MINERAL_EXTRACTOR.get(), new Item.Properties()));
+    public static final RegistryObject<com.jdte.common.items.MineralSurveyItem> MINERAL_SURVEY = ITEMS.register("mineral_survey", com.jdte.common.items.MineralSurveyItem::new);
+    public static final RegistryObject<UpgradeCardItem> ULTIMATE_CAPACITY_UPGRADE = ITEMS.register("ultimate_capacity_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_CAPACITY));
+    public static final RegistryObject<UpgradeCardItem> ULTIMATE_OVERCLOCK_UPGRADE = ITEMS.register("ultimate_overclock_upgrade", () -> new UpgradeCardItem(UpgradeType.ULTIMATE_OVERCLOCK));
+    public static final RegistryObject<BlockItem> EXTENDED_GENERATOR = ITEMS.register("extended_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_GENERATOR.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockItem> EXTENDED_FLUID_GENERATOR = ITEMS.register("extended_fluid_generator", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockItem> ADVANCED_ENTITY_ACCELERATOR = ITEMS.register("advanced_entity_accelerator", () -> new BlockItem(JDTEBlocks.ADVANCED_ENTITY_ACCELERATOR.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> EXTENDED_ENTITY_ACCELERATOR = ITEMS.register("extended_entity_accelerator", () -> new BlockItem(JDTEBlocks.EXTENDED_ENTITY_ACCELERATOR.get(), new Item.Properties()));
+    public static final RegistryObject<com.jdte.common.items.UltimateTimeWandItem> ULTIMATE_TIME_WAND = ITEMS.register("ultimate_time_wand",com.jdte.common.items.UltimateTimeWandItem::new);
+    public static final RegistryObject<Item> ENTITY_ACCELERATION_UPGRADE = ITEMS.register("entity_acceleration_upgrade", com.jdte.common.items.EntityAccelerationUpgradeItem::new);
+    public static final RegistryObject<BlockItem> ADVANCED_BIO_EXTRACTOR = ITEMS.register("advanced_bio_extractor", () -> new BlockItem(JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> EXTENDED_BIO_EXTRACTOR = ITEMS.register("extended_bio_extractor", () -> new BlockItem(JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get(), new Item.Properties()));
+
+    public static final RegistryObject<com.jdte.common.items.ChargedLightningRodItem> CHARGED_LIGHTNING_ROD = ITEMS.register("charged_lightning_rod", () -> new com.jdte.common.items.ChargedLightningRodItem(JDTEBlocks.CHARGED_LIGHTNING_ROD.get()));
+    public static final RegistryObject<UpgradeCardItem> THUNDERSTORM_UPGRADE = ITEMS.register("thunderstorm_upgrade", () -> new UpgradeCardItem(UpgradeType.THUNDERSTORM));
+    public static final RegistryObject<BlockItem> EXTENDED_EXPERIENCE_HOLDER = ITEMS.register("extended_experience_holder", () -> new BlockItem(JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get(), new Item.Properties()));
+    public static final RegistryObject<com.jdte.common.items.TimeMultitoolItem> TIME_MULTITOOL = ITEMS.register("time_multitool",com.jdte.common.items.TimeMultitoolItem::new);
+    public static final RegistryObject<com.jdte.common.items.LargePocketGeneratorItem> LARGE_POCKET_GENERATOR = ITEMS.register("large_pocket_generator",com.jdte.common.items.LargePocketGeneratorItem::new);
+    public static final RegistryObject<com.jdte.common.items.LargePotionCanisterItem> LARGE_POTION_CANISTER = ITEMS.register("large_potion_canister",com.jdte.common.items.LargePotionCanisterItem::new);
 }

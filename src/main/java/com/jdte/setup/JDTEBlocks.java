@@ -10,6 +10,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class JDTEBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, JDTE.MODID);
 
+    public static final RegistryObject<Block> ADVANCED_ENERGY_TRANSMITTER = BLOCKS.register("advanced_energy_transmitter", AdvancedEnergyTransmitterBlock::new);
+    public static final RegistryObject<Block> EXTENDED_ENERGY_TRANSMITTER = BLOCKS.register("extended_energy_transmitter", ExtendedEnergyTransmitterBlock::new);
+    public static final RegistryObject<AdvancedFluidMixerBlock> ADVANCED_FLUID_MIXER = BLOCKS.register("advanced_fluid_mixer", AdvancedFluidMixerBlock::new);
+    public static final RegistryObject<ExtendedFluidMixerBlock> EXTENDED_FLUID_MIXER = BLOCKS.register("extended_fluid_mixer", ExtendedFluidMixerBlock::new);
     public static final RegistryObject<BasicTimeAcceleratorBlock> BASIC_TIME_ACCELERATOR = BLOCKS.register("basic_time_accelerator", BasicTimeAcceleratorBlock::new);
     public static final RegistryObject<AdvancedTimeAcceleratorBlock> ADVANCED_TIME_ACCELERATOR = BLOCKS.register("advanced_time_accelerator", AdvancedTimeAcceleratorBlock::new);
     public static final RegistryObject<ExtendedTimeAcceleratorBlock> EXTENDED_TIME_ACCELERATOR = BLOCKS.register("extended_time_accelerator", ExtendedTimeAcceleratorBlock::new);
@@ -36,6 +40,10 @@ public class JDTEBlocks {
     public static final RegistryObject<LifeBreederBlock> LIFE_BREEDER = BLOCKS.register("life_breeder", LifeBreederBlock::new);
     public static final RegistryObject<FactoryPackerBlock> FACTORY_PACKER = BLOCKS.register("factory_packer", FactoryPackerBlock::new);
 
+    public static final RegistryObject<DecorativeFumoBlock> CAINIAOYO_FUMO = BLOCKS.register("cainiaoyo_fumo", DecorativeFumoBlock::new);
+
+    public static final RegistryObject<DecorativeFumoBlock> MAIQILIN_FUMO = BLOCKS.register("maiqilin_fumo", DecorativeFumoBlock::new);
+    public static final RegistryObject<DecorativeFumoBlock> XINGYE_FUMO = BLOCKS.register("xingye_fumo", DecorativeFumoBlock::new);
     // Glue Activator
     public static final RegistryObject<BasicGlueActivatorBlock> BASIC_GLUE_ACTIVATOR = BLOCKS.register("basic_glue_activator", BasicGlueActivatorBlock::new);
     public static final RegistryObject<AdvancedGlueActivatorBlock> ADVANCED_GLUE_ACTIVATOR = BLOCKS.register("advanced_glue_activator", AdvancedGlueActivatorBlock::new);
@@ -85,4 +93,18 @@ public class JDTEBlocks {
     public static final RegistryObject<AdvancedBioCrusherBlock> ADVANCED_BIO_CRUSHER = BLOCKS.register("advanced_bio_crusher", AdvancedBioCrusherBlock::new);
     public static final RegistryObject<ExtendedBioCrusherBlock> EXTENDED_BIO_CRUSHER = BLOCKS.register("extended_bio_crusher", ExtendedBioCrusherBlock::new);
     public static final RegistryObject<LootFabricatorBlock> LOOT_FABRICATOR = BLOCKS.register("loot_fabricator", LootFabricatorBlock::new);
+    public static final RegistryObject<com.jdte.common.blocks.MineralExtractorBlock> MINERAL_EXTRACTOR = BLOCKS.register("mineral_extractor", com.jdte.common.blocks.MineralExtractorBlock::new);
+    public static final RegistryObject<com.jdte.common.blocks.LargeMineralExtractorBlock> LARGE_MINERAL_EXTRACTOR = BLOCKS.register("large_mineral_extractor", com.jdte.common.blocks.LargeMineralExtractorBlock::new);
+    public static final RegistryObject<com.jdte.common.blocks.LargeMineralExtractorPartBlock> LARGE_MINERAL_EXTRACTOR_PART = BLOCKS.register("large_mineral_extractor_part", com.jdte.common.blocks.LargeMineralExtractorPartBlock::new);
+    public static final RegistryObject<Block> EXTENDED_GENERATOR = BLOCKS.register("extended_generator", com.jdte.common.blocks.ExtendedGeneratorBlock::new);
+
+    public static final RegistryObject<Block> EXTENDED_FLUID_GENERATOR = BLOCKS.register("extended_fluid_generator", com.jdte.common.blocks.ExtendedFluidGeneratorBlock::new);
+
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> ADVANCED_ENTITY_ACCELERATOR = BLOCKS.register("advanced_entity_accelerator", com.jdte.common.blocks.AdvancedEntityAcceleratorBlock::new);
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> EXTENDED_ENTITY_ACCELERATOR = BLOCKS.register("extended_entity_accelerator", com.jdte.common.blocks.ExtendedEntityAcceleratorBlock::new);
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> ADVANCED_BIO_EXTRACTOR = BLOCKS.register("advanced_bio_extractor", com.jdte.common.blocks.AdvancedBioExtractorBlock::new);
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> EXTENDED_BIO_EXTRACTOR = BLOCKS.register("extended_bio_extractor", com.jdte.common.blocks.ExtendedBioExtractorBlock::new);
+
+    public static final net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> CHARGED_LIGHTNING_ROD = BLOCKS.register("charged_lightning_rod", com.jdte.common.blocks.ChargedLightningRodBlock::new);
+    public static final RegistryObject<Block> EXTENDED_EXPERIENCE_HOLDER = BLOCKS.register("extended_experience_holder", ExtendedExperienceHolderBlock::new);
 }

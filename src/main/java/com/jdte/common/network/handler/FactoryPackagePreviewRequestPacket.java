@@ -35,9 +35,10 @@ public final class FactoryPackagePreviewRequestPacket {
             if (!FactoryPackageItem.getPackageId(held).filter(payload.packageId()::equals).isPresent()) return;
             MinecraftServer server = player.getServer();
             if (server == null) return;
+            var storageRoot = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
             Util.ioPool().execute(() -> {
                 try {
-                    var data = FactoryPackageStorage.read(server, payload.packageId(), null,
+                    var data = FactoryPackageStorage.read(storageRoot, payload.packageId(), null,
                             JDTEConfig.COMMON.factoryPackerMaxUncompressedBytes.get(), server.registryAccess());
                     List<PreviewBlock> blocks = selectBlocks(data.blocks(),
                             JDTEConfig.COMMON.factoryPackerPreviewMaxBlocks.get());

@@ -1,0 +1,8 @@
+> Task :reobfJar
+> Task :testClasses UP-TO-DATE
+> Task :test
+> Task :reobfJarJar SKIPPED
+> Task :build
+[14:02:32] [Server thread/INFO] [minecraft/GameTestServer]: ========= 104 GAME TESTS COMPLETE ======================
+[14:02:32] [Server thread/INFO] [minecraft/GameTestServer]: All 104 required tests passed :)
+BUILD SUCCESSFUL in 1m 8s
