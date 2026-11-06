@@ -43,8 +43,14 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     public FilterData filterData = new FilterData();
     private double pendingFluidCost;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     protected TimeAcceleratorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         tickSpeed = 1;
         fluidTank = new JDTEFluidTank(getMaxMB(), fluidStack -> fluidStack.getFluid() instanceof TimeFluid);
         fluidContainerData = new FluidContainerData(this);
@@ -239,7 +245,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override

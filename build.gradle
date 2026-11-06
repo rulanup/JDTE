@@ -148,6 +148,21 @@ minecraft {
                 args '--quickPlaySingleplayer', 'jdte-mineral-client-smoke'
                 mods { "${mod_id}" { source sourceSets.clientSmoke } }
             }
+            if (project.hasProperty('jdteFumoSmoke')) {
+                property 'jdte.fumoSmoke', 'true'
+                args '--quickPlaySingleplayer', 'jdte-mineral-client-smoke', '--width', '1280', '--height', '720'
+                mods { "${mod_id}" { source sourceSets.clientSmoke } }
+            }
+            if (project.hasProperty('jdteSenderSmoke')) {
+                property 'jdte.senderSmoke', 'true'
+                args '--quickPlaySingleplayer', 'jdte-mineral-client-smoke', '--width', '1280', '--height', '720'
+                mods { "${mod_id}" { source sourceSets.clientSmoke } }
+            }
+            if (project.hasProperty('jdteFluidSenderSmoke')) {
+                property 'jdte.fluidSenderSmoke', 'true'
+                args '--quickPlaySingleplayer', 'jdte-mineral-client-smoke', '--width', '1280', '--height', '720'
+                mods { "${mod_id}" { source sourceSets.clientSmoke } }
+            }
             property 'forge.enabledGameTestNamespaces', project.mod_id
             args '--username', 'JDTEDev'
         }

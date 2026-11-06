@@ -68,6 +68,11 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
     protected final IItemHandler automationItemHandler;
     protected int tickCounter = 0;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     protected BioExtractorBE(BlockEntityType<?> type, BlockPos pos, BlockState state,
                              int outputSlotCount, int baseEnergyCapacity, int baseFluidCapacity, float baseRadius) {
         super(type, pos, state);
@@ -131,6 +136,12 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
                 return false;
             }
         };
+        // Cache the filter handler: merely calling getFilterHandler() here does not
+        // survive removal, the handler object itself must be retained. The
+        // getter call is kept as well: it sizes the handler to the full
+        // filter slot count, and save/load comparisons depend on the handler
+        // already being sized at construction.
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         getFilterHandler(); // Establish full attached storage before the first capability/NBT snapshot.
     }
 
@@ -189,7 +200,7 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        var handler=com.jdte.setup.JDTEAttachments.filter(this);
+        var handler=cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
         int slots=UpgradeHelper.getMaxFilterSlots(9);
         if(handler.getSlots()<slots){var nbt=handler.serializeNBT();nbt.putInt("Size",slots);handler.deserializeNBT(nbt);}
         return handler;

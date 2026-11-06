@@ -136,8 +136,16 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     private int lastAttemptedTargets;
     private int lastTransferred;
 
+    // Filter handler cached at construction. Vanilla survival destroyBlock removes the
+    // block entity (invalidating its capabilities) before dropResources calls
+    // saveAdditional, and JDT's saveAdditional reads the filter handler for Filterable
+    // machines. The cached handler is the same object the provider hands out, so
+    // capability reads and NBT stay consistent during the machine's lifetime.
+    private final FilterBasicHandler cachedFilterHandler;
+
     public AdvancedEnergyTransmitterBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.ADVANCED_ENERGY_TRANSMITTER.get(), pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         MACHINE_SLOTS = 1;
         tickSpeed = JDTEConfig.COMMON.advancedEnergyTransmitterBaseTickDelay.get();
         areaAffectingData = new AreaAffectingData();
@@ -253,7 +261,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override

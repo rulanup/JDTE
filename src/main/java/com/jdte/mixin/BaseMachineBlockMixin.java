@@ -51,7 +51,10 @@ public abstract class BaseMachineBlockMixin {
                     redstone.evaluateRedstone();
                     redstoneActive = redstone.isActiveRedstoneTestOnly();
                 }
-                int executions = redstoneActive && (machine instanceof com.jdte.common.blockentities.FluidMixerBE || machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || UpgradeHelper.isExtendedGenerator(machine) || machine instanceof com.jdte.common.blockentities.BioExtractorBE || machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE || machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE) && UpgradeHelper.hasUltimateOverclock(machine)
+                // Original 0.6.5.2: Ultimate Overclock executes 10 times on any
+                // machine except the lightning rod, with no family whitelist.
+                // Inert for machines that cannot install the card.
+                int executions = redstoneActive && !(machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE) && UpgradeHelper.hasUltimateOverclock(machine)
                         ? 10 : redstoneActive && UpgradeHelper.shouldRunOverclock(machine) ? 2 : 1;
                 UpgradeHelper.runServerTicker(UpgradeHelper.usesCommonAeTickerGate(machine), redstoneActive,
                         () -> UpgradeHelper.mayRunWithUpgrades(machine), executions, () -> {

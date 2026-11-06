@@ -87,6 +87,11 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
         this(JDTEBlockEntities.ADVANCED_ENTITY_ACCELERATOR.get(), pos, state);
     }
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     protected AdvancedEntityAcceleratorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.tickSpeed = 1;
@@ -96,6 +101,10 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
         this.energyStorage = new MachineEnergyStorage(getMaxEnergy());
         this.poweredMachineData = new PoweredMachineContainerData(this);
         this.multiplier = JDTEConfig.COMMON.entityAccelerator.advancedDefaultMultiplier.get();
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
+        // Keep the original getter call: it sizes the handler to the full
+        // filter slot count, and save/load comparisons depend on the handler
+        // already being sized at construction.
         getFilterHandler();
     }
 
@@ -272,7 +281,7 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        var handler=com.jdte.setup.JDTEAttachments.filter(this);
+        var handler=cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
         int slots=UpgradeHelper.getMaxFilterSlots(9);
         if(handler.getSlots()<slots){var nbt=handler.serializeNBT();nbt.putInt("Size",slots);handler.deserializeNBT(nbt);}
         return handler;

@@ -48,6 +48,10 @@ public final class LifecycleProbe {
         MinecraftForge.EVENT_BUS.register(new PotionCanisterLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new PocketGeneratorLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new TimeMultitoolLifecycleProbe());
+        MinecraftForge.EVENT_BUS.register(new FumoLifecycleProbe());
+        MinecraftForge.EVENT_BUS.register(new SenderLifecycleProbe());
+        MinecraftForge.EVENT_BUS.register(new FluidSenderLifecycleProbe());
+        MinecraftForge.EVENT_BUS.register(new FilterCacheLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new PotionMultiplayerProbe());
         MinecraftForge.EVENT_BUS.register(new MixerLifecycleProbe());
         MinecraftForge.EVENT_BUS.register(new EnergyUpgradeLifecycleProbe());

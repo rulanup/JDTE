@@ -43,8 +43,14 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
     private int transferFailureBackoff;
     private boolean transferMoved;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     protected FluidReceiverBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
         // 设置默认半径为1，这样可以搜索相邻方块
         areaAffectingData.xRadius = 1;
@@ -216,7 +222,7 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override

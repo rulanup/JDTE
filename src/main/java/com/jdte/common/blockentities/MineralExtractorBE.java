@@ -233,9 +233,15 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         this(JDTEBlockEntities.MINERAL_EXTRACTOR.get(), pos, state);
     }
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     protected MineralExtractorBE(net.minecraft.world.level.block.entity.BlockEntityType<?> type,
                                  BlockPos pos, BlockState state) {
         super(type, pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         MACHINE_SLOTS = totalSlots();
         tickSpeed = 1;
         multiplier = JDTEConfig.COMMON.mineralExtractor.defaultMultiplier.get();
@@ -729,7 +735,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     @Override public int getStandardEnergyCost() { return JDTEConfig.COMMON.mineralExtractor.energyPerCycle.get(); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
+    @Override public FilterBasicHandler getFilterHandler() { return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this); }
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public boolean canRun() { return true; }
 

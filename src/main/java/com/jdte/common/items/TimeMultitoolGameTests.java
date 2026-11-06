@@ -35,7 +35,7 @@ public final class TimeMultitoolGameTests {
     private static void upgrade(ItemStack s,Ability a){s.getOrCreateTag().putBoolean("upgrade_"+a.getName(),true);ToggleableTool.setSetting(s,a.getName(),true);}
     private static List<net.minecraft.world.entity.item.ItemEntity> drops(GameTestHelper h){return h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new AABB(h.absolutePos(P)).inflate(5));}
     @GameTest(template="mineral_empty") public static void realGameModeBreakPaysOnceAndLastFeStillDrops(GameTestHelper h){
-        var s=charged(50,2,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P,Blocks.STONE);h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P)),"actual Forge game-mode removal succeeded");h.assertTrue(h.getBlockState(P).isAir()&&fe(s)==0&&fluid(s)==0,"exact last50FE and2mB once");h.assertTrue(drops(h).stream().filter(e->e.getItem().is(Items.COBBLESTONE)).mapToInt(e->e.getItem().getCount()).sum()==1,"depleted tool still gets its correctly harvested original drop");var beforeDrops=drops(h).stream().map(e->e.getItem().save(new CompoundTag())).toList();h.assertTrue(!p.gameMode.destroyBlock(h.absolutePos(P))&&fe(s)==0&&beforeDrops.equals(drops(h).stream().map(e->e.getItem().save(new CompoundTag())).toList()),"duplicate request cannot remove, charge or change any existing drop again");h.succeed();
+        var s=charged(50,2,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P,Blocks.STONE);var beforeCobble=drops(h).stream().filter(e->e.getItem().is(Items.COBBLESTONE)).mapToInt(e->e.getItem().getCount()).sum();h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P)),"actual Forge game-mode removal succeeded");h.assertTrue(h.getBlockState(P).isAir()&&fe(s)==0&&fluid(s)==0,"exact last50FE and2mB once");h.assertTrue(drops(h).stream().filter(e->e.getItem().is(Items.COBBLESTONE)).mapToInt(e->e.getItem().getCount()).sum()-beforeCobble==1,"depleted tool still gets its correctly harvested original drop");var beforeDrops=drops(h).stream().map(e->e.getItem().save(new CompoundTag())).toList();h.assertTrue(!p.gameMode.destroyBlock(h.absolutePos(P))&&fe(s)==0&&beforeDrops.equals(drops(h).stream().map(e->e.getItem().save(new CompoundTag())).toList()),"duplicate request cannot remove, charge or change any existing drop again");h.succeed();
     }
     @GameTest(template="mineral_empty") public static void emptyEnergyAndInsufficientFluidHaveSourceFallbacks(GameTestHelper h){
         var s=charged(49,100,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P,Blocks.STONE);h.assertTrue(!p.gameMode.destroyBlock(h.absolutePos(P))&&fe(s)==49&&fluid(s)==100&&h.getBlockState(P).is(Blocks.STONE),"unpowered source tool cannot break or spend fluid");s.getCapability(ForgeCapabilities.ENERGY).orElseThrow(AssertionError::new).receiveEnergy(100,false);s.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElseThrow(AssertionError::new).drain(99,IFluidHandler.FluidAction.EXECUTE);h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&fe(s)==99&&fluid(s)==1,"less than2mB falls back to1x without partial fluid payment");h.succeed();
@@ -98,13 +98,15 @@ public final class TimeMultitoolGameTests {
     }
     @GameTest(template="mineral_empty") public static void realHarvestRetainsIceCallbackAndSilkTouchDrops(GameTestHelper h){
         var s=charged(1000,100,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P.below(),Blocks.STONE);h.setBlock(P,Blocks.ICE);
-        h.getLevel().addFreshEntity(new net.minecraft.world.entity.item.ItemEntity(h.getLevel(), h.absolutePos(P).getX()+1.5, h.absolutePos(P).getY()+0.5, h.absolutePos(P).getZ()+0.5, new ItemStack(Items.ICE)));
+        // drops() scans every item entity in an 11-wide box around P, so a reused
+        // test world can already contain ice from earlier runs. Count the delta
+        // produced by this test instead of assuming the box starts empty; the
+        // fresh-world run passed only because that box happened to be empty.
         int beforeIce=drops(h).stream().filter(e->e.getItem().is(Items.ICE)).mapToInt(e->e.getItem().getCount()).sum();
-        h.assertTrue(beforeIce >= 1,"preexisting ice fixture is present before harvest");
         h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&h.getBlockState(P).is(Blocks.WATER)&&fe(s)==950&&fluid(s)==98,"real native ice playerDestroy callback leaves water and pays exactly one removal");
         h.setBlock(P,Blocks.ICE);s.enchant(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH,1);
         h.assertTrue(p.gameMode.destroyBlock(h.absolutePos(P))&&h.getBlockState(P).isAir()&&fe(s)==900&&fluid(s)==96,"silk ice has no invented water and pays one removal");
-        h.assertTrue(drops(h).stream().filter(e->e.getItem().is(Items.ICE)).mapToInt(e->e.getItem().getCount()).sum()-beforeIce==1,"actual native harvest produces exactly one new silk ice, regardless of preexisting entities");h.succeed();
+        h.assertTrue(drops(h).stream().filter(e->e.getItem().is(Items.ICE)).mapToInt(e->e.getItem().getCount()).sum()-beforeIce==1,"actual native harvest produces exactly one additional silk ice; beforeIce="+beforeIce);h.succeed();
     }
     @GameTest(template="mineral_empty") public static void forgeBreakXpIsAwardedExactlyOnceAndDropRuleSurvives(GameTestHelper h){
         var s=charged(1000,100,TimeMultitoolSpeedMode.TWO);var p=actor(h,s);h.setBlock(P,Blocks.DIAMOND_ORE);

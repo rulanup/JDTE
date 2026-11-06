@@ -221,6 +221,18 @@ public class UpgradeHelper {
         if (machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE
                 && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
         if (machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
+        // Item senders only (all three tiers extend ItemSenderBE): original 0.6.5.2 allows
+        // both Ultimate cards for senders via its default branch, so this narrow allowance
+        // restores that scope without opening any other restricted machine family.
+        if (machine instanceof com.jdte.common.blockentities.ItemSenderBE && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
+        // Remaining 27 Ultimate families (see ultimate-card-27-machines-analysis.md):
+        // original 0.6.5.2 allows both Ultimate cards for 25 of them (explicit lists
+        // or its default branch) and Ultimate Capacity only for the suppressor/blocker
+        // pair. Other machines' gates are untouched. TimeAcceleratorBE also covers
+        // CrystalIncubatorBE, which extends it; the crystal is listed explicitly so the
+        // 27-family mapping stays auditable at a glance.
+        if (type == UpgradeType.ULTIMATE_CAPACITY && (machine instanceof com.jdte.common.blockentities.EntitySuppressorBE || machine instanceof com.jdte.common.blockentities.RangeBlockerBE)) return true;
+        if ((type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK) && (machine instanceof com.jdte.common.blockentities.GreenhouseBE || machine instanceof com.jdte.common.blockentities.LargeGreenhouseBE || machine instanceof com.jdte.common.blockentities.LifeSynthesisVatBE || machine instanceof com.jdte.common.blockentities.BioFactoryBE || machine instanceof com.jdte.common.blockentities.LifeBreederBE || machine instanceof com.jdte.common.blockentities.FactoryPackerBE || machine instanceof com.jdte.common.blockentities.TimeAcceleratorBE || machine instanceof com.jdte.common.blockentities.ExtendedClickerBE || machine instanceof com.jdte.common.blockentities.ExtendedBlockBreakerBE || machine instanceof com.jdte.common.blockentities.ExtendedBlockPlacerBE || machine instanceof com.jdte.common.blockentities.ExtendedBlockSwapperBE || machine instanceof com.jdte.common.blockentities.ExtendedDropperBE || machine instanceof com.jdte.common.blockentities.ExtendedSensorBE || machine instanceof com.jdte.common.blockentities.ExtendedFluidCollectorBE || machine instanceof com.jdte.common.blockentities.ExtendedFluidPlacerBE || machine instanceof com.jdte.common.blockentities.CrystalIncubatorBE || machine instanceof com.jdte.common.blockentities.GelGeneratorBE || machine instanceof com.jdte.common.blockentities.FluidStabilizerBE || machine instanceof com.jdte.common.blockentities.FluidSenderBE || machine instanceof com.jdte.common.blockentities.ItemReceiverBE || machine instanceof com.jdte.common.blockentities.FluidReceiverBE || machine instanceof com.jdte.common.blockentities.LifeExtractorBE || machine instanceof com.jdte.common.blockentities.InfusionMachineBE || machine instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE || machine instanceof com.jdte.common.blockentities.BioCrusherBE)) return true;
         if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
             return machine instanceof com.jdte.common.blockentities.MineralExtractorBE || machine instanceof com.jdte.common.blockentities.FluidMixerBE || isExtendedGenerator(machine);
         if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE)
@@ -355,7 +367,10 @@ public class UpgradeHelper {
         if (hasCreativeUpgrade(machine)) {
             return 0;
         }
-        if ((machine instanceof com.jdte.common.blockentities.FluidMixerBE || machine instanceof com.jdte.common.blockentities.BioExtractorBE) && hasUltimateOverclock(machine)) return (int)Math.min(Integer.MAX_VALUE,(long)original*50);
+        // Original 0.6.5.2: Ultimate Overclock costs 50x on any machine. The
+        // sender pilot had narrowed this to mixer/bio-extractor; the 27-family round
+        // generalizes it, which is inert for machines that cannot install the card.
+        if (hasUltimateOverclock(machine)) return (int)Math.min(Integer.MAX_VALUE,(long)original*50);
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
             return Math.max(1, (int) Math.ceil(original * JDTEConfig.COMMON.underclockEnergyMultiplier.get()));
         }
@@ -370,7 +385,9 @@ public class UpgradeHelper {
         if (!usesLockedDelay(machine)) {
             return original;
         }
-        if (hasCreativeUpgrade(machine) || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || isExtendedGenerator(machine) || machine instanceof com.jdte.common.blockentities.BioExtractorBE || machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE) && hasUltimateOverclock(machine)) {
+        // Original 0.6.5.2: Creative or Ultimate Overclock locks a locked-delay
+        // machine to tick speed 1, with no family whitelist.
+        if (hasCreativeUpgrade(machine) || hasUltimateOverclock(machine)) {
             return 1;
         }
         if (countUpgrades(machine, UpgradeType.UNDERCLOCK) > 0) {
@@ -387,14 +404,18 @@ public class UpgradeHelper {
     }
 
     public static boolean usesLockedDelay(BaseMachineBE machine) {
+        // Original 0.6.5.2 also excludes CrystalIncubatorBE here; the port had
+        // dropped that exclusion, so crystal tick speed deviated from original for
+        // every speed card. Restoring it makes this list exactly original.
         return !(machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE) && !(machine instanceof com.jdte.common.blockentities.MineralExtractorBE) && !(machine instanceof TimeAcceleratorMachine) && !(machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
                 && !(machine instanceof BioFactoryBE) && !(machine instanceof LifeBreederBE)
-                && !(machine instanceof LifeSynthesisVatBE);
+                && !(machine instanceof LifeSynthesisVatBE) && !(machine instanceof com.jdte.common.blockentities.CrystalIncubatorBE);
     }
 
     public static boolean hasOverclock(BaseMachineBE machine) {
-        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasCreativeUpgrade(machine)
-                || (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE || machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE || isExtendedGenerator(machine) || machine instanceof com.jdte.common.blockentities.BioExtractorBE || machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE || machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE) && hasUltimateOverclock(machine);
+        // Original 0.6.5.2: standard Overclock, Ultimate Overclock, or Creative,
+        // with no family whitelist. Inert for machines that cannot install the card.
+        return countUpgrades(machine, UpgradeType.OVERCLOCK) > 0 || hasUltimateOverclock(machine) || hasCreativeUpgrade(machine);
     }
 
     public static boolean hasUndercLock(BaseMachineBE machine) {

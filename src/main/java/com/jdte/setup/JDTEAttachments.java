@@ -213,6 +213,18 @@ public final class JDTEAttachments {
             if (machineEnergyInitialized || !(machine instanceof PoweredMachineBE powered)) {
                 return;
             }
+            // Post-removal saves must not touch capabilities: vanilla
+            // survival destroyBlock removes the block entity (invalidating
+            // its capabilities) before dropResources, and dropResources
+            // calls saveAdditional, which serializes this provider. Reading
+            // getMaxEnergy() there would look up the upgrade capability and
+            // throw "Missing JDTE upgrade capability" for a powered machine
+            // that was never serialized before removal. The stored energy
+            // value is already correct from the machine's lifetime, so
+            // skipping the capacity sync on a dead provider is safe.
+            if (invalidated) {
+                return;
+            }
 
             int capacity = Math.max(0, powered.getMaxEnergy());
             if (machineEnergy instanceof EnergyStorageAccessor accessor) {

@@ -35,6 +35,20 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     public AreaAffectingData areaAffectingData;
     protected final ItemStackHandler itemHandler;
+    /**
+     * The filter handler, cached at construction from the capability provider.
+     * It is the same object the provider hands out, so capability reads and
+     * NBT (de)serialization stay consistent. Caching matters because vanilla
+     * survival destroyBlock removes the block entity (invalidating its
+     * capabilities) BEFORE calling dropResources, and JDT's getDrops then
+     * calls saveAdditional, which reads getFilterHandler(). The original
+     * 0.6.5.2 stores the filter as a data attachment, which survives removal;
+     * the Forge port's capability lookup throws instead, crashing the server
+     * when a non-default sender is broken in survival. The cache restores
+     * the original survival behaviour for senders without touching other
+     * machines' capability handling.
+     */
+    private final FilterBasicHandler cachedFilterHandler;
     private int transferRetryTicks;
     private int transferFailureBackoff;
     private boolean transferMoved;
@@ -54,6 +68,11 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
                 setChanged();
             }
         };
+        // Mirror BioExtractorBE: establish the attached filter storage in the
+        // constructor, before the first capability/NBT snapshot, and cache
+        // the handler so saveAdditional still works after the block entity
+        // is removed (see the cachedFilterHandler comment above).
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override
@@ -199,7 +218,10 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        // After construction the cached handler is the provider's handler.
+        // Fall back to the capability only if called before the constructor
+        // assignment (defensive; no such call exists in the current code).
+        return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override

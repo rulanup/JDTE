@@ -48,15 +48,21 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     private int filterFingerprint;
     private AABB clientSyncedArea;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     public RangeBlockerBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.RANGE_BLOCKER.get(), pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         areaData = new AreaAffectingData(state.getValue(BlockStateProperties.FACING).getOpposite());
     }
 
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return com.jdte.setup.JDTEAttachments.filter(this); }
+    @Override public FilterBasicHandler getFilterHandler() { return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energy; }

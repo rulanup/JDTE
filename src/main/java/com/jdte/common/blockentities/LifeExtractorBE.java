@@ -55,8 +55,14 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     protected double pendingLifeFluid = 0.0D;
     private final ItemStackHandler emptyHandler = new ItemStackHandler(0);
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     protected LifeExtractorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         MACHINE_SLOTS = 0;
         areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
         areaAffectingData.xRadius = BASE_RADIUS;
@@ -287,7 +293,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override

@@ -35,8 +35,14 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
     public AreaAffectingData areaAffectingData;
     protected final ItemStackHandler itemHandler;
 
+    // Filter handler cached at construction (see AdvancedEnergyTransmitterBE): the
+    // survival-break save path reads the filter handler after the block entity's
+    // capabilities are invalidated, so the handler must survive removal.
+    private final FilterBasicHandler cachedFilterHandler;
+
     protected FluidStabilizerBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        cachedFilterHandler = com.jdte.setup.JDTEAttachments.filter(this);
         MACHINE_SLOTS = 1;
         areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
         itemHandler = new ItemStackHandler(1) {
@@ -164,7 +170,7 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return com.jdte.setup.JDTEAttachments.filter(this);
+        return cachedFilterHandler != null ? cachedFilterHandler : com.jdte.setup.JDTEAttachments.filter(this);
     }
 
     @Override
