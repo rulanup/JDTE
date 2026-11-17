@@ -1073,3 +1073,38 @@ First run ([44106356905](https://github.com/rulanup/JDTE/actions/runs/4410635690
 - The workflow's report upload found no files (Forge writes GameTest output to the console rather than `build/reports`), which is reported as a warning, not a failure.
 
 Consequence: the three receiver tests and the three ultimate-essence tests genuinely execute on every machine-behaviour push. The receiver rows stay **P** because their Ultimate-card restriction is still missing source behaviour, not because evidence is absent.
+
+## Fluid stabilizer fixture checkpoint (2026-11-07)
+
+The Fluid Stabilizer family was the last uncovered automation family. It now has a real FluidDrop fixture instead of a hand-written recipe.
+
+### Fixture design
+
+`FluidStabilizerValidationGameTests` reads an **actual loaded JDT recipe** from the recipe manager:
+
+```java
+getAllRecipesFor(Registration.FLUID_DROP_RECIPE_TYPE.get()).stream()
+    .filter(r -> r.getInput().getBlock() instanceof LiquidBlock
+              && !r.getOutput().isAir()
+              && r.getOutput().getBlock() != r.getInput().getBlock()
+              && r.getCatalyst() != Items.AIR)
+    .findFirst().orElseThrow();
+```
+
+The test then places that recipe's real source-fluid block next to the machine, widens the machine area with `setAreaSettings(1, 1, 1, 0, 0, 0, false)` so the fluid is in range, and lets the world tick through `runAfterDelay` because the stabilizer tiers use `tickSpeed` 40/20 rather than manual ticker calls. Hard-coding water coordinates was rejected: a JDT data change would silently invalidate the fixture.
+
+### Tests
+
+- `basicStabilizerAppliesNativeFluidDropRecipe`: the basic tier (no FE) replaces the source fluid with the recipe output and spends its single catalyst.
+- `poweredStabilizerNeedsEnergy`: the advanced tier leaves both the fluid and the catalyst untouched while unpowered, then after `setEnergy(max)` applies the recipe, spends the catalyst and drains FE.
+
+Both assert on exactly one catalyst so a chained second transformation cannot pass unnoticed.
+
+### Run history
+
+| Run | Result |
+|---|---|
+| [44112565468](https://github.com/rulanup/JDTE/actions/runs/44112565468) | 416 tests, 1 failure: `poweredstabilizerneedsenergy` — *Didn't succeed or fail within 100 ticks* (two 60-tick phases exceed the default budget) |
+| [44114636059](https://github.com/rulanup/JDTE/actions/runs/44114636059) | **All 416 required tests passed**, after `timeoutTicks = 240` |
+
+The stabilizer rows keep their **P** status: the executed tests cover the recipe application, the area scan, the catalyst cost and the FE gate, but the Ultimate-card restriction and prolonged/multiplayer behaviour are still missing source behaviour.
