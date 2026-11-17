@@ -13,6 +13,8 @@ The machine family and individual upgrade rows are separate: a verified new card
 
 Current inventory: source **121**, Forge **121**. Status counts: V **59**, U **20**, P **42**, N **0**.
 
+Executed evidence note: the item and fluid receiver families (all three tiers) now run in the `Forge 1.20.1 GameTests` workflow through `ReceiverValidationGameTests` (pull from a real adjacent inventory/tank, exact conservation, save/load survival, energy gate for the powered tier), and `UltimateEssenceConversionGameTests` covers the four-pattern rotation, the oversized-stack round trip and ultimate-card exclusivity. Those rows stay **P** because the Ultimate-card restriction is still missing source behaviour, not because evidence is absent. Latest green run: [44108498296](https://github.com/rulanup/JDTE/actions/runs/44108498296) (414/414 tests).
+
 ## Evidence and cross-cutting systems
 
 | System | Status and evidence | Remaining boundary |

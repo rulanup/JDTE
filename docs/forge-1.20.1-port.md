@@ -1039,7 +1039,7 @@ Follow-up to the delta port above: three GameTests and one client-math fix.
 
 ### Validation and limits
 
-- GameTests are compiled by CI (`src/main/java`) but not executed there: the workflow runs `compileJava test jar`, and `runGameTestServer` needs the Forge test world plus the optional mod set. The three new tests are therefore compiled-and-not-yet-run in this session.
+- GameTests run in the separate `Forge 1.20.1 GameTests` workflow (`runGameTestServer`), which now executes **414 tests, all green** as of [44108498296](https://github.com/rulanup/JDTE/actions/runs/44108498296); the general push CI still only runs `compileJava test jar`.
 - `MachineBarMathTest` is a plain JUnit test and does run in CI.
 - The Advanced/Extended fluid-sender rows stay **P**: the bar arithmetic is fixed, but live client confirmation of the tank-bar display is still outstanding.
 
@@ -1057,7 +1057,7 @@ First behavioural coverage for the item/fluid receiver families that the matrix 
 
 ### Validation and limits
 
-- These are compiled by CI, not executed there: the workflow runs `compileJava test jar`. Running them needs `runGameTestServer` with the Forge test world and the optional mod set, which this session cannot start.
+- These execute in the `Forge 1.20.1 GameTests` workflow; the first run exposed a fixture defect (`powereditemreceiverneedsenergy` was swallowed by the receiver retry backoff) and the fix is green in [44108498296](https://github.com/rulanup/JDTE/actions/runs/44108498296) with 414/414 tests passing.
 - Receiver rows stay **P**: the Ultimate-card restriction question and prolonged/independent-client behaviour are unchanged, and unexecuted tests are not acceptance evidence.
 - The Fluid Stabilizer family is still uncovered here: it applies JDT `FluidDrop` data recipes to real source-fluid blocks, so it needs a recipe and fluid-block fixture rather than an adjacent-tank fixture.
 
@@ -1072,4 +1072,4 @@ First run ([44106356905](https://github.com/rulanup/JDTE/actions/runs/4410635690
 - Cause: the four unpowered ticks arm the receiver's retry backoff, so the ticks after charging only decremented the backoff. The test now resets that backoff by touching the receiver storage (`onContentsChanged` → `resetTransferBackoff`) before the charged phase. This is a fixture defect, not a machine defect: the unpowered half of the same test passed, and `itemReceiversPullFromAdjacentChest`/`fluidReceiversPullFromAdjacentTank` passed on the first try.
 - The workflow's report upload found no files (Forge writes GameTest output to the console rather than `build/reports`), which is reported as a warning, not a failure.
 
-Consequence: the three receiver tests and the three ultimate-essence tests are now genuinely executed on every relevant push, so the earlier "compiled but not run" caveat no longer applies to them. The matrix rows keep their previous statuses until a green run is recorded.
+Consequence: the three receiver tests and the three ultimate-essence tests genuinely execute on every machine-behaviour push. The receiver rows stay **P** because their Ultimate-card restriction is still missing source behaviour, not because evidence is absent.
