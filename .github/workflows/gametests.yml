@@ -1,10 +1,18 @@
 name: Forge 1.20.1 GameTests
 
-# Kept off the push path on purpose: the push CI only runs compileJava/test/jar,
-# and the Forge GameTest server needs the full development runtime plus a
-# generated test world. Dispatch it manually (or wait for the weekly run) when a
-# change touches machine behaviour.
+# The push CI only runs compileJava/test/jar. This workflow actually executes the
+# Forge GameTest server, so it is scoped to machine-behaviour changes instead of
+# every push. It also runs weekly and can be dispatched once it exists on the
+# default branch (GitHub requires that for workflow_dispatch).
 on:
+  push:
+    branches:
+      - forge-1.20.1
+    paths:
+      - 'src/main/java/com/jdte/common/blockentities/**'
+      - 'src/main/java/com/jdte/common/upgrades/**'
+      - 'src/main/java/com/jdte/gametest/**'
+      - '.github/workflows/gametests.yml'
   workflow_dispatch:
     inputs:
       reason:
@@ -50,6 +58,6 @@ jobs:
             build/reports/**
             build/test-results/**
             logs/**
-            run*/logs/**
+            run/logs/**
           if-no-files-found: warn
           retention-days: 14
