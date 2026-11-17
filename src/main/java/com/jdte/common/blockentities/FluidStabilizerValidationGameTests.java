@@ -78,8 +78,11 @@ public final class FluidStabilizerValidationGameTests {
         });
     }
 
-    /** The powered tier must gate on FE: nothing happens without energy, one cycle spends energy. */
-    @GameTest(templateNamespace = "jdte", template = "mineral_empty")
+    /**
+     * The powered tier must gate on FE: nothing happens without energy, one cycle spends energy.
+     * The two delayed phases need more than the default 100-tick GameTest budget.
+     */
+    @GameTest(templateNamespace = "jdte", template = "mineral_empty", timeoutTicks = 240)
     public static void poweredStabilizerNeedsEnergy(GameTestHelper helper) {
         FluidDropRecipe recipe = nativeRecipe(helper);
         helper.setBlock(POS, JDTEBlocks.ADVANCED_FLUID_STABILIZER.get());
