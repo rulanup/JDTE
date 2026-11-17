@@ -1042,3 +1042,21 @@ Follow-up to the delta port above: three GameTests and one client-math fix.
 - GameTests are compiled by CI (`src/main/java`) but not executed there: the workflow runs `compileJava test jar`, and `runGameTestServer` needs the Forge test world plus the optional mod set. The three new tests are therefore compiled-and-not-yet-run in this session.
 - `MachineBarMathTest` is a plain JUnit test and does run in CI.
 - The Advanced/Extended fluid-sender rows stay **P**: the bar arithmetic is fixed, but live client confirmation of the tank-bar display is still outstanding.
+
+## Receiver family GameTest checkpoint (2026-11-07)
+
+First behavioural coverage for the item/fluid receiver families that the matrix still lists as **P** (their dedicated runtime evidence was missing).
+
+### Added
+
+`ReceiverValidationGameTests` (package `com.jdte.common.blockentities`):
+
+- `itemReceiversPullFromAdjacentChest`: all three item receiver tiers with `RedstoneMode.LOW` and no signal pull from a real adjacent chest through the real block ticker; the test asserts a non-zero pull, exact conservation of the 64-item fixture and storage survival across `saveWithFullMetadata`/`load`.
+- `poweredItemReceiverNeedsEnergy`: the advanced receiver moves nothing without FE and pulls the same fixture once `MachineEnergyStorage` is charged, which pins the energy gate rather than only the happy path.
+- `fluidReceiversPullFromAdjacentTank`: all three fluid receiver tiers pull water from a real adjacent `basic_fluid_sender` tank, assert conservation against the actually filled amount (not an assumed capacity) and tank survival across save/load.
+
+### Validation and limits
+
+- These are compiled by CI, not executed there: the workflow runs `compileJava test jar`. Running them needs `runGameTestServer` with the Forge test world and the optional mod set, which this session cannot start.
+- Receiver rows stay **P**: the Ultimate-card restriction question and prolonged/independent-client behaviour are unchanged, and unexecuted tests are not acceptance evidence.
+- The Fluid Stabilizer family is still uncovered here: it applies JDT `FluidDrop` data recipes to real source-fluid blocks, so it needs a recipe and fluid-block fixture rather than an adjacent-tank fixture.
