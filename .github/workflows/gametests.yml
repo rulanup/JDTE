@@ -1,0 +1,55 @@
+name: Forge 1.20.1 GameTests
+
+# Kept off the push path on purpose: the push CI only runs compileJava/test/jar,
+# and the Forge GameTest server needs the full development runtime plus a
+# generated test world. Dispatch it manually (or wait for the weekly run) when a
+# change touches machine behaviour.
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Why this GameTest run is needed
+        required: false
+        default: manual verification
+  schedule:
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gametests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gametest:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run the Forge GameTest server
+        run: bash gradlew --no-daemon runGameTestServer
+
+      - name: Upload GameTest reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jdte-forge-1.20.1-gametest-${{ github.sha }}
+          path: |
+            build/reports/**
+            build/test-results/**
+            logs/**
+            run*/logs/**
+          if-no-files-found: warn
+          retention-days: 14
