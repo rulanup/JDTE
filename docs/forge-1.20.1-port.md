@@ -1024,3 +1024,21 @@ Scope: close the remaining upstream 1.21.1 → 1.20.1 feature gap. The Forge bra
 - Local Gradle builds are not part of this session: the machine has no Gradle distribution, no dependency cache and no JDK 17, and the task explicitly forbids adding them. `compileJava`, `test` and `jar` are therefore verified by the Forge 1.20.1 GitHub Actions workflow, not locally.
 - No new runtime or graphical evidence is claimed for the ported paths. The new matrix row is **U**, not **V**: greenhouse conversion with more than three bound patterns, the folded tooltip/Jade output and the Bio Factory oversized save round-trip still need dedicated gameplay/GameTest acceptance.
 - The matrix inventory is now 121 source items / 121 Forge items (V 59, U 20, P 42, N 0).
+
+## 0.6.5.4 regression coverage checkpoint (2026-11-07)
+
+Follow-up to the delta port above: three GameTests and one client-math fix.
+
+### Added
+
+- `UltimateEssenceConversionGameTests` (package `com.jdte.common.blockentities`, so it can use the package-private conversion helpers):
+  - `ultimateCardRotatesFourPatternsWithoutOverflow`: four bound patterns whose third index forms its own rotation group (oak log → planks, planks → sticks, planks → crafting table, paper + leather → book). The buffer converts to 8 sticks, 2 crafting tables and 1 book, and the rotation state must be at least four entries long. The pre-fix `int[3]` rotation threw `ArrayIndexOutOfBoundsException` on the group key 3, so this is a true regression test.
+  - `oversizedCountsSurviveInventoryRoundTrip`: 616 and 7620 item stacks round-trip through `OversizedItemStackHandlerSerialization`, asserting the `jdteRealCount` side channel.
+  - `ultimateCardIsExclusiveAndUnbounded`: the ultimate card keeps its patterns, installs in a Greenhouse, blocks the normal and advanced cards, and the normal card still rejects a second pattern.
+- `MachineBarMath` (pure, no client classes) plus `MachineBarMathTest`: `scaleClamped` mirrors the upstream helper, and `scaleWithMinimum` keeps one pixel for any non-empty amount. `MachineFluidBarRenderer` now uses it, so a 4,000 mB fill in a 400,000 mB tank no longer renders as an empty bar. Upstream shares the truncation, so this is a deliberate divergence.
+
+### Validation and limits
+
+- GameTests are compiled by CI (`src/main/java`) but not executed there: the workflow runs `compileJava test jar`, and `runGameTestServer` needs the Forge test world plus the optional mod set. The three new tests are therefore compiled-and-not-yet-run in this session.
+- `MachineBarMathTest` is a plain JUnit test and does run in CI.
+- The Advanced/Extended fluid-sender rows stay **P**: the bar arithmetic is fixed, but live client confirmation of the tank-bar display is still outstanding.

@@ -30,7 +30,7 @@ public final class MachineFluidBarRenderer {
 
     public static void renderBar(GuiGraphics guiGraphics, FluidStack fluidStack, int fluidAmount, int maxMb, int x, int y, boolean ghost) {
         guiGraphics.blit(FLUID_BAR, x, y, 0, 0, 18, 72, 36, 72);
-        int height = maxMb <= 0 ? 0 : (int) Math.max(0L, Math.min(70L, (long) fluidAmount * 70L / maxMb));
+        int height = MachineBarMath.scaleWithMinimum(fluidAmount, maxMb, 70);
         if (ghost && !fluidStack.isEmpty()) renderFluid(guiGraphics, fluidStack, x + 1, y + 71, 16, 70, 0.25F);
         else if (height > 0) renderFluid(guiGraphics, fluidStack, x + 1, y + 71, 16, height);
         guiGraphics.blit(FLUID_BAR, x, y, 18, 0, 18, 72, 36, 72);
