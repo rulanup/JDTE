@@ -9,6 +9,6 @@ displayTest="IGNORE_SERVER_VERSION"
 [[dependencies.jdte_lifecycle_probe]]
 modId="jdte"
 mandatory=true
-versionRange="[0.5.8,)"
+versionRange="[0.6.5.4,)"
 ordering="AFTER"
 side="SERVER"

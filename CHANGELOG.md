@@ -1,5 +1,15 @@
 # Changelog
 
+#### v0.6.5.4-forge-1.20.1
+
+- **Port**: Completed the 1.21.1 → 1.20.1 feature port for the upstream 0.6.5.3/0.6.5.4 releases.
+- **New**: Added the Ultimate Essence Conversion Upgrade (`jdte:ultimate_essence_conversion_upgrade`): binds up to 2,147,483,647 Crafting Patterns, is crafted from the Advanced card with a smithing table while preserving bound patterns, and is mutually exclusive with the normal and advanced cards.
+- **Changed**: Essence conversion tooltips and the Jade overlay now fold long pattern lists instead of dumping every pattern.
+- **Fixed**: Greenhouse and Large Greenhouse essence pattern rotation now sizes itself to the bound pattern count, so cards holding more than three patterns no longer overflow the rotation array.
+- **Fixed**: Bio Factory inventories now use the oversized-stack serializer, so output slots holding more than 99 items no longer crash chunk saving or block-entity sync.
+- **Changed**: Curios is now declared as an optional dependency in `mods.toml`, and every Curios lookup guards against a missing `ModList`.
+- **Changed**: Version is now `0.6.5.4-forge-1.20.1`, tracking the upstream 1.21.1 release line.
+
 #### v0.5.8-forge-1.20.1
 
 - **New**: Added Time Freezer FE support and independent time/weather freeze switches.

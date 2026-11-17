@@ -176,7 +176,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
 
     private int settlementTicker;
     private int nextInputSlot;
-    private final int[] essencePatternRotation=new int[3];
+    private int[] essencePatternRotation=new int[0];
     private int activeMask;
     private int syncedProgress;
     private int syncedProgressMax = 1;
@@ -202,7 +202,7 @@ public class GreenhouseBE extends BaseMachineBE implements PoweredMachineBE, Flu
     }
 
     int[] getEssencePatternRotation() { return essencePatternRotation.clone(); }
-    void setEssencePatternRotation(int[] rotation) { for(int i=0;i<3;i++)essencePatternRotation[i]=i<rotation.length?Math.floorMod(rotation[i],3):0; }
+    void setEssencePatternRotation(int[] rotation) { this.essencePatternRotation = rotation != null ? rotation.clone() : new int[0]; }
     public void prepareOutputConversion() {
         if(!(level instanceof ServerLevel server)||!UpgradeHelper.hasEssenceConversionUpgrade(this))return;
         beginOutputChangeBatch();try{if(GreenhouseEssenceConversionHelper.convertStored(server,internalOutputHandler,this))markDirtyClient();}finally{finishOutputChangeBatch();}

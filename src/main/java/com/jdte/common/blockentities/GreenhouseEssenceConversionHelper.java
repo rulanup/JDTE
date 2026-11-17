@@ -64,7 +64,7 @@ public final class GreenhouseEssenceConversionHelper {
     private static int[] rotation(BaseMachineBE machine) {
         if (machine instanceof GreenhouseBE greenhouse) return greenhouse.getEssencePatternRotation();
         if (machine instanceof LargeGreenhouseBE greenhouse) return greenhouse.getEssencePatternRotation();
-        return new int[3];
+        return new int[0];
     }
 
     private static void commitRotation(BaseMachineBE machine, int[] rotation) {

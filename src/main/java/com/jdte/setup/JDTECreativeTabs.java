@@ -67,6 +67,7 @@ public class JDTECreativeTabs {
 
                 output.accept(JDTEItems.ESSENCE_CONVERSION_UPGRADE.get());
                 output.accept(JDTEItems.ADVANCED_ESSENCE_CONVERSION_UPGRADE.get());
+                output.accept(JDTEItems.ULTIMATE_ESSENCE_CONVERSION_UPGRADE.get());
                 output.accept(JDTEItems.UPGRADE_STORAGE.get());
                 output.accept(JDTEItems.ADVANCED_UPGRADE_STORAGE.get());
                 output.accept(JDTEItems.ADVANCED_MACHINE_SETTINGS_COPIER.get());

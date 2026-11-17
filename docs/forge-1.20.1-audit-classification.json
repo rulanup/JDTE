@@ -1,5 +1,5 @@
 {
-  "reference": "ccf46472abaf3856fa9eebe0f5ebd25d8f28e859",
+  "reference": "0d56f03092563820893afcca0be6a8fe5160877a",
   "starting_commit": "020109b",
   "rows": [
     {
@@ -109,6 +109,12 @@
       "initial_list": true,
       "status": "verified",
       "note": "See behavioral evidence map; verification is scoped, not an exhaustive mod-combination proof."
+    },
+    {
+      "id": "ultimate_essence_conversion_upgrade",
+      "initial_list": true,
+      "status": "implemented_unverified",
+      "note": "Ported from upstream 0.6.5.3: registration with the Integer.MAX_VALUE pattern limit, smithing recipe, model/texture, upgrade tag and bilingual tooltips plus a static resource-contract JUnit test. Greenhouse conversion beyond three bound patterns and the folded tooltip/Jade output still need runtime acceptance."
     },
     {
       "id": "crafting_pattern",

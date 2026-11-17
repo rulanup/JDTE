@@ -1,10 +1,19 @@
 # JDT Extras
 
-JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
+JDT Extras (`jdte`) is a Forge 1.20.1 addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.5.8-forge-1.20.1`
+Current version: `0.6.5.4-forge-1.20.1`
 
 [中文 README](README.md)
+
+### 0.6.5.4 additions
+
+- Completed the 1.21.1 → 1.20.1 port of the upstream 0.6.5.3/0.6.5.4 features.
+- Added the Ultimate Essence Conversion Upgrade (`jdte:ultimate_essence_conversion_upgrade`): binds up to 2,147,483,647 Crafting Patterns, is smithed from the Advanced card while preserving bound patterns, and is mutually exclusive with the normal and advanced cards.
+- Essence conversion tooltips and the Jade overlay now fold long pattern lists.
+- Fixed Greenhouse/Large Greenhouse essence pattern rotation overflowing its fixed three-slot array.
+- Fixed the Bio Factory crash when an output slot holds more than 99 items.
+- Curios is now an optional dependency with guarded lookups.
 
 ### 0.5.8 additions
 

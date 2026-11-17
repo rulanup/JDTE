@@ -18,7 +18,7 @@ for p in (source/'mods').glob('*.jar'):
     if not p.name.startswith('[Forge] jdte-'):shutil.copy2(p,mods/p.name)
 for prefix in ['applied-flux-','glodium-']:
     p=next(Path('/tmp/jdte-production-server/mods').glob(prefix+'*.jar'));shutil.copy2(p,mods/p.name)
-for name in ['[Forge] jdte-0.5.8-forge-1.20.1.jar','[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar']:shutil.copy2(REPO/'build/libs'/name,mods/name)
+for name in ['[Forge] jdte-0.6.5.4-forge-1.20.1.jar','[Forge] jdte-0.6.5.4-forge-1.20.1-lifecycle-probe.jar']:shutil.copy2(REPO/'build/libs'/name,mods/name)
 launch=json.loads(Path('/tmp/jdte-remote-launch.json').read_text());processes=[];logs=[]
 env=dict(os.environ,**launch['environment'])
 def server(mode):

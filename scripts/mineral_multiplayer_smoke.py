@@ -34,7 +34,7 @@ if CONTROL.exists():
     assert (CONTROL / '.fixture').is_file(), 'Refusing an unmarked control directory'
     shutil.rmtree(CONTROL)
 CONTROL.mkdir(); (CONTROL / '.fixture').touch()
-for jar in ['[Forge] jdte-0.5.8-forge-1.20.1.jar', '[Forge] jdte-0.5.8-forge-1.20.1-lifecycle-probe.jar']:
+for jar in ['[Forge] jdte-0.6.5.4-forge-1.20.1.jar', '[Forge] jdte-0.6.5.4-forge-1.20.1-lifecycle-probe.jar']:
     shutil.copy2(REPO / 'build/libs' / jar, SERVER / 'mods' / jar)
 launch = json.loads(Path('/tmp/jdte-remote-launch.json').read_text())
 assert launch['command'][0] and '--quickPlayMultiplayer' in launch['command'], 'Capture a configured remote launch first'

@@ -30,5 +30,12 @@ versionRange="[${jdt_mod_version},)"
 ordering="AFTER"
 side="BOTH"
 
+[[dependencies.${mod_id}]]
+modId="curios"
+mandatory=false
+versionRange="[5.0.0,)"
+ordering="AFTER"
+side="BOTH"
+
 [[mixins]]
 config="mixins.jdte.json"

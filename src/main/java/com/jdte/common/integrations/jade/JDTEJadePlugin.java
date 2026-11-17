@@ -232,10 +232,14 @@ public class JDTEJadePlugin implements IWailaPlugin {
                     var patterns=com.jdte.common.items.EssenceConversionUpgradeItem.patterns(upgrade);
                     tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.patterns",patterns.size(),item.patternLimit()).withStyle(ChatFormatting.AQUA));
                     var statuses=index<patternStatuses.size()?patternStatuses.getCompound(index):new CompoundTag();
-                    for(int p=0;p<patterns.size();p++){
+                    int maxDisplay=Math.min(patterns.size(),6);
+                    for(int p=0;p<maxDisplay;p++){
                         var pattern=patterns.get(p);boolean valid=statuses.getBoolean(Integer.toString(p));
                         var text=Component.translatable("jdte.jade.essence_conversion.pattern",p+1,pattern.result().getHoverName(),pattern.result().getCount(),Component.translatable(valid?"jdte.jade.essence_conversion.valid":"jdte.jade.essence_conversion.invalid")).withStyle(valid?ChatFormatting.GREEN:ChatFormatting.RED);
                         tooltip.add(List.of(elements.smallItem(pattern.result()),elements.text(text)));
+                    }
+                    if(patterns.size()>maxDisplay){
+                        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.more",patterns.size()-maxDisplay).withStyle(ChatFormatting.GRAY));
                     }
                 }
             }

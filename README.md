@@ -1,10 +1,19 @@
 # JDT Extras
 
-JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
+JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 Forge 1.20.1 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.5.8-forge-1.20.1`
+当前版本：`0.6.5.4-forge-1.20.1`
 
 [English README](README_EN.md)
+
+### 0.6.5.4 新增
+
+- 完成 1.21.1 → 1.20.1 的 0.6.5.3/0.6.5.4 特性移植。
+- 新增顶级精华转化升级（`jdte:ultimate_essence_conversion_upgrade`）：最多可绑定 2,147,483,647 个合成样板，由高级精华转化升级在锻造台升级并保留已绑定样板，与普通版/高级版互斥。
+- 精华转化提示与 Jade 悬浮信息改为折叠显示，不再逐条铺满屏幕。
+- 修复普通/大型温室精华样板轮转数组长度固定导致的越界问题。
+- 修复生物工厂输出槽超过 99 个物品时区块保存与方块实体同步崩溃的问题。
+- Curios 改为可选依赖，并在所有 Curios 查询前增加缺失保护。
 
 ### 0.5.8 新增
 
