@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.BlockPos;
