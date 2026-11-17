@@ -1060,3 +1060,16 @@ First behavioural coverage for the item/fluid receiver families that the matrix 
 - These are compiled by CI, not executed there: the workflow runs `compileJava test jar`. Running them needs `runGameTestServer` with the Forge test world and the optional mod set, which this session cannot start.
 - Receiver rows stay **P**: the Ultimate-card restriction question and prolonged/independent-client behaviour are unchanged, and unexecuted tests are not acceptance evidence.
 - The Fluid Stabilizer family is still uncovered here: it applies JDT `FluidDrop` data recipes to real source-fluid blocks, so it needs a recipe and fluid-block fixture rather than an adjacent-tank fixture.
+
+## GameTest workflow checkpoint (2026-11-07)
+
+`.github/workflows/gametests.yml` now runs the real Forge GameTest server (`bash gradlew --no-daemon runGameTestServer`) on pushes that touch `common/blockentities`, `common/upgrades`, `gametest` or the workflow itself, plus a weekly schedule. It is deliberately kept off the general push path so the compile/test/jar CI stays fast; `workflow_dispatch` is declared but GitHub only exposes it once the file reaches the default branch.
+
+First run ([44106356905](https://github.com/rulanup/JDTE/actions/runs/44106356905), commit `496c4c4c`):
+
+- The server booted with the full development runtime, generated the test world and executed **414 GameTests**.
+- Result: **413 passed, 1 required test failed** — `powereditemreceiverneedsenergy` (`the same receiver pulls once it has energy, received=0`).
+- Cause: the four unpowered ticks arm the receiver's retry backoff, so the ticks after charging only decremented the backoff. The test now resets that backoff by touching the receiver storage (`onContentsChanged` → `resetTransferBackoff`) before the charged phase. This is a fixture defect, not a machine defect: the unpowered half of the same test passed, and `itemReceiversPullFromAdjacentChest`/`fluidReceiversPullFromAdjacentTank` passed on the first try.
+- The workflow's report upload found no files (Forge writes GameTest output to the console rather than `build/reports`), which is reported as a warning, not a failure.
+
+Consequence: the three receiver tests and the three ultimate-essence tests are now genuinely executed on every relevant push, so the earlier "compiled but not run" caveat no longer applies to them. The matrix rows keep their previous statuses until a green run is recorded.

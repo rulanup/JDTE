@@ -140,6 +140,9 @@ public final class ReceiverValidationGameTests {
                 "an unpowered advanced receiver moves nothing");
 
         charge(receiver);
+        // The failed attempts above arm the receiver's retry backoff, which would swallow the next
+        // few ticks. Touching its storage resets that backoff deterministically.
+        receiver.getItemHandler().setStackInSlot(0, ItemStack.EMPTY);
         tick(helper, receiver, TICKS);
         int received = receiverCount(receiver);
         helper.assertTrue(received > 0 && received + sourceCount(helper) == 64,
