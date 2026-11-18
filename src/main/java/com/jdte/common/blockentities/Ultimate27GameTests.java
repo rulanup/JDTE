@@ -17,10 +17,20 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /**
- * Ultimate-card acceptance for the remaining 27 restricted families (41 tiers),
- * strict original 0.6.5.2 behaviour (see ultimate-card-27-machines-analysis.md):
- * 25 families take both Ultimate cards (explicit lists or the original default
- * branch) and the suppressor/blocker pair takes Ultimate Capacity only.
+ * Ultimate-card acceptance. The gate now mirrors the 1.21.1 source shape: the
+ * intercepting families enumerate what they accept and everything else reaches
+ * the source default branch, which accepts the card. So two groups are covered
+ * here.
+ *
+ * 1. The families the source intercepts explicitly (41 tiers over 27 roots):
+ *    all of them take both Ultimate cards except the suppressor/blocker pair,
+ *    which takes Ultimate Capacity only, and the advanced item collector,
+ *    which takes neither.
+ * 2. The families the source never intercepts and which therefore rely on the
+ *    default branch (glue activators, the loot fabricator, the extended
+ *    generators, native JDT machines, ...). ultimateDefaultBranchFamiliesAllow
+ *    BothCards covers the representative JDTE tiers; native JDT machines share
+ *    the same branch and are exercised through the gate directly.
  *
  * Per family, one representative tier is exercised (roots cover their tiers:
  * TimeAcceleratorBE covers all accelerator tiers and the crystal, the Powered*
@@ -131,20 +141,14 @@ public final class Ultimate27GameTests {
                         fam.name() + " allows Ultimate Overclock");
             }
         }
-        // Negative controls: families outside the 27 keep their gates.
-        // The collector rejects both cards in original and port alike.
+        // Negative control: the source intercepts the advanced item collector
+        // with RANGE/FILTER only, so it keeps rejecting both Ultimate cards.
         h.setBlock(POS, Blocks.AIR);
         h.setBlock(POS, JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get());
         var collector = (BaseMachineBE) h.getBlockEntity(POS);
         h.assertTrue(!UpgradeHelper.isUpgradeCompatible(collector, UpgradeType.ULTIMATE_CAPACITY)
                         && !UpgradeHelper.isUpgradeCompatible(collector, UpgradeType.ULTIMATE_OVERCLOCK),
                 "collector still rejects both Ultimate cards");
-        h.setBlock(POS, Blocks.AIR);
-        h.setBlock(POS, JDTEBlocks.BASIC_GLUE_ACTIVATOR.get());
-        var glue = (BaseMachineBE) h.getBlockEntity(POS);
-        h.assertTrue(!UpgradeHelper.isUpgradeCompatible(glue, UpgradeType.ULTIMATE_CAPACITY)
-                        && !UpgradeHelper.isUpgradeCompatible(glue, UpgradeType.ULTIMATE_OVERCLOCK),
-                "glue activator (outside the 27) still rejects both Ultimate cards");
         h.succeed();
     }
 
@@ -273,6 +277,45 @@ public final class Ultimate27GameTests {
         var breaker = placeCounting(h, FAMS[2]);
         tickOnce(h, breaker);
         h.assertTrue(((TickCounter) breaker).tickCount() == 1, "baseline ticker runs 1 execution without cards");
+        h.succeed();
+    }
+
+    @GameTest(template = "mineral_empty")
+    public static void ultimateDefaultBranchFamiliesAllowBothCards(GameTestHelper h) {
+        // Families the source never intercepts resolve through its default
+        // branch, which accepts both Ultimate cards. The generic capacity, cost
+        // and tick-speed hooks then give them real effects, so the gate and the
+        // helpers are asserted together on the representative JDTE tiers.
+        record DefaultFamily(String name, net.minecraft.world.level.block.Block block) {
+        }
+        var families = java.util.List.of(
+                new DefaultFamily("advanced_glue_activator", JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get()),
+                new DefaultFamily("basic_glue_activator", JDTEBlocks.BASIC_GLUE_ACTIVATOR.get()),
+                new DefaultFamily("loot_fabricator", JDTEBlocks.LOOT_FABRICATOR.get()),
+                new DefaultFamily("extended_generator", JDTEBlocks.EXTENDED_GENERATOR.get()));
+        for (var fam : families) {
+            h.setBlock(POS, Blocks.AIR);
+            h.setBlock(POS, fam.block());
+            var be = (BaseMachineBE) h.getBlockEntity(POS);
+            h.assertTrue(UpgradeHelper.isUpgradeCompatible(be, UpgradeType.ULTIMATE_CAPACITY),
+                    fam.name() + " allows Ultimate Capacity through the default branch");
+            h.assertTrue(UpgradeHelper.isUpgradeCompatible(be, UpgradeType.ULTIMATE_OVERCLOCK),
+                    fam.name() + " allows Ultimate Overclock through the default branch");
+            card(be, JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get(), 0);
+            card(be, JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get(), 1);
+            h.assertTrue(UpgradeHelper.countUpgrades(be, UpgradeType.ULTIMATE_CAPACITY) == 1
+                            && UpgradeHelper.countUpgrades(be, UpgradeType.ULTIMATE_OVERCLOCK) == 1,
+                    fam.name() + " installs both Ultimate cards");
+            h.assertTrue(UpgradeHelper.adjustEnergyCapacity(be, 1000) == 50000,
+                    fam.name() + " capacity 1000 -> 50000");
+            h.assertTrue(UpgradeHelper.adjustEnergyCost(be, 500) == 25000,
+                    fam.name() + " cost 500 -> 25000");
+            h.assertTrue(UpgradeHelper.getEffectiveTickSpeed(be, 20) == 1,
+                    fam.name() + " tick speed 20 -> 1");
+            h.assertTrue(!UpgradeHelper.getUpgradeHandler(be).isItemValid(2,
+                            new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get())),
+                    fam.name() + " Ultimate cards stay capped at one");
+        }
         h.succeed();
     }
 

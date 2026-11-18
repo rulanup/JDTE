@@ -206,68 +206,61 @@ public class UpgradeHelper {
     public static boolean hasSeedConversionUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.SEED_CONVERSION)>0; }
 
     public static boolean hasEssenceConversionUpgrade(BaseMachineBE machine) { return countUpgrades(machine,UpgradeType.ESSENCE_CONVERSION)>0; }
+    /**
+     * Upgrade-card gate. This mirrors the 1.21.1 source shape exactly: the
+     * intercepting families below enumerate what they accept, and every other
+     * type falls through to the source default branch, which accepts the card.
+     * The default branch is what lets the Ultimate Capacity/Ultimate Overclock
+     * cards reach every family the source never intercepts (glue activators,
+     * the loot fabricator, native JDT machines, extended generators, the time
+     * freezer, ...), so no family whitelist is kept here. Families the source
+     * does intercept keep their source scope: the advanced item collector takes
+     * neither Ultimate card, and the suppressor/blocker pair takes Ultimate
+     * Capacity only.
+     */
     public static boolean isUpgradeCompatible(BaseMachineBE machine, UpgradeType type) {
-        if(type==UpgradeType.THUNDERSTORM)return machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE;
-        if(machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE rod)return rod.isUpgradeAllowed(type);
-        if(machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE accelerator)return accelerator.isUpgradeAllowed(type);
-        if(type==UpgradeType.AE_ACCELERATION)return machine instanceof BasicTimeAcceleratorBE || machine instanceof AdvancedTimeAcceleratorBE;
-        if(type==UpgradeType.AE_CRAFTING_READ || type.isAEOutputUpgrade()) return true;
-        if(type==UpgradeType.ESSENCE_CONVERSION || type==UpgradeType.SEED_CONVERSION)return machine instanceof GreenhouseBE||machine instanceof LargeGreenhouseBE;
-        if (machine instanceof com.jdte.common.blockentities.BioExtractorBE) return type==UpgradeType.CAPACITY||type==UpgradeType.ULTIMATE_CAPACITY||type==UpgradeType.FLUID||type==UpgradeType.OVERCLOCK||type==UpgradeType.ULTIMATE_OVERCLOCK||type==UpgradeType.UNDERCLOCK||type==UpgradeType.RANGE||type==UpgradeType.FILTER||type==UpgradeType.CREATIVE;
+        if (type == UpgradeType.THUNDERSTORM) return machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE;
+        if (machine instanceof com.jdte.common.blockentities.ChargedLightningRodBE rod) return rod.isUpgradeAllowed(type);
+        if (machine instanceof com.jdte.common.blockentities.AdvancedEntityAcceleratorBE accelerator) return accelerator.isUpgradeAllowed(type);
+        if (type == UpgradeType.AE_ACCELERATION) return machine instanceof BasicTimeAcceleratorBE || machine instanceof AdvancedTimeAcceleratorBE;
+        if (type == UpgradeType.AE_CRAFTING_READ || type.isAEOutputUpgrade()) return true;
+        if (type == UpgradeType.ESSENCE_CONVERSION || type == UpgradeType.SEED_CONVERSION)
+            return machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE;
+        if (machine instanceof com.jdte.common.blockentities.BioExtractorBE)
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.UNDERCLOCK
+                    || type == UpgradeType.RANGE || type == UpgradeType.FILTER || type == UpgradeType.CREATIVE;
         if (machine instanceof com.jdte.common.blockentities.AdvancedEnergyTransmitterBE)
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER || type == UpgradeType.CAPACITY
                     || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.OVERCLOCK
                     || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE || type == UpgradeType.AE_CRAFTING_READ;
-        if (machine instanceof com.jdte.common.blockentities.ExtendedEnergyTransmitterBE
-                && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
-        if (machine instanceof com.jdte.common.blockentities.ExtendedExperienceHolderBE && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
-        // Item senders only (all three tiers extend ItemSenderBE): original 0.6.5.2 allows
-        // both Ultimate cards for senders via its default branch, so this narrow allowance
-        // restores that scope without opening any other restricted machine family.
-        if (machine instanceof com.jdte.common.blockentities.ItemSenderBE && (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)) return true;
-        // Remaining 27 Ultimate families (see ultimate-card-27-machines-analysis.md):
-        // original 0.6.5.2 allows both Ultimate cards for 25 of them (explicit lists
-        // or its default branch) and Ultimate Capacity only for the suppressor/blocker
-        // pair. Other machines' gates are untouched. TimeAcceleratorBE also covers
-        // CrystalIncubatorBE, which extends it; the crystal is listed explicitly so the
-        // 27-family mapping stays auditable at a glance.
-        if (type == UpgradeType.ULTIMATE_CAPACITY && (machine instanceof com.jdte.common.blockentities.EntitySuppressorBE || machine instanceof com.jdte.common.blockentities.RangeBlockerBE)) return true;
-        if ((type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK) && (machine instanceof com.jdte.common.blockentities.GreenhouseBE || machine instanceof com.jdte.common.blockentities.LargeGreenhouseBE || machine instanceof com.jdte.common.blockentities.LifeSynthesisVatBE || machine instanceof com.jdte.common.blockentities.BioFactoryBE || machine instanceof com.jdte.common.blockentities.LifeBreederBE || machine instanceof com.jdte.common.blockentities.FactoryPackerBE || machine instanceof com.jdte.common.blockentities.TimeAcceleratorBE || machine instanceof com.jdte.common.blockentities.ExtendedClickerBE || machine instanceof com.jdte.common.blockentities.ExtendedBlockBreakerBE || machine instanceof com.jdte.common.blockentities.ExtendedBlockPlacerBE || machine instanceof com.jdte.common.blockentities.ExtendedBlockSwapperBE || machine instanceof com.jdte.common.blockentities.ExtendedDropperBE || machine instanceof com.jdte.common.blockentities.ExtendedSensorBE || machine instanceof com.jdte.common.blockentities.ExtendedFluidCollectorBE || machine instanceof com.jdte.common.blockentities.ExtendedFluidPlacerBE || machine instanceof com.jdte.common.blockentities.CrystalIncubatorBE || machine instanceof com.jdte.common.blockentities.GelGeneratorBE || machine instanceof com.jdte.common.blockentities.FluidStabilizerBE || machine instanceof com.jdte.common.blockentities.FluidSenderBE || machine instanceof com.jdte.common.blockentities.ItemReceiverBE || machine instanceof com.jdte.common.blockentities.FluidReceiverBE || machine instanceof com.jdte.common.blockentities.LifeExtractorBE || machine instanceof com.jdte.common.blockentities.InfusionMachineBE || machine instanceof com.jdte.common.blockentities.AdvancedPotionBrewerBE || machine instanceof com.jdte.common.blockentities.BioCrusherBE)) return true;
-        if (type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.ULTIMATE_OVERCLOCK)
-            return machine instanceof com.jdte.common.blockentities.MineralExtractorBE || machine instanceof com.jdte.common.blockentities.FluidMixerBE || isExtendedGenerator(machine);
         if (machine instanceof com.jdte.common.blockentities.MineralExtractorBE)
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID || type == UpgradeType.FILTER
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
-
-        if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE
-                    || type == UpgradeType.FORTUNE;
-        }
-        if (machine instanceof LifeSynthesisVatBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
-        }
-        if (machine instanceof BioFactoryBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
-        }
-        if (machine instanceof LifeBreederBE) {
-            return type == UpgradeType.CAPACITY || type == UpgradeType.FLUID
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.RANGE || type == UpgradeType.FILTER
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.FILTER
                     || type == UpgradeType.CREATIVE;
-        }
-        if (machine instanceof AdvancedItemCollectorBE) {
+        if (machine instanceof GreenhouseBE || machine instanceof LargeGreenhouseBE)
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE
+                    || type == UpgradeType.FORTUNE || type == UpgradeType.ESSENCE_CONVERSION
+                    || type == UpgradeType.SEED_CONVERSION || type == UpgradeType.AE_CRAFTING_READ;
+        if (machine instanceof LifeSynthesisVatBE)
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE;
+        if (machine instanceof BioFactoryBE)
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE;
+        if (machine instanceof LifeBreederBE)
+            return type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.FLUID
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.RANGE
+                    || type == UpgradeType.FILTER || type == UpgradeType.CREATIVE;
+        if (machine instanceof AdvancedItemCollectorBE)
             return type == UpgradeType.RANGE || type == UpgradeType.FILTER;
-        }
-        if (machine instanceof EntitySuppressorBE || machine instanceof RangeBlockerBE) {
-            return type == UpgradeType.RANGE || type == UpgradeType.FILTER
-                    || type == UpgradeType.CAPACITY || type == UpgradeType.CREATIVE;
-        }
-        if (machine instanceof FactoryPackerBE) {
-            return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY
-                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.CREATIVE;
-        }
+        if (machine instanceof EntitySuppressorBE || machine instanceof RangeBlockerBE)
+            return type == UpgradeType.RANGE || type == UpgradeType.FILTER || type == UpgradeType.CAPACITY
+                    || type == UpgradeType.ULTIMATE_CAPACITY || type == UpgradeType.CREATIVE;
+        if (machine instanceof FactoryPackerBE)
+            return type == UpgradeType.RANGE || type == UpgradeType.CAPACITY || type == UpgradeType.ULTIMATE_CAPACITY
+                    || type == UpgradeType.OVERCLOCK || type == UpgradeType.ULTIMATE_OVERCLOCK || type == UpgradeType.CREATIVE;
         return switch (type) {
             case FLUID_STORAGE -> machine instanceof ClickerT1BE;
             case GENERATOR -> machine instanceof GeneratorT1BE || machine instanceof GeneratorFluidT1BE;

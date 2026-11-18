@@ -14,6 +14,7 @@ Current version: `0.6.5.4-forge-1.20.1`
 - Fixed Greenhouse/Large Greenhouse essence pattern rotation overflowing its fixed three-slot array.
 - Fixed the Bio Factory crash when an output slot holds more than 99 items.
 - Curios is now an optional dependency with guarded lookups.
+- Upgrade compatibility now matches the upstream 1.21.1 gate: intercepted families keep their source lists (the Advanced Item Collector takes neither Ultimate card, the Entity Suppressor/Range Blocker pair takes Ultimate Capacity only) and every other family reaches the source default branch, so the Ultimate Capacity/Ultimate Overclock cards now install in glue activators, the Loot Fabricator, native JDT machines, the Time Freezer and the remaining families.
 
 ### 0.5.8 additions
 

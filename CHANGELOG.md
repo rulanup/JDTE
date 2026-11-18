@@ -8,6 +8,8 @@
 - **Fixed**: Greenhouse and Large Greenhouse essence pattern rotation now sizes itself to the bound pattern count, so cards holding more than three patterns no longer overflow the rotation array.
 - **Fixed**: Bio Factory inventories now use the oversized-stack serializer, so output slots holding more than 99 items no longer crash chunk saving or block-entity sync.
 - **Changed**: Curios is now declared as an optional dependency in `mods.toml`, and every Curios lookup guards against a missing `ModList`.
+- **Changed**: Upgrade compatibility now reproduces the upstream 1.21.1 gate instead of a port-side whitelist: intercepted families keep their source lists (the Advanced Item Collector takes neither Ultimate card, the Entity Suppressor/Range Blocker pair takes Ultimate Capacity only) and every other family reaches the source default branch, so the Ultimate Capacity and Ultimate Overclock cards now install in glue activators, the Loot Fabricator, native JDT machines, the Time Freezer and the remaining families.
+- **Tests**: Added `ultimateDefaultBranchFamiliesAllowBothCards` (glue activators, Loot Fabricator, Extended Generator: gate, install, 50x capacity/cost, locked tick speed, one-card cap) and moved the negative control to the intercepted Advanced Item Collector.
 - **Changed**: Version is now `0.6.5.4-forge-1.20.1`, tracking the upstream 1.21.1 release line.
 
 #### v0.5.8-forge-1.20.1

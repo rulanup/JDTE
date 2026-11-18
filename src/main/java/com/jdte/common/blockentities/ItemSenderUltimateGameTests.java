@@ -148,17 +148,15 @@ public final class ItemSenderUltimateGameTests {
                     && !upgrades.isItemValid(2, new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()))
                     && !upgrades.isItemValid(2, new ItemStack(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get())),
                     "speed cards exclusive and Ultimate cards capped at one on tier " + tier);
-            // Other restricted families must stay restricted: the collector
-            // rejects both Ultimate cards in original and port alike, so it
-            // stays the negative control now that receivers take Ultimate
-            // cards (27-family round). A receiver is no longer a valid
-            // negative control here.
+            // Intercepted families keep their source scope: the collector lists
+            // RANGE/FILTER only, so it stays the negative control now that the
+            // default branch admits Ultimate cards for every other family.
             h.setBlock(new BlockPos(5, 1, 2), JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get());
             var collector = h.getBlockEntity(new BlockPos(5, 1, 2));
             h.assertTrue(collector instanceof AdvancedItemCollectorBE
                     && !UpgradeHelper.getUpgradeHandler((com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE) collector)
                             .isItemValid(0, new ItemStack(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get())),
-                    "Ultimate stays restricted for non-27 families");
+                    "Ultimate stays rejected for the intercepted collector");
         }
         h.succeed();
     }
