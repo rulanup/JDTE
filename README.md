@@ -15,6 +15,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 - 修复生物工厂输出槽超过 99 个物品时区块保存与方块实体同步崩溃的问题。
 - Curios 改为可选依赖，并在所有 Curios 查询前增加缺失保护。
 - 升级兼容判定改为与上游 1.21.1 一致：被显式拦截的机器族保留源码清单（高级物品收集器两张顶级卡都不收，实体抑制器/范围阻断器只收顶级容量），其余机器族走源码默认分支，因此顶级容量/顶级超频现在可装入胶水激活器、战利品制造机、原生 JDT 机器、时间冻结器等家族。
+- 两张顶级卡升为 V：新增 `UltimateDefaultBranchGameTests` 验证胶水激活器与战利品制造机的真实 ×50 容量与成本、单卡上限与存档重载，并新增无头真实客户端流水线（Xvfb）验证两个 GUI、菜单安装、创造栏与 JEI。详见 [顶级卡验收证据](docs/validation/forge-1.20.1-ultimate-cards/README.md)。
 
 ### 0.5.8 新增
 

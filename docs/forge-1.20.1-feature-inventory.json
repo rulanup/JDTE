@@ -354,8 +354,8 @@
     {
       "id": "ultimate_capacity_upgrade",
       "initial_list": true,
-      "status": "partial",
-      "note": "Mineral/mixer and both transmitter physical capacity/ticker paths have behavioral evidence; source support in other registered machine families remains incomplete or restricted. Keep P; see transmitter acceptance for the new host scope. Both new Extended generator hosts now have tested physical capacity, ten-execution ticker and safe capacity-card removal; other outstanding host gaps remain P.",
+      "status": "verified",
+      "note": "Verified 2026-11-19 on forge-1.20.1: the gate now mirrors the 1.21.1 source shape (intercepted families keep their source lists; every other family reaches the default branch), so the card reaches glue activators, the loot fabricator, native JDT machines and the remaining families. UltimateDefaultBranchGameTests proves the physical x50 FE buffer and real x50 cost on the advanced glue activator, the physical x50 FE buffer and x50 fluid tank on the loot fabricator, card exclusivity, and that both cards survive save/reload with the buffer restored on the first real ticker tick. Ultimate27GameTests keeps the gate/install/helper/ticker coverage for 41 tiers over 27 roots, with the advanced item collector as the negative control. The headless real client (run 44515828203) opened both real GUIs, installed through the menu, confirmed the server-side 50x buffer, and found the card in the creative tab and JEI. Scoped: not every default-branch host has its own physical-effect test, and no packaged dedicated-server round was run for this card.",
       "registered": true,
       "kind": "item",
       "name": "Ultimate Capacity Upgrade",
@@ -372,8 +372,8 @@
     {
       "id": "ultimate_overclock_upgrade",
       "initial_list": true,
-      "status": "partial",
-      "note": "Mineral/mixer and both transmitter physical capacity/ticker paths have behavioral evidence; source support in other registered machine families remains incomplete or restricted. Keep P; see transmitter acceptance for the new host scope. Both new Extended generator hosts now have tested physical capacity, ten-execution ticker and safe capacity-card removal; other outstanding host gaps remain P.",
+      "status": "verified",
+      "note": "Verified 2026-11-19 on forge-1.20.1: the gate now mirrors the 1.21.1 source shape (intercepted families keep their source lists; every other family reaches the default branch), so the card reaches glue activators, the loot fabricator, native JDT machines and the remaining families. UltimateDefaultBranchGameTests proves the real x50 charged cost and the locked one-tick process time on the advanced glue activator and the loot fabricator, mutual exclusion with Overclock/Underclock, the one-card cap, and save/reload survival. Ultimate27GameTests keeps the gate/install/helper/ten-execution ticker coverage for 41 tiers over 27 roots, with the suppressor/blocker pair taking Ultimate Capacity only and the advanced item collector taking neither. The headless real client (run 44515828203) opened both real GUIs, installed through the menu, and found the card in the creative tab and JEI. Scoped: not every default-branch host has its own physical-effect test, and no packaged dedicated-server round was run for this card.",
       "registered": true,
       "kind": "item",
       "name": "Ultimate Overclock Upgrade",
