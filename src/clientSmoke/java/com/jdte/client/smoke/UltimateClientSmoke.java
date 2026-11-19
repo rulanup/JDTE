@@ -2,7 +2,7 @@ package com.jdte.client.smoke;
 
 import com.jdte.client.screens.AdvancedGlueActivatorScreen;
 import com.jdte.client.screens.LootFabricatorScreen;
-import com.jdte.common.blockentities.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeSlot;
@@ -91,7 +91,7 @@ public final class UltimateClientSmoke {
      */
     private static BaseMachineBE menuMachine() {
         var menu = Minecraft.getInstance().player.containerMenu;
-        for (var type = menu.getClass(); type != null; type = type.getSuperclass()) {
+        for (Class<?> type = menu.getClass(); type != null; type = type.getSuperclass()) {
             try {
                 var field = type.getDeclaredField("baseMachineBE");
                 field.setAccessible(true);
