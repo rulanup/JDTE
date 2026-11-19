@@ -59,6 +59,15 @@ public final class UltimateDefaultBranchGameTests {
                 .orElseThrow(IllegalStateException::new).getMaxEnergyStored();
     }
 
+    @SuppressWarnings("unchecked")
+    private static void tickOnce(GameTestHelper h, BaseMachineBE be) {
+        var ticker = (net.minecraft.world.level.block.entity.BlockEntityTicker<
+                net.minecraft.world.level.block.entity.BlockEntity>)
+                be.getBlockState().getTicker(h.getLevel(), be.getType());
+        if (ticker == null) throw new IllegalStateException("no ticker for " + be.getType());
+        ticker.tick(h.getLevel(), be.getBlockPos(), be.getBlockState(), be);
+    }
+
     @GameTest(template = "mineral_empty")
     public static void glueActivatorPhysicalCapacityCostAndTicker(GameTestHelper h) {
         var be = (AdvancedGlueActivatorBE) place(h, JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get());
@@ -136,8 +145,12 @@ public final class UltimateDefaultBranchGameTests {
         h.assertTrue(reloaded.getStackInSlot(0).is(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get())
                         && reloaded.getStackInSlot(1).is(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get()),
                 "both Ultimate cards survive the fabricator save/reload");
+        // Capacity is re-applied at the head of the server tick (BaseMachineBEMixin),
+        // not inside load(), so a freshly loaded machine only reaches its x50 buffer
+        // once it ticks. Drive the real ticker instead of calling the helper directly.
+        tickOnce(h, fresh);
         h.assertTrue(maxStored(fresh) == LootFabricatorBE.BASE_ENERGY_CAPACITY * 50L,
-                "reloaded fabricator keeps the x50 physical buffer, got " + maxStored(fresh));
+                "reloaded fabricator reaches the x50 physical buffer on its first tick, got " + maxStored(fresh));
         h.succeed();
     }
 

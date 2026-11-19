@@ -342,17 +342,6 @@ tasks.withType(JavaExec).configureEach {
     }
 }
 
-// Client smoke harness packaged as its own mod jar, for headless client runs.
-// Never part of the production JAR: the smoke classes live in their own source
-// set and are only loaded when the matching -Djdte.*Smoke property is set.
-tasks.register('clientSmokeJar', Jar) {
-    archiveClassifier = 'client-smoke'
-    from sourceSets.clientSmoke.output
-    manifest { attributes 'FMLModType': 'MOD' }
-}
-tasks.named('clientSmokeJar').configure { finalizedBy 'reobfClientSmokeJar' }
-reobf { clientSmokeJar { classpath.from sourceSets.main.output, sourceSets.main.compileClasspath } }
-
 // Separate test mod for real disk unload/restart and packaged-server validation.
 tasks.register('serverSmokeJar', Jar) {
     archiveClassifier = 'lifecycle-probe'

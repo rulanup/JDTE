@@ -1,14 +1,24 @@
 name: Forge 1.20.1 Headless Client
 
-# Real Minecraft client on a real Forge 1.20.1 runtime, launched headless through
-# headlesshq/mc-runtime-test (HeadlessMC + Xvfb). This is the client half of the
-# upgrade-card acceptance: it proves the Ultimate cards exist in the real client,
-# render in the real GUIs, and survive a real world load. It is separate from the
-# push CI (compile/test/jar) and from the GameTest server workflow.
+# Real Minecraft client on a real Forge 1.20.1 runtime, launched headless under
+# Xvfb with Mesa software rendering. This is the client half of the upgrade-card
+# acceptance: it proves the Ultimate cards exist in the real client, render in
+# the real GUIs, install through the real menu, and survive a real world load.
 #
-# Opt-in: the smoke harness baked into the jar is only active when the JVM
-# property is set, so this workflow passes -Djdte.ultimateSmoke=true through
-# headlessmc-command. Nothing here is packaged into production JARs.
+# Why not headlesshq/mc-runtime-test: that action ships a mod that joins a
+# single-player world and quits as soon as the chunks load. The GUI harness here
+# needs roughly 4500 client ticks to open menus, shift-click cards and screenshot
+# them, so that action's lifecycle is too short. Running the project's own smoke
+# harness under xvfb-run is the same approach the retained Fumo evidence used,
+# and it keeps the assertions inside this repository.
+#
+# The client needs a world to quick-play into. This workflow first boots the
+# GameTest server (which generates runs/gameTestServer/world), copies that world
+# into runs/client/saves, then launches the client against it -- exactly what
+# scripts/run_*_client_smoke.sh does on a developer machine.
+#
+# Opt-in: the harness only runs when -Djdte.ultimateSmoke=true is set, so normal
+# development launches are unaffected and nothing here ships in production JARs.
 
 on:
   workflow_dispatch:
@@ -34,7 +44,7 @@ concurrency:
 jobs:
   headless-client:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -48,27 +58,57 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # The smoke harness lives in its own source set, so build the plain jar and
-      # the client smoke jar, then stage both plus their runtime deps for the
-      # headless launch.
-      - name: Build the mod and the client smoke jar
-        run: bash gradlew --no-daemon jar clientSmokeJar
-
-      - name: Stage mods for the headless client
+      # Mesa gives the client a real OpenGL implementation without a GPU;
+      # Xvfb gives it a framebuffer. Both are what the retained Fumo evidence used.
+      - name: Install the virtual display and software OpenGL
         run: |
-          mkdir -p run/mods
-          cp build/libs/'[Forge] jdte-'*.jar run/mods/ || true
-          ls -la run/mods
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            xvfb x11-xserver-utils libgl1-mesa-dri libglx-mesa0 mesa-utils
 
-      - name: Run the headless Forge 1.20.1 client
-        uses: headlesshq/mc-runtime-test@v5
-        with:
-          mc: 1.20.1
-          modloader: forge
-          mc-runtime-test: lexforge
-          java: 17
-          xvfb: 'true'
-          headlessmc-command: '--jvm "-Djava.awt.headless=true -Djdte.ultimateSmoke=true"'
+      # The GameTest server generates a real world under runs/gameTestServer/world.
+      # It doubles as a second confirmation that the new runtime tests pass.
+      - name: Generate a world with the GameTest server
+        run: bash gradlew --no-daemon runGameTestServer
+
+      - name: Stage the world for the client
+        run: |
+          set -euo pipefail
+          source_world=runs/gameTestServer/world
+          target_world=runs/client/saves/jdte-mineral-client-smoke
+          test -f "$source_world/level.dat"
+          rm -rf "$target_world"
+          mkdir -p runs/client/saves
+          cp -a "$source_world" "$target_world"
+          mkdir -p runs/client
+          cat > runs/client/options.txt <<'OPTIONS'
+          tutorialStep:none
+          renderDistance:2
+          simulationDistance:2
+          maxFps:60
+          guiScale:2
+          overrideWidth:1280
+          overrideHeight:720
+          soundCategory_master:0.0
+          OPTIONS
+
+      - name: Run the real client with the Ultimate-card harness
+        run: |
+          xvfb-run -a -s "-screen 0 1280x720x24 +extension GLX +render -noreset" \
+            bash gradlew --no-daemon runClient -PjdteUltimateSmoke --stacktrace
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          ALSOFT_DRIVERS: 'null'
+
+      - name: Assert the harness reported success
+        run: |
+          marker=runs/client/ultimate-card-client-smoke-success.txt
+          if [ ! -s "$marker" ]; then
+            echo "::error::the client harness did not write its success marker"
+            ls -la runs/client || true
+            exit 1
+          fi
+          cat "$marker"
 
       - name: Upload client logs and screenshots
         if: always()
@@ -76,9 +116,9 @@ jobs:
         with:
           name: jdte-headless-client-${{ github.sha }}
           path: |
-            run/logs/**
-            run/screenshots/**
-            run/*smoke*.txt
-            logs/**
+            runs/client/logs/**
+            runs/client/screenshots/**
+            runs/client/*smoke*.txt
+            runs/client/crash-reports/**
           if-no-files-found: warn
           retention-days: 14
