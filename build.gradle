@@ -68,8 +68,30 @@ repositories {
     maven { url = 'https://maven.theillusivec4.top/' }
     maven { url = 'https://maven.ftb.dev/releases' }
     maven { url = 'https://api.modrinth.com/maven' }
-    maven { url = 'https://thedarkcolour.github.io/KotlinForForge/' }
-    maven { url = 'https://www.cursemaven.com' }
+    maven {
+        name = "Kotlin for Forge"
+        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+        // This mirror also exposes a curse-maven proxy path. It must never be
+        // consulted for curse.maven coordinates: when the mirror is down it
+        // answers 503 there, and a 503 is fatal for the whole resolution instead
+        // of falling through to cursemaven. The content filter (same shape as the
+        // 1.21.1 source) keeps the repository scoped to its own group.
+        content {
+            includeGroup "thedarkcolour"
+        }
+    }
+    // Same intent as the 1.21.1 source: curse.maven is resolved from exactly one
+    // repository, so no other mirror can intercept or fail those requests.
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = 'https://www.cursemaven.com'
+            }
+        }
+        filter {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 minecraft {
