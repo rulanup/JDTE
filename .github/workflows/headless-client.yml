@@ -1,0 +1,84 @@
+name: Forge 1.20.1 Headless Client
+
+# Real Minecraft client on a real Forge 1.20.1 runtime, launched headless through
+# headlesshq/mc-runtime-test (HeadlessMC + Xvfb). This is the client half of the
+# upgrade-card acceptance: it proves the Ultimate cards exist in the real client,
+# render in the real GUIs, and survive a real world load. It is separate from the
+# push CI (compile/test/jar) and from the GameTest server workflow.
+#
+# Opt-in: the smoke harness baked into the jar is only active when the JVM
+# property is set, so this workflow passes -Djdte.ultimateSmoke=true through
+# headlessmc-command. Nothing here is packaged into production JARs.
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Why this headless client run is needed
+        required: false
+        default: manual verification
+  push:
+    branches:
+      - forge-1.20.1
+    paths:
+      - 'src/clientSmoke/**'
+      - '.github/workflows/headless-client.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: headless-client-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  headless-client:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The smoke harness lives in its own source set, so build the plain jar and
+      # the client smoke jar, then stage both plus their runtime deps for the
+      # headless launch.
+      - name: Build the mod and the client smoke jar
+        run: bash gradlew --no-daemon jar clientSmokeJar
+
+      - name: Stage mods for the headless client
+        run: |
+          mkdir -p run/mods
+          cp build/libs/'[Forge] jdte-'*.jar run/mods/ || true
+          ls -la run/mods
+
+      - name: Run the headless Forge 1.20.1 client
+        uses: headlesshq/mc-runtime-test@v5
+        with:
+          mc: 1.20.1
+          modloader: forge
+          mc-runtime-test: lexforge
+          java: 17
+          xvfb: 'true'
+          headlessmc-command: '--jvm "-Djava.awt.headless=true -Djdte.ultimateSmoke=true"'
+
+      - name: Upload client logs and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jdte-headless-client-${{ github.sha }}
+          path: |
+            run/logs/**
+            run/screenshots/**
+            run/*smoke*.txt
+            logs/**
+          if-no-files-found: warn
+          retention-days: 14
