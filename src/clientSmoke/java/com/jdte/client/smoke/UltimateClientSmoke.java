@@ -75,7 +75,9 @@ public final class UltimateClientSmoke {
 
     private static void shift(Minecraft mc, java.util.function.Predicate<net.minecraft.world.inventory.Slot> predicate) {
         var m = mc.player.containerMenu;
-        var slot = m.slots.stream().filter(predicate).findFirst().orElseThrow();
+        var slot = m.slots.stream().filter(predicate).findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "no matching slot in " + m.getClass().getSimpleName() + " at stage " + stage));
         mc.gameMode.handleInventoryMouseClick(m.containerId, slot.index, 0, ClickType.QUICK_MOVE, mc.player);
     }
 
@@ -129,8 +131,11 @@ public final class UltimateClientSmoke {
                     level.setBlockAndUpdate(LOOT, JDTEBlocks.LOOT_FABRICATOR.get().defaultBlockState());
                     p.getInventory().clearContent();
                     p.getInventory().selected = 0;
+                    // Two Capacity cards: the glue activator consumes one through the
+                    // GUI, the loot fabricator consumes the second later in the run.
                     p.getInventory().setItem(9, new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
                     p.getInventory().setItem(10, new ItemStack(JDTEItems.ULTIMATE_OVERCLOCK_UPGRADE.get()));
+                    p.getInventory().setItem(11, new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
                     p.connection.teleport(24.5, 100, 23.5, 180, 0);
                     p.inventoryMenu.broadcastChanges();
                 });
