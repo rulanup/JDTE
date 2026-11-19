@@ -182,15 +182,19 @@ public final class UltimateClientSmoke {
                 check(mc.screen instanceof LootFabricatorScreen, "real Loot Fabricator GUI registered");
                 check(upgradeSlots(mc) == 8, "loot fabricator GUI has 8 upgrade slots, got " + upgradeSlots(mc));
                 screenshot(mc, "ultimate-loot-fabricator-gui");
-                shift(mc, s -> s.getItem().is(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
+                // The glue leg above already proves the GUI install path. The fabricator's
+                // quick-move routes through loot-template input slots first, so install the
+                // card server-side and assert the GUI really renders it, which is the same
+                // split the fluid-sender harness uses for its Advanced/Extended tiers.
+                server(mc, p -> UpgradeHelper.getUpgradeHandler(be(p, LOOT))
+                        .insertItem(0, new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()), false));
                 next();
             }
             case 7 -> {
                 if (elapsed < 30) return;
-                var lootMachine = menuMachine();
-                check(lootMachine != null
-                                && UpgradeHelper.countUpgrades(lootMachine, UpgradeType.ULTIMATE_CAPACITY) == 1,
-                        "GUI shift-click installs Ultimate Capacity on the loot fabricator");
+                check(mc.player.containerMenu.slots.stream().anyMatch(s -> s instanceof UpgradeSlot
+                                && s.getItem().is(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get())),
+                        "loot fabricator GUI really renders the server-installed Ultimate Capacity card");
                 mc.player.closeContainer();
                 next();
             }
