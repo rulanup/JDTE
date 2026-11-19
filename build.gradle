@@ -80,18 +80,7 @@ repositories {
             includeGroup "thedarkcolour"
         }
     }
-    // Same intent as the 1.21.1 source: curse.maven is resolved from exactly one
-    // repository, so no other mirror can intercept or fail those requests.
-    exclusiveContent {
-        forRepository {
-            maven {
-                url = 'https://www.cursemaven.com'
-            }
-        }
-        filter {
-            includeGroup "curse.maven"
-        }
-    }
+    maven { url = 'https://www.cursemaven.com' }
 }
 
 minecraft {
