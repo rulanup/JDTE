@@ -39,7 +39,7 @@ def main():
  labels={'verified':'V','implemented_unverified':'U','partial':'P','absent':'N'}
  text='''# Forge 1.20.1 feature migration matrix
 
-Reference: JDTE 0.6.5.4 `0d56f03092563820893afcca0be6a8fe5160877a`. Audit started at `020109b`; version tracks 0.6.5.4-forge-1.20.1. This inventory covers **all 121 literal item registrations**, including all entries in the original migration checklist, not just the initial registry delta. The unused `blockItem(name, ...)` helper adds no dynamic registrations.
+Reference: JDTE 0.6.5.4 `0d56f03092563820893afcca0be6a8fe5160877a`. Audit started at `020109b`; version tracks 0.6.5.4. This inventory covers **all 121 literal item registrations**, including all entries in the original migration checklist, not just the initial registry delta. The unused `blockItem(name, ...)` helper adds no dynamic registrations.
 
 ## Classification and limits
 

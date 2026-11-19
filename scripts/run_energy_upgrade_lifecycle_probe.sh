@@ -18,7 +18,7 @@ cd "$repo_dir"
 if [[ "${JDTE_SMOKE_PREBUILT:-0}" != 1 ]]; then
     bash gradlew jar serverSmokeJar --no-daemon --max-workers=2 "$@"
 fi
-cp 'build/libs/[Forge] jdte-0.6.5.4-forge-1.20.1.jar' 'build/libs/[Forge] jdte-0.6.5.4-forge-1.20.1-lifecycle-probe.jar' "$server_dir/mods/"
+cp 'build/libs/[Forge] jdte-0.6.5.4.jar' 'build/libs/[Forge] jdte-0.6.5.4-lifecycle-probe.jar' "$server_dir/mods/"
 python - "$server_dir" "${JAVA_HOME:?Use the existing Java 17 installation}/bin/java" <<'PY'
 from pathlib import Path
 import subprocess,sys

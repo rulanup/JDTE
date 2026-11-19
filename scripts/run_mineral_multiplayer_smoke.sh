@@ -67,7 +67,7 @@ export ALSOFT_DRIVERS="${ALSOFT_DRIVERS:-null}"
 if [[ "${JDTE_SMOKE_PREBUILT:-0}" != 1 ]]; then
     bash gradlew jar serverSmokeJar -PjdteRemoteSmoke -PjdteCaptureRemoteLaunch=/tmp/jdte-remote-launch.json runClient --no-daemon --max-workers=2 "$@"
 else
-    [[ -f /tmp/jdte-remote-launch.json && -f build/classes/java/clientSmoke/com/jdte/client/smoke/RemoteMultiplayerSmoke.class && -f 'build/libs/[Forge] jdte-0.6.5.4-forge-1.20.1.jar' ]] || {
+    [[ -f /tmp/jdte-remote-launch.json && -f build/classes/java/clientSmoke/com/jdte/client/smoke/RemoteMultiplayerSmoke.class && -f 'build/libs/[Forge] jdte-0.6.5.4.jar' ]] || {
         printf '%s\n' 'Build all source sets and capture the remote launch before requesting a prebuilt run.' >&2
         exit 1
     }

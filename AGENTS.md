@@ -8,7 +8,7 @@ JDT Extras (`jdte`) is a Forge 1.20.1 extension for Just Dire Things (JDT). It a
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.5.4-forge-1.20.1` |
+| Current version | `0.6.5.4` |
 | Minecraft | `1.20.1` |
 | Forge | `47.4.10` |
 | Just Dire Things Forge | `1.1.4` |

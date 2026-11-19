@@ -1,6 +1,6 @@
 # Changelog
 
-#### v0.6.5.4-forge-1.20.1
+#### v0.6.5.4
 
 - **Port**: Completed the 1.21.1 → 1.20.1 feature port for the upstream 0.6.5.3/0.6.5.4 releases.
 - **New**: Added the Ultimate Essence Conversion Upgrade (`jdte:ultimate_essence_conversion_upgrade`): binds up to 2,147,483,647 Crafting Patterns, is crafted from the Advanced card with a smithing table while preserving bound patterns, and is mutually exclusive with the normal and advanced cards.
@@ -10,7 +10,7 @@
 - **Changed**: Curios is now declared as an optional dependency in `mods.toml`, and every Curios lookup guards against a missing `ModList`.
 - **Changed**: Upgrade compatibility now reproduces the upstream 1.21.1 gate instead of a port-side whitelist: intercepted families keep their source lists (the Advanced Item Collector takes neither Ultimate card, the Entity Suppressor/Range Blocker pair takes Ultimate Capacity only) and every other family reaches the source default branch, so the Ultimate Capacity and Ultimate Overclock cards now install in glue activators, the Loot Fabricator, native JDT machines, the Time Freezer and the remaining families.
 - **Tests**: Added `ultimateDefaultBranchFamiliesAllowBothCards` (glue activators, Loot Fabricator, Extended Generator: gate, install, 50x capacity/cost, locked tick speed, one-card cap) and moved the negative control to the intercepted Advanced Item Collector.
-- **Changed**: Version is now `0.6.5.4-forge-1.20.1`, tracking the upstream 1.21.1 release line.
+- **Changed**: Version is now `0.6.5.4`, tracking the upstream 1.21.1 release line.
 
 #### v0.5.8-forge-1.20.1
 
