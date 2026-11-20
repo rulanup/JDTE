@@ -113,8 +113,8 @@
     {
       "id": "ultimate_essence_conversion_upgrade",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Ported from upstream 0.6.5.3: registration with the Integer.MAX_VALUE pattern limit, smithing recipe, model/texture, upgrade tag and bilingual tooltips plus a static resource-contract JUnit test. Greenhouse conversion beyond three bound patterns and the folded tooltip/Jade output still need runtime acceptance."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by UltimateEssenceConversionGameTests on a real greenhouse: the card binds four distinct recorded patterns, rotates them without overflowing the old fixed rotation state, keeps oversized counts intact through an inventory round trip, and stays exclusive and unbounded. Not covered: conversion beyond three bound patterns in a live greenhouse run, and the folded tooltip/Jade output."
     },
     {
       "id": "crafting_pattern",
@@ -479,20 +479,20 @@
     {
       "id": "basic_fluid_stabilizer",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by FluidStabilizerValidationGameTests: the Basic tier applies a real native FluidDrop recipe to a placed source fluid and spends exactly one catalyst. Ultimate support arrives through the default-branch gate. Not covered: the Extended tier explicitly (it shares the powered path), a powered-tier save/load round, and catalyst-return rules for multi-catalyst recipes."
     },
     {
       "id": "advanced_fluid_stabilizer",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by FluidStabilizerValidationGameTests: the Advanced tier does nothing without FE, and the Basic tier applies a real native FluidDrop recipe and spends exactly one catalyst. Ultimate support arrives through the default-branch gate. Not covered: the Extended tier explicitly (it shares the powered path), a powered-tier save/load round, and catalyst-return rules for multi-catalyst recipes."
     },
     {
       "id": "extended_fluid_stabilizer",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by FluidStabilizerValidationGameTests: the Basic tier applies a real native FluidDrop recipe and spends exactly one catalyst, and the Advanced tier gates on FE (this tier shares that powered path). Ultimate support arrives through the default-branch gate. Not covered: the Extended tier explicitly (it shares the powered path), a powered-tier save/load round, and catalyst-return rules for multi-catalyst recipes."
     },
     {
       "id": "basic_item_sender",
@@ -533,38 +533,38 @@
     {
       "id": "basic_item_receiver",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ReceiverValidationGameTests.itemReceiversPullFromAdjacentChest: the Basic item receiver pulls from a real adjacent chest, conserves the source stock exactly (received + remaining == 64), and keeps its storage across save/load; poweredItemReceiverNeedsEnergy additionally proves the Advanced tier moves nothing without FE and resumes once charged. Ultimate support arrives through the default-branch gate. Not covered: per-tier transfer-rate limits under sustained load, and the fluid receivers' own energy gate."
     },
     {
       "id": "advanced_item_receiver",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ReceiverValidationGameTests.itemReceiversPullFromAdjacentChest: the Advanced item receiver pulls from a real adjacent chest, conserves the source stock exactly (received + remaining == 64), and keeps its storage across save/load; poweredItemReceiverNeedsEnergy additionally proves the Advanced tier moves nothing without FE and resumes once charged. Ultimate support arrives through the default-branch gate. Not covered: per-tier transfer-rate limits under sustained load, and the fluid receivers' own energy gate."
     },
     {
       "id": "extended_item_receiver",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ReceiverValidationGameTests.itemReceiversPullFromAdjacentChest: the Extended item receiver pulls from a real adjacent chest, conserves the source stock exactly (received + remaining == 64), and keeps its storage across save/load; poweredItemReceiverNeedsEnergy additionally proves the Advanced tier moves nothing without FE and resumes once charged. Ultimate support arrives through the default-branch gate. Not covered: per-tier transfer-rate limits under sustained load, and the fluid receivers' own energy gate."
     },
     {
       "id": "basic_fluid_receiver",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ReceiverValidationGameTests.fluidReceiversPullFromAdjacentTank: the Basic fluid receiver pulls from a real adjacent sender tank, conserves the source tank exactly (received + remaining == filled), and keeps its tank across save/load. Ultimate support arrives through the default-branch gate. Not covered: a dedicated energy-gate assertion for this fluid tier (the item receiver's is tested) and sustained multi-tank throughput."
     },
     {
       "id": "advanced_fluid_receiver",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ReceiverValidationGameTests.fluidReceiversPullFromAdjacentTank: the Advanced fluid receiver pulls from a real adjacent sender tank, conserves the source tank exactly (received + remaining == filled), and keeps its tank across save/load. Ultimate support arrives through the default-branch gate. Not covered: a dedicated energy-gate assertion for this fluid tier (the item receiver's is tested) and sustained multi-tank throughput."
     },
     {
       "id": "extended_fluid_receiver",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ReceiverValidationGameTests.fluidReceiversPullFromAdjacentTank: the Extended fluid receiver pulls from a real adjacent sender tank, conserves the source tank exactly (received + remaining == filled), and keeps its tank across save/load. Ultimate support arrives through the default-branch gate. Not covered: a dedicated energy-gate assertion for this fluid tier (the item receiver's is tested) and sustained multi-tank throughput."
     },
     {
       "id": "advanced_life_extractor",
