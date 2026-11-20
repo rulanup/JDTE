@@ -19,6 +19,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 - 24 个机器族从 P 升为 U：这些行原先唯一的缺口就是顶级卡准入，闸门与上游对齐后缺口已闭合，剩下的是专项验收覆盖（属 U）。仍为 P 的 16 行各自有具体缺口。计数 V61 / U44 / P16 / N0。
 - 修复流体发送/接收界面在大容量储罐下储罐条显示为空的问题（JDT 用整数除法算条高，4,000 mB 装进 400,000 mB 的顶级容量罐会算成 0 px），`BaseMachineScreenMixin` 现补画缺失的那一行；Advanced/Extended 流体发送器据此升为 V（真实无头客户端 run 44673884793 实测 1 个逻辑像素）。计数 V63 / U44 / P14 / N0。
 - 8 台 Extended T2 机器从 P 升为 U：operation parity 复核未发现缺失方法，唯一真实差异（上游在 `getCloneItemStack` 外包 try/catch 兜底）已移植到点击器、破坏器、放置器、交换器、流体放置器与时间加速器。计数 V63 / U52 / P6 / N0。
+- 高级药水酿造从 P 升为 V：补上源码的合并加速酿造（它是唯一没实现 `CoalescedAcceleratedMachine` 的机器，时间加速器的虚拟 tick 原本被丢弃）；GameTest 固定了合并步只付 FE、不买也不消耗烈焰粉的源码语义。两个温室仍为 P，措辞改为准确说明：其矩阵接口是给伴随 mod `jdte_matrix` 的契约，1.20.1 无对应实现者。计数 V64 / U52 / P5 / N0。
 
 ### 0.5.8 新增
 
