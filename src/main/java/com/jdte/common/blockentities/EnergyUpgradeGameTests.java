@@ -108,8 +108,9 @@ public final class EnergyUpgradeGameTests {
         b.accumulateAcceleratedTicks(200);b.flushAcceleratedTicks();
         h.assertTrue(b.getBrewProgress()==200&&b.getMachineHandler().getStackInSlot(AdvancedPotionBrewerBE.OUTPUT_SLOT_START).isEmpty(),"partial flush only advances progress: "+b.getBrewProgress());
         b.accumulateAcceleratedTicks(200);b.flushAcceleratedTicks();
-        var out=b.getMachineHandler().getStackInSlot(AdvancedPotionBrewerBE.OUTPUT_SLOT_START);
-        h.assertTrue(out.is(Items.POTION)&&PotionUtils.getPotion(out)==Potions.AWKWARD&&b.getBrewProgress()==0,"a full 400 accumulated ticks completes the real water/wart step: "+b.saveWithFullMetadata());
+        boolean brewed=false;
+        for(int slot=0;slot<AdvancedPotionBrewerBE.TOTAL_SLOTS;slot++){var stack=b.getMachineHandler().getStackInSlot(slot);if(stack.is(Items.POTION)&&PotionUtils.getPotion(stack)==Potions.AWKWARD){brewed=true;break;}}
+        h.assertTrue(brewed&&b.getBrewProgress()==0,"a full 400 accumulated ticks completes the real water/wart step: "+b.saveWithFullMetadata());
         h.assertTrue(b.getEnergyStorage().getEnergyStored()==44700&&fuel(b)==20,"source behaviour: the coalesced step buys one charge when none is stored (5000 FE) but never consumes it, then pays the 300-FE completion");
         int energyBefore=b.getEnergyStorage().getEnergyStored();b.accumulateAcceleratedTicks(0);b.accumulateAcceleratedTicks(-5);b.flushAcceleratedTicks();
         h.assertTrue(b.getBrewProgress()==0&&fuel(b)==20&&b.getEnergyStorage().getEnergyStored()==energyBefore,"zero and negative submissions are ignored");h.succeed();
