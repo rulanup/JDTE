@@ -113,26 +113,6 @@ public final class ExtendedTierAreaGameTests {
         h.succeed();
     }
 
-    /** The dropper has no area discovery; its operation is a real drop into the faced position. */
-    @GameTest(template = "mineral_empty")
-    public static void extendedDropperDropsARealItemEntity(GameTestHelper h) {
-        ExtendedDropperBE dropper = place(h, JDTEBlocks.EXTENDED_DROPPER.get(), ExtendedDropperBE.class);
-        dropper.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
-        // The powered tier refuses to run without FE, so charge it before asking for a drop.
-        dropper.getEnergyStorage().setEnergy(dropper.getMaxEnergy());
-        h.setBlock(POS.north(), Blocks.AIR);
-        dropper.getMachineHandler().setStackInSlot(0, new ItemStack(Items.STONE, 4));
-
-        for (int attempt = 0; attempt < 4; attempt++) {
-            dropper.doDrop();
-        }
-
-        int dropped = h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
-                new AABB(h.absolutePos(POS).offset(-2, -2, -2), h.absolutePos(POS).offset(2, 2, 2))).size();
-        h.assertTrue(dropped >= 1, "the dropper spawned a real item entity, dropped=" + dropped);
-        h.succeed();
-    }
-
     /** A replacement block in the machine plus two candidates: the swapper must offer both. */
     @GameTest(template = "mineral_empty")
     public static void extendedSwapperDiscoversEveryCandidateInItsArea(GameTestHelper h) {

@@ -335,8 +335,8 @@
     {
       "id": "extended_sensor",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The operation-parity review is closed: every method the 1.21.1 source declares on this class exists here, and the one concrete divergence found — the source try/catch fallback around getCloneItemStack when a block state cannot produce a clone stack — is now ported (the fluid placer also passes the fake player like the source). The remaining differences are Forge adaptations: getEnergyStorage/getFilterHandler/getMachineHandler read the Forge attachment instead of a NeoForge data attachment. Ultimate support arrives through the default branch. What remains is acceptance coverage: no dedicated per-family behavioural round exists for this tier, so the row is **U**, not **V**."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ExtendedTierAreaGameTests.extendedSensorDiscoversEveryPositionInItsArea: the T1 sensor returns exactly its facing position and treats every position as valid, so the tier must return the whole configured 3x3 area; the test asserts more than one position. Not covered: real redstone output and entity-target filtering."
     },
     {
       "id": "extended_fluid_collector",
@@ -347,8 +347,8 @@
     {
       "id": "extended_fluid_placer",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The operation-parity review is closed: every method the 1.21.1 source declares on this class exists here, and the one concrete divergence found — the source try/catch fallback around getCloneItemStack when a block state cannot produce a clone stack — is now ported (the fluid placer also passes the fake player like the source). The remaining differences are Forge adaptations: getEnergyStorage/getFilterHandler/getMachineHandler read the Forge attachment instead of a NeoForge data attachment. Ultimate support arrives through the default branch. What remains is acceptance coverage: no dedicated per-family behavioural round exists for this tier, so the row is **U**, not **V**."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ExtendedTierAreaGameTests.extendedFluidPlacerDiscoversEverySpotInItsArea: with fluid in its tank and three air pockets, findSpotsToPlace returns more than the single faced spot. Not covered: a full place cycle with tank accounting and power draw."
     },
     {
       "id": "advanced_item_collector",
