@@ -1541,8 +1541,8 @@
     {
       "id": "advanced_fluid_sender",
       "initial_list": false,
-      "status": "partial",
-      "note": "Ultimate cards restored by the 27-family implementation and GameTest/server-verified in the B1 fluid-sender round (FluidSenderValidationGameTests; dedicated-server seed/verify markers in validation/forge-1.20.1-fluid-sender/dedicated-server): install/exclusion/capacities (tank 400,000 mB with Ultimate Capacity, FE 2,500,000), 10 ticker executions, 200,000 mB/tick Ultimate normal path, FE costs (25,000 with Ultimate), save/reload, and a verify-phase SURVIVAL break with loot 1 plus ItemEntity delta 1. Held at P pending live confirmation of the client tank-bar display question: the powered-tier bars render 0 px for the 4,000 mB fixture fill on a 400,000 mB Ultimate Capacity tank by JDT's amount*70/maxMB integer bar arithmetic (preliminary read-only localization in the B1 validation record); server tank storage itself is proven correct.",
+      "status": "verified",
+      "note": "Verified 2026-11-20: the B1 Ultimate-card behaviour stands (install/exclusion, tank 400,000 mB with Ultimate Capacity, FE 2,500,000, ten ticker executions, 200,000 mB/tick Ultimate path, FE cost 25,000 with Ultimate, save/reload, verify-phase SURVIVAL break), and the client tank-bar question is closed. The bar looked empty because JDT sizes it with integer arithmetic ((amount*70)/maxMB) and the port minimum-one-pixel rule only reached screens that draw their own bar; BaseMachineScreenMixin now paints the missing row for the JDTE sender/receiver containers. Real headless client run 44673884793 (harness jdteFluidSenderSmoke) shows exactly one logical pixel of water at the bottom of the 400,000 mB tank with a 4,000 mB fill (screenshot rows y=292..293), while the Basic half-full bar is unchanged. See [tank-bar evidence](validation/forge-1.20.1-fluid-sender/client-tank-bar/README.md).",
       "registered": true,
       "kind": "block item",
       "name": "Advanced Fluid Sender",
@@ -1559,8 +1559,8 @@
     {
       "id": "extended_fluid_sender",
       "initial_list": false,
-      "status": "partial",
-      "note": "Ultimate cards restored by the 27-family implementation and GameTest/server-verified in the B1 fluid-sender round (FluidSenderValidationGameTests; dedicated-server seed/verify markers in validation/forge-1.20.1-fluid-sender/dedicated-server): install/exclusion/capacities (tank 400,000 mB with Ultimate Capacity, FE 5,000,000; 8 slots with all 8 cards), 10 ticker executions, 200,000 mB/tick Ultimate normal path, FE costs (25,000 with Ultimate), save/reload. Seed-phase SURVIVAL break: loot exactly one self item plus destroy-to-air; ItemEntity counting was NOT obtained in the seed phase (delta 0 for both the sender and a vanilla stone control). Held at P pending live confirmation of the client tank-bar display question: the powered-tier bars render 0 px for the 4,000 mB fixture fill on a 400,000 mB Ultimate Capacity tank by JDT's amount*70/maxMB integer bar arithmetic (preliminary read-only localization in the B1 validation record); server tank storage itself is proven correct.",
+      "status": "verified",
+      "note": "Verified 2026-11-20: the B1 Ultimate-card behaviour stands (install/exclusion, tank 400,000 mB with Ultimate Capacity, FE 5,000,000, eight slots, ten ticker executions, 200,000 mB/tick Ultimate path, FE cost 25,000 with Ultimate, save/reload; the seed-phase ItemEntity anomaly applies to this tier only), and the client tank-bar question is closed by the same BaseMachineScreenMixin minimum-one-pixel row. Real headless client run 44673884793 (harness jdteFluidSenderSmoke) shows exactly one logical pixel of water at the bottom of the 400,000 mB tank with a 4,000 mB fill (screenshot rows y=292..293), while the Basic half-full bar is unchanged. See [tank-bar evidence](validation/forge-1.20.1-fluid-sender/client-tank-bar/README.md).",
       "registered": true,
       "kind": "block item",
       "name": "Extended Fluid Sender",

@@ -206,3 +206,12 @@ Per-tier, not bundled (user decision 2026-11-05):
 
 Counts after this round: V 59 / U 19 / P 42 / N 0, version 0.5.8, no
 main merge, no release.
+
+## Client tank-bar question closed (2026-11-20)
+
+The B1 round left one question open on the powered tiers: the tank bar looked empty.
+
+- Root cause, verified in source: JDT `BaseMachineScreen` renders the fluid bar itself with integer arithmetic, `(amount * 70) / maxMB`. With Ultimate Capacity the tank is 400,000 mB, so the 4,000 mB fixture fill computes to 0 pixels. The port `MachineBarMath` minimum-one-pixel rule only reached the screens that draw their own bar (Mineral Extractor, Fluid Mixer) and the Clicker hook; the sender and receiver screens inherit JDT `renderBg`, so the rule never applied to them.
+- Fix: `BaseMachineScreenMixin` paints the missing bottom row from the same `renderBg` tail hook, scoped to `FluidSenderContainerBase` and `FluidReceiverContainerBase`, and only when JDT produced zero pixels while the tank is not empty.
+- Confirmation: Forge 1.20.1 Headless Client run 44673884793, harness `jdteFluidSenderSmoke`, real Forge 1.20.1 client under Xvfb with Mesa. In the 1280x720 screenshot (guiScale 2) the Advanced and Extended bars show fluid rows y=292..293, i.e. exactly one logical pixel directly above the bar frame, while the Basic half-full bar still spans y=224..293. Crops and the measurement record are in [client-tank-bar/README.md](client-tank-bar/README.md).
+- Scope: this closes the render-arithmetic question and the shipped pixels for the two powered tiers. The dedicated-server lifecycle evidence from B1 is unchanged and was not re-run.
