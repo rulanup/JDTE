@@ -83,6 +83,53 @@ public final class ExtendedTierAreaGameTests {
         h.succeed();
     }
 
+    /** The T1 sensor returns exactly its facing position; the tier must return the whole area. */
+    @GameTest(template = "mineral_empty")
+    public static void extendedSensorDiscoversEveryPositionInItsArea(GameTestHelper h) {
+        ExtendedSensorBE sensor = place(h, JDTEBlocks.EXTENDED_SENSOR.get(), ExtendedSensorBE.class);
+        sensor.setAreaSettings(1, 1, 1, 0, 0, 0, false);
+
+        List<BlockPos> found = sensor.findPositions();
+        h.assertTrue(found.size() >= 2,
+                "the sensor sees more than the single faced position, found=" + found.size() + " " + found);
+        h.succeed();
+    }
+
+    /** Air pockets plus fluid in the tank: the placer must offer more than the faced spot. */
+    @GameTest(template = "mineral_empty")
+    public static void extendedFluidPlacerDiscoversEverySpotInItsArea(GameTestHelper h) {
+        ExtendedFluidPlacerBE placer = place(h, JDTEBlocks.EXTENDED_FLUID_PLACER.get(), ExtendedFluidPlacerBE.class);
+        placer.setAreaSettings(1, 1, 1, 0, 0, 0, false);
+        placer.getFluidTank().fill(new net.minecraftforge.fluids.FluidStack(Fluids.WATER, 1000),
+                net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+        for (BlockPos target : new BlockPos[]{POS.north(), POS.north().east(), POS.north().west()}) {
+            h.setBlock(target, Blocks.AIR);
+        }
+
+        List<BlockPos> found = placer.findSpotsToPlace(fakePlayer(h));
+        h.assertTrue(found.size() >= 2,
+                "the fluid placer sees more than the single faced spot, found=" + found.size() + " " + found);
+        h.succeed();
+    }
+
+    /** The dropper has no area discovery; its operation is a real drop into the faced position. */
+    @GameTest(template = "mineral_empty")
+    public static void extendedDropperDropsARealItemEntity(GameTestHelper h) {
+        ExtendedDropperBE dropper = place(h, JDTEBlocks.EXTENDED_DROPPER.get(), ExtendedDropperBE.class);
+        dropper.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        h.setBlock(POS.north(), Blocks.AIR);
+        dropper.getMachineHandler().setStackInSlot(0, new ItemStack(Items.STONE, 4));
+
+        for (int attempt = 0; attempt < 4; attempt++) {
+            dropper.doDrop();
+        }
+
+        int dropped = h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                new AABB(h.absolutePos(POS).offset(-2, -2, -2), h.absolutePos(POS).offset(2, 2, 2))).size();
+        h.assertTrue(dropped >= 1, "the dropper spawned a real item entity, dropped=" + dropped);
+        h.succeed();
+    }
+
     /** A replacement block in the machine plus two candidates: the swapper must offer both. */
     @GameTest(template = "mineral_empty")
     public static void extendedSwapperDiscoversEveryCandidateInItsArea(GameTestHelper h) {
