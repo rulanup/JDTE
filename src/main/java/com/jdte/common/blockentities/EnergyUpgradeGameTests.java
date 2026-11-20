@@ -102,6 +102,18 @@ public final class EnergyUpgradeGameTests {
         h.assertTrue(codec.decode(encoded, registries).isEmpty(), "noncanonical air with positive count is rejected");
         h.succeed();
     }
+    @GameTest(template="mineral_empty") public static void coalescedAcceleratedTicksAdvanceWholeBrewStepsLikeTheSource(GameTestHelper h){
+        var b=brewer(h);b.getRedstoneControlData().redstoneMode=com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;card(b);inputs(b);b.getEnergyStorage().setEnergy(50000);b.getTimeFluidTank().setFluid(new FluidStack(Registration.TIME_FLUID_SOURCE.get(),8000));
+        h.assertTrue(b instanceof CoalescedAcceleratedMachine,"brewer joins the accelerator coalescing contract");
+        b.accumulateAcceleratedTicks(200);b.flushAcceleratedTicks();
+        h.assertTrue(b.getBrewProgress()==200&&b.getMachineHandler().getStackInSlot(AdvancedPotionBrewerBE.OUTPUT_SLOT_START).isEmpty(),"partial flush only advances progress: "+b.getBrewProgress());
+        b.accumulateAcceleratedTicks(200);b.flushAcceleratedTicks();
+        var out=b.getMachineHandler().getStackInSlot(AdvancedPotionBrewerBE.OUTPUT_SLOT_START);
+        h.assertTrue(out.is(Items.POTION)&&PotionUtils.getPotion(out)==Potions.AWKWARD&&b.getBrewProgress()==0,"a full 400 accumulated ticks completes the real water/wart step: "+b.saveWithFullMetadata());
+        h.assertTrue(b.getEnergyStorage().getEnergyStored()==49700&&fuel(b)==0,"source behaviour: the coalesced step pays FE but never buys or consumes blaze powder");
+        b.accumulateAcceleratedTicks(0);b.accumulateAcceleratedTicks(-5);b.flushAcceleratedTicks();
+        h.assertTrue(b.getBrewProgress()==0&&fuel(b)==0,"zero and negative submissions are ignored");h.succeed();
+    }
     @GameTest(template="mineral_empty") public static void actualNativeTransmitterOverloadTransfersStoredFeWithoutCreatingIt(GameTestHelper h){
         var tx=transmitter(h);h.setBlock(OTHER,JDTEBlocks.ADVANCED_FLUID_MIXER.get());var target=(FluidMixerBE)h.getBlockEntity(OTHER);
         var controlled=new EnergyTransmitterBE(tx.getBlockPos(),tx.getBlockState()){@Override public AABB getAABB(BlockPos ignored){return new AABB(target.getBlockPos());}};h.getLevel().setBlockEntity(controlled);
