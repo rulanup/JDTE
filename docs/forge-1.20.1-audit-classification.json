@@ -281,8 +281,8 @@
     {
       "id": "extended_clicker",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The operation-parity review is closed: every method the 1.21.1 source declares on this class exists here, and the one concrete divergence found — the source try/catch fallback around getCloneItemStack when a block state cannot produce a clone stack — is now ported (the fluid placer also passes the fake player like the source). The remaining differences are Forge adaptations: getEnergyStorage/getFilterHandler/getMachineHandler read the Forge attachment instead of a NeoForge data attachment. Ultimate support arrives through the default branch. What remains is acceptance coverage: no dedicated per-family behavioural round exists for this tier, so the row is **U**, not **V**."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ExtendedTierAreaGameTests.extendedClickerDiscoversEveryClickableInItsArea: the clicker defaults to the BLOCK target mode and its T1 validity only inspects the faced position, so a 3x3 area holding three stones yields more than one clickable spot. Not covered: an actual click cycle with a tool in the slot, and the entity target modes."
     },
     {
       "id": "extended_generator",
