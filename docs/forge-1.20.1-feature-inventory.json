@@ -550,8 +550,8 @@
     {
       "id": "big_fluid_tank",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Core capability, AE refill, Curios and optional-absence checks passed; dedicated bucket pickup/placement and all inherited fill modes remain unverified.",
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ItemBehaviourGameTests.bigFluidTankExposesItsFullCapacityThroughTheItemCapability: the canister exposes a fluid handler item capability that reports its JDTE capacity of 1,000,000 mB and accepts a 4,000 mB fill into the tank. Not covered: the four fill modes and the container-item write-back path.",
       "registered": true,
       "kind": "item",
       "name": "Big Fluid Tank",
