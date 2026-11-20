@@ -110,9 +110,9 @@ public final class EnergyUpgradeGameTests {
         b.accumulateAcceleratedTicks(200);b.flushAcceleratedTicks();
         var out=b.getMachineHandler().getStackInSlot(AdvancedPotionBrewerBE.OUTPUT_SLOT_START);
         h.assertTrue(out.is(Items.POTION)&&PotionUtils.getPotion(out)==Potions.AWKWARD&&b.getBrewProgress()==0,"a full 400 accumulated ticks completes the real water/wart step: "+b.saveWithFullMetadata());
-        h.assertTrue(b.getEnergyStorage().getEnergyStored()==49700&&fuel(b)==0,"source behaviour: the coalesced step pays FE but never buys or consumes blaze powder");
-        b.accumulateAcceleratedTicks(0);b.accumulateAcceleratedTicks(-5);b.flushAcceleratedTicks();
-        h.assertTrue(b.getBrewProgress()==0&&fuel(b)==0,"zero and negative submissions are ignored");h.succeed();
+        h.assertTrue(b.getEnergyStorage().getEnergyStored()==44700&&fuel(b)==20,"source behaviour: the coalesced step buys one charge when none is stored (5000 FE) but never consumes it, then pays the 300-FE completion");
+        int energyBefore=b.getEnergyStorage().getEnergyStored();b.accumulateAcceleratedTicks(0);b.accumulateAcceleratedTicks(-5);b.flushAcceleratedTicks();
+        h.assertTrue(b.getBrewProgress()==0&&fuel(b)==20&&b.getEnergyStorage().getEnergyStored()==energyBefore,"zero and negative submissions are ignored");h.succeed();
     }
     @GameTest(template="mineral_empty") public static void actualNativeTransmitterOverloadTransfersStoredFeWithoutCreatingIt(GameTestHelper h){
         var tx=transmitter(h);h.setBlock(OTHER,JDTEBlocks.ADVANCED_FLUID_MIXER.get());var target=(FluidMixerBE)h.getBlockEntity(OTHER);
