@@ -21,6 +21,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 - 8 台 Extended T2 机器从 P 升为 U：operation parity 复核未发现缺失方法，唯一真实差异（上游在 `getCloneItemStack` 外包 try/catch 兜底）已移植到点击器、破坏器、放置器、交换器、流体放置器与时间加速器。计数 V63 / U52 / P6 / N0。
 - 高级药水酿造从 P 升为 V：补上源码的合并加速酿造（它是唯一没实现 `CoalescedAcceleratedMachine` 的机器，时间加速器的虚拟 tick 原本被丢弃）；GameTest 固定了源码语义：合并步付 300 FE，并在无充能时买一份烈焰粉充能但不消耗它。两个温室仍为 P，措辞改为准确说明：其矩阵接口是给伴随 mod `jdte_matrix` 的契约，1.20.1 无对应实现者。计数 V64 / U52 / P5 / N0。
 - 三档时间加速器从 P 升为 U：真缺口只有过滤缓存（源码按方块状态缓存过滤结果，避免每个扫描位置重算），已移植并加 GameTest；`TimeAccelerationTargetProxy` 与上游逐字一致；所谓“服务端计时”是本分支自建调度器的设计选择而非缺失 API。计数 V64 / U55 / P2 / N0。
+- 两个温室（`jdte:greenhouse` / `jdte:large_greenhouse`）已从创造栏与 JEI 隐藏（含配方分类、配方与催化剂），注册保留以便旧存档继续加载。原因：机器本身可用，但其源码集成面 `GreenhouseMatrixMember` / `ICreativeGreenhouse` 是给伴随 mod `jdte_matrix` 的契约，1.20.1 没有对应版本；在集成路径缺失时把它们当作完成内容展示会误导。
 
 ### 0.5.8 新增
 

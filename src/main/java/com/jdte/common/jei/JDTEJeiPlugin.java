@@ -13,14 +13,10 @@ import com.jdte.common.jei.potionbrewer.PotionBrewerJeiRecipe;
 import com.jdte.common.jei.potionbrewer.PotionBrewerRecipeCategory;
 import com.jdte.common.jei.lootfabricator.LootFabricatorJeiRecipe;
 import com.jdte.common.jei.lootfabricator.LootFabricatorRecipeCategory;
-import com.jdte.common.jei.greenhouse.GreenhouseJeiRecipe;
-import com.jdte.common.jei.greenhouse.GreenhouseRecipeCategory;
 import com.jdte.common.jei.biofactory.BioFactoryJeiRecipe;
 import com.jdte.common.jei.biofactory.BioFactoryRecipeCategory;
 import com.jdte.common.jei.lifesynthesis.LifeSynthesisJeiRecipe;
 import com.jdte.common.jei.lifesynthesis.LifeSynthesisRecipeCategory;
-import com.jdte.client.screens.GreenhouseScreen;
-import com.jdte.client.screens.LargeGreenhouseScreen;
 import com.jdte.client.screens.BioFactoryScreen;
 import com.jdte.client.screens.LifeSynthesisScreen;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
@@ -60,7 +56,7 @@ public class JDTEJeiPlugin implements IModPlugin {
                 new InfusionRecipeCategory(guiHelper),
                 new PotionBrewerRecipeCategory(guiHelper),
                 new LootFabricatorRecipeCategory(guiHelper),
-                new GreenhouseRecipeCategory(guiHelper),
+                // No greenhouse category while the two greenhouses are hidden; see onRuntimeAvailable.
                 new BioFactoryRecipeCategory(guiHelper),
                 new com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory(guiHelper),
                 new LifeSynthesisRecipeCategory(guiHelper),
@@ -75,7 +71,7 @@ public class JDTEJeiPlugin implements IModPlugin {
         registration.addRecipes(FluidMixerRecipeCategory.RECIPE_TYPE, visibleMixerRecipes);
         registration.addRecipes(GelGeneratorRecipeCategory.RECIPE_TYPE, GelGeneratorJeiRecipe.getRecipes());
         registration.addRecipes(PotionBrewerRecipeCategory.RECIPE_TYPE, PotionBrewerJeiRecipe.getRecipes());
-        registration.addRecipes(GreenhouseRecipeCategory.RECIPE_TYPE, GreenhouseJeiRecipe.getRecipes());
+        // Greenhouse recipes are not registered while the two greenhouses are hidden.
         registration.addRecipes(BioFactoryRecipeCategory.RECIPE_TYPE, BioFactoryJeiRecipe.getRecipes());
         visibleBioRecipes=com.jdte.client.jei.bioextractor.BioExtractorJeiRecipe.getRecipes();
         registration.addRecipes(com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE,visibleBioRecipes);
@@ -111,8 +107,7 @@ public class JDTEJeiPlugin implements IModPlugin {
         for (ItemStack machine : MineralExtractorJeiRecipe.getMachines())
             registration.addRecipeCatalyst(machine, MineralExtractorRecipeCategory.RECIPE_TYPE);
         for(ItemStack machine : FluidMixerJeiRecipe.getMachines()) registration.addRecipeCatalyst(machine,FluidMixerRecipeCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(JDTEItems.GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(JDTEItems.LARGE_GREENHOUSE.get()), GreenhouseRecipeCategory.RECIPE_TYPE);
+        // No greenhouse catalysts while the two greenhouses are hidden.
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.ADVANCED_BIO_EXTRACTOR.get()),com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.EXTENDED_BIO_EXTRACTOR.get()),com.jdte.client.jei.bioextractor.BioExtractorRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(JDTEItems.BIO_FACTORY.get()), BioFactoryRecipeCategory.RECIPE_TYPE);
@@ -124,15 +119,25 @@ public class JDTEJeiPlugin implements IModPlugin {
         registration.addGenericGuiContainerHandler(BaseMachineScreen.class, new AutoIoConfigJeiGuiHandler());
         registration.addRecipeClickArea(com.jdte.client.screens.AdvancedFluidMixerScreen.class,91,42,24,17,FluidMixerRecipeCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(com.jdte.client.screens.ExtendedFluidMixerScreen.class,91,42,24,17,FluidMixerRecipeCategory.RECIPE_TYPE);
-        registration.addRecipeClickArea(GreenhouseScreen.class, 36, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
-        registration.addRecipeClickArea(LargeGreenhouseScreen.class, 64, 7, 24, 18, GreenhouseRecipeCategory.RECIPE_TYPE);
+        // No greenhouse click areas while the two greenhouses are hidden.
         registration.addRecipeClickArea(BioFactoryScreen.class, 35, 6, 32, 12, BioFactoryRecipeCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(LifeSynthesisScreen.class, 112, 7, 28, 12, LifeSynthesisRecipeCategory.RECIPE_TYPE);
     }
 
+    /**
+     * The two greenhouses are hidden from JEI on purpose (2026-11-20). They are registered and still
+     * load in existing worlds, but their source integration surface (GreenhouseMatrixMember /
+     * ICreativeGreenhouse) is a contract for the companion mod {@code jdte_matrix}, which has no
+     * 1.20.1 build. They stay out of JEI until that counterpart exists, so the item list does not
+     * present them as finished content; the recipe category, its recipes and its catalysts are
+     * skipped for the same reason. See docs/forge-1.20.1-feature-matrix.md for the tracked gap.
+     */
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         runtime = jeiRuntime;
+        jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(mezz.jei.api.constants.VanillaTypes.ITEM_STACK,
+                java.util.List.of(new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.GREENHOUSE.get()),
+                        new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.LARGE_GREENHOUSE.get())));
         if (!com.jdte.setup.JDTEConfig.COMMON.showFumoDolls.get()) jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, java.util.List.of(new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.CAINIAOYO_FUMO.get()), new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.MAIQILIN_FUMO.get()), new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.XINGYE_FUMO.get())));
         refreshMineralExtractorRecipes();
         refreshFluidMixerRecipes();

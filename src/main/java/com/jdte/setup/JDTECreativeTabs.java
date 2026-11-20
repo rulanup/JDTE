@@ -125,8 +125,12 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ADVANCED_ITEM_RECEIVER.get());
                 output.accept(JDTEItems.EXTENDED_ITEM_RECEIVER.get());
                 output.accept(JDTEItems.CRYSTAL_INCUBATOR.get());
-                output.accept(JDTEItems.GREENHOUSE.get());
-                output.accept(JDTEItems.LARGE_GREENHOUSE.get());
+                // The two greenhouses are deliberately absent from the creative tab (2026-11-20).
+                // Both are registered and still load in existing worlds, but their source integration
+                // surface (GreenhouseMatrixMember / ICreativeGreenhouse) is a contract for the companion
+                // mod jdte_matrix, which has no 1.20.1 build. They stay hidden until that counterpart
+                // exists, so the tab does not present them as finished content. See
+                // docs/forge-1.20.1-feature-matrix.md for the tracked gap.
                 output.accept(JDTEItems.LIFE_SYNTHESIS_VAT.get());
                 output.accept(JDTEItems.BIO_FACTORY.get());
                 output.accept(JDTEItems.LIFE_BREEDER.get());
