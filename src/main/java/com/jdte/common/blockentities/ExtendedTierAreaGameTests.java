@@ -30,6 +30,15 @@ public final class ExtendedTierAreaGameTests {
         return new FakePlayer(h.getLevel(), new GameProfile(UUID.randomUUID(), "jdte-area-test"));
     }
 
+    @SuppressWarnings("unchecked")
+    private static void tick(GameTestHelper h, net.minecraft.world.level.block.entity.BlockEntity machine, int times) {
+        var ticker = (net.minecraft.world.level.block.entity.BlockEntityTicker<net.minecraft.world.level.block.entity.BlockEntity>)
+                machine.getBlockState().getTicker(h.getLevel(), machine.getType());
+        for (int i = 0; i < times; i++) {
+            ticker.tick(h.getLevel(), machine.getBlockPos(), machine.getBlockState(), machine);
+        }
+    }
+
     private static <T extends net.minecraft.world.level.block.entity.BlockEntity> T place(
             GameTestHelper h, net.minecraft.world.level.block.Block block, Class<T> type) {
         h.setBlock(POS, Blocks.AIR);
@@ -110,6 +119,47 @@ public final class ExtendedTierAreaGameTests {
         List<BlockPos> found = placer.findSpotsToPlace(fakePlayer(h));
         h.assertTrue(found.size() >= 2,
                 "the fluid placer sees more than the single faced spot, found=" + found.size() + " " + found);
+        h.succeed();
+    }
+
+    /**
+     * The clicker only acts on blocks when its target mode is BLOCK (the default) and the area
+     * validation passes; the T1 path only ever looks at the single faced block.
+     */
+    @GameTest(template = "mineral_empty")
+    public static void extendedClickerDiscoversEveryClickableInItsArea(GameTestHelper h) {
+        ExtendedClickerBE clicker = place(h, JDTEBlocks.EXTENDED_CLICKER.get(), ExtendedClickerBE.class);
+        clicker.setAreaSettings(1, 1, 1, 0, 0, 0, false);
+        h.assertTrue(clicker.clickTarget == clicker.clickTarget.BLOCK,
+                "the clicker defaults to the block target mode, actual=" + clicker.clickTarget);
+        for (BlockPos target : new BlockPos[]{POS.north(), POS.north().east(), POS.north().west()}) {
+            h.setBlock(target, Blocks.STONE);
+        }
+
+        List<BlockPos> found = clicker.findSpotsToClick(fakePlayer(h));
+        h.assertTrue(found.size() >= 2,
+                "the clicker sees more than the single faced block, found=" + found.size() + " " + found);
+        h.succeed();
+    }
+
+    /**
+     * The dropper has no area discovery: its operation is a real drop, and BaseMachineBE only allows
+     * one while operationTicks is zero, so the machine has to be driven through its own ticker.
+     */
+    @GameTest(template = "mineral_empty")
+    public static void extendedDropperDropsARealItemEntityFromItsTicker(GameTestHelper h) {
+        ExtendedDropperBE dropper = place(h, JDTEBlocks.EXTENDED_DROPPER.get(), ExtendedDropperBE.class);
+        dropper.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        dropper.getEnergyStorage().setEnergy(dropper.getMaxEnergy());
+        h.setBlock(POS.north(), Blocks.AIR);
+        dropper.getMachineHandler().setStackInSlot(0, new ItemStack(Items.STONE, 4));
+
+        tick(h, dropper, 10);
+
+        int dropped = h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                new AABB(h.absolutePos(POS).offset(-2, -2, -2), h.absolutePos(POS).offset(2, 2, 2))).size();
+        h.assertTrue(dropped >= 1, "the dropper dropped a real item entity, dropped=" + dropped
+                + " input=" + dropper.getMachineHandler().getStackInSlot(0));
         h.succeed();
     }
 
