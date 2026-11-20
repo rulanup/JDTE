@@ -269,8 +269,8 @@
     {
       "id": "time_freezer",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ItemBehaviourGameTests.timeFreezerPinsTheDayTimeOfItsDimension: with time freeze enabled, activating the freezer captures the dimension clock, and pushing the day time forward 6,000 ticks is undone by TimeFreezerManager.refreshActive; the test deactivates in a finally block so the clock is never left pinned. Not covered: the weather-freeze half and FE/fluid drain over time."
     },
     {
       "id": "extended_time_freezer",
@@ -581,8 +581,8 @@
     {
       "id": "life_apple",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ItemBehaviourGameTests.lifeAppleRaisesThePermanentMaxHealthOfItsEater: eating one applies the permanent max-health modifier to the eater, so the attribute value rises above its starting maximum. Not covered: stacking many apples, and the armour/toughness half of the progression."
     },
     {
       "id": "advanced_bio_extractor",
