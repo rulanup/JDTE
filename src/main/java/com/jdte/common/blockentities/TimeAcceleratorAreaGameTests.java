@@ -71,8 +71,8 @@ public final class TimeAcceleratorAreaGameTests {
     @GameTest(template = "mineral_empty")
     public static void extendedTierFinishesRealWorkInASinglePass(GameTestHelper h) {
         FurnaceBlockEntity furnace = furnace(h, FURNACE_2);
+        // The Creative card makes the tier report its overclock multiplier (1024 for Extended).
         TimeAcceleratorBE extended = accelerator(h, EXTENDED_POS, FURNACE_2, true);
-        extended.setMultiplier(512);
 
         h.assertTrue(extended.getEffectiveMultiplier() > 200,
                 "one extended pass alone exceeds a full vanilla smelt, multiplier=" + extended.getEffectiveMultiplier());
