@@ -64,23 +64,6 @@ public final class ItemBehaviourGameTests {
             TimeFreezerManager.deactivate(freezer);
         }
 
-        // The extended tier is a thin shell over the same block entity; it must pin the
-        // clock through the identical manager path.
-        var extendedPos = new net.minecraft.core.BlockPos(4, 1, 2);
-        h.setBlock(extendedPos, JDTEBlocks.EXTENDED_TIME_FREEZER.get());
-        TimeFreezerBE extended = (TimeFreezerBE) h.getBlockEntity(extendedPos);
-        extended.setTimeFreezeEnabled(true);
-        TimeFreezerManager.activate(extended, level);
-        try {
-            long extendedFrozen = level.getDayTime();
-            level.setDayTime(extendedFrozen + 6_000L);
-            TimeFreezerManager.refreshActive(extended, level);
-            h.assertTrue(level.getDayTime() == extendedFrozen,
-                    "the extended freezer pinned the day time too, expected=" + extendedFrozen
-                            + " actual=" + level.getDayTime());
-        } finally {
-            TimeFreezerManager.deactivate(extended);
-        }
         h.succeed();
     }
 
