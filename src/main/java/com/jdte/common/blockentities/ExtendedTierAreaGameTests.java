@@ -118,6 +118,8 @@ public final class ExtendedTierAreaGameTests {
     public static void extendedDropperDropsARealItemEntity(GameTestHelper h) {
         ExtendedDropperBE dropper = place(h, JDTEBlocks.EXTENDED_DROPPER.get(), ExtendedDropperBE.class);
         dropper.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        // The powered tier refuses to run without FE, so charge it before asking for a drop.
+        dropper.getEnergyStorage().setEnergy(dropper.getMaxEnergy());
         h.setBlock(POS.north(), Blocks.AIR);
         dropper.getMachineHandler().setStackInSlot(0, new ItemStack(Items.STONE, 4));
 
