@@ -88,7 +88,7 @@ public final class ExtendedTierAreaGameTests {
     public static void extendedSwapperDiscoversEveryCandidateInItsArea(GameTestHelper h) {
         ExtendedBlockSwapperBE swapper = place(h, JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get(), ExtendedBlockSwapperBE.class);
         swapper.setAreaSettings(1, 1, 1, 0, 0, 0, false);
-        swapper.getMachineHandler().setStackInSlot(0, new ItemStack(Items.DIRT, 8));
+        // Discovery only needs the area and the filter; the swapper has no inventory slots to seed.
         for (BlockPos target : new BlockPos[]{POS.north(), POS.north().east(), POS.north().west()}) {
             h.setBlock(target, Blocks.STONE);
         }
