@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
