@@ -16,6 +16,7 @@ Current version: `0.6.5.4`
 - Curios is now an optional dependency with guarded lookups.
 - Upgrade compatibility now matches the upstream 1.21.1 gate: intercepted families keep their source lists (the Advanced Item Collector takes neither Ultimate card, the Entity Suppressor/Range Blocker pair takes Ultimate Capacity only) and every other family reaches the source default branch, so the Ultimate Capacity/Ultimate Overclock cards now install in glue activators, the Loot Fabricator, native JDT machines, the Time Freezer and the remaining families.
 - Both Ultimate cards move to V: `UltimateDefaultBranchGameTests` proves the real x50 capacity and cost, the one-card cap and save/reload on the glue activator and the Loot Fabricator, and a new headless real-client workflow (Xvfb) verifies both GUIs, the menu install path, the creative tab and JEI. See [ultimate-card evidence](docs/validation/forge-1.20.1-ultimate-cards/README.md).
+- 24 machine rows move from P to U: the Ultimate-card gate was their only named source-behaviour gap, and closing it leaves acceptance coverage as the remaining item, which is what U means. The 16 rows that stay P each name a concrete gap. Counts: V 61, U 44, P 16, N 0.
 
 ### 0.5.8 additions
 

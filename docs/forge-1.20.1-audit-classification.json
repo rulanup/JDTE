@@ -359,14 +359,14 @@
     {
       "id": "entity_suppressor",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so Ultimate Capacity installs here while Ultimate Overclock stays rejected, matching the source pair. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "range_blocker",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so Ultimate Capacity installs here while Ultimate Overclock stays rejected, matching the source pair. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "charged_lightning_rod",
@@ -377,8 +377,8 @@
     {
       "id": "crystal_incubator",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "greenhouse",
@@ -395,26 +395,26 @@
     {
       "id": "life_synthesis_vat",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "bio_factory",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "life_breeder",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "factory_packer",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "mineral_extractor",
@@ -467,32 +467,32 @@
     {
       "id": "advanced_gel_generator",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "extended_gel_generator",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "basic_fluid_stabilizer",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "advanced_fluid_stabilizer",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "extended_fluid_stabilizer",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "basic_item_sender",
@@ -533,50 +533,50 @@
     {
       "id": "basic_item_receiver",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "advanced_item_receiver",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "extended_item_receiver",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "basic_fluid_receiver",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "advanced_fluid_receiver",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "extended_fluid_receiver",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "advanced_life_extractor",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "extended_life_extractor",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "life_apple",
@@ -599,14 +599,14 @@
     {
       "id": "advanced_infusion_machine",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "extended_infusion_machine",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "advanced_potion_brewer",
@@ -617,14 +617,14 @@
     {
       "id": "advanced_bio_crusher",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "extended_bio_crusher",
       "initial_list": false,
-      "status": "partial",
-      "note": "Inherited machine logic and registrations exist; Ultimate card support from source is restricted out in Forge. Dedicated full-parity/runtime coverage is incomplete."
+      "status": "implemented_unverified",
+      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
     },
     {
       "id": "loot_fabricator",
