@@ -3,6 +3,7 @@ package com.jdte.mixin;
 import com.jdte.common.network.JDTEPacketHandler;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
+import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
@@ -12,6 +13,7 @@ import com.jdte.client.UpgradePopupDragHandler;
 import com.jdte.client.screens.util.AutoIoConfigPanelHelper;
 import com.jdte.client.screens.util.FilterPageWidgetHelper;
 import com.jdte.client.screens.util.GuiSpriteCompat;
+import com.jdte.client.screens.util.MachineBarMath;
 import com.jdte.client.screens.util.MachineFluidBarRenderer;
 import com.jdte.client.screens.util.UpgradeSlotLayoutHelper;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
@@ -19,6 +21,8 @@ import com.jdte.common.containers.BioCrusherContainer;
 import com.jdte.common.containers.BioFactoryContainer;
 import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.FilterPageHolder;
+import com.jdte.common.containers.FluidReceiverContainerBase;
+import com.jdte.common.containers.FluidSenderContainerBase;
 import com.jdte.common.containers.GreenhouseContainer;
 import com.jdte.common.containers.LootFabricatorContainer;
 import com.jdte.common.containers.LargeGreenhouseContainer;
@@ -442,6 +446,38 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         int maxMb = UpgradeHelper.getClickerFluidCapacity(baseMachineBE);
         MachineFluidBarRenderer.renderBar(guiGraphics, container.getFluidStack(), container.getFluidAmount(), maxMb,
                 topSectionLeft + offset, topSectionTop + 5);
+    }
+
+    /**
+     * JDT's BaseMachineScreen sizes the fluid bar with integer arithmetic
+     * (`(amount * 70) / maxMB`), so a small fill in a large tank truncates to zero
+     * pixels and the bar looks empty. With Ultimate Capacity the tank is 50x
+     * larger, which made an ordinary 4,000 mB fill invisible on the JDTE fluid
+     * sender and receiver screens. The JDTE screens that draw their own bar
+     * already go through MachineBarMath; this covers the ones that inherit JDT's
+     * renderBg, by painting the missing bottom row when the plain arithmetic
+     * yields nothing but the tank is not empty.
+     */
+    @Inject(remap = false, method = {"renderBg", "m_7286_"}, at = @At("TAIL"))
+    private void jdte$renderMinimumFluidSliver(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+        if (!(container instanceof FluidSenderContainerBase) && !(container instanceof FluidReceiverContainerBase)) {
+            return;
+        }
+        if (!(baseMachineBE instanceof FluidMachineBE fluidMachine)) {
+            return;
+        }
+        int amount = container.getFluidAmount();
+        int maxMb = fluidMachine.getMaxMB();
+        if (amount <= 0 || maxMb <= 0) {
+            return;
+        }
+        // JDT already painted a bar of at least one pixel; nothing to add.
+        if (MachineBarMath.scaleClamped(amount, maxMb, 70) > 0) {
+            return;
+        }
+        int offset = ((BaseMachineScreen<?>) (Object) this).getFluidBarOffset();
+        MachineFluidBarRenderer.renderFluid(guiGraphics, container.getFluidStack(),
+                topSectionLeft + offset + 1, topSectionTop + 5 + 72 - 1, 16, 1);
     }
 
     @Inject(remap = false, method = "renderTooltip", at = @At("TAIL"))

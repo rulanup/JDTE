@@ -27,6 +27,10 @@ on:
         description: Why this headless client run is needed
         required: false
         default: manual verification
+      smoke:
+        description: Which smoke harness to run (jdteUltimateSmoke, jdteFluidSenderSmoke, ...)
+        required: false
+        default: jdteUltimateSmoke
   push:
     branches:
       - forge-1.20.1
@@ -92,23 +96,27 @@ jobs:
           soundCategory_master:0.0
           OPTIONS
 
-      - name: Run the real client with the Ultimate-card harness
+      - name: Run the real client with the selected harness
         run: |
+          smoke="${{ inputs.smoke }}"
+          if [ -z "$smoke" ]; then smoke=jdteUltimateSmoke; fi
+          echo "running harness: -P$smoke"
           xvfb-run -a -s "-screen 0 1280x720x24 +extension GLX +render -noreset" \
-            bash gradlew --no-daemon runClient -PjdteUltimateSmoke --stacktrace
+            bash gradlew --no-daemon runClient "-P$smoke" --stacktrace
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           ALSOFT_DRIVERS: 'null'
 
       - name: Assert the harness reported success
         run: |
-          marker=runs/client/ultimate-card-client-smoke-success.txt
-          if [ ! -s "$marker" ]; then
-            echo "::error::the client harness did not write its success marker"
+          shopt -s nullglob
+          markers=(runs/client/*smoke-success.txt)
+          if [ ${#markers[@]} -eq 0 ]; then
+            echo "::error::the client harness did not write a success marker"
             ls -la runs/client || true
             exit 1
           fi
-          cat "$marker"
+          cat "${markers[@]}"
 
       - name: Upload client logs and screenshots
         if: always()
