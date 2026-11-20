@@ -121,7 +121,13 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         if (blockState.getBlock() instanceof LiquidBlock liquidBlock) {
             return isStackValidFilter(new ItemStack(liquidBlock));
         }
-        ItemStack blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), serverLevel, blockPos, getFakePlayer(serverLevel));
+        ItemStack blockItemStack;
+        try {
+            blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), serverLevel, blockPos, getFakePlayer(serverLevel));
+        } catch (Throwable t) {
+            // Source parity: some block states cannot produce a clone stack.
+            blockItemStack = blockState.getBlock().asItem().getDefaultInstance();
+        }
         return isStackValidFilter(blockItemStack);
     }
 

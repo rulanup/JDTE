@@ -64,8 +64,15 @@ public class ExtendedFluidPlacerBE extends FluidPlacerT1BE implements PoweredMac
     public boolean isBlockPosValid(BlockPos pos, FakePlayer fakePlayer) {
         if (!super.isBlockPosValid(pos, fakePlayer)) return false;
         BlockState targetState = level.getBlockState(pos.relative(getDirectionValue()));
-        return isStackValidFilter(targetState.getCloneItemStack(
-                new BlockHitResult(Vec3.ZERO, getDirectionValue(), pos, false), level, pos, null));
+        ItemStack cloneStack;
+        try {
+            cloneStack = targetState.getCloneItemStack(
+                    new BlockHitResult(Vec3.ZERO, getDirectionValue(), pos, false), level, pos, fakePlayer);
+        } catch (Throwable t) {
+            // Source parity: some block states cannot produce a clone stack.
+            cloneStack = targetState.getBlock().asItem().getDefaultInstance();
+        }
+        return isStackValidFilter(cloneStack);
     }
     @Override
     public int getMaxEnergy() {

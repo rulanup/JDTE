@@ -18,6 +18,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 - 两张顶级卡升为 V：新增 `UltimateDefaultBranchGameTests` 验证胶水激活器与战利品制造机的真实 ×50 容量与成本、单卡上限与存档重载，并新增无头真实客户端流水线（Xvfb）验证两个 GUI、菜单安装、创造栏与 JEI。详见 [顶级卡验收证据](docs/validation/forge-1.20.1-ultimate-cards/README.md)。
 - 24 个机器族从 P 升为 U：这些行原先唯一的缺口就是顶级卡准入，闸门与上游对齐后缺口已闭合，剩下的是专项验收覆盖（属 U）。仍为 P 的 16 行各自有具体缺口。计数 V61 / U44 / P16 / N0。
 - 修复流体发送/接收界面在大容量储罐下储罐条显示为空的问题（JDT 用整数除法算条高，4,000 mB 装进 400,000 mB 的顶级容量罐会算成 0 px），`BaseMachineScreenMixin` 现补画缺失的那一行；Advanced/Extended 流体发送器据此升为 V（真实无头客户端 run 44673884793 实测 1 个逻辑像素）。计数 V63 / U44 / P14 / N0。
+- 8 台 Extended T2 机器从 P 升为 U：operation parity 复核未发现缺失方法，唯一真实差异（上游在 `getCloneItemStack` 外包 try/catch 兜底）已移植到点击器、破坏器、放置器、交换器、流体放置器与时间加速器。计数 V63 / U52 / P6 / N0。
 
 ### 0.5.8 新增
 

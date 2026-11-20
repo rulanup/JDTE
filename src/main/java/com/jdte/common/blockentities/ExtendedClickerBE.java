@@ -113,7 +113,13 @@ public class ExtendedClickerBE extends ClickerT1BE implements PoweredMachineBE, 
         BlockState blockState = level.getBlockState(blockPos);
         if ((blockState.getBlock() instanceof LiquidBlock liquidBlock))
             return isStackValidFilter(new ItemStack(liquidBlock));
-        ItemStack blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), level, blockPos, fakePlayer);
+        ItemStack blockItemStack;
+        try {
+            blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), level, blockPos, fakePlayer);
+        } catch (Throwable t) {
+            // Source parity: some block states cannot produce a clone stack.
+            blockItemStack = blockState.getBlock().asItem().getDefaultInstance();
+        }
         return isStackValidFilter(blockItemStack);
     }
 

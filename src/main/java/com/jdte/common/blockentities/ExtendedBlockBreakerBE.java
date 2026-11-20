@@ -76,9 +76,16 @@ public class ExtendedBlockBreakerBE extends BlockBreakerT1BE implements PoweredM
 
         BlockState state = level.getBlockState(pos);
         if (filterData.blockItemFilter == 0) {
-            return isStackValidFilter(state.getCloneItemStack(
-                    new BlockHitResult(Vec3.ZERO, net.minecraft.core.Direction.UP, pos, false),
-                    level, pos, fakePlayer));
+            ItemStack cloneStack;
+            try {
+                cloneStack = state.getCloneItemStack(
+                        new BlockHitResult(Vec3.ZERO, net.minecraft.core.Direction.UP, pos, false),
+                        level, pos, fakePlayer);
+            } catch (Throwable t) {
+                // Source parity: some block states cannot produce a clone stack.
+                cloneStack = state.getBlock().asItem().getDefaultInstance();
+            }
+            return isStackValidFilter(cloneStack);
         }
         var tool = getTool();
         for (var drop : Block.getDrops(state, (net.minecraft.server.level.ServerLevel) level, pos,

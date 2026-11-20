@@ -82,7 +82,13 @@ public class ExtendedBlockPlacerBE extends BlockPlacerT1BE implements PoweredMac
             return false;
         }
         BlockState filterState = level.getBlockState(blockPos.relative(getDirectionValue()));
-        ItemStack filterStack = filterState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), level, blockPos, fakePlayer);
+        ItemStack filterStack;
+        try {
+            filterStack = filterState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), level, blockPos, fakePlayer);
+        } catch (Throwable t) {
+            // Source parity: some block states cannot produce a clone stack.
+            filterStack = filterState.getBlock().asItem().getDefaultInstance();
+        }
         return isStackValidFilter(filterStack);
     }
     @Override

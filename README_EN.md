@@ -18,6 +18,7 @@ Current version: `0.6.5.4`
 - Both Ultimate cards move to V: `UltimateDefaultBranchGameTests` proves the real x50 capacity and cost, the one-card cap and save/reload on the glue activator and the Loot Fabricator, and a new headless real-client workflow (Xvfb) verifies both GUIs, the menu install path, the creative tab and JEI. See [ultimate-card evidence](docs/validation/forge-1.20.1-ultimate-cards/README.md).
 - 24 machine rows move from P to U: the Ultimate-card gate was their only named source-behaviour gap, and closing it leaves acceptance coverage as the remaining item, which is what U means. The 16 rows that stay P each name a concrete gap. Counts: V 61, U 44, P 16, N 0.
 - Fixed the empty tank bar on the fluid sender and receiver screens with large tanks (JDT sizes the bar with integer arithmetic, so 4,000 mB in a 400,000 mB Ultimate Capacity tank computed to 0 px); `BaseMachineScreenMixin` now paints the missing row. The Advanced and Extended fluid senders therefore move to V, confirmed by a real headless client run (44673884793) showing exactly one logical pixel. Counts: V 63, U 44, P 14, N 0.
+- The eight Extended T2 machines move from P to U: the operation-parity review found no missing method, and the one concrete divergence (the source try/catch fallback around `getCloneItemStack`) is now ported to the clicker, breaker, placer, swapper, fluid placer and time accelerators. Counts: V 63, U 52, P 6, N 0.
 
 ### 0.5.8 additions
 

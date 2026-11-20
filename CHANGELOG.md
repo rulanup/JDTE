@@ -15,6 +15,8 @@
 - **Changed**: 24 machine rows move from **P** to **U** because closing the Ultimate-card gate removed their only named source-behaviour gap (advanced/extended Bio Crusher, Gel Generator, Infusion Machine, Life Extractor, item and fluid Receiver, fluid Stabilizer, plus Bio Factory, Crystal Incubator, Entity Suppressor, Range Blocker, Factory Packer, Life Breeder and Life Synthesis Vat). What remains for them is acceptance coverage, not source behaviour. The 16 rows that stay **P** each name a concrete gap. Counts: V 61, U 44, P 16, N 0.
 - **Changed**: Version is now `0.6.5.4`, tracking the upstream 1.21.1 release line.
 - **Fixed**: The JDTE fluid sender and receiver screens no longer render an empty tank bar when the tank is large: JDT sizes the bar with integer arithmetic, so a 4,000 mB fill in a 400,000 mB Ultimate Capacity tank computed to zero pixels. `BaseMachineScreenMixin` now paints the missing bottom row for those containers.
+- **Fixed**: Filter checks on the Extended clicker, block breaker, block placer, block swapper, fluid placer and the time accelerators now fall back to the block item when a block state cannot produce a clone stack, matching the source try/catch instead of throwing.
+- **Changed**: The eight Extended T2 machines move from **P** to **U**: their operation-parity review found no missing method, and the clone-stack guard above closes the one concrete divergence. Counts: V 63, U 52, P 6, N 0.
 - **Changed**: The Advanced and Extended fluid senders move from **P** to **V**; the client tank-bar question is closed by a real headless client run (44673884793) showing exactly one logical pixel of water, while the Basic half-full bar is unchanged. Counts: V 63, U 44, P 14, N 0.
 
 #### v0.5.8-forge-1.20.1
