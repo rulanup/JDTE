@@ -117,18 +117,59 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         }
     }
 
+    private final java.util.Map<BlockState, Boolean> blockStateFilterCache = new java.util.HashMap<>();
+
+    public boolean hasConfiguredFilter() {
+        FilterBasicHandler handler = getFilterHandler();
+        if (handler == null) {
+            return false;
+        }
+        int activeSlots = UpgradeHelper.getActiveFilterSlots(this, UpgradeHelper.getBaseFilterSlots(handler));
+        int limit = Math.min(activeSlots, handler.getSlots());
+        for (int i = 0; i < limit; i++) {
+            if (!handler.getStackInSlot(i).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void clearBlockFilterCache() {
+        blockStateFilterCache.clear();
+    }
+
     protected boolean isBlockValidFilter(ServerLevel serverLevel, BlockPos blockPos, BlockState blockState) {
+        if (!hasConfiguredFilter()) {
+            return !filterData.allowlist;
+        }
+        if (filterData.filterCache.isEmpty() && !blockStateFilterCache.isEmpty()) {
+            blockStateFilterCache.clear();
+        }
+        Boolean cached = filterData.compareNBT ? null : blockStateFilterCache.get(blockState);
+        if (cached != null) {
+            return cached;
+        }
+
+        boolean result;
         if (blockState.getBlock() instanceof LiquidBlock liquidBlock) {
-            return isStackValidFilter(new ItemStack(liquidBlock));
+            result = isStackValidFilter(new ItemStack(liquidBlock));
+        } else if (!filterData.compareNBT && !blockState.getBlock().asItem().getDefaultInstance().isEmpty()) {
+            result = isStackValidFilter(blockState.getBlock().asItem().getDefaultInstance());
+        } else {
+            ItemStack blockItemStack;
+            try {
+                blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), serverLevel, blockPos, getFakePlayer(serverLevel));
+            } catch (Throwable t) {
+                // Source parity: some block states cannot produce a clone stack.
+                blockItemStack = blockState.getBlock().asItem().getDefaultInstance();
+            }
+            result = isStackValidFilter(blockItemStack);
         }
-        ItemStack blockItemStack;
-        try {
-            blockItemStack = blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false), serverLevel, blockPos, getFakePlayer(serverLevel));
-        } catch (Throwable t) {
-            // Source parity: some block states cannot produce a clone stack.
-            blockItemStack = blockState.getBlock().asItem().getDefaultInstance();
+
+        if (!filterData.compareNBT && blockStateFilterCache.size() < 512) {
+            blockStateFilterCache.put(blockState, result);
         }
-        return isStackValidFilter(blockItemStack);
+        return result;
     }
 
     @SuppressWarnings("unchecked")
@@ -260,6 +301,12 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     @Override
+    public void setFilterSettings(FilterData settings) {
+        FilterableBE.super.setFilterSettings(settings);
+        clearBlockFilterCache();
+    }
+
+    @Override
     public boolean isDefaultSettings() {
         return super.isDefaultSettings() && fluidTank.getFluid().isEmpty();
     }
@@ -274,6 +321,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        clearBlockFilterCache();
         if (tag.contains("fluidTank")) {
             fluidTank.deserializeNBT(tag.getCompound("fluidTank"));
         }
