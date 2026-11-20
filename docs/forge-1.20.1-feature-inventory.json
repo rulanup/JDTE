@@ -694,8 +694,8 @@
     {
       "id": "basic_time_accelerator",
       "initial_list": false,
-      "status": "partial",
-      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported.",
+      "status": "implemented_unverified",
+      "note": "Verified 2026-11-20: the three gaps this row named are each resolved or explained. **Filter cache** was genuinely missing and is now ported — the 1.21.1 source keeps a block-state to filter-result cache so the scheduler does not re-evaluate the same state at every scanned position; TimeAcceleratorBE now carries it (512-entry cap, skipped when compareNBT makes the answer position dependent, invalidated when the filter cache empties, on setFilterSettings and on load), and TimeAcceleratorGameTests.filterCacheKeepsResultsAndFollowsFilterChanges proves the cache never changes an outcome, that clearing it is safe, that a filter switch takes effect immediately, and that a reloaded accelerator starts cold with the same answers. **Target proxy** was already at parity: TimeAccelerationTargetProxy is byte-identical to the source. **Server timing** is not a missing API but a documented design divergence: the source splits LOCAL/SERVER config, adds timeAcceleratorAccelerationDurationSeconds and derives per-submission work and the pending window from TimeAcceleratorTiming, whereas this branch runs its own shared scheduler with execution/scan/pending budgets (timeAcceleratorMaxExecutionsPerTick, timeAcceleratorMaxScannedBlocksPerTick, timeAcceleratorMaxPendingTicks) — the behaviour AGENTS records as intentional, and porting the source timing wholesale would replace that scheduler. What remains is acceptance coverage, so the row is **U**, not **V**.",
       "registered": true,
       "kind": "block item",
       "name": "Basic Time Accelerator",
@@ -712,8 +712,8 @@
     {
       "id": "advanced_time_accelerator",
       "initial_list": false,
-      "status": "partial",
-      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported.",
+      "status": "implemented_unverified",
+      "note": "Verified 2026-11-20: the three gaps this row named are each resolved or explained. **Filter cache** was genuinely missing and is now ported — the 1.21.1 source keeps a block-state to filter-result cache so the scheduler does not re-evaluate the same state at every scanned position; TimeAcceleratorBE now carries it (512-entry cap, skipped when compareNBT makes the answer position dependent, invalidated when the filter cache empties, on setFilterSettings and on load), and TimeAcceleratorGameTests.filterCacheKeepsResultsAndFollowsFilterChanges proves the cache never changes an outcome, that clearing it is safe, that a filter switch takes effect immediately, and that a reloaded accelerator starts cold with the same answers. **Target proxy** was already at parity: TimeAccelerationTargetProxy is byte-identical to the source. **Server timing** is not a missing API but a documented design divergence: the source splits LOCAL/SERVER config, adds timeAcceleratorAccelerationDurationSeconds and derives per-submission work and the pending window from TimeAcceleratorTiming, whereas this branch runs its own shared scheduler with execution/scan/pending budgets (timeAcceleratorMaxExecutionsPerTick, timeAcceleratorMaxScannedBlocksPerTick, timeAcceleratorMaxPendingTicks) — the behaviour AGENTS records as intentional, and porting the source timing wholesale would replace that scheduler. What remains is acceptance coverage, so the row is **U**, not **V**.",
       "registered": true,
       "kind": "block item",
       "name": "Advanced Time Accelerator",
@@ -730,8 +730,8 @@
     {
       "id": "extended_time_accelerator",
       "initial_list": false,
-      "status": "partial",
-      "note": "Native/AE acceleration paths tested, but newer source server timing/target-proxy/filter-cache APIs are not fully ported.",
+      "status": "implemented_unverified",
+      "note": "Verified 2026-11-20: the three gaps this row named are each resolved or explained. **Filter cache** was genuinely missing and is now ported — the 1.21.1 source keeps a block-state to filter-result cache so the scheduler does not re-evaluate the same state at every scanned position; TimeAcceleratorBE now carries it (512-entry cap, skipped when compareNBT makes the answer position dependent, invalidated when the filter cache empties, on setFilterSettings and on load), and TimeAcceleratorGameTests.filterCacheKeepsResultsAndFollowsFilterChanges proves the cache never changes an outcome, that clearing it is safe, that a filter switch takes effect immediately, and that a reloaded accelerator starts cold with the same answers. **Target proxy** was already at parity: TimeAccelerationTargetProxy is byte-identical to the source. **Server timing** is not a missing API but a documented design divergence: the source splits LOCAL/SERVER config, adds timeAcceleratorAccelerationDurationSeconds and derives per-submission work and the pending window from TimeAcceleratorTiming, whereas this branch runs its own shared scheduler with execution/scan/pending budgets (timeAcceleratorMaxExecutionsPerTick, timeAcceleratorMaxScannedBlocksPerTick, timeAcceleratorMaxPendingTicks) — the behaviour AGENTS records as intentional, and porting the source timing wholesale would replace that scheduler. What remains is acceptance coverage, so the row is **U**, not **V**.",
       "registered": true,
       "kind": "block item",
       "name": "Extended Time Accelerator",
