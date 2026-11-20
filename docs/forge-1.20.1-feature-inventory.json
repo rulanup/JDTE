@@ -910,8 +910,8 @@
     {
       "id": "extended_block_breaker",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The operation-parity review is closed: every method the 1.21.1 source declares on this class exists here, and the one concrete divergence found — the source try/catch fallback around getCloneItemStack when a block state cannot produce a clone stack — is now ported (the fluid placer also passes the fake player like the source). The remaining differences are Forge adaptations: getEnergyStorage/getFilterHandler/getMachineHandler read the Forge attachment instead of a NeoForge data attachment. Ultimate support arrives through the default branch. What remains is acceptance coverage: no dedicated per-family behavioural round exists for this tier, so the row is **U**, not **V**.",
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ExtendedTierAreaGameTests.extendedBreakerDiscoversEveryBlockInItsArea: with a 3x3 area and three stone targets, findBlocksToMine returns more than the single faced block, which is the documented reason this tier overrides the T1 discovery path. Not covered: a full mine cycle with a real tool and power draw.",
       "registered": true,
       "kind": "block item",
       "name": "Extended Block Breaker T2",
@@ -928,8 +928,8 @@
     {
       "id": "extended_block_placer",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The operation-parity review is closed: every method the 1.21.1 source declares on this class exists here, and the one concrete divergence found — the source try/catch fallback around getCloneItemStack when a block state cannot produce a clone stack — is now ported (the fluid placer also passes the fake player like the source). The remaining differences are Forge adaptations: getEnergyStorage/getFilterHandler/getMachineHandler read the Forge attachment instead of a NeoForge data attachment. Ultimate support arrives through the default branch. What remains is acceptance coverage: no dedicated per-family behavioural round exists for this tier, so the row is **U**, not **V**.",
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ExtendedTierAreaGameTests.extendedPlacerDiscoversEveryAirSpotInItsArea: with a 3x3 area, a stone stack in the machine and three air spots, findSpotsToPlace returns more than the single faced spot. Not covered: a full place cycle with power draw and block-state rotation.",
       "registered": true,
       "kind": "block item",
       "name": "Extended Block Placer T2",
@@ -946,8 +946,8 @@
     {
       "id": "extended_block_swapper",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The operation-parity review is closed: every method the 1.21.1 source declares on this class exists here, and the one concrete divergence found — the source try/catch fallback around getCloneItemStack when a block state cannot produce a clone stack — is now ported (the fluid placer also passes the fake player like the source). The remaining differences are Forge adaptations: getEnergyStorage/getFilterHandler/getMachineHandler read the Forge attachment instead of a NeoForge data attachment. Ultimate support arrives through the default branch. What remains is acceptance coverage: no dedicated per-family behavioural round exists for this tier, so the row is **U**, not **V**.",
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ExtendedTierAreaGameTests.extendedSwapperDiscoversEveryCandidateInItsArea: with a 3x3 area and three stone candidates, findSpotsToSwap returns more than the single faced block. Not covered: a full swap cycle, which needs the tier inventory contract.",
       "registered": true,
       "kind": "block item",
       "name": "Extended Block Swapper T2",
@@ -1000,8 +1000,8 @@
     {
       "id": "extended_fluid_collector",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The operation-parity review is closed: every method the 1.21.1 source declares on this class exists here, and the one concrete divergence found — the source try/catch fallback around getCloneItemStack when a block state cannot produce a clone stack — is now ported (the fluid placer also passes the fake player like the source). The remaining differences are Forge adaptations: getEnergyStorage/getFilterHandler/getMachineHandler read the Forge attachment instead of a NeoForge data attachment. Ultimate support arrives through the default branch. What remains is acceptance coverage: no dedicated per-family behavioural round exists for this tier, so the row is **U**, not **V**.",
+      "status": "verified",
+      "note": "Verified 2026-11-20 by ExtendedTierAreaGameTests.extendedCollectorDiscoversEveryFluidInItsArea: with a 3x3 area and three water sources, findSpotsToCollect returns more than the single faced source while the fixture fluid stays in place. Not covered: a full collect cycle with tank accounting and power draw.",
       "registered": true,
       "kind": "block item",
       "name": "Extended Fluid Collector T2",
