@@ -1991,8 +1991,8 @@
     {
       "id": "wither_spawn_egg",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "status": "verified",
+      "note": "Verified 2026-11-21 by ItemBehaviourGameTests.bossSpawnEggsCarrySummonableTypes: the registered item is a ForgeSpawnEggItem whose carried type is EntityType.WITHER, and that type spawns a real WitherBoss in a live level. JDTE's own contribution is only the registration, so this covers it end to end; the vanilla right-click glue is not exercised because a GameTest mock-player context returns PASS before it runs.",
       "registered": true,
       "kind": "item",
       "name": "Wither Spawn Egg",
@@ -2007,8 +2007,8 @@
     {
       "id": "ender_dragon_spawn_egg",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "status": "verified",
+      "note": "Verified 2026-11-21 by ItemBehaviourGameTests.bossSpawnEggsCarrySummonableTypes: the registered item is a ForgeSpawnEggItem whose carried type is EntityType.ENDER_DRAGON, and that type spawns a real EnderDragon in a live level. JDTE's own contribution is only the registration, so this covers it end to end; the vanilla right-click glue is not exercised because a GameTest mock-player context returns PASS before it runs.",
       "registered": true,
       "kind": "item",
       "name": "Ender Dragon Spawn Egg",
