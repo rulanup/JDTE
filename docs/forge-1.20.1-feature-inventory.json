@@ -2023,8 +2023,8 @@
     {
       "id": "looting_upgrade",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "status": "verified",
+      "note": "Verified 2026-11-21 by ItemBehaviourGameTests.bioCrusherUpgradeCardsDriveDamageAndLooting: the dedicated handler accepts the Looting card and rejects the Sharpness card, an empty handler yields loot level 0, and three installed cards drive getLootingLevel() to 3. Not covered: a real mob kill with the extra-drop chance rolls.",
       "registered": true,
       "kind": "item",
       "name": "Looting Upgrade",
@@ -2041,8 +2041,8 @@
     {
       "id": "sharpness_upgrade",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence.",
+      "status": "verified",
+      "note": "Verified 2026-11-21 by ItemBehaviourGameTests.bioCrusherUpgradeCardsDriveDamageAndLooting: the dedicated handler accepts the Sharpness card and rejects the Looting card, and two installed cards raise calculateDamage() by exactly two configured sharpnessDamagePerUpgrade steps. Not covered: a real mob kill at the raised damage.",
       "registered": true,
       "kind": "item",
       "name": "Sharpness Upgrade",
