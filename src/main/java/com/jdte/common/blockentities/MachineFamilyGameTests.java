@@ -1,6 +1,6 @@
 package com.jdte.common.blockentities;
 
-import com.direwolf20.justdirethings.common.recipes.GooSpreadRecipe;
+import com.direwolf20.justdirethings.datagen.recipes.GooSpreadRecipe;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
