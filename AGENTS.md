@@ -75,7 +75,7 @@ Common commands:
 
 If dependency resolution fails, verify CurseMaven access and the coordinates in `dependencies.gradle` before changing source code.
 
-`bash gradlew runGameTestServer` is executed by the separate `Forge 1.20.1 GameTests` workflow (`.github/workflows/gametests.yml`), not by the push CI. It triggers on pushes touching `common/blockentities`, `common/upgrades`, `gametest` or the workflow itself, plus a weekly schedule, and currently reports **437/437 required tests passing**. Do not claim GameTest evidence for a change unless that workflow ran for it.
+`bash gradlew runGameTestServer` is executed by the separate `Forge 1.20.1 GameTests` workflow (`.github/workflows/gametests.yml`), not by the push CI. It triggers on pushes touching `common/blockentities`, `common/upgrades`, `gametest` or the workflow itself, plus a weekly schedule, and currently reports **438/438 required tests passing**. Do not claim GameTest evidence for a change unless that workflow ran for it.
 
 The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and ProductiveLib output types. `extractProductiveLib` copies the embedded ProductiveLib JarJar from the resolved Productive Bees dependency into `build/generated/productiveLib` for `compileOnly` use. It is a generated build artifact and is not packaged into JDTE.
 
