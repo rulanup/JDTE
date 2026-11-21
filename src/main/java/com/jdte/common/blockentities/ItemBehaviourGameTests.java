@@ -107,8 +107,9 @@ public final class ItemBehaviourGameTests {
                                                            EntityType<?> expected, Class<T> type, BlockPos relativeGround) {
         ItemStack egg = new ItemStack(item);
         ForgeSpawnEggItem spawnEgg = (ForgeSpawnEggItem) item;
-        h.assertTrue(spawnEgg.getType(egg) == expected,
-                "the egg carries " + expected + ", got " + spawnEgg.getType(egg));
+        // 1.20.1 Forge exposes the type through the egg NBT form, not the stack.
+        h.assertTrue(spawnEgg.getType(null) == expected,
+                "the egg carries " + expected + ", got " + spawnEgg.getType(null));
 
         h.setBlock(relativeGround, Blocks.STONE);
         BlockPos ground = h.absolutePos(relativeGround);
