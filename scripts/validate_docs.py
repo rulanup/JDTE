@@ -27,12 +27,15 @@ ITEM_DECLARATION = re.compile(
 )
 ITEM_REGISTRATION = re.compile(
     r"public\s+static\s+final\s+DeferredHolder<Item,.*?>\s+[A-Z0-9_]+\s*=\s*"
-    r'(?:ITEMS\.register|blockItem)\s*\(\s*"([a-z0-9_]+)"',
+    r'(?:ITEMS\.register(?:Item)?|blockItem)\s*\(\s*"([a-z0-9_]+)"',
     re.DOTALL,
 )
 
 # Machines documented on a shared page instead of a family page of their own.
 GUIDE_ALIASES = {
+    "xingye_fumo": "decorative-fumo",
+    "cainiaoyo_fumo": "decorative-fumo",
+    "maiqilin_fumo": "decorative-fumo",
     "extended_clicker": "extended-machines",
     "extended_block_breaker": "extended-machines",
     "extended_block_placer": "extended-machines",
@@ -68,7 +71,7 @@ def load_lang(name):
 
 def registered_blocks():
     text = BLOCKS_JAVA.read_text(encoding="utf-8")
-    return re.findall(r'register\("([a-z0-9_]+)"', text)
+    return re.findall(r'\bBLOCKS\.register(?:Block)?\(\s*"([a-z0-9_]+)"', text)
 
 
 def registered_items_from_source(source):

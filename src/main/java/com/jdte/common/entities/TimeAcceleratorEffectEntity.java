@@ -3,8 +3,8 @@ package com.jdte.common.entities;
 import com.direwolf20.justdirethings.common.entities.TimeWandEntity;
 import com.jdte.setup.JDTEEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -27,7 +27,7 @@ public class TimeAcceleratorEffectEntity extends Entity {
     public TimeAcceleratorEffectEntity(Level level, BlockPos blockPos, int multiplier) {
         this(JDTEEntities.TIME_ACCELERATOR_EFFECT.get(), level);
         this.blockPos = blockPos;
-        this.moveTo(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
+        this.snapTo(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
         this.setTickSpeed(calculateExponent(multiplier));
         this.serverRemainingTicks = 15;
         this.setRemainingTime(15);
@@ -54,7 +54,7 @@ public class TimeAcceleratorEffectEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide) {
+        if (level().isClientSide()) {
             int current = getRemainingTime();
             if (current > 0) {
                 this.entityData.set(REMAINING_TIME, current - 1);
@@ -65,6 +65,11 @@ public class TimeAcceleratorEffectEntity extends Entity {
                 this.remove(RemovalReason.DISCARDED);
             }
         }
+    }
+
+    @Override
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel level, net.minecraft.world.damagesource.DamageSource source, float amount) {
+        return false;
     }
 
     @Override
@@ -108,30 +113,30 @@ public class TimeAcceleratorEffectEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
-        if (compound.contains("tickSpeed"))
-            this.entityData.set(TICKSPEED, compound.getInt("tickSpeed"));
-        if (compound.contains("remainingTime")) {
-            int remaining = compound.getInt("remainingTime");
+    protected void readAdditionalSaveData(ValueInput compound) {
+        if (compound.keySet().contains("tickSpeed"))
+            this.entityData.set(TICKSPEED, compound.getIntOr("tickSpeed", 0));
+        if (compound.keySet().contains("remainingTime")) {
+            int remaining = compound.getIntOr("remainingTime", 0);
             this.entityData.set(REMAINING_TIME, remaining);
             this.serverRemainingTicks = remaining;
         }
-        if (compound.contains("totalTime"))
-            this.entityData.set(TOTAL_TIME, compound.getInt("totalTime"));
-        if (compound.contains("blockpos")) {
-            this.blockPos = NbtUtils.readBlockPos(compound, "blockpos").orElse(null);
+        if (compound.keySet().contains("totalTime"))
+            this.entityData.set(TOTAL_TIME, compound.getIntOr("totalTime", 0));
+        if (compound.keySet().contains("blockpos")) {
+            this.blockPos = compound.read("blockpos", BlockPos.CODEC).orElse(null);
             if (this.blockPos != null) {
-                this.moveTo(this.blockPos.getX() + 0.5, this.blockPos.getY(), this.blockPos.getZ() + 0.5);
+                this.snapTo(this.blockPos.getX() + 0.5, this.blockPos.getY(), this.blockPos.getZ() + 0.5);
             }
         }
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
+    protected void addAdditionalSaveData(ValueOutput compound) {
         compound.putInt("tickSpeed", getTickSpeed());
-        compound.putInt("remainingTime", level().isClientSide ? getRemainingTime() : serverRemainingTicks);
+        compound.putInt("remainingTime", level().isClientSide() ? getRemainingTime() : serverRemainingTicks);
         if (blockPos != null)
-            compound.put("blockpos", NbtUtils.writeBlockPos(blockPos));
+            compound.store("blockpos", BlockPos.CODEC, blockPos);
         compound.putInt("totalTime", getTotalTime());
     }
 }

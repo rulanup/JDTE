@@ -1,9 +1,15 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.input.MouseButtonEvent;
+
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
+import com.direwolf20.justdirethings.util.MiscHelpers;
+import com.direwolf20.justdirethings.util.MiscTools;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
@@ -12,19 +18,19 @@ import com.jdte.common.containers.GreenhouseContainer;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.client.screens.util.GreenhouseSlotCountRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
-    private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
-    private static final ResourceLocation NEXT = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
+    private static final Identifier PREV = Identifier.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
+    private static final Identifier NEXT = Identifier.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
     private static final Component SEED_TOOLTIP = Component.translatable("jdte.slot.greenhouse_seed");
     private static final Component OUTPUT_TOOLTIP = Component.translatable("jdte.slot.greenhouse_output");
     private final GreenhouseContainer greenhouseContainer;
@@ -36,9 +42,9 @@ public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
     }
 
     @Override
-    protected void renderSlotContents(GuiGraphics graphics, ItemStack stack, Slot slot, String countLabel) {
+    protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack stack, Slot slot, String countLabel) {
         if (greenhouseContainer.isOutputSlot(slot) && stack.getCount() > 1) {
-            GreenhouseSlotCountRenderer.render(graphics, font, stack, slot, imageWidth, countLabel);
+            GreenhouseSlotCountRenderer.extractRenderState(graphics, font, stack, slot, imageWidth, countLabel);
             return;
         }
         super.renderSlotContents(graphics, stack, slot, countLabel);
@@ -52,33 +58,33 @@ public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
         renderEnergyBar(graphics);
         renderMachineSlotBackgrounds(graphics);
         renderProgressArrow(graphics);
         renderOutputPage(graphics);
     }
 
-    private void renderEnergyBar(GuiGraphics graphics) {
+    private void renderEnergyBar(GuiGraphicsExtractor graphics) {
         int maxEnergy = Math.max(1, greenhouseContainer.getGreenhouse().getMaxEnergy());
         int fill = Math.clamp((int) ((long) greenhouseContainer.getEnergy() * 70L / maxEnergy), 0, 70);
         int x = topSectionLeft + getEnergyBarOffset();
         int y = topSectionTop + 5;
-        graphics.blit(POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(POWERBAR, x + 1, y + 70 - fill, 19, 69 - fill, 17, fill + 1, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWERBAR, x + 1, y + 70 - fill, 19, 69 - fill, 17, fill + 1, 36, 72);
     }
 
-    private void renderMachineSlotBackgrounds(GuiGraphics graphics) {
+    private void renderMachineSlotBackgrounds(GuiGraphicsExtractor graphics) {
         int machineSlots = GreenhouseBE.INPUT_SLOTS + greenhouseContainer.getOutputSlotsPerPage();
         for (int i = 0; i < Math.min(machineSlots, container.slots.size()); i++) {
             Slot slot = container.slots.get(i);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
     }
 
-    private void renderProgressArrow(GuiGraphics graphics) {
+    private void renderProgressArrow(GuiGraphicsExtractor graphics) {
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int x = getGuiLeft() + layout.getLootFabricatorProgressArrowX();
         int y = getGuiTop() + layout.getLootFabricatorProgressArrowY();
@@ -94,20 +100,20 @@ public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
         if (stage >= 5) graphics.fill(x + 9, y + 2, x + 13, y + 5, 0xFF8BC55D);
     }
 
-    private void renderOutputPage(GuiGraphics graphics) {
+    private void renderOutputPage(GuiGraphicsExtractor graphics) {
         if (greenhouseContainer.getMaxOutputPage() <= 0) return;
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int buttonSize = layout.getLootFabricatorOutputPageButtonSize();
-        graphics.blit(PREV, getGuiLeft() + layout.getLootFabricatorOutputPrevX(),
+        graphics.blit(RenderPipelines.GUI_TEXTURED, PREV, getGuiLeft() + layout.getLootFabricatorOutputPrevX(),
                 getGuiTop() + layout.getLootFabricatorOutputPrevY(), 0, 0,
                 buttonSize, buttonSize, buttonSize, buttonSize);
-        graphics.blit(NEXT, getGuiLeft() + layout.getLootFabricatorOutputNextX(),
+        graphics.blit(RenderPipelines.GUI_TEXTURED, NEXT, getGuiLeft() + layout.getLootFabricatorOutputNextX(),
                 getGuiTop() + layout.getLootFabricatorOutputNextY(), 0, 0,
                 buttonSize, buttonSize, buttonSize, buttonSize);
-        graphics.drawString(font,
+        graphics.text(font,
                 (greenhouseContainer.getOutputPage() + 1) + "/" + (greenhouseContainer.getMaxOutputPage() + 1),
                 getGuiLeft() + layout.getLootFabricatorOutputPageTextX(),
-                getGuiTop() + layout.getLootFabricatorOutputPageTextY(), 0x404040, false);
+                getGuiTop() + layout.getLootFabricatorOutputPageTextY(), 0xFF404040, false);
     }
 
     @Override
@@ -130,7 +136,7 @@ public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
                 24, 12, greenhouseContainer.getMultiplier(), 1, greenhouseContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.greenhouse.multiplier"), button -> {
                     int multiplier = ((NumberButton) button).getValue();
-                    PacketDistributor.sendToServer(new TimeAcceleratorPayload(multiplier));
+                    ClientPacketDistributor.sendToServer(new TimeAcceleratorPayload(multiplier));
                 });
         addRenderableWidget(multiplierButton);
     }
@@ -146,7 +152,10 @@ public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0 && greenhouseContainer.getMaxOutputPage() > 0) {
             var layout = GuiUpgradeLayoutConfig.getInstance();
             int buttonSize = layout.getLootFabricatorOutputPageButtonSize();
@@ -158,26 +167,26 @@ public class GreenhouseScreen extends BaseMachineScreen<GreenhouseContainer> {
                     getGuiTop() + layout.getLootFabricatorOutputNextY(), buttonSize, buttonSize, mouseX, mouseY)) {
                 page++;
             } else {
-                return super.mouseClicked(mouseX, mouseY, button);
+                return super.mouseClicked(event, doubleClick);
             }
             greenhouseContainer.setOutputPage(page);
-            PacketDistributor.sendToServer(new FilterPagePayload(greenhouseContainer.getOutputPage()));
+            ClientPacketDistributor.sendToServer(new FilterPagePayload(greenhouseContainer.getOutputPage()));
             if (minecraft != null) {
                 minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderTooltip(graphics, mouseX, mouseY);
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
         if (hoveredSlot != null && !hoveredSlot.hasItem()) {
             if (greenhouseContainer.isPlantTemplateSlot(hoveredSlot)) {
-                graphics.renderTooltip(font, SEED_TOOLTIP, mouseX, mouseY);
+                graphics.setTooltipForNextFrame(font, SEED_TOOLTIP, mouseX, mouseY);
             } else if (greenhouseContainer.isOutputSlot(hoveredSlot)) {
-                graphics.renderTooltip(font, OUTPUT_TOOLTIP, mouseX, mouseY);
+                graphics.setTooltipForNextFrame(font, OUTPUT_TOOLTIP, mouseX, mouseY);
             }
         }
     }

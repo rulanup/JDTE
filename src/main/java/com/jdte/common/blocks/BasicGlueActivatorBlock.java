@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public class BasicGlueActivatorBlock extends BaseMachineBlock {
-    public BasicGlueActivatorBlock() {
-        super(Properties.of()
+    public BasicGlueActivatorBlock(Properties properties) {
+        super(properties
                 .sound(SoundType.METAL)
                 .strength(2.0f)
                 .isRedstoneConductor(BaseMachineBlock::never)

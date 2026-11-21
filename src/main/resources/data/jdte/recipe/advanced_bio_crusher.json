@@ -7,10 +7,10 @@
     "ABA"
   ],
   "key": {
-    "A": { "item": "minecraft:diamond" },
-    "B": { "item": "minecraft:gold_ingot" },
-    "C": { "item": "minecraft:iron_ingot" },
-    "D": { "item": "minecraft:nether_star" }
+    "A": "minecraft:diamond",
+    "B": "minecraft:gold_ingot",
+    "C": "minecraft:iron_ingot",
+    "D": "minecraft:nether_star"
   },
   "result": {
     "count": 1,

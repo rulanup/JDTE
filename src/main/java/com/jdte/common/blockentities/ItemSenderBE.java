@@ -5,7 +5,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -15,8 +15,8 @@ import com.jdte.common.autoioconfig.OverclockDirectTransferHelper;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -24,9 +24,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, BaseFilterMachine {
     public static final int STORAGE_SLOTS = 9;
@@ -34,7 +34,7 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     public FilterData filterData = new FilterData();
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     public AreaAffectingData areaAffectingData;
-    protected final ItemStackHandler itemHandler;
+    protected final ItemStacksResourceHandler itemHandler;
     private int transferRetryTicks;
     private int transferFailureBackoff;
     private boolean transferMoved;
@@ -47,9 +47,9 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
         areaAffectingData.xRadius = 1;
         areaAffectingData.yRadius = 1;
         areaAffectingData.zRadius = 1;
-        itemHandler = new ItemStackHandler(STORAGE_SLOTS) {
+        itemHandler = new MachineInventoryHandler(STORAGE_SLOTS) {
             @Override
-            protected void onContentsChanged(int slot) {
+            protected void onContentsChanged(int slot, ItemStack previous) {
                 resetTransferBackoff();
                 setChanged();
             }
@@ -57,7 +57,7 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return itemHandler;
     }
 
@@ -127,24 +127,13 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     }
 
     private int sendItemsToSide(ServerLevel serverLevel, BlockPos targetPos, Direction side, int limit) {
-        IItemHandler targetHandler = serverLevel.getCapability(Capabilities.ItemHandler.BLOCK, targetPos, side);
-        if (targetHandler == null) return 0;
-
-        int sent = 0;
-        for (int i = 0; i < STORAGE_SLOTS && sent < limit; i++) {
-            ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
-
-            int canSend = Math.min(stack.getCount(), limit - sent);
-            ItemStack toSend = stack.copyWithCount(canSend);
-            ItemStack remaining = ItemHandlerHelper.insertItemStacked(targetHandler, toSend, false);
-            int actuallySent = canSend - remaining.getCount();
-            if (actuallySent > 0) {
-                itemHandler.extractItem(i, actuallySent, false);
-                sent += actuallySent;
-            }
+        var adjacent = serverLevel.getCapability(Capabilities.Item.BLOCK, targetPos, side);
+        if (adjacent == null || adjacent == itemHandler || limit <= 0) return 0;
+        try (Transaction transaction = Transaction.openRoot()) {
+            int moved = ResourceHandlerUtil.moveStacking(itemHandler, adjacent, resource -> true, limit, transaction);
+            transaction.commit();
+            return moved;
         }
-        return sent;
     }
 
     private Direction getSideFacingMachine(BlockPos targetPos) {
@@ -193,13 +182,13 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     protected void onDirectTransferSuccess() {
     }
 
-    public ItemStackHandler getItemHandler() {
+    public ItemStacksResourceHandler getItemHandler() {
         return itemHandler;
     }
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -218,18 +207,16 @@ public abstract class ItemSenderBE extends BaseMachineBE implements FilterableBE
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
         saveAreaSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("inventory").ifPresent(itemHandler::deserialize);
         loadAreaSettings(tag);
         areaAffectingData.area = null;
         OverclockDirectTransferHelper.invalidate(this);

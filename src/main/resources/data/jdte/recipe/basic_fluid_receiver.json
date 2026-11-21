@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": { "item": "minecraft:bucket" },
-    "R": { "item": "minecraft:redstone" },
-    "I": { "item": "minecraft:iron_ingot" }
+    "B": "minecraft:bucket",
+    "R": "minecraft:redstone",
+    "I": "minecraft:iron_ingot"
   },
   "pattern": [
     " R ",

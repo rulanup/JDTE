@@ -7,27 +7,27 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class LifeSynthesisPartBlock extends Block {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<HorizontalPart> X = EnumProperty.create("x_part", HorizontalPart.class);
     public static final EnumProperty<DepthPart> DEPTH = EnumProperty.create("depth_part", DepthPart.class);
     public static final EnumProperty<LayerPart> LAYER = EnumProperty.create("layer_part", LayerPart.class);
 
-    public LifeSynthesisPartBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(3.0F).noOcclusion()
+    public LifeSynthesisPartBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(3.0F).noOcclusion()
                 .isRedstoneConductor((state, level, pos) -> false));
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
@@ -62,21 +62,21 @@ public class LifeSynthesisPartBlock extends Block {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
         BlockPos controllerPos = getControllerPos(pos, state);
         BlockState controllerState = level.getBlockState(controllerPos);
-        if (!controllerState.is(JDTEBlocks.LIFE_SYNTHESIS_VAT.get())) return ItemInteractionResult.FAIL;
+        if (!controllerState.is(JDTEBlocks.LIFE_SYNTHESIS_VAT.get())) return InteractionResult.FAIL;
         return FluidContainerTransfer.useItemOn(
                 stack, level, pos, controllerPos, player, hand, hit);
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!isMoving && !state.is(newState.getBlock())) {
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean isMoving) {
+        if (!isMoving && !level.getBlockState(pos).is(state.getBlock())) {
             LifeSynthesisStructure.removeFromPart(level, pos, state, true);
         }
-        super.onRemove(state, level, pos, newState, isMoving);
+        super.affectNeighborsAfterRemoval(state, level, pos, isMoving);
     }
 
     public enum HorizontalPart implements StringRepresentable {

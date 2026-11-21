@@ -9,7 +9,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 import javax.annotation.Nullable;
 
@@ -35,8 +35,8 @@ public abstract class InfusionMachineContainer extends BaseMachineContainer {
     @Override
     public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
-        addSlot(new SlotItemHandler(machineHandler, InfusionMachineBE.INPUT_SLOT, 56, 35));
-        addSlot(new SlotItemHandler(machineHandler, InfusionMachineBE.OUTPUT_SLOT, 116, 35) {
+        addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, InfusionMachineBE.INPUT_SLOT, 56, 35));
+        addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, InfusionMachineBE.OUTPUT_SLOT, 116, 35) {
             @Override
             public boolean mayPickup(net.minecraft.world.entity.player.Player player) {
                 return true;

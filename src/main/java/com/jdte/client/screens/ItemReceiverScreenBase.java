@@ -11,10 +11,10 @@ import com.jdte.common.containers.DynamicFilterSlot;
 import com.jdte.common.containers.ItemReceiverContainerBase;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.upgrades.UpgradeHelper;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public abstract class ItemReceiverScreenBase<T extends ItemReceiverContainerBase> extends BaseMachineScreen<T> {
     private static final Component ITEM_SLOT_TOOLTIP = Component.translatable("jdte.slot.item_receiver_storage");
@@ -158,19 +158,19 @@ public abstract class ItemReceiverScreenBase<T extends ItemReceiverContainerBase
                 leftPos + speedButtonX(config),
                 topSectionTop + speedButtonY(config), tickSpeed, b -> {
             tickSpeed = ((com.direwolf20.justdirethings.client.screens.widgets.NumberButton) b).getValue();
-            PacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
+            ClientPacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
         }));
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderTooltip(guiGraphics, mouseX, mouseY);
+    protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        super.extractTooltip(guiGraphics, mouseX, mouseY);
         if (hoveredSlot == null || hoveredSlot.hasItem()) return;
 
         if (hoveredSlot.index < 9) {
-            guiGraphics.renderTooltip(font, ITEM_SLOT_TOOLTIP, mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, ITEM_SLOT_TOOLTIP, mouseX, mouseY);
         } else if (hoveredSlot instanceof DynamicFilterSlot) {
-            guiGraphics.renderTooltip(font, FILTER_SLOT_TOOLTIP, mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, FILTER_SLOT_TOOLTIP, mouseX, mouseY);
         }
     }
 }

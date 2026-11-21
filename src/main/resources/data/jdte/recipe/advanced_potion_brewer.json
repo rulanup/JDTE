@@ -6,18 +6,10 @@
     "ETE"
   ],
   "key": {
-    "E": {
-      "item": "justdirethings:eclipsealloy_ingot"
-    },
-    "T": {
-      "item": "justdirethings:time_crystal"
-    },
-    "C": {
-      "item": "justdirethings:fluid_canister"
-    },
-    "B": {
-      "item": "minecraft:bucket"
-    }
+    "E": "justdirethings:eclipsealloy_ingot",
+    "T": "justdirethings:time_crystal",
+    "C": "justdirethings:fluid_canister",
+    "B": "minecraft:bucket"
   },
   "result": {
     "id": "jdte:advanced_potion_brewer",

@@ -4,14 +4,12 @@ import com.jdte.setup.JDTERecipes;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -20,9 +18,9 @@ import net.minecraft.world.level.material.Fluids;
 
 /** Settings recipe that selects the mineral extractor's two distinct resource fluids. */
 public record MineralExtractorResourcesRecipe(
-        ResourceLocation fortuneFluid,
-        ResourceLocation accelerationFluid
-) implements Recipe<CraftingInput> {
+        Identifier fortuneFluid,
+        Identifier accelerationFluid
+) implements MachineRecipe {
     public MineralExtractorResourcesRecipe {
         if (fortuneFluid.equals(accelerationFluid)) {
             throw new IllegalArgumentException("fortune_fluid and acceleration_fluid must differ");
@@ -35,17 +33,7 @@ public record MineralExtractorResourcesRecipe(
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingInput input) {
         return ItemStack.EMPTY;
     }
 
@@ -55,26 +43,30 @@ public record MineralExtractorResourcesRecipe(
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<MineralExtractorResourcesRecipe> getType() {
         return JDTERecipes.MINERAL_EXTRACTOR_RESOURCES_RECIPE_TYPE.get();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<MineralExtractorResourcesRecipe> getSerializer() {
         return JDTERecipes.MINERAL_EXTRACTOR_RESOURCES_RECIPE_SERIALIZER.get();
     }
 
-    public static final class Serializer implements RecipeSerializer<MineralExtractorResourcesRecipe> {
+    public static final class Serializer {
+        public static RecipeSerializer<MineralExtractorResourcesRecipe> create() {
+            return new RecipeSerializer<>(codec(), streamCodec());
+        }
+
         private static final MapCodec<UnvalidatedResources> RAW_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ResourceLocation.CODEC.fieldOf("fortune_fluid").forGetter(UnvalidatedResources::fortuneFluid),
-                ResourceLocation.CODEC.fieldOf("acceleration_fluid").forGetter(UnvalidatedResources::accelerationFluid)
+                Identifier.CODEC.fieldOf("fortune_fluid").forGetter(UnvalidatedResources::fortuneFluid),
+                Identifier.CODEC.fieldOf("acceleration_fluid").forGetter(UnvalidatedResources::accelerationFluid)
         ).apply(instance, UnvalidatedResources::new));
         private static final MapCodec<MineralExtractorResourcesRecipe> CODEC = RAW_CODEC.flatXmap(
                 resources -> validated(resources.fortuneFluid(), resources.accelerationFluid()),
                 recipe -> DataResult.success(new UnvalidatedResources(recipe.fortuneFluid(), recipe.accelerationFluid())));
 
-        private static DataResult<MineralExtractorResourcesRecipe> validated(ResourceLocation fortuneFluid,
-                                                                               ResourceLocation accelerationFluid) {
+        private static DataResult<MineralExtractorResourcesRecipe> validated(Identifier fortuneFluid,
+                                                                               Identifier accelerationFluid) {
             String fortuneError = sourceFluidError("fortune_fluid", fortuneFluid);
             if (fortuneError != null) {
                 return DataResult.error(() -> fortuneError);
@@ -89,11 +81,11 @@ public record MineralExtractorResourcesRecipe(
             return DataResult.success(new MineralExtractorResourcesRecipe(fortuneFluid, accelerationFluid));
         }
 
-        private static String sourceFluidError(String field, ResourceLocation id) {
+        private static String sourceFluidError(String field, Identifier id) {
             if (!BuiltInRegistries.FLUID.containsKey(id)) {
                 return "Unknown " + field + ": " + id;
             }
-            Fluid fluid = BuiltInRegistries.FLUID.get(id);
+            Fluid fluid = BuiltInRegistries.FLUID.getValue(id);
             if (fluid == Fluids.EMPTY) {
                 return field + " cannot be empty: " + id;
             }
@@ -103,29 +95,27 @@ public record MineralExtractorResourcesRecipe(
             return null;
         }
 
-        @Override
-        public MapCodec<MineralExtractorResourcesRecipe> codec() {
+        public static MapCodec<MineralExtractorResourcesRecipe> codec() {
             return CODEC;
         }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MineralExtractorResourcesRecipe> streamCodec() {
+        public static StreamCodec<RegistryFriendlyByteBuf, MineralExtractorResourcesRecipe> streamCodec() {
             return new StreamCodec<>() {
                 @Override
                 public MineralExtractorResourcesRecipe decode(RegistryFriendlyByteBuf buffer) {
-                    return validated(ResourceLocation.STREAM_CODEC.decode(buffer), ResourceLocation.STREAM_CODEC.decode(buffer))
+                    return validated(Identifier.STREAM_CODEC.decode(buffer), Identifier.STREAM_CODEC.decode(buffer))
                             .getOrThrow();
                 }
 
                 @Override
                 public void encode(RegistryFriendlyByteBuf buffer, MineralExtractorResourcesRecipe recipe) {
-                    ResourceLocation.STREAM_CODEC.encode(buffer, recipe.fortuneFluid());
-                    ResourceLocation.STREAM_CODEC.encode(buffer, recipe.accelerationFluid());
+                    Identifier.STREAM_CODEC.encode(buffer, recipe.fortuneFluid());
+                    Identifier.STREAM_CODEC.encode(buffer, recipe.accelerationFluid());
                 }
             };
         }
 
-        private record UnvalidatedResources(ResourceLocation fortuneFluid, ResourceLocation accelerationFluid) {
+        private record UnvalidatedResources(Identifier fortuneFluid, Identifier accelerationFluid) {
         }
     }
 }

@@ -1,6 +1,7 @@
 {
   "values": [
     "#c:budding_blocks",
+    "justdirethings:time_crystal_budding_block",
     {
       "id": "minecraft:budding_amethyst",
       "required": false

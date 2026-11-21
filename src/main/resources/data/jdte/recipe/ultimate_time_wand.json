@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "equipment",
   "ingredients": [
-    {
-      "item": "justdirethings:eclipsealloy_paxel"
-    },
-    {
-      "item": "jdte:big_fluid_tank"
-    },
-    {
-      "item": "jdte:time_fluid_catalyst"
-    },
-    {
-      "item": "jdte:ae_acceleration_upgrade"
-    }
+    "justdirethings:eclipsealloy_paxel",
+    "jdte:big_fluid_tank",
+    "jdte:time_fluid_catalyst",
+    "jdte:ae_acceleration_upgrade"
   ],
   "result": {
     "count": 1,

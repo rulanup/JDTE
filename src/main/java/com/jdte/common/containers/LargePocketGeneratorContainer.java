@@ -1,7 +1,6 @@
 package com.jdte.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseContainer;
-import com.direwolf20.justdirethings.common.containers.slots.FuelSlot;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.items.LargePocketGeneratorItem;
 import com.jdte.setup.JDTEMenus;
@@ -10,11 +9,12 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ComponentItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
+import com.jdte.common.containers.handlers.BatchComponentItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 
 public class LargePocketGeneratorContainer extends BaseContainer {
-    public final ComponentItemHandler handler;
+    public final BatchComponentItemHandler handler;
     public final ItemStack pocketGeneratorItemStack;
     public final Player playerEntity;
     private final LargePortableContainerBinding binding;
@@ -46,22 +46,19 @@ public class LargePocketGeneratorContainer extends BaseContainer {
         this.playerEntity = player;
         this.pocketGeneratorItemStack = stack;
         this.binding = binding;
-        this.handler = new ComponentItemHandler(stack, JustDireDataComponents.ITEMSTACK_HANDLER.get(), 1);
-        addGeneratorSlots(handler, 0, 80, 35, 1, 18);
+        this.handler = new BatchComponentItemHandler(ItemAccess.forStack(stack), JustDireDataComponents.ITEMSTACK_HANDLER.get(), 1);
+        addSlot(new ResourceHandlerSlot(handler, handler::set, 0, 80, 35) {
+            @Override
+            public boolean mayPlace(ItemStack fuel) {
+                return LargePocketGeneratorItem.resolveFuelBurnTime(fuel, player.level().fuelValues()) > 0;
+            }
+        });
         addPlayerSlots(inventory, 8, 84);
     }
 
     @Override
     public boolean stillValid(Player player) {
         return binding.isStillValid();
-    }
-
-    protected int addGeneratorSlots(IItemHandler itemHandler, int index, int x, int y, int amount, int dx) {
-        for (int i = 0; i < amount; i++) {
-            addSlot(new FuelSlot(itemHandler, index++, x, y));
-            x += dx;
-        }
-        return index;
     }
 
     @Override

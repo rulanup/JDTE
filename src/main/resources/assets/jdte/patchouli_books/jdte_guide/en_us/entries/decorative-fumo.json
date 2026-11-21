@@ -1,0 +1,17 @@
+{
+  "name": "Decorative Fumos",
+  "icon": "jdte:xingye_fumo",
+  "category": "jdte:control_special",
+  "sortnum": 4400,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Place a Xingye, Cainiaoyo, or Maiqilin fumo in the world. The figure faces the player who placed it, and its shape rotates with its facing."
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:xingye_fumo": 0,
+    "jdte:cainiaoyo_fumo": 0,
+    "jdte:maiqilin_fumo": 0
+  }
+}

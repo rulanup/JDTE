@@ -14,8 +14,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class LargePotionCanisterContainer extends BaseContainer {
     public final LargePotionCanisterHandler handler;
@@ -60,7 +59,7 @@ public class LargePotionCanisterContainer extends BaseContainer {
         return binding.isStillValid();
     }
 
-    protected int addItemSlots(IItemHandler itemHandler, int index, int x, int y, int amount, int dx) {
+    protected int addItemSlots(LargePotionCanisterHandler itemHandler, int index, int x, int y, int amount, int dx) {
         for (int i = 0; i < amount; i++) {
             addSlot(new PotionBatchSlot(itemHandler, i, x, y));
             x += dx;
@@ -107,9 +106,9 @@ public class LargePotionCanisterContainer extends BaseContainer {
         return binding.currentStack();
     }
 
-    private static final class PotionBatchSlot extends SlotItemHandler {
-        private PotionBatchSlot(IItemHandler itemHandler, int index, int x, int y) {
-            super(itemHandler, index, x, y);
+    private static final class PotionBatchSlot extends ResourceHandlerSlot {
+        private PotionBatchSlot(LargePotionCanisterHandler itemHandler, int index, int x, int y) {
+            super(itemHandler, itemHandler::set, index, x, y);
         }
 
         @Override

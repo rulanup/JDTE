@@ -1,6 +1,6 @@
 package com.jdte.common.greenhouse;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.junit.jupiter.api.Test;
@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GreenhouseFluidPolicyTest {
-    private static final ResourceLocation WATER = ResourceLocation.withDefaultNamespace("water");
-    private static final ResourceLocation LAVA = ResourceLocation.withDefaultNamespace("lava");
+class GreenhouseFluidPolicyTest implements com.jdte.test.WorldRegistryTest {
+    private static final Identifier WATER = Identifier.withDefaultNamespace("water");
+    private static final Identifier LAVA = Identifier.withDefaultNamespace("lava");
 
     @Test
     void matchesStoredFluidByRegistryId() {
@@ -19,7 +19,7 @@ class GreenhouseFluidPolicyTest {
         assertFalse(GreenhouseFluidPolicy.matches(new FluidStack(Fluids.LAVA, 1_000), WATER));
         assertFalse(GreenhouseFluidPolicy.matches(FluidStack.EMPTY, WATER));
         assertFalse(GreenhouseFluidPolicy.matches(
-                new FluidStack(Fluids.WATER, 1_000), ResourceLocation.fromNamespaceAndPath("jdte", "missing")));
+                new FluidStack(Fluids.WATER, 1_000), Identifier.fromNamespaceAndPath("jdte", "missing")));
     }
 
     @Test

@@ -6,10 +6,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record PotionBrewerRecipeLockPayload(BlockPos blockPos, boolean locked, boolean request) implements CustomPacketPayload {
-    public static final Type<PotionBrewerRecipeLockPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "potion_brewer_recipe_lock"));
+    public static final Type<PotionBrewerRecipeLockPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(JDTE.MODID, "potion_brewer_recipe_lock"));
 
     @Override
     public Type<PotionBrewerRecipeLockPayload> type() {

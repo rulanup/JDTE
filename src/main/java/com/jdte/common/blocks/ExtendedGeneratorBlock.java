@@ -13,6 +13,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public class ExtendedGeneratorBlock extends GeneratorT1 {
+    public ExtendedGeneratorBlock(Properties properties) {
+        super(properties.sound(net.minecraft.world.level.block.SoundType.METAL).strength(2.0F).isRedstoneConductor(com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock::never));
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

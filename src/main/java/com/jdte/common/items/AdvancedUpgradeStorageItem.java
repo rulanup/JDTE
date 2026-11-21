@@ -1,5 +1,10 @@
 package com.jdte.common.items;
 
+import net.minecraft.client.Minecraft;
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
 import com.jdte.common.containers.AdvancedUpgradeStorageContainer;
 import com.jdte.common.integrations.curios.AdvancedUpgradeStorageCuriosSources;
 import com.jdte.setup.JDTEDataComponents;
@@ -9,7 +14,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,8 +25,8 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 public class AdvancedUpgradeStorageItem extends UpgradeStorageItem {
-    public AdvancedUpgradeStorageItem() {
-        super();
+    public AdvancedUpgradeStorageItem(Properties properties) {
+        super(properties);
     }
 
     public static List<ItemStack> findAllStorages(Player player) {
@@ -37,7 +42,7 @@ public class AdvancedUpgradeStorageItem extends UpgradeStorageItem {
         if (off.getItem() instanceof AdvancedUpgradeStorageItem && !containsIdentity(list, off)) {
             list.add(off);
         }
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
             if (!stack.isEmpty() && stack.getItem() instanceof AdvancedUpgradeStorageItem && !containsIdentity(list, stack)) {
                 list.add(stack);
             }
@@ -74,10 +79,10 @@ public class AdvancedUpgradeStorageItem extends UpgradeStorageItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide()) {
-            return InteractionResultHolder.sidedSuccess(stack, true);
+            return InteractionResult.SUCCESS;
         }
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(
@@ -88,46 +93,46 @@ public class AdvancedUpgradeStorageItem extends UpgradeStorageItem {
                     buf -> buf.writeEnum(hand)
             );
         }
-        return InteractionResultHolder.sidedSuccess(stack, false);
+        return InteractionResult.CONSUME;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         ItemContainerContents contents = stack.getOrDefault(
                 JDTEDataComponents.UPGRADE_STORAGE_CONTENTS.get(), ItemContainerContents.EMPTY);
 
         int filledSlots = 0;
         int totalItems = 0;
-        for (ItemStack item : contents.nonEmptyItems()) {
+        for (var item : contents.nonEmptyItems()) {
             filledSlots++;
-            totalItems += item.getCount();
+            totalItems += item.count();
         }
 
         if (filledSlots == 0) {
-            tooltip.add(Component.translatable("tooltip.jdte.advanced_upgrade_storage.empty")
+            tooltip.accept(Component.translatable("tooltip.jdte.advanced_upgrade_storage.empty")
                     .withStyle(ChatFormatting.GRAY));
         } else {
-            tooltip.add(Component.translatable("tooltip.jdte.advanced_upgrade_storage.count", filledSlots, AdvancedUpgradeStorageContainer.SLOTS)
+            tooltip.accept(Component.translatable("tooltip.jdte.advanced_upgrade_storage.count", filledSlots, AdvancedUpgradeStorageContainer.SLOTS)
                     .withStyle(ChatFormatting.LIGHT_PURPLE));
-            tooltip.add(Component.translatable("tooltip.jdte.advanced_upgrade_storage.total", totalItems)
+            tooltip.accept(Component.translatable("tooltip.jdte.advanced_upgrade_storage.total", totalItems)
                     .withStyle(ChatFormatting.AQUA));
 
-            if (Screen.hasShiftDown()) {
-                for (ItemStack item : contents.nonEmptyItems()) {
-                    tooltip.add(Component.literal(" • ")
+            if (Minecraft.getInstance().hasShiftDown()) {
+                for (var item : contents.nonEmptyItems()) {
+                    tooltip.accept(Component.literal(" • ")
                             .withStyle(ChatFormatting.DARK_GRAY)
-                            .append(item.getHoverName().copy().withStyle(ChatFormatting.GRAY))
-                            .append(Component.literal(" x" + item.getCount()).withStyle(ChatFormatting.YELLOW)));
+                            .append(com.jdte.common.containers.handlers.BatchComponentItemHandler.stack(item).getHoverName().copy().withStyle(ChatFormatting.GRAY))
+                            .append(Component.literal(" x" + item.count()).withStyle(ChatFormatting.YELLOW)));
                 }
             } else {
-                tooltip.add(Component.translatable("tooltip.jdte.upgrade_storage.shift_hint")
+                tooltip.accept(Component.translatable("tooltip.jdte.upgrade_storage.shift_hint")
                         .withStyle(ChatFormatting.DARK_GRAY));
             }
         }
 
-        tooltip.add(Component.translatable("tooltip.jdte.advanced_upgrade_storage.open")
+        tooltip.accept(Component.translatable("tooltip.jdte.advanced_upgrade_storage.open")
                 .withStyle(ChatFormatting.GOLD));
-        tooltip.add(Component.translatable("tooltip.jdte.advanced_upgrade_storage.machine_panel_hint")
+        tooltip.accept(Component.translatable("tooltip.jdte.advanced_upgrade_storage.machine_panel_hint")
                 .withStyle(ChatFormatting.DARK_AQUA));
     }
 }

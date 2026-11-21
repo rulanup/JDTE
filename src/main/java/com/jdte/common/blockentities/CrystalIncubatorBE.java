@@ -5,17 +5,15 @@ import com.direwolf20.justdirethings.setup.Config;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
-import com.jdte.common.integrations.JustDynaThingsCrystalIntegration;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTETags;
-import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -25,17 +23,15 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import org.slf4j.Logger;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -44,29 +40,25 @@ import java.util.List;
 import java.util.Map;
 
 public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpgradeMachine, PoweredMachineBE, CoalescedAcceleratedMachine {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final double AE2_GROWTH_ACCELERATOR_INTERVAL_TICKS = 10.0D;
     private static final double REGULAR_GROWTH_REFERENCE_MULTIPLIER = 8.0D;
     public static final int OUTPUT_SLOTS = 9;
-    private final ItemStackHandler outputHandler = new ItemStackHandler(OUTPUT_SLOTS) {
+    private final MachineInventoryHandler outputHandler = new MachineInventoryHandler(OUTPUT_SLOTS) {
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return false;
+        public boolean isValid(int slot, ItemResource resource) {
+            return resource.isEmpty();
         }
 
         @Override
-        protected void onContentsChanged(int slot) {
+        protected void onContentsChanged(int slot, ItemStack previous) {
             setChanged();
         }
     };
     private final List<BlockPos> buddingPositions = new ArrayList<>();
-    private final List<BlockPos> regularBuddingPositions = new ArrayList<>();
-    private final List<BlockPos> dynaBuddingPositions = new ArrayList<>();
     private int scanIndex;
     private int scanVolume = -1;
     private int cacheAge;
     private int regularGrowthCursor;
-    private int dynaGrowthCursor;
     private int harvestCursor;
     private final Map<Block, Boolean> matureCrystalCache = new HashMap<>();
     private double pendingRandomTicks;
@@ -83,7 +75,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return outputHandler;
     }
 
@@ -162,8 +154,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             return;
         }
 
-        boolean processed = growCachedBudding(
-                serverLevel, prepared.workTicks(), prepared.energyCost(), prepared.fluidCost());
+        boolean processed = growCachedBudding(serverLevel, prepared.workTicks());
         if (processed) {
             ExtendedTimeAccelerationManager.consumePreparedResources(this, prepared);
             harvestMatureCrystals(serverLevel);
@@ -213,8 +204,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             if (!hasResources(prepared.fluidCost(), prepared.energyCost())) {
                 break;
             }
-            boolean processed = growCachedBudding(
-                    serverLevel, prepared.workTicks(), prepared.energyCost(), prepared.fluidCost());
+            boolean processed = growCachedBudding(serverLevel, prepared.workTicks());
             if (processed) {
                 ExtendedTimeAccelerationManager.consumePreparedResources(this, prepared);
                 harvestMatureCrystals(serverLevel);
@@ -229,8 +219,8 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
     private boolean hasOutputSpace() {
         for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
-            ItemStack stack = outputHandler.getStackInSlot(slot);
-            if (stack.isEmpty() || stack.getCount() < outputHandler.getSlotLimit(slot)) {
+            ItemResource resource = outputHandler.getResource(slot);
+            if (resource.isEmpty() || outputHandler.getAmountAsInt(slot) < outputHandler.getCapacityAsInt(slot, resource)) {
                 return true;
             }
         }
@@ -279,8 +269,6 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
 
         if (scanIndex >= scanVolume || scanVolume != volume) {
             buddingPositions.clear();
-            regularBuddingPositions.clear();
-            dynaBuddingPositions.clear();
             scanIndex = 0;
             scanVolume = volume;
             cacheAge = 0;
@@ -297,53 +285,24 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
                 continue;
             }
             BlockState state = serverLevel.getBlockState(pos);
-            BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
-            if (isDynaBudding(blockEntity)) {
+            if (state.is(JDTETags.CRYSTAL_INCUBATOR_BUDDING_BLOCKS)) {
                 buddingPositions.add(pos.immutable());
-                dynaBuddingPositions.add(pos.immutable());
-            } else if (state.is(JDTETags.CRYSTAL_INCUBATOR_BUDDING_BLOCKS)) {
-                buddingPositions.add(pos.immutable());
-                regularBuddingPositions.add(pos.immutable());
             }
         }
-        regularGrowthCursor = normalizeCursor(regularGrowthCursor, regularBuddingPositions);
-        dynaGrowthCursor = normalizeCursor(dynaGrowthCursor, dynaBuddingPositions);
+        regularGrowthCursor = normalizeCursor(regularGrowthCursor);
         harvestCursor = normalizeCursor(harvestCursor);
     }
 
-    private boolean growCachedBudding(ServerLevel serverLevel, int workTicks,
-                                      int reservedEnergy, int reservedFluid) {
+    private boolean growCachedBudding(ServerLevel serverLevel, int workTicks) {
         if (buddingPositions.isEmpty()) {
             return false;
         }
         boolean processed = false;
         int motherBatch = JDTEConfig.COMMON.crystalIncubatorMotherBatchSize.get();
-        int dynaMothers = Math.min(dynaBuddingPositions.size(), motherBatch);
-        for (int i = 0; i < dynaMothers; i++) {
-            BlockPos pos = dynaBuddingPositions.get(dynaGrowthCursor++ % dynaBuddingPositions.size());
-            if (!serverLevel.hasChunkAt(pos)) {
-                continue;
-            }
-            BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
-            if (isDynaBudding(blockEntity)) {
-                int attempts = Math.min(JDTEConfig.COMMON.crystalIncubatorDynaGrowthAttempts.get(), Math.max(1, workTicks / 4));
-                try {
-                    processed |= JustDynaThingsCrystalIntegration.grow(
-                            blockEntity, serverLevel.random, attempts,
-                            energyStorage, fluidTank, reservedEnergy, reservedFluid,
-                            UpgradeHelper.hasCreativeUpgrade(this)) > 0;
-                } catch (LinkageError | RuntimeException e) {
-                    // Just Dyna Things version mismatches must never crash the server.
-                    LOGGER.warn("[JDTE] Crystal Incubator Dyna growth failed at {}: {}", pos, e.toString());
-                }
-            }
-        }
-
-        int regularMothers = Math.min(regularBuddingPositions.size(), motherBatch);
+        int regularMothers = Math.min(buddingPositions.size(), motherBatch);
         int activeRegularMothers = 0;
         for (int i = 0; i < regularMothers; i++) {
-            BlockPos pos = regularBuddingPositions.get(
-                    regularGrowthCursor++ % regularBuddingPositions.size());
+            BlockPos pos = buddingPositions.get(regularGrowthCursor++ % buddingPositions.size());
             if (!serverLevel.hasChunkAt(pos)) {
                 continue;
             }
@@ -358,15 +317,14 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
         int operationBudget = JDTEConfig.COMMON.crystalIncubatorGrowthOperationsPerTick.get();
         int operations = Math.min((int) Math.floor(pendingRandomTicks), operationBudget);
         for (int i = 0; i < operations; i++) {
-            for (int checked = 0; checked < regularBuddingPositions.size(); checked++) {
-                BlockPos pos = regularBuddingPositions.get(
-                        regularGrowthCursor++ % regularBuddingPositions.size());
+            for (int checked = 0; checked < buddingPositions.size(); checked++) {
+                BlockPos pos = buddingPositions.get(regularGrowthCursor++ % buddingPositions.size());
                 if (!serverLevel.hasChunkAt(pos)) {
                     continue;
                 }
                 BlockState state = serverLevel.getBlockState(pos);
                 if (state.is(JDTETags.CRYSTAL_INCUBATOR_BUDDING_BLOCKS) && state.isRandomlyTicking()) {
-                    state.randomTick(serverLevel, pos, serverLevel.random);
+                    state.randomTick(serverLevel, pos, serverLevel.getRandom());
                     pendingRandomTicks -= 1.0D;
                     processed = true;
                     break;
@@ -391,13 +349,11 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             if (!serverLevel.hasChunkAt(motherPos)) {
                 continue;
             }
-            BlockEntity mother = serverLevel.getBlockEntity(motherPos);
             for (Direction direction : Direction.values()) {
                 BlockPos crystalPos = motherPos.relative(direction);
                 BlockState crystalState = serverLevel.getBlockState(crystalPos);
-                if (isDynaMatureCrystal(mother, crystalState)
-                        || (crystalState.is(JDTETags.CRYSTAL_INCUBATOR_HARVESTABLE_CRYSTALS)
-                        && isMatureHarvestableCrystal(serverLevel, crystalState, crystalPos))) {
+                if (crystalState.is(JDTETags.CRYSTAL_INCUBATOR_HARVESTABLE_CRYSTALS)
+                        && isMatureHarvestableCrystal(serverLevel, crystalState, crystalPos)) {
                     if (harvestCrystal(serverLevel, crystalPos, crystalState)) {
                         budget--;
                     }
@@ -409,12 +365,13 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     private boolean harvestCrystal(ServerLevel serverLevel, BlockPos pos, BlockState state) {
         ItemStack tool = createFortuneTool(serverLevel);
         List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, serverLevel.getBlockEntity(pos), getFakePlayer(serverLevel), tool);
-        ItemStackHandler simulated = new ItemStackHandler(OUTPUT_SLOTS);
+        MachineInventoryHandler simulated = new MachineInventoryHandler(OUTPUT_SLOTS);
         for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
-            simulated.setStackInSlot(slot, outputHandler.getStackInSlot(slot).copy());
+            simulated.setStack(slot, outputHandler.copyStack(slot));
         }
         for (ItemStack drop : drops) {
-            if (!ItemHandlerHelper.insertItemStacked(simulated, drop.copy(), false).isEmpty()) {
+            if (!drop.isEmpty() && ResourceHandlerUtil.insertStacking(simulated,
+                    ItemResource.of(drop), drop.getCount(), null) < drop.getCount()) {
                 return false;
             }
         }
@@ -427,7 +384,7 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             return false;
         }
         for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
-            outputHandler.setStackInSlot(slot, simulated.getStackInSlot(slot));
+            outputHandler.setStack(slot, simulated.copyStack(slot));
         }
         setChanged();
         return true;
@@ -447,16 +404,6 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
             EnchantmentHelper.setEnchantments(tool, enchantments.toImmutable());
         }
         return tool;
-    }
-
-    private boolean isDynaBudding(BlockEntity blockEntity) {
-        return ModList.get().isLoaded("justdynathings")
-                && JustDynaThingsCrystalIntegration.isBudding(blockEntity);
-    }
-
-    private boolean isDynaMatureCrystal(BlockEntity budding, BlockState state) {
-        return ModList.get().isLoaded("justdynathings")
-                && JustDynaThingsCrystalIntegration.isMatureCrystal(budding, state);
     }
 
     private boolean isMatureHarvestableCrystal(ServerLevel serverLevel, BlockState state, BlockPos pos) {
@@ -497,10 +444,6 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
         return buddingPositions.isEmpty() ? 0 : cursor % buddingPositions.size();
     }
 
-    private static int normalizeCursor(int cursor, List<BlockPos> positions) {
-        return positions.isEmpty() ? 0 : cursor % positions.size();
-    }
-
     @Override
     public boolean isDefaultSettings() {
         if (!super.isDefaultSettings()
@@ -508,8 +451,8 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
                 || multiplier != JDTEConfig.COMMON.crystalIncubatorMaxMultiplier.get()) {
             return false;
         }
-        for (int slot = 0; slot < outputHandler.getSlots(); slot++) {
-            if (!outputHandler.getStackInSlot(slot).isEmpty()) {
+        for (int slot = 0; slot < outputHandler.size(); slot++) {
+            if (!outputHandler.getResource(slot).isEmpty()) {
                 return false;
             }
         }
@@ -525,9 +468,9 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", outputHandler.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", outputHandler);
         tag.putDouble("pendingRandomTicks", pendingRandomTicks);
         tag.putInt("multiplier", multiplier);
         tag.putInt("energy", energyStorage.getEnergyStored());
@@ -535,18 +478,14 @@ public class CrystalIncubatorBE extends TimeAcceleratorBE implements ExtendedUpg
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            outputHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
-        pendingRandomTicks = tag.getDouble("pendingRandomTicks");
-        multiplier = tag.contains("multiplier")
-                ? Math.max(1, Math.min(tag.getInt("multiplier"), JDTEConfig.COMMON.crystalIncubatorMaxMultiplier.get()))
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("inventory").ifPresent(outputHandler::deserialize);
+        pendingRandomTicks = tag.getDoubleOr("pendingRandomTicks", 0D);
+        multiplier = tag.keySet().contains("multiplier")
+                ? Math.max(1, Math.min(tag.getIntOr("multiplier", 0), JDTEConfig.COMMON.crystalIncubatorMaxMultiplier.get()))
                 : JDTEConfig.COMMON.crystalIncubatorMaxMultiplier.get();
-        if (tag.contains("energy")) {
-            energyStorage.setEnergy(tag.getInt("energy"));
-        }
+        tag.getInt("energy").ifPresent(energyStorage::setEnergy);
         loadAreaSettings(tag);
         scanIndex = scanVolume;
     }

@@ -3,7 +3,7 @@ package com.jdte.client.jei.lifesynthesis;
 import com.jdte.common.recipes.LifeSynthesisRecipe;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -15,21 +15,17 @@ import java.util.List;
  * 生命合成舱 JEI 展示对象：培养基输入 + 养分流体 -> 生命流体。
  * 按 tier（plant/protein/enriched）分组排序。
  */
-public record LifeSynthesisJeiRecipe(ResourceLocation id, String tier, List<JeiInput> inputs,
+public record LifeSynthesisJeiRecipe(Identifier id, String tier, List<JeiInput> inputs,
                                      FluidStack nutrient, FluidStack output,
                                      int processTicks, int energy) {
 
     public static List<LifeSynthesisJeiRecipe> getRecipes() {
-        Minecraft minecraft = Minecraft.getInstance();
-        var manager = minecraft.level != null ? minecraft.level.getRecipeManager()
-                : minecraft.getConnection() != null ? minecraft.getConnection().getRecipeManager() : null;
-        if (manager == null) return List.of();
         List<LifeSynthesisJeiRecipe> result = new ArrayList<>();
-        for (var holder : manager.getAllRecipesFor(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get())) {
+        for (var holder : com.jdte.client.ClientRecipeEvents.recipes().byType(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get())) {
             LifeSynthesisRecipe recipe = holder.value();
             List<JeiInput> inputs = recipe.inputs().stream()
-                    .map(input -> new JeiInput(List.of(input.ingredient().getItems()), input.count())).toList();
-            result.add(new LifeSynthesisJeiRecipe(holder.id(), recipe.tier(), inputs,
+                    .map(input -> new JeiInput(input.ingredient().items().map(ItemStack::new).toList(), input.count())).toList();
+            result.add(new LifeSynthesisJeiRecipe(holder.id().identifier(), recipe.tier(), inputs,
                     recipe.nutrient(), recipe.output(), recipe.processTicks(), recipe.energy()));
         }
         result.sort(Comparator.comparing((LifeSynthesisJeiRecipe recipe) -> recipe.tier())

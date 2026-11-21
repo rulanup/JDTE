@@ -1,5 +1,6 @@
 package com.jdte.common.commands;
 
+import net.minecraft.server.permissions.Permissions;
 import com.jdte.common.blockentities.TimeFreezerBE;
 import com.jdte.common.manager.TimeFreezerManager;
 import com.jdte.setup.JDTEConfig;
@@ -22,7 +23,7 @@ import java.util.List;
 public class JDTECommands {
     public static void register(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("jdte")
-                .requires(source -> source.hasPermission(2))
+                .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(Commands.literal("timeaccelerator")
                         .then(Commands.literal("fluidCostMultiplier")
                                 .executes(context -> showFluidCostMultiplier(context.getSource()))
@@ -32,7 +33,7 @@ public class JDTECommands {
                                                 DoubleArgumentType.getDouble(context, "value")
                                         )))))
                 .then(Commands.literal("timefreezer")
-                        .requires(source -> source.hasPermission(4))
+                        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_OWNER))
                         .then(Commands.literal("list")
                                 .executes(context -> listTimeFreezers(context.getSource())))));
     }
@@ -63,13 +64,13 @@ public class JDTECommands {
             if (level == null) {
                 continue;
             }
-            String dimension = level.dimension().location().toString();
+            String dimension = level.dimension().identifier().toString();
             BlockPos pos = freezer.getBlockPos();
             boolean active = TimeFreezerManager.isActive(freezer);
             Component status = Component.translatable(active
                             ? "command.jdte.timefreezer.active" : "command.jdte.timefreezer.inactive")
                     .withStyle(active ? ChatFormatting.GREEN : ChatFormatting.GRAY);
-            Component coordinates = interactiveCoordinates(dimension, pos, source.hasPermission(2));
+            Component coordinates = interactiveCoordinates(dimension, pos, source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
             int fluid = freezer.getFluidTank().getFluidAmount();
             int capacity = freezer.getMaxMB();
             source.sendSuccess(() -> Component.translatable("command.jdte.timefreezer.list.entry",
@@ -87,8 +88,8 @@ public class JDTECommands {
         String command = "/tp @s " + (pos.getX() + 0.5D) + " " + (pos.getY() + 1) + " "
                 + (pos.getZ() + 0.5D);
         return coordinates.withStyle(style -> style.withUnderlined(true)
-                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                .withClickEvent(new ClickEvent.RunCommand(command))
+                .withHoverEvent(new HoverEvent.ShowText(
                         Component.translatable("command.jdte.timefreezer.list.teleport_hint", dimension))));
     }
 }

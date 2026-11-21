@@ -1,33 +1,19 @@
 package com.jdte.client.renderers;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import com.direwolf20.justdirethings.client.blockentityrenders.baseber.AreaAffectingBER.AreaAffectingRenderState;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 
-public class AreaAffectingBER implements BlockEntityRenderer<BlockEntity> {
+public class AreaAffectingBER<T extends BlockEntity, S extends AreaAffectingRenderState>
+        extends com.direwolf20.justdirethings.client.blockentityrenders.baseber.AreaAffectingBER<T, S> {
     public AreaAffectingBER(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public void render(BlockEntity blockentity, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn) {
-        if (blockentity instanceof AreaAffectingBE areaAffectingBE) {
-            if (areaAffectingBE.getAreaAffectingData().renderArea) {
-                BlockPos blockPos = blockentity.getBlockPos();
-                AreaPreviewRenderBatch.enqueueMain(areaAffectingBE.getAABB(BlockPos.ZERO).move(blockPos));
-                if (areaAffectingBE.getAreaAffectingData().xRadius > 0 || areaAffectingBE.getAreaAffectingData().yRadius > 0 || areaAffectingBE.getAreaAffectingData().zRadius > 0) {
-                    AreaPreviewRenderBatch.enqueueOffset(areaAffectingBE.getAABBOffsetOnly(BlockPos.ZERO).move(blockPos));
-                }
-            }
-        }
-    }
-
-    @Override
-    public AABB getRenderBoundingBox(BlockEntity blockEntity) {
+    public AABB getRenderBoundingBox(T blockEntity) {
         if (blockEntity instanceof AreaAffectingBE areaAffectingBE) {
             BlockPos blockPos = blockEntity.getBlockPos();
             AABB bounds = areaAffectingBE.getAABB(BlockPos.ZERO).move(blockPos)

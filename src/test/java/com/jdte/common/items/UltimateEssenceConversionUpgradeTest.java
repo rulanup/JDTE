@@ -5,7 +5,7 @@ import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class UltimateEssenceConversionUpgradeTest {
+class UltimateEssenceConversionUpgradeTest implements com.jdte.test.WorldRegistryTest {
 
     @Test
     void ultimateEssenceConversionUpgradeHasMaxIntegerPatternLimitAndCorrectUpgradeType() {
@@ -89,7 +89,7 @@ class UltimateEssenceConversionUpgradeTest {
         List<CraftingPatternData> patterns = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             patterns.add(new CraftingPatternData(
-                    ResourceLocation.fromNamespaceAndPath("minecraft", "bread_" + i),
+                    Identifier.fromNamespaceAndPath("minecraft", "bread_" + i),
                     nineWheat,
                     new ItemStack(Items.BREAD, i + 1)
             ));
@@ -98,7 +98,7 @@ class UltimateEssenceConversionUpgradeTest {
         stack.set(JDTEDataComponents.ESSENCE_CONVERSION_PATTERNS.get(), patterns);
 
         List<Component> normalTooltip = new ArrayList<>();
-        item.appendHoverText(stack, Item.TooltipContext.EMPTY, normalTooltip, TooltipFlag.NORMAL);
+        item.appendHoverText(stack, Item.TooltipContext.EMPTY, net.minecraft.world.item.component.TooltipDisplay.DEFAULT, normalTooltip::add, TooltipFlag.NORMAL);
 
         // Max 5 patterns displayed under NORMAL flag, plus the 'more' component for remaining 3 patterns
         boolean foundMore = normalTooltip.stream().anyMatch(c ->
@@ -109,7 +109,7 @@ class UltimateEssenceConversionUpgradeTest {
         assertTrue(foundMore, "Should display '... and 3 more patterns' in normal tooltip");
 
         List<Component> advancedTooltip = new ArrayList<>();
-        item.appendHoverText(stack, Item.TooltipContext.EMPTY, advancedTooltip, TooltipFlag.ADVANCED);
+        item.appendHoverText(stack, Item.TooltipContext.EMPTY, net.minecraft.world.item.component.TooltipDisplay.DEFAULT, advancedTooltip::add, TooltipFlag.ADVANCED);
 
         // Under ADVANCED flag, limit is 10, so 8 patterns should all be displayed without 'more'
         boolean foundMoreAdvanced = advancedTooltip.stream().anyMatch(c ->

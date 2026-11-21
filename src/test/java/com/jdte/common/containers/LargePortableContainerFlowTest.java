@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LargePortableContainerFlowTest {
+class LargePortableContainerFlowTest implements com.jdte.test.WorldRegistryTest {
     @Test
     void handheldResolutionAlwaysUsesMainHandEvenWhenOffhandTriggered() {
         ItemStack mainHand = new ItemStack(JDTEItems.LARGE_POCKET_GENERATOR.get());

@@ -1,6 +1,6 @@
 package com.jdte.common.minerals;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 
 import java.math.BigInteger;
@@ -22,7 +22,7 @@ public final class MineralProductionEngine {
 
     /** 合并多张清单中的同类矿物；权重饱和累加，避免重复候选和 long 溢出。 */
     public static List<MineralEntry> mergeWeightedEntries(List<MineralEntry> entries) {
-        Map<ResourceLocation, MineralEntry> merged = new LinkedHashMap<>();
+        Map<Identifier, MineralEntry> merged = new LinkedHashMap<>();
         for (MineralEntry entry : entries) {
             merged.merge(entry.oreId(), entry, (left, right) -> new MineralEntry(
                     left.oreId(),
@@ -85,7 +85,7 @@ public final class MineralProductionEngine {
 
         long scaledCycles = applyPercent(cycles, Math.max(0, fortunePercent), random);
         BigInteger scaled = BigInteger.valueOf(scaledCycles);
-        Map<ResourceLocation, Long> amounts = new LinkedHashMap<>();
+        Map<Identifier, Long> amounts = new LinkedHashMap<>();
         List<Fraction> fractions = new ArrayList<>(entries.size());
         long assigned = 0L;
         for (MineralEntry entry : entries) {
@@ -160,7 +160,7 @@ public final class MineralProductionEngine {
         return left > Long.MAX_VALUE / right ? Long.MAX_VALUE : left * right;
     }
 
-    private record Fraction(ResourceLocation id, BigInteger remainder) {
+    private record Fraction(Identifier id, BigInteger remainder) {
     }
 
     public record WorkAllocation(long baseWork, long acceleratedWork) {
@@ -175,7 +175,7 @@ public final class MineralProductionEngine {
         }
     }
 
-    public record Batch(long consumedCycles, Map<ResourceLocation, Long> amounts) {
+    public record Batch(long consumedCycles, Map<Identifier, Long> amounts) {
         public long producedItems() {
             return amounts.values().stream().reduce(0L, MineralProductionEngine::saturatingAdd);
         }

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class EnergyOverloadUpgradeTest {
+class EnergyOverloadUpgradeTest implements com.jdte.test.WorldRegistryTest {
 
     @Test
     void itemRegistrationAndProperties() {
@@ -39,7 +39,7 @@ class EnergyOverloadUpgradeTest {
         ExtendedEnergyTransmitterBE extended = new ExtendedEnergyTransmitterBE(
                 BlockPos.ZERO, JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get().defaultBlockState());
         GeneratorT1BE generator = new GeneratorT1BE(BlockPos.ZERO,
-                com.direwolf20.justdirethings.setup.Registration.GeneratorT1.get().defaultBlockState());
+                com.direwolf20.justdirethings.setup.JDTRegistration.GeneratorT1.get().defaultBlockState());
 
         assertTrue(UpgradeHelper.isEnergyTransmitter(advanced));
         assertTrue(UpgradeHelper.isEnergyTransmitter(extended));
@@ -62,7 +62,7 @@ class EnergyOverloadUpgradeTest {
 
         // Non-energy transmitter machine handler must reject it
         GeneratorT1BE generator = new GeneratorT1BE(BlockPos.ZERO,
-                com.direwolf20.justdirethings.setup.Registration.GeneratorT1.get().defaultBlockState());
+                com.direwolf20.justdirethings.setup.JDTRegistration.GeneratorT1.get().defaultBlockState());
         UpgradeItemStackHandler generatorHandler = UpgradeHelper.getUpgradeHandler(generator);
         assertFalse(generatorHandler.isItemValid(0, overloadStack));
     }

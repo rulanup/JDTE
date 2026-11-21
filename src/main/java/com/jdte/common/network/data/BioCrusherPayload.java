@@ -5,10 +5,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record BioCrusherPayload(int mode) implements CustomPacketPayload {
-    public static final Type<BioCrusherPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "bio_crusher"));
+    public static final Type<BioCrusherPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(JDTE.MODID, "bio_crusher"));
 
     @Override
     public Type<BioCrusherPayload> type() {

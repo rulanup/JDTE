@@ -18,7 +18,9 @@ public final class MineralSurveyClientCache {
         if (synced && surveys.equals(updated)) return;
         surveys = updated;
         synced = true;
-        JDTEJeiPlugin.refreshMineralExtractorRecipes();
+        if (net.neoforged.fml.ModList.get().isLoaded("jei")) {
+            JDTEJeiPlugin.refreshMineralExtractorRecipes();
+        }
     }
 
     public static List<MineralSurveyData> get() {

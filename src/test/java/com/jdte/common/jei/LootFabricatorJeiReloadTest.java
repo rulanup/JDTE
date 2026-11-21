@@ -6,7 +6,7 @@ import com.jdte.common.utils.LootDropInfo;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.runtime.IJeiRuntime;
 import mezz.jei.api.runtime.IIngredientManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import mezz.jei.api.constants.VanillaTypes;
@@ -23,7 +23,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LootFabricatorJeiReloadTest {
+class LootFabricatorJeiReloadTest implements com.jdte.test.WorldRegistryTest {
     private final JDTEJeiPlugin plugin = new JDTEJeiPlugin();
 
     @AfterEach
@@ -49,9 +49,9 @@ class LootFabricatorJeiReloadTest {
                     }
                     assertSame(VanillaTypes.ITEM_STACK, args[0]);
                     List<ItemStack> hidden = (List<ItemStack>) args[1];
-                    assertEquals(Set.of(ResourceLocation.parse("jdte:xingye_fumo"),
-                                    ResourceLocation.parse("jdte:cainiaoyo_fumo"),
-                                    ResourceLocation.parse("jdte:maiqilin_fumo")),
+                    assertEquals(Set.of(Identifier.parse("jdte:xingye_fumo"),
+                                    Identifier.parse("jdte:cainiaoyo_fumo"),
+                                    Identifier.parse("jdte:maiqilin_fumo")),
                             hidden.stream().map(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()))
                                     .collect(java.util.stream.Collectors.toSet()),
                             "Only the three dolls are hidden by default");
@@ -86,8 +86,8 @@ class LootFabricatorJeiReloadTest {
         assertTrue(visible.iterator().next().possibleDrops().getFirst().stack().is(Items.ROTTEN_FLESH));
     }
 
-    private static Map<ResourceLocation, List<LootDropInfo>> snapshot(String drop, int count) {
-        return Map.of(ResourceLocation.parse("minecraft:zombie_spawn_egg"),
-                List.of(new LootDropInfo(ResourceLocation.parse(drop), count, count, "")));
+    private static Map<Identifier, List<LootDropInfo>> snapshot(String drop, int count) {
+        return Map.of(Identifier.parse("minecraft:zombie_spawn_egg"),
+                List.of(new LootDropInfo(Identifier.parse(drop), count, count, "")));
     }
 }

@@ -32,11 +32,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "returns one Large Mineral Extractor.$(br2)$(bold)Production and Resources$()"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Base 1x production needs only FE; both fluids are optional. Without fortune fluid (Experience Fluid by default), yield stays normal. Without acceleration fluid (Time Fluid by default), production stays at base 1x. Creative upgrades and zero-cost fluid settings waive the corresponding costs. These rules apply to both extractor sizes."
+      "text": "returns one Large Mineral Extractor.$(br2)$(bold)Production and Resources$()$(br2)Base 1x production needs only FE; both fluids are optional. Without fortune fluid (Experience Fluid by default), yield stays normal. Without acceleration fluid (Time Fluid by default), production stays at base 1x. Creative upgrades and zero-cost fluid settings waive the corresponding costs. These rules apply to both extractor sizes."
     },
     {
       "type": "patchouli:text",

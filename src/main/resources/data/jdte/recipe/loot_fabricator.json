@@ -3,12 +3,12 @@
   "category": "misc",
   "pattern": ["CLC", "PNS", "CTC"],
   "key": {
-    "C": { "item": "jdte:capacity_upgrade" },
-    "L": { "item": "jdte:looting_upgrade" },
-    "P": { "item": "jdte:extended_block_placer" },
-    "N": { "item": "minecraft:nether_star" },
-    "S": { "item": "jdte:extended_life_extractor" },
-    "T": { "item": "jdte:advanced_time_accelerator" }
+    "C": "jdte:capacity_upgrade",
+    "L": "jdte:looting_upgrade",
+    "P": "jdte:extended_block_placer",
+    "N": "minecraft:nether_star",
+    "S": "jdte:extended_life_extractor",
+    "T": "jdte:advanced_time_accelerator"
   },
   "result": { "id": "jdte:loot_fabricator", "count": 1 }
 }

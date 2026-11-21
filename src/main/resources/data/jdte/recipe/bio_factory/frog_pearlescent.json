@@ -1,9 +1,9 @@
 {
   "type": "jdte:bio_factory",
-  "specimen": { "item": "minecraft:frog_spawn_egg" },
+  "specimen": "minecraft:frog_spawn_egg",
   "inputs": [
-    { "ingredient": { "item": "minecraft:magma_cream" }, "count": 4 },
-    { "ingredient": { "item": "minecraft:sand" } }
+    { "ingredient": "minecraft:magma_cream", "count": 4 },
+    { "ingredient": "minecraft:sand" }
   ],
   "outputs": [
     { "item": { "id": "minecraft:pearlescent_froglight", "count": 1 } }

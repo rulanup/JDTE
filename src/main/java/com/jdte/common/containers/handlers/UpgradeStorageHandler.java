@@ -4,54 +4,33 @@ import com.jdte.common.containers.UpgradeStorageContainer;
 import com.jdte.common.items.UpgradeStorageItem;
 import com.jdte.setup.JDTEDataComponents;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemContainerContents;
-import net.neoforged.neoforge.items.ComponentItemHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
-public class UpgradeStorageHandler extends ComponentItemHandler {
-    public UpgradeStorageHandler(ItemStack storageStack) {
-        super(storageStack, JDTEDataComponents.UPGRADE_STORAGE_CONTENTS.get(), UpgradeStorageContainer.SLOTS);
+public class UpgradeStorageHandler extends BatchComponentItemHandler {
+    public UpgradeStorageHandler(ItemStack storage) {
+        this(ItemAccess.forStack(storage), UpgradeStorageContainer.SLOTS);
     }
 
-    @Override
-    public int getSlotLimit(int slot) {
+    public UpgradeStorageHandler(ItemAccess access, int slots) {
+        super(access, JDTEDataComponents.UPGRADE_STORAGE_CONTENTS.get(), slots);
+    }
+
+    public int store(ItemStack stack) {
+        try (var tx = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            int stored = net.neoforged.neoforge.transfer.ResourceHandlerUtil.insertStacking(
+                    this, ItemResource.of(stack), stack.getCount(), tx);
+            tx.commit();
+            return stored;
+        }
+    }
+
+    @Override public boolean isValid(int slot, ItemResource resource) {
+        return super.isValid(slot, resource) && !resource.isEmpty()
+                && UpgradeStorageItem.isAllowedUpgrade(resource.toStack());
+    }
+
+    @Override protected int getCapacity(int slot, ItemResource resource) {
         return 64;
-    }
-
-    @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        return stack.isEmpty() || UpgradeStorageItem.isAllowedUpgrade(stack);
-    }
-
-    @Override
-    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack toInsert, boolean simulate) {
-        this.validateSlotIndex(slot);
-        if (toInsert.isEmpty()) {
-            return ItemStack.EMPTY;
-        }
-        if (!this.isItemValid(slot, toInsert)) {
-            return toInsert;
-        }
-
-        ItemContainerContents contents = this.getContents();
-        ItemStack existing = this.getStackFromContents(contents, slot);
-        int insertLimit = this.getSlotLimit(slot);
-
-        if (!existing.isEmpty()) {
-            if (!ItemStack.isSameItemSameComponents(toInsert, existing)) {
-                return toInsert;
-            }
-            insertLimit -= existing.getCount();
-        }
-
-        if (insertLimit <= 0) {
-            return toInsert;
-        }
-
-        int inserted = Math.min(insertLimit, toInsert.getCount());
-        if (!simulate) {
-            this.updateContents(contents, toInsert.copyWithCount(existing.getCount() + inserted), slot);
-        }
-        return toInsert.copyWithCount(toInsert.getCount() - inserted);
     }
 }

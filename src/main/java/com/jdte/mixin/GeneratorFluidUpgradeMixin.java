@@ -2,8 +2,7 @@ package com.jdte.mixin;
 
 import com.direwolf20.justdirethings.common.blockentities.GeneratorFluidT1BE;
 import com.jdte.common.upgrades.UpgradeHelper;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,10 +26,13 @@ public abstract class GeneratorFluidUpgradeMixin {
             ci.cancel();
             return;
         }
-        FluidStack extracted = generator.getFluidTank().drain(2, IFluidHandler.FluidAction.EXECUTE);
-        if (extracted.getAmount() < 2) {
-            ci.cancel();
-            return;
+        var tank = generator.getFluidTank();
+        try (var tx = Transaction.openRoot()) {
+            if (tank.extract(0, tank.getResource(0), 2, tx) != 2) {
+                ci.cancel();
+                return;
+            }
+            tx.commit();
         }
         generator.insertEnergy(generated, false);
         generator.setChanged();

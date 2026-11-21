@@ -12,7 +12,7 @@ import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.setup.Config;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -24,9 +24,9 @@ import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,7 +39,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -152,7 +151,7 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
             }
 
             if (fluidDrain > 0) {
-                fluidTank.drain(fluidDrain, IFluidHandler.FluidAction.EXECUTE);
+                fluidTank.extractFluid(fluidDrain);
             }
             pendingFluidCost = settlement.remainingCost();
 
@@ -164,7 +163,7 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
         for (LivingEntity entity : targets) {
             EntityAccelerationManager.runAcceleratedTicks(entity, extraTicks);
 
-            if (serverLevel.random.nextFloat() < 0.25F) {
+            if (serverLevel.getRandom().nextFloat() < 0.25F) {
                 serverLevel.sendParticles(ParticleTypes.ENCHANT,
                         entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ(),
                         2, entity.getBbWidth() * 0.3D, entity.getBbHeight() * 0.25D, entity.getBbWidth() * 0.3D, 0.05D);
@@ -191,8 +190,8 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
         FilterBasicHandler handler = getFilterHandler();
         if (handler == null) return;
         int fingerprint = filterData.allowlist ? 1 : 0;
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
+        for (int slot = 0; slot < handler.size(); slot++) {
+            ItemStack stack = handler.getResource(slot).toStack(handler.getAmountAsInt(slot));
             fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(stack);
         }
         if (fingerprint == filterFingerprint && cachedFilterAllowlist == filterData.allowlist) {
@@ -201,8 +200,8 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
         filterFingerprint = fingerprint;
         cachedFilterAllowlist = filterData.allowlist;
         cachedFilterTypes.clear();
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
+        for (int slot = 0; slot < handler.size(); slot++) {
+            ItemStack stack = handler.getResource(slot).toStack(handler.getAmountAsInt(slot));
             if (stack.getItem() instanceof SpawnEggItem egg) {
                 cachedFilterTypes.add(egg.getType(stack));
             }
@@ -272,7 +271,7 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -320,29 +319,21 @@ public class AdvancedEntityAcceleratorBE extends BaseMachineBE implements AreaAf
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("fluidTank", fluidTank);
         tag.putDouble("pendingFluidCost", pendingFluidCost);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("multiplier", multiplier);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
         filterFingerprint = -1;
-        if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
-        }
-        if (tag.contains("pendingFluidCost")) {
-            pendingFluidCost = tag.getDouble("pendingFluidCost");
-        }
-        if (tag.contains("energy")) {
-            energyStorage.setEnergy(tag.getInt("energy"));
-        }
-        if (tag.contains("multiplier")) {
-            setMultiplier(tag.getInt("multiplier"));
-        }
+        tag.child("fluidTank").ifPresent(fluidTank::deserialize);
+        pendingFluidCost = tag.getDoubleOr("pendingFluidCost", pendingFluidCost);
+        tag.getInt("energy").ifPresent(energyStorage::setEnergy);
+        tag.getInt("multiplier").ifPresent(this::setMultiplier);
     }
 }

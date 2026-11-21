@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public class AdvancedEnergyTransmitterBlock extends EnergyTransmitter {
-    public AdvancedEnergyTransmitterBlock() {
-        super();
+    public AdvancedEnergyTransmitterBlock(Properties properties) {
+        super(properties.sound(net.minecraft.world.level.block.SoundType.METAL).strength(2.0F).noOcclusion().forceSolidOn().isRedstoneConductor(com.direwolf20.justdirethings.common.blocks.baseblocks.BaseMachineBlock::never));
     }
 
     @Nullable

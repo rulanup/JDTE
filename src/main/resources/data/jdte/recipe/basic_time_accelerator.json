@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": { "item": "minecraft:copper_block" },
-    "F": { "item": "jdte:fluid_upgrade" },
-    "T": { "item": "justdirethings:time_crystal" }
+    "C": "minecraft:copper_block",
+    "F": "jdte:fluid_upgrade",
+    "T": "justdirethings:time_crystal"
   },
   "pattern": [
     "TCT",

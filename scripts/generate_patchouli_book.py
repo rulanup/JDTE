@@ -56,7 +56,7 @@ CATEGORIES = (
         "jdte:capacity_upgrade",
         10,
         (
-            "upgrades", "extended-upgrade", "extended-machines", "eclipsealloy-wrench", "boss-essences",
+            "upgrades", "crafting-patterns", "extended-upgrade", "extended-machines", "eclipsealloy-wrench", "boss-essences",
             "ultimate-portal-gun", "big-fluid-tank", "large-pocket-generator",
             "large-potion-canister", "large-fuel-canister", "time-multitool", "ultimate-time-wand", "repair-talisman",
         ),
@@ -70,7 +70,7 @@ CATEGORIES = (
         "time_energy",
         "jdte:advanced_time_accelerator",
         20,
-        ("time-accelerator", "entity-accelerator", "time-freezer", "advanced-energy-transmitter"),
+        ("time-accelerator", "entity-accelerator", "time-freezer", "advanced-energy-transmitter", "charged-lightning-rod", "creative-energy-cell"),
         {"zh_cn": "时间与能源", "en_us": "Time & Energy"},
         {
             "zh_cn": "时间流体、时间控制和能源传输。",
@@ -83,7 +83,7 @@ CATEGORIES = (
         30,
         (
             "advanced-item-collector", "item-sender", "item-receiver", "fluid-sender",
-            "fluid-receiver", "fluid-stabilizer", "glue-activator", "gel-generator",
+            "fluid-receiver", "fluid-stabilizer", "fluid-mixer", "glue-activator", "gel-generator",
             "factory-packer",
         ),
         {"zh_cn": "物流与自动化", "en_us": "Logistics & Automation"},
@@ -111,7 +111,7 @@ CATEGORIES = (
         "jdte:bio_factory",
         50,
         (
-            "bio-crusher", "bio-factory", "life-breeder", "life-extractor",
+            "bio-crusher", "bio-extractor", "bio-factory", "life-breeder", "life-extractor",
             "life-synthesis-vat", "infusion-machine", "loot-fabricator",
         ),
         {"zh_cn": "生物与生命", "en_us": "Biology & Life"},
@@ -124,7 +124,7 @@ CATEGORIES = (
         "control_special",
         "jdte:entity_suppressor",
         60,
-        ("entity-suppressor", "range-blocker", "advanced-potion-brewer"),
+        ("entity-suppressor", "range-blocker", "advanced-potion-brewer", "decorative-fumo"),
         {"zh_cn": "控制与特殊机器", "en_us": "Control & Special Machines"},
         {
             "zh_cn": "实体控制、范围限制和药水酿造。",

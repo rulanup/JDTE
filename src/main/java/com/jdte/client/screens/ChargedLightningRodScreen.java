@@ -3,7 +3,7 @@ package com.jdte.client.screens;
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.jdte.common.blockentities.ChargedLightningRodMode;
 import com.jdte.common.containers.ChargedLightningRodContainer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -54,17 +54,17 @@ public class ChargedLightningRodScreen extends BaseMachineScreen<ChargedLightnin
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderLabels(graphics, mouseX, mouseY);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractLabels(graphics, mouseX, mouseY);
         int labelY = topSectionTop - topPos + 6;
         ChargedLightningRodMode mode = menu.getMode();
-        graphics.drawString(font, Component.translatable("jdte.screen.charged_lightning_rod.cost", mode.energyPerStrike),
+        graphics.text(font, Component.translatable("jdte.screen.charged_lightning_rod.cost", mode.energyPerStrike),
                 8, labelY, 0x404040, false);
-        graphics.drawString(font, Component.translatable(mode == ChargedLightningRodMode.NORMAL
+        graphics.text(font, Component.translatable(mode == ChargedLightningRodMode.NORMAL
                         ? "jdte.screen.charged_lightning_rod.normal_rate" : "jdte.screen.charged_lightning_rod.boosted_rate",
                 mode == ChargedLightningRodMode.NORMAL ? mode.intervalTicks / 20 : mode.strikesPerCycle),
                 8, labelY + 11, 0x404040, false);
-        graphics.drawString(font, Component.translatable(menu.isWeatherAllowed()
+        graphics.text(font, Component.translatable(menu.isWeatherAllowed()
                         ? "jdte.screen.charged_lightning_rod.weather_ready" : "jdte.screen.charged_lightning_rod.waiting_storm"),
                 8, labelY + 22, menu.isWeatherAllowed() ? 0x306030 : 0x993333, false);
     }

@@ -2,7 +2,7 @@
   "type": "jdte:life_synthesis",
   "tier": "protein",
   "inputs": [
-    { "ingredient": [ { "item": "minecraft:beef" }, { "item": "minecraft:cooked_beef" } ], "count": 4 }
+    { "ingredient": [ "minecraft:beef", "minecraft:cooked_beef" ], "count": 4 }
   ],
   "fluid_inputs": [ { "id": "minecraft:water", "amount": 1000 } ],
   "output": { "id": "jdte:life_fluid_source", "amount": 500 },

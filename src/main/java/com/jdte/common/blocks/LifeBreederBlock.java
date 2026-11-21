@@ -6,7 +6,7 @@ import com.jdte.common.containers.LifeBreederContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,12 +19,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 
 public class LifeBreederBlock extends BaseMachineBlock {
-    public LifeBreederBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(4.0F).requiresCorrectToolForDrops()
+    public LifeBreederBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(4.0F).requiresCorrectToolForDrops()
                 .noOcclusion());
     }
 
-    @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    @Override protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                                         Player player, InteractionHand hand, BlockHitResult hit) {
         return FluidContainerTransfer.useItemOn(stack, state, level, pos, player, hand, hit);
     }

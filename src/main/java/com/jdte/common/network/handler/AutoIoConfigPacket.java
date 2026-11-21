@@ -45,7 +45,7 @@ public class AutoIoConfigPacket {
     }
 
     public void handleClient(AutoIoConfigSyncPayload payload, IPayloadContext context) {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             ClientHandler.handle(payload, context);
         }
     }

@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -29,13 +29,15 @@ import net.minecraft.world.level.block.state.BlockState;
 public class EclipseAlloyWrenchItem extends FerricoreWrench {
     private static final String JDT_MODID = "justdirethings";
 
-    public EclipseAlloyWrenchItem() {
-        super();
+    public EclipseAlloyWrenchItem(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Override
-    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-        return !player.getAbilities().instabuild && super.canAttackBlock(state, level, pos, player);
+    public boolean canDestroyBlock(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                   net.minecraft.world.entity.LivingEntity user) {
+        return !(user instanceof Player player && player.getAbilities().instabuild)
+                && super.canDestroyBlock(stack, state, level, pos, user);
     }
 
     @Override
@@ -121,7 +123,7 @@ public class EclipseAlloyWrenchItem extends FerricoreWrench {
     }
 
     private static boolean isMovableMachineBlock(Block block) {
-        ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
+        Identifier id = BuiltInRegistries.BLOCK.getKey(block);
         return id != null && (JDTE.MODID.equals(id.getNamespace()) || JDT_MODID.equals(id.getNamespace()));
     }
 }

@@ -3,25 +3,25 @@ package com.jdte.common.greenhouse;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GreenhouseFluidSettlementTest {
-    private static final ResourceLocation WATER = ResourceLocation.withDefaultNamespace("water");
-    private static final ResourceLocation LAVA = ResourceLocation.withDefaultNamespace("lava");
-    private static final ResourceLocation UNKNOWN =
-            ResourceLocation.fromNamespaceAndPath("jdte", "missing_fluid");
+class GreenhouseFluidSettlementTest implements com.jdte.test.WorldRegistryTest {
+    private static final Identifier WATER = Identifier.withDefaultNamespace("water");
+    private static final Identifier LAVA = Identifier.withDefaultNamespace("lava");
+    private static final Identifier UNKNOWN =
+            Identifier.fromNamespaceAndPath("jdte", "missing_fluid");
 
     @Test
     void normalPathBudgetsMatchingFluidAndDrainsOnlyPaidHarvests() {
@@ -115,7 +115,7 @@ class GreenhouseFluidSettlementTest {
                 limited, WATER, 100, 1, false));
         assertFalse(GreenhouseFluidSettlement.normalTryPay(
                 limited, WATER, 100, 1, false));
-        assertEquals(60, limited.getFluidInTank(0).getAmount());
+        assertEquals(100, limited.getAmountAsInt(0));
     }
 
     @Test
@@ -123,7 +123,7 @@ class GreenhouseFluidSettlementTest {
         JDTEFluidTank firstWater = tank(new FluidStack(Fluids.WATER, 30));
         JDTEFluidTank lava = tank(new FluidStack(Fluids.LAVA, 1_000));
         JDTEFluidTank secondWater = tank(new FluidStack(Fluids.WATER, 50));
-        List<IFluidHandler> members = List.of(firstWater, lava, secondWater);
+        var members = List.of(firstWater, lava, secondWater);
 
         assertEquals(8, GreenhouseFluidSettlement.largeSupportedHarvests(
                 members, WATER, 90, 20, false));
@@ -140,26 +140,26 @@ class GreenhouseFluidSettlementTest {
         firstVariant.set(DataComponents.CUSTOM_NAME, Component.literal("first"));
         FluidStack secondVariant = new FluidStack(Fluids.WATER, 50);
         secondVariant.set(DataComponents.CUSTOM_NAME, Component.literal("second"));
-        MultiTankHandler firstMember = multiTank(firstVariant, new FluidStack(Fluids.LAVA, 1_000));
-        MultiTankHandler secondMember = multiTank(new FluidStack(Fluids.WATER, 40), secondVariant);
+        var firstMember = multiTank(firstVariant, new FluidStack(Fluids.LAVA, 1_000));
+        var secondMember = multiTank(new FluidStack(Fluids.WATER, 40), secondVariant);
 
         assertEquals(12, GreenhouseFluidSettlement.largeSupportedHarvests(
                 List.of(firstMember, secondMember), WATER, 90, 20, false));
         assertTrue(GreenhouseFluidSettlement.largeTryPay(
                 List.of(firstMember, secondMember), WATER, 90, 10, false));
-        assertEquals(0, firstMember.getFluidInTank(0).getAmount());
-        assertEquals(1_000, firstMember.getFluidInTank(1).getAmount());
-        assertEquals(0, secondMember.getFluidInTank(0).getAmount());
-        assertEquals(20, secondMember.getFluidInTank(1).getAmount());
+        assertEquals(0, firstMember.getAmountAsInt(0));
+        assertEquals(1_000, firstMember.getAmountAsInt(1));
+        assertEquals(0, secondMember.getAmountAsInt(0));
+        assertEquals(20, secondMember.getAmountAsInt(1));
         assertEquals(Component.literal("second"),
-                secondMember.getFluidInTank(1).get(DataComponents.CUSTOM_NAME));
+                secondMember.getResource(1).toStack(1).get(DataComponents.CUSTOM_NAME));
     }
 
     @Test
     void largePathTreatsEmptyWrongAndUnknownFluidsAsUnavailable() {
         JDTEFluidTank empty = tank(FluidStack.EMPTY);
         JDTEFluidTank lava = tank(new FluidStack(Fluids.LAVA, 1_000));
-        List<IFluidHandler> members = List.of(empty, lava);
+        var members = List.of(empty, lava);
 
         assertEquals(0, GreenhouseFluidSettlement.largeSupportedHarvests(
                 members, WATER, 90, 12, false));
@@ -201,82 +201,35 @@ class GreenhouseFluidSettlementTest {
                 List.of(first, limited), WATER, 90, 10, false));
         assertFalse(GreenhouseFluidSettlement.largeTryPay(
                 List.of(first, limited), WATER, 90, 10, false));
-        assertEquals(0, first.getFluidAmount());
-        assertEquals(50, limited.getFluidInTank(0).getAmount());
+        assertEquals(30, first.getFluidAmount());
+        assertEquals(70, limited.getAmountAsInt(0));
     }
 
     private static JDTEFluidTank tank(FluidStack initial) {
         JDTEFluidTank tank = new JDTEFluidTank(2_000, stack -> !stack.isEmpty());
-        if (!initial.isEmpty()) tank.fill(initial, IFluidHandler.FluidAction.EXECUTE);
+        tank.setFluid(initial);
         return tank;
     }
 
-    private static MultiTankHandler multiTank(FluidStack... initial) {
-        List<FluidTank> tanks = new ArrayList<>(initial.length);
-        for (FluidStack stack : initial) {
-            FluidTank tank = new FluidTank(2_000);
-            tank.setFluid(stack.copy());
-            tanks.add(tank);
+    private static FluidStacksResourceHandler multiTank(FluidStack... initial) {
+        var tanks = new FluidStacksResourceHandler(initial.length, 2_000);
+        for (int i = 0; i < initial.length; i++) {
+            tanks.set(i, FluidResource.of(initial[i]), initial[i].getAmount());
         }
-        return new MultiTankHandler(tanks);
+        return tanks;
     }
 
-    private record MultiTankHandler(List<FluidTank> tanks) implements IFluidHandler {
-        @Override public int getTanks() { return tanks.size(); }
-        @Override public FluidStack getFluidInTank(int tank) { return tanks.get(tank).getFluid(); }
-        @Override public int getTankCapacity(int tank) { return tanks.get(tank).getCapacity(); }
-        @Override public boolean isFluidValid(int tank, FluidStack stack) {
-            return tanks.get(tank).isFluidValid(stack);
-        }
-        @Override public int fill(FluidStack resource, FluidAction action) {
-            int filled = 0;
-            for (FluidTank tank : tanks) {
-                if (filled >= resource.getAmount()) break;
-                filled += tank.fill(resource.copyWithAmount(resource.getAmount() - filled), action);
-            }
-            return filled;
-        }
-        @Override public FluidStack drain(FluidStack resource, FluidAction action) {
-            FluidStack result = FluidStack.EMPTY;
-            int remaining = resource.getAmount();
-            for (FluidTank tank : tanks) {
-                if (remaining == 0) break;
-                FluidStack drained = tank.drain(resource.copyWithAmount(remaining), action);
-                if (drained.isEmpty()) continue;
-                if (result.isEmpty()) result = drained.copy();
-                else result.grow(drained.getAmount());
-                remaining -= drained.getAmount();
-            }
-            return result;
-        }
-        @Override public FluidStack drain(int maxDrain, FluidAction action) {
-            for (FluidTank tank : tanks) {
-                FluidStack drained = tank.drain(maxDrain, action);
-                if (!drained.isEmpty()) return drained;
-            }
-            return FluidStack.EMPTY;
-        }
-    }
-
-    private static final class PerCallLimitedHandler implements IFluidHandler {
-        private final FluidTank tank = new FluidTank(2_000);
+    private static final class PerCallLimitedHandler extends FluidStacksResourceHandler {
         private final int limit;
 
         private PerCallLimitedHandler(FluidStack initial, int limit) {
-            tank.setFluid(initial.copy());
+            super(1, 2_000);
+            set(0, FluidResource.of(initial), initial.getAmount());
             this.limit = limit;
         }
 
-        @Override public int getTanks() { return 1; }
-        @Override public FluidStack getFluidInTank(int tankIndex) { return tank.getFluid(); }
-        @Override public int getTankCapacity(int tankIndex) { return tank.getCapacity(); }
-        @Override public boolean isFluidValid(int tankIndex, FluidStack stack) { return tank.isFluidValid(stack); }
-        @Override public int fill(FluidStack resource, FluidAction action) { return tank.fill(resource, action); }
-        @Override public FluidStack drain(FluidStack resource, FluidAction action) {
-            return tank.drain(resource.copyWithAmount(Math.min(limit, resource.getAmount())), action);
-        }
-        @Override public FluidStack drain(int maxDrain, FluidAction action) {
-            return tank.drain(Math.min(limit, maxDrain), action);
+        @Override public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            return super.extract(index, resource, Math.min(limit, amount), transaction);
         }
     }
 }

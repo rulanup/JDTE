@@ -14,7 +14,7 @@ public class WrenchAreaAdjustResultPacket {
     }
 
     public void handle(WrenchAreaAdjustResultPayload payload, IPayloadContext context) {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             ClientHandler.handle(payload, context);
         }
     }
@@ -24,12 +24,11 @@ public class WrenchAreaAdjustResultPacket {
             context.enqueueWork(() -> {
                 net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
                 if (minecraft.player == null) return;
-                minecraft.player.displayClientMessage(
+                minecraft.player.sendOverlayMessage(
                         net.minecraft.network.chat.Component.translatable("message.jdte.wrench_area",
                                 String.format("%.0f", payload.radius()),
                                 String.format("%.0f", payload.maxRadius()))
-                                .withStyle(net.minecraft.ChatFormatting.GREEN),
-                        true
+                                .withStyle(net.minecraft.ChatFormatting.GREEN)
                 );
                 minecraft.player.playSound(net.minecraft.sounds.SoundEvents.ITEM_FRAME_ROTATE_ITEM, 1.0F, 1.0F);
             });

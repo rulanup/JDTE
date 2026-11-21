@@ -1,10 +1,10 @@
 package com.jdte.common.content;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Objects;
 
-public record ContentSelection(ResourceLocation id) {
+public record ContentSelection(Identifier id) {
     public ContentSelection {
         id = Objects.requireNonNull(id, "id");
     }
@@ -22,7 +22,7 @@ public record ContentSelection(ResourceLocation id) {
         }
     }
 
-    public boolean matches(ResourceLocation candidate) {
+    public boolean matches(Identifier candidate) {
         if (candidate == null) {
             return false;
         }
@@ -34,7 +34,7 @@ public record ContentSelection(ResourceLocation id) {
         return candidatePath.equals(path) || candidatePath.startsWith(path + "/");
     }
 
-    private static ResourceLocation normalize(String rawId) {
+    private static Identifier normalize(String rawId) {
         String trimmed = Objects.requireNonNull(rawId, "rawId").strip();
         if (trimmed.isEmpty()) {
             throw new IllegalArgumentException("Content id must not be blank");
@@ -42,7 +42,7 @@ public record ContentSelection(ResourceLocation id) {
         if (trimmed.indexOf(':') < 0) {
             trimmed = "jdte:" + trimmed;
         }
-        ResourceLocation parsed = ResourceLocation.tryParse(trimmed);
+        Identifier parsed = Identifier.tryParse(trimmed);
         if (parsed == null) {
             throw new IllegalArgumentException("Invalid content id: " + rawId);
         }

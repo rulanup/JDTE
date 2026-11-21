@@ -6,7 +6,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,15 +22,15 @@ class MineralSurveySyncPayloadTest {
         RegistryFriendlyByteBuf buffer = buffer();
         try {
             MineralEntry copper = new MineralEntry(
-                    ResourceLocation.parse("minecraft:copper_ore"), 100L, -16, 112, 10,
+                    Identifier.parse("minecraft:copper_ore"), 100L, -16, 112, 10,
                     MineralEntry.Confidence.EXACT);
             MineralEntry iron = new MineralEntry(
-                    ResourceLocation.parse("minecraft:iron_ore"), 50L, -64, 72, 8,
+                    Identifier.parse("minecraft:iron_ore"), 50L, -64, 72, 8,
                     MineralEntry.Confidence.ESTIMATED);
             MineralSurveyData plainsSurvey = MineralSurveyData.create(
                     42L,
-                    ResourceLocation.parse("minecraft:plains"),
-                    ResourceLocation.parse("minecraft:overworld"),
+                    Identifier.parse("minecraft:plains"),
+                    Identifier.parse("minecraft:overworld"),
                     List.of(copper, iron));
             MineralSurveySyncPayload expected = new MineralSurveySyncPayload(List.of(plainsSurvey));
 

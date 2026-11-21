@@ -1,7 +1,7 @@
 package com.jdte.common.minerals;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -15,19 +15,19 @@ public final class MineralExtractorFluidRoles {
         NONE
     }
 
-    private final ResourceLocation fortuneFluid;
-    private final ResourceLocation accelerationFluid;
+    private final Identifier fortuneFluid;
+    private final Identifier accelerationFluid;
 
-    public MineralExtractorFluidRoles(ResourceLocation fortuneFluid, ResourceLocation accelerationFluid) {
+    public MineralExtractorFluidRoles(Identifier fortuneFluid, Identifier accelerationFluid) {
         this.fortuneFluid = Objects.requireNonNull(fortuneFluid, "fortuneFluid");
         this.accelerationFluid = Objects.requireNonNull(accelerationFluid, "accelerationFluid");
     }
 
-    public ResourceLocation fortuneFluid() {
+    public Identifier fortuneFluid() {
         return fortuneFluid;
     }
 
-    public ResourceLocation accelerationFluid() {
+    public Identifier accelerationFluid() {
         return accelerationFluid;
     }
 
@@ -39,7 +39,7 @@ public final class MineralExtractorFluidRoles {
         if (fluid == null) {
             return Role.NONE;
         }
-        ResourceLocation id = BuiltInRegistries.FLUID.getKey(fluid);
+        Identifier id = BuiltInRegistries.FLUID.getKey(fluid);
         if (fortuneFluid.equals(id)) {
             return Role.FORTUNE;
         }

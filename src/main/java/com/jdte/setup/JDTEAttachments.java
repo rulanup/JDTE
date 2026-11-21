@@ -16,6 +16,10 @@ import java.util.function.Supplier;
 public class JDTEAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, JDTE.MODID);
 
+    public static final Supplier<AttachmentType<Boolean>> LIGHTNING_RENDER_ENABLED = ATTACHMENT_TYPES.register(
+            "lightning_render_enabled", () -> AttachmentType.builder(() -> true)
+                    .sync(net.minecraft.network.codec.ByteBufCodecs.BOOL).build());
+
     public static final Supplier<AttachmentType<UpgradeItemStackHandler>> UPGRADE_HANDLER = ATTACHMENT_TYPES.register(
             "upgrade_handler", () -> AttachmentType.serializable(holder -> {
                 if (holder instanceof BaseMachineBE machine) {

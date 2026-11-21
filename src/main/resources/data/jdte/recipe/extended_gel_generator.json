@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": { "item": "jdte:advanced_gel_generator" },
-    "E": { "item": "jdte:extended_upgrade" }
+    "A": "jdte:advanced_gel_generator",
+    "E": "jdte:extended_upgrade"
   },
   "pattern": [
     " E ",

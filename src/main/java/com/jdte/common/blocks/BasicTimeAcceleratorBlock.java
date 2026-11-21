@@ -6,7 +6,7 @@ import com.jdte.common.containers.BasicTimeAcceleratorContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,12 +18,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 public class BasicTimeAcceleratorBlock extends BaseMachineBlock {
-    public BasicTimeAcceleratorBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(2.0f).isRedstoneConductor(BaseMachineBlock::never));
+    public BasicTimeAcceleratorBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(2.0f).isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
         return TimeAcceleratorFluidTransfer.useItemOn(itemStack, blockState, level, blockPos, player, hand, hit);
     }
 

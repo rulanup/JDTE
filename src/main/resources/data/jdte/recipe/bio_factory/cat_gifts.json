@@ -1,8 +1,8 @@
 {
   "type": "jdte:bio_factory",
-  "specimen": { "item": "minecraft:cat_spawn_egg" },
+  "specimen": "minecraft:cat_spawn_egg",
   "inputs": [
-    { "ingredient": { "tag": "minecraft:cat_food" } }
+    { "ingredient": "#minecraft:cat_food" }
   ],
   "outputs": [
     { "item": { "id": "minecraft:rabbit_foot", "count": 1 }, "chance": 0.1613 },

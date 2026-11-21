@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'eclipse'
     id 'idea'
-    id 'net.neoforged.moddev' version '2.0.137'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 import org.gradle.api.Action
@@ -30,7 +30,7 @@ base {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
     withSourcesJar()
 }
@@ -41,12 +41,8 @@ configurations {
 }
 
 neoForge {
-    version = rootProject.neo_version_dev
+    version = rootProject.neo_version
 
-    parchment {
-        mappingsVersion = rootProject.parchment_mappings_version
-        minecraftVersion = rootProject.parchment_minecraft_version
-    }
 
     mods {
         jdte {
@@ -72,6 +68,7 @@ neoForge {
 }
 
 repositories {
+    maven { url = "https://api.modrinth.com/maven"; content { includeGroup "maven.modrinth" } }
     mavenLocal()
     mavenCentral()
     maven { url = 'https://maven.neoforged.net/releases' }
@@ -95,21 +92,20 @@ repositories {
 dependencies {
     implementation project(':')
     implementation "net.neoforged:neoforge:${rootProject.neo_version}"
-    implementation "org.appliedenergistics:appliedenergistics2:${rootProject.ae2_version}"
+    implementation "maven.modrinth:ae2:${rootProject.ae2_version}"
     testImplementation 'com.electronwill.night-config:toml:3.8.1'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testRuntimeOnly 'curse.maven:just-dire-things-1002348:7463040'
-    testRuntimeOnly "curse.maven:curios-309927:${rootProject.curios_curse_file}"
-    testRuntimeOnly "curse.maven:glodium-957920:${rootProject.glodium_file}"
-    testRuntimeOnly "de.mari_023:ae2wtlib_api:${rootProject.ae2wtlib_version}"
-    testRuntimeOnly "curse.maven:ex-pattern-provider-892005:${rootProject.extendedae_file}"
-    localRuntime "curse.maven:just-dire-things-1002348:7463040"
-    localRuntime "curse.maven:curios-309927:${rootProject.curios_curse_file}"
-    localRuntime "org.appliedenergistics:appliedenergistics2:${rootProject.ae2_version}"
-    localRuntime "curse.maven:glodium-957920:${rootProject.glodium_file}"
-    localRuntime "de.mari_023:ae2wtlib_api:${rootProject.ae2wtlib_version}"
-    localRuntime "curse.maven:ex-pattern-provider-892005:${rootProject.extendedae_file}"
+    localRuntime rootProject.jdt_coordinate
+    testRuntimeOnly rootProject.jdt_coordinate
+    localRuntime rootProject.curios_coordinate
+    testRuntimeOnly rootProject.curios_coordinate
+    localRuntime extendedae_coordinate
+    localRuntime 'maven.modrinth:glodium:26.1-1.2-neoforge'
+    localRuntime 'maven.modrinth:guideme:26.1.17-beta'
+    testRuntimeOnly extendedae_coordinate
+    testRuntimeOnly 'maven.modrinth:glodium:26.1-1.2-neoforge'
+    testRuntimeOnly 'maven.modrinth:guideme:26.1.17-beta'
 }
 
 tasks.named('test', Test).configure {

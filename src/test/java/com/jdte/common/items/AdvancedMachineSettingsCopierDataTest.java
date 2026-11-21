@@ -2,7 +2,7 @@ package com.jdte.common.items;
 
 import com.direwolf20.justdirethings.common.items.MachineSettingsCopier;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AdvancedMachineSettingsCopierDataTest {
-    private static final ResourceLocation MACHINE_TYPE = ResourceLocation.parse("jdte:test_machine");
+    private static final Identifier MACHINE_TYPE = Identifier.parse("jdte:test_machine");
 
     @Test
     void writesAndReadsTheTwoAutoIoMasksUnderTheRootKey() {
@@ -23,9 +23,9 @@ class AdvancedMachineSettingsCopierDataTest {
         assertEquals(Optional.of(MACHINE_TYPE), AdvancedMachineSettingsCopierData.readMachineType(copiedData));
         assertEquals(Optional.of(new AdvancedMachineSettingsCopierData.Masks(0b11_1111, 0b10_1010)),
                 AdvancedMachineSettingsCopierData.readMasks(copiedData));
-        assertEquals(Set.of("jdteAutoIoConfig"), copiedData.getAllKeys());
+        assertEquals(Set.of("jdteAutoIoConfig"), copiedData.keySet());
         assertEquals(Set.of("machineType", "inputMask", "outputMask"),
-                copiedData.getCompound(AdvancedMachineSettingsCopierData.ROOT_KEY).getAllKeys());
+                copiedData.getCompound(AdvancedMachineSettingsCopierData.ROOT_KEY).orElseThrow().keySet());
     }
 
     @Test
@@ -111,7 +111,7 @@ class AdvancedMachineSettingsCopierDataTest {
 
         AdvancedMachineSettingsCopierData.remove(copiedData);
 
-        assertEquals(Set.of(), copiedData.getAllKeys());
+        assertEquals(Set.of(), copiedData.keySet());
     }
 
     @Test

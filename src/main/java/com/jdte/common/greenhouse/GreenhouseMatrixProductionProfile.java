@@ -3,7 +3,7 @@ package com.jdte.common.greenhouse;
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
@@ -16,7 +16,7 @@ public final class GreenhouseMatrixProductionProfile {
     private final ItemStack seed;
     private final int templateCount;
     private final String definitionKey;
-    private final ResourceLocation fluid;
+    private final Identifier fluid;
     private final long recipeGeneration;
     private final int selectedMultiplier;
     private final int structureMultiplier;
@@ -35,7 +35,7 @@ public final class GreenhouseMatrixProductionProfile {
     private final BlockPos representativePos;
 
     public GreenhouseMatrixProductionProfile(MachineKind machineKind, ItemStack seed, int templateCount,
-                                             String definitionKey, ResourceLocation fluid, long recipeGeneration,
+                                             String definitionKey, Identifier fluid, long recipeGeneration,
                                              int selectedMultiplier, int structureMultiplier, int fortuneLevel,
                                              boolean creative, boolean overclocked,
                                              int energyPerHarvest, int fluidPerHarvest,
@@ -49,7 +49,7 @@ public final class GreenhouseMatrixProductionProfile {
     }
 
     public GreenhouseMatrixProductionProfile(MachineKind machineKind, ItemStack seed, int templateCount,
-                                             String definitionKey, ResourceLocation fluid, long recipeGeneration,
+                                             String definitionKey, Identifier fluid, long recipeGeneration,
                                              int selectedMultiplier, int structureMultiplier, int fortuneLevel,
                                              boolean creative, boolean overclocked,
                                              int energyPerHarvest, int fluidPerHarvest,
@@ -85,7 +85,7 @@ public final class GreenhouseMatrixProductionProfile {
     public ItemStack seed() { return seed.copy(); }
     public int templateCount() { return templateCount; }
     public String definitionKey() { return definitionKey; }
-    public ResourceLocation fluid() { return fluid; }
+    public Identifier fluid() { return fluid; }
     public long recipeGeneration() { return recipeGeneration; }
     public int selectedMultiplier() { return selectedMultiplier; }
     public int structureMultiplier() { return structureMultiplier; }

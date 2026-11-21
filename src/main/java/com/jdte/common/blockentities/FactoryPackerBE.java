@@ -1,5 +1,7 @@
 package com.jdte.common.blockentities;
 
+import net.minecraft.core.UUIDUtil;
+
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
@@ -28,16 +30,17 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,7 +56,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -104,18 +109,15 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     private final AreaAffectingData areaData;
     private final MachineEnergyStorage energy = new MachineEnergyStorage(getMaxEnergy());
     private final PoweredMachineContainerData poweredData = new PoweredMachineContainerData(this);
-    private final ItemStackHandler packageHandler = new ItemStackHandler(1) {
-        @Override public int getSlotLimit(int slot) { return 1; }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return !isBusy() && FactoryPackageItem.isFactoryPackage(stack);
+    private final MachineInventoryHandler packageHandler = new MachineInventoryHandler(1) {
+        @Override protected int getCapacity(int slot, ItemResource resource) { return 1; }
+        @Override public boolean isValid(int slot, ItemResource resource) {
+            return resource.isEmpty() || !isBusy() && FactoryPackageItem.isFactoryPackage(resource.toStack(1));
         }
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return isBusy() ? stack : super.insertItem(slot, stack, simulate);
+        @Override public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            return isBusy() ? 0 : super.extract(slot, resource, amount, transaction);
         }
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return isBusy() ? ItemStack.EMPTY : super.extractItem(slot, amount, simulate);
-        }
-        @Override protected void onContentsChanged(int slot) {
+        @Override protected void onContentsChanged(int slot, ItemStack previous) {
             setChanged();
             if (level != null) markDirtyClient();
         }
@@ -164,7 +166,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     private transient List<BlockRecord> records;
     private transient List<EntityRecord> entityRecords;
     private transient List<TickRecord> tickRecords;
-    private transient ResourceLocation sourceDimension;
+    private transient Identifier sourceDimension;
     private transient BlockPos sourceOrigin = BlockPos.ZERO;
     private transient int packageFormatVersion;
     private transient boolean ioPending;
@@ -190,7 +192,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
 
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
-    @Override public ItemStackHandler getMachineHandler() { return packageHandler; }
+    @Override public ItemStacksResourceHandler getMachineHandler() { return packageHandler; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energy; }
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public int getStandardEnergyCost() { return 0; }
@@ -206,13 +208,13 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         if (!(level instanceof ServerLevel serverLevel)) return message("invalid_level");
         if (!UpgradeHelper.mayRunWithUpgrades(this)) return message("ae_crafting_inactive");
         if (isBusy()) return message("busy");
-        ItemStack packageStack = packageHandler.getStackInSlot(0);
+        ItemStack packageStack = packageHandler.copyStack(0);
         if (!FactoryPackageItem.isFactoryPackage(packageStack)) return message("missing_package");
 
         var storedId = FactoryPackageItem.getPackageId(packageStack);
         var placementTarget = FactoryPackageItem.getPlacementTarget(packageStack);
         if (storedId.isPresent() && placementTarget.isPresent()
-                && !placementTarget.get().dimension().equals(serverLevel.dimension().location())) {
+                && !placementTarget.get().dimension().equals(serverLevel.dimension().identifier())) {
             return message("target_dimension");
         }
 
@@ -325,7 +327,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity != null) {
                 try {
-                    blockEntityData = blockEntity.saveWithId(level.registryAccess());
+                    blockEntityData = FactoryBlockEntityMoveSupport.saveWithId(blockEntity, level.registryAccess());
                 } catch (Throwable throwable) {
                     LOGGER.error("Failed to capture factory block entity at {}", pos, throwable);
                     fail(4);
@@ -359,18 +361,19 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
                 return;
             }
             for (Entity root : roots) {
-                CompoundTag data = new CompoundTag();
-                if (!root.save(data)) {
+                var problems = new net.minecraft.util.ProblemReporter.Collector();
+                var output = net.minecraft.world.level.storage.TagValueOutput.createWithContext(problems, level.registryAccess());
+                if (!root.save(output) || !problems.isEmpty()) {
                     fail(16);
                     return;
                 }
-                entityRecords.add(new EntityRecord(root.getUUID(), data));
+                entityRecords.add(new EntityRecord(root.getUUID(), output.buildResult()));
             }
         }
         BlockPos max = operationOrigin.offset(operationSize).offset(-1, -1, -1);
         tickRecords = JDTEConfig.COMMON.factoryPackerMoveScheduledTicks.get()
                 ? FactoryScheduledTickSupport.capture(level, operationOrigin, max) : List.of();
-        sourceDimension = level.dimension().location();
+        sourceDimension = level.dimension().identifier();
         sourceOrigin = operationOrigin;
         if (!sourceQuiesced) {
             phase = Phase.QUIESCING_SOURCE;
@@ -834,7 +837,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         }
         setChanged();
         if (cursor >= records.size()) {
-            packageHandler.setStackInSlot(0,
+            packageHandler.setStack(0,
                     FactoryPackageItem.createFilled(packageId, operationSize, records.size(), entityRecords.size()));
             complete();
         }
@@ -965,7 +968,8 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
             }
             CompoundTag data = transform.entityData(record.data(),
                     shouldRemapLinks());
-            Entity entity = EntityType.loadEntityRecursive(data, level, loaded -> loaded);
+            Entity entity = EntityType.loadEntityRecursive(data, level, net.minecraft.world.entity.EntitySpawnReason.LOAD,
+                    net.minecraft.world.entity.EntityProcessor.NOP);
             if (entity == null || !FactoryEntityMoveSupport.preparePlacement(level, entity)
                     || !level.tryAddFreshEntityWithPassengers(entity)) {
                 entityRollbackLimit = cursor;
@@ -1020,7 +1024,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         if (!tickRecords.isEmpty()) {
             FactoryScheduledTickSupport.restore(level, operationOrigin, tickRecords, transform(level));
         }
-        packageHandler.setStackInSlot(0, ItemStack.EMPTY);
+        packageHandler.setStack(0, ItemStack.EMPTY);
         deleteClaimedAsync(level);
         complete();
     }
@@ -1316,11 +1320,11 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
 
     @Override
     public AABB getAABB(BlockPos pos) {
-        ItemStack stack = packageHandler.getStackInSlot(0);
+        ItemStack stack = packageHandler.copyStack(0);
         var target = FactoryPackageItem.getPlacementTarget(stack);
         var size = FactoryPackageItem.getSize(stack);
         if (level != null && target.isPresent() && size.isPresent()
-                && target.get().dimension().equals(level.dimension().location())) {
+                && target.get().dimension().equals(level.dimension().identifier())) {
             BlockPos origin = target.get().origin();
             Vec3i dimensions = FactoryPackageItem.getRotatedSize(stack);
             BlockPos max = origin.offset(dimensions).offset(-1, -1, -1);
@@ -1343,7 +1347,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         if (bounds.volume() > maxVolume) return Component.translatable(
                 "message.jdte.factory_packer.area_volume_too_large", bounds.volume(), maxVolume);
         BlockPos max = bounds.min().offset(bounds.size()).offset(-1, -1, -1);
-        if (bounds.min().getY() < level.getMinBuildHeight() || max.getY() >= level.getMaxBuildHeight()) {
+        if (bounds.min().getY() < level.getMinY() || max.getY() > level.getMaxY()) {
             return message("outside_build_height");
         }
         int minChunkX = SectionPos.blockToSectionCoord(bounds.min().getX());
@@ -1429,9 +1433,9 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("factoryPackageSlot", packageHandler.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("factoryPackageSlot", packageHandler);
         tag.putInt("factoryPackerEnergy", energy.getEnergyStored());
         tag.putInt("factoryPackerPhase", phase.ordinal());
         tag.putInt("factoryPackerCursor", cursor);
@@ -1445,40 +1449,40 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
         tag.putBoolean("factoryPackerSourceQuiesced", sourceQuiesced);
         tag.putBoolean("factoryPackerQuiesceValidated", quiesceValidated);
         tag.putBoolean("factoryPackerRetryAfterRollback", retryAfterRollback);
-        if (packageId != null) tag.putUUID("factoryPackerPackageId", packageId);
-        if (claimToken != null) tag.putUUID("factoryPackerClaimToken", claimToken);
-        if (operationOwner != null) tag.putUUID("factoryPackerOwner", operationOwner);
+        if (packageId != null) tag.store("factoryPackerPackageId", UUIDUtil.CODEC, packageId);
+        if (claimToken != null) tag.store("factoryPackerClaimToken", UUIDUtil.CODEC, claimToken);
+        if (operationOwner != null) tag.store("factoryPackerOwner", UUIDUtil.CODEC, operationOwner);
         tag.putLong("factoryPackerOrigin", operationOrigin.asLong());
-        tag.putIntArray("factoryPackerSize", List.of(operationSize.getX(), operationSize.getY(), operationSize.getZ()));
+        tag.putIntArray("factoryPackerSize", new int[]{operationSize.getX(), operationSize.getY(), operationSize.getZ()});
         tag.putInt("factoryPackerRotation", operationRotation);
         tag.putBoolean("factoryPackerTicksRemoved", scheduledTicksRemoved);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("factoryPackageSlot")) packageHandler.deserializeNBT(provider, tag.getCompound("factoryPackageSlot"));
-        if (tag.contains("factoryPackerEnergy")) energy.setEnergy(tag.getInt("factoryPackerEnergy"));
-        phase = Phase.values()[Math.floorMod(tag.getInt("factoryPackerPhase"), Phase.values().length)];
-        cursor = tag.getInt("factoryPackerCursor");
-        totalWork = tag.getInt("factoryPackerTotal");
-        rollbackLimit = tag.getInt("factoryPackerRollbackLimit");
-        entityRollbackLimit = tag.getInt("factoryPackerEntityRollbackLimit");
-        errorCode = tag.getInt("factoryPackerError");
-        sourceRetryCount = tag.getInt("factoryPackerSourceRetries");
-        quiesceWaitTicks = tag.getInt("factoryPackerQuiesceWait");
-        energyPaid = tag.getInt("factoryPackerEnergyPaid");
-        sourceQuiesced = tag.getBoolean("factoryPackerSourceQuiesced");
-        quiesceValidated = tag.getBoolean("factoryPackerQuiesceValidated");
-        retryAfterRollback = tag.getBoolean("factoryPackerRetryAfterRollback");
-        packageId = tag.hasUUID("factoryPackerPackageId") ? tag.getUUID("factoryPackerPackageId") : null;
-        claimToken = tag.hasUUID("factoryPackerClaimToken") ? tag.getUUID("factoryPackerClaimToken") : null;
-        operationOwner = tag.hasUUID("factoryPackerOwner") ? tag.getUUID("factoryPackerOwner") : null;
-        operationOrigin = tag.contains("factoryPackerOrigin") ? BlockPos.of(tag.getLong("factoryPackerOrigin")) : BlockPos.ZERO;
-        int[] size = tag.getIntArray("factoryPackerSize");
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        if (tag.keySet().contains("factoryPackageSlot")) packageHandler.deserialize(tag.childOrEmpty("factoryPackageSlot"));
+        if (tag.keySet().contains("factoryPackerEnergy")) energy.setEnergy(tag.getIntOr("factoryPackerEnergy", 0));
+        phase = Phase.values()[Math.floorMod(tag.getIntOr("factoryPackerPhase", 0), Phase.values().length)];
+        cursor = tag.getIntOr("factoryPackerCursor", 0);
+        totalWork = tag.getIntOr("factoryPackerTotal", 0);
+        rollbackLimit = tag.getIntOr("factoryPackerRollbackLimit", 0);
+        entityRollbackLimit = tag.getIntOr("factoryPackerEntityRollbackLimit", 0);
+        errorCode = tag.getIntOr("factoryPackerError", 0);
+        sourceRetryCount = tag.getIntOr("factoryPackerSourceRetries", 0);
+        quiesceWaitTicks = tag.getIntOr("factoryPackerQuiesceWait", 0);
+        energyPaid = tag.getIntOr("factoryPackerEnergyPaid", 0);
+        sourceQuiesced = tag.getBooleanOr("factoryPackerSourceQuiesced", false);
+        quiesceValidated = tag.getBooleanOr("factoryPackerQuiesceValidated", false);
+        retryAfterRollback = tag.getBooleanOr("factoryPackerRetryAfterRollback", false);
+        packageId = tag.read("factoryPackerPackageId", UUIDUtil.CODEC).orElse(null);
+        claimToken = tag.read("factoryPackerClaimToken", UUIDUtil.CODEC).orElse(null);
+        operationOwner = tag.read("factoryPackerOwner", UUIDUtil.CODEC).orElse(null);
+        operationOrigin = tag.keySet().contains("factoryPackerOrigin") ? BlockPos.of(tag.getLongOr("factoryPackerOrigin", 0L)) : BlockPos.ZERO;
+        int[] size = tag.getIntArray("factoryPackerSize").orElseGet(() -> new int[0]);
         operationSize = size.length == 3 ? new Vec3i(size[0], size[1], size[2]) : Vec3i.ZERO;
-        operationRotation = Math.floorMod(tag.getInt("factoryPackerRotation"), 4);
-        scheduledTicksRemoved = tag.getBoolean("factoryPackerTicksRemoved");
+        operationRotation = Math.floorMod(tag.getIntOr("factoryPackerRotation", 0), 4);
+        scheduledTicksRemoved = tag.getBooleanOr("factoryPackerTicksRemoved", false);
         records = null;
         entityRecords = null;
         tickRecords = null;
@@ -1512,7 +1516,7 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
 
     private FactoryTransform transform(ServerLevel level) {
         return new FactoryTransform(operationSize, operationRotation, sourceOrigin, operationOrigin,
-                sourceDimension, level.dimension().location());
+                sourceDimension, level.dimension().identifier());
     }
 
     private boolean shouldRemapLinks() {
@@ -1529,8 +1533,9 @@ public class FactoryPackerBE extends BaseMachineBE implements AreaAffectingBE, P
     }
 
     private static boolean restoreEntity(ServerLevel level, CompoundTag data) {
-        if (data.hasUUID("UUID") && level.getEntity(data.getUUID("UUID")) != null) return true;
-        Entity entity = EntityType.loadEntityRecursive(data.copy(), level, loaded -> loaded);
+        if (data.read("UUID", UUIDUtil.CODEC).isPresent() && level.getEntity(data.read("UUID", UUIDUtil.CODEC).orElseThrow()) != null) return true;
+        Entity entity = EntityType.loadEntityRecursive(data.copy(), level, net.minecraft.world.entity.EntitySpawnReason.LOAD,
+                net.minecraft.world.entity.EntityProcessor.NOP);
         if (entity == null || !FactoryEntityMoveSupport.preparePlacement(level, entity)
                 || !level.tryAddFreshEntityWithPassengers(entity)) return false;
         FactoryEntityMoveSupport.completePlacement(level, entity);

@@ -9,7 +9,7 @@ public final class LootFabricatorLootSyncPacket {
     private LootFabricatorLootSyncPacket() { }
 
     public static void handle(LootFabricatorLootSyncPayload payload, IPayloadContext context) {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             ClientHandler.handle(payload, context);
         }
     }

@@ -44,12 +44,10 @@ import com.jdte.mixin.FluidTankAccessor;
 import com.jdte.setup.JDTEAttachments;
 import com.jdte.setup.JDTEConfig;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
@@ -134,7 +132,7 @@ public class UpgradeHelper {
     }
 
     public static boolean isSmelterUpgrade(ItemStack stack) {
-        return stack.is(com.direwolf20.justdirethings.setup.Registration.UPGRADE_SMELTER.get());
+        return stack.is(com.direwolf20.justdirethings.setup.JDTRegistration.UPGRADE_SMELTER.get());
     }
 
     public static boolean hasSmelterUpgrade(BaseMachineBE machine) {
@@ -271,7 +269,7 @@ public class UpgradeHelper {
     }
 
     public static int getBaseFilterSlots(FilterBasicHandler handler) {
-        int slots = handler.getSlots();
+        int slots = handler.size();
         int filterSlotsPerUpgrade = getFilterSlotsPerUpgrade();
         if (slots <= filterSlotsPerUpgrade) {
             return slots;
@@ -294,9 +292,9 @@ public class UpgradeHelper {
         int baseSlots = getBaseFilterSlots(handler);
         int activeSlots = getActiveFilterSlots(machine, baseSlots);
         boolean changed = false;
-        for (int i = activeSlots; i < handler.getSlots(); i++) {
-            if (!handler.getStackInSlot(i).isEmpty()) {
-                handler.setStackInSlot(i, ItemStack.EMPTY);
+        for (int i = activeSlots; i < handler.size(); i++) {
+            if (!handler.getResource(i).isEmpty()) {
+                handler.set(i, ItemResource.EMPTY, 0);
                 changed = true;
             }
         }
@@ -588,16 +586,16 @@ public class UpgradeHelper {
             int capacity = poweredMachine.getMaxEnergy();
             if (storage instanceof EnergyStorageAccessor accessor) {
                 accessor.jdte$setCapacity(capacity);
-                accessor.jdte$setMaxReceive(capacity);
+                accessor.jdte$setMaxInsert(capacity);
                 accessor.jdte$setMaxExtract(capacity);
-                if (accessor.jdte$getEnergy() > capacity) {
-                    accessor.jdte$setEnergy(capacity);
+                if (storage.getEnergyStored() > capacity) {
+                    storage.setEnergy(capacity);
                 }
             }
         }
 
         if (machine instanceof FluidMachineBE fluidMachine) {
-            FluidTank tank = fluidMachine.getFluidTank();
+            var tank = fluidMachine.getFluidTank();
             int capacity = fluidMachine.getMaxMB();
             if (tank instanceof FluidTankAccessor accessor) {
                 accessor.jdte$setCapacity(capacity);
@@ -611,9 +609,7 @@ public class UpgradeHelper {
     public static void syncClickerFluidTank(BaseMachineBE machine) {
         JDTEFluidTank tank = getClickerFluidTank(machine);
         int capacity = Math.max(UpgradeItemStackHandler.BASE_CLICKER_FLUID_CAPACITY, getClickerFluidCapacity(machine));
-        if (tank instanceof FluidTankAccessor accessor) {
-            accessor.jdte$setCapacity(capacity);
-        }
+        tank.setCapacity(capacity);
     }
 
     public static void fillClickerItemFromTank(BaseMachineBE machine) {
@@ -626,36 +622,9 @@ public class UpgradeHelper {
             return;
         }
 
-        ItemStackHandler itemHandler = machine.getMachineHandler();
-        ItemStack itemStack = itemHandler.getStackInSlot(0);
-        if (itemStack.isEmpty()) {
-            return;
-        }
-
-        IFluidHandlerItem itemFluidHandler = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
-        if (itemFluidHandler == null) {
-            return;
-        }
-
-        FluidStack available = tank.getFluid().copy();
-        int insertAmount = itemFluidHandler.fill(available, IFluidHandler.FluidAction.SIMULATE);
-        if (insertAmount <= 0) {
-            return;
-        }
-
-        FluidStack extracted = tank.drain(insertAmount, IFluidHandler.FluidAction.EXECUTE);
-        if (extracted.isEmpty()) {
-            return;
-        }
-
-        int filled = itemFluidHandler.fill(extracted, IFluidHandler.FluidAction.EXECUTE);
-        if (filled < extracted.getAmount()) {
-            FluidStack remainder = extracted.copy();
-            remainder.setAmount(extracted.getAmount() - Math.max(0, filled));
-            tank.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
-        }
-        if (filled > 0) {
-            itemHandler.setStackInSlot(0, itemFluidHandler.getContainer());
+        var item = ItemAccess.forHandlerIndexStrict(machine.getMachineHandler(), 0);
+        var target = item.getCapability(Capabilities.Fluid.ITEM);
+        if (ResourceHandlerUtil.move(tank, target, fluid -> true, tank.getFluidAmount(), null) > 0) {
             machine.setChanged();
         }
     }

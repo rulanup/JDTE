@@ -2,7 +2,15 @@
 
 JDT Extras (`jdte`) is a NeoForge addon for [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things). It adds upgrade cards, extended machines, time acceleration, area control, and automation devices for JDT.
 
-Current version: `0.6.5.4`
+Current version: `26.0.0`
+
+## What's new in 26.0.0
+
+- First Minecraft 26.1.2 release, ported to NeoForge 26.1.2.126, Java 25, Just Dire Things 1.6.11 and AE2 26.1.13-beta. The version number now follows the Minecraft version.
+- Redrew the Thunderstorm Upgrade, the Charged Lightning Rod (now continuous with a vanilla lightning rod above it), the Large Greenhouse, the Life Synthesis Vat and the Large Mineral Extractor in Blockbench.
+- Botany Pots and Draconic Evolution integrations are unavailable until those mods ship 26.1.2 builds.
+
+See the [26.0.0 release notes](docs/releases/26.0.0.md).
 
 ## What's new in 0.6.5.4
 
@@ -229,7 +237,7 @@ Overclock and Underclock cannot be installed together. The Creative Upgrade also
 - Extended Time Accelerator: an eight-slot tier adjustable from 1-512x or 1024x with Overclock/Creative; consumes Time Fluid at five times the Basic tier's rate.
 - All three tiers share the managed scheduler. A nominal multiplier includes the target's native tick: one nominal `X` accelerator contributes `X - 1` additional cycles, and overlaps produce `1 + Σ(Xᵢ - 1)`, so two 16x accelerators produce 31x. Ordinary block entities and random-tick targets use chunk discovery, paid pending queues, and fixed per-tick execution and scan budgets; high server MSPT does not pause them, and excess work remains queued.
 - Advanced & Extended Entity Accelerators: machines consuming Time Fluid and FE to directly accelerate living entities (`LivingEntity`) in a configurable area with adjustable multiplier 1-64x (Extended tier 1-512x, up to 1024x overclocked). Automatically suspends entity AI pathfinding, navigation, and pushing physics during accelerated extra ticks to ensure stable biological ticking without erratic movement; supports ghost spawn egg filtering and automatically excludes players.
-- Full AE Grid acceleration requires matching versions of JDTE-AE (`jdte-ae`) and JDTE plus AE2 19.2.17+ on both client and server. Covering any online, fully booted node gives its entire Grid the full multiplier; covering multiple nodes on the same Grid does not count one accelerator more than once.
+- Full AE Grid acceleration requires matching versions of JDTE-AE (`jdte-ae`) and JDTE plus AE2 26.1.13-beta on both client and server. Covering any online, fully booted node gives its entire Grid the full multiplier; covering multiple nodes on the same Grid does not count one accelerator more than once.
 - AE Grid work synchronously runs complete Server Start, Level Start, Level End, and Server End lifecycles. Nominal 1024x runs 1023 additional Grid lifecycles per real tick and bypasses the ordinary target budget of 4096 executions, so it can raise server MSPT substantially. Insufficient FE or Time Fluid rejects the whole batch without execution or charge instead of silently reducing the multiplier.
 - The Extended Upgrade converts JDT T2 Clickers, Block Breakers, Block Placers, Block Swappers, Droppers, Sensors, Fluid Collectors, and Fluid Placers into eight-slot variants while preserving machine data.
 
@@ -311,12 +319,12 @@ The Greenhouse, Loot Fabricator, and Bio Factory `recipeGenerationEnabled` switc
 
 ## Requirements
 
-- Minecraft `1.21.1`
-- NeoForge `21.1.216+` (development builds use `21.1.233`)
-- Just Dire Things `1.5.7+`
-- Java `21`
+- Minecraft `26.1.2`
+- NeoForge `26.1.2.126`
+- Just Dire Things `1.6.11+`
+- Java `25`
 
-Place `jdte-x.x.x.jar` in both the client and server `mods` folders. Full AE Grid acceleration additionally requires the matching `jdte-ae-x.x.x.jar` and AE2 19.2.17+ on both sides; the main mod alone does not require AE2.
+Place `jdte-x.x.x.jar` in both the client and server `mods` folders. Full AE Grid acceleration additionally requires the matching `jdte-ae-x.x.x.jar` and AE2 26.1.13-beta on both sides; the main mod alone does not require AE2.
 
 ## Development Build
 

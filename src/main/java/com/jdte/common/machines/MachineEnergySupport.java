@@ -6,7 +6,8 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class MachineEnergySupport {
     private final BaseMachineBE machine;
@@ -34,13 +35,11 @@ public class MachineEnergySupport {
         return baseCost;
     }
 
-    public void save(CompoundTag tag) {
+    public void save(ValueOutput tag) {
         tag.putInt("energy", energyStorage.getEnergyStored());
     }
 
-    public void load(CompoundTag tag) {
-        if (tag.contains("energy")) {
-            energyStorage.setEnergy(tag.getInt("energy"));
-        }
+    public void load(ValueInput tag) {
+        tag.getInt("energy").ifPresent(energyStorage::setEnergy);
     }
 }

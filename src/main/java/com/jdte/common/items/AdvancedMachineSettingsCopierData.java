@@ -3,7 +3,7 @@ package com.jdte.common.items;
 import com.jdte.common.autoioconfig.AutoIoConfigData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
@@ -18,26 +18,26 @@ public final class AdvancedMachineSettingsCopierData {
 
     public record Masks(int inputMask, int outputMask) {}
 
-    public static void write(CompoundTag copiedData, ResourceLocation machineType, int inputMask, int outputMask) {
+    public static void write(CompoundTag copiedData, Identifier machineType, int inputMask, int outputMask) {
         writeMachineType(copiedData, machineType);
         writeMasks(copiedData, inputMask, outputMask);
     }
 
-    public static void writeMachineType(CompoundTag copiedData, ResourceLocation machineType) {
+    public static void writeMachineType(CompoundTag copiedData, Identifier machineType) {
         getOrCreateRoot(copiedData).putString(MACHINE_TYPE_KEY, machineType.toString());
     }
 
-    public static Optional<ResourceLocation> readMachineType(CompoundTag copiedData) {
-        if (!copiedData.contains(ROOT_KEY, Tag.TAG_COMPOUND)) {
+    public static Optional<Identifier> readMachineType(CompoundTag copiedData) {
+        if (!(copiedData.get(ROOT_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
             return Optional.empty();
         }
 
-        CompoundTag autoIoConfig = copiedData.getCompound(ROOT_KEY);
-        if (!autoIoConfig.contains(MACHINE_TYPE_KEY, Tag.TAG_STRING)) {
+        CompoundTag autoIoConfig = copiedData.getCompoundOrEmpty(ROOT_KEY);
+        if (!(autoIoConfig.get(MACHINE_TYPE_KEY) instanceof net.minecraft.nbt.StringTag)) {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(ResourceLocation.tryParse(autoIoConfig.getString(MACHINE_TYPE_KEY)));
+        return Optional.ofNullable(Identifier.tryParse(autoIoConfig.getStringOr(MACHINE_TYPE_KEY, "")));
     }
 
     public static void writeMasks(CompoundTag copiedData, int inputMask, int outputMask) {
@@ -47,27 +47,27 @@ public final class AdvancedMachineSettingsCopierData {
     }
 
     public static Optional<Masks> readMasks(CompoundTag copiedData) {
-        if (!copiedData.contains(ROOT_KEY, Tag.TAG_COMPOUND)) {
+        if (!(copiedData.get(ROOT_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
             return Optional.empty();
         }
 
-        CompoundTag autoIoConfig = copiedData.getCompound(ROOT_KEY);
-        if (!autoIoConfig.contains(INPUT_MASK_KEY, Tag.TAG_INT)
-                || !autoIoConfig.contains(OUTPUT_MASK_KEY, Tag.TAG_INT)) {
+        CompoundTag autoIoConfig = copiedData.getCompoundOrEmpty(ROOT_KEY);
+        if (!(autoIoConfig.get(INPUT_MASK_KEY) instanceof net.minecraft.nbt.IntTag)
+                || !(autoIoConfig.get(OUTPUT_MASK_KEY) instanceof net.minecraft.nbt.IntTag)) {
             return Optional.empty();
         }
 
         return Optional.of(new Masks(
-                autoIoConfig.getInt(INPUT_MASK_KEY) & AutoIoConfigData.ALL_SIDES_MASK,
-                autoIoConfig.getInt(OUTPUT_MASK_KEY) & AutoIoConfigData.ALL_SIDES_MASK));
+                autoIoConfig.getIntOr(INPUT_MASK_KEY, 0) & AutoIoConfigData.ALL_SIDES_MASK,
+                autoIoConfig.getIntOr(OUTPUT_MASK_KEY, 0) & AutoIoConfigData.ALL_SIDES_MASK));
     }
 
     public static void clearMasks(CompoundTag copiedData) {
-        if (!copiedData.contains(ROOT_KEY, Tag.TAG_COMPOUND)) {
+        if (!(copiedData.get(ROOT_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
             return;
         }
 
-        CompoundTag autoIoConfig = copiedData.getCompound(ROOT_KEY);
+        CompoundTag autoIoConfig = copiedData.getCompoundOrEmpty(ROOT_KEY);
         autoIoConfig.remove(INPUT_MASK_KEY);
         autoIoConfig.remove(OUTPUT_MASK_KEY);
         if (autoIoConfig.isEmpty()) {
@@ -86,10 +86,7 @@ public final class AdvancedMachineSettingsCopierData {
     }
 
     public static Optional<CompoundTag> readUpgrades(CompoundTag copiedData) {
-        if (!copiedData.contains(UPGRADES_KEY, Tag.TAG_COMPOUND)) {
-            return Optional.empty();
-        }
-        return Optional.of(copiedData.getCompound(UPGRADES_KEY));
+        return copiedData.getCompound(UPGRADES_KEY);
     }
 
     public static void clearUpgrades(CompoundTag copiedData) {
@@ -101,10 +98,7 @@ public final class AdvancedMachineSettingsCopierData {
     }
 
     public static Optional<CompoundTag> readUpgradeHandlers(CompoundTag copiedData) {
-        if (!copiedData.contains(UPGRADE_HANDLERS_KEY, Tag.TAG_COMPOUND)) {
-            return Optional.empty();
-        }
-        return Optional.of(copiedData.getCompound(UPGRADE_HANDLERS_KEY));
+        return copiedData.getCompound(UPGRADE_HANDLERS_KEY);
     }
 
     public static void clearUpgradeHandlers(CompoundTag copiedData) {
@@ -116,8 +110,8 @@ public final class AdvancedMachineSettingsCopierData {
     }
 
     private static CompoundTag getOrCreateRoot(CompoundTag copiedData) {
-        if (copiedData.contains(ROOT_KEY, Tag.TAG_COMPOUND)) {
-            return copiedData.getCompound(ROOT_KEY);
+        if ((copiedData.get(ROOT_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
+            return copiedData.getCompoundOrEmpty(ROOT_KEY);
         }
 
         CompoundTag autoIoConfig = new CompoundTag();

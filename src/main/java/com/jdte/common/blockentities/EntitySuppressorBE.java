@@ -9,7 +9,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -19,8 +19,8 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -69,7 +69,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return getData(JDTRegistration.HANDLER_BASIC_FILTER); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energy; }
@@ -116,7 +116,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     public AABB getIndexedArea() {
-        if (level != null && level.isClientSide && clientSyncedArea != null) return clientSyncedArea;
+        if (level != null && level.isClientSide() && clientSyncedArea != null) return clientSyncedArea;
         return getAABB(getBlockPos());
     }
 
@@ -177,8 +177,8 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     private void refreshFilterIndexIfNeeded() {
         int fingerprint = 1;
         FilterBasicHandler handler = getFilterHandler();
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(handler.getStackInSlot(slot));
+        for (int slot = 0; slot < handler.size(); slot++) {
+            fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(handler.getResource(slot).toStack(handler.getAmountAsInt(slot)));
         }
         if (fingerprint != filterFingerprint) {
             filterFingerprint = fingerprint;
@@ -192,7 +192,7 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     private void syncClientState() {
         if (!(level instanceof ServerLevel serverLevel)) return;
         AABB area = getAABB(getBlockPos());
-        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(getBlockPos()),
+        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(getBlockPos()),
                 new EntitySuppressorSyncPayload(getBlockPos(), mode.ordinal(), target.ordinal(), blacklist,
                         particleActive, entitySuppressionActive, renderingSuppressionActive,
                         area.minX, area.minY, area.minZ, area.maxX, area.maxY, area.maxZ));
@@ -214,8 +214,8 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putInt("entitySuppressorMode", mode.ordinal());
         tag.putInt("entitySuppressorTarget", target.ordinal());
         tag.putBoolean("entitySuppressorBlacklist", blacklist);
@@ -226,15 +226,15 @@ public class EntitySuppressorBE extends BaseMachineBE implements AreaAffectingBE
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        mode = Mode.values()[Math.floorMod(tag.getInt("entitySuppressorMode"), Mode.values().length)];
-        target = Target.values()[Math.floorMod(tag.getInt("entitySuppressorTarget"), Target.values().length)];
-        blacklist = tag.getBoolean("entitySuppressorBlacklist");
-        if (tag.contains("entitySuppressorEnergy")) energy.setEnergy(tag.getInt("entitySuppressorEnergy"));
-        particleActive = tag.getBoolean("entitySuppressorParticleActive");
-        entitySuppressionActive = tag.getBoolean("entitySuppressorEntityActive");
-        renderingSuppressionActive = tag.getBoolean("entitySuppressorRenderingActive");
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        mode = Mode.values()[Math.floorMod(tag.getIntOr("entitySuppressorMode", 0), Mode.values().length)];
+        target = Target.values()[Math.floorMod(tag.getIntOr("entitySuppressorTarget", 0), Target.values().length)];
+        blacklist = tag.getBooleanOr("entitySuppressorBlacklist", false);
+        if (tag.keySet().contains("entitySuppressorEnergy")) energy.setEnergy(tag.getIntOr("entitySuppressorEnergy", 0));
+        particleActive = tag.getBooleanOr("entitySuppressorParticleActive", false);
+        entitySuppressionActive = tag.getBooleanOr("entitySuppressorEntityActive", false);
+        renderingSuppressionActive = tag.getBooleanOr("entitySuppressorRenderingActive", false);
         if (level != null) EntitySuppressorManager.refresh(this);
     }
 }

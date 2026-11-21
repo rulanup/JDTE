@@ -1,12 +1,15 @@
 package com.jdte.common.items;
 
 import com.mojang.serialization.Codec;
+import com.jdte.common.recipes.MachineRecipeHelper;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -18,11 +21,11 @@ import java.util.List;
 import java.util.Optional;
 
 /** A server-validated crafting recipe and its exact nine ghost ingredients. */
-public record CraftingPatternData(ResourceLocation recipeId, List<ItemStack> ingredients, ItemStack result) {
+public record CraftingPatternData(Identifier recipeId, List<ItemStack> ingredients, ItemStack result) {
     private static final Codec<List<ItemStack>> GRID_CODEC = ItemStack.OPTIONAL_CODEC.listOf().validate(
             grid -> grid.size() == 9 ? DataResult.success(grid) : DataResult.error(() -> "Expected nine pattern slots"));
     public static final Codec<CraftingPatternData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("recipe").forGetter(CraftingPatternData::recipeId),
+            Identifier.CODEC.fieldOf("recipe").forGetter(CraftingPatternData::recipeId),
             GRID_CODEC.fieldOf("ingredients").forGetter(CraftingPatternData::ingredients),
             ItemStack.CODEC.fieldOf("result").forGetter(CraftingPatternData::result)
     ).apply(instance, CraftingPatternData::new));
@@ -66,12 +69,12 @@ public record CraftingPatternData(ResourceLocation recipeId, List<ItemStack> ing
         try {
             CraftingInput input = CraftingInput.of(3, 3, grid.stream()
                     .map(stack -> stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1)).toList());
-            return level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level).flatMap(holder -> {
+            return MachineRecipeHelper.recipes(level).getRecipesFor(RecipeType.CRAFTING, input, level).findFirst().flatMap(holder -> {
                 if (holder.value().isSpecial()) return Optional.empty();
-                ItemStack result = holder.value().assemble(input, level.registryAccess());
+                ItemStack result = holder.value().assemble(input);
                 if (result.isEmpty() || !result.isItemEnabled(level.enabledFeatures())) return Optional.empty();
                 holder.value().getRemainingItems(input);
-                return Optional.of(new CraftingPatternData(holder.id(), grid, result));
+                return Optional.of(new CraftingPatternData(holder.id().identifier(), grid, result));
             });
         } catch (RuntimeException incompatibleRecipe) {
             return Optional.empty();
@@ -80,14 +83,14 @@ public record CraftingPatternData(ResourceLocation recipeId, List<ItemStack> ing
 
     public Optional<RecipeHolder<CraftingRecipe>> resolve(Level level) {
         try {
-            var holder = level.getRecipeManager().byKey(recipeId).orElse(null);
+            var holder = MachineRecipeHelper.recipes(level).byKey(ResourceKey.create(Registries.RECIPE, recipeId));
             if (holder == null || !(holder.value() instanceof CraftingRecipe recipe) || recipe.isSpecial()) return Optional.empty();
             CraftingInput input = input();
             if (!recipe.matches(input, level)) return Optional.empty();
-            ItemStack actual = recipe.assemble(input, level.registryAccess());
+            ItemStack actual = recipe.assemble(input);
             recipe.getRemainingItems(input);
             return ItemStack.matches(result, actual) && actual.isItemEnabled(level.enabledFeatures())
-                    ? Optional.of(new RecipeHolder<>(recipeId, recipe)) : Optional.empty();
+                    ? Optional.of(new RecipeHolder<>(holder.id(), recipe)) : Optional.empty();
         } catch (RuntimeException incompatibleRecipe) {
             return Optional.empty();
         }

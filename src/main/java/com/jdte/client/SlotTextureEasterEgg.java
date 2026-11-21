@@ -1,21 +1,23 @@
 package com.jdte.client;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.JDTE;
 import com.jdte.common.containers.DynamicFilterSlot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientChatEvent;
-import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 
 /**
  * 隐藏彩蛋：在聊天框输入恰好 {@code 2i} 两个字符时切换（消息被拦截，不会发送到服务器）。
@@ -26,8 +28,8 @@ import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 @EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT)
 public final class SlotTextureEasterEgg {
     private static final String TRIGGER = "2i";
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/easter_egg_2i_slot.png");
+    private static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(JDTE.MODID, "textures/gui/easter_egg_2i_slot.png");
     private static final String JDTE_BE_PACKAGE = "com.jdte.";
     private static final int SLOT_INNER_SIZE = 16;
     private static final int TEXTURE_SIZE = 512;
@@ -47,26 +49,25 @@ public final class SlotTextureEasterEgg {
         active = !active;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null) {
-            minecraft.player.displayClientMessage(
+            minecraft.player.sendSystemMessage(
                     Component.translatable(active ? "jdte.easteregg.on" : "jdte.easteregg.off")
-                            .withStyle(ChatFormatting.LIGHT_PURPLE),
-                    false);
+                            .withStyle(ChatFormatting.LIGHT_PURPLE));
         }
     }
 
     @SubscribeEvent
-    public static void onRenderContainerBackground(ContainerScreenEvent.Render.Background event) {
+    public static void onRenderContainerBackground(ScreenEvent.Render.Background event) {
         if (!active) {
             return;
         }
-        AbstractContainerScreen<?> screen = event.getContainerScreen();
-        if (!(screen.getMenu() instanceof BaseMachineContainer container)
+        if (!(event.getScreen() instanceof AbstractContainerScreen<?> screen)
+                || !(screen.getMenu() instanceof BaseMachineContainer container)
                 || container.baseMachineBE == null
                 || !container.baseMachineBE.getClass().getName().startsWith(JDTE_BE_PACKAGE)) {
             return;
         }
         ensureTextureRegistered();
-        GuiGraphics guiGraphics = event.getGuiGraphics();
+        GuiGraphicsExtractor guiGraphics = event.getGuiGraphics();
         int left = screen.getGuiLeft();
         int top = screen.getGuiTop();
         for (Slot slot : container.slots) {
@@ -76,8 +77,8 @@ public final class SlotTextureEasterEgg {
             if (slot instanceof DynamicFilterSlot filterSlot && !filterSlot.isActive()) {
                 continue;
             }
-            guiGraphics.blit(TEXTURE, left + slot.x, top + slot.y, SLOT_INNER_SIZE, SLOT_INNER_SIZE,
-                    0.0F, 0.0F, TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, left + slot.x, top + slot.y,
+                    0.0F, 0.0F, SLOT_INNER_SIZE, SLOT_INNER_SIZE, TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE);
         }
     }
 
@@ -85,7 +86,7 @@ public final class SlotTextureEasterEgg {
         if (textureRegistered) {
             return;
         }
-        Minecraft.getInstance().getTextureManager().register(TEXTURE, new EasterEggMipmapTexture(TEXTURE));
+        Minecraft.getInstance().getTextureManager().registerAndLoad(TEXTURE, new EasterEggMipmapTexture(TEXTURE));
         textureRegistered = true;
     }
 }

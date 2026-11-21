@@ -1,5 +1,7 @@
 package com.jdte.common.factory;
 
+import net.minecraft.core.UUIDUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
@@ -10,7 +12,8 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.LevelResource;
@@ -96,18 +99,18 @@ public final class FactoryPackageStorage {
         }
     }
 
-    private static CompoundTag encode(PackageData data) {
+    static CompoundTag encode(PackageData data) {
         CompoundTag root = new CompoundTag();
         root.putInt("version", FORMAT_VERSION);
-        root.putUUID("id", data.id());
+        root.store("id", UUIDUtil.CODEC, data.id());
         if (data.sourceDimension() != null) root.putString("sourceDimension", data.sourceDimension().toString());
         root.putLong("sourceOrigin", data.sourceOrigin().asLong());
-        root.putIntArray("size", List.of(data.size().getX(), data.size().getY(), data.size().getZ()));
+        root.putIntArray("size", new int[]{data.size().getX(), data.size().getY(), data.size().getZ()});
         ListTag blocks = new ListTag();
         for (BlockRecord record : data.blocks()) {
             CompoundTag entry = new CompoundTag();
-            entry.putIntArray("pos", List.of(record.relativePos().getX(), record.relativePos().getY(),
-                    record.relativePos().getZ()));
+            entry.putIntArray("pos", new int[]{record.relativePos().getX(), record.relativePos().getY(),
+                    record.relativePos().getZ()});
             entry.put("state", NbtUtils.writeBlockState(record.state()));
             if (record.blockEntityData() != null) entry.put("blockEntity", record.blockEntityData().copy());
             blocks.add(entry);
@@ -121,8 +124,8 @@ public final class FactoryPackageStorage {
             CompoundTag entry = new CompoundTag();
             entry.putBoolean("fluid", record.fluid());
             entry.putString("type", record.type().toString());
-            entry.putIntArray("pos", List.of(record.relativePos().getX(), record.relativePos().getY(),
-                    record.relativePos().getZ()));
+            entry.putIntArray("pos", new int[]{record.relativePos().getX(), record.relativePos().getY(),
+                    record.relativePos().getZ()});
             entry.putInt("delay", record.delay());
             entry.putInt("priority", record.priority());
             ticks.add(entry);
@@ -131,27 +134,27 @@ public final class FactoryPackageStorage {
         return root;
     }
 
-    private static PackageData decode(UUID expectedId, CompoundTag root, HolderLookup.Provider registries)
+    static PackageData decode(UUID expectedId, CompoundTag root, HolderLookup.Provider registries)
             throws IOException {
-        int version = root.getInt("version");
-        if (version < 1 || version > FORMAT_VERSION || !root.hasUUID("id")
-                || !expectedId.equals(root.getUUID("id"))) {
+        int version = root.getIntOr("version", 0);
+        if (version < 1 || version > FORMAT_VERSION || !root.read("id", UUIDUtil.CODEC).isPresent()
+                || !expectedId.equals(root.read("id", UUIDUtil.CODEC).orElseThrow())) {
             throw new IOException("Invalid factory package data");
         }
-        int[] size = root.getIntArray("size");
+        int[] size = root.getIntArray("size").orElseThrow(() -> new IOException("Missing factory package dimensions"));
         if (size.length != 3 || size[0] <= 0 || size[1] <= 0 || size[2] <= 0) {
             throw new IOException("Invalid factory package dimensions");
         }
         List<BlockRecord> blocks = new ArrayList<>();
         Set<Long> occupied = new HashSet<>();
-        ListTag list = root.getList("blocks", Tag.TAG_COMPOUND);
+        ListTag list = root.getListOrEmpty("blocks");
         long volume = (long) size[0] * size[1] * size[2];
         if (list.size() > volume) throw new IOException("Factory package contains too many blocks");
         var blockLookup = registries.lookupOrThrow(Registries.BLOCK);
         for (int index = 0; index < list.size(); index++) {
-            CompoundTag entry = list.getCompound(index);
-            int[] pos = entry.getIntArray("pos");
-            if (pos.length != 3 || !entry.contains("state", Tag.TAG_COMPOUND)) {
+            CompoundTag entry = list.getCompoundOrEmpty(index);
+            int[] pos = entry.getIntArray("pos").orElseThrow(() -> new IOException("Missing factory package block position"));
+            if (pos.length != 3 || !(entry.get("state") instanceof net.minecraft.nbt.CompoundTag)) {
                 throw new IOException("Invalid factory package block record");
             }
             if (pos[0] < 0 || pos[0] >= size[0] || pos[1] < 0 || pos[1] >= size[1]
@@ -160,38 +163,44 @@ public final class FactoryPackageStorage {
             }
             long packedPos = BlockPos.asLong(pos[0], pos[1], pos[2]);
             if (!occupied.add(packedPos)) throw new IOException("Factory package contains duplicate blocks");
-            BlockState state = NbtUtils.readBlockState(blockLookup, entry.getCompound("state"));
-            CompoundTag blockEntityData = entry.contains("blockEntity", Tag.TAG_COMPOUND)
-                    ? entry.getCompound("blockEntity").copy() : null;
+            CompoundTag stateTag = entry.getCompoundOrEmpty("state");
+            String name = stateTag.getStringOr("Name", "");
+            Identifier blockId = Identifier.tryParse(name);
+            if (blockId == null || blockLookup.get(ResourceKey.create(Registries.BLOCK, blockId)).isEmpty()) {
+                throw new IOException("Factory package requires missing block " + name);
+            }
+            BlockState state = NbtUtils.readBlockState(blockLookup, stateTag);
+            CompoundTag blockEntityData = entry.getCompound("blockEntity").map(CompoundTag::copy).orElse(null);
             blocks.add(new BlockRecord(new BlockPos(pos[0], pos[1], pos[2]), state, blockEntityData));
         }
-        ResourceLocation sourceDimension = version >= 2
-                ? ResourceLocation.tryParse(root.getString("sourceDimension")) : null;
+        Identifier sourceDimension = version >= 2
+                ? Identifier.tryParse(root.getStringOr("sourceDimension", "")) : null;
         BlockPos sourceOrigin = version >= 2 && root.contains("sourceOrigin")
-                ? BlockPos.of(root.getLong("sourceOrigin")) : BlockPos.ZERO;
+                ? BlockPos.of(root.getLongOr("sourceOrigin", 0L)) : BlockPos.ZERO;
         List<EntityRecord> entities = new ArrayList<>();
         if (version >= 2) {
-            ListTag entityList = root.getList("entities", Tag.TAG_COMPOUND);
+            ListTag entityList = root.getListOrEmpty("entities");
             for (int index = 0; index < entityList.size(); index++) {
-                CompoundTag entityData = entityList.getCompound(index).copy();
-                if (!entityData.hasUUID("UUID")) throw new IOException("Factory package entity has no UUID");
-                entities.add(new EntityRecord(entityData.getUUID("UUID"), entityData));
+                CompoundTag entityData = entityList.getCompoundOrEmpty(index).copy();
+                UUID entityId = entityData.read("UUID", UUIDUtil.CODEC)
+                        .orElseThrow(() -> new IOException("Factory package entity has no UUID"));
+                entities.add(new EntityRecord(entityId, entityData));
             }
         }
         List<TickRecord> ticks = new ArrayList<>();
         if (version >= 2) {
-            ListTag tickList = root.getList("ticks", Tag.TAG_COMPOUND);
+            ListTag tickList = root.getListOrEmpty("ticks");
             for (int index = 0; index < tickList.size(); index++) {
-                CompoundTag entry = tickList.getCompound(index);
-                int[] pos = entry.getIntArray("pos");
-                ResourceLocation type = ResourceLocation.tryParse(entry.getString("type"));
+                CompoundTag entry = tickList.getCompoundOrEmpty(index);
+                int[] pos = entry.getIntArray("pos").orElseThrow(() -> new IOException("Missing factory package tick position"));
+                Identifier type = Identifier.tryParse(entry.getStringOr("type", ""));
                 if (pos.length != 3 || type == null || pos[0] < 0 || pos[0] >= size[0]
                         || pos[1] < 0 || pos[1] >= size[1] || pos[2] < 0 || pos[2] >= size[2]) {
                     throw new IOException("Invalid factory package scheduled tick");
                 }
-                ticks.add(new TickRecord(entry.getBoolean("fluid"), type,
-                        new BlockPos(pos[0], pos[1], pos[2]), Math.max(0, entry.getInt("delay")),
-                        entry.getInt("priority")));
+                ticks.add(new TickRecord(entry.getBooleanOr("fluid", false), type,
+                        new BlockPos(pos[0], pos[1], pos[2]), Math.max(0, entry.getIntOr("delay", 0)),
+                        entry.getIntOr("priority", 0)));
             }
         }
         return new PackageData(version, expectedId, sourceDimension, sourceOrigin,
@@ -199,7 +208,7 @@ public final class FactoryPackageStorage {
                 List.copyOf(entities), List.copyOf(ticks));
     }
 
-    public record PackageData(int formatVersion, UUID id, ResourceLocation sourceDimension, BlockPos sourceOrigin,
+    public record PackageData(int formatVersion, UUID id, Identifier sourceDimension, BlockPos sourceOrigin,
                               Vec3i size, List<BlockRecord> blocks, List<EntityRecord> entities,
                               List<TickRecord> ticks) {}
 
@@ -207,5 +216,5 @@ public final class FactoryPackageStorage {
 
     public record EntityRecord(UUID uuid, CompoundTag data) {}
 
-    public record TickRecord(boolean fluid, ResourceLocation type, BlockPos relativePos, int delay, int priority) {}
+    public record TickRecord(boolean fluid, Identifier type, BlockPos relativePos, int delay, int priority) {}
 }

@@ -14,7 +14,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
@@ -47,7 +47,7 @@ import java.util.function.IntSupplier;
 public final class MineralFeatureAnalyzer {
     private static final long ATTEMPT_SCALE = 1_000_000L;
     private static final int MAX_CODEC_HOLDER_VISITS = 64;
-    private static final ResourceLocation AIR_ID = ResourceLocation.withDefaultNamespace("air");
+    private static final Identifier AIR_ID = Identifier.withDefaultNamespace("air");
 
     private MineralFeatureAnalyzer() {
     }
@@ -58,7 +58,7 @@ public final class MineralFeatureAnalyzer {
 
     public static List<MineralEntry> analyze(Holder<Biome> biome, int maxEntries,
                                             HolderLookup.Provider registries) {
-        Map<ResourceLocation, MutableEntry> minerals = new LinkedHashMap<>();
+        Map<Identifier, MutableEntry> minerals = new LinkedHashMap<>();
         List<HolderSet<PlacedFeature>> steps = biome.value().getGenerationSettings().features();
         Set<PlacedFeature> visited = Collections.newSetFromMap(new IdentityHashMap<>());
         for (HolderSet<PlacedFeature> step : steps) {
@@ -77,7 +77,7 @@ public final class MineralFeatureAnalyzer {
                 .toList();
     }
 
-    private static void analyzePlaced(PlacedFeature placed, Map<ResourceLocation, MutableEntry> minerals,
+    private static void analyzePlaced(PlacedFeature placed, Map<Identifier, MutableEntry> minerals,
                                       HolderLookup.Provider registries) {
         if (placed == null) return;
         ConfiguredFeature<?, ?> configured = placed.feature().value();
@@ -90,7 +90,7 @@ public final class MineralFeatureAnalyzer {
         int targetCount = Math.max(1, oreConfig.targets().size());
         long totalWeight = Math.max(1L, saturatingMultiply(placement.attempts(), Math.max(1, oreConfig.veinSize())));
         long targetWeight = Math.max(1L, totalWeight / targetCount);
-        for (ResourceLocation blockId : oreConfig.targets()) {
+        for (Identifier blockId : oreConfig.targets()) {
             if (AIR_ID.equals(blockId)) continue;
             minerals.computeIfAbsent(blockId, MutableEntry::new)
                     .merge(targetWeight, placement.minY(), placement.maxY(), oreConfig.veinSize(),
@@ -111,9 +111,9 @@ public final class MineralFeatureAnalyzer {
 
         // 1. Vanilla OreConfiguration
         if (config instanceof OreConfiguration ore) {
-            List<ResourceLocation> targets = new ArrayList<>(ore.targetStates.size());
+            List<Identifier> targets = new ArrayList<>(ore.targetStates.size());
             for (OreConfiguration.TargetBlockState target : ore.targetStates) {
-                ResourceLocation id = BuiltInRegistries.BLOCK.getKey(target.state.getBlock());
+                Identifier id = BuiltInRegistries.BLOCK.getKey(target.state.getBlock());
                 if (id != null && !AIR_ID.equals(id)) targets.add(id);
             }
             return new ExtractedOreConfig(targets, Math.max(1, ore.size));
@@ -131,14 +131,14 @@ public final class MineralFeatureAnalyzer {
 
     private static ExtractedOreConfig extractFromReflection(Object config) {
         Class<?> clazz = config.getClass();
-        List<ResourceLocation> targetBlocks = null;
+        List<Identifier> targetBlocks = null;
 
         for (String methodName : List.of("targetStates", "targets", "getTargetStates", "getTargets")) {
             try {
                 Method method = clazz.getMethod(methodName);
                 Object result = method.invoke(config);
                 if (result instanceof List<?> list && !list.isEmpty()) {
-                    List<ResourceLocation> parsed = parseTargetList(list);
+                    List<Identifier> parsed = parseTargetList(list);
                     if (!parsed.isEmpty()) {
                         targetBlocks = parsed;
                         break;
@@ -155,7 +155,7 @@ public final class MineralFeatureAnalyzer {
                     field.setAccessible(true);
                     Object result = field.get(config);
                     if (result instanceof List<?> list && !list.isEmpty()) {
-                        List<ResourceLocation> parsed = parseTargetList(list);
+                        List<Identifier> parsed = parseTargetList(list);
                         if (!parsed.isEmpty()) {
                             targetBlocks = parsed;
                             break;
@@ -206,28 +206,28 @@ public final class MineralFeatureAnalyzer {
         return new ExtractedOreConfig(targetBlocks, size);
     }
 
-    private static List<ResourceLocation> parseTargetList(List<?> list) {
-        List<ResourceLocation> result = new ArrayList<>();
+    private static List<Identifier> parseTargetList(List<?> list) {
+        List<Identifier> result = new ArrayList<>();
         for (Object item : list) {
             if (item == null) continue;
             if (item instanceof OreConfiguration.TargetBlockState target) {
-                ResourceLocation id = BuiltInRegistries.BLOCK.getKey(target.state.getBlock());
+                Identifier id = BuiltInRegistries.BLOCK.getKey(target.state.getBlock());
                 if (id != null && !AIR_ID.equals(id)) result.add(id);
             } else if (item instanceof BlockState state) {
-                ResourceLocation id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+                Identifier id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
                 if (id != null && !AIR_ID.equals(id)) result.add(id);
             } else if (item instanceof Block block) {
-                ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
+                Identifier id = BuiltInRegistries.BLOCK.getKey(block);
                 if (id != null && !AIR_ID.equals(id)) result.add(id);
             } else {
-                ResourceLocation id = extractBlockIdFromObject(item);
+                Identifier id = extractBlockIdFromObject(item);
                 if (id != null && !AIR_ID.equals(id)) result.add(id);
             }
         }
         return result;
     }
 
-    private static ResourceLocation extractBlockIdFromObject(Object item) {
+    private static Identifier extractBlockIdFromObject(Object item) {
         Class<?> clazz = item.getClass();
         for (String methodName : List.of("state", "getState", "block", "getBlock", "target", "getTarget")) {
             try {
@@ -280,9 +280,9 @@ public final class MineralFeatureAnalyzer {
 
             if (targetsArray == null || targetsArray.isEmpty()) return null;
 
-            List<ResourceLocation> result = new ArrayList<>();
+            List<Identifier> result = new ArrayList<>();
             for (JsonElement el : targetsArray) {
-                ResourceLocation id = parseBlockIdFromJson(el);
+                Identifier id = parseBlockIdFromJson(el);
                 if (id != null && !AIR_ID.equals(id)) result.add(id);
             }
             if (result.isEmpty()) return null;
@@ -298,26 +298,26 @@ public final class MineralFeatureAnalyzer {
     }
 
 
-    private static ResourceLocation parseBlockIdFromJson(JsonElement el) {
+    private static Identifier parseBlockIdFromJson(JsonElement el) {
         if (el == null) return null;
         if (el.isJsonPrimitive()) {
-            return ResourceLocation.tryParse(el.getAsString());
+            return Identifier.tryParse(el.getAsString());
         }
         if (!(el instanceof JsonObject obj)) return null;
         if (obj.has("state")) {
             JsonElement stateEl = obj.get("state");
             if (stateEl.isJsonObject() && stateEl.getAsJsonObject().has("Name")) {
-                return ResourceLocation.tryParse(stateEl.getAsJsonObject().get("Name").getAsString());
+                return Identifier.tryParse(stateEl.getAsJsonObject().get("Name").getAsString());
             } else if (stateEl.isJsonPrimitive()) {
-                return ResourceLocation.tryParse(stateEl.getAsString());
+                return Identifier.tryParse(stateEl.getAsString());
             }
         }
         if (obj.has("block")) {
             JsonElement blockEl = obj.get("block");
             if (blockEl.isJsonPrimitive()) {
-                return ResourceLocation.tryParse(blockEl.getAsString());
+                return Identifier.tryParse(blockEl.getAsString());
             } else if (blockEl.isJsonObject() && blockEl.getAsJsonObject().has("Name")) {
-                return ResourceLocation.tryParse(blockEl.getAsJsonObject().get("Name").getAsString());
+                return Identifier.tryParse(blockEl.getAsJsonObject().get("Name").getAsString());
             }
         }
         return null;
@@ -400,7 +400,7 @@ public final class MineralFeatureAnalyzer {
                 throw new IllegalArgumentException("Mineral metadata exceeds its registry holder budget");
             }
             HolderOwner<E> owner = super.owner(registryKey).orElseThrow(() ->
-                    new IllegalArgumentException("Missing mineral metadata registry: " + registryKey.location()));
+                    new IllegalArgumentException("Missing mineral metadata registry: " + registryKey.identifier()));
             return Optional.of(owner);
         }
     }
@@ -436,14 +436,8 @@ public final class MineralFeatureAnalyzer {
             countField.setAccessible(true);
             Object countObj = countField.get(countPlacement);
             if (countObj instanceof IntProvider intProvider) {
-                try {
-                    Method getValue = intProvider.getClass().getMethod("getValue");
-                    Object val = getValue.invoke(intProvider);
-                    if (val instanceof Number num) return Math.max(1L, num.longValue());
-                } catch (Throwable ignored) {
-                }
-                long min = intProvider.getMinValue();
-                long max = intProvider.getMaxValue();
+                long min = intProvider.minInclusive();
+                long max = intProvider.maxInclusive();
                 return Math.max(1L, (min + max + 1L) / 2L);
             }
         } catch (Throwable ignored) {
@@ -582,7 +576,7 @@ public final class MineralFeatureAnalyzer {
         return left > Long.MAX_VALUE / right ? Long.MAX_VALUE : left * right;
     }
 
-    private record ExtractedOreConfig(List<ResourceLocation> targets, int veinSize) {
+    private record ExtractedOreConfig(List<Identifier> targets, int veinSize) {
     }
 
     private record PlacementEstimate(long attempts, int minY, int maxY, boolean disabled) {
@@ -593,14 +587,14 @@ public final class MineralFeatureAnalyzer {
     }
 
     private static final class MutableEntry {
-        private final ResourceLocation oreId;
+        private final Identifier oreId;
         private long weight;
         private int minY = Integer.MIN_VALUE;
         private int maxY = Integer.MAX_VALUE;
         private int veinSize = 1;
         private MineralEntry.Confidence confidence = MineralEntry.Confidence.ESTIMATED;
 
-        private MutableEntry(ResourceLocation oreId) {
+        private MutableEntry(Identifier oreId) {
             this.oreId = oreId;
         }
 

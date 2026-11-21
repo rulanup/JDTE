@@ -85,7 +85,7 @@ public final class AEGridVirtualTickExecutor {
             for (ServerLevel level : orderedLevels) {
                 for (GridWork item : active) {
                     if (containsIdentity(levelsByGrid.get(item), level)) {
-                        run(item, round, "level start " + level.dimension().location(),
+                        run(item, round, "level start " + level.dimension().identifier(),
                                 () -> item.target().onLevelStartTick(level));
                     }
                 }
@@ -93,7 +93,7 @@ public final class AEGridVirtualTickExecutor {
             for (ServerLevel level : orderedLevels) {
                 for (GridWork item : active) {
                     if (containsIdentity(levelsByGrid.get(item), level)) {
-                        run(item, round, "level end " + level.dimension().location(),
+                        run(item, round, "level end " + level.dimension().identifier(),
                                 () -> item.target().onLevelEndTick(level));
                     }
                 }
@@ -113,7 +113,7 @@ public final class AEGridVirtualTickExecutor {
         }
         return levels.stream()
                 .sorted(Comparator.comparing(level ->
-                        level.dimension().location().toString()))
+                        level.dimension().identifier().toString()))
                 .toList();
     }
 

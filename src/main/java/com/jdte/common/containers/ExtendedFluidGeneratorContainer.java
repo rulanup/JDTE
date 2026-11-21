@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+
 
 public class ExtendedFluidGeneratorContainer extends BaseMachineContainer {
     public ExtendedFluidGeneratorContainer(int windowId, Inventory playerInventory, FriendlyByteBuf extraData) {
@@ -25,15 +25,7 @@ public class ExtendedFluidGeneratorContainer extends BaseMachineContainer {
     @Override
     public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
-        addFuelSlotRange(machineHandler, 0, 80, 13, 1, 18);
-    }
-
-    protected int addFuelSlotRange(IItemHandler handler, int index, int x, int y, int count, int dx) {
-        for (int i = 0; i < count; i++) {
-            addSlot(new RefinedFuelSlot(handler, index++, x, y));
-            x += dx;
-        }
-        return index;
+        addSlot(new RefinedFuelSlot(machineHandler, machineHandler::set, 0, 80, 13));
     }
 
     @Override

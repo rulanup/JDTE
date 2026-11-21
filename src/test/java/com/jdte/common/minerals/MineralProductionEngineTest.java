@@ -2,7 +2,7 @@ package com.jdte.common.minerals;
 
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import org.junit.jupiter.api.Test;
 
@@ -204,15 +204,15 @@ class MineralProductionEngineTest {
     @Test
     void surveyTotalWeightSaturatesInsteadOfOverflowing() {
         MineralSurveyData survey = MineralSurveyData.create(7L,
-                ResourceLocation.withDefaultNamespace("plains"),
-                ResourceLocation.withDefaultNamespace("overworld"),
+                Identifier.withDefaultNamespace("plains"),
+                Identifier.withDefaultNamespace("overworld"),
                 List.of(entry("ore_a", Long.MAX_VALUE), entry("ore_b", Long.MAX_VALUE)));
 
         assertEquals(Long.MAX_VALUE, survey.totalWeight());
     }
 
     private static MineralEntry entry(String path, long weight) {
-        return new MineralEntry(ResourceLocation.fromNamespaceAndPath("test", path), weight,
+        return new MineralEntry(Identifier.fromNamespaceAndPath("test", path), weight,
                 -64, 320, 8, MineralEntry.Confidence.ESTIMATED);
     }
 }

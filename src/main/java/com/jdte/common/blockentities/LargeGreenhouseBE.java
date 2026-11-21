@@ -1,4 +1,6 @@
 package com.jdte.common.blockentities;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import com.jdte.common.manager.MachineOutputManager;
 import com.jdte.common.manager.AEOutputManager;
 
@@ -26,13 +28,18 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.inventory.ContainerData;
@@ -43,10 +50,6 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 
 import java.util.ArrayList;
@@ -81,42 +84,29 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     private final RedstoneControlData redstoneData = new RedstoneControlData();
     private final ItemStack[] cachedSeeds = new ItemStack[INPUT_SLOTS];
     private final GreenhouseCropDefinition[] cachedDefinitions = new GreenhouseCropDefinition[INPUT_SLOTS];
-    private final ResourceLocation[] displayBlockIds = new ResourceLocation[INPUT_SLOTS];
-    private final ResourceLocation[] cachedDisplayIds = new ResourceLocation[INPUT_SLOTS];
+    private final Identifier[] displayBlockIds = new Identifier[INPUT_SLOTS];
+    private final Identifier[] cachedDisplayIds = new Identifier[INPUT_SLOTS];
     private final BlockState[][] displayAgeStates = new BlockState[INPUT_SLOTS][];
     private final long[] growthWork = new long[INPUT_SLOTS];
     private final BitSet batchedOutputChanges = new BitSet(TOTAL_SLOTS);
     private long cachedRecipeGeneration = -1L;
     private boolean batchingOutputChanges;
-    private final ItemStackHandler itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
-        @Override
-        public int getSlotLimit(int slot) {
-            if (slot >= OUTPUT_START_SLOT) return getOutputSlotLimit();
-            return super.getSlotLimit(slot);
+    private final MachineInventoryHandler itemHandler = new MachineInventoryHandler(TOTAL_SLOTS) {
+        @Override protected int getCapacity(int slot, ItemResource resource) {
+            return slot >= OUTPUT_START_SLOT ? getOutputSlotLimit() : super.getCapacity(slot, resource);
         }
 
-        @Override
-        public int getStackLimit(int slot, ItemStack stack) {
-            if (slot >= OUTPUT_START_SLOT) return getOutputSlotLimit();
-            return super.getStackLimit(slot, stack);
+        @Override public boolean isValid(int slot, ItemResource resource) {
+            return resource.isEmpty() || slot >= OUTPUT_START_SLOT || GreenhouseCropResolver.find(level, resource.toStack(1)) != null;
         }
 
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return slot >= OUTPUT_START_SLOT || slot >= 0 && GreenhouseCropResolver.find(level, stack) != null;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+        @Override public int extract(int slot, ItemResource resource, int amount, TransactionContext tx) {
             if (slot >= OUTPUT_START_SLOT && level instanceof ServerLevel serverLevel
-                    && GreenhouseEssenceConversionHelper.shouldRetainForConversion(serverLevel, LargeGreenhouseBE.this, getStackInSlot(slot))) {
-                return ItemStack.EMPTY;
-            }
-            return super.extractItem(slot, amount, simulate);
+                    && GreenhouseEssenceConversionHelper.shouldRetainForConversion(serverLevel, LargeGreenhouseBE.this, copyStack(slot))) return 0;
+            return super.extract(slot, resource, amount, tx);
         }
 
-        @Override
-        protected void onContentsChanged(int slot) {
+        @Override protected void onContentsChanged(int slot, ItemStack previous) {
             if (slot >= 0 && slot < INPUT_SLOTS) {
                 clearCachedDefinition(slot);
                 growthWork[slot] = 0;
@@ -129,44 +119,15 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             if (!batchingOutputChanges || slot < OUTPUT_START_SLOT) setChanged();
         }
     };
-    private final IItemHandler automationItemHandler = new IItemHandler() {
-        @Override public int getSlots() { return INPUT_SLOTS + getActiveOutputSlots(); }
-        @Override public ItemStack getStackInSlot(int slot) { return valid(slot) ? itemHandler.getStackInSlot(slot) : ItemStack.EMPTY; }
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return slot >= 0 && slot < INPUT_SLOTS ? itemHandler.insertItem(slot, stack, simulate) : stack;
-        }
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return slot >= OUTPUT_START_SLOT && slot < getSlots()
-                    ? itemHandler.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
-        }
-        @Override public int getSlotLimit(int slot) { return valid(slot) ? itemHandler.getSlotLimit(slot) : 0; }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return slot >= 0 && slot < INPUT_SLOTS && itemHandler.isItemValid(slot, stack);
-        }
-        private boolean valid(int slot) { return slot >= 0 && slot < getSlots(); }
+    private final ResourceHandler<ItemResource> automationItemHandler = new MachineAutomationHandler<>(
+            itemHandler, slot -> slot < INPUT_SLOTS, slot -> slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + getActiveOutputSlots()) {
+        @Override public int size() { return INPUT_SLOTS + getActiveOutputSlots(); }
     };
-    private final IItemHandlerModifiable internalOutputHandler = new IItemHandlerModifiable() {
-        @Override public void setStackInSlot(int slot, ItemStack stack) {
-            if (valid(slot)) itemHandler.setStackInSlot(OUTPUT_START_SLOT + slot, stack);
-        }
-        @Override public int getSlots() { return getActiveOutputSlots(); }
-        @Override public ItemStack getStackInSlot(int slot) {
-            return valid(slot) ? itemHandler.getStackInSlot(OUTPUT_START_SLOT + slot) : ItemStack.EMPTY;
-        }
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return valid(slot) ? itemHandler.insertItem(OUTPUT_START_SLOT + slot, stack, simulate) : stack;
-        }
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return valid(slot) ? itemHandler.extractItem(OUTPUT_START_SLOT + slot, amount, simulate) : ItemStack.EMPTY;
-        }
-        @Override public int getSlotLimit(int slot) {
-            return valid(slot) ? itemHandler.getSlotLimit(OUTPUT_START_SLOT + slot) : 0;
-        }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return valid(slot) && itemHandler.isItemValid(OUTPUT_START_SLOT + slot, stack);
-        }
-        private boolean valid(int slot) { return slot >= 0 && slot < getSlots(); }
-    };
+
+    private GreenhouseOutputInventory activeOutputInventory() {
+        return new GreenhouseOutputInventory(itemHandler, OUTPUT_START_SLOT, getActiveOutputSlots());
+    }
+
     private final ContainerData greenhouseData = new ContainerData() {
         @Override
         public int get(int index) {
@@ -245,7 +206,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                 || !UpgradeHelper.hasEssenceConversionUpgrade(this)) return;
         beginOutputChangeBatch();
         try {
-            if (GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler, this)) markDirtyClient();
+            if (GreenhouseEssenceConversionHelper.convertStored(serverLevel, activeOutputInventory(), this)) markDirtyClient();
         } finally {
             finishOutputChangeBatch();
         }
@@ -269,7 +230,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         }
         if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel
                 && level.getGameTime() % 20L == 0L) {
-            GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler, this);
+            GreenhouseEssenceConversionHelper.convertStored(serverLevel, activeOutputInventory(), this);
         }
         advanceProductionTicks(1, allowed, false);
     }
@@ -356,7 +317,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return profiles;
     }
 
-    @Override public IFluidHandler matrixFluidStorage() { return fluidTank; }
+    @Override public JDTEFluidTank matrixFluidStorage() { return fluidTank; }
     @Override public MachineEnergyStorage matrixEnergyStorage() { return energyStorage; }
     @Override public long matrixOutputCapacity() { return (long) getActiveOutputSlots() * getOutputSlotLimit(); }
 
@@ -428,7 +389,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             nextInputSlot = (nextInputSlot + 1) % INPUT_SLOTS;
             setActiveMask(newActiveMask);
             if (UpgradeHelper.hasEssenceConversionUpgrade(this) && level instanceof ServerLevel serverLevel) {
-                GreenhouseEssenceConversionHelper.convertStored(serverLevel, internalOutputHandler, this);
+                GreenhouseEssenceConversionHelper.convertStored(serverLevel, activeOutputInventory(), this);
             }
         } finally {
             finishOutputChangeBatch();
@@ -479,7 +440,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         }
 
         HarvestPlan plan = planDrops(serverLevel, getLocalSeed(slot), definition, candidate,
-                settings.fortuneLevel(), GreenhouseCapacityLedger.capture(internalOutputHandler));
+                settings.fortuneLevel(), GreenhouseCapacityLedger.capture(activeOutputInventory()));
         int paidHarvests = plan.harvests();
         if (paidHarvests <= 0) {
             growthWork[slot] = work.stalledWork();
@@ -495,7 +456,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             growthWork[slot] = work.availableWork();
             return 0;
         }
-        if (!insertScaledDrops(null, internalOutputHandler, plan.drops(), 1)) {
+        if (!itemHandler.insertBatch(OUTPUT_START_SLOT, OUTPUT_START_SLOT + getActiveOutputSlots(), plan.drops(), null)) {
             throw new IllegalStateException("Reserved Large Greenhouse output changed before commit");
         }
         setEssencePatternRotation(plan.rotation());
@@ -513,20 +474,20 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     }
 
     private static int supportedFluidHarvests(List<LargeGreenhouseBE> members,
-                                              ResourceLocation requiredFluid, int fluidPerHarvest,
+                                              Identifier requiredFluid, int fluidPerHarvest,
                                               int requestedHarvests, boolean creative) {
         return GreenhouseFluidSettlement.largeSupportedHarvests(
                 fluidHandlers(members), requiredFluid, fluidPerHarvest, requestedHarvests, creative);
     }
 
-    private static boolean tryDrainFluid(List<LargeGreenhouseBE> members, ResourceLocation requiredFluid,
+    private static boolean tryDrainFluid(List<LargeGreenhouseBE> members, Identifier requiredFluid,
                                          int fluidPerHarvest, int paidHarvests, boolean creative) {
         return GreenhouseFluidSettlement.largeTryPay(
                 fluidHandlers(members), requiredFluid, fluidPerHarvest, paidHarvests, creative);
     }
 
-    private static List<IFluidHandler> fluidHandlers(List<LargeGreenhouseBE> members) {
-        return members.stream().map(member -> (IFluidHandler) member.fluidTank).toList();
+    private static List<JDTEFluidTank> fluidHandlers(List<LargeGreenhouseBE> members) {
+        return members.stream().map(member -> member.fluidTank).toList();
     }
 
     private static boolean tryDrainEnergy(List<LargeGreenhouseBE> members, int amount) {
@@ -581,11 +542,11 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         int capacity = 0;
         int end = OUTPUT_START_SLOT + getActiveOutputSlots();
         for (int slot = OUTPUT_START_SLOT; slot < end; slot++) {
-            ItemStack existing = itemHandler.getStackInSlot(slot);
+            ItemStack existing = itemHandler.copyStack(slot);
             if (existing.isEmpty()) {
-                capacity += itemHandler.getSlotLimit(slot);
+                capacity += getOutputSlotLimit();
             } else if (ItemStack.isSameItemSameComponents(existing, output)) {
-                capacity += Math.max(0, itemHandler.getSlotLimit(slot) - existing.getCount());
+                capacity += Math.max(0, getOutputSlotLimit() - existing.getCount());
             }
         }
         return capacity;
@@ -615,7 +576,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             int fitted = fitRepetitions(serverLevel, capacityLedger, drops, groupHarvests, fortuneLevel,
                     convertEssence, plannedRotation);
             List<ItemStack> scaledDrops = GreenhouseFortuneHelper.scaleBatch(
-                    drops, fitted, fortuneLevel, serverLevel.random);
+                    drops, fitted, fortuneLevel, serverLevel.getRandom());
             GreenhouseEssenceConversionHelper.ConversionPlan conversion = convertEssence
                     ? GreenhouseEssenceConversionHelper.planConversion(serverLevel, scaledDrops, this, plannedRotation) : null;
             if (conversion != null) scaledDrops = conversion.drops();
@@ -643,9 +604,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
             return definition.generateHarvest(serverLevel, worldPosition, tool);
         }
         if (!definition.useLootTable()) return definition.outputs();
-        ResourceLocation blockId = definition.harvestBlock();
+        Identifier blockId = definition.harvestBlock();
         if (blockId == null || !BuiltInRegistries.BLOCK.containsKey(blockId)) return definition.outputs();
-        Block block = BuiltInRegistries.BLOCK.get(blockId);
+        Block block = BuiltInRegistries.BLOCK.getValue(blockId);
         BlockState matureState;
         if (block instanceof CropBlock crop) {
             matureState = crop.getStateForAge(crop.getMaxAge());
@@ -688,41 +649,6 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return low;
     }
 
-    private boolean insertScaledDrops(IItemHandler adjacent, IItemHandler internal,
-                                      List<ItemStack> drops, int repetitions) {
-        for (ItemStack drop : drops) {
-            long remaining = (long) drop.getCount() * repetitions;
-            if (adjacent != null) remaining = insertAmount(adjacent, drop, remaining, false);
-            remaining = insertAmount(internal, drop, remaining, false);
-            if (remaining > 0) return false;
-        }
-        return true;
-    }
-
-    private static long insertAmount(IItemHandler handler, ItemStack template, long amount, boolean simulate) {
-        long remaining = amount;
-        for (int slot = 0; slot < handler.getSlots() && remaining > 0; slot++) {
-            ItemStack existing = handler.getStackInSlot(slot);
-            if (!existing.isEmpty() && ItemStack.isSameItemSameComponents(existing, template)) {
-                remaining -= insertIntoSlot(handler, slot, template, remaining, simulate);
-            }
-        }
-        for (int slot = 0; slot < handler.getSlots() && remaining > 0; slot++) {
-            if (handler.getStackInSlot(slot).isEmpty()) {
-                remaining -= insertIntoSlot(handler, slot, template, remaining, simulate);
-            }
-        }
-        return remaining;
-    }
-
-    private static int insertIntoSlot(IItemHandler handler, int slot, ItemStack template,
-                                      long amount, boolean simulate) {
-        int offered = (int) Math.min(amount, handler.getSlotLimit(slot));
-        ItemStack stack = template.copyWithCount(offered);
-        ItemStack remainder = handler.insertItem(slot, stack, simulate);
-        return offered - remainder.getCount();
-    }
-
     public List<LargeGreenhouseStructure.BoundaryNeighbor> getBoundaryNeighbors() {
         Direction facing = LargeGreenhouseStructure.horizontalFacing(getBlockState());
         if (cachedBoundaryFacing != facing) {
@@ -733,7 +659,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     }
 
     private ItemStack getLocalSeed(int slot) {
-        return slot >= 0 && slot < INPUT_SLOTS ? itemHandler.getStackInSlot(slot) : ItemStack.EMPTY;
+        return slot >= 0 && slot < INPUT_SLOTS ? itemHandler.copyStack(slot) : ItemStack.EMPTY;
     }
 
     private GreenhouseCropDefinition getDefinition(int slot) {
@@ -741,7 +667,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         if (!ItemStack.isSameItemSameComponents(seed, cachedSeeds[slot])) {
             cachedSeeds[slot] = seed.isEmpty() ? ItemStack.EMPTY : seed.copyWithCount(1);
             cachedDefinitions[slot] = GreenhouseCropResolver.find(level, seed);
-            ResourceLocation nextDisplay = cachedDefinitions[slot] == null ? null : cachedDefinitions[slot].displayBlock();
+            Identifier nextDisplay = cachedDefinitions[slot] == null ? null : cachedDefinitions[slot].displayBlock();
             if (!Objects.equals(displayBlockIds[slot], nextDisplay)) {
                 displayBlockIds[slot] = nextDisplay;
                 markDirtyClient();
@@ -775,7 +701,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
 
     // Lazily rebuilt per slot when the display block id changes (covers client sync and NBT load).
     private BlockState[] getDisplayAgeStates(int slot) {
-        ResourceLocation displayBlockId = displayBlockIds[slot];
+        Identifier displayBlockId = displayBlockIds[slot];
         if (!Objects.equals(displayBlockId, cachedDisplayIds[slot])) {
             cachedDisplayIds[slot] = displayBlockId;
             displayAgeStates[slot] = buildAgeStates(displayBlockId);
@@ -783,9 +709,9 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         return displayAgeStates[slot];
     }
 
-    private static BlockState[] buildAgeStates(ResourceLocation blockId) {
+    private static BlockState[] buildAgeStates(Identifier blockId) {
         if (blockId == null || !BuiltInRegistries.BLOCK.containsKey(blockId)) return null;
-        Block block = BuiltInRegistries.BLOCK.get(blockId);
+        Block block = BuiltInRegistries.BLOCK.getValue(blockId);
         if (block instanceof CropBlock crop) {
             BlockState[] states = new BlockState[crop.getMaxAge() + 1];
             for (int age = 0; age < states.length; age++) states[age] = crop.getStateForAge(age);
@@ -881,7 +807,7 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
                 : BASE_OUTPUT_SLOTS + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int i = 0; i < OUTPUT_SLOTS; i++) {
-            if (!itemHandler.getStackInSlot(OUTPUT_START_SLOT + i).isEmpty()) occupied = i + 1;
+            if (!itemHandler.copyStack(OUTPUT_START_SLOT + i).isEmpty()) occupied = i + 1;
         }
         cachedActiveOutputSlots = Math.min(OUTPUT_SLOTS, Math.max(configured, occupied));
         activeOutputSlotsTick = gameTick;
@@ -923,12 +849,12 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
         long result = (long) Math.max(0, left) * Math.max(0, right);
         return (int) Math.min(Integer.MAX_VALUE, result);
     }
-    private boolean isClientSide() { return level != null && level.isClientSide; }
+    private boolean isClientSide() { return level != null && level.isClientSide(); }
     public ContainerData getLargeGreenhouseData() { return greenhouseData; }
-    public IItemHandler getMenuItemHandler() { return itemHandler; }
-    public IItemHandler getAutomationItemHandler() { return automationItemHandler; }
+    public ItemStacksResourceHandler getMenuItemHandler() { return itemHandler; }
+    public ResourceHandler<ItemResource> getAutomationItemHandler() { return automationItemHandler; }
 
-    @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
+    @Override public ItemStacksResourceHandler getMachineHandler() { return itemHandler; }
     @Override public int getMaxEnergy() { return UpgradeHelper.adjustEnergyCapacity(this, JDTEConfig.COMMON.greenhouseEnergyCapacity.get()); }
     @Override public MachineEnergyStorage getEnergyStorage() { return energyStorage; }
     @Override public ContainerData getContainerData() { return poweredData; }
@@ -941,12 +867,12 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     @Override public boolean canRun() { return true; }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", OversizedItemStackHandlerSerialization.serialize(itemHandler, provider));
-        tag.put("fluid", fluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        OversizedItemStackHandlerSerialization.serialize(itemHandler, tag.child("inventory"));
+        tag.putChild("fluid", fluidTank);
         tag.putInt("energy", energyStorage.getEnergyStored());
-        tag.putLongArray("growthWork", growthWork);
+        tag.store("growthWork", net.minecraft.util.ExtraCodecs.NBT, new net.minecraft.nbt.LongArrayTag(growthWork));
         tag.putInt("settlementTicker", settlementTicker);
         tag.putInt("nextInputSlot", nextInputSlot);
         tag.putIntArray("essencePatternRotation", essencePatternRotation);
@@ -958,41 +884,41 @@ public class LargeGreenhouseBE extends BaseMachineBE implements PoweredMachineBE
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) loadInventory(tag.getCompound("inventory"), provider);
-        if (tag.contains("fluid")) fluidTank.deserializeNBT(provider, tag.getCompound("fluid"));
-        if (tag.contains("energy")) energyStorage.setEnergy(tag.getInt("energy"));
-        if (tag.contains("growthWork", Tag.TAG_LONG_ARRAY)) {
-            long[] savedWork = tag.getLongArray("growthWork");
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        if (tag.child("inventory").isPresent()) loadInventory(tag.childOrEmpty("inventory"));
+        tag.readChild("fluid", fluidTank);
+        if (tag.getInt("energy").isPresent()) energyStorage.setEnergy(tag.getIntOr("energy", 0));
+        var growth = tag.read("growthWork", net.minecraft.util.ExtraCodecs.NBT).orElse(null);
+        if (growth instanceof net.minecraft.nbt.LongArrayTag array) {
+            long[] savedWork = array.getAsLongArray();
             System.arraycopy(savedWork, 0, growthWork, 0, Math.min(savedWork.length, INPUT_SLOTS));
         }
-        settlementTicker = Math.max(0, tag.getInt("settlementTicker"));
-        nextInputSlot = Math.floorMod(tag.getInt("nextInputSlot"), INPUT_SLOTS);
-        setEssencePatternRotation(tag.getIntArray("essencePatternRotation"));
-        activeMask = tag.getInt("activeMask");
-        multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")
-                : JDTEConfig.COMMON.greenhouseDefaultSpeedMultiplier.get();
+        settlementTicker = Math.max(0, tag.getIntOr("settlementTicker", 0));
+        nextInputSlot = Math.floorMod(tag.getIntOr("nextInputSlot", 0), INPUT_SLOTS);
+        setEssencePatternRotation(tag.getIntArray("essencePatternRotation").orElseGet(() -> new int[0]));
+        activeMask = tag.getIntOr("activeMask", 0);
+        multiplier = tag.getIntOr("multiplier", JDTEConfig.COMMON.greenhouseDefaultSpeedMultiplier.get());
         for (int slot = 0; slot < INPUT_SLOTS; slot++) {
             String key = "displayBlock" + slot;
-            if (tag.contains(key)) displayBlockIds[slot] = ResourceLocation.tryParse(tag.getString(key));
+            if (tag.getString(key).isPresent()) displayBlockIds[slot] = Identifier.tryParse(tag.getStringOr(key, ""));
         }
         Arrays.fill(cachedSeeds, ItemStack.EMPTY);
         Arrays.fill(cachedDefinitions, null);
     }
 
-    private void loadInventory(CompoundTag inventoryTag, HolderLookup.Provider provider) {
-        if (inventoryTag.getInt("Size") != LEGACY_TOTAL_SLOTS) {
-            OversizedItemStackHandlerSerialization.deserialize(itemHandler, provider, inventoryTag);
+    private void loadInventory(ValueInput inventoryTag) {
+        if (inventoryTag.getIntOr("Size", 0) != LEGACY_TOTAL_SLOTS) {
+            itemHandler.deserialize(inventoryTag);
             return;
         }
-        ItemStackHandler legacy = new ItemStackHandler(LEGACY_TOTAL_SLOTS);
-        legacy.deserializeNBT(provider, inventoryTag);
+        MachineInventoryHandler legacy = new MachineInventoryHandler(LEGACY_TOTAL_SLOTS);
+        legacy.deserialize(inventoryTag);
         for (int slot = 0; slot < LEGACY_INPUT_SLOTS; slot++) {
-            itemHandler.setStackInSlot(slot, legacy.getStackInSlot(slot));
+            itemHandler.setStack(slot, legacy.copyStack(slot));
         }
         for (int slot = LEGACY_INPUT_SLOTS; slot < LEGACY_TOTAL_SLOTS; slot++) {
-            itemHandler.setStackInSlot(OUTPUT_START_SLOT + slot - LEGACY_INPUT_SLOTS, legacy.getStackInSlot(slot));
+            itemHandler.setStack(OUTPUT_START_SLOT + slot - LEGACY_INPUT_SLOTS, legacy.copyStack(slot));
         }
     }
 }

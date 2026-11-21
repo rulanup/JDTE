@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": { "item": "minecraft:chest" },
-    "R": { "item": "minecraft:redstone" },
-    "I": { "item": "minecraft:iron_ingot" }
+    "C": "minecraft:chest",
+    "R": "minecraft:redstone",
+    "I": "minecraft:iron_ingot"
   },
   "pattern": [
     " R ",

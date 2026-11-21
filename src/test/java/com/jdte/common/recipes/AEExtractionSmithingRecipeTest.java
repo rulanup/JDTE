@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class AEExtractionSmithingRecipeTest {
+class AEExtractionSmithingRecipeTest implements com.jdte.test.WorldRegistryTest {
     private static final RegistryAccess REGISTRY_ACCESS =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
@@ -42,7 +42,7 @@ class AEExtractionSmithingRecipeTest {
         AEExtractionSmithingRecipe recipe = new AEExtractionSmithingRecipe();
         assertTrue(recipe.matches(input, null));
 
-        ItemStack result = recipe.assemble(input, REGISTRY_ACCESS);
+        ItemStack result = recipe.assemble(input);
 
         assertEquals(link, result.get(AEComponents.WIRELESS_LINK_TARGET));
         assertEquals(12_345, result.get(JustDireDataComponents.FORGE_ENERGY));
@@ -70,20 +70,20 @@ class AEExtractionSmithingRecipeTest {
     @Test
     void exposesOnlyTheBoundUpgradeAndSupportedEnergyBaseIngredients() {
         AEExtractionSmithingRecipe recipe = new AEExtractionSmithingRecipe();
-        ItemStack template = boundUpgrade(GlobalPos.of(ResourceKey.create(Registries.DIMENSION, JDTEItems.ITEMS.getRegistryKey().location()), BlockPos.ZERO));
+        ItemStack template = boundUpgrade(GlobalPos.of(ResourceKey.create(Registries.DIMENSION, JDTEItems.ITEMS.getRegistryKey().identifier()), BlockPos.ZERO));
         ItemStack capable = new ItemStack(JDTEItems.ULTIMATE_TIME_WAND.get());
 
-        assertTrue(recipe.isTemplateIngredient(template));
-        assertFalse(recipe.isTemplateIngredient(new ItemStack(Items.DIAMOND)));
-        assertTrue(recipe.isBaseIngredient(capable));
-        assertFalse(recipe.isBaseIngredient(new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get())));
-        assertFalse(recipe.isAdditionIngredient(ItemStack.EMPTY));
-        assertFalse(recipe.isAdditionIngredient(new ItemStack(Items.REDSTONE)));
+        assertTrue(recipe.templateIngredient().orElseThrow().test(template));
+        assertFalse(recipe.templateIngredient().orElseThrow().test(new ItemStack(Items.DIAMOND)));
+        assertTrue(recipe.matches(new SmithingRecipeInput(template, capable, ItemStack.EMPTY), null));
+        assertFalse(recipe.matches(new SmithingRecipeInput(template, new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get()), ItemStack.EMPTY), null));
+        assertTrue(recipe.additionIngredient().isEmpty());
+        assertFalse(recipe.matches(new SmithingRecipeInput(template, capable, new ItemStack(Items.REDSTONE)), null));
     }
 
     @Test
     void jsonDecodedRecipeCanBeEncodedForRecipeSync() {
-        AEExtractionSmithingRecipe.Serializer serializer = new AEExtractionSmithingRecipe.Serializer();
+        net.minecraft.world.item.crafting.RecipeSerializer<AEExtractionSmithingRecipe> serializer = AEExtractionSmithingRecipe.Serializer.create();
         AEExtractionSmithingRecipe decoded = serializer.codec().codec()
                 .parse(JsonOps.INSTANCE, JsonParser.parseString("{}"))
                 .getOrThrow();

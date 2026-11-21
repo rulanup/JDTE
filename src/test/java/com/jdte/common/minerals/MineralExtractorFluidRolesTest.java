@@ -1,7 +1,7 @@
 package com.jdte.common.minerals;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.junit.jupiter.api.Test;
@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class MineralExtractorFluidRolesTest {
-    private static final ResourceLocation LAVA_ID = ResourceLocation.withDefaultNamespace("lava");
-    private static final ResourceLocation WATER_ID = ResourceLocation.withDefaultNamespace("water");
+class MineralExtractorFluidRolesTest implements com.jdte.test.WorldRegistryTest {
+    private static final Identifier LAVA_ID = Identifier.withDefaultNamespace("lava");
+    private static final Identifier WATER_ID = Identifier.withDefaultNamespace("water");
 
     @Test
     void routesConfiguredFluidRegistryIdsToTheirProductionRoles() {
@@ -30,8 +30,8 @@ class MineralExtractorFluidRolesTest {
 
     @Test
     void leavesFormerConfiguredFluidUntouchedAfterRolesReload() {
-        var xpFluidId = ResourceLocation.fromNamespaceAndPath("justdirethings", "xp_fluid_source");
-        var xpFluid = BuiltInRegistries.FLUID.get(xpFluidId);
+        var xpFluidId = Identifier.fromNamespaceAndPath("justdirethings", "xp_fluid_source");
+        var xpFluid = BuiltInRegistries.FLUID.getValue(xpFluidId);
         var formerFortuneFluid = new FluidStack(xpFluid, 750);
         var reloadedRoles = new MineralExtractorFluidRoles(WATER_ID, LAVA_ID);
 

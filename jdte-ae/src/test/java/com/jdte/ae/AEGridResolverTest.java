@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
@@ -177,7 +177,7 @@ final class AEGridTestFixture {
     static ServerLevel level(String path) throws Exception {
         NamedServerLevel level = allocate(NamedServerLevel.class);
         level.dimension = ResourceKey.create(Registries.DIMENSION,
-                ResourceLocation.fromNamespaceAndPath("jdte_ae_test", path));
+                Identifier.fromNamespaceAndPath("jdte_ae_test", path));
         return level;
     }
 
@@ -229,8 +229,8 @@ final class AEGridTestFixture {
         private ResourceKey<Level> dimension;
 
         private NamedServerLevel() {
-            super(null, null, null, null, null, null, null,
-                    false, 0L, List.of(), false, null);
+            super(null, null, null, null, null, null,
+                    false, 0L, List.of(), false);
         }
 
         @Override

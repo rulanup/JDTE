@@ -66,7 +66,8 @@ public abstract class BaseMachineContainerFilterMixin implements FilterPageHolde
     @Unique
     private void jdte$expandFilterHandler(int newSize) {
         FilterBasicHandlerAccessor accessor = (FilterBasicHandlerAccessor) filterHandler;
-        NonNullList<ItemStack> oldStacks = accessor.jdte$getStacks();
+        if (filterHandler.size() == newSize) return;
+        NonNullList<ItemStack> oldStacks = filterHandler.copyToList();
         NonNullList<ItemStack> newStacks = NonNullList.withSize(newSize, ItemStack.EMPTY);
 
         for (int i = 0; i < Math.min(oldStacks.size(), newSize); i++) {

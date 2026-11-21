@@ -7,9 +7,9 @@
     "ABA"
   ],
   "key": {
-    "A": { "item": "minecraft:diamond" },
-    "B": { "item": "minecraft:gold_ingot" },
-    "C": { "item": "minecraft:lapis_lazuli" }
+    "A": "minecraft:diamond",
+    "B": "minecraft:gold_ingot",
+    "C": "minecraft:lapis_lazuli"
   },
   "result": {
     "count": 1,

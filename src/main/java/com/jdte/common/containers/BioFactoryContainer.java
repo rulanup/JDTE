@@ -1,6 +1,5 @@
 package com.jdte.common.containers;
 
-import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.items.LootingUpgradeItem;
@@ -16,10 +15,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
-public class BioFactoryContainer extends BaseMachineContainer implements FilterPageHolder {
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
+
+public class BioFactoryContainer extends PagedMachineContainer implements FilterPageHolder {
     private int outputPage;
 
     public BioFactoryContainer(int id, Inventory inventory, FriendlyByteBuf data) { this(id, inventory, data.readBlockPos()); }
@@ -36,7 +36,7 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
         addSlot(new SpecimenSlot(machineHandler, BioFactoryBE.SPECIMEN_SLOT,
                 layout.getBioFactorySpecimenX(), layout.getBioFactorySpecimenY()));
         for (int input = 0; input < BioFactoryBE.INPUT_SLOTS; input++) {
-            addSlot(new SlotItemHandler(machineHandler, BioFactoryBE.inputStorageSlot(input),
+            addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, BioFactoryBE.inputStorageSlot(input),
                     layout.getBioFactoryInputStartX(), inputStartY + (input + 1) * layout.getBioFactoryInputSpacing()));
         }
         for (int i = 0; i < BioFactoryBE.BASE_OUTPUT_SLOTS; i++) {
@@ -96,7 +96,7 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
         int playerStart = machineSlots + BioFactoryBE.UPGRADE_SLOTS;
         if (index < playerStart) {
             if (!moveStackTo(stack, playerStart, slots.size(), true)) return ItemStack.EMPTY;
-        } else if (getFactory().getMachineHandler().isItemValid(BioFactoryBE.SPECIMEN_SLOT, stack)) {
+        } else if (getFactory().getMachineHandler().isValid(BioFactoryBE.SPECIMEN_SLOT, net.neoforged.neoforge.transfer.item.ItemResource.of(stack))) {
             if (!moveStackTo(stack, 0, 1, false)) return ItemStack.EMPTY;
         } else if (stack.getItem() instanceof UpgradeCardItem || stack.getItem() instanceof LootingUpgradeItem
                 || BioFactoryUpgradeItemStackHandler.getProductivityTier(stack) > 0) {
@@ -144,15 +144,15 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
         return moved;
     }
 
-    private static final class SpecimenSlot extends SlotItemHandler {
-        private SpecimenSlot(IItemHandler handler, int slot, int x, int y) { super(handler, slot, x, y); }
+    private static final class SpecimenSlot extends ResourceHandlerSlot {
+        private SpecimenSlot(ItemStacksResourceHandler handler, int slot, int x, int y) { super(handler, handler::set, slot, x, y); }
         @Override public int getMaxStackSize() { return 1; }
     }
 
-    private static final class OutputSlot extends SlotItemHandler {
+    private static final class OutputSlot extends PagedMachineSlot {
         private final int pageSlot;
         private final BioFactoryContainer container;
-        private OutputSlot(IItemHandler handler, int pageSlot, int x, int y, BioFactoryContainer container) {
+        private OutputSlot(ItemStacksResourceHandler handler, int pageSlot, int x, int y, BioFactoryContainer container) {
             super(handler, BioFactoryBE.OUTPUT_START_SLOT + pageSlot, x, y);
             this.pageSlot = pageSlot;
             this.container = container;
@@ -160,22 +160,7 @@ public class BioFactoryContainer extends BaseMachineContainer implements FilterP
         @Override public int getSlotIndex() {
             return BioFactoryBE.OUTPUT_START_SLOT + container.outputPage * BioFactoryBE.BASE_OUTPUT_SLOTS + pageSlot;
         }
-        @Override public ItemStack getItem() { return active() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY; }
-        @Override public boolean hasItem() { return !getItem().isEmpty(); }
-        @Override public void set(ItemStack stack) {
-            if (active()) {
-                ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
-                setChanged();
-            }
-        }
-        @Override public void initialize(ItemStack stack) { set(stack); }
-        @Override public ItemStack remove(int amount) { return active() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY; }
-        @Override public int getMaxStackSize() { return active() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0; }
-        @Override public int getMaxStackSize(ItemStack stack) {
-            return active() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
-        }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
-        @Override public boolean mayPickup(Player player) { return active() && !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty(); }
-        private boolean active() { return getSlotIndex() < BioFactoryBE.OUTPUT_START_SLOT + container.getData(2, BioFactoryBE.BASE_OUTPUT_SLOTS); }
+        @Override protected boolean isActiveSlot() { return getSlotIndex() < BioFactoryBE.OUTPUT_START_SLOT + container.getData(2, BioFactoryBE.BASE_OUTPUT_SLOTS); }
     }
 }

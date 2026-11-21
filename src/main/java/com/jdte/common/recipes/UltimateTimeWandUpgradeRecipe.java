@@ -4,7 +4,6 @@ import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTERecipes;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -15,9 +14,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class UltimateTimeWandUpgradeRecipe extends CustomRecipe {
-    public UltimateTimeWandUpgradeRecipe(CraftingBookCategory category) {
-        super(category);
-    }
+    @Override public CraftingBookCategory category() { return CraftingBookCategory.EQUIPMENT; }
 
     @Override
     public boolean matches(CraftingInput input, Level level) {
@@ -70,7 +67,7 @@ public final class UltimateTimeWandUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput input) {
         ItemStack wand = ItemStack.EMPTY;
         boolean hasEntityUpgrade = false;
         boolean hasOverclockUpgrade = false;
@@ -99,29 +96,26 @@ public final class UltimateTimeWandUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<UltimateTimeWandUpgradeRecipe> getSerializer() {
         return JDTERecipes.ULTIMATE_TIME_WAND_UPGRADE_RECIPE_SERIALIZER.get();
     }
 
-    public static final class Serializer implements RecipeSerializer<UltimateTimeWandUpgradeRecipe> {
+    public static final class Serializer {
+        public static RecipeSerializer<UltimateTimeWandUpgradeRecipe> create() {
+            return new RecipeSerializer<>(codec(), streamCodec());
+        }
+
         private static final UltimateTimeWandUpgradeRecipe INSTANCE =
-                new UltimateTimeWandUpgradeRecipe(CraftingBookCategory.EQUIPMENT);
+                new UltimateTimeWandUpgradeRecipe();
         private static final MapCodec<UltimateTimeWandUpgradeRecipe> CODEC = MapCodec.unit(INSTANCE);
         private static final StreamCodec<RegistryFriendlyByteBuf, UltimateTimeWandUpgradeRecipe> STREAM_CODEC =
                 StreamCodec.unit(INSTANCE);
 
-        @Override
-        public MapCodec<UltimateTimeWandUpgradeRecipe> codec() {
+        public static MapCodec<UltimateTimeWandUpgradeRecipe> codec() {
             return CODEC;
         }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, UltimateTimeWandUpgradeRecipe> streamCodec() {
+        public static StreamCodec<RegistryFriendlyByteBuf, UltimateTimeWandUpgradeRecipe> streamCodec() {
             return STREAM_CODEC;
         }
     }

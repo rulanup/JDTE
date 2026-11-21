@@ -72,8 +72,8 @@ final class AEOutputNetworkIntegration {
         List<HandlerSource> sources = new ArrayList<>(itemSources.size());
         for (AEOutputNetwork.ItemSource itemSource : itemSources) {
             if (itemSource == null || itemSource.owner() == null || itemSource.handler() == null
-                    || itemSource.slot() < 0 || itemSource.slot() >= itemSource.handler().getSlots()) continue;
-            ItemStack snapshot = itemSource.handler().getStackInSlot(itemSource.slot()).copy();
+                    || itemSource.slot() < 0 || itemSource.slot() >= itemSource.handler().size()) continue;
+            ItemStack snapshot = itemSource.handler().getResource(itemSource.slot()).toStack(1);
             if (snapshot.isEmpty()) continue;
             AEItemKey key = AEItemKey.of(snapshot);
             if (key != null) sources.add(new HandlerSource(itemSource, key));
@@ -153,8 +153,7 @@ final class AEOutputNetworkIntegration {
         private final AEOutputNetwork.ItemSource source;
 
         private HandlerSource(AEOutputNetwork.ItemSource source, AEItemKey key) {
-            super(source.handler(), source.slot(), key,
-                    stack -> !stack.isEmpty() && key.equals(AEItemKey.of(stack)));
+            super(source.handler(), source.slot(), key);
             this.source = source;
         }
     }

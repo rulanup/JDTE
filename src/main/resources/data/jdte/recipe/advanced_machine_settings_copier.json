@@ -8,8 +8,8 @@
     " e "
   ],
   "key": {
-    "e": { "item": "justdirethings:eclipsealloy_ingot" },
-    "c": { "item": "justdirethings:machinesettingscopier" }
+    "e": "justdirethings:eclipsealloy_ingot",
+    "c": "justdirethings:machinesettingscopier"
   },
   "result": {
     "count": 1,

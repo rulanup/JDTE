@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["PEP", "ECE", "PEP"],
   "key": {
-    "P": { "item": "minecraft:paper" },
-    "E": { "item": "justdirethings:eclipsealloy_ingot" },
-    "C": { "item": "minecraft:chest" }
+    "P": "minecraft:paper",
+    "E": "justdirethings:eclipsealloy_ingot",
+    "C": "minecraft:chest"
   },
   "result": { "id": "jdte:factory_package", "count": 1 }
 }

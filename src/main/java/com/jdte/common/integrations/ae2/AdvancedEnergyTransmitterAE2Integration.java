@@ -21,7 +21,10 @@ import com.jdte.common.content.JDTEContentControl;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import com.jdte.common.utils.HandlerTagHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import org.jetbrains.annotations.Nullable;
@@ -89,7 +92,7 @@ final class AdvancedEnergyTransmitterAE2Integration
         if (managedNode == null) {
             managedNode = createManagedNode();
             if (!savedNodeData.isEmpty()) {
-                managedNode.loadFromNBT(savedNodeData);
+                HandlerTagHelper.read(managedNode, level.registryAccess(), savedNodeData);
             }
         }
         if (!managedNode.isReady()) {
@@ -123,20 +126,19 @@ final class AdvancedEnergyTransmitterAE2Integration
     }
 
     @Override
-    public void save(CompoundTag tag) {
-        if (managedNode != null) {
-            managedNode.saveToNBT(savedNodeData);
-        }
-        if (!savedNodeData.isEmpty()) {
-            tag.put(NODE_TAG, savedNodeData.copy());
+    public void save(ValueOutput tag) {
+        if (managedNode != null && managedNode.isReady()) {
+            managedNode.serialize(tag.child(NODE_TAG));
+        } else if (!savedNodeData.isEmpty()) {
+            tag.store(NODE_TAG, CompoundTag.CODEC, savedNodeData);
         }
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        savedNodeData = tag.contains(NODE_TAG) ? tag.getCompound(NODE_TAG).copy() : new CompoundTag();
-        if (managedNode != null && !managedNode.isReady() && !savedNodeData.isEmpty()) {
-            managedNode.loadFromNBT(savedNodeData);
+    public void load(ValueInput tag) {
+        savedNodeData = tag.read(NODE_TAG, CompoundTag.CODEC).orElseGet(CompoundTag::new);
+        if (managedNode != null && !managedNode.isReady()) {
+            tag.child(NODE_TAG).ifPresent(managedNode::deserialize);
         }
     }
 
@@ -147,7 +149,7 @@ final class AdvancedEnergyTransmitterAE2Integration
             return;
         }
         if (managedNode.isReady()) {
-            managedNode.saveToNBT(savedNodeData);
+            savedNodeData = HandlerTagHelper.write(managedNode, owner.getLevel().registryAccess());
         }
         managedNode.destroy();
         managedNode = null;

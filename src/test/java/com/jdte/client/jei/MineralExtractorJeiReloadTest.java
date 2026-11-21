@@ -7,7 +7,7 @@ import com.jdte.common.minerals.MineralSurveyData;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.runtime.IJeiRuntime;
 import mezz.jei.api.runtime.IIngredientManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import mezz.jei.api.constants.VanillaTypes;
@@ -24,7 +24,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MineralExtractorJeiReloadTest {
+class MineralExtractorJeiReloadTest implements com.jdte.test.WorldRegistryTest {
     private final JDTEJeiPlugin plugin = new JDTEJeiPlugin();
 
     @AfterEach
@@ -50,9 +50,9 @@ class MineralExtractorJeiReloadTest {
                     }
                     assertSame(VanillaTypes.ITEM_STACK, args[0]);
                     List<ItemStack> hidden = (List<ItemStack>) args[1];
-                    assertEquals(Set.of(ResourceLocation.parse("jdte:xingye_fumo"),
-                                    ResourceLocation.parse("jdte:cainiaoyo_fumo"),
-                                    ResourceLocation.parse("jdte:maiqilin_fumo")),
+                    assertEquals(Set.of(Identifier.parse("jdte:xingye_fumo"),
+                                    Identifier.parse("jdte:cainiaoyo_fumo"),
+                                    Identifier.parse("jdte:maiqilin_fumo")),
                             hidden.stream().map(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()))
                                     .collect(java.util.stream.Collectors.toSet()),
                             "Only the three dolls are hidden by default");
@@ -69,7 +69,7 @@ class MineralExtractorJeiReloadTest {
         plugin.onRuntimeAvailable(runtime);
         assertEquals(1, visible.size());
         MineralExtractorJeiRecipe original = visible.iterator().next();
-        assertEquals(ResourceLocation.parse("minecraft:plains"), original.biomeId());
+        assertEquals(Identifier.parse("minecraft:plains"), original.biomeId());
         assertEquals(1, original.minerals().size());
         assertTrue(original.minerals().getFirst().stack().is(Items.IRON_ORE));
 
@@ -96,14 +96,14 @@ class MineralExtractorJeiReloadTest {
     private static MineralSurveyData survey(String biome, List<MineralEntry> entries) {
         return MineralSurveyData.create(
                 1L,
-                ResourceLocation.parse(biome),
-                ResourceLocation.parse("minecraft:overworld"),
+                Identifier.parse(biome),
+                Identifier.parse("minecraft:overworld"),
                 entries);
     }
 
     private static MineralEntry entry(String ore, long weight) {
         return new MineralEntry(
-                ResourceLocation.parse(ore),
+                Identifier.parse(ore),
                 weight,
                 -64,
                 320,

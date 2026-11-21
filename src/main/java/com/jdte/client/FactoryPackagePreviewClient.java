@@ -19,8 +19,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -54,14 +54,13 @@ public final class FactoryPackagePreviewClient {
         }
     }
 
-    public static void onRenderLevel(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
+    public static void onRenderLevel(ExtractLevelRenderStateEvent event) {
         Preview preview = getPreview(Minecraft.getInstance());
         if (preview == null) return;
         BlockPos max = preview.origin().offset(preview.rotatedSize()).offset(-1, -1, -1);
-        AreaPreviewRenderBatch.enqueueOffset(AABB.encapsulatingFullBlocks(preview.origin(), max));
+        AreaPreviewRenderBatch.enqueueOffset(event.getRenderState(), AABB.encapsulatingFullBlocks(preview.origin(), max));
         if (!preview.blocks().isEmpty()) {
-            AreaPreviewRenderBatch.enqueueBlueprint(preview.origin(), preview.blocks());
+            AreaPreviewRenderBatch.enqueueBlueprint(event.getRenderState(), preview.origin(), preview.blocks());
         }
     }
 
@@ -74,9 +73,9 @@ public final class FactoryPackagePreviewClient {
         Component text = Component.translatable("message.jdte.factory_package.preview",
                 size.getX(), size.getY(), size.getZ(), preview.origin().getX(),
                 preview.origin().getY(), preview.origin().getZ());
-        event.getGuiGraphics().drawCenteredString(minecraft.font, text,
+        event.getGuiGraphics().centeredText(minecraft.font, text,
                 event.getGuiGraphics().guiWidth() / 2,
-                event.getGuiGraphics().guiHeight() / 2 + 28, 0x55FFFF);
+                event.getGuiGraphics().guiHeight() / 2 + 28, 0xFF55FFFF);
     }
 
     private static Preview getPreview(Minecraft minecraft) {
@@ -91,7 +90,7 @@ public final class FactoryPackagePreviewClient {
         Vec3i rotatedSize = FactoryPackageItem.getRotatedSize(stack);
         BlockPos origin;
         var target = FactoryPackageItem.getPlacementTarget(stack);
-        if (target.isPresent() && target.get().dimension().equals(minecraft.level.dimension().location())) {
+        if (target.isPresent() && target.get().dimension().equals(minecraft.level.dimension().identifier())) {
             origin = target.get().origin();
         } else if (minecraft.hitResult instanceof BlockHitResult hit
                 && hit.getType() == HitResult.Type.BLOCK) {
@@ -110,7 +109,7 @@ public final class FactoryPackagePreviewClient {
         if (id.equals(requestedId) && now < nextRequestTime) return;
         requestedId = id;
         nextRequestTime = now + 2000L;
-        PacketDistributor.sendToServer(new FactoryPackagePreviewRequestPayload(id));
+        ClientPacketDistributor.sendToServer(new FactoryPackagePreviewRequestPayload(id));
     }
 
     private static ItemStack heldPackage(Player player) {

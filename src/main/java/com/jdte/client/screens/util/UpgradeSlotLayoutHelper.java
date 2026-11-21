@@ -1,5 +1,7 @@
 package com.jdte.client.screens.util;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.JDTE;
@@ -13,17 +15,15 @@ import com.jdte.common.upgrades.UpgradeSlot;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.mixin.SlotAccessor;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.minecraft.world.entity.player.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 public final class UpgradeSlotLayoutHelper {
-    private static final ResourceLocation UPGRADE_SLOT_PANEL = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/upgrade_slot_panel.png");
-    private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
+    private static final Identifier UPGRADE_SLOT_PANEL = Identifier.fromNamespaceAndPath(JDTE.MODID, "textures/gui/upgrade_slot_panel.png");
+    private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
     private static final int PANEL_WIDTH = 32;
     private static final int PANEL_HEIGHT = 86;
     private static final Map<Slot, int[]> ORIGINAL_SLOT_POSITIONS = new WeakHashMap<>();
@@ -141,14 +141,14 @@ public final class UpgradeSlotLayoutHelper {
     }
 
     private static boolean isPlayerInventorySlot(Slot slot) {
-        return slot instanceof SlotItemHandler slotItemHandler && slotItemHandler.getItemHandler() instanceof InvWrapper;
+        return slot.container instanceof Inventory;
     }
 
     private static int[] getOriginalSlotPosition(Slot slot) {
         return ORIGINAL_SLOT_POSITIONS.computeIfAbsent(slot, key -> new int[]{key.x, key.y});
     }
 
-    public static void renderFixedUpgradePanels(GuiGraphics guiGraphics, int totalSlots, int guiLeft, int guiTop) {
+    public static void renderFixedUpgradePanels(GuiGraphicsExtractor guiGraphics, int totalSlots, int guiLeft, int guiTop) {
         var config = GuiUpgradeLayoutConfig.getInstance();
         int half = 4;
         boolean hasLeftPanel = totalSlots > 4;
@@ -162,19 +162,18 @@ public final class UpgradeSlotLayoutHelper {
         }
     }
 
-    private static void drawSlotPanel(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config, int guiLeft, int guiTop, int originX, int originY, int slotCount) {
+    private static void drawSlotPanel(GuiGraphicsExtractor guiGraphics, GuiUpgradeLayoutConfig config, int guiLeft, int guiTop, int originX, int originY, int slotCount) {
         int panelX = guiLeft + originX - (PANEL_WIDTH - config.getSlotSize()) / 2;
         int panelY = guiTop + originY - (PANEL_HEIGHT - config.getRows() * config.getSlotSize()) / 2;
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        guiGraphics.blit(UPGRADE_SLOT_PANEL, panelX, panelY, 0, 0,
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, UPGRADE_SLOT_PANEL, panelX, panelY, 0, 0,
                 PANEL_WIDTH, PANEL_HEIGHT,
                 PANEL_WIDTH, PANEL_HEIGHT);
 
         for (int i = 0; i < slotCount; i++) {
             int sx = guiLeft + originX;
             int sy = guiTop + originY + i * config.getSlotSpacing();
-            guiGraphics.blitSprite(SLOT_SPRITE, sx, sy, config.getSlotSize(), config.getSlotSize());
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, sx, sy, config.getSlotSize(), config.getSlotSize());
         }
     }
 
@@ -219,7 +218,7 @@ public final class UpgradeSlotLayoutHelper {
 
         if (baseMachineBE instanceof com.jdte.common.blockentities.MineralExtractorBE) {
             int current = UpgradeHelper.hasSmelterUpgrade(baseMachineBE) ? 1 : 0;
-            ItemStack smelter = new ItemStack(com.direwolf20.justdirethings.setup.Registration.UPGRADE_SMELTER.get());
+            ItemStack smelter = new ItemStack(com.direwolf20.justdirethings.setup.JDTRegistration.UPGRADE_SMELTER.get());
             lines.add(Component.literal("  ")
                     .append(smelter.getHoverName())
                     .append(Component.literal(": " + current + "/1"))
@@ -258,7 +257,7 @@ public final class UpgradeSlotLayoutHelper {
         if (baseMachineBE instanceof com.jdte.common.blockentities.BioFactoryBE factory
                 && net.neoforged.fml.ModList.get().isLoaded("productivebees")) {
             int productivityTotal = factory.getUpgradeHandler().getProductivityCount();
-            for (ResourceLocation id : BioFactoryUpgradeItemStackHandler.getProductivityUpgradeIds()) {
+            for (Identifier id : BioFactoryUpgradeItemStackHandler.getProductivityUpgradeIds()) {
                 net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).ifPresent(item -> {
                     ItemStack upgrade = new ItemStack(item);
                     int tier = BioFactoryUpgradeItemStackHandler.getProductivityTier(upgrade);

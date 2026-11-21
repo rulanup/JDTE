@@ -37,7 +37,7 @@ public class ChargedLightningRodContainer extends BaseMachineContainer {
 
     @Override
     public void broadcastChanges() {
-        if (!player.level().isClientSide) updateSettings();
+        if (!player.level().isClientSide()) updateSettings();
         super.broadcastChanges();
     }
 

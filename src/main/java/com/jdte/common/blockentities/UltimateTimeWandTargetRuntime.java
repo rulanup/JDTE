@@ -166,7 +166,7 @@ public final class UltimateTimeWandTargetRuntime {
             return Result.invalid();
         }
         for (int executed = 0; executed < requestedTicks; executed++) {
-            state.randomTick(level, pos, level.random);
+            state.randomTick(level, pos, level.getRandom());
         }
         return new Result(requestedTicks, true, false, null);
     }

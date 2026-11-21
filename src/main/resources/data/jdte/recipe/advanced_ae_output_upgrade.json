@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    { "item": "jdte:ae_output_upgrade" },
-    { "item": "justdirethings:eclipsealloy_ingot" },
-    { "item": "minecraft:nether_star" },
-    { "item": "justdirethings:time_crystal" }
+    "jdte:ae_output_upgrade",
+    "justdirethings:eclipsealloy_ingot",
+    "minecraft:nether_star",
+    "justdirethings:time_crystal"
   ],
   "result": {
     "id": "jdte:advanced_ae_output_upgrade",

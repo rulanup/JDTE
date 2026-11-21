@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": { "item": "justdirethings:celestigem" },
-    "E": { "item": "justdirethings:eclipsealloy_ingot" },
-    "G": { "item": "minecraft:red_stained_glass" },
-    "H": { "item": "jdte:large_greenhouse" }
+    "C": "justdirethings:celestigem",
+    "E": "justdirethings:eclipsealloy_ingot",
+    "G": "minecraft:red_stained_glass",
+    "H": "jdte:large_greenhouse"
   },
   "pattern": ["GCG", "EHE", "GEG"],
   "result": { "count": 1, "id": "jdte:life_synthesis_vat" }

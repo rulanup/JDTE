@@ -8,7 +8,6 @@ import com.jdte.common.containers.LargePortableContainerMenus;
 import com.jdte.common.network.data.OpenLargePortableContainerPayload;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item.TooltipContext;
@@ -18,9 +17,14 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 
 public class LargePotionCanisterItem extends PotionCanister {
+    public LargePotionCanisterItem(Properties properties) {
+        super(properties);
+    }
+
     public static int getPotionCapacityMb() {
         return LargePortableContainerLogic.potionCapacity();
     }
@@ -38,7 +42,7 @@ public class LargePotionCanisterItem extends PotionCanister {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         Level level = context.level();
         if (level == null) {
             return;
@@ -50,8 +54,8 @@ public class LargePotionCanisterItem extends PotionCanister {
             return;
         }
 
-        tooltip.add(Component.literal(potionAmountTooltip(amount)));
-        contents.addPotionTooltip(tooltip::add, 1.0F, 20.0F);
+        tooltip.accept(Component.literal(potionAmountTooltip(amount)));
+        PotionContents.addPotionTooltip(contents.getAllEffects(), tooltip, 1.0F, 20.0F);
     }
 
     static String potionAmountTooltip(int amount) {
@@ -80,13 +84,13 @@ public class LargePotionCanisterItem extends PotionCanister {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide()) {
-            return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+            return InteractionResult.PASS;
         }
         LargePortableContainerMenus.openFromMainHand(
                 player, OpenLargePortableContainerPayload.ContainerKind.LARGE_POTION_CANISTER);
-        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+        return InteractionResult.PASS;
     }
 }

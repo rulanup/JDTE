@@ -91,9 +91,9 @@ public final class EntityAccelerationManager {
         net.minecraft.world.level.Level level = event.getLevel();
         if (!com.jdte.common.items.UltimateTimeWandItem.hasEntityAcceleration(stack)) {
             if (!level.isClientSide()) {
-                player.displayClientMessage(
+                player.sendOverlayMessage(
                         net.minecraft.network.chat.Component.translatable("message.jdte.ultimate_time_wand.requires_entity_acceleration")
-                                .withStyle(net.minecraft.ChatFormatting.RED), true);
+                                .withStyle(net.minecraft.ChatFormatting.RED));
             }
             event.setCancellationResult(net.minecraft.world.InteractionResult.FAIL);
             event.setCanceled(true);
@@ -101,7 +101,7 @@ public final class EntityAccelerationManager {
         }
 
         if (level.isClientSide() || !(level instanceof ServerLevel serverLevel)) {
-            event.setCancellationResult(net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide()));
+            event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
             event.setCanceled(true);
             return;
         }

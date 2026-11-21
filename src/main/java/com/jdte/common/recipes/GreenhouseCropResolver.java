@@ -1,6 +1,5 @@
 package com.jdte.common.recipes;
 
-import com.jdte.common.integrations.BotanyPotsGreenhouseIntegration;
 import com.jdte.common.integrations.MysticalAgricultureGreenhouseIntegration;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.world.item.ItemStack;
@@ -49,7 +48,7 @@ public final class GreenhouseCropResolver {
         if (level == null || seed.isEmpty()) {
             return null;
         }
-        for (var holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
+        for (var holder : MachineRecipeHelper.recipes(level).byType(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
             GreenhouseRecipe recipe = holder.value();
             if (recipe.matchesSeed(seed)) {
                 return new GreenhouseCropDefinition(recipe.outputs(), recipe.displayBlock(),
@@ -57,16 +56,9 @@ public final class GreenhouseCropResolver {
                         recipe.growthWork(), recipe.fluid(), recipe.timeFluid());
             }
         }
-        // Prefer dedicated integrations over broad recipe providers. In particular,
-        // Botany Pots compatibility packs also register Mystical Agriculture seeds;
-        // resolving those first would bypass MA's crop registry and loot behavior.
         if (ModList.get().isLoaded("mysticalagriculture")) {
             GreenhouseCropDefinition mystical = MysticalAgricultureGreenhouseIntegration.find(seed);
             if (mystical != null) return mystical;
-        }
-        if (ModList.get().isLoaded("botanypots")) {
-            GreenhouseCropDefinition botanyPots = BotanyPotsGreenhouseIntegration.find(level, seed);
-            if (botanyPots != null) return botanyPots;
         }
         return findGeneric(seed);
     }

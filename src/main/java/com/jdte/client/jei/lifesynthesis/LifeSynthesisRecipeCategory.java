@@ -1,5 +1,7 @@
 package com.jdte.client.jei.lifesynthesis;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.jdte.JDTE;
 import com.jdte.setup.JDTEItems;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -10,19 +12,19 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class LifeSynthesisRecipeCategory implements IRecipeCategory<LifeSynthesisJeiRecipe> {
-    public static final ResourceLocation UID = JDTE.id("life_synthesis");
+    public static final Identifier UID = JDTE.id("life_synthesis");
     public static final RecipeType<LifeSynthesisJeiRecipe> RECIPE_TYPE = new RecipeType<>(UID, LifeSynthesisJeiRecipe.class);
-    private static final ResourceLocation SLOT = ResourceLocation.withDefaultNamespace("container/slot");
-    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("justdirethings", "background");
-    private static final ResourceLocation POWER_BAR = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
-    private static final ResourceLocation FLUID_BAR = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/fluid_bar.png");
+    private static final Identifier SLOT = Identifier.withDefaultNamespace("container/slot");
+    private static final Identifier BACKGROUND = Identifier.fromNamespaceAndPath("justdirethings", "background");
+    private static final Identifier POWER_BAR = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
+    private static final Identifier FLUID_BAR = Identifier.fromNamespaceAndPath("jdte", "textures/gui/fluid_bar.png");
     /** 紧凑布局：培养基、养分、进度、生命流体、FE；最多三列培养基。 */
     private static final int INPUT_X = 4;
     private static final int INPUT_Y = 7;
@@ -51,7 +53,7 @@ public class LifeSynthesisRecipeCategory implements IRecipeCategory<LifeSynthesi
     @Override public IDrawable getIcon() { return icon; }
     @Override public int getWidth() { return layoutWidth(maxDisplayedInputs()); }
     @Override public int getHeight() { return HEIGHT; }
-    @Override public ResourceLocation getRegistryName(LifeSynthesisJeiRecipe recipe) { return recipe.id(); }
+    @Override public Identifier getRegistryName(LifeSynthesisJeiRecipe recipe) { return recipe.id(); }
 
     /** 按输入行数计算紧凑列数，超过三行时向下换行。 */
     private static int columns(int inputCount) {
@@ -121,14 +123,14 @@ public class LifeSynthesisRecipeCategory implements IRecipeCategory<LifeSynthesi
         }
     }
 
-    @Override public void draw(LifeSynthesisJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphics graphics,
+    @Override public void draw(LifeSynthesisJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics,
                                double mouseX, double mouseY) {
         int count = recipe.inputs().size();
         int offsetX = contentOffsetX(count);
         int cols = columns(count);
-        graphics.blitSprite(BACKGROUND, 0, 0, getWidth(), HEIGHT);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND, 0, 0, getWidth(), HEIGHT);
         for (int i = 0; i < count; i++) {
-            graphics.blitSprite(SLOT, offsetX + INPUT_X - 1 + (i % cols) * SLOT_SPACING, INPUT_Y - 1 + (i / cols) * SLOT_SPACING, 18, 18);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT, offsetX + INPUT_X - 1 + (i % cols) * SLOT_SPACING, INPUT_Y - 1 + (i / cols) * SLOT_SPACING, 18, 18);
         }
         int pulseX = offsetX + progressX(count);
         drawProductionPulse(graphics, pulseX, PULSE_Y);
@@ -136,21 +138,21 @@ public class LifeSynthesisRecipeCategory implements IRecipeCategory<LifeSynthesi
             double seconds = recipe.processTicks() / 20.0D;
             String formattedSeconds = seconds == Math.rint(seconds)
                     ? Integer.toString((int) seconds) : String.format("%.1f", seconds);
-            graphics.renderTooltip(net.minecraft.client.Minecraft.getInstance().font,
+            graphics.setTooltipForNextFrame(net.minecraft.client.Minecraft.getInstance().font,
                     Component.translatable("jei.jdte.bio_factory.process_time",
                             recipe.processTicks(), formattedSeconds), (int) mouseX, (int) mouseY);
         }
         int energyX = offsetX + energyX(count);
         int fill = 1 + (int) ((System.currentTimeMillis() / 35L) % 70L);
-        graphics.blit(POWER_BAR, energyX, FLUID_Y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(POWER_BAR, energyX + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWER_BAR, energyX, FLUID_Y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWER_BAR, energyX + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
         if (mouseX >= energyX && mouseX < energyX + 18 && mouseY >= FLUID_Y && mouseY < FLUID_Y + 72) {
-            graphics.renderTooltip(net.minecraft.client.Minecraft.getInstance().font,
+            graphics.setTooltipForNextFrame(net.minecraft.client.Minecraft.getInstance().font,
                     Component.literal(recipe.energy() + " FE"), (int) mouseX, (int) mouseY);
         }
     }
 
-    private void drawProductionPulse(GuiGraphics graphics, int x, int y) {
+    private void drawProductionPulse(GuiGraphicsExtractor graphics, int x, int y) {
         int stage = (int) ((System.currentTimeMillis() / 140L) % 6L);
         int outer = stage < 3 ? stage : 6 - stage;
         graphics.fill(x + 5, y + 2, x + 9, y + 14, 0xFF2B1A1A);

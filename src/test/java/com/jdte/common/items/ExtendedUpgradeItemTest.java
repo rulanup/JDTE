@@ -1,6 +1,6 @@
 package com.jdte.common.items;
 
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.BlockPos;
@@ -34,16 +34,16 @@ class ExtendedUpgradeItemTest {
     @Test
     void mapsOnlyTheFourOrdinaryJdtSources() {
         assertEquals(JDTEBlocks.EXTENDED_GENERATOR.get(),
-                ExtendedUpgradeItem.targetFor(Registration.GeneratorT1.get()));
+                ExtendedUpgradeItem.targetFor(JDTRegistration.GeneratorT1.get()));
         assertEquals(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(),
-                ExtendedUpgradeItem.targetFor(Registration.GeneratorFluidT1.get()));
+                ExtendedUpgradeItem.targetFor(JDTRegistration.GeneratorFluidT1.get()));
         assertEquals(JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get(),
-                ExtendedUpgradeItem.targetFor(Registration.ExperienceHolder.get()));
+                ExtendedUpgradeItem.targetFor(JDTRegistration.ExperienceHolder.get()));
         assertEquals(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get(),
-                ExtendedUpgradeItem.targetFor(Registration.EnergyTransmitter.get()));
+                ExtendedUpgradeItem.targetFor(JDTRegistration.EnergyTransmitter.get()));
 
-        assertNull(ExtendedUpgradeItem.targetFor(Registration.ClickerT1.get()));
-        assertNull(ExtendedUpgradeItem.targetFor(Registration.BlockPlacerT1.get()));
+        assertNull(ExtendedUpgradeItem.targetFor(JDTRegistration.ClickerT1.get()));
+        assertNull(ExtendedUpgradeItem.targetFor(JDTRegistration.BlockPlacerT1.get()));
         assertNull(ExtendedUpgradeItem.targetFor(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get()));
     }
 
@@ -54,12 +54,12 @@ class ExtendedUpgradeItemTest {
                 JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(),
                 JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get(),
                 JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get(),
-                Registration.GeneratorT1.get(),
-                Registration.GeneratorFluidT1.get(),
-                Registration.ExperienceHolder.get(),
-                Registration.EnergyTransmitter.get(),
-                Registration.ClickerT1.get(),
-                Registration.BlockPlacerT1.get(),
+                JDTRegistration.GeneratorT1.get(),
+                JDTRegistration.GeneratorFluidT1.get(),
+                JDTRegistration.ExperienceHolder.get(),
+                JDTRegistration.EnergyTransmitter.get(),
+                JDTRegistration.ClickerT1.get(),
+                JDTRegistration.BlockPlacerT1.get(),
                 JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get());
 
         assertAcceptsOnly(JDTEBlockEntities.EXTENDED_GENERATOR.get(),
@@ -87,8 +87,8 @@ class ExtendedUpgradeItemTest {
         BlockStateAndEntity replacement = replacementFor(extendedBlock);
         BlockEntity expectedEntity = replacement.entity();
         BlockEntity freshEntity = replacementFor(extendedBlock).entity();
-        BlockEntity wrongBlockEntity = ((EntityBlock) Registration.GeneratorT1.get()).newBlockEntity(
-                BlockPos.ZERO, Registration.GeneratorT1.get().defaultBlockState());
+        BlockEntity wrongBlockEntity = ((EntityBlock) JDTRegistration.GeneratorT1.get()).newBlockEntity(
+                BlockPos.ZERO, JDTRegistration.GeneratorT1.get().defaultBlockState());
 
         assertFalse(ExtendedUpgradeItem.isValidReplacement(
                 replacement.state(), extendedBlock, null, expectedEntity.getType()));
@@ -100,13 +100,13 @@ class ExtendedUpgradeItemTest {
         assertFalse(ExtendedUpgradeItem.isValidReplacement(
                 replacement.state(), extendedBlock, wrongBlockEntity, expectedEntity.getType()));
         assertFalse(ExtendedUpgradeItem.isValidReplacement(
-                Registration.GeneratorT1.get().defaultBlockState(), extendedBlock,
+                JDTRegistration.GeneratorT1.get().defaultBlockState(), extendedBlock,
                 freshEntity, freshEntity.getType()));
     }
 
     @Test
     void targetStateCopiesFacingWhenBothStatesHaveIt() {
-        BlockState source = Registration.ExperienceHolder.get().defaultBlockState()
+        BlockState source = JDTRegistration.ExperienceHolder.get().defaultBlockState()
                 .setValue(BlockStateProperties.FACING, Direction.WEST);
         BlockState targetDefault = JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get().defaultBlockState();
 
@@ -118,7 +118,7 @@ class ExtendedUpgradeItemTest {
 
     @Test
     void targetStateKeepsDefaultWhenNeitherStateHasFacing() {
-        BlockState source = Registration.GeneratorT1.get().defaultBlockState();
+        BlockState source = JDTRegistration.GeneratorT1.get().defaultBlockState();
         BlockState targetDefault = JDTEBlocks.EXTENDED_GENERATOR.get().defaultBlockState();
 
         BlockState target = ExtendedUpgradeItem.targetStateWithCompatibleFacing(source, targetDefault);
@@ -128,9 +128,9 @@ class ExtendedUpgradeItemTest {
 
     @Test
     void targetStateRejectsAsymmetricFacingProperties() {
-        BlockState facingSource = Registration.ExperienceHolder.get().defaultBlockState();
+        BlockState facingSource = JDTRegistration.ExperienceHolder.get().defaultBlockState();
         BlockState facingTarget = JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get().defaultBlockState();
-        BlockState noFacingSource = Registration.GeneratorT1.get().defaultBlockState();
+        BlockState noFacingSource = JDTRegistration.GeneratorT1.get().defaultBlockState();
         BlockState noFacingTarget = JDTEBlocks.EXTENDED_GENERATOR.get().defaultBlockState();
 
         assertNull(ExtendedUpgradeItem.targetStateWithCompatibleFacing(facingSource, noFacingTarget));
@@ -140,7 +140,7 @@ class ExtendedUpgradeItemTest {
     @Test
     void useOnChecksClientAndUnsupportedSourceBeforeAnyWorldMutation() throws Exception {
         String source = readExtendedUpgradeItemSource();
-        int clientBranch = source.indexOf("if (level.isClientSide)");
+        int clientBranch = source.indexOf("if (level.isClientSide())");
         int unsupportedBranch = source.indexOf("if (extendedBlock == null)");
         int firstMutation = source.indexOf("level.removeBlockEntity(pos)");
 
@@ -173,9 +173,9 @@ class ExtendedUpgradeItemTest {
         int setFailure = source.indexOf("if (!level.setBlock(pos, extendedState, Block.UPDATE_ALL))");
         int firstRestore = source.indexOf("restoreOriginal(level, pos, state, data, oldBE)", setFailure);
         int catchRestore = source.indexOf("restoreOriginal(level, pos, state, data, oldBE)", firstRestore + 1);
-        int replacementLoad = source.indexOf("newBE.loadCustomOnly(data, level.registryAccess())");
+        int replacementLoad = source.indexOf("restoreData(newBE, level, data)");
         int replacementGuard = source.indexOf("if (!isValidReplacement(");
-        int restoreLoad = source.indexOf("restoredBE.loadCustomOnly(data, level.registryAccess())");
+        int restoreLoad = source.indexOf("restoreData(restoredBE, level, data)");
         int shrink = source.indexOf("context.getItemInHand().shrink(1);");
 
         assertTrue(setFailure >= 0);

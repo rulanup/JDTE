@@ -8,8 +8,8 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -112,20 +112,16 @@ public class AdvancedTimeAcceleratorBE extends TimeAcceleratorBE implements Powe
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("multiplier", multiplier);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("energy")) {
-            energyStorage.setEnergy(tag.getInt("energy"));
-        }
-        if (tag.contains("multiplier")) {
-            setMultiplier(tag.getInt("multiplier"));
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.getInt("energy").ifPresent(energyStorage::setEnergy);
+        tag.getInt("multiplier").ifPresent(this::setMultiplier);
     }
 }

@@ -10,7 +10,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -22,14 +22,14 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -38,12 +38,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,30 +77,13 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
             stack.getFluid() == JDTEFluids.LIFE_FLUID_SOURCE.get()
                     || stack.getFluid() == JDTEFluids.LIFE_FLUID_FLOWING.get());
     private final FluidContainerData fluidData = new FluidContainerData(this);
-    private final ItemStackHandler itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return slot >= 0 && slot < TOTAL_SLOTS && !stack.isEmpty();
-        }
-        @Override protected void onContentsChanged(int slot) {
+    private final MachineInventoryHandler itemHandler = new MachineInventoryHandler(TOTAL_SLOTS) {
+        @Override protected void onContentsChanged(int slot, ItemStack previous) {
             setChanged();
         }
     };
-    private final IItemHandler automationItemHandler = new IItemHandler() {
-        @Override public int getSlots() { return TOTAL_SLOTS; }
-        @Override public ItemStack getStackInSlot(int slot) { return valid(slot) ? itemHandler.getStackInSlot(slot) : ItemStack.EMPTY; }
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return slot >= 0 && slot < FEED_SLOTS ? itemHandler.insertItem(slot, stack, simulate) : stack;
-        }
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return slot >= OUTPUT_START_SLOT && slot < TOTAL_SLOTS
-                    ? itemHandler.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
-        }
-        @Override public int getSlotLimit(int slot) { return valid(slot) ? itemHandler.getSlotLimit(slot) : 0; }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return slot >= 0 && slot < FEED_SLOTS && itemHandler.isItemValid(slot, stack);
-        }
-        private boolean valid(int slot) { return slot >= 0 && slot < TOTAL_SLOTS; }
-    };
+    private final ResourceHandler<ItemResource> automationItemHandler = new MachineAutomationHandler<>(
+            itemHandler, slot -> slot < FEED_SLOTS, slot -> slot >= OUTPUT_START_SLOT);
     private final ContainerData breederData = new ContainerData() {
         @Override public int get(int index) {
             return switch (index) {
@@ -250,7 +234,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         long fluidCost = baseFluidCost * JDTEConfig.COMMON.lifeBreederFluidCostMultiplierV3.get();
         if (energyCost > energyStorage.getEnergyStored() || fluidCost > fluidTank.getFluidAmount()) return false;
         energyStorage.extractEnergy((int) Math.min(Integer.MAX_VALUE, energyCost), false);
-        fluidTank.drain((int) Math.min(Integer.MAX_VALUE, fluidCost), IFluidHandler.FluidAction.EXECUTE);
+        fluidTank.extractFluid((int) Math.min(Integer.MAX_VALUE, fluidCost));
         return true;
     }
 
@@ -302,7 +286,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         long fluidCost = getBreedingFluidCost(cooldownTicks);
         if (!canPayBreeding(cooldownTicks)) return false;
         energyStorage.extractEnergy(energyCost, false);
-        fluidTank.drain((int) Math.min(Integer.MAX_VALUE, fluidCost), IFluidHandler.FluidAction.EXECUTE);
+        fluidTank.extractFluid((int) Math.min(Integer.MAX_VALUE, fluidCost));
         return true;
     }
 
@@ -338,7 +322,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
                 parentA.setAge(cooldown);
                 parentB.setAge(cooldown);
                 baby.setAge(-24000);
-                baby.moveTo(parentA.getX(), parentA.getY(), parentA.getZ(), 0.0F, 0.0F);
+                baby.snapTo(parentA.getX(), parentA.getY(), parentA.getZ(), 0.0F, 0.0F);
                 level.addFreshEntityWithPassengers(baby);
                 level.broadcastEntityEvent(parentA, (byte) 18);
                 level.broadcastEntityEvent(parentB, (byte) 18);
@@ -353,7 +337,7 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     private boolean hasVillagerFood() {
         int points = 0;
         for (int slot = 0; slot < FEED_SLOTS; slot++) {
-            ItemStack stack = itemHandler.getStackInSlot(slot);
+            ItemStack stack = itemHandler.copyStack(slot);
             points += stack.getCount() * villagerFoodPoints(stack);
             if (points >= 24) return true;
         }
@@ -363,11 +347,11 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     private void consumeVillagerFood() {
         int remainingPoints = 24;
         for (int slot = 0; slot < FEED_SLOTS && remainingPoints > 0; slot++) {
-            ItemStack stack = itemHandler.getStackInSlot(slot);
+            ItemStack stack = itemHandler.copyStack(slot);
             int points = villagerFoodPoints(stack);
             if (points <= 0) continue;
             int count = Math.min(stack.getCount(), (remainingPoints + points - 1) / points);
-            itemHandler.extractItem(slot, count, false);
+            itemHandler.setStack(slot, stack.copyWithCount(stack.getCount() - count));
             remainingPoints -= count * points;
         }
     }
@@ -381,16 +365,16 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     private void refreshEntityFilterCache() {
         FilterBasicHandler handler = getFilterHandler();
         int fingerprint = filterData.allowlist ? 1 : 0;
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
+        for (int slot = 0; slot < handler.size(); slot++) {
+            ItemStack stack = handler.getResource(slot).toStack(handler.getAmountAsInt(slot));
             fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(stack);
         }
         if (fingerprint == filterFingerprint && cachedFilterAllowlist == filterData.allowlist) return;
         filterFingerprint = fingerprint;
         cachedFilterAllowlist = filterData.allowlist;
         cachedFilterTypes.clear();
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
+        for (int slot = 0; slot < handler.size(); slot++) {
+            ItemStack stack = handler.getResource(slot).toStack(handler.getAmountAsInt(slot));
             if (stack.getItem() instanceof SpawnEggItem egg) cachedFilterTypes.add(egg.getType(stack));
         }
     }
@@ -404,21 +388,25 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     private boolean hasFoodFor(Animal first, Animal second) {
         int firstSlot = findFoodSlot(first, -1);
         if (firstSlot < 0) return false;
-        return findFoodSlot(second, itemHandler.getStackInSlot(firstSlot).getCount() >= 2 ? -1 : firstSlot) >= 0;
+        return findFoodSlot(second, itemHandler.copyStack(firstSlot).getCount() >= 2 ? -1 : firstSlot) >= 0;
     }
 
     private void consumeFood(Animal first, Animal second) {
         int firstSlot = findFoodSlot(first, -1);
         if (firstSlot < 0) return;
-        itemHandler.extractItem(firstSlot, 1, false);
+        consumeFeedItem(firstSlot);
         int secondSlot = findFoodSlot(second, -1);
-        if (secondSlot >= 0) itemHandler.extractItem(secondSlot, 1, false);
+        if (secondSlot >= 0) consumeFeedItem(secondSlot);
+    }
+
+    private void consumeFeedItem(int slot) {
+        itemHandler.set(slot, itemHandler.getResource(slot), itemHandler.getAmountAsInt(slot) - 1);
     }
 
     private int findFoodSlot(Animal animal, int excludedSlot) {
         for (int slot = 0; slot < FEED_SLOTS; slot++) {
             if (slot == excludedSlot) continue;
-            ItemStack stack = itemHandler.getStackInSlot(slot);
+            ItemStack stack = itemHandler.copyStack(slot);
             if (!stack.isEmpty() && animal.isFood(stack)) return slot;
         }
         return -1;
@@ -448,8 +436,8 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
 
     private boolean hasOutputSpace() {
         for (int slot = OUTPUT_START_SLOT; slot < TOTAL_SLOTS; slot++) {
-            ItemStack stack = itemHandler.getStackInSlot(slot);
-            if (stack.isEmpty() || stack.getCount() < Math.min(stack.getMaxStackSize(), itemHandler.getSlotLimit(slot))) {
+            ItemStack stack = itemHandler.copyStack(slot);
+            if (stack.isEmpty() || stack.getCount() < itemHandler.getCapacityAsInt(slot, ItemResource.of(stack))) {
                 return true;
             }
         }
@@ -458,17 +446,22 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
 
     private boolean hasAnyFeed() {
         for (int slot = 0; slot < FEED_SLOTS; slot++) {
-            if (!itemHandler.getStackInSlot(slot).isEmpty()) return true;
+            if (!itemHandler.copyStack(slot).isEmpty()) return true;
         }
         return false;
     }
 
     private ItemStack insertOutput(ItemStack stack) {
-        ItemStack remainder = stack;
-        for (int slot = OUTPUT_START_SLOT; slot < TOTAL_SLOTS && !remainder.isEmpty(); slot++) {
-            remainder = itemHandler.insertItem(slot, remainder, false);
+        if (stack.isEmpty()) return ItemStack.EMPTY;
+        int remaining = stack.getCount();
+        ItemResource resource = ItemResource.of(stack);
+        try (Transaction transaction = Transaction.openRoot()) {
+            for (int slot = OUTPUT_START_SLOT; slot < TOTAL_SLOTS && remaining > 0; slot++) {
+                remaining -= itemHandler.insert(slot, resource, remaining, transaction);
+            }
+            transaction.commit();
         }
-        return remainder;
+        return stack.copyWithCount(remaining);
     }
 
     public int getMultiplier() { return isClientSide() ? syncedMultiplier : Math.clamp(multiplier, 1, getMaxSelectableMultiplier()); }
@@ -489,14 +482,14 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
         setChanged();
         markDirtyClient();
     }
-    private boolean isClientSide() { return level != null && level.isClientSide; }
+    private boolean isClientSide() { return level != null && level.isClientSide(); }
 
     public ContainerData getBreederData() { return breederData; }
-    public IItemHandler getAutomationItemHandler() { return automationItemHandler; }
-    @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
+    public ResourceHandler<ItemResource> getAutomationItemHandler() { return automationItemHandler; }
+    @Override public ItemStacksResourceHandler getMachineHandler() { return itemHandler; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return getData(JDTRegistration.HANDLER_BASIC_FILTER); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energyStorage; }
@@ -508,24 +501,23 @@ public class LifeBreederBE extends BaseMachineBE implements AreaAffectingBE, Pow
     @Override public int getMaxMB() { return UpgradeHelper.adjustFluidCapacity(this, JDTEConfig.COMMON.lifeBreederFluidCapacity.get()); }
     @Override public boolean canRun() { return true; }
 
-    @Override public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
-        tag.put("fluid", fluidTank.serializeNBT(provider));
+    @Override public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
+        tag.putChild("fluid", fluidTank);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("mode", mode.ordinal());
         tag.putInt("multiplier", multiplier);
         tag.putInt("cycleTicker", cycleTicker);
     }
 
-    @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        if (tag.contains("fluid")) fluidTank.deserializeNBT(provider, tag.getCompound("fluid"));
-        if (tag.contains("energy")) energyStorage.setEnergy(tag.getInt("energy"));
-        mode = Mode.values()[Math.floorMod(tag.getInt("mode"), Mode.values().length)];
-        multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")
-                : JDTEConfig.COMMON.lifeBreederDefaultSpeedMultiplier.get();
-        cycleTicker = Math.max(0, tag.getInt("cycleTicker"));
+    @Override public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        if (tag.keySet().contains("inventory")) itemHandler.deserialize(tag.childOrEmpty("inventory"));
+        if (tag.keySet().contains("fluid")) fluidTank.deserialize(tag.childOrEmpty("fluid"));
+        if (tag.keySet().contains("energy")) energyStorage.setEnergy(tag.getIntOr("energy", 0));
+        mode = Mode.values()[Math.floorMod(tag.getIntOr("mode", 0), Mode.values().length)];
+        multiplier = tag.getIntOr("multiplier", JDTEConfig.COMMON.lifeBreederDefaultSpeedMultiplier.get());
+        cycleTicker = Math.max(0, tag.getIntOr("cycleTicker", 0));
     }
 }

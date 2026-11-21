@@ -23,6 +23,23 @@
     },
     {
       "type": "patchouli:text",
+      "text": "$(bold)Ultimate Capacity Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_capacity_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, maximizing output slots in supported machines, and expanding Greenhouse, Large Greenhouse, and Bio Factory single-slot stacking up to 6,400,000."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_capacity_upgrade"
+    },
+    {
+      "type": "patchouli:text",
       "text": "$(bold)Overclock Upgrade$()"
     },
     {
@@ -37,6 +54,23 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:overclock_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Ultimate Overclock Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_overclock_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Max 1 per machine; mutually exclusive with Overclock and Underclock Upgrades.$(br2)When placed in a machine, forces it to run at a 1-tick delay and execute 10 times per tick. Energy consumption is increased to 50x base cost.$(br2)Can also be applied to the $(bold)Ultimate Time Wand$() (by right-clicking the wand in inventory or crafting together in a crafting grid) to raise its maximum acceleration ceiling from 1024X (exponent 10) up to $(bold)32768X$() (exponent 15)."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_overclock_upgrade"
     },
     {
       "type": "patchouli:text",
@@ -239,6 +273,23 @@
     },
     {
       "type": "patchouli:text",
+      "text": "$(bold)Advanced AE Output Upgrade$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_ae_output_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "An advanced iteration of the AE Output Upgrade crafted with an AE Output Upgrade, Eclipse Alloy Ingot, Nether Star, and Time Crystal. Like the standard card, bind it in the linking slot of an AE2 Wireless Access Point before installation.$(br2)Compared to the standard upgrade, the Advanced tier increases the per-operation fluid extraction budget to maximum integer capacity (2.14 billion mB) and performs 10 extraction passes per tick. This aligns perfectly with the 1-tick / 10-iteration throughput of the Ultimate Overclock Upgrade and high-speed wand acceleration, eliminating output bottlenecks at extreme scales. Limit 1 per machine; conflicts with standard AE Output Upgrade."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_ae_output_upgrade"
+    },
+    {
+      "type": "patchouli:text",
       "text": "$(bold)AE Extraction Upgrade$()"
     },
     {
@@ -269,7 +320,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Exclusive to the Ultimate Time Wand. Once installed, the wand can accelerate entities in addition to blocks. It can be installed in a smithing table, crafting table, or directly by right-clicking the upgrade onto the Ultimate Time Wand in the inventory.$(br2)While accelerated, the entity's AI is not accelerated, preventing excessive pathfinding lag, erratic movement, or rapid attacks. Entity life timers, growth (baby to adult), breeding cooldowns, potion effects, and production timers advance at the full accelerated rate."
+      "text": "Exclusive to the Ultimate Time Wand. Once installed, the wand can accelerate entities in addition to blocks. Install it in a smithing table with this upgrade as the template, the Ultimate Time Wand as the base, and a Time Fluid Catalyst as the addition, or right-click the upgrade onto the wand in the inventory.$(br2)While accelerated, the entity's AI is not accelerated, preventing excessive pathfinding lag, erratic movement, or rapid attacks. Entity life timers, growth (baby to adult), breeding cooldowns, potion effects, and production timers advance at the full accelerated rate."
     },
     {
       "type": "patchouli:crafting",
@@ -294,7 +345,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Seed-to-Essence Upgrade$()"
+      "text": "Bind Crafting Patterns to select recipes: one pattern on the normal card, three on the advanced card, 2,147,483,647 on the ultimate card. See $(l:jdte:crafting-patterns)Crafting Patterns and Essence Conversion$(/l).$(br2)$(bold)Seed-to-Essence Upgrade$()"
     },
     {
       "type": "patchouli:spotlight",
@@ -410,93 +461,35 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:advanced_upgrade_storage"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(bold)Ultimate Capacity Upgrade$()"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "jdte:ultimate_capacity_upgrade",
-      "text": ""
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Max 1 per machine. Provides the effect of 50x Capacity Upgrades, drastically expanding FE and fluid storage capacity, maximizing output slots in supported machines, and expanding Greenhouse and Bio Factory single-slot stacking up to 6,400,000."
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "jdte:ultimate_capacity_upgrade"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(bold)Ultimate Overclock Upgrade$()"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "jdte:ultimate_overclock_upgrade",
-      "text": ""
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Max 1 per machine; mutually exclusive with Overclock and Underclock. Forces the machine to run at a 1-tick delay and execute 10 times per tick, with 50x energy consumption. Can also be applied to the Ultimate Time Wand to increase maximum acceleration up to 32768X."
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "jdte:ultimate_overclock_upgrade"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "jdte:crafting_pattern",
-      "text": "Right-click to edit a 3×3 ghost grid. Copy carried ingredients or shift-click inventory items; shift-click ghost slots to clear them. Samples are not consumed. Save Recipe records a valid server-checked crafting recipe."
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "jdte:crafting_pattern"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Anvil: one upgrade on the left, one recorded pattern on the right. Binding consumes the pattern and one XP level. Normal cards hold one pattern; advanced cards hold three. Duplicate or invalid recipes are rejected. Both tiers share one card per Greenhouse/Large Greenhouse."
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "jdte:advanced_essence_conversion_upgrade",
-      "text": "Smithing: Netherite Upgrade Smithing Template + normal Essence Conversion Upgrade + diamond. The advanced card retains bound patterns."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "Shared-ingredient recipes run round-robin by craft count; independent groups craft separately. Rotation persists. All ingredients must be buffered; crafting remainders are retained. Full outputs leave inputs untouched. Conversion precedes AE export and pending ingredients remain buffered. Other essences retain automatic conversion. Jade/tooltips show patterns and validity."
     }
   ],
   "extra_recipe_mappings": {
     "jdte:capacity_upgrade": 1,
-    "jdte:overclock_upgrade": 5,
-    "jdte:underclock_upgrade": 9,
-    "jdte:fluid_upgrade": 13,
-    "jdte:fluid_storage_upgrade": 17,
-    "jdte:generator_upgrade": 21,
-    "jdte:range_upgrade": 25,
-    "jdte:filter_upgrade": 29,
-    "jdte:creative_upgrade": 33,
-    "jdte:fortune_upgrade": 37,
-    "jdte:precision_upgrade": 41,
-    "jdte:ae_acceleration_upgrade": 45,
-    "jdte:ae_crafting_read_upgrade": 50,
+    "jdte:overclock_upgrade": 9,
+    "jdte:underclock_upgrade": 17,
+    "jdte:fluid_upgrade": 21,
+    "jdte:fluid_storage_upgrade": 25,
+    "jdte:generator_upgrade": 29,
+    "jdte:range_upgrade": 33,
+    "jdte:filter_upgrade": 37,
+    "jdte:creative_upgrade": 41,
+    "jdte:fortune_upgrade": 45,
+    "jdte:precision_upgrade": 49,
+    "jdte:ae_acceleration_upgrade": 53,
+    "jdte:ae_crafting_read_upgrade": 58,
     "jdte:ae_output_upgrade": 0,
-    "jdte:advanced_ae_output_upgrade": 0,
-    "jdte:ae_extraction_upgrade": 56,
-    "jdte:entity_acceleration_upgrade": 61,
-    "jdte:essence_conversion_upgrade": 65,
-    "jdte:seed_conversion_upgrade": 69,
-    "jdte:looting_upgrade": 73,
-    "jdte:sharpness_upgrade": 77,
-    "jdte:energy_brewing_upgrade": 81,
-    "jdte:energy_overload_upgrade": 85,
-    "jdte:upgrade_storage": 89,
-    "jdte:advanced_upgrade_storage": 93,
-    "jdte:ultimate_capacity_upgrade": 97,
-    "jdte:ultimate_overclock_upgrade": 101,
-    "jdte:crafting_pattern": 104,
-    "jdte:advanced_essence_conversion_upgrade": 107
+    "jdte:advanced_ae_output_upgrade": 64,
+    "jdte:ae_extraction_upgrade": 68,
+    "jdte:entity_acceleration_upgrade": 73,
+    "jdte:essence_conversion_upgrade": 77,
+    "jdte:seed_conversion_upgrade": 81,
+    "jdte:looting_upgrade": 85,
+    "jdte:sharpness_upgrade": 89,
+    "jdte:energy_brewing_upgrade": 93,
+    "jdte:energy_overload_upgrade": 97,
+    "jdte:ultimate_capacity_upgrade": 5,
+    "jdte:ultimate_overclock_upgrade": 13,
+    "jdte:upgrade_storage": 101,
+    "jdte:advanced_upgrade_storage": 105
   }
 }

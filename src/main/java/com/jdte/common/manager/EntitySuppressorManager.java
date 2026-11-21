@@ -19,7 +19,7 @@ import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.common.util.TriState;
+import net.minecraft.util.TriState;
 
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -74,7 +74,7 @@ public final class EntitySuppressorManager {
                 EntitySuppressorBE.Mode.SUPPRESS_TICK, server);
         if (suppressed) {
             entity.setDeltaMovement(Vec3.ZERO);
-            entity.hasImpulse = false;
+            entity.needsSync = false;
         }
         if (server && !event.loadedFromDisk()
                 && matches(event.getLevel(), entity.position(), entity, EntitySuppressorBE.Mode.BLOCK_ENTITY, true)) {
@@ -161,8 +161,8 @@ public final class EntitySuppressorManager {
                                     boolean blacklist, Set<net.minecraft.world.entity.EntityType<?>> selectedTypes) {
         static CachedSuppressor of(EntitySuppressorBE suppressor) {
             Set<net.minecraft.world.entity.EntityType<?>> types = Collections.newSetFromMap(new IdentityHashMap<>());
-            for (int slot = 0; slot < suppressor.getFilterHandler().getSlots(); slot++) {
-                ItemStack stack = suppressor.getFilterHandler().getStackInSlot(slot);
+            for (int slot = 0; slot < suppressor.getFilterHandler().size(); slot++) {
+                ItemStack stack = suppressor.getFilterHandler().getResource(slot).toStack(suppressor.getFilterHandler().getAmountAsInt(slot));
                 if (stack.getItem() instanceof SpawnEggItem egg) types.add(egg.getType(stack));
             }
             return new CachedSuppressor(suppressor, suppressor.getIndexedArea(),

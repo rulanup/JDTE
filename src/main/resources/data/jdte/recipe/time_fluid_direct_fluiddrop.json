@@ -3,14 +3,14 @@
   "catalyst": "jdte:time_fluid_catalyst",
   "id": "jdte:time_fluid_direct",
   "input": {
-    "Name": "minecraft:water",
-    "Properties": {
+    "id": "minecraft:water",
+    "properties": {
       "level": "0"
     }
   },
   "output": {
-    "Name": "justdirethings:time_fluid_block",
-    "Properties": {
+    "id": "justdirethings:time_fluid_block",
+    "properties": {
       "level": "0"
     }
   }

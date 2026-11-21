@@ -14,11 +14,15 @@ import com.jdte.common.upgrades.UpgradeItemStackHandler;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import com.jdte.common.utils.PlayerSoundHelper;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.RangedResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public final class AdvancedUpgradeStorageActionPacket {
@@ -41,13 +45,13 @@ public final class AdvancedUpgradeStorageActionPacket {
             }
             AdvancedUpgradeStorageHandler storageHandler = new AdvancedUpgradeStorageHandler(storageStack);
             int slot = payload.slotIndex();
-            if (slot < 0 || slot >= storageHandler.getSlots()) {
+            if (slot < 0 || slot >= storageHandler.size()) {
                 return;
             }
 
             int action = payload.action();
             if (action == AdvancedUpgradeStorageActionPayload.ACTION_INSERT_ONE || action == AdvancedUpgradeStorageActionPayload.ACTION_INSERT_MAX) {
-                ItemStack sourceStack = storageHandler.getStackInSlot(slot);
+                ItemStack sourceStack = storageHandler.copyStack(slot);
                 if (sourceStack.isEmpty()) {
                     return;
                 }
@@ -56,30 +60,29 @@ public final class AdvancedUpgradeStorageActionPacket {
                 if (inserted > 0) {
                     baseMachineBE.setChanged();
                     menu.broadcastChanges();
-                    player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 1.2F);
+                    PlayerSoundHelper.notify(player, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 1.2F);
                 }
             } else if (action == AdvancedUpgradeStorageActionPayload.ACTION_PICKUP_CURSOR) {
                 ItemStack carried = menu.getCarried();
                 if (carried.isEmpty()) {
-                    ItemStack extracted = storageHandler.extractItem(slot, 1, false);
+                    ItemStack extracted = withdraw(storageHandler, slot, 1);
                     if (!extracted.isEmpty()) {
                         menu.setCarried(extracted);
                         menu.broadcastChanges();
-                        player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 1.0F);
+                        PlayerSoundHelper.notify(player, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 1.0F);
                     }
                 }
             } else if (action == AdvancedUpgradeStorageActionPayload.ACTION_WITHDRAW_INVENTORY) {
-                ItemStack sourceStack = storageHandler.getStackInSlot(slot);
+                ItemStack sourceStack = storageHandler.copyStack(slot);
                 if (!sourceStack.isEmpty()) {
                     int maxWithdraw = Math.min(sourceStack.getCount(), sourceStack.getMaxStackSize());
-                    ItemStack simulated = storageHandler.extractItem(slot, maxWithdraw, true);
-                    if (!simulated.isEmpty()) {
-                        ItemStack remainder = ItemHandlerHelper.insertItem(new InvWrapper(player.getInventory()), simulated, false);
-                        int actualExtracted = simulated.getCount() - remainder.getCount();
-                        if (actualExtracted > 0) {
-                            storageHandler.extractItem(slot, actualExtracted, false);
+                    try (var tx = Transaction.openRoot()) {
+                        int moved = ResourceHandlerUtil.moveStacking(RangedResourceHandler.ofSingleIndex(storageHandler, slot),
+                                PlayerInventoryWrapper.of(player).getMainSlots(), ItemResource.of(sourceStack)::equals, maxWithdraw, tx);
+                        if (moved > 0) {
+                            tx.commit();
                             menu.broadcastChanges();
-                            player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 1.0F);
+                            PlayerSoundHelper.notify(player, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 1.0F);
                         }
                     }
                 }
@@ -87,24 +90,36 @@ public final class AdvancedUpgradeStorageActionPacket {
                 ItemStack carried = menu.getCarried();
                 if (!carried.isEmpty() && UpgradeStorageItem.isAllowedUpgrade(carried)) {
                     int amountToDeposit = (action == AdvancedUpgradeStorageActionPayload.ACTION_DEPOSIT_CURSOR_ONE) ? 1 : carried.getCount();
-                    ItemStack toDeposit = carried.copyWithCount(amountToDeposit);
-                    ItemStack remainder = storageHandler.insertItem(slot, toDeposit, false);
-                    int deposited = amountToDeposit - remainder.getCount();
+                    int deposited;
+                    try (var tx = Transaction.openRoot()) {
+                        deposited = storageHandler.insert(slot, ItemResource.of(carried), amountToDeposit, tx);
+                        tx.commit();
+                    }
                     if (deposited > 0) {
                         carried.shrink(deposited);
                         menu.setCarried(carried);
                         menu.broadcastChanges();
-                        player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 0.8F);
+                        PlayerSoundHelper.notify(player, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 0.8F);
                     }
                 }
             }
         });
     }
 
+    private static ItemStack withdraw(AdvancedUpgradeStorageHandler storage, int slot, int amount) {
+        ItemResource stored = storage.getResource(slot);
+        if (stored.isEmpty()) return ItemStack.EMPTY;
+        try (var tx = Transaction.openRoot()) {
+            int extracted = storage.extract(slot, stored, amount, tx);
+            tx.commit();
+            return stored.toStack(extracted);
+        }
+    }
+
     public static int insertIntoMachine(BaseMachineBE machine, AdvancedUpgradeStorageHandler storageHandler, int slot, int toInsert) {
         int totalInserted = 0;
         for (int i = 0; i < toInsert; i++) {
-            ItemStack single = storageHandler.getStackInSlot(slot).copyWithCount(1);
+            ItemStack single = storageHandler.copyStack(slot).copyWithCount(1);
             if (single.isEmpty()) {
                 break;
             }
@@ -113,14 +128,14 @@ public final class AdvancedUpgradeStorageActionPacket {
             if (machine instanceof BioCrusherBE crusher) {
                 if (single.getItem() instanceof LootingUpgradeItem) {
                     if (tryInsertIntoSpecialHandler(crusher.getLootingHandler(), JDTEConfig.COMMON.maxLootingUpgrades.get(), single)) {
-                        storageHandler.extractItem(slot, 1, false);
+                        withdraw(storageHandler, slot, 1);
                         totalInserted++;
                         continue;
                     }
                 }
                 if (single.getItem() instanceof SharpnessUpgradeItem) {
                     if (tryInsertIntoSpecialHandler(crusher.getSharpnessHandler(), JDTEConfig.COMMON.maxSharpnessUpgrades.get(), single)) {
-                        storageHandler.extractItem(slot, 1, false);
+                        withdraw(storageHandler, slot, 1);
                         totalInserted++;
                         continue;
                     }
@@ -136,7 +151,7 @@ public final class AdvancedUpgradeStorageActionPacket {
             boolean placed = false;
             for (int s = 0; s < handler.getSlots(); s++) {
                 if (handler.insertItem(s, single, true).isEmpty()) {
-                    ItemStack extracted = storageHandler.extractItem(slot, 1, false);
+                    ItemStack extracted = withdraw(storageHandler, slot, 1);
                     handler.insertItem(s, extracted, false);
                     totalInserted++;
                     placed = true;

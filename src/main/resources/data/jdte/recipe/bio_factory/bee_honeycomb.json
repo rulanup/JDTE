@@ -1,8 +1,8 @@
 {
   "type": "jdte:bio_factory",
-  "specimen": { "item": "minecraft:bee_spawn_egg" },
+  "specimen": "minecraft:bee_spawn_egg",
   "inputs": [
-    { "ingredient": { "tag": "minecraft:bee_food" } }
+    { "ingredient": "#minecraft:bee_food" }
   ],
   "outputs": [
     { "item": { "id": "minecraft:honeycomb", "count": 1 } }

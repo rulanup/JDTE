@@ -1,6 +1,7 @@
 {
   "values": [
     "#c:clusters",
+    "justdirethings:time_crystal_cluster",
     {
       "id": "minecraft:amethyst_cluster",
       "required": false

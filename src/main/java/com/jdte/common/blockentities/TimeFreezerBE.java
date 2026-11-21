@@ -16,14 +16,13 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class TimeFreezerBE extends BaseMachineBE implements FluidMachineBE, RedstoneControlledBE, PoweredMachineBE {
     public final FluidContainerData fluidContainerData;
@@ -62,7 +61,7 @@ public class TimeFreezerBE extends BaseMachineBE implements FluidMachineBE, Reds
         if (!decision.deactivate()) {
             if (!creative && decision.consumeResources()) {
                 energy.extractEnergy(getEnergyCostPerTick(), false);
-                fluidTank.drain(getFluidCostPerTick(), IFluidHandler.FluidAction.EXECUTE);
+                fluidTank.extractFluid(getFluidCostPerTick());
                 setChanged();
             }
             TimeFreezerManager.activate(this, serverLevel);
@@ -169,28 +168,20 @@ public class TimeFreezerBE extends BaseMachineBE implements FluidMachineBE, Reds
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("fluidTank", fluidTank);
         tag.putInt("timeFreezerEnergy", energy.getEnergyStored());
         tag.putBoolean("timeFreezerTimeEnabled", timeFreezeEnabled);
         tag.putBoolean("timeFreezerWeatherEnabled", weatherFreezeEnabled);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
-        }
-        if (tag.contains("timeFreezerEnergy")) {
-            energy.setEnergy(tag.getInt("timeFreezerEnergy"));
-        }
-        if (tag.contains("timeFreezerTimeEnabled")) {
-            timeFreezeEnabled = tag.getBoolean("timeFreezerTimeEnabled");
-        }
-        if (tag.contains("timeFreezerWeatherEnabled")) {
-            weatherFreezeEnabled = tag.getBoolean("timeFreezerWeatherEnabled");
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("fluidTank").ifPresent(fluidTank::deserialize);
+        tag.getInt("timeFreezerEnergy").ifPresent(energy::setEnergy);
+        timeFreezeEnabled = tag.getBooleanOr("timeFreezerTimeEnabled", timeFreezeEnabled);
+        weatherFreezeEnabled = tag.getBooleanOr("timeFreezerWeatherEnabled", weatherFreezeEnabled);
     }
 }

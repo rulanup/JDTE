@@ -7,9 +7,9 @@
     "PEP"
   ],
   "key": {
-    "E": { "item": "mysticalagriculture:inferium_essence" },
-    "L": { "item": "justdirethings:upgrade_lawnmower" },
-    "P": { "item": "mysticalagriculture:prosperity_seed_base" }
+    "E": "mysticalagriculture:inferium_essence",
+    "L": "justdirethings:upgrade_lawnmower",
+    "P": "mysticalagriculture:prosperity_seed_base"
   },
   "result": {
     "count": 1,

@@ -2,6 +2,6 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [" C ", "RLR", "CTC"],
-  "key": { "C": { "item": "minecraft:copper_block" }, "L": { "item": "minecraft:lightning_rod" }, "R": { "item": "minecraft:redstone_block" }, "T": { "item": "justdirethings:time_crystal" } },
+  "key": { "C": "minecraft:copper_block", "L": "minecraft:lightning_rod", "R": "minecraft:redstone_block", "T": "justdirethings:time_crystal" },
   "result": { "id": "jdte:charged_lightning_rod", "count": 1 }
 }

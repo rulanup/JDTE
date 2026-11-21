@@ -15,7 +15,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -88,10 +89,10 @@ public class ExtendedEnergyTransmitterBlock extends BaseMachineBlock {
             ).reduce((first, second) -> Shapes.join(first, second, BooleanOp.OR)).orElseThrow()
     };
 
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 
-    public ExtendedEnergyTransmitterBlock() {
-        super(Properties.of()
+    public ExtendedEnergyTransmitterBlock(Properties properties) {
+        super(properties
                 .sound(SoundType.METAL)
                 .strength(2.0F)
                 .noOcclusion()
@@ -124,7 +125,7 @@ public class ExtendedEnergyTransmitterBlock extends BaseMachineBlock {
 
     @SuppressWarnings("deprecation")
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter getter, BlockPos pos) {
+    public VoxelShape getOcclusionShape(BlockState state) {
         return SHAPES[state.getValue(FACING).get3DDataValue()];
     }
 
@@ -144,7 +145,7 @@ public class ExtendedEnergyTransmitterBlock extends BaseMachineBlock {
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter getter, BlockPos pos) {
+    public boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 }

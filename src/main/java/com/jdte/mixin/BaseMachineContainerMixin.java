@@ -104,16 +104,14 @@ public abstract class BaseMachineContainerMixin {
                 }
                 com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler advHandler =
                         new com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler(advStorage);
-                ItemStack remainder = net.neoforged.neoforge.items.ItemHandlerHelper.insertItem(advHandler, currentStack, false);
-                currentStack.setCount(remainder.getCount());
+                currentStack.shrink(advHandler.store(currentStack));
             }
             if (!currentStack.isEmpty()) {
                 ItemStack normStorage = com.jdte.common.items.UpgradeStorageItem.findStorage(player);
                 if (!normStorage.isEmpty()) {
                     com.jdte.common.containers.handlers.UpgradeStorageHandler normHandler =
                             new com.jdte.common.containers.handlers.UpgradeStorageHandler(normStorage);
-                    ItemStack remainder = net.neoforged.neoforge.items.ItemHandlerHelper.insertItem(normHandler, currentStack, false);
-                    currentStack.setCount(remainder.getCount());
+                    currentStack.shrink(normHandler.store(currentStack));
                 }
             }
             if (!currentStack.isEmpty()) {

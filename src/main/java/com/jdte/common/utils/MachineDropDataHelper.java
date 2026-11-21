@@ -10,6 +10,7 @@ import java.util.Set;
 
 /** Removes item storage that the machine block also drops separately during removal. */
 public final class MachineDropDataHelper {
+    public static final String UNRESOLVED_ITEMS = "jdteUnresolvedItems";
     private static final String ATTACHMENTS = "neoforge:attachments";
     private static final Set<String> ITEM_STORAGE_KEYS = Set.of(
             "inventory",
@@ -36,10 +37,17 @@ public final class MachineDropDataHelper {
         }
 
         CompoundTag machineData = customData.copyTag();
+        var unresolved = machineData.getCompoundOrEmpty("inventory").getListOrEmpty(UNRESOLVED_ITEMS);
         ITEM_STORAGE_KEYS.forEach(machineData::remove);
+        // Missing mod items could not spawn as separate drops. Carry them with the machine.
+        if (!unresolved.isEmpty()) {
+            CompoundTag inventory = new CompoundTag();
+            inventory.put(UNRESOLVED_ITEMS, unresolved);
+            machineData.put("inventory", inventory);
+        }
 
-        if (machineData.contains(ATTACHMENTS, Tag.TAG_COMPOUND)) {
-            CompoundTag attachments = machineData.getCompound(ATTACHMENTS);
+        if ((machineData.get(ATTACHMENTS) instanceof net.minecraft.nbt.CompoundTag)) {
+            CompoundTag attachments = machineData.getCompoundOrEmpty(ATTACHMENTS);
             ITEM_STORAGE_ATTACHMENTS.forEach(attachments::remove);
             if (attachments.isEmpty()) {
                 machineData.remove(ATTACHMENTS);

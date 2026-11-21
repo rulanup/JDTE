@@ -1,5 +1,9 @@
 package com.jdte.common.blockentities;
 
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
@@ -19,12 +23,18 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEFluids;
 import com.jdte.setup.JDTERecipes;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.animal.bee.Bee;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.InstrumentItem;
@@ -40,10 +50,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,33 +84,18 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     private final JDTEFluidTank processFluidTank = createTank(stack -> !stack.is(JDTEFluids.LIFE_FLUID_SOURCE.get())
             && !(stack.getFluid() instanceof TimeFluid), true);
     private final JDTEFluidTank productFluidTank = createTank(stack -> true, false);
-    private final ItemStackHandler itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
-        @Override
-        public int getSlotLimit(int slot) {
+    private final MachineInventoryHandler itemHandler = new MachineInventoryHandler(TOTAL_SLOTS) {
+        @Override protected int getCapacity(int slot, ItemResource resource) {
             if (slot == SPECIMEN_SLOT) return 1;
-            if (slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + OUTPUT_SLOTS) {
-                return getOutputSlotLimit();
-            }
-            return super.getSlotLimit(slot);
+            if (slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + OUTPUT_SLOTS) return getOutputSlotLimit();
+            return super.getCapacity(slot, resource);
         }
 
-        @Override
-        public int getStackLimit(int slot, ItemStack stack) {
-            if (slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + OUTPUT_SLOTS) {
-                return getOutputSlotLimit();
-            }
-            return super.getStackLimit(slot, stack);
+        @Override public boolean isValid(int slot, ItemResource resource) {
+            return resource.isEmpty() || slot != SPECIMEN_SLOT || isValidSpecimen(resource.toStack(1));
         }
 
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot == SPECIMEN_SLOT) return isValidSpecimen(stack);
-            if (isInputStorageSlot(slot)) return true;
-            return slot >= OUTPUT_START_SLOT && slot < OUTPUT_START_SLOT + OUTPUT_SLOTS;
-        }
-
-        @Override
-        protected void onContentsChanged(int slot) {
+        @Override protected void onContentsChanged(int slot, ItemStack previous) {
             if (slot == SPECIMEN_SLOT || isInputStorageSlot(slot)) {
                 clearRecipeCache();
                 progress = 0;
@@ -118,60 +109,21 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
             clientSyncPending = true;
         }
     };
-    private final IItemHandler automationItemHandler = new IItemHandler() {
-        @Override public int getSlots() { return 1 + INPUT_SLOTS + getActiveOutputSlots(); }
-        @Override public ItemStack getStackInSlot(int slot) {
-            int storageSlot = toStorageSlot(slot);
-            return storageSlot >= 0 ? itemHandler.getStackInSlot(storageSlot) : ItemStack.EMPTY;
-        }
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            int storageSlot = toStorageSlot(slot);
-            return slot >= 0 && slot <= INPUT_SLOTS && storageSlot >= 0
-                    ? itemHandler.insertItem(storageSlot, stack, simulate) : stack;
-        }
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            int storageSlot = toStorageSlot(slot);
-            return slot > INPUT_SLOTS && storageSlot >= 0
-                    ? itemHandler.extractItem(storageSlot, amount, simulate) : ItemStack.EMPTY;
-        }
-        @Override public int getSlotLimit(int slot) {
-            int storageSlot = toStorageSlot(slot);
-            return storageSlot >= 0 ? itemHandler.getSlotLimit(storageSlot) : 0;
-        }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            int storageSlot = toStorageSlot(slot);
-            return slot >= 0 && slot <= INPUT_SLOTS && storageSlot >= 0
-                    && itemHandler.isItemValid(storageSlot, stack);
-        }
-        private int toStorageSlot(int slot) {
+    private final ResourceHandler<ItemResource> automationItemHandler = new MachineAutomationHandler<>(
+            itemHandler, slot -> slot <= INPUT_SLOTS, slot -> slot > INPUT_SLOTS) {
+        @Override public int size() { return 1 + INPUT_SLOTS + getActiveOutputSlots(); }
+        @Override protected int storageSlot(int slot) {
+            java.util.Objects.checkIndex(slot, size());
             if (slot == 0) return SPECIMEN_SLOT;
-            if (slot >= 1 && slot <= INPUT_SLOTS) return inputStorageSlot(slot - 1);
-            int output = slot - 1 - INPUT_SLOTS;
-            return output >= 0 && output < getActiveOutputSlots() ? OUTPUT_START_SLOT + output : -1;
+            if (slot <= INPUT_SLOTS) return inputStorageSlot(slot - 1);
+            return OUTPUT_START_SLOT + slot - 1 - INPUT_SLOTS;
         }
     };
-    private final IItemHandler internalOutputHandler = new IItemHandler() {
-        @Override public int getSlots() { return getActiveOutputSlots(); }
-        @Override public ItemStack getStackInSlot(int slot) {
-            return valid(slot) ? itemHandler.getStackInSlot(OUTPUT_START_SLOT + slot) : ItemStack.EMPTY;
-        }
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return valid(slot) ? itemHandler.insertItem(OUTPUT_START_SLOT + slot, stack, simulate) : stack;
-        }
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return valid(slot) ? itemHandler.extractItem(OUTPUT_START_SLOT + slot, amount, simulate) : ItemStack.EMPTY;
-        }
-        @Override public int getSlotLimit(int slot) {
-            return valid(slot) ? itemHandler.getSlotLimit(OUTPUT_START_SLOT + slot) : 0;
-        }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return valid(slot) && itemHandler.isItemValid(OUTPUT_START_SLOT + slot, stack);
-        }
-        private boolean valid(int slot) { return slot >= 0 && slot < getSlots(); }
-    };
-    private final IFluidHandler inputFluidHandler = new InputFluidHandler();
-    private final IFluidHandler outputFluidHandler = new OutputFluidHandler();
-    private final IFluidHandler combinedFluidHandler = new CombinedFluidHandler();
+    private final ResourceHandler<FluidResource> inputFluidHandler = new MachineAutomationHandler<>(
+            new CombinedResourceHandler<>(lifeFluidTank, timeFluidTank, processFluidTank), slot -> true, slot -> false);
+    private final ResourceHandler<FluidResource> outputFluidHandler = new MachineAutomationHandler<>(
+            productFluidTank, slot -> false, slot -> true);
+    private final ResourceHandler<FluidResource> combinedFluidHandler = new CombinedResourceHandler<>(inputFluidHandler, outputFluidHandler);
     private final ContainerData machineData = new ContainerData() {
         @Override public int get(int index) {
             return switch (index) {
@@ -329,20 +281,20 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     private boolean resolveRecipe() {
-        ItemStack specimen = itemHandler.getStackInSlot(SPECIMEN_SLOT);
+        ItemStack specimen = itemHandler.copyStack(SPECIMEN_SLOT);
         Fluid fluid = processFluidTank.getFluid().getFluid();
         if (cacheResolved) {
             return cachedRecipe != null || cachedBee != null;
         }
         clearRecipeCache();
         cachedSpecimen = specimen.copy();
-        for (int i = 0; i < INPUT_SLOTS; i++) cachedInputs[i] = itemHandler.getStackInSlot(inputStorageSlot(i)).copy();
+        for (int i = 0; i < INPUT_SLOTS; i++) cachedInputs[i] = itemHandler.copyStack(inputStorageSlot(i));
         cachedProcessFluid = fluid;
         cachedProcessFluidAmount = processFluidTank.getFluidAmount();
         cacheResolved = true;
         if (level == null || specimen.isEmpty()) return false;
         List<ItemStack> inputs = getInputStacks();
-        cachedRecipe = level.getRecipeManager().getAllRecipesFor(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get()).stream()
+        cachedRecipe = MachineRecipeHelper.recipes(level).byType(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get()).stream()
                 .map(holder -> holder.value())
                 .filter(recipe -> {
                     int[] assignment = recipe.findMatchingSlots(specimen, inputs);
@@ -359,7 +311,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         if (!ModList.get().isLoaded("productivebees")) return false;
         cachedBee = ProductiveBeesBioFactoryIntegration.createBee(specimen, level);
         if (cachedBee == null) return false;
-        ItemStack bucket = processFluidTank.isEmpty() ? ItemStack.EMPTY
+        ItemStack bucket = processFluidTank.getFluid().isEmpty() ? ItemStack.EMPTY
                 : new ItemStack(processFluidTank.getFluid().getFluid().getBucket());
         cachedBeeFood = inputs.stream()
                 .filter(stack -> ProductiveBeesBioFactoryIntegration.isValidFood(cachedBee, stack, ItemStack.EMPTY))
@@ -375,8 +327,8 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private boolean hasRecipeProcessFluid(BioFactoryRecipe recipe) {
         if (recipe.processFluid().isEmpty() || recipe.processFluidAmount() <= 0) return true;
-        Fluid expected = BuiltInRegistries.FLUID.get(recipe.processFluid().get());
-        return !processFluidTank.isEmpty() && processFluidTank.getFluid().is(expected)
+        Fluid expected = BuiltInRegistries.FLUID.getValue(recipe.processFluid().get());
+        return !processFluidTank.getFluid().isEmpty() && processFluidTank.getFluid().is(expected)
                 && processFluidTank.getFluidAmount() >= recipe.processFluidAmount();
     }
 
@@ -420,30 +372,30 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 return;
             }
         }
-        if (!canFit(pendingOutput.items()) || !canFitFluid(pendingOutput.fluid())) return;
-
-        pendingOutput.items().forEach(this::insertOutput);
-        if (!pendingOutput.fluid().isEmpty()) {
-            productFluidTank.fill(pendingOutput.fluid(), IFluidHandler.FluidAction.EXECUTE);
+        try (Transaction tx = Transaction.openRoot()) {
+            FluidStack fluid = pendingOutput.fluid();
+            if (!fluid.isEmpty() && productFluidTank.insert(FluidResource.of(fluid), fluid.getAmount(), tx) != fluid.getAmount()) return;
+            if (!itemHandler.insertBatch(OUTPUT_START_SLOT, OUTPUT_START_SLOT + getActiveOutputSlots(), pendingOutput.items(), tx)) return;
+            tx.commit();
         }
         pendingOutput = null;
         if (!creative) {
             extractEnergy(energyCost, false);
-            if (timeCost > 0) timeFluidTank.drain(timeCost, IFluidHandler.FluidAction.EXECUTE);
-            if (lifeCost > 0) lifeFluidTank.drain(lifeCost, IFluidHandler.FluidAction.EXECUTE);
-            if (processCost > 0) processFluidTank.drain(processCost, IFluidHandler.FluidAction.EXECUTE);
+            if (timeCost > 0) timeFluidTank.extractFluid(timeCost);
+            if (lifeCost > 0) lifeFluidTank.extractFluid(lifeCost);
+            if (processCost > 0) processFluidTank.extractFluid(processCost);
             if (completedInputSlots != null) {
                 int[] inputCounts = completedInputCounts;
                 if (inputCounts != null) {
                     for (int input = 0; input < Math.min(completedInputSlots.length, inputCounts.length); input++) {
                         if (inputCounts[input] > 0) {
-                            itemHandler.extractItem(inputStorageSlot(completedInputSlots[input]), inputCounts[input], false);
+                            consumeInput(completedInputSlots[input], inputCounts[input]);
                         }
                     }
                 } else if (completedRecipe != null) {
                     for (int input = 0; input < completedRecipe.inputs().size(); input++) {
                         int count = completedRecipe.inputs().get(input).count();
-                        if (count > 0) itemHandler.extractItem(inputStorageSlot(completedInputSlots[input]), count, false);
+                        if (count > 0) consumeInput(completedInputSlots[input], count);
                     }
                 }
             }
@@ -455,14 +407,14 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private List<ItemStack> createOutputs(double multiplier) {
         if (cachedRecipe != null) {
-            List<ItemStack> base = cachedRecipe.outputs().stream().map(output -> output.roll(level.random, multiplier))
+            List<ItemStack> base = cachedRecipe.outputs().stream().map(output -> output.roll(level.getRandom(), multiplier))
                     .filter(stack -> !stack.isEmpty()).map(ItemStack::copy)
                     .map(this::applyRecipeOutputComponents).toList();
             if (base.isEmpty() || upgradeHandler.getLootingCount() <= 0) return base;
             List<ItemStack> result = new ArrayList<>(base);
             double chance = JDTEConfig.COMMON.lootingExtraDropChance.get();
             for (int level = 0; level < upgradeHandler.getLootingCount(); level++) {
-                if (this.level.random.nextDouble() < chance) base.forEach(stack -> result.add(stack.copy()));
+                if (this.level.getRandom().nextDouble() < chance) base.forEach(stack -> result.add(stack.copy()));
             }
             return result;
         }
@@ -482,12 +434,16 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 }
             }
         } else if (stack.is(Items.GOAT_HORN)) {
-            InstrumentItem.setRandom(stack, InstrumentTags.GOAT_HORNS, level.random);
+            level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.INSTRUMENT)
+                    .get(InstrumentTags.GOAT_HORNS).flatMap(options -> options.getRandomElement(level.getRandom()))
+                    .ifPresent(instrument -> stack.set(DataComponents.INSTRUMENT,
+                            new net.minecraft.world.item.component.InstrumentComponent(instrument)));
         } else if (stack.is(Items.WHITE_WOOL)) {
             for (ItemStack input : getInputStacks()) {
-                if (input.getItem() instanceof DyeItem dye) {
-                    var item = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(
-                            "minecraft", dye.getDyeColor().getName() + "_wool"));
+                var dye = input.get(DataComponents.DYE);
+                if (dye != null) {
+                    var item = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath(
+                            "minecraft", dye.getName() + "_wool"));
                     return new ItemStack(item, stack.getCount());
                 }
             }
@@ -499,7 +455,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         if (cachedRecipe == null || cachedRecipe.outputFluid().isEmpty() || cachedRecipe.outputFluidAmount() <= 0) {
             return FluidStack.EMPTY;
         }
-        Fluid fluid = BuiltInRegistries.FLUID.get(cachedRecipe.outputFluid().get());
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(cachedRecipe.outputFluid().get());
         int amount = (int) Math.min(Integer.MAX_VALUE, Math.round(cachedRecipe.outputFluidAmount() * multiplier));
         return amount <= 0 ? FluidStack.EMPTY : new FluidStack(fluid, amount);
     }
@@ -512,40 +468,10 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         return JDTEConfig.COMMON.bioFactoryProcessFluidPerCycle.get();
     }
 
-    private boolean canFit(List<ItemStack> outputs) {
-        int limit = getOutputSlotLimit();
-        ItemStackHandler copy = new ItemStackHandler(getActiveOutputSlots()) {
-            @Override public int getSlotLimit(int slot) { return limit; }
-            @Override public int getStackLimit(int slot, ItemStack stack) { return limit; }
-        };
-        for (int i = 0; i < copy.getSlots(); i++) copy.setStackInSlot(i, itemHandler.getStackInSlot(OUTPUT_START_SLOT + i).copy());
-        for (ItemStack output : outputs) {
-            ItemStack remaining = output.copy();
-            while (!remaining.isEmpty()) {
-                int count = (int) Math.min(remaining.getCount(), limit);
-                ItemStack part = remaining.copyWithCount(count);
-                if (!ItemHandlerHelper.insertItemStacked(copy, part, false).isEmpty()) return false;
-                remaining.shrink(count);
-            }
-        }
-        return true;
-    }
-
-    private boolean canFitFluid(FluidStack output) {
-        return output.isEmpty() || productFluidTank.fill(output, IFluidHandler.FluidAction.SIMULATE) == output.getAmount();
-    }
-
-    private void insertOutput(ItemStack output) {
-        ItemStack remaining = output.copy();
-        int limit = getOutputSlotLimit();
-        while (!remaining.isEmpty()) {
-            int count = (int) Math.min(remaining.getCount(), limit);
-            ItemStack part = remaining.copyWithCount(count);
-            ItemStack leftover = ItemHandlerHelper.insertItemStacked(internalOutputHandler, part, false);
-            int inserted = count - leftover.getCount();
-            remaining.shrink(inserted);
-            if (!leftover.isEmpty()) break;
-        }
+    private void consumeInput(int logicalSlot, int amount) {
+        int slot = inputStorageSlot(logicalSlot);
+        int remaining = Math.max(0, itemHandler.getAmountAsInt(slot) - amount);
+        itemHandler.set(slot, itemHandler.getResource(slot), remaining);
     }
 
     private int getSpeedMultiplier() {
@@ -615,8 +541,8 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     private int getCurrentProcessTicks() {
-        if (level != null && !level.isClientSide && cachedRecipe != null) return Math.max(1, cachedRecipe.processTicks());
-        if (level != null && level.isClientSide) return Math.max(1, syncedProcessTicks);
+        if (level != null && !level.isClientSide() && cachedRecipe != null) return Math.max(1, cachedRecipe.processTicks());
+        if (level != null && level.isClientSide()) return Math.max(1, syncedProcessTicks);
         return JDTEConfig.COMMON.bioFactoryBaseProcessTicks.get();
     }
 
@@ -664,13 +590,13 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
 
     private List<ItemStack> getInputStacks() {
         List<ItemStack> inputs = new ArrayList<>(INPUT_SLOTS);
-        for (int slot = 0; slot < INPUT_SLOTS; slot++) inputs.add(itemHandler.getStackInSlot(inputStorageSlot(slot)));
+        for (int slot = 0; slot < INPUT_SLOTS; slot++) inputs.add(itemHandler.copyStack(inputStorageSlot(slot)));
         return inputs;
     }
 
     private boolean inputsMatchCache() {
         for (int i = 0; i < INPUT_SLOTS; i++) {
-            ItemStack input = itemHandler.getStackInSlot(inputStorageSlot(i));
+            ItemStack input = itemHandler.copyStack(inputStorageSlot(i));
             if (!ItemStack.isSameItemSameComponents(input, cachedInputs[i])
                     || input.getCount() != cachedInputs[i].getCount()) return false;
         }
@@ -709,7 +635,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     }
 
     public int getActiveOutputSlots() {
-        if (level != null && level.isClientSide) return Math.max(BASE_OUTPUT_SLOTS, syncedOutputSlots);
+        if (level != null && level.isClientSide()) return Math.max(BASE_OUTPUT_SLOTS, syncedOutputSlots);
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (activeOutputSlotsTick == gameTick) return cachedActiveOutputSlots;
 
@@ -718,7 +644,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
                 : BASE_OUTPUT_SLOTS + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int i = 0; i < OUTPUT_SLOTS; i++) {
-            if (!itemHandler.getStackInSlot(OUTPUT_START_SLOT + i).isEmpty()) occupied = ((i / 8) + 1) * 8;
+            if (!itemHandler.copyStack(OUTPUT_START_SLOT + i).isEmpty()) occupied = ((i / 8) + 1) * 8;
         }
         cachedActiveOutputSlots = Math.min(OUTPUT_SLOTS, Math.max(configured, occupied));
         activeOutputSlotsTick = gameTick;
@@ -757,7 +683,7 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
         if (tank instanceof FluidTankAccessor accessor) accessor.jdte$setCapacity(capacity);
     }
 
-    @Override public boolean canRun() { return !itemHandler.getStackInSlot(SPECIMEN_SLOT).isEmpty(); }
+    @Override public boolean canRun() { return !itemHandler.copyStack(SPECIMEN_SLOT).isEmpty(); }
     @Override public int getMaxEnergy() {
         int configuredCapacity = UpgradeHelper.adjustEnergyCapacity(this,
                 JDTEConfig.COMMON.bioFactoryEnergyCapacity.get());
@@ -781,95 +707,50 @@ public class BioFactoryBE extends BaseMachineBE implements PoweredMachineBE, Red
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public BlockEntity getBlockEntity() { return this; }
-    @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
+    @Override public ItemStacksResourceHandler getMachineHandler() { return itemHandler; }
     public BioFactoryUpgradeItemStackHandler getUpgradeHandler() { return upgradeHandler; }
-    public IItemHandler getAutomationItemHandler() { return automationItemHandler; }
-    public IFluidHandler getCombinedFluidHandler() { return combinedFluidHandler; }
-    public IFluidHandler getInputFluidHandler() { return inputFluidHandler; }
-    public IFluidHandler getOutputFluidHandler() { return outputFluidHandler; }
+    public ResourceHandler<ItemResource> getAutomationItemHandler() { return automationItemHandler; }
+    public ResourceHandler<FluidResource> getCombinedFluidHandler() { return combinedFluidHandler; }
+    public ResourceHandler<FluidResource> getInputFluidHandler() { return inputFluidHandler; }
+    public ResourceHandler<FluidResource> getOutputFluidHandler() { return outputFluidHandler; }
     public JDTEFluidTank getLifeFluidTank() { return lifeFluidTank; }
     public JDTEFluidTank getTimeFluidTank() { return timeFluidTank; }
     public JDTEFluidTank getProcessFluidTank() { return processFluidTank; }
     public JDTEFluidTank getProductFluidTank() { return productFluidTank; }
     public ContainerData getMachineData() { return machineData; }
 
-    private boolean isClientSide() { return level != null && level.isClientSide; }
+    private boolean isClientSide() { return level != null && level.isClientSide(); }
 
-    @Override public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", OversizedItemStackHandlerSerialization.serialize(itemHandler, provider));
-        tag.put("upgrades", upgradeHandler.serializeNBT(provider));
-        tag.put("lifeFluid", lifeFluidTank.serializeNBT(provider));
-        tag.put("timeFluid", timeFluidTank.serializeNBT(provider));
-        tag.put("processFluid", processFluidTank.serializeNBT(provider));
-        tag.put("productFluid", productFluidTank.serializeNBT(provider));
+    @Override public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        OversizedItemStackHandlerSerialization.serialize(itemHandler, tag.child("inventory"));
+        tag.putChild("upgrades", upgradeHandler);
+        tag.putChild("lifeFluid", lifeFluidTank);
+        tag.putChild("timeFluid", timeFluidTank);
+        tag.putChild("processFluid", processFluidTank);
+        tag.putChild("productFluid", productFluidTank);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("progress", progress);
         tag.putInt("multiplier", getMultiplier());
         tag.putInt(REMEMBERED_RECIPE_ENERGY_TAG, energyCapacity.rememberedRecipeEnergy());
-        if (pendingOutput != null) tag.put(PENDING_OUTPUT_TAG, pendingOutput.save(provider));
+        if (pendingOutput != null) pendingOutput.save(tag.child(PENDING_OUTPUT_TAG));
     }
 
-    @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            OversizedItemStackHandlerSerialization.deserialize(itemHandler, provider, tag.getCompound("inventory"));
-            if (itemHandler.getSlots() < TOTAL_SLOTS) {
-                List<ItemStack> existing = new ArrayList<>(itemHandler.getSlots());
-                for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-                    existing.add(itemHandler.getStackInSlot(slot).copy());
-                }
-                itemHandler.setSize(TOTAL_SLOTS);
-                for (int slot = 0; slot < existing.size(); slot++) itemHandler.setStackInSlot(slot, existing.get(slot));
-            }
-        }
-        if (tag.contains("upgrades")) upgradeHandler.deserializeNBT(provider, tag.getCompound("upgrades"));
-        if (tag.contains("lifeFluid")) lifeFluidTank.deserializeNBT(provider, tag.getCompound("lifeFluid"));
-        if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(provider, tag.getCompound("timeFluid"));
-        if (tag.contains("processFluid")) processFluidTank.deserializeNBT(provider, tag.getCompound("processFluid"));
-        if (tag.contains("productFluid")) productFluidTank.deserializeNBT(provider, tag.getCompound("productFluid"));
-        energyCapacity.restoreRememberedRecipeEnergy(tag.getInt(REMEMBERED_RECIPE_ENERGY_TAG));
+    @Override public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("inventory").ifPresent(itemHandler::deserialize);
+        tag.readChild("upgrades", upgradeHandler);
+        tag.readChild("lifeFluid", lifeFluidTank);
+        tag.readChild("timeFluid", timeFluidTank);
+        tag.readChild("processFluid", processFluidTank);
+        tag.readChild("productFluid", productFluidTank);
+        energyCapacity.restoreRememberedRecipeEnergy(tag.getIntOr(REMEMBERED_RECIPE_ENERGY_TAG, 0));
         syncCapacities();
-        energyStorage.setEnergy(tag.getInt("energy"));
-        progress = tag.getInt("progress");
-        multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")
-                : JDTEConfig.COMMON.bioFactoryDefaultSpeedMultiplier.get();
-        pendingOutput = tag.contains(PENDING_OUTPUT_TAG)
-                ? BioFactoryPendingOutput.load(tag.getCompound(PENDING_OUTPUT_TAG), provider)
-                : null;
+        energyStorage.setEnergy(tag.getIntOr("energy", 0));
+        progress = tag.getIntOr("progress", 0);
+        multiplier = tag.getIntOr("multiplier", JDTEConfig.COMMON.bioFactoryDefaultSpeedMultiplier.get());
+        pendingOutput = tag.child(PENDING_OUTPUT_TAG).map(BioFactoryPendingOutput::load).orElse(null);
         clearRecipeCache();
     }
 
-    private abstract class TankView implements IFluidHandler {
-        protected abstract JDTEFluidTank[] tanks();
-        @Override public int getTanks() { return tanks().length; }
-        @Override public FluidStack getFluidInTank(int tank) { return valid(tank) ? tanks()[tank].getFluid() : FluidStack.EMPTY; }
-        @Override public int getTankCapacity(int tank) { return valid(tank) ? tanks()[tank].getCapacity() : 0; }
-        @Override public boolean isFluidValid(int tank, FluidStack stack) { return valid(tank) && tanks()[tank].isFluidValid(stack); }
-        protected boolean valid(int tank) { return tank >= 0 && tank < tanks().length; }
-    }
-
-    private final class InputFluidHandler extends TankView {
-        @Override protected JDTEFluidTank[] tanks() { return new JDTEFluidTank[]{lifeFluidTank, timeFluidTank, processFluidTank}; }
-        @Override public int fill(FluidStack stack, FluidAction action) {
-            for (JDTEFluidTank tank : tanks()) if (tank.isFluidValid(stack)) return tank.fill(stack, action);
-            return 0;
-        }
-        @Override public FluidStack drain(FluidStack stack, FluidAction action) { return FluidStack.EMPTY; }
-        @Override public FluidStack drain(int amount, FluidAction action) { return FluidStack.EMPTY; }
-    }
-
-    private final class OutputFluidHandler extends TankView {
-        @Override protected JDTEFluidTank[] tanks() { return new JDTEFluidTank[]{productFluidTank}; }
-        @Override public int fill(FluidStack stack, FluidAction action) { return 0; }
-        @Override public FluidStack drain(FluidStack stack, FluidAction action) { return productFluidTank.drain(stack, action); }
-        @Override public FluidStack drain(int amount, FluidAction action) { return productFluidTank.drain(amount, action); }
-    }
-
-    private final class CombinedFluidHandler extends TankView {
-        @Override protected JDTEFluidTank[] tanks() { return new JDTEFluidTank[]{lifeFluidTank, timeFluidTank, processFluidTank, productFluidTank}; }
-        @Override public int fill(FluidStack stack, FluidAction action) { return inputFluidHandler.fill(stack, action); }
-        @Override public FluidStack drain(FluidStack stack, FluidAction action) { return outputFluidHandler.drain(stack, action); }
-        @Override public FluidStack drain(int amount, FluidAction action) { return outputFluidHandler.drain(amount, action); }
-    }
 }

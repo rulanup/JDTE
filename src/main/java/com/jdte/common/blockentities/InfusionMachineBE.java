@@ -1,12 +1,10 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
-import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
-import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.recipes.InfusionRecipe;
 import com.jdte.common.upgrades.JDTEFluidTank;
@@ -16,8 +14,8 @@ import com.jdte.common.utils.MobLootSpawnEggHelper;
 import com.jdte.setup.JDTERecipes;
 import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -29,14 +27,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
-import com.jdte.common.upgrades.UpgradeType;
 
 public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMachineBE, RedstoneControlledBE, CoalescedAcceleratedMachine {
     public static final int INPUT_SLOT = 0;
@@ -49,7 +44,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
     public final FluidContainerData fluidContainerData;
     public final ContainerData infusionData;
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
-    protected final ItemStackHandler itemHandler;
+    private final MachineInventoryHandler itemHandler;
     protected int progress = 0;
 
     protected InfusionMachineBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -77,22 +72,21 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
                 return 2;
             }
         };
-        itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
+        itemHandler = new MachineInventoryHandler(TOTAL_SLOTS) {
             @Override
-            protected void onContentsChanged(int slot) {
+            protected void onContentsChanged(int slot, ItemStack previous) {
                 setChanged();
             }
 
             @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                if (slot == OUTPUT_SLOT) return false;
-                return true;
+            public boolean isValid(int slot, ItemResource resource) {
+                return slot != OUTPUT_SLOT;
             }
         };
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return itemHandler;
     }
 
@@ -116,7 +110,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
     protected void processInfusion() {
         if (!(level instanceof ServerLevel)) return;
 
-        ItemStack inputStack = itemHandler.getStackInSlot(INPUT_SLOT);
+        ItemStack inputStack = itemHandler.copyStack(INPUT_SLOT);
         FluidStack tankFluid = fluidTank.getFluid();
 
         if (inputStack.isEmpty() || tankFluid.isEmpty()) {
@@ -150,19 +144,19 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
 
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
             inputStack.shrink(process.inputAmount());
-            itemHandler.setStackInSlot(INPUT_SLOT, inputStack);
-            fluidTank.drain(process.fluidAmount(), IFluidHandler.FluidAction.EXECUTE);
+            itemHandler.setStack(INPUT_SLOT, inputStack);
+            fluidTank.extractFluid(process.fluidAmount());
             if (energyCost > 0) {
                 extractEnergy(energyCost, false);
             }
         }
 
-        ItemStack outputStack = itemHandler.getStackInSlot(OUTPUT_SLOT);
+        ItemStack outputStack = itemHandler.copyStack(OUTPUT_SLOT);
         if (outputStack.isEmpty()) {
-            itemHandler.setStackInSlot(OUTPUT_SLOT, result.copy());
+            itemHandler.setStack(OUTPUT_SLOT, result.copy());
         } else {
             outputStack.grow(result.getCount());
-            itemHandler.setStackInSlot(OUTPUT_SLOT, outputStack);
+            itemHandler.setStack(OUTPUT_SLOT, outputStack);
         }
 
         progress = 0;
@@ -208,7 +202,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
     protected void processAcceleratedInfusion(int ticks) {
         if (!(level instanceof ServerLevel)) return;
 
-        ItemStack inputStack = itemHandler.getStackInSlot(INPUT_SLOT);
+        ItemStack inputStack = itemHandler.copyStack(INPUT_SLOT);
         FluidStack tankFluid = fluidTank.getFluid();
 
         if (inputStack.isEmpty() || tankFluid.isEmpty()) {
@@ -245,14 +239,14 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
 
         int maxBatches;
         if (UpgradeHelper.hasCreativeUpgrade(this)) {
-            ItemStack output = itemHandler.getStackInSlot(OUTPUT_SLOT);
+            ItemStack output = itemHandler.copyStack(OUTPUT_SLOT);
             int availableOutputSpace = output.isEmpty() ? result.getMaxStackSize() : (result.getMaxStackSize() - output.getCount());
             maxBatches = result.getCount() > 0 ? (availableOutputSpace / result.getCount()) : (int) Math.min(Integer.MAX_VALUE, batches);
         } else {
             int inputBatches = process.inputAmount() > 0 ? (inputStack.getCount() / process.inputAmount()) : Integer.MAX_VALUE;
             int fluidBatches = process.fluidAmount() > 0 ? (tankFluid.getAmount() / process.fluidAmount()) : Integer.MAX_VALUE;
             int energyBatches = energyCost > 0 ? (getEnergyStored() / energyCost) : Integer.MAX_VALUE;
-            ItemStack output = itemHandler.getStackInSlot(OUTPUT_SLOT);
+            ItemStack output = itemHandler.copyStack(OUTPUT_SLOT);
             int availableOutputSpace = output.isEmpty() ? result.getMaxStackSize() : (result.getMaxStackSize() - output.getCount());
             int outputBatches = result.getCount() > 0 ? (availableOutputSpace / result.getCount()) : Integer.MAX_VALUE;
             maxBatches = Math.min(Math.min(inputBatches, fluidBatches), Math.min(energyBatches, outputBatches));
@@ -266,21 +260,21 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
 
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
             inputStack.shrink(process.inputAmount() * parallel);
-            itemHandler.setStackInSlot(INPUT_SLOT, inputStack);
-            fluidTank.drain(process.fluidAmount() * parallel, IFluidHandler.FluidAction.EXECUTE);
+            itemHandler.setStack(INPUT_SLOT, inputStack);
+            fluidTank.extractFluid(process.fluidAmount() * parallel);
             if (energyCost > 0) {
                 extractEnergy(energyCost * parallel, false);
             }
         }
 
-        ItemStack outputStack = itemHandler.getStackInSlot(OUTPUT_SLOT);
+        ItemStack outputStack = itemHandler.copyStack(OUTPUT_SLOT);
         if (outputStack.isEmpty()) {
             outputStack = result.copy();
             outputStack.setCount(result.getCount() * parallel);
-            itemHandler.setStackInSlot(OUTPUT_SLOT, outputStack);
+            itemHandler.setStack(OUTPUT_SLOT, outputStack);
         } else {
             outputStack.grow(result.getCount() * parallel);
-            itemHandler.setStackInSlot(OUTPUT_SLOT, outputStack);
+            itemHandler.setStack(OUTPUT_SLOT, outputStack);
         }
 
         setChanged();
@@ -322,7 +316,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
 
     protected InfusionRecipe findRecipe(ItemStack input, FluidStack fluid) {
         if (level == null) return null;
-        for (RecipeHolder<InfusionRecipe> holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.INFUSION_RECIPE_TYPE.get())) {
+        for (RecipeHolder<InfusionRecipe> holder : MachineRecipeHelper.recipes(level).byType(JDTERecipes.INFUSION_RECIPE_TYPE.get())) {
             if (holder.value().matches(input, fluid)) {
                 return holder.value();
             }
@@ -343,33 +337,9 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
             return null;
         }
 
-        ItemStack container = input.copy();
-        container.setCount(1);
-        ItemStack originalContainer = container.copy();
-        IFluidHandlerItem itemHandler = container.getCapability(Capabilities.FluidHandler.ITEM);
-        if (itemHandler == null || itemHandler.getTanks() <= 0) {
-            return null;
-        }
-
-        FluidStack available = fluid.copy();
-        int fillAmount = itemHandler.fill(available, IFluidHandler.FluidAction.SIMULATE);
-        if (fillAmount <= 0 || fillAmount > fluid.getAmount()) {
-            return null;
-        }
-
-        FluidStack toFill = fluid.copy();
-        toFill.setAmount(fillAmount);
-        int filled = itemHandler.fill(toFill, IFluidHandler.FluidAction.EXECUTE);
-        if (filled <= 0) {
-            return null;
-        }
-
-        ItemStack result = itemHandler.getContainer();
-        if (result.isEmpty() || ItemStack.isSameItemSameComponents(originalContainer, result)) {
-            return null;
-        }
-        result.setCount(1);
-        return new InfusionProcess(result.copy(), 1, filled, AdvancedInfusionMachineBE.BASE_ENERGY_COST);
+        var filled = InfusionFluidHelper.fillContainer(input, fluid);
+        return filled == null ? null
+                : new InfusionProcess(filled.stack(), 1, filled.fluidAmount(), AdvancedInfusionMachineBE.BASE_ENERGY_COST);
     }
 
     private InfusionProcess findVanillaBottleFillProcess(ItemStack input, FluidStack fluid) {
@@ -390,7 +360,7 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
     }
 
     protected boolean canOutput(ItemStack result) {
-        ItemStack output = itemHandler.getStackInSlot(OUTPUT_SLOT);
+        ItemStack output = itemHandler.copyStack(OUTPUT_SLOT);
         if (output.isEmpty()) return true;
         if (!ItemStack.isSameItemSameComponents(output, result)) return false;
         return output.getCount() + result.getCount() <= output.getMaxStackSize();
@@ -436,24 +406,18 @@ public abstract class InfusionMachineBE extends BaseMachineBE implements FluidMa
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
+        tag.putChild("fluidTank", fluidTank);
         tag.putInt("progress", progress);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
-        if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
-        }
-        if (tag.contains("progress")) {
-            progress = tag.getInt("progress");
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("inventory").ifPresent(itemHandler::deserialize);
+        tag.child("fluidTank").ifPresent(fluidTank::deserialize);
+        progress = tag.getIntOr("progress", progress);
     }
 }

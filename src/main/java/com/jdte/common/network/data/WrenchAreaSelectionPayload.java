@@ -5,12 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record WrenchAreaSelectionPayload(BlockPos machinePos, BlockPos firstCorner, BlockPos secondCorner)
         implements CustomPacketPayload {
     public static final Type<WrenchAreaSelectionPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "wrench_area_selection"));
+            Identifier.fromNamespaceAndPath(JDTE.MODID, "wrench_area_selection"));
 
     public static final StreamCodec<FriendlyByteBuf, WrenchAreaSelectionPayload> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, WrenchAreaSelectionPayload::machinePos,

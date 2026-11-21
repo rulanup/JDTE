@@ -1,4 +1,8 @@
 package com.jdte.common.blockentities;
+
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import com.jdte.common.manager.MachineOutputManager;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
@@ -9,7 +13,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControl
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.direwolf20.justdirethings.common.items.interfaces.Helpers;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.minerals.MineralEntry;
@@ -34,7 +38,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -42,9 +46,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -88,38 +93,23 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
             this::matchesFortuneFluid);
     private final JDTEFluidTank timeFluidTank = new JDTEFluidTank(getMaxFluidCapacity(),
             this::matchesAccelerationFluid);
-    private final IFluidHandler combinedFluidHandler = new CombinedFluidHandler();
-    private final ItemStackHandler itemHandler = new ItemStackHandler(totalSlots()) {
-        @Override public int getSlotLimit(int slot) {
-            return isSurveySlot(slot) ? 1 : slot >= outputStartSlot() ? getOutputSlotLimit() : super.getSlotLimit(slot);
+    private final ResourceHandler<FluidResource> combinedFluidHandler = new CombinedResourceHandler<>(experienceFluidTank, timeFluidTank);
+    private final MachineInventoryHandler itemHandler = new MachineInventoryHandler(totalSlots()) {
+        @Override protected int getCapacity(int slot, ItemResource resource) {
+            return isSurveySlot(slot) ? 1 : getOutputSlotLimit();
         }
-        @Override public int getStackLimit(int slot, ItemStack stack) {
-            return slot >= outputStartSlot() ? getOutputSlotLimit() : super.getStackLimit(slot, stack);
+        @Override public boolean isValid(int slot, ItemResource resource) {
+            return resource.isEmpty() || isSurveySlot(slot) && resource.is(JDTEItems.MINERAL_SURVEY.get());
         }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return isSurveySlot(slot) && stack.is(JDTEItems.MINERAL_SURVEY.get());
-        }
-        @Override protected void onContentsChanged(int slot) {
+        @Override protected void onContentsChanged(int slot, ItemStack previous) {
             if (isSurveySlot(slot)) invalidateMineralCache();
             else if (slot >= outputStartSlot()) MachineOutputManager.submit(MineralExtractorBE.this, slot);
             setChanged();
         }
     };
-    private final IItemHandler automationItemHandler = new IItemHandler() {
-        @Override public int getSlots() { return outputStartSlot() + getActiveOutputSlots(); }
-        @Override public ItemStack getStackInSlot(int slot) { return valid(slot) ? itemHandler.getStackInSlot(slot) : ItemStack.EMPTY; }
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return isSurveySlot(slot) ? itemHandler.insertItem(slot, stack, simulate) : stack;
-        }
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return slot >= outputStartSlot() && slot < getSlots()
-                    ? itemHandler.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
-        }
-        @Override public int getSlotLimit(int slot) { return valid(slot) ? itemHandler.getSlotLimit(slot) : 0; }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return isSurveySlot(slot) && itemHandler.isItemValid(slot, stack);
-        }
-        private boolean valid(int slot) { return slot >= 0 && slot < getSlots(); }
+    private final ResourceHandler<ItemResource> automationItemHandler = new MachineAutomationHandler<>(
+            itemHandler, this::isSurveySlot, slot -> slot >= outputStartSlot() && slot < outputStartSlot() + getActiveOutputSlots()) {
+        @Override public int size() { return outputStartSlot() + getActiveOutputSlots(); }
     };
     private final ContainerData machineData = new ContainerData() {
         @Override public int get(int index) {
@@ -170,8 +160,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     };
 
     private List<MineralEntry> cachedEntries = List.of();
-    private Map<ResourceLocation, ProductionStack> cachedProductionStacks = Map.of();
-    private ResourceLocation cachedBiomeId;
+    private Map<Identifier, ProductionStack> cachedProductionStacks = Map.of();
+    private Identifier cachedBiomeId;
     private long cachedIndexVersion = Long.MIN_VALUE;
     private int cachedFilterFingerprint;
     private boolean cachedSmelterUpgrade;
@@ -362,7 +352,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         long fortuneLimit = experiencePerCycle == 0 ? cycles
                 : Math.min(cycles, usableFortune / experiencePerCycle);
         int fortunePercent = fortuneLimit > 0L ? JDTEConfig.COMMON.mineralExtractor.fortuneBonusPercent.get() : 0;
-        long distributionSeed = serverLevel.random.nextLong();
+        long distributionSeed = serverLevel.getRandom().nextLong();
         Settlement settlement = findSettlement(cycles, fortuneLimit, fortunePercent, distributionSeed);
         if (settlement.cycles() <= 0L) {
             setState(State.OUTPUT_FULL);
@@ -380,10 +370,10 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         if (!creative) {
             energyStorage.extractEnergy(safeCost(settledCycles, energyPerCycle), false);
             if (matchesAccelerationFluid(timeFluidTank.getFluid())) {
-                timeFluidTank.drain(safeCost(settledAcceleratedCycles, timePerCycle), IFluidHandler.FluidAction.EXECUTE);
+                timeFluidTank.extractFluid(safeCost(settledAcceleratedCycles, timePerCycle));
             }
             if (matchesFortuneFluid(experienceFluidTank.getFluid())) {
-                experienceFluidTank.drain(safeCost(settledFortuneCycles, experiencePerCycle), IFluidHandler.FluidAction.EXECUTE);
+                experienceFluidTank.extractFluid(safeCost(settledFortuneCycles, experiencePerCycle));
             }
         }
         consumeBaseWork(settledBaseCycles * processTicks);
@@ -412,14 +402,14 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         if (mineralCacheValid && cachedIndexVersion == indexVersion
                 && cachedFilterFingerprint == filterFingerprint && cachedSmelterUpgrade == smelterUpgrade) return;
 
-        ResourceLocation biomeId;
+        Identifier biomeId;
         List<MineralEntry> sourceEntries;
         List<MineralEntry> surveyedEntries = new ArrayList<>();
-        ResourceLocation firstSurveyBiome = null;
+        Identifier firstSurveyBiome = null;
         boolean hasSurvey = false;
         boolean hasStaleSurvey = false;
         for (int slot = 0; slot < surveySlotCount(); slot++) {
-            MineralSurveyData survey = itemHandler.getStackInSlot(slot).get(JDTEDataComponents.MINERAL_SURVEY.get());
+            MineralSurveyData survey = itemHandler.copyStack(slot).get(JDTEDataComponents.MINERAL_SURVEY.get());
             if (survey == null) continue;
             hasSurvey = true;
             if (firstSurveyBiome == null) firstSurveyBiome = survey.biomeId();
@@ -433,7 +423,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
             staleSurvey = hasStaleSurvey;
         } else {
             var biome = serverLevel.getBiome(worldPosition);
-            biomeId = biome.unwrapKey().map(ResourceKey::location).orElse(null);
+            biomeId = biome.unwrapKey().map(ResourceKey::identifier).orElse(null);
             sourceEntries = MineralSurveyIndex.profile(serverLevel, biome).entries();
             surveySource = false;
             staleSurvey = false;
@@ -455,8 +445,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         int hash = filterData.allowlist ? 1 : 0;
         int baseFilterSlots = UpgradeHelper.getBaseFilterSlots(handler);
         int activeSlots = UpgradeHelper.getActiveFilterSlots(this, baseFilterSlots);
-        for (int slot = 0; slot < Math.min(activeSlots, handler.getSlots()); slot++) {
-            hash = 31 * hash + ItemStack.hashItemAndComponents(handler.getStackInSlot(slot));
+        for (int slot = 0; slot < Math.min(activeSlots, handler.size()); slot++) {
+            hash = 31 * hash + ItemStack.hashItemAndComponents(handler.getResource(slot).toStack(handler.getAmountAsInt(slot)));
         }
         return hash;
     }
@@ -468,8 +458,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         boolean hasFilter = false;
         boolean listed = false;
         ItemStack candidate = oreStack(entry.oreId(), 1);
-        for (int slot = 0; slot < Math.min(activeSlots, handler.getSlots()); slot++) {
-            ItemStack filter = handler.getStackInSlot(slot);
+        for (int slot = 0; slot < Math.min(activeSlots, handler.size()); slot++) {
+            ItemStack filter = handler.getResource(slot).toStack(handler.getAmountAsInt(slot));
             if (filter.isEmpty()) continue;
             hasFilter = true;
             if (ItemStack.isSameItemSameComponents(filter, candidate)) {
@@ -497,9 +487,9 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 cachedEntries, cycles - fortuneCycles, cycles, 0, random);
         MineralProductionEngine.Batch fortunate = MineralProductionEngine.distribute(
                 cachedEntries, fortuneCycles, cycles, fortunePercent, random);
-        Map<ResourceLocation, Long> oreAmounts = mergeAmounts(normal.amounts(), fortunate.amounts());
-        Map<ResourceLocation, Long> itemAmounts = new LinkedHashMap<>();
-        Map<ResourceLocation, Integer> stackLimits = new LinkedHashMap<>();
+        Map<Identifier, Long> oreAmounts = mergeAmounts(normal.amounts(), fortunate.amounts());
+        Map<Identifier, Long> itemAmounts = new LinkedHashMap<>();
+        Map<Identifier, Integer> stackLimits = new LinkedHashMap<>();
         oreAmounts.forEach((oreId, amount) -> {
             ProductionStack production = cachedProductionStacks.get(oreId);
             if (production != null) {
@@ -518,8 +508,8 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         List<MineralOutputPlanner.SlotState> slots = new ArrayList<>(activeOutputSlots);
         for (int slot = 0; slot < activeOutputSlots; slot++) {
             int handlerSlot = outputStartSlot() + slot;
-            ItemStack stack = itemHandler.getStackInSlot(handlerSlot);
-            int configuredLimit = itemHandler.getSlotLimit(handlerSlot);
+            ItemStack stack = itemHandler.copyStack(handlerSlot);
+            int configuredLimit = getOutputSlotLimit();
             int limit = stack.isEmpty() ? configuredLimit : Math.max(configuredLimit, stack.getCount());
             slots.add(stack.isEmpty()
                     ? MineralOutputPlanner.SlotState.empty(limit)
@@ -536,11 +526,11 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                     : BuiltInRegistries.ITEM.getOptional(state.itemId())
                             .map(item -> new ItemStack(item, state.count()))
                             .orElse(ItemStack.EMPTY);
-            itemHandler.setStackInSlot(outputStartSlot() + slot, stack);
+            itemHandler.setStack(outputStartSlot() + slot, stack);
         }
     }
 
-    private record ProductionStack(ResourceLocation itemId, int count) {
+    private record ProductionStack(Identifier itemId, int count) {
     }
 
     private record Settlement(long cycles, MineralOutputPlanner.Plan outputPlan) {
@@ -548,9 +538,9 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 new MineralOutputPlanner.Plan(false, List.of()));
     }
 
-    private static Map<ResourceLocation, ProductionStack> buildProductionStackCache(
+    private static Map<Identifier, ProductionStack> buildProductionStackCache(
             ServerLevel level, List<MineralEntry> entries, boolean smelting) {
-        Map<ResourceLocation, ProductionStack> stacks = new LinkedHashMap<>();
+        Map<Identifier, ProductionStack> stacks = new LinkedHashMap<>();
         for (MineralEntry entry : entries) {
             ItemStack ore = oreStack(entry.oreId(), 1);
             if (ore.isEmpty()) continue;
@@ -563,15 +553,15 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         return Map.copyOf(stacks);
     }
 
-    private static ItemStack oreStack(ResourceLocation id, int amount) {
+    private static ItemStack oreStack(Identifier id, int amount) {
         return BuiltInRegistries.BLOCK.getOptional(id)
                 .map(block -> new ItemStack(block.asItem(), amount))
                 .orElse(ItemStack.EMPTY);
     }
 
-    private static Map<ResourceLocation, Long> mergeAmounts(Map<ResourceLocation, Long> left,
-                                                             Map<ResourceLocation, Long> right) {
-        Map<ResourceLocation, Long> merged = new LinkedHashMap<>(left);
+    private static Map<Identifier, Long> mergeAmounts(Map<Identifier, Long> left,
+                                                             Map<Identifier, Long> right) {
+        Map<Identifier, Long> merged = new LinkedHashMap<>(left);
         right.forEach((id, amount) -> merged.merge(id, amount, MineralExtractorBE::saturatingAdd));
         return merged;
     }
@@ -621,7 +611,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 : BASE_OUTPUT_SLOTS + UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
-            if (!itemHandler.getStackInSlot(outputStartSlot() + slot).isEmpty()) occupied = slot + 1;
+            if (!itemHandler.copyStack(outputStartSlot() + slot).isEmpty()) occupied = slot + 1;
         }
         return Math.min(OUTPUT_SLOTS, Math.max(configured, occupied));
     }
@@ -658,13 +648,13 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
                 : JDTEConfig.COMMON.mineralExtractor.maxMultiplier.get();
     }
     public State getMachineState() { return State.values()[Math.floorMod(machineData.get(8), State.values().length)]; }
-    public ResourceLocation getSourceBiomeId() { return cachedBiomeId; }
+    public Identifier getSourceBiomeId() { return cachedBiomeId; }
     public boolean isSurveySource() { return machineData.get(10) != 0; }
     public ContainerData getMachineData() { return machineData; }
     public JDTEFluidTank getExperienceFluidTank() { return experienceFluidTank; }
     public JDTEFluidTank getTimeFluidTank() { return timeFluidTank; }
-    public IFluidHandler getCombinedFluidHandler() { return combinedFluidHandler; }
-    public IItemHandler getAutomationItemHandler() { return automationItemHandler; }
+    public ResourceHandler<FluidResource> getCombinedFluidHandler() { return combinedFluidHandler; }
+    public ResourceHandler<ItemResource> getAutomationItemHandler() { return automationItemHandler; }
     public int getMaxFluidCapacity() { return UpgradeHelper.adjustFluidCapacity(this, JDTEConfig.COMMON.mineralExtractor.fluidCapacity.get()); }
 
     private static int encodedFluidType(FluidStack stack) {
@@ -681,7 +671,7 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
     }
     private int processTicks() { return JDTEConfig.COMMON.mineralExtractor.processTicks.get(); }
     private long maxPendingWork() { return JDTEConfig.COMMON.mineralExtractor.maxPendingWork.get(); }
-    private boolean isClientSide() { return level != null && level.isClientSide; }
+    private boolean isClientSide() { return level != null && level.isClientSide(); }
     private void setState(State next) {
         if (state == next) return;
         state = next;
@@ -700,22 +690,22 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         }
     }
 
-    @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
+    @Override public ItemStacksResourceHandler getMachineHandler() { return itemHandler; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energyStorage; }
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public int getMaxEnergy() { return UpgradeHelper.adjustEnergyCapacity(this, JDTEConfig.COMMON.mineralExtractor.energyCapacity.get()); }
     @Override public int getStandardEnergyCost() { return JDTEConfig.COMMON.mineralExtractor.energyPerCycle.get(); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return getData(JDTRegistration.HANDLER_BASIC_FILTER); }
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public boolean canRun() { return true; }
 
-    @Override public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", OversizedItemStackHandlerSerialization.serialize(itemHandler, provider));
-        tag.put("experienceFluid", experienceFluidTank.serializeNBT(provider));
-        tag.put("timeFluid", timeFluidTank.serializeNBT(provider));
+    @Override public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        OversizedItemStackHandlerSerialization.serialize(itemHandler, tag.child("inventory"));
+        tag.putChild("experienceFluid", experienceFluidTank);
+        tag.putChild("timeFluid", timeFluidTank);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putLong("pendingBaseWork", pendingBaseWork);
         tag.putLong("pendingAcceleratedWork", pendingAcceleratedWork);
@@ -724,51 +714,18 @@ public class MineralExtractorBE extends BaseMachineBE implements PoweredMachineB
         tag.putInt("state", state.ordinal());
     }
 
-    @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) OversizedItemStackHandlerSerialization.deserialize(
-                itemHandler, provider, tag.getCompound("inventory"));
-        if (tag.contains("experienceFluid")) experienceFluidTank.deserializeNBT(provider, tag.getCompound("experienceFluid"));
-        if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(provider, tag.getCompound("timeFluid"));
-        energyStorage.setEnergy(tag.getInt("energy"));
-        pendingBaseWork = Math.clamp(tag.getLong("pendingBaseWork"), 0L, maxPendingWork());
-        pendingAcceleratedWork = Math.clamp(tag.getLong("pendingAcceleratedWork"), 0L, maxPendingWork());
-        settlementTicker = Math.max(0, tag.getInt("settlementTicker"));
-        multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")
-                : JDTEConfig.COMMON.mineralExtractor.defaultMultiplier.get();
-        state = State.values()[Math.floorMod(tag.getInt("state"), State.values().length)];
+    @Override public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("inventory").ifPresent(itemHandler::deserialize);
+        tag.readChild("experienceFluid", experienceFluidTank);
+        tag.readChild("timeFluid", timeFluidTank);
+        energyStorage.setEnergy(tag.getIntOr("energy", 0));
+        pendingBaseWork = Math.clamp(tag.getLongOr("pendingBaseWork", 0L), 0L, maxPendingWork());
+        pendingAcceleratedWork = Math.clamp(tag.getLongOr("pendingAcceleratedWork", 0L), 0L, maxPendingWork());
+        settlementTicker = Math.max(0, tag.getIntOr("settlementTicker", 0));
+        multiplier = tag.getIntOr("multiplier", JDTEConfig.COMMON.mineralExtractor.defaultMultiplier.get());
+        state = State.values()[Math.floorMod(tag.getIntOr("state", 0), State.values().length)];
         invalidateMineralCache();
-    }
-
-    private final class CombinedFluidHandler implements IFluidHandler {
-        @Override public int getTanks() { return 2; }
-        @Override public FluidStack getFluidInTank(int tank) {
-            return tank == 0 ? experienceFluidTank.getFluid() : tank == 1 ? timeFluidTank.getFluid() : FluidStack.EMPTY;
-        }
-        @Override public int getTankCapacity(int tank) { return tank >= 0 && tank < 2 ? getMaxFluidCapacity() : 0; }
-        @Override public boolean isFluidValid(int tank, FluidStack stack) {
-            return tank == 0 ? matchesFortuneFluid(stack) : tank == 1 && matchesAccelerationFluid(stack);
-        }
-        @Override public int fill(FluidStack stack, FluidAction action) {
-            if (matchesFortuneFluid(stack)) return experienceFluidTank.fill(stack, action);
-            if (matchesAccelerationFluid(stack)) return timeFluidTank.fill(stack, action);
-            return 0;
-        }
-        @Override public FluidStack drain(FluidStack stack, FluidAction action) {
-            FluidStack storedExperience = experienceFluidTank.getFluid();
-            if (FluidStack.isSameFluidSameComponents(storedExperience, stack)) {
-                return experienceFluidTank.drain(stack, action);
-            }
-            FluidStack storedTime = timeFluidTank.getFluid();
-            if (FluidStack.isSameFluidSameComponents(storedTime, stack)) {
-                return timeFluidTank.drain(stack, action);
-            }
-            return FluidStack.EMPTY;
-        }
-        @Override public FluidStack drain(int amount, FluidAction action) {
-            FluidStack experience = experienceFluidTank.drain(amount, action);
-            return experience.isEmpty() ? timeFluidTank.drain(amount, action) : experience;
-        }
     }
 
     private static int safeCost(long count, int unitCost) {

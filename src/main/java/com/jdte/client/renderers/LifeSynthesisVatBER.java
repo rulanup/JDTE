@@ -1,16 +1,17 @@
 package com.jdte.client.renderers;
 
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -21,14 +22,13 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
  * 生命合成舱纯客户端展示：观察窗进度液柱、中央培养基物品、养分输入流和生命流体输出流。
  * 不生成实体/粒子，不增加服务端 tick；液体几何合并为一次绘制，物品展示由方块实体缓存。
  */
-public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVatBE> {
+public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVatBE, LifeSynthesisVatBER.State> {
     private static final float WIDTH = 0.6F;
     private static final float MAX_HEIGHT = 0.85F;
     private static final float BOTTOM = 0.12F;
@@ -47,46 +47,72 @@ public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVat
     private static final float ITEM_SCALE = 0.42F;
     private static final int VIEW_DISTANCE = 24;
 
-    public LifeSynthesisVatBER(BlockEntityRendererProvider.Context context) {
+    public static final class State extends BlockEntityRenderState {
+        final ItemStackRenderState item = new ItemStackRenderState();
+        Direction facing;
+        boolean running;
+        float height;
+        int progressColor;
+        int nutrientColor;
+        double animationTime;
+        float beamTime;
     }
 
-    @Override
-    public void render(LifeSynthesisVatBE vat, float partialTick, PoseStack poseStack,
-                       MultiBufferSource buffers, int packedLight, int packedOverlay) {
+    private final ItemModelResolver models;
+
+    public LifeSynthesisVatBER(BlockEntityRendererProvider.Context context) {
+        models = context.itemModelResolver();
+    }
+
+    @Override public State createRenderState() { return new State(); }
+
+    @Override public void extractRenderState(LifeSynthesisVatBE vat, State state, float partialTick,
+                                             Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
+        BlockEntityRenderer.super.extractRenderState(vat, state, partialTick, camera, overlay);
         Direction facing = vat.getBlockState().getValue(BlockStateProperties.FACING);
-        if (!facing.getAxis().isHorizontal()) facing = Direction.NORTH;
+        state.facing = facing.getAxis().isHorizontal() ? facing : Direction.NORTH;
+        long gameTime = vat.getLevel() == null ? 0L : vat.getLevel().getGameTime();
+        state.animationTime = (double) gameTime + partialTick;
+        state.beamTime = Math.floorMod(gameTime, 40) + partialTick;
+        state.running = vat.getSyncedRunning();
         float progress = vat.getRenderProgress();
-        boolean running = vat.getSyncedRunning();
-        if (progress > 0.001F || running) {
-            int progressColor = switch (vat.getSyncedTierCode()) {
+        state.height = progress > 0.001F ? Math.max(0.05F, MAX_HEIGHT * progress) : 0;
+        state.progressColor = switch (vat.getSyncedTierCode()) {
                 case 1 -> 0xCCB03A3A;
                 case 2 -> 0xCC8B1A1A;
                 case 3 -> 0xCC6A1A9B;
                 default -> 0x66333333;
             };
-            int nutrientColor = fluidColor(vat.getNutrientTank().getFluid(), DEFAULT_NUTRIENT_COLOR);
-            float height = progress > 0.001F ? Math.max(0.05F, MAX_HEIGHT * progress) : 0.0F;
-            renderProcessGeometry(poseStack, facing, progressColor, height, nutrientColor, running,
-                    vat.getLevel() == null ? 0L : vat.getLevel().getGameTime(), partialTick);
-        }
-        if (running) renderInputItem(vat, poseStack, buffers, packedLight, packedOverlay, facing, partialTick);
-        // 常亮状态光束：运行时红色、空闲时绿色，从结构底面中心向上到顶面
-        renderBeam(poseStack, buffers, partialTick, vat, running ? BEAM_RUNNING_COLOR : BEAM_IDLE_COLOR);
+        state.nutrientColor = fluidColor(vat.getNutrientTank().getFluid(), DEFAULT_NUTRIENT_COLOR);
+        models.updateForTopItem(state.item, state.running ? vat.getRenderInputItem() : ItemStack.EMPTY,
+                ItemDisplayContext.FIXED, vat.getLevel(), null, 0);
     }
 
-    private void renderProcessGeometry(PoseStack poseStack, Direction facing, int progressColor, float height,
-                                       int nutrientColor, boolean running, long gameTime, float partialTick) {
+    @Override public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (state.running || state.height > 0) {
+            collector.submitCustomGeometry(poseStack, RenderTypes.debugQuads(),
+                    (pose, buffer) -> renderProcessGeometry(pose, buffer, state.facing, state.progressColor,
+                            state.height, state.nutrientColor, state.running, state.animationTime));
+        }
+        Direction facing = state.facing;
+        poseStack.pushPose();
+        poseStack.translate(-facing.getStepX(), 0, -facing.getStepZ());
+        BeaconRenderer.submitBeaconBeam(poseStack, collector, BeaconRenderer.BEAM_LOCATION, 1F, state.beamTime,
+                0, BEAM_HEIGHT, state.running ? BEAM_RUNNING_COLOR : BEAM_IDLE_COLOR, BEAM_RADIUS, BEAM_GLOW_RADIUS);
+        if (state.running) {
+            poseStack.translate(0.5D, 1.08D + Math.sin(state.animationTime * 0.12D) * 0.05D, 0.5D);
+            poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
+            state.item.submit(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        }
+        poseStack.popPose();
+    }
+
+    private void renderProcessGeometry(PoseStack.Pose pose, VertexConsumer buffer, Direction facing, int progressColor,
+                                       float height, int nutrientColor, boolean running, double animationTime) {
         Direction right = facing.getClockWise();
         double centerX = 0.5D - facing.getStepX();
         double centerZ = 0.5D - facing.getStepZ();
-        double pulse = 0.03D * Math.sin((gameTime + partialTick) * 0.25D);
-
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableCull();
-        PoseStack.Pose pose = poseStack.last();
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        double pulse = 0.03D * Math.sin(animationTime * 0.25D);
 
         if (height > 0.0F) {
             double windowX = 0.5D + facing.getStepX() * OFFSET;
@@ -120,34 +146,17 @@ public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVat
                     Math.abs(right.getStepZ()) * 0.62D + 0.075D, LIFE_FLUID_COLOR);
         }
 
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
-        RenderSystem.enableCull();
-        RenderSystem.disableBlend();
-    }
-
-    private void renderInputItem(LifeSynthesisVatBE vat, PoseStack poseStack, MultiBufferSource buffers,
-                                 int packedLight, int packedOverlay, Direction facing, float partialTick) {
-        ItemStack stack = vat.getRenderInputItem();
-        if (stack.isEmpty()) return;
-        long gameTime = vat.getLevel() == null ? 0L : vat.getLevel().getGameTime();
-        float animation = gameTime + partialTick;
-        poseStack.pushPose();
-        poseStack.translate(0.5D - facing.getStepX(), 1.08D + Math.sin(animation * 0.12D) * 0.05D,
-                0.5D - facing.getStepZ());
-        poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
-        Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED,
-                packedLight, packedOverlay == 0 ? OverlayTexture.NO_OVERLAY : packedOverlay,
-                poseStack, buffers, vat.getLevel(), 0);
-        poseStack.popPose();
     }
 
     private static int fluidColor(FluidStack stack, int fallback) {
         if (stack.isEmpty()) return fallback;
-        int color = IClientFluidTypeExtensions.of(stack.getFluid()).getTintColor(stack);
+        var model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(stack.getFluid().defaultFluidState());
+        var tint = model.fluidTintSource();
+        int color = tint == null ? 0xFFFFFFFF : tint.colorAsStack(stack);
         return 0xAA000000 | color & 0x00FFFFFF;
     }
 
-    private static void addBox(BufferBuilder buffer, PoseStack.Pose pose, double centerX, double minY,
+    private static void addBox(VertexConsumer buffer, PoseStack.Pose pose, double centerX, double minY,
                                double centerZ, double sizeX, double height, double sizeZ, int color) {
         double minX = centerX - sizeX / 2.0D;
         double maxX = centerX + sizeX / 2.0D;
@@ -162,7 +171,7 @@ public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVat
         quad(buffer, pose, maxX, minY, maxZ, maxX, minY, minZ, maxX, maxY, minZ, maxX, maxY, maxZ, color);
     }
 
-    private static void quad(BufferBuilder buffer, PoseStack.Pose pose,
+    private static void quad(VertexConsumer buffer, PoseStack.Pose pose,
                              double x1, double y1, double z1, double x2, double y2, double z2,
                              double x3, double y3, double z3, double x4, double y4, double z4, int color) {
         addVertex(buffer, pose, x1, y1, z1, color);
@@ -171,20 +180,7 @@ public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVat
         addVertex(buffer, pose, x4, y4, z4, color);
     }
 
-    /** 原版信标光束渲染器：调用 MC 自带实现（穿透方块、带光晕与动画），颜色按运行状态切换。 */
-    private void renderBeam(PoseStack poseStack, MultiBufferSource buffers, float partialTick, LifeSynthesisVatBE vat, int color) {
-        Direction facing = vat.getBlockState().getValue(BlockStateProperties.FACING);
-        if (!facing.getAxis().isHorizontal()) facing = Direction.NORTH;
-        long gameTime = vat.getLevel() != null ? vat.getLevel().getGameTime() : 0L;
-        poseStack.pushPose();
-        // 3x3x2 结构中心在控制器向后一格：光束从结构底面中心垂直向上
-        poseStack.translate(-facing.getStepX(), 0, -facing.getStepZ());
-        BeaconRenderer.renderBeaconBeam(poseStack, buffers, BeaconRenderer.BEAM_LOCATION, partialTick, 1.0F,
-                gameTime, 0, BEAM_HEIGHT, color, BEAM_RADIUS, BEAM_GLOW_RADIUS);
-        poseStack.popPose();
-    }
-
-    private static void addVertex(BufferBuilder buffer, PoseStack.Pose pose, double x, double y, double z, int color) {
+    private static void addVertex(VertexConsumer buffer, PoseStack.Pose pose, double x, double y, double z, int color) {
         buffer.addVertex(pose.pose(), (float) x, (float) y, (float) z).setColor(color);
     }
 
@@ -192,11 +188,6 @@ public class LifeSynthesisVatBER implements BlockEntityRenderer<LifeSynthesisVat
     public AABB getRenderBoundingBox(LifeSynthesisVatBE vat) {
         BlockPos pos = vat.getBlockPos();
         return new AABB(pos).inflate(2.0D, 1.0D, 2.0D);
-    }
-
-    @Override
-    public boolean shouldRenderOffScreen(LifeSynthesisVatBE vat) {
-        return false;
     }
 
     @Override

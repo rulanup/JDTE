@@ -1,10 +1,16 @@
 package com.jdte.common.items;
 
-import com.direwolf20.justdirethings.setup.Registration;
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -29,18 +35,18 @@ public class ExtendedUpgradeItem extends Item {
     private static final Map<Block, Block> UPGRADE_MAP = new HashMap<>();
 
     static {
-        UPGRADE_MAP.put(Registration.ClickerT2.get(), JDTEBlocks.EXTENDED_CLICKER.get());
-        UPGRADE_MAP.put(Registration.BlockBreakerT2.get(), JDTEBlocks.EXTENDED_BLOCK_BREAKER.get());
-        UPGRADE_MAP.put(Registration.BlockPlacerT2.get(), JDTEBlocks.EXTENDED_BLOCK_PLACER.get());
-        UPGRADE_MAP.put(Registration.BlockSwapperT2.get(), JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get());
-        UPGRADE_MAP.put(Registration.DropperT2.get(), JDTEBlocks.EXTENDED_DROPPER.get());
-        UPGRADE_MAP.put(Registration.SensorT2.get(), JDTEBlocks.EXTENDED_SENSOR.get());
-        UPGRADE_MAP.put(Registration.FluidCollectorT2.get(), JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get());
-        UPGRADE_MAP.put(Registration.FluidPlacerT2.get(), JDTEBlocks.EXTENDED_FLUID_PLACER.get());
-        UPGRADE_MAP.put(Registration.GeneratorT1.get(), JDTEBlocks.EXTENDED_GENERATOR.get());
-        UPGRADE_MAP.put(Registration.GeneratorFluidT1.get(), JDTEBlocks.EXTENDED_FLUID_GENERATOR.get());
-        UPGRADE_MAP.put(Registration.ExperienceHolder.get(), JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get());
-        UPGRADE_MAP.put(Registration.EnergyTransmitter.get(), JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get());
+        UPGRADE_MAP.put(JDTRegistration.ClickerT2.get(), JDTEBlocks.EXTENDED_CLICKER.get());
+        UPGRADE_MAP.put(JDTRegistration.BlockBreakerT2.get(), JDTEBlocks.EXTENDED_BLOCK_BREAKER.get());
+        UPGRADE_MAP.put(JDTRegistration.BlockPlacerT2.get(), JDTEBlocks.EXTENDED_BLOCK_PLACER.get());
+        UPGRADE_MAP.put(JDTRegistration.BlockSwapperT2.get(), JDTEBlocks.EXTENDED_BLOCK_SWAPPER.get());
+        UPGRADE_MAP.put(JDTRegistration.DropperT2.get(), JDTEBlocks.EXTENDED_DROPPER.get());
+        UPGRADE_MAP.put(JDTRegistration.SensorT2.get(), JDTEBlocks.EXTENDED_SENSOR.get());
+        UPGRADE_MAP.put(JDTRegistration.FluidCollectorT2.get(), JDTEBlocks.EXTENDED_FLUID_COLLECTOR.get());
+        UPGRADE_MAP.put(JDTRegistration.FluidPlacerT2.get(), JDTEBlocks.EXTENDED_FLUID_PLACER.get());
+        UPGRADE_MAP.put(JDTRegistration.GeneratorT1.get(), JDTEBlocks.EXTENDED_GENERATOR.get());
+        UPGRADE_MAP.put(JDTRegistration.GeneratorFluidT1.get(), JDTEBlocks.EXTENDED_FLUID_GENERATOR.get());
+        UPGRADE_MAP.put(JDTRegistration.ExperienceHolder.get(), JDTEBlocks.EXTENDED_EXPERIENCE_HOLDER.get());
+        UPGRADE_MAP.put(JDTRegistration.EnergyTransmitter.get(), JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get());
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_TIME_ACCELERATOR.get(), JDTEBlocks.EXTENDED_TIME_ACCELERATOR.get());
         UPGRADE_MAP.put(JDTEBlocks.TIME_FREEZER.get(), JDTEBlocks.EXTENDED_TIME_FREEZER.get());
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_FLUID_STABILIZER.get(), JDTEBlocks.EXTENDED_FLUID_STABILIZER.get());
@@ -51,8 +57,8 @@ public class ExtendedUpgradeItem extends Item {
         UPGRADE_MAP.put(JDTEBlocks.ADVANCED_BIO_EXTRACTOR.get(), JDTEBlocks.EXTENDED_BIO_EXTRACTOR.get());
     }
 
-    public ExtendedUpgradeItem() {
-        super(new Properties().stacksTo(1));
+    public ExtendedUpgradeItem(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     static Block targetFor(Block source) {
@@ -95,7 +101,7 @@ public class ExtendedUpgradeItem extends Item {
             return InteractionResult.PASS;
         }
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
 
@@ -144,7 +150,7 @@ public class ExtendedUpgradeItem extends Item {
                 return InteractionResult.FAIL;
             }
 
-            newBE.loadCustomOnly(data, level.registryAccess());
+            restoreData(newBE, level, data);
             newBE.setChanged();
         } catch (RuntimeException exception) {
             restoreOriginal(level, pos, state, data, oldBE);
@@ -155,6 +161,12 @@ public class ExtendedUpgradeItem extends Item {
         level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 1.0f, 1.0f);
 
         return InteractionResult.SUCCESS;
+    }
+
+    private static void restoreData(BlockEntity machine, Level level, CompoundTag data) {
+        var reporter = new ProblemReporter.Collector();
+        machine.loadWithComponents(TagValueInput.create(reporter, level.registryAccess(), data));
+        if (!reporter.isEmpty()) throw new IllegalStateException(reporter.getReport());
     }
 
     private static void restoreOriginal(Level level, BlockPos pos, BlockState state, CompoundTag data,
@@ -174,7 +186,7 @@ public class ExtendedUpgradeItem extends Item {
                 restoredBE = oldBE;
             }
 
-            restoredBE.loadCustomOnly(data, level.registryAccess());
+            restoreData(restoredBE, level, data);
             restoredBE.setChanged();
         } catch (RuntimeException ignored) {
             // Best-effort rollback: conversion failure must never consume the upgrade item.
@@ -182,8 +194,8 @@ public class ExtendedUpgradeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.jdte.extended_upgrade").withStyle(ChatFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        tooltip.accept(Component.translatable("tooltip.jdte.extended_upgrade").withStyle(ChatFormatting.GRAY));
     }
 }

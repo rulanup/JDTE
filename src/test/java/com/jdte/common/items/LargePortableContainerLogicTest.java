@@ -9,20 +9,24 @@ import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemStackN
 import com.direwolf20.justdirethings.common.items.FuelCanister;
 import com.direwolf20.justdirethings.common.items.PotionCanister;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.ItemContainerContents;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.ComponentItemHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.minecraft.world.level.block.entity.FuelValues;
+import net.minecraft.world.flag.FeatureFlags;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -35,7 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LargePortableContainerLogicTest {
+class LargePortableContainerLogicTest implements com.jdte.test.WorldRegistryTest {
+    private static FuelValues fuels;
+
+    @org.junit.jupiter.api.BeforeAll
+    static void bindItemComponentsAndFuelValues() {
+        fuels = FuelValues.vanillaBurnTimes(com.jdte.test.TestWorldRegistries.load(), FeatureFlags.VANILLA_SET);
+    }
+
     @Test
     void scalesPocketGeneratorCapacityByFourAtTheLastSafeValue() {
         int basePocketCapacity = 536_870_911;
@@ -213,8 +224,8 @@ class LargePortableContainerLogicTest {
 
     @Test
     void portableFuelBurnSpeedHelperKeepsOriginalCanistersAndScalesLargeCanisters() {
-        ItemStack plainFuelCanister = new ItemStack(BuiltInRegistries.ITEM.get(
-                ResourceLocation.fromNamespaceAndPath("justdirethings", "fuel_canister")));
+        ItemStack plainFuelCanister = new ItemStack(BuiltInRegistries.ITEM.getValue(
+                Identifier.fromNamespaceAndPath("justdirethings", "fuel_canister")));
         FuelCanister.setBurnSpeed(plainFuelCanister, 2.0D);
 
         ItemStack largeFuelCanister = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());
@@ -240,10 +251,10 @@ class LargePortableContainerLogicTest {
 
     @Test
     void largePocketGeneratorFuelResolverTreatsJdtAndVanillaCoalBlocksAsBurnableFuel() {
-        ItemStack jdtCoalBlock = new ItemStack(Registration.CoalBlock_T1_ITEM.get());
+        ItemStack jdtCoalBlock = new ItemStack(JDTRegistration.CoalBlock_T1_ITEM.get());
         ItemStack vanillaCoalBlock = new ItemStack(Items.COAL_BLOCK);
-        int jdtBurnTime = LargePocketGeneratorItem.resolveFuelBurnTime(jdtCoalBlock);
-        int vanillaBurnTime = LargePocketGeneratorItem.resolveFuelBurnTime(vanillaCoalBlock);
+        int jdtBurnTime = LargePocketGeneratorItem.resolveFuelBurnTime(jdtCoalBlock, fuels);
+        int vanillaBurnTime = LargePocketGeneratorItem.resolveFuelBurnTime(vanillaCoalBlock, fuels);
 
         assertTrue(jdtBurnTime > 0);
         assertTrue(vanillaBurnTime > 0);
@@ -252,12 +263,12 @@ class LargePortableContainerLogicTest {
 
     @Test
     void largePocketGeneratorFuelResolverRejectsNonFuelItems() {
-        assertEquals(0, LargePocketGeneratorItem.resolveFuelBurnTime(new ItemStack(Items.DIRT)));
+        assertEquals(0, LargePocketGeneratorItem.resolveFuelBurnTime(new ItemStack(Items.DIRT), fuels));
     }
 
     @Test
     void largePocketGeneratorBurnsJdtAndVanillaCoalBlocksAndProducesEnergy() {
-        assertLargePocketGeneratorBurnsFuel(new ItemStack(Registration.CoalBlock_T1_ITEM.get()));
+        assertLargePocketGeneratorBurnsFuel(new ItemStack(JDTRegistration.CoalBlock_T1_ITEM.get()));
         assertLargePocketGeneratorBurnsFuel(new ItemStack(Items.COAL_BLOCK));
     }
 
@@ -265,9 +276,12 @@ class LargePortableContainerLogicTest {
     void largePocketGeneratorExposesTheNoReceiveCapabilityRequiredByTheJdtFuelLoop() {
         ItemStack generatorStack = new ItemStack(JDTEItems.LARGE_POCKET_GENERATOR.get());
 
-        IEnergyStorage energyStorage = LargePocketGeneratorItem.createEnergyStorage(generatorStack);
+        EnergyHandler energyStorage = LargePocketGeneratorItem.createEnergyStorage(ItemAccess.forStack(generatorStack));
 
         assertInstanceOf(EnergyStorageItemStackNoReceive.class, energyStorage);
+        try (var tx = Transaction.openRoot()) {
+            assertEquals(0, energyStorage.insert(1000, tx));
+        }
     }
 
     @Test
@@ -278,11 +292,34 @@ class LargePortableContainerLogicTest {
         ItemStack input = PotionContents.createItemStack(Items.POTION, Potions.WATER);
         input.setCount(4);
 
-        handler.setStackInSlot(0, input);
+        handler.set(0, ItemResource.of(input), input.getCount());
 
         assertEquals(1_000, LargePotionCanisterItem.getPotionAmount(canister));
-        assertEquals(Items.GLASS_BOTTLE, handler.getStackInSlot(0).getItem());
-        assertEquals(4, handler.getStackInSlot(0).getCount());
+        assertEquals(Items.GLASS_BOTTLE, handler.copyStack(0).getItem());
+        assertEquals(4, handler.copyStack(0).getCount());
+    }
+
+    @Test
+    void abortedPotionBatchRestoresInputAndFluidTogether() {
+        ItemStack canister = new ItemStack(JDTEItems.LARGE_POTION_CANISTER.get());
+        var handler = new LargePotionCanisterHandler(canister, JustDireDataComponents.TOOL_CONTENTS.get(), 1);
+        var potion = ItemResource.of(PotionContents.createItemStack(Items.POTION, Potions.WATER));
+        handler.set(0, potion, 3);
+        try (var tx = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            assertEquals(1, handler.insert(0, potion, 1, tx));
+            assertEquals(Items.GLASS_BOTTLE, handler.getResource(0).getItem());
+            assertEquals(4, handler.getAmountAsInt(0));
+        }
+        assertEquals(0, LargePotionCanisterItem.getPotionAmount(canister));
+        assertEquals(potion, handler.getResource(0));
+        assertEquals(3, handler.getAmountAsInt(0));
+        try (var tx = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            assertEquals(1, handler.insert(0, potion, 1, tx));
+            tx.commit();
+        }
+        assertEquals(1000, LargePotionCanisterItem.getPotionAmount(canister));
+        assertEquals(Items.GLASS_BOTTLE, handler.getResource(0).getItem());
+        assertEquals(4, handler.getAmountAsInt(0));
     }
 
     @Test
@@ -293,19 +330,19 @@ class LargePortableContainerLogicTest {
         ItemStack shortInput = PotionContents.createItemStack(Items.POTION, Potions.WATER);
         shortInput.setCount(3);
 
-        handler.setStackInSlot(0, shortInput);
+        handler.set(0, ItemResource.of(shortInput), shortInput.getCount());
 
         assertEquals(0, LargePotionCanisterItem.getPotionAmount(canister));
-        assertEquals(Items.POTION, handler.getStackInSlot(0).getItem());
-        assertEquals(3, handler.getStackInSlot(0).getCount());
+        assertEquals(Items.POTION, handler.copyStack(0).getItem());
+        assertEquals(3, handler.copyStack(0).getCount());
     }
 
     @Test
     void largeFuelMenuHandlerRejectsFuelCanistersAsInput() {
         ItemStack canister = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());
-        LargeFuelCanisterHandler handler = new LargeFuelCanisterHandler(1, canister);
+        LargeFuelCanisterHandler handler = new LargeFuelCanisterHandler(1, canister, fuels);
 
-        assertFalse(handler.isItemValid(0, new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get())));
+        assertFalse(handler.isValid(0, net.neoforged.neoforge.transfer.item.ItemResource.of(JDTEItems.LARGE_FUEL_CANISTER.get())));
     }
 
     @Test
@@ -362,11 +399,11 @@ class LargePortableContainerLogicTest {
         ItemStack generatorStack = new ItemStack(generatorItem);
         generatorStack.set(JustDireDataComponents.ITEMSTACK_HANDLER,
                 ItemContainerContents.fromItems(List.of(fuelStack.copy())));
-        EnergyStorageItemStackNoReceive energy = new EnergyStorageItemStackNoReceive(1_000_000_000, generatorStack);
+        EnergyStorageItemStackNoReceive energy = new EnergyStorageItemStackNoReceive(ItemAccess.forStack(generatorStack), 1_000_000_000);
 
-        generatorItem.tryBurn(energy, generatorStack);
+        generatorItem.burnFuel(energy, generatorStack, fuels);
 
-        assertTrue(energy.getEnergyStored() > 0,
+        assertTrue(energy.getAmountAsInt() > 0,
                 "The large portable generator must start burning the supplied fuel");
         assertTrue(generatorStack.getOrDefault(JustDireDataComponents.POCKETGEN_COUNTER, 0) > 0,
                 "The large portable generator must create a burn counter");
@@ -374,9 +411,8 @@ class LargePortableContainerLogicTest {
                 "The large portable generator must record the resolved burn length");
         assertEquals(PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack),
                 generatorItem.getFuelMultiplier(generatorStack));
-        assertTrue(new ComponentItemHandler(generatorStack, JustDireDataComponents.ITEMSTACK_HANDLER.get(), 1)
-                .getStackInSlot(0)
-                .isEmpty(),
+        assertTrue(generatorStack.getOrDefault(JustDireDataComponents.ITEMSTACK_HANDLER, ItemContainerContents.EMPTY)
+                .getSlots() == 0,
                 "The consumed fuel must leave the slot");
     }
 

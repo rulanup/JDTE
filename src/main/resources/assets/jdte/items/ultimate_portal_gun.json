@@ -1,0 +1,33 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "jdte:fullness",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "jdte:item/ultimate_portal_gun"
+    },
+    "entries": [
+      {
+        "threshold": 1,
+        "model": {
+          "type": "minecraft:model",
+          "model": "jdte:item/ultimate_portal_gun_33"
+        }
+      },
+      {
+        "threshold": 2,
+        "model": {
+          "type": "minecraft:model",
+          "model": "jdte:item/ultimate_portal_gun_66"
+        }
+      },
+      {
+        "threshold": 3,
+        "model": {
+          "type": "minecraft:model",
+          "model": "jdte:item/ultimate_portal_gun_100"
+        }
+      }
+    ]
+  }
+}

@@ -40,7 +40,7 @@ public class PotionBrewerRecipeLockPacket {
     }
 
     public void handleClient(PotionBrewerRecipeLockSyncPayload payload, IPayloadContext context) {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             ClientHandler.handle(payload, context);
         }
     }

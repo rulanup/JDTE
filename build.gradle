@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'eclipse'
     id 'idea'
-    id 'net.neoforged.moddev' version '2.0.137'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 import org.gradle.api.Action
@@ -30,7 +30,7 @@ base {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
     withSourcesJar()
 }
@@ -51,19 +51,15 @@ sourceSets.main.resources.srcDir('src/generated/resources')
 sourceSets {
     clientRuntime {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
-        runtimeClasspath += output + compileClasspath + sourceSets.main.runtimeClasspath + configurations.clientLocalRuntime
+        runtimeClasspath += sourceSets.main.runtimeClasspath + configurations.clientLocalRuntime
     }
 }
 
 neoForge {
     // Development runs and compilation use the newer local NeoForge version.
     // The published compatibility range remains controlled by neo_version_range.
-    version = project.neo_version_dev
+    version = project.neo_version
 
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     runs {
         configureEach {
@@ -89,7 +85,7 @@ neoForge {
         }
 
         data {
-            data()
+            clientData()
             programArguments.addAll '--mod', mod_id, '--all',
                     '--output', file('src/generated/resources').absolutePath,
                     '--existing', file('src/main/resources').absolutePath
@@ -235,14 +231,7 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
     compileOnly files(extractedProductiveLib).builtBy(extractProductiveLib)
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    testImplementation "curse.maven:botany-pots-353928:8243851"
-    testImplementation "curse.maven:bookshelf-228525:7606240"
-    testRuntimeOnly "curse.maven:prickle-1023259:6961457"
-    testImplementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-    testCompileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
-    testRuntimeOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testRuntimeOnly "curse.maven:just-dire-things-1002348:7463040"
 }
 
 tasks.named('test', Test).configure {
@@ -290,9 +279,6 @@ tasks.register('validateDocs', Exec) {
     group = 'verification'
     description = 'Validate lang keys, block registrations, and GuideME pages are consistent.'
     workingDir = rootDir
-    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
-        commandLine 'py', '-3', 'scripts/validate_docs.py'
-    } else {
-        commandLine 'python3', 'scripts/validate_docs.py'
-    }
+    def defaultPython = System.getProperty('os.name').toLowerCase().contains('windows') ? 'python' : 'python3'
+    commandLine providers.gradleProperty('pythonCommand').getOrElse(defaultPython), 'scripts/validate_docs.py'
 }

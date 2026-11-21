@@ -8,13 +8,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ChargedLightningRodBlock extends BaseMachineBlock {
-    public ChargedLightningRodBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(3.0f).noOcclusion()
+    public ChargedLightningRodBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(3.0f).noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));
     }
 
@@ -32,12 +31,4 @@ public class ChargedLightningRodBlock extends BaseMachineBlock {
                 buffer -> buffer.writeBlockPos(pos));
     }
 
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock()) && !level.isClientSide
-                && level.getBlockEntity(pos) instanceof ChargedLightningRodBE blockEntity) {
-            blockEntity.removeOwnedLightningRod();
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
 }

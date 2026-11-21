@@ -7,9 +7,9 @@
     "ALA"
   ],
   "key": {
-    "A": { "item": "minecraft:amethyst_shard" },
-    "I": { "item": "justdirethings:upgrade_oreminer" },
-    "L": { "item": "minecraft:lapis_lazuli" }
+    "A": "minecraft:amethyst_shard",
+    "I": "justdirethings:upgrade_oreminer",
+    "L": "minecraft:lapis_lazuli"
   },
   "result": {
     "count": 1,

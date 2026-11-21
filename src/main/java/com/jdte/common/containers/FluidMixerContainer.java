@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +44,7 @@ public abstract class FluidMixerContainer extends BaseMachineContainer {
     public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
         // 催化剂物品槽 — 位于中心上方，垂直对齐进度箭头
-        addSlot(new SlotItemHandler(machineHandler, FluidMixerBE.CATALYST_SLOT, CATALYST_SLOT_X, CATALYST_SLOT_Y));
+        addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, FluidMixerBE.CATALYST_SLOT, CATALYST_SLOT_X, CATALYST_SLOT_Y));
     }
 
     // --- 客户端数据读取 ---

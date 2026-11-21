@@ -1,5 +1,9 @@
 package com.jdte.common.items;
 
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTEDataComponents;
 import net.minecraft.ChatFormatting;
@@ -13,8 +17,8 @@ import java.util.List;
 public final class EssenceConversionUpgradeItem extends UpgradeCardItem {
     private final int patternLimit;
 
-    public EssenceConversionUpgradeItem(int patternLimit) {
-        super(UpgradeType.ESSENCE_CONVERSION);
+    public EssenceConversionUpgradeItem(Properties properties, int patternLimit) {
+        super(properties, UpgradeType.ESSENCE_CONVERSION);
         this.patternLimit = patternLimit;
     }
 
@@ -30,31 +34,31 @@ public final class EssenceConversionUpgradeItem extends UpgradeCardItem {
     public boolean isFoil(ItemStack stack) { return !patterns(stack).isEmpty(); }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         List<CraftingPatternData> patterns = patterns(stack);
-        tooltip.add(Component.translatable(patterns.isEmpty() ? "jdte.tooltip.essence_conversion.automatic"
+        tooltip.accept(Component.translatable(patterns.isEmpty() ? "jdte.tooltip.essence_conversion.automatic"
                 : "jdte.tooltip.essence_conversion.configured").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.patterns", patterns.size(), patternLimit)
+        tooltip.accept(Component.translatable("jdte.tooltip.essence_conversion.patterns", patterns.size(), patternLimit)
                 .withStyle(ChatFormatting.AQUA));
         int maxDisplay = flag.isAdvanced() ? 10 : 5;
         int displayCount = Math.min(patterns.size(), maxDisplay);
         for (int index = 0; index < displayCount; index++) {
             appendPatternTooltip(tooltip, patterns.get(index), index + 1);
             if (context.level() != null && patterns.get(index).resolve(context.level()).isEmpty()) {
-                tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.invalid", index + 1).withStyle(ChatFormatting.RED));
+                tooltip.accept(Component.translatable("jdte.tooltip.essence_conversion.invalid", index + 1).withStyle(ChatFormatting.RED));
             }
         }
         if (patterns.size() > displayCount) {
-            tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.more", patterns.size() - displayCount)
+            tooltip.accept(Component.translatable("jdte.tooltip.essence_conversion.more", patterns.size() - displayCount)
                     .withStyle(ChatFormatting.GRAY));
         }
-        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.anvil").withStyle(ChatFormatting.GOLD));
-        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.reserved").withStyle(ChatFormatting.DARK_GRAY));
-        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.exclusive").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.accept(Component.translatable("jdte.tooltip.essence_conversion.anvil").withStyle(ChatFormatting.GOLD));
+        tooltip.accept(Component.translatable("jdte.tooltip.essence_conversion.reserved").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.accept(Component.translatable("jdte.tooltip.essence_conversion.exclusive").withStyle(ChatFormatting.DARK_GRAY));
     }
 
-    public static void appendPatternTooltip(List<Component> tooltip, CraftingPatternData pattern, int index) {
-        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.pattern", index,
+    public static void appendPatternTooltip(Consumer<Component> tooltip, CraftingPatternData pattern, int index) {
+        tooltip.accept(Component.translatable("jdte.tooltip.essence_conversion.pattern", index,
                 pattern.result().getHoverName(), pattern.result().getCount()).withStyle(ChatFormatting.GREEN));
         List<ItemStack> inputs = new ArrayList<>();
         for (ItemStack ingredient : pattern.ingredients()) {
@@ -64,7 +68,7 @@ public final class EssenceConversionUpgradeItem extends UpgradeCardItem {
             if (existing == null) inputs.add(ingredient.copy());
             else existing.grow(1);
         }
-        for (ItemStack input : inputs) tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.ingredient",
+        for (ItemStack input : inputs) tooltip.accept(Component.translatable("jdte.tooltip.essence_conversion.ingredient",
                 input.getHoverName(), input.getCount()).withStyle(ChatFormatting.DARK_GRAY));
     }
 }

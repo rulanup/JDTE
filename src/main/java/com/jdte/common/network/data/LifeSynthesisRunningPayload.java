@@ -6,12 +6,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** 生命合成舱运行状态轻量包：仅在配方状态翻转时发送一次，驱动客户端光束渲染。 */
 public record LifeSynthesisRunningPayload(BlockPos blockPos, boolean running) implements CustomPacketPayload {
     public static final Type<LifeSynthesisRunningPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "life_synthesis_running"));
+            Identifier.fromNamespaceAndPath(JDTE.MODID, "life_synthesis_running"));
 
     @Override
     public Type<LifeSynthesisRunningPayload> type() {

@@ -7,13 +7,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
@@ -25,8 +26,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 
 public class LifeSynthesisVatBlock extends BaseMachineBlock {
-    public LifeSynthesisVatBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(4.0F).noOcclusion()
+    public LifeSynthesisVatBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(4.0F).noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));
     }
 
@@ -48,7 +49,7 @@ public class LifeSynthesisVatBlock extends BaseMachineBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
         return FluidContainerTransfer.useItemOn(stack, state, level, pos, player, hand, hit);
     }
@@ -64,11 +65,11 @@ public class LifeSynthesisVatBlock extends BaseMachineBlock {
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!isMoving && !state.is(newState.getBlock())) {
+    public void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean isMoving) {
+        if (!isMoving && !level.getBlockState(pos).is(state.getBlock())) {
             LifeSynthesisStructure.removeFromController(level, pos, LifeSynthesisStructure.horizontalFacing(state));
         }
-        super.onRemove(state, level, pos, newState, isMoving);
+        super.affectNeighborsAfterRemoval(state, level, pos, isMoving);
     }
 
     @Nullable

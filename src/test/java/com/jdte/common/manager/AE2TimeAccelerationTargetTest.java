@@ -139,7 +139,7 @@ class AE2TimeAccelerationTargetTest {
         private IInWorldGridNodeHost nodeHost;
 
         private TargetLevel() {
-            super(null, null, null, null, null, null, null, false, 0, java.util.List.of(), false, null);
+            super(null, null, null, null, null, null, false, 0, java.util.List.of(), false);
         }
 
         @Override
@@ -158,7 +158,7 @@ class AE2TimeAccelerationTargetTest {
         private LevelChunk chunk;
 
         private TargetChunkSource() {
-            super(null, null, null, null, null, null, 0, 0, false, null, null, null);
+            super(null, null, null, null, null, null, 0, 0, false, null, null);
         }
 
         @Override

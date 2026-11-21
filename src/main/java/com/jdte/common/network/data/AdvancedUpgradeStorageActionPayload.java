@@ -5,11 +5,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record AdvancedUpgradeStorageActionPayload(int action, int slotIndex, int storageIndex) implements CustomPacketPayload {
     public static final Type<AdvancedUpgradeStorageActionPayload> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "advanced_upgrade_storage_action"));
+            new Type<>(Identifier.fromNamespaceAndPath(JDTE.MODID, "advanced_upgrade_storage_action"));
 
     public static final int ACTION_INSERT_ONE = 0;
     public static final int ACTION_INSERT_MAX = 1;

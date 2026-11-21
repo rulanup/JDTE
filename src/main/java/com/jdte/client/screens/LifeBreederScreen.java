@@ -1,5 +1,7 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory.TextureLocalization;
@@ -9,12 +11,12 @@ import com.jdte.common.blockentities.LifeBreederBE;
 import com.jdte.common.containers.LifeBreederContainer;
 import com.jdte.common.network.data.LifeBreederModePayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 
@@ -40,23 +42,23 @@ public class LifeBreederScreen extends BaseMachineScreen<LifeBreederContainer> {
         extraHeight = 0;
     }
 
-    @Override protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
+    @Override public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
         renderEnergyBar(graphics);
         for (int index = 0; index < Math.min(LifeBreederBE.TOTAL_SLOTS, container.slots.size()); index++) {
             Slot slot = container.slots.get(index);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
     }
 
-    private void renderEnergyBar(GuiGraphics graphics) {
+    private void renderEnergyBar(GuiGraphicsExtractor graphics) {
         int maxEnergy = Math.max(1, breederContainer.getBreeder().getMaxEnergy());
         int fill = Math.clamp((int) ((long) breederContainer.getEnergy() * 70L / maxEnergy), 0, 70);
         int x = topSectionLeft + getEnergyBarOffset();
         int y = topSectionTop + 5;
-        graphics.blit(POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(POWERBAR, x + 1, y + 70 - fill, 19, 69 - fill, 17, fill + 1, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWERBAR, x + 1, y + 70 - fill, 19, 69 - fill, 17, fill + 1, 36, 72);
     }
 
     @Override public void init() {
@@ -65,7 +67,7 @@ public class LifeBreederScreen extends BaseMachineScreen<LifeBreederContainer> {
                 leftPos + 44, topSectionTop + 62, 16, 16, MODE_TEXTURES,
                 breederContainer.getMode(), button -> {
                     int mode = ((ToggleButton) button).getTexturePosition();
-                    PacketDistributor.sendToServer(new LifeBreederModePayload(mode));
+                    ClientPacketDistributor.sendToServer(new LifeBreederModePayload(mode));
                 }));
     }
 
@@ -82,7 +84,7 @@ public class LifeBreederScreen extends BaseMachineScreen<LifeBreederContainer> {
                 getGuiLeft() + 140, topSectionTop + 44, 24, 12,
                 breederContainer.getMultiplier(), 1, breederContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.life_breeder.multiplier"), button ->
-                PacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
+                ClientPacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
         addRenderableWidget(multiplierButton);
     }
 
@@ -97,21 +99,21 @@ public class LifeBreederScreen extends BaseMachineScreen<LifeBreederContainer> {
         }
     }
 
-    @Override protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderTooltip(graphics, mouseX, mouseY);
+    @Override protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
         if (hoveredSlot == null || hoveredSlot.hasItem()) return;
         int index = container.slots.indexOf(hoveredSlot);
         if (index >= 0 && index < LifeBreederBE.FEED_SLOTS) {
-            graphics.renderTooltip(font, FEED_TOOLTIP, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(font, FEED_TOOLTIP, mouseX, mouseY);
         } else if (index >= LifeBreederBE.FEED_SLOTS && index < LifeBreederBE.TOTAL_SLOTS) {
-            graphics.renderTooltip(font, OUTPUT_TOOLTIP, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(font, OUTPUT_TOOLTIP, mouseX, mouseY);
         }
     }
 
     @Override public int getFluidBarOffset() { return 204; }
 
     private static TextureLocalization texture(String path, String translation) {
-        return new TextureLocalization(ResourceLocation.fromNamespaceAndPath("justdirethings", path),
+        return new TextureLocalization(Identifier.fromNamespaceAndPath("justdirethings", path),
                 Component.translatable(translation));
     }
 }

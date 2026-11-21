@@ -6,7 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record ExtendedExperienceHolderSettingsPayload(
         BlockPos blockPos,
@@ -16,7 +16,7 @@ public record ExtendedExperienceHolderSettingsPayload(
         boolean showParticles
 ) implements CustomPacketPayload {
     public static final Type<ExtendedExperienceHolderSettingsPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "extended_experience_holder_settings"));
+            Identifier.fromNamespaceAndPath(JDTE.MODID, "extended_experience_holder_settings"));
 
     public static final StreamCodec<FriendlyByteBuf, ExtendedExperienceHolderSettingsPayload> STREAM_CODEC =
             StreamCodec.composite(

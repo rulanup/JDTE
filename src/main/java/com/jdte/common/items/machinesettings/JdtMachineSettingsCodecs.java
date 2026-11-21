@@ -1,5 +1,6 @@
 package com.jdte.common.items.machinesettings;
 
+import com.jdte.common.utils.HandlerTagHelper;
 import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT1BE;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
@@ -102,16 +103,16 @@ final class JdtMachineSettingsCodecs {
                     custom, CLICK_TARGET_KEY, ClickerT1BE.CLICK_TARGET.class);
             Optional<Boolean> sneaking = MachineSettingsCodecSupport.readBoolean(custom, SNEAKING_KEY);
             Optional<Boolean> showFakePlayer = MachineSettingsCodecSupport.readBoolean(custom, SHOW_FAKE_PLAYER_KEY);
-            if (!custom.contains(CLICK_TYPE_KEY, Tag.TAG_INT)
-                    || !custom.contains(MAX_HOLD_TICKS_KEY, Tag.TAG_INT)
+            if (!(custom.get(CLICK_TYPE_KEY) instanceof net.minecraft.nbt.IntTag)
+                    || !(custom.get(MAX_HOLD_TICKS_KEY) instanceof net.minecraft.nbt.IntTag)
                     || clickTarget.isEmpty()
                     || sneaking.isEmpty()
                     || showFakePlayer.isEmpty()) {
                 return Optional.empty();
             }
 
-            int clickType = custom.getInt(CLICK_TYPE_KEY);
-            int maxHoldTicks = custom.getInt(MAX_HOLD_TICKS_KEY);
+            int clickType = custom.getIntOr(CLICK_TYPE_KEY, 0);
+            int maxHoldTicks = custom.getIntOr(MAX_HOLD_TICKS_KEY, 0);
             if (!MachineSettingsCodecSupport.isInRange(clickType, CLICK_TYPE_MIN, CLICK_TYPE_MAX)
                     || !MachineSettingsCodecSupport.isInRange(maxHoldTicks, MAX_HOLD_TICKS_MIN, MAX_HOLD_TICKS_MAX)) {
                 return Optional.empty();
@@ -133,13 +134,13 @@ final class JdtMachineSettingsCodecs {
             custom.putInt(DROP_COUNT_KEY, machine.dropCount);
             custom.putInt(PICKUP_DELAY_KEY, machine.pickupDelay);
         }, (custom, registries) -> {
-            if (!custom.contains(DROP_COUNT_KEY, Tag.TAG_INT)
-                    || !custom.contains(PICKUP_DELAY_KEY, Tag.TAG_INT)) {
+            if (!(custom.get(DROP_COUNT_KEY) instanceof net.minecraft.nbt.IntTag)
+                    || !(custom.get(PICKUP_DELAY_KEY) instanceof net.minecraft.nbt.IntTag)) {
                 return Optional.empty();
             }
 
-            int dropCount = custom.getInt(DROP_COUNT_KEY);
-            int pickupDelay = custom.getInt(PICKUP_DELAY_KEY);
+            int dropCount = custom.getIntOr(DROP_COUNT_KEY, 0);
+            int pickupDelay = custom.getIntOr(PICKUP_DELAY_KEY, 0);
             if (!MachineSettingsCodecSupport.isInRange(dropCount, DROP_COUNT_MIN, DROP_COUNT_MAX)
                     || !MachineSettingsCodecSupport.isInRange(pickupDelay, PICKUP_DELAY_MIN, PICKUP_DELAY_MAX)) {
                 return Optional.empty();
@@ -195,15 +196,15 @@ final class JdtMachineSettingsCodecs {
             Optional<SensorT1BE.SENSE_TARGET> senseTarget = MachineSettingsCodecSupport.readEnum(
                     custom, SENSE_TARGET_KEY, SensorT1BE.SENSE_TARGET.class);
             Optional<Boolean> strongSignal = MachineSettingsCodecSupport.readBoolean(custom, STRONG_SIGNAL_KEY);
-            if (!custom.contains(SENSE_AMOUNT_KEY, Tag.TAG_INT)
-                    || !custom.contains(EQUALITY_KEY, Tag.TAG_INT)
+            if (!(custom.get(SENSE_AMOUNT_KEY) instanceof net.minecraft.nbt.IntTag)
+                    || !(custom.get(EQUALITY_KEY) instanceof net.minecraft.nbt.IntTag)
                     || senseTarget.isEmpty()
                     || strongSignal.isEmpty()) {
                 return Optional.empty();
             }
 
-            int senseAmount = custom.getInt(SENSE_AMOUNT_KEY);
-            int equality = custom.getInt(EQUALITY_KEY);
+            int senseAmount = custom.getIntOr(SENSE_AMOUNT_KEY, 0);
+            int equality = custom.getIntOr(EQUALITY_KEY, 0);
             if (!MachineSettingsCodecSupport.isInRange(senseAmount, SENSE_AMOUNT_MIN, SENSE_AMOUNT_MAX)
                     || !MachineSettingsCodecSupport.isInRange(equality, EQUALITY_MIN, EQUALITY_MAX)) {
                 return Optional.empty();
@@ -217,11 +218,11 @@ final class JdtMachineSettingsCodecs {
                 machine.markDirtyClient();
             });
         }, (custom, registries) -> {
-            if (!custom.contains(SENSOR_BLOCK_STATE_PROPERTIES_KEY, Tag.TAG_COMPOUND)) {
+            if (!(custom.get(SENSOR_BLOCK_STATE_PROPERTIES_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
                 return Optional.empty();
             }
 
-            CompoundTag blockStateProperties = custom.getCompound(SENSOR_BLOCK_STATE_PROPERTIES_KEY).copy();
+            CompoundTag blockStateProperties = custom.getCompoundOrEmpty(SENSOR_BLOCK_STATE_PROPERTIES_KEY).copy();
             if (!isValidSensorBlockStateProperties(blockStateProperties)) {
                 return Optional.empty();
             }
@@ -283,7 +284,7 @@ final class JdtMachineSettingsCodecs {
             custom.putBoolean(AUTOMATED_COMPARE_COUNTS_KEY, machine.automatedCompareCounts);
             custom.putInt(RENDERED_SLOT_KEY, machine.renderedSlot);
             custom.putBoolean(RENDER_PLAYER_KEY, machine.renderPlayer);
-            custom.put(FILTER_BASIC_HANDLER_KEY, machine.filterBasicHandler.serializeNBT(registries));
+            custom.put(FILTER_BASIC_HANDLER_KEY, HandlerTagHelper.write(machine.filterBasicHandler, registries));
         }, (custom, registries) -> {
             Optional<Boolean> compareNbt = MachineSettingsCodecSupport.readBoolean(custom, COMPARE_NBT_KEY);
             Optional<Boolean> filtersOnly = MachineSettingsCodecSupport.readBoolean(custom, FILTERS_ONLY_KEY);
@@ -291,7 +292,7 @@ final class JdtMachineSettingsCodecs {
             Optional<Boolean> compareCounts = MachineSettingsCodecSupport.readBoolean(custom, COMPARE_COUNTS_KEY);
             Optional<Boolean> automatedCompareCounts = MachineSettingsCodecSupport.readBoolean(custom, AUTOMATED_COMPARE_COUNTS_KEY);
             Optional<Boolean> renderPlayer = MachineSettingsCodecSupport.readBoolean(custom, RENDER_PLAYER_KEY);
-            if (!custom.contains(RENDERED_SLOT_KEY, Tag.TAG_INT)
+            if (!(custom.get(RENDERED_SLOT_KEY) instanceof net.minecraft.nbt.IntTag)
                     || compareNbt.isEmpty()
                     || filtersOnly.isEmpty()
                     || automatedFiltersOnly.isEmpty()
@@ -301,7 +302,7 @@ final class JdtMachineSettingsCodecs {
                 return Optional.empty();
             }
 
-            int renderedSlot = custom.getInt(RENDERED_SLOT_KEY);
+            int renderedSlot = custom.getIntOr(RENDERED_SLOT_KEY, 0);
             if (!MachineSettingsCodecSupport.isInRange(renderedSlot, RENDERED_SLOT_MIN, RENDERED_SLOT_MAX)) {
                 return Optional.empty();
             }
@@ -317,16 +318,14 @@ final class JdtMachineSettingsCodecs {
                 machine.markDirtyClient();
             });
         }, (custom, registries) -> {
-            if (!custom.contains(FILTER_BASIC_HANDLER_KEY, Tag.TAG_COMPOUND)) {
+            if (!(custom.get(FILTER_BASIC_HANDLER_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
                 return Optional.empty();
             }
 
-            CompoundTag filterSettings = custom.getCompound(FILTER_BASIC_HANDLER_KEY).copy();
-            if (!isValidInventoryHolderFilterSettings(filterSettings, registries)) {
-                return Optional.empty();
-            }
+            var filterSettings = decodeInventoryHolderFilters(custom.getCompoundOrEmpty(FILTER_BASIC_HANDLER_KEY), registries);
+            if (filterSettings.isEmpty()) return Optional.empty();
             return Optional.of(machine -> {
-                machine.filterBasicHandler.deserializeNBT(registries, filterSettings);
+                HandlerTagHelper.read(machine.filterBasicHandler, registries, filterSettings.get());
                 machine.rebuildFilterCache();
                 machine.markDirtyClient();
             });
@@ -344,19 +343,19 @@ final class JdtMachineSettingsCodecs {
             }
             custom.put(SIDED_INVENTORY_TYPES_KEY, sidedInventoryTypes);
         }, (custom, registries) -> {
-            if (!custom.contains(SIDED_INVENTORY_TYPES_KEY, Tag.TAG_COMPOUND)) {
+            if (!(custom.get(SIDED_INVENTORY_TYPES_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
                 return Optional.empty();
             }
 
-            CompoundTag sidedInventoryTypesTag = custom.getCompound(SIDED_INVENTORY_TYPES_KEY);
+            CompoundTag sidedInventoryTypesTag = custom.getCompoundOrEmpty(SIDED_INVENTORY_TYPES_KEY);
             Map<Direction, Integer> sidedInventoryTypes = new EnumMap<>(Direction.class);
-            for (String serializedDirection : sidedInventoryTypesTag.getAllKeys()) {
+            for (String serializedDirection : sidedInventoryTypesTag.keySet()) {
                 Direction direction = findDirection(serializedDirection);
-                if (direction == null || !sidedInventoryTypesTag.contains(serializedDirection, Tag.TAG_INT)) {
+                if (direction == null || !(sidedInventoryTypesTag.get(serializedDirection) instanceof net.minecraft.nbt.IntTag)) {
                     return Optional.empty();
                 }
 
-                int type = sidedInventoryTypesTag.getInt(serializedDirection);
+                int type = sidedInventoryTypesTag.getIntOr(serializedDirection, 0);
                 if (!MachineSettingsCodecSupport.isInRange(type, PLAYER_ACCESSOR_TYPE_MIN, PLAYER_ACCESSOR_TYPE_MAX)) {
                     return Optional.empty();
                 }
@@ -378,11 +377,11 @@ final class JdtMachineSettingsCodecs {
             custom.putInt(PARADOX_TARGET_TYPE_KEY, machine.targetType);
         }, (custom, registries) -> {
             Optional<Boolean> renderParadox = MachineSettingsCodecSupport.readBoolean(custom, RENDER_PARADOX_KEY);
-            if (!custom.contains(PARADOX_TARGET_TYPE_KEY, Tag.TAG_INT) || renderParadox.isEmpty()) {
+            if (!(custom.get(PARADOX_TARGET_TYPE_KEY) instanceof net.minecraft.nbt.IntTag) || renderParadox.isEmpty()) {
                 return Optional.empty();
             }
 
-            int targetType = custom.getInt(PARADOX_TARGET_TYPE_KEY);
+            int targetType = custom.getIntOr(PARADOX_TARGET_TYPE_KEY, 0);
             if (!MachineSettingsCodecSupport.isInRange(
                     targetType, PARADOX_TARGET_TYPE_MIN, PARADOX_TARGET_TYPE_MAX)) {
                 return Optional.empty();
@@ -420,14 +419,14 @@ final class JdtMachineSettingsCodecs {
         Optional<Boolean> ownerOnly = MachineSettingsCodecSupport.readBoolean(custom, OWNER_ONLY_KEY);
         Optional<Boolean> collectExp = MachineSettingsCodecSupport.readBoolean(custom, COLLECT_EXP_KEY);
         Optional<Boolean> showParticles = MachineSettingsCodecSupport.readBoolean(custom, SHOW_PARTICLES_KEY);
-        if (!custom.contains(TARGET_EXP_KEY, Tag.TAG_INT)
+        if (!(custom.get(TARGET_EXP_KEY) instanceof net.minecraft.nbt.IntTag)
                 || ownerOnly.isEmpty()
                 || collectExp.isEmpty()
                 || showParticles.isEmpty()) {
             return Optional.empty();
         }
 
-        int targetExp = custom.getInt(TARGET_EXP_KEY);
+        int targetExp = custom.getIntOr(TARGET_EXP_KEY, 0);
         if (!MachineSettingsCodecSupport.isInRange(targetExp, TARGET_EXP_MIN, TARGET_EXP_MAX)) {
             return Optional.empty();
         }
@@ -443,11 +442,35 @@ final class JdtMachineSettingsCodecs {
         return null;
     }
 
+    private static Optional<CompoundTag> decodeInventoryHolderFilters(CompoundTag saved, HolderLookup.Provider registries) {
+        var ops = registries.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+        if (saved.get("stacks") instanceof ListTag stacks) {
+            if (saved.contains(FILTER_NBT_SIZE_KEY) || saved.contains(FILTER_NBT_ITEMS_KEY)
+                    || stacks.size() != INVENTORY_HOLDER_FILTER_SLOT_COUNT) return Optional.empty();
+            for (Tag entry : stacks) {
+                if (ItemStack.OPTIONAL_CODEC.parse(ops, entry).error().isPresent()) return Optional.empty();
+            }
+            return Optional.of(saved.copy());
+        }
+        if (!isValidInventoryHolderFilterSettings(saved, registries)) return Optional.empty();
+        var stacks = new ListTag();
+        for (int i = 0; i < INVENTORY_HOLDER_FILTER_SLOT_COUNT; i++) stacks.add(new CompoundTag());
+        for (Tag entry : saved.getListOrEmpty(FILTER_NBT_ITEMS_KEY)) {
+            CompoundTag stack = ((CompoundTag) entry).copy();
+            int slot = stack.getIntOr(FILTER_NBT_SLOT_KEY, -1);
+            stack.remove(FILTER_NBT_SLOT_KEY);
+            stacks.set(slot, stack);
+        }
+        CompoundTag result = new CompoundTag();
+        result.put("stacks", stacks);
+        return Optional.of(result);
+    }
+
     private static boolean isValidInventoryHolderFilterSettings(CompoundTag filterSettings,
                                                                  HolderLookup.Provider registries) {
-        if (!filterSettings.contains(FILTER_NBT_SIZE_KEY, Tag.TAG_INT)
-                || filterSettings.getInt(FILTER_NBT_SIZE_KEY) != INVENTORY_HOLDER_FILTER_SLOT_COUNT
-                || !filterSettings.contains(FILTER_NBT_ITEMS_KEY, Tag.TAG_LIST)) {
+        if (!(filterSettings.get(FILTER_NBT_SIZE_KEY) instanceof net.minecraft.nbt.IntTag)
+                || filterSettings.getIntOr(FILTER_NBT_SIZE_KEY, -1) != INVENTORY_HOLDER_FILTER_SLOT_COUNT
+                || !(filterSettings.get(FILTER_NBT_ITEMS_KEY) instanceof net.minecraft.nbt.ListTag)) {
             return false;
         }
 
@@ -459,17 +482,17 @@ final class JdtMachineSettingsCodecs {
         Set<Integer> usedSlots = new HashSet<>();
         for (Tag rawEntry : items) {
             if (!(rawEntry instanceof CompoundTag itemTag)
-                    || !itemTag.contains(FILTER_NBT_SLOT_KEY, Tag.TAG_INT)) {
+                    || !(itemTag.get(FILTER_NBT_SLOT_KEY) instanceof net.minecraft.nbt.IntTag)) {
                 return false;
             }
 
-            int slot = itemTag.getInt(FILTER_NBT_SLOT_KEY);
+            int slot = itemTag.getIntOr(FILTER_NBT_SLOT_KEY, 0);
             if (!MachineSettingsCodecSupport.isInRange(
                     slot, 0, INVENTORY_HOLDER_FILTER_SLOT_COUNT - 1) || !usedSlots.add(slot)) {
                 return false;
             }
 
-            Optional<ItemStack> parsedStack = ItemStack.parse(registries, itemTag);
+            Optional<ItemStack> parsedStack = ItemStack.CODEC.parse(registries.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), itemTag).result();
             if (parsedStack.isEmpty() || parsedStack.get().isEmpty()) {
                 return false;
             }
@@ -478,7 +501,7 @@ final class JdtMachineSettingsCodecs {
     }
 
     private static boolean isValidSensorBlockStateProperties(CompoundTag blockStateProperties) {
-        for (String slotKey : blockStateProperties.getAllKeys()) {
+        for (String slotKey : blockStateProperties.keySet()) {
             final int slot;
             try {
                 slot = Integer.parseInt(slotKey);
@@ -486,7 +509,7 @@ final class JdtMachineSettingsCodecs {
                 return false;
             }
             if (!MachineSettingsCodecSupport.isInRange(slot, SENSOR_FILTER_SLOT_MIN, SENSOR_FILTER_SLOT_MAX)
-                    || !blockStateProperties.contains(slotKey, Tag.TAG_LIST)) {
+                    || !(blockStateProperties.get(slotKey) instanceof net.minecraft.nbt.ListTag)) {
                 return false;
             }
         }

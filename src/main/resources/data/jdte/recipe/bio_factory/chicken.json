@@ -1,7 +1,7 @@
 {
   "type": "jdte:bio_factory",
-  "specimen": { "item": "minecraft:chicken_spawn_egg" },
-  "food": { "tag": "minecraft:chicken_food" },
+  "specimen": "minecraft:chicken_spawn_egg",
+  "food": "#minecraft:chicken_food",
   "outputs": [
     { "item": { "id": "minecraft:egg", "count": 1 } },
     { "item": { "id": "minecraft:feather", "count": 1 }, "chance": 0.05 }

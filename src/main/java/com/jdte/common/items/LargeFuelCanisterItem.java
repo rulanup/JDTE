@@ -8,11 +8,10 @@ import com.direwolf20.justdirethings.setup.Config;
 import com.jdte.common.containers.LargePortableContainerMenus;
 import com.jdte.common.network.data.OpenLargePortableContainerPayload;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -23,21 +22,29 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-import java.util.List;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.level.block.entity.FuelValues;
+import java.util.function.Consumer;
 
 public class LargeFuelCanisterItem extends FuelCanister {
+    public LargeFuelCanisterItem(Properties properties) {
+        super(properties);
+    }
+
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         Level level = context.level();
         if (level == null) {
             return;
         }
 
-        if (Screen.hasShiftDown()) {
-            tooltip.add(Component.translatable("justdirethings.fuelcanisteramt",
+        if (Minecraft.getInstance().hasShiftDown()) {
+            tooltip.accept(Component.translatable("justdirethings.fuelcanisteramt",
                     MagicHelpers.formatted(FuelCanister.getFuelLevel(stack))).withStyle(ChatFormatting.AQUA));
         } else {
-            tooltip.add(Component.translatable("justdirethings.fuelcanisteritemsamt",
+            tooltip.accept(Component.translatable("justdirethings.fuelcanisteritemsamt",
                     fuelItemEquivalentTooltip(FuelCanister.getFuelLevel(stack))).withStyle(ChatFormatting.AQUA));
         }
     }
@@ -51,26 +58,27 @@ public class LargeFuelCanisterItem extends FuelCanister {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide()) {
-            return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+            return InteractionResult.PASS;
         }
         LargePortableContainerMenus.openFromMainHand(
                 player, OpenLargePortableContainerPayload.ContainerKind.LARGE_FUEL_CANISTER);
-        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+        return InteractionResult.PASS;
     }
 
     @Override
-    public int getBurnTime(ItemStack stack, RecipeType<?> recipeType) {
+    public int getBurnTime(ItemStack stack, RecipeType<?> recipeType, FuelValues fuels) {
         return FuelCanister.getFuelLevel(stack) >= getMinimumFuelConsumed() ? getMinimumFuelConsumed() : 0;
     }
 
     @Override
-    public ItemStack getCraftingRemainingItem(ItemStack stack) {
+    public ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
+        if (!(instance instanceof ItemStack stack)) return null;
         ItemStack remaining = stack.copy();
         decrementFuel(remaining);
-        return remaining;
+        return ItemStackTemplate.fromNonEmptyStack(remaining);
     }
 
     public static int getMaxFuelLevel(int baseFuelCapacity) {
@@ -113,12 +121,10 @@ public class LargeFuelCanisterItem extends FuelCanister {
         FuelCanister.setFuelLevel(stack, fuelLevel);
     }
 
-    public static void incrementFuel(ItemStack canisterStack, ItemStack fuelStack) {
+    public static int incrementFuel(ItemStack canisterStack, ItemStack fuelStack, FuelValues fuels) {
         int currentFuel = FuelCanister.getFuelLevel(canisterStack);
-        int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING);
-        if (burnTime == 0) {
-            return;
-        }
+        int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING, fuels);
+        if (burnTime <= 0) return 0;
 
         double burnSpeed = FuelCanister.getBurnSpeed(canisterStack);
         int baseBurnMultiplier = 1;
@@ -133,11 +139,8 @@ public class LargeFuelCanisterItem extends FuelCanister {
         }
 
         int burnMultiplier = LargePortableContainerLogic.fuelBurnMultiplier(baseBurnMultiplier);
-        int addedFuel = 0;
-        while (currentFuel + addedFuel + burnTime <= getMaxFuelLevel() && !fuelStack.isEmpty()) {
-            addedFuel += burnTime;
-            fuelStack.shrink(1);
-        }
+        int consumed = Math.min(fuelStack.getCount(), Math.max(0, getMaxFuelLevel() - currentFuel) / burnTime);
+        int addedFuel = consumed * burnTime;
 
         if (addedFuel > 0) {
             burnSpeed = FuelCanister.calculateBurnSpeed(currentFuel, burnSpeed, addedFuel, burnMultiplier);
@@ -145,5 +148,6 @@ public class LargeFuelCanisterItem extends FuelCanister {
 
         FuelCanister.setFuelLevel(canisterStack, currentFuel + addedFuel);
         FuelCanister.setBurnSpeed(canisterStack, burnSpeed);
+        return consumed;
     }
 }

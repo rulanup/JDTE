@@ -1,5 +1,7 @@
 package com.jdte.client.screens.util;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.util.MiscTools;
@@ -29,22 +31,22 @@ import com.jdte.setup.JDTEItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class AdvancedUpgradeStorageScreenHelper {
-    public static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
+    public static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
     public static final int COLUMNS = 6;
     public static final int ROWS = 6;
     public static final int TOTAL_SLOTS = COLUMNS * ROWS; // 36
@@ -121,7 +123,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
         return new int[]{leftPanelX, rightPanelY};
     }
 
-    public static void renderBg(GuiGraphics guiGraphics, BaseMachineScreen<?> screen, ResourceLocation socialBackground,
+    public static void renderBg(GuiGraphicsExtractor guiGraphics, BaseMachineScreen<?> screen, Identifier socialBackground,
                                 int mouseX, int mouseY, float partialTicks) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {
@@ -147,8 +149,8 @@ public final class AdvancedUpgradeStorageScreenHelper {
         Font font = Minecraft.getInstance().font;
 
         if (!expanded) {
-            guiGraphics.blitSprite(socialBackground, panelX, panelY, TAB_SIZE, TAB_SIZE);
-            guiGraphics.renderItem(getIconStack(), panelX + 3, panelY + 3);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, socialBackground, panelX, panelY, TAB_SIZE, TAB_SIZE);
+            guiGraphics.item(getIconStack(), panelX + 3, panelY + 3);
             if (MiscTools.inBounds(panelX, panelY, TAB_SIZE, TAB_SIZE, mouseX, mouseY)) {
                 guiGraphics.fill(panelX + 2, panelY + 2, panelX + TAB_SIZE - 2, panelY + TAB_SIZE - 2, 0x40FFFFFF);
             }
@@ -157,18 +159,18 @@ public final class AdvancedUpgradeStorageScreenHelper {
 
         // Draw main panel background
         int panelHeight = getPanelHeight(totalStorages);
-        guiGraphics.blitSprite(socialBackground, panelX, panelY, PANEL_WIDTH, panelHeight);
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, socialBackground, panelX, panelY, PANEL_WIDTH, panelHeight);
 
         // Header icon, title, and collapse button
-        guiGraphics.renderItem(getIconStack(), panelX + 3, panelY);
-        guiGraphics.drawString(font, Component.translatable("jdte.screen.advanced_upgrade_storage.short"),
-                panelX + 22, panelY + 4, 0xFFE080, false);
+        guiGraphics.item(getIconStack(), panelX + 3, panelY);
+        guiGraphics.text(font, Component.translatable("jdte.screen.advanced_upgrade_storage.short"),
+                panelX + 22, panelY + 4, 0xFFFFE080, false);
 
         int closeX = panelX + PANEL_WIDTH - 14;
         int closeY = panelY + 3;
         boolean closeHovered = MiscTools.inBounds(closeX, closeY, 10, 10, mouseX, mouseY);
         guiGraphics.fill(closeX, closeY, closeX + 10, closeY + 10, closeHovered ? 0x80555555 : 0x50333333);
-        guiGraphics.drawString(font, "-", closeX + 3, closeY + 1, closeHovered ? 0xFFFFFF : 0xAAAAAA, false);
+        guiGraphics.text(font, "-", closeX + 3, closeY + 1, closeHovered ? 0xFFFFFFFF : 0xFFAAAAAA, false);
 
         // Slot grid and items
         AdvancedUpgradeStorageHandler storageHandler = new AdvancedUpgradeStorageHandler(storageStack);
@@ -185,12 +187,12 @@ public final class AdvancedUpgradeStorageScreenHelper {
                 int slotX = startX + c * SLOT_SIZE;
                 int slotY = startY + r * SLOT_SIZE;
 
-                guiGraphics.blitSprite(SLOT_SPRITE, slotX, slotY, SLOT_SIZE, SLOT_SIZE);
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, slotX, slotY, SLOT_SIZE, SLOT_SIZE);
 
-                ItemStack stack = storageHandler.getStackInSlot(slotIndex);
+                ItemStack stack = storageHandler.copyStack(slotIndex);
                 if (!stack.isEmpty()) {
-                    guiGraphics.renderItem(stack, slotX + 1, slotY + 1);
-                    guiGraphics.renderItemDecorations(font, stack, slotX + 1, slotY + 1);
+                    guiGraphics.item(stack, slotX + 1, slotY + 1);
+                    guiGraphics.itemDecorations(font, stack, slotX + 1, slotY + 1);
 
                     if (canInsertIntoMachine(baseMachineBE, stack)) {
                         guiGraphics.fill(slotX + 13, slotY + 2, slotX + 16, slotY + 5, 0xFF55FF55);
@@ -220,23 +222,23 @@ public final class AdvancedUpgradeStorageScreenHelper {
             int prevBg = prevDisabled ? 0x30222222 : (prevHovered ? 0x80555555 : 0x50333333);
             int prevFg = prevDisabled ? 0x666666 : (prevHovered ? 0xFFFFFF : 0xCCCCCC);
             guiGraphics.fill(prevX, footerY, prevX + btnW, footerY + btnH, prevBg);
-            guiGraphics.drawString(font, "<", prevX + 3, footerY + 2, prevFg, false);
+            guiGraphics.text(font, "<", prevX + 3, footerY + 2, prevFg, false);
 
             String pageStr = (currentStorageIndex + 1) + " / " + totalStorages;
             int textW = font.width(pageStr);
             int textX = panelX + (PANEL_WIDTH - textW) / 2;
-            guiGraphics.drawString(font, pageStr, textX, footerY + 2, 0xFFE080, false);
+            guiGraphics.text(font, pageStr, textX, footerY + 2, 0xFFFFE080, false);
 
             boolean nextDisabled = (currentStorageIndex >= totalStorages - 1);
             boolean nextHovered = !nextDisabled && MiscTools.inBounds(nextX, footerY, btnW, btnH, mouseX, mouseY);
             int nextBg = nextDisabled ? 0x30222222 : (nextHovered ? 0x80555555 : 0x50333333);
             int nextFg = nextDisabled ? 0x666666 : (nextHovered ? 0xFFFFFF : 0xCCCCCC);
             guiGraphics.fill(nextX, footerY, nextX + btnW, footerY + btnH, nextBg);
-            guiGraphics.drawString(font, ">", nextX + 3, footerY + 2, nextFg, false);
+            guiGraphics.text(font, ">", nextX + 3, footerY + 2, nextFg, false);
         }
     }
 
-    public static void renderTooltip(GuiGraphics guiGraphics, BaseMachineScreen<?> screen, Font font, int mouseX, int mouseY) {
+    public static void extractTooltip(GuiGraphicsExtractor guiGraphics, BaseMachineScreen<?> screen, Font font, int mouseX, int mouseY) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {
             return;
@@ -261,7 +263,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
 
         if (!expanded) {
             if (MiscTools.inBounds(panelX, panelY, TAB_SIZE, TAB_SIZE, mouseX, mouseY)) {
-                guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.advanced_upgrade_storage.expand"), mouseX, mouseY);
+                guiGraphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.advanced_upgrade_storage.expand"), mouseX, mouseY);
             }
             return;
         }
@@ -269,7 +271,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
         int closeX = panelX + PANEL_WIDTH - 14;
         int closeY = panelY + 3;
         if (MiscTools.inBounds(closeX, closeY, 10, 10, mouseX, mouseY)) {
-            guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.advanced_upgrade_storage.collapse"), mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.advanced_upgrade_storage.collapse"), mouseX, mouseY);
             return;
         }
 
@@ -283,11 +285,11 @@ public final class AdvancedUpgradeStorageScreenHelper {
             int prevX = panelX + 16;
             int nextX = panelX + PANEL_WIDTH - 16 - btnW;
             if (MiscTools.inBounds(prevX, footerY, btnW, btnH, mouseX, mouseY) && currentStorageIndex > 0) {
-                guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.advanced_upgrade_storage.prev_page"), mouseX, mouseY);
+                guiGraphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.advanced_upgrade_storage.prev_page"), mouseX, mouseY);
                 return;
             }
             if (MiscTools.inBounds(nextX, footerY, btnW, btnH, mouseX, mouseY) && currentStorageIndex < totalStorages - 1) {
-                guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.advanced_upgrade_storage.next_page"), mouseX, mouseY);
+                guiGraphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.advanced_upgrade_storage.next_page"), mouseX, mouseY);
                 return;
             }
         }
@@ -304,7 +306,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
                 int slotY = startY + r * SLOT_SIZE;
 
                 if (MiscTools.inBounds(slotX, slotY, SLOT_SIZE, SLOT_SIZE, mouseX, mouseY)) {
-                    ItemStack stack = storageHandler.getStackInSlot(slotIndex);
+                    ItemStack stack = storageHandler.copyStack(slotIndex);
                     if (!stack.isEmpty()) {
                         List<Component> tooltip = new ArrayList<>(Screen.getTooltipFromItem(Minecraft.getInstance(), stack));
                         tooltip.add(Component.empty());
@@ -341,7 +343,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
                         tooltip.add(Component.translatable("jdte.screen.advanced_upgrade_storage.action.shift_right_click")
                                 .withStyle(ChatFormatting.YELLOW));
 
-                        guiGraphics.renderComponentTooltip(font, tooltip, mouseX, mouseY);
+                        guiGraphics.setComponentTooltipForNextFrame(font, tooltip, mouseX, mouseY);
                         return;
                     } else if (hasAllowedCarried) {
                         List<Component> tooltip = List.of(
@@ -350,7 +352,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
                                 Component.translatable("jdte.screen.advanced_upgrade_storage.action.deposit_one")
                                         .withStyle(ChatFormatting.GREEN)
                         );
-                        guiGraphics.renderComponentTooltip(font, tooltip, mouseX, mouseY);
+                        guiGraphics.setComponentTooltipForNextFrame(font, tooltip, mouseX, mouseY);
                         return;
                     }
                 }
@@ -431,20 +433,20 @@ public final class AdvancedUpgradeStorageScreenHelper {
                 int slotIndex = row * COLUMNS + col;
                 AdvancedUpgradeStorageHandler storageHandler = new AdvancedUpgradeStorageHandler(storageStack);
                 ItemStack carried = screen.getMenu().getCarried();
-                ItemStack slotStack = storageHandler.getStackInSlot(slotIndex);
+                ItemStack slotStack = storageHandler.copyStack(slotIndex);
 
                 if (!carried.isEmpty() && UpgradeStorageItem.isAllowedUpgrade(carried)) {
                     int action = (button == 1)
                             ? AdvancedUpgradeStorageActionPayload.ACTION_DEPOSIT_CURSOR_ONE
                             : AdvancedUpgradeStorageActionPayload.ACTION_DEPOSIT_CURSOR;
-                    PacketDistributor.sendToServer(new AdvancedUpgradeStorageActionPayload(action, slotIndex, currentStorageIndex));
+                    ClientPacketDistributor.sendToServer(new AdvancedUpgradeStorageActionPayload(action, slotIndex, currentStorageIndex));
                     playClickSound();
                     return true;
                 }
 
                 if (carried.isEmpty() && !slotStack.isEmpty()) {
                     int action;
-                    if (Screen.hasShiftDown()) {
+                    if (Minecraft.getInstance().hasShiftDown()) {
                         action = (button == 1)
                                 ? AdvancedUpgradeStorageActionPayload.ACTION_WITHDRAW_INVENTORY
                                 : AdvancedUpgradeStorageActionPayload.ACTION_INSERT_MAX;
@@ -453,7 +455,7 @@ public final class AdvancedUpgradeStorageScreenHelper {
                                 ? AdvancedUpgradeStorageActionPayload.ACTION_PICKUP_CURSOR
                                 : AdvancedUpgradeStorageActionPayload.ACTION_INSERT_ONE;
                     }
-                    PacketDistributor.sendToServer(new AdvancedUpgradeStorageActionPayload(action, slotIndex, currentStorageIndex));
+                    ClientPacketDistributor.sendToServer(new AdvancedUpgradeStorageActionPayload(action, slotIndex, currentStorageIndex));
                     playClickSound();
                     return true;
                 }

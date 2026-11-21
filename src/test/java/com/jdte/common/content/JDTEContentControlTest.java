@@ -1,6 +1,6 @@
 package com.jdte.common.content;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -19,11 +19,11 @@ class JDTEContentControlTest {
                 true
         );
 
-        assertTrue(control.isBlockDisabled(ResourceLocation.fromNamespaceAndPath("jdte", "greenhouse")));
-        assertTrue(control.isRecipeDisabled(ResourceLocation.fromNamespaceAndPath("jdte", "greenhouse")));
-        assertTrue(control.isRecipeDisabled(ResourceLocation.fromNamespaceAndPath("jdte", "greenhouse/wheat")));
-        assertTrue(control.isRecipeDisabled(ResourceLocation.fromNamespaceAndPath("minecraft", "barrel")));
-        assertFalse(control.isBlockDisabled(ResourceLocation.fromNamespaceAndPath("jdte", "bio_factory")));
-        assertFalse(control.isRecipeDisabled(ResourceLocation.fromNamespaceAndPath("jdte", "bio_factory")));
+        assertTrue(control.isBlockDisabled(Identifier.fromNamespaceAndPath("jdte", "greenhouse")));
+        assertTrue(control.isRecipeDisabled(Identifier.fromNamespaceAndPath("jdte", "greenhouse")));
+        assertTrue(control.isRecipeDisabled(Identifier.fromNamespaceAndPath("jdte", "greenhouse/wheat")));
+        assertTrue(control.isRecipeDisabled(Identifier.fromNamespaceAndPath("minecraft", "barrel")));
+        assertFalse(control.isBlockDisabled(Identifier.fromNamespaceAndPath("jdte", "bio_factory")));
+        assertFalse(control.isRecipeDisabled(Identifier.fromNamespaceAndPath("jdte", "bio_factory")));
     }
 }

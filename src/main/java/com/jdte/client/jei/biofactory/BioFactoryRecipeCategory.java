@@ -1,6 +1,8 @@
 package com.jdte.client.jei.biofactory;
 
-import com.direwolf20.justdirethings.setup.Registration;
+import net.minecraft.client.renderer.RenderPipelines;
+
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.jdte.JDTE;
 import com.jdte.setup.JDTEFluids;
 import com.jdte.setup.JDTEItems;
@@ -12,20 +14,20 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class BioFactoryRecipeCategory implements IRecipeCategory<BioFactoryJeiRecipe> {
-    public static final ResourceLocation UID = JDTE.id("bio_factory");
+    public static final Identifier UID = JDTE.id("bio_factory");
     public static final RecipeType<BioFactoryJeiRecipe> RECIPE_TYPE = new RecipeType<>(UID, BioFactoryJeiRecipe.class);
-    private static final ResourceLocation SLOT = ResourceLocation.withDefaultNamespace("container/slot");
-    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("justdirethings", "background");
-    private static final ResourceLocation POWER_BAR = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
-    private static final ResourceLocation FLUID_BAR = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/fluid_bar.png");
+    private static final Identifier SLOT = Identifier.withDefaultNamespace("container/slot");
+    private static final Identifier BACKGROUND = Identifier.fromNamespaceAndPath("justdirethings", "background");
+    private static final Identifier POWER_BAR = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
+    private static final Identifier FLUID_BAR = Identifier.fromNamespaceAndPath("jdte", "textures/gui/fluid_bar.png");
     private static final int WIDTH = 207;
     private static final int HEIGHT = 84;
     private static final int FLUID_Y = 6;
@@ -49,16 +51,16 @@ public class BioFactoryRecipeCategory implements IRecipeCategory<BioFactoryJeiRe
     @Override public IDrawable getIcon() { return icon; }
     @Override public int getWidth() { return WIDTH; }
     @Override public int getHeight() { return HEIGHT; }
-    @Override public ResourceLocation getRegistryName(BioFactoryJeiRecipe recipe) { return recipe.id(); }
+    @Override public Identifier getRegistryName(BioFactoryJeiRecipe recipe) { return recipe.id(); }
 
     @Override public void setRecipe(IRecipeLayoutBuilder builder, BioFactoryJeiRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.CATALYST, 30, 7)
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 30, 7)
                 .addItemStacks(recipe.specimens())
                 .addRichTooltipCallback((view, tooltip) -> tooltip.add(
                         Component.translatable("jei.jdte.not_consumed").withStyle(ChatFormatting.GRAY)));
         for (int input = 0; input < Math.min(3, recipe.inputs().size()); input++) {
             var recipeInput = recipe.inputs().get(input);
-            var slot = builder.addSlot(recipeInput.count() > 0 ? RecipeIngredientRole.INPUT : RecipeIngredientRole.CATALYST,
+            var slot = builder.addSlot(recipeInput.count() > 0 ? RecipeIngredientRole.INPUT : RecipeIngredientRole.CRAFTING_STATION,
                     30, 25 + input * 18).addItemStacks(recipeInput.stacks());
             if (recipeInput.count() == 0) {
                 slot.addRichTooltipCallback((view, tooltip) -> tooltip.add(
@@ -81,14 +83,14 @@ public class BioFactoryRecipeCategory implements IRecipeCategory<BioFactoryJeiRe
         builder.addSlot(RecipeIngredientRole.INPUT, TIME_FLUID_X + 1, FLUID_Y + 1)
                 .setBackground(fluidBackground, -1, -1).setOverlay(fluidOverlay, -1, -1)
                 .setFluidRenderer(Math.max(1, recipe.timeFluidAmount()), false, 16, 70)
-                .addFluidStack(Registration.TIME_FLUID_SOURCE.get(), recipe.timeFluidAmount());
+                .addFluidStack(JDTRegistration.TIME_FLUID_SOURCE.get(), recipe.timeFluidAmount());
         if (recipe.processFluid().isPresent()) {
             var processSlot = builder.addSlot(recipe.processFluidConsumed()
-                            ? RecipeIngredientRole.INPUT : RecipeIngredientRole.CATALYST,
+                            ? RecipeIngredientRole.INPUT : RecipeIngredientRole.CRAFTING_STATION,
                     PROCESS_FLUID_X + 1, FLUID_Y + 1)
                     .setBackground(fluidBackground, -1, -1).setOverlay(fluidOverlay, -1, -1).setFluidRenderer(
                             Math.max(1, recipe.processFluidAmount()), false, 16, 70)
-                    .addFluidStack(BuiltInRegistries.FLUID.get(recipe.processFluid().get()), recipe.processFluidAmount());
+                    .addFluidStack(BuiltInRegistries.FLUID.getValue(recipe.processFluid().get()), recipe.processFluidAmount());
             if (!recipe.processFluidConsumed()) {
                 processSlot.addRichTooltipCallback((view, tooltip) -> tooltip.add(
                         Component.translatable("jei.jdte.not_consumed").withStyle(ChatFormatting.GRAY)));
@@ -98,15 +100,15 @@ public class BioFactoryRecipeCategory implements IRecipeCategory<BioFactoryJeiRe
             builder.addSlot(RecipeIngredientRole.OUTPUT, PRODUCT_FLUID_X + 1, FLUID_Y + 1)
                     .setBackground(fluidBackground, -1, -1).setOverlay(fluidOverlay, -1, -1).setFluidRenderer(
                             Math.max(1, recipe.outputFluidAmount()), false, 16, 70)
-                    .addFluidStack(BuiltInRegistries.FLUID.get(recipe.outputFluid().get()), recipe.outputFluidAmount());
+                    .addFluidStack(BuiltInRegistries.FLUID.getValue(recipe.outputFluid().get()), recipe.outputFluidAmount());
         }
     }
 
-    @Override public void draw(BioFactoryJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphics graphics,
+    @Override public void draw(BioFactoryJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics,
                                double mouseX, double mouseY) {
-        graphics.blitSprite(BACKGROUND, 0, 0, WIDTH, HEIGHT);
-        for (int i = 0; i < 4; i++) graphics.blitSprite(SLOT, 29, 6 + i * 18, 18, 18);
-        for (int i = 0; i < 8; i++) graphics.blitSprite(SLOT, 74 + (i % 2) * 18, 6 + (i / 2) * 18, 18, 18);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND, 0, 0, WIDTH, HEIGHT);
+        for (int i = 0; i < 4; i++) graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT, 29, 6 + i * 18, 18, 18);
+        for (int i = 0; i < 8; i++) graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT, 74 + (i % 2) * 18, 6 + (i / 2) * 18, 18, 18);
         if (recipe.processFluid().isEmpty()) drawEmptyTank(graphics, PROCESS_FLUID_X);
         if (recipe.outputFluid().isEmpty()) drawEmptyTank(graphics, PRODUCT_FLUID_X);
         drawProductionPulse(graphics, 53, 31);
@@ -114,25 +116,25 @@ public class BioFactoryRecipeCategory implements IRecipeCategory<BioFactoryJeiRe
             double seconds = recipe.processTicks() / 20.0D;
             String formattedSeconds = seconds == Math.rint(seconds)
                     ? Integer.toString((int) seconds) : String.format("%.1f", seconds);
-            graphics.renderTooltip(net.minecraft.client.Minecraft.getInstance().font,
+            graphics.setTooltipForNextFrame(net.minecraft.client.Minecraft.getInstance().font,
                     Component.translatable("jei.jdte.bio_factory.process_time",
                             recipe.processTicks(), formattedSeconds), (int) mouseX, (int) mouseY);
         }
         int fill = 1 + (int) ((System.currentTimeMillis() / 35L) % 70L);
-        graphics.blit(POWER_BAR, ENERGY_X, FLUID_Y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(POWER_BAR, ENERGY_X + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWER_BAR, ENERGY_X, FLUID_Y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWER_BAR, ENERGY_X + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
         if (mouseX >= ENERGY_X && mouseX < ENERGY_X + 18 && mouseY >= FLUID_Y && mouseY < FLUID_Y + 72) {
-            graphics.renderTooltip(net.minecraft.client.Minecraft.getInstance().font,
+            graphics.setTooltipForNextFrame(net.minecraft.client.Minecraft.getInstance().font,
                     Component.literal(recipe.energy() + " FE"), (int) mouseX, (int) mouseY);
         }
     }
 
-    private void drawEmptyTank(GuiGraphics graphics, int x) {
-        graphics.blit(FLUID_BAR, x, FLUID_Y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(FLUID_BAR, x, FLUID_Y, 18, 0, 18, 72, 36, 72);
+    private void drawEmptyTank(GuiGraphicsExtractor graphics, int x) {
+        graphics.blit(RenderPipelines.GUI_TEXTURED, FLUID_BAR, x, FLUID_Y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, FLUID_BAR, x, FLUID_Y, 18, 0, 18, 72, 36, 72);
     }
 
-    private void drawProductionPulse(GuiGraphics graphics, int x, int y) {
+    private void drawProductionPulse(GuiGraphicsExtractor graphics, int x, int y) {
         int stage = (int) ((System.currentTimeMillis() / 140L) % 6L);
         int outer = stage < 3 ? stage : 6 - stage;
         graphics.fill(x + 5, y + 2, x + 9, y + 14, 0xFF5E3428);

@@ -2,7 +2,7 @@ package com.jdte.setup;
 
 import com.jdte.JDTE;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.EntityType;
@@ -17,10 +17,10 @@ public final class JDTETags {
     }
 
     private static TagKey<EntityType<?>> entityTypeTag(String path) {
-        return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(JDTE.MODID, path));
+        return TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(JDTE.MODID, path));
     }
 
     private static TagKey<Block> blockTag(String path) {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(JDTE.MODID, path));
+        return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(JDTE.MODID, path));
     }
 }

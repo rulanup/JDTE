@@ -1,20 +1,20 @@
 package com.jdte.common.recipes;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.Objects;
 
-public record GreenhouseCropDefinition(List<ItemStack> outputs, ResourceLocation displayBlock,
-                                       ResourceLocation harvestBlock, boolean useLootTable,
-                                       int growthWork, ResourceLocation fluid, int timeFluid,
+public record GreenhouseCropDefinition(List<ItemStack> outputs, Identifier displayBlock,
+                                       Identifier harvestBlock, boolean useLootTable,
+                                       int growthWork, Identifier fluid, int timeFluid,
                                        HarvestGenerator harvestGenerator) {
-    public GreenhouseCropDefinition(List<ItemStack> outputs, ResourceLocation displayBlock,
-                                    ResourceLocation harvestBlock, boolean useLootTable,
-                                    int growthWork, ResourceLocation fluid, int timeFluid) {
+    public GreenhouseCropDefinition(List<ItemStack> outputs, Identifier displayBlock,
+                                    Identifier harvestBlock, boolean useLootTable,
+                                    int growthWork, Identifier fluid, int timeFluid) {
         this(outputs, displayBlock, harvestBlock, useLootTable, growthWork, fluid, timeFluid, null);
     }
     public GreenhouseCropDefinition {

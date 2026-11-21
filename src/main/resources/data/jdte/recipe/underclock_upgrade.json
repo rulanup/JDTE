@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "F": {
-      "item": "justdirethings:ferricore_ingot"
-    },
-    "Q": {
-      "item": "minecraft:quartz"
-    },
-    "R": {
-      "item": "minecraft:redstone"
-    },
-    "T": {
-      "item": "minecraft:redstone_torch"
-    }
+    "F": "justdirethings:ferricore_ingot",
+    "Q": "minecraft:quartz",
+    "R": "minecraft:redstone",
+    "T": "minecraft:redstone_torch"
   },
   "pattern": [
     "RQR",

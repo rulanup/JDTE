@@ -18,7 +18,8 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
     public final ContainerData brewerData;
@@ -52,10 +53,10 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
         addSlot(new SingleItemSlot(machineHandler, AdvancedPotionBrewerBE.BOTTLE_SLOT_0, 56, 41));
         addSlot(new SingleItemSlot(machineHandler, AdvancedPotionBrewerBE.BOTTLE_SLOT_1, 79, 48));
         addSlot(new SingleItemSlot(machineHandler, AdvancedPotionBrewerBE.BOTTLE_SLOT_2, 102, 41));
-        addSlot(new SlotItemHandler(machineHandler, AdvancedPotionBrewerBE.INGREDIENT_SLOT, 79, 7));
-        addSlot(new SlotItemHandler(machineHandler, AdvancedPotionBrewerBE.FUEL_SLOT, 17, 7));
+        addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, AdvancedPotionBrewerBE.INGREDIENT_SLOT, 79, 7));
+        addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, AdvancedPotionBrewerBE.FUEL_SLOT, 17, 7));
         for (int i = 0; i < AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_COUNT; i++) {
-            addSlot(new SlotItemHandler(machineHandler, AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + i, 43 + i * 18, -21));
+            addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + i, 43 + i * 18, -21));
         }
         for (int i = 0; i < AdvancedPotionBrewerBE.OUTPUT_SLOT_COUNT; i++) {
             addSlot(new OutputSlot(machineHandler, AdvancedPotionBrewerBE.OUTPUT_SLOT_START + i, 128, 13 + i * 18));
@@ -273,9 +274,9 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
         return stillValid(ContainerLevelAccess.create(player.level(), pos), player, JDTEBlocks.ADVANCED_POTION_BREWER.get());
     }
 
-    private static class SingleItemSlot extends SlotItemHandler {
-        private SingleItemSlot(net.neoforged.neoforge.items.IItemHandler itemHandler, int index, int xPosition, int yPosition) {
-            super(itemHandler, index, xPosition, yPosition);
+    private static class SingleItemSlot extends ResourceHandlerSlot {
+        private SingleItemSlot(ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition) {
+            super(itemHandler, itemHandler::set, index, xPosition, yPosition);
         }
 
         @Override
@@ -290,7 +291,7 @@ public class AdvancedPotionBrewerContainer extends BaseMachineContainer {
     }
 
     private static class OutputSlot extends SingleItemSlot {
-        private OutputSlot(net.neoforged.neoforge.items.IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+        private OutputSlot(ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
         }
 

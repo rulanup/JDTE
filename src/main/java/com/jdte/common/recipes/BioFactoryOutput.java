@@ -7,23 +7,30 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
-public record BioFactoryOutput(ItemStack stack, float chance) {
+public record BioFactoryOutput(ItemStackTemplate template, float chance) {
+    public BioFactoryOutput(ItemStack stack, float chance) {
+        this(ItemStackTemplate.fromNonEmptyStack(stack), chance);
+    }
+
+    public ItemStack stack() { return template.create(); }
+
     public static final Codec<BioFactoryOutput> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ItemStack.CODEC.fieldOf("item").forGetter(BioFactoryOutput::stack),
+            ItemStackTemplate.CODEC.fieldOf("item").forGetter(BioFactoryOutput::template),
             Codec.FLOAT.optionalFieldOf("chance", 1.0F).forGetter(BioFactoryOutput::chance)
     ).apply(instance, BioFactoryOutput::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, BioFactoryOutput> STREAM_CODEC = StreamCodec.composite(
-            ItemStack.STREAM_CODEC, BioFactoryOutput::stack,
+            ItemStackTemplate.STREAM_CODEC, BioFactoryOutput::template,
             ByteBufCodecs.FLOAT, BioFactoryOutput::chance,
             BioFactoryOutput::new);
 
     public ItemStack roll(RandomSource random, double multiplier) {
-        if (stack.isEmpty() || random.nextFloat() >= chance) return ItemStack.EMPTY;
-        double scaled = stack.getCount() * Math.max(0.0D, multiplier);
+        if (random.nextFloat() >= chance) return ItemStack.EMPTY;
+        double scaled = template.count() * Math.max(0.0D, multiplier);
         int count = (int) Math.floor(scaled);
         if (random.nextDouble() < scaled - count) count++;
-        return count <= 0 ? ItemStack.EMPTY : stack.copyWithCount(count);
+        return count <= 0 ? ItemStack.EMPTY : template.withCount(count).create();
     }
 }

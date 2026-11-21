@@ -79,7 +79,7 @@ public final class AEGridHandle implements TargetHandle, GridTickTarget {
         }
         return levels.stream()
                 .sorted(Comparator.comparing(level ->
-                        level.dimension().location().toString()))
+                        level.dimension().identifier().toString()))
                 .toList();
     }
 
@@ -91,7 +91,7 @@ public final class AEGridHandle implements TargetHandle, GridTickTarget {
     @Override
     public String anchorSummary() {
         return anchors.stream()
-                .map(anchor -> anchor.level().dimension().location()
+                .map(anchor -> anchor.level().dimension().identifier()
                         + "@(" + anchor.pos().getX()
                         + "," + anchor.pos().getY()
                         + "," + anchor.pos().getZ() + ")")

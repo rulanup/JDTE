@@ -7,9 +7,9 @@
     "ABA"
   ],
   "key": {
-    "A": { "item": "minecraft:diamond" },
-    "B": { "item": "minecraft:iron_ingot" },
-    "C": { "item": "minecraft:flint" }
+    "A": "minecraft:diamond",
+    "B": "minecraft:iron_ingot",
+    "C": "minecraft:flint"
   },
   "result": {
     "count": 1,

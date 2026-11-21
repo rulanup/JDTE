@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    { "item": "ae2:wireless_receiver" },
-    { "item": "ae2:import_bus" },
-    { "item": "jdte:capacity_upgrade" }
+    "ae2:wireless_receiver",
+    "ae2:import_bus",
+    "jdte:capacity_upgrade"
   ],
   "result": {
     "id": "jdte:ae_output_upgrade",

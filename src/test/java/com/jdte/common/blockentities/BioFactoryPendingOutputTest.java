@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class BioFactoryPendingOutputTest {
+class BioFactoryPendingOutputTest implements com.jdte.test.WorldRegistryTest {
     private static final HolderLookup.Provider REGISTRIES =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
@@ -43,8 +43,12 @@ class BioFactoryPendingOutputTest {
                 new FluidStack(Fluids.WATER, 250), 120, 40, 30, 10, false,
                 new int[]{1, 2}, new int[]{2, 1});
 
-        CompoundTag tag = original.save(REGISTRIES);
-        BioFactoryPendingOutput restored = BioFactoryPendingOutput.load(tag, REGISTRIES);
+        var problems = new net.minecraft.util.ProblemReporter.Collector();
+        var output = net.minecraft.world.level.storage.TagValueOutput.createWithContext(problems, REGISTRIES);
+        original.save(output);
+        BioFactoryPendingOutput restored = BioFactoryPendingOutput.load(
+                net.minecraft.world.level.storage.TagValueInput.create(problems, REGISTRIES, output.buildResult()));
+        assertTrue(problems.isEmpty(), problems::getReport);
 
         assertEquals(1, restored.items().size());
         assertEquals(Items.BEEHIVE, restored.items().getFirst().getItem());

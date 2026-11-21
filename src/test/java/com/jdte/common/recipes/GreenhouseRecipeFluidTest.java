@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,10 +14,10 @@ class GreenhouseRecipeFluidTest {
 
     @Test
     void decodesLegacyFluidDefaultAndExplicitFluid() {
-        GreenhouseRecipe legacyRecipe = new GreenhouseRecipe.Serializer().codec().codec()
-                .parse(JsonOps.INSTANCE, JsonParser.parseString("""
+        GreenhouseRecipe legacyRecipe = GreenhouseRecipe.Serializer.create().codec().codec()
+                .parse(com.jdte.test.TestWorldRegistries.load().createSerializationContext(JsonOps.INSTANCE), JsonParser.parseString("""
                         {
-                          "seed": { "item": "minecraft:wheat_seeds" },
+                          "seed": "minecraft:wheat_seeds",
                           "outputs": [{ "id": "minecraft:wheat", "count": 2 }],
                           "display_block": "minecraft:wheat",
                           "growth_work": 20,
@@ -25,10 +25,10 @@ class GreenhouseRecipeFluidTest {
                         }
                         """))
                 .getOrThrow();
-        GreenhouseRecipe waterRecipe = new GreenhouseRecipe.Serializer().codec().codec()
-                .parse(JsonOps.INSTANCE, JsonParser.parseString("""
+        GreenhouseRecipe waterRecipe = GreenhouseRecipe.Serializer.create().codec().codec()
+                .parse(com.jdte.test.TestWorldRegistries.load().createSerializationContext(JsonOps.INSTANCE), JsonParser.parseString("""
                         {
-                          "seed": { "item": "minecraft:wheat_seeds" },
+                          "seed": "minecraft:wheat_seeds",
                           "outputs": [{ "id": "minecraft:wheat", "count": 2 }],
                           "display_block": "minecraft:wheat",
                           "growth_work": 20,
@@ -39,7 +39,7 @@ class GreenhouseRecipeFluidTest {
                 .getOrThrow();
 
         assertEquals(GreenhouseRecipe.DEFAULT_FLUID, legacyRecipe.fluid());
-        assertEquals(ResourceLocation.withDefaultNamespace("water"), waterRecipe.fluid());
+        assertEquals(Identifier.withDefaultNamespace("water"), waterRecipe.fluid());
     }
 
     @Test
@@ -58,8 +58,8 @@ class GreenhouseRecipeFluidTest {
     }
 
     private static void assertDecodeRejected(String fluid) {
-        DataResult<GreenhouseRecipe> result = new GreenhouseRecipe.Serializer().codec().codec()
-                .parse(JsonOps.INSTANCE, recipeJson(fluid));
+        DataResult<GreenhouseRecipe> result = GreenhouseRecipe.Serializer.create().codec().codec()
+                .parse(com.jdte.test.TestWorldRegistries.load().createSerializationContext(JsonOps.INSTANCE), recipeJson(fluid));
 
         assertTrue(result.error().isPresent(), () -> "expected decode rejection for " + fluid);
     }
@@ -67,7 +67,7 @@ class GreenhouseRecipeFluidTest {
     private static JsonElement recipeJson(String fluid) {
         return JsonParser.parseString("""
                 {
-                  "seed": { "item": "minecraft:wheat_seeds" },
+                  "seed": "minecraft:wheat_seeds",
                   "outputs": [{ "id": "minecraft:wheat", "count": 2 }],
                   "display_block": "minecraft:wheat",
                   "growth_work": 20,

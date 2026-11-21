@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class LifeSynthesisContainer extends BaseMachineContainer {
     public LifeSynthesisContainer(int id, Inventory inventory, FriendlyByteBuf data) {
@@ -35,7 +35,8 @@ public class LifeSynthesisContainer extends BaseMachineContainer {
         for (int i = 0; i < LifeSynthesisVatBE.INPUT_SLOTS; i++) {
             int x = layout.getGreenhouseInputStartX() + (i % columns) * layout.getGreenhouseInputSpacing();
             int y = layout.getGreenhouseInputStartY() + (i / columns) * layout.getGreenhouseInputSpacing();
-            addSlot(new SlotItemHandler(vat.getMachineHandler(), i, x, y));
+            var handler = vat.getMachineHandler();
+            addSlot(new ResourceHandlerSlot(handler, handler::set, i, x, y));
         }
     }
 
@@ -82,7 +83,7 @@ public class LifeSynthesisContainer extends BaseMachineContainer {
         } else {
             if (!moveStackTo(stack, 0, machineSlotCount, false)) return ItemStack.EMPTY;
         }
-        if (stack.isEmpty()) slot.set(ItemStack.EMPTY); else slot.setChanged();
+        slot.set(stack.isEmpty() ? ItemStack.EMPTY : stack);
         slot.onTake(player, stack);
         return original;
     }
@@ -100,7 +101,7 @@ public class LifeSynthesisContainer extends BaseMachineContainer {
                     if (transferable > 0) {
                         existing.grow(transferable);
                         stack.shrink(transferable);
-                        target.setChanged();
+                        target.set(existing);
                         moved = true;
                     }
                 }

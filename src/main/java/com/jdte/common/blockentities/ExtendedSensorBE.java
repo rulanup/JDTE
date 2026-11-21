@@ -7,7 +7,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -29,9 +29,9 @@ public class ExtendedSensorBE extends SensorT1BE implements FilterableBE, Powere
         poweredMachineData = new PoweredMachineContainerData(this);
     }
 
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return getData(JDTRegistration.HANDLER_BASIC_FILTER); }
     @Override public PoweredMachineContainerData getContainerData() { return poweredMachineData; }
-    @Override public MachineEnergyStorage getEnergyStorage() { return getData(Registration.ENERGYSTORAGE_MACHINES); }
+    @Override public MachineEnergyStorage getEnergyStorage() { return getData(JDTRegistration.ENERGYSTORAGE_MACHINES); }
     @Override public int getStandardEnergyCost() { return 250; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaAffectingData; }
 

@@ -15,11 +15,23 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Normal right-click on a valid target creates a request; right-clicking a target with an existing request adds its exponent. By default, the effect is capped at $(bold)1024×$(); when upgraded with the Ultimate Overclock Upgrade, the ceiling increases to $(bold)32768×$(). The wand supports directly installing the Entity Acceleration Upgrade and Ultimate Overclock Upgrade by right-clicking them onto the wand in inventory. The wand accelerates JDT-approved tickable blocks and directly accelerates AE2 devices that expose the $(thing)IGridTickable$() service.$(br2)$(bold)Resources and server safety$()$(br2)For each stack, the server validates the target and calculates resource costs before it writes the new request state. Insufficient Time Fluid or FE, an invalid target, a target already at the maximum multiplier, or a failed server commit never consumes resources."
+      "text": "Normal right-click on a valid target creates a request; right-clicking a target with an existing request adds its exponent. By default, the effect is capped at $(bold)1024×$(); when upgraded with the $(bold)Ultimate Overclock Upgrade$(), the acceleration ceiling increases up to $(bold)32768×$() (Max mode instantly selects the current ceiling). Reaching the cap does not consume resources. The wand accelerates JDT-approved tickable blocks and directly accelerates AE2 devices that expose the $(thing)IGridTickable$() service.$(br2)$(bold)Upgrades$()"
     },
     {
       "type": "patchouli:text",
-      "text": "Requests execute only on the server and are bounded by the per-target batch limit. AE2 targets take the direct acceleration route and never also receive an ordinary block-entity or random-tick execution from the same request. Time accelerators themselves are excluded as targets to prevent recursive acceleration.$(br2)$(bold)Crafting$()"
+      "text": "The Ultimate Time Wand supports two dedicated upgrades that can be applied by right-clicking the upgrade onto the wand in the inventory, or through a crafting table or smithing table:"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(bold)Entity Acceleration Upgrade$() ($(thing)jdte:entity_acceleration_upgrade$()): Apply it in a smithing table with the upgrade as the template, the Ultimate Time Wand as the base, and a Time Fluid Catalyst as the addition, or right-click to install it directly. The wand can then accelerate living entities. Entity AI and navigation physics are suppressed during accelerated extra ticks to eliminate lag, while lifecycles, growth, breeding cooldowns, and status effect timers progress at full accelerated speed.$(li)$(bold)Ultimate Overclock Upgrade$() ($(thing)jdte:ultimate_overclock_upgrade$()): Unlocks ultimate acceleration potential, raising the wand's maximum acceleration multiplier"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "from 1024X (exponent 10) up to $(bold)32768X$() (exponent 15).$(br2)$(bold)Resources and server safety$()$(br2)For each stack, the server validates the target and calculates resource costs before it writes the new request state. Insufficient Time Fluid or FE, an invalid target, a target already at the maximum multiplier, or a failed server commit never consumes resources.$(br2)Requests execute only on the server and are bounded by the per-target batch limit. AE2 targets take the direct acceleration route and never also receive an ordinary block-entity or random-tick execution from the same request. Time accelerators themselves are excluded as targets to prevent recursive acceleration."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Crafting$()"
     },
     {
       "type": "patchouli:crafting",

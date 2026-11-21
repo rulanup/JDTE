@@ -5,12 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import com.jdte.common.integrations.DraconicEvolutionIntegration;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -22,7 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.fml.ModList;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -41,7 +39,7 @@ public final class MobLootSpawnEggHelper {
     public static final int ENERGY_COST = 100_000;
 
     private static final Map<ResourceManager, Map<Item, ItemStack>> CACHE = new WeakHashMap<>();
-    private static final Map<ResourceManager, Map<ResourceLocation, List<LootDropInfo>>> LOOT_DROP_CACHE = new WeakHashMap<>();
+    private static final Map<ResourceManager, Map<Identifier, List<LootDropInfo>>> LOOT_DROP_CACHE = new WeakHashMap<>();
 
     private MobLootSpawnEggHelper() {
     }
@@ -62,15 +60,15 @@ public final class MobLootSpawnEggHelper {
         }
     }
 
-    public static Map<ResourceLocation, ResourceLocation> getRecipeIds(ResourceManager resources) {
-        Map<ResourceLocation, ResourceLocation> result = new HashMap<>();
+    public static Map<Identifier, Identifier> getRecipeIds(ResourceManager resources) {
+        Map<Identifier, Identifier> result = new HashMap<>();
         getRecipes(resources).forEach((drop, egg) -> result.put(
                 BuiltInRegistries.ITEM.getKey(drop),
                 BuiltInRegistries.ITEM.getKey(egg.getItem())));
         return Map.copyOf(result);
     }
 
-    public static Map<ResourceLocation, List<LootDropInfo>> getLootDropsBySpawnEgg(ResourceManager resources) {
+    public static Map<Identifier, List<LootDropInfo>> getLootDropsBySpawnEgg(ResourceManager resources) {
         synchronized (LOOT_DROP_CACHE) {
             return LOOT_DROP_CACHE.computeIfAbsent(resources, MobLootSpawnEggHelper::buildLootDropsBySpawnEgg);
         }
@@ -81,24 +79,24 @@ public final class MobLootSpawnEggHelper {
      * similar reload hooks can mutate compiled tables after the raw resource JSON
      * has been read, so the resource-manager cache is intentionally bypassed here.
      */
-    public static Map<ResourceLocation, List<LootDropInfo>> getLootDropsBySpawnEgg(ServerLevel level) {
+    public static Map<Identifier, List<LootDropInfo>> getLootDropsBySpawnEgg(ServerLevel level) {
         if (level == null || level.getServer() == null) return Map.of();
         var registries = level.getServer().reloadableRegistries();
-        return getLootDropsBySpawnEgg(registries.get(), registries::getLootTable,
+        return getLootDropsBySpawnEgg(registries.lookup(), registries::getLootTable,
                 id -> readLootTableJson(level.getServer().getResourceManager(), id));
     }
 
-    private static Map<ResourceLocation, List<LootDropInfo>> buildLootDropsBySpawnEgg(ResourceManager resources) {
+    private static Map<Identifier, List<LootDropInfo>> buildLootDropsBySpawnEgg(ResourceManager resources) {
         return buildLootDropsBySpawnEgg(id -> readLootTableJson(resources, id));
     }
 
-    static Map<ResourceLocation, List<LootDropInfo>> getLootDropsBySpawnEgg(
+    static Map<Identifier, List<LootDropInfo>> getLootDropsBySpawnEgg(
             HolderLookup.Provider registries, Function<ResourceKey<LootTable>, LootTable> tables,
-            Function<ResourceLocation, JsonElement> fallback) {
+            Function<Identifier, JsonElement> fallback) {
         var ops = RegistryOps.create(JsonOps.INSTANCE, registries);
         // Shared nested tables are encoded only once per synchronization. Nothing
         // survives this snapshot, so an in-place script edit is visible on reload.
-        Map<ResourceLocation, Optional<JsonElement>> encoded = new HashMap<>();
+        Map<Identifier, Optional<JsonElement>> encoded = new HashMap<>();
         return buildLootDropsBySpawnEgg(id -> encoded.computeIfAbsent(id, key -> {
             try {
                 LootTable table = tables.apply(ResourceKey.create(Registries.LOOT_TABLE, key));
@@ -111,19 +109,17 @@ public final class MobLootSpawnEggHelper {
         }).orElse(null));
     }
 
-    private static Map<ResourceLocation, List<LootDropInfo>> buildLootDropsBySpawnEgg(
-            Function<ResourceLocation, JsonElement> tables) {
-        Map<ResourceLocation, List<LootDropInfo>> result = new HashMap<>();
+    private static Map<Identifier, List<LootDropInfo>> buildLootDropsBySpawnEgg(
+            Function<Identifier, JsonElement> tables) {
+        Map<Identifier, List<LootDropInfo>> result = new HashMap<>();
         for (Item item : BuiltInRegistries.ITEM) {
             if (!(item instanceof SpawnEggItem spawnEgg)) continue;
             ItemStack eggStack = new ItemStack(spawnEgg);
             EntityType<?> entityType = spawnEgg.getType(eggStack);
-            Map<ResourceLocation, LootDropInfo> possibleDrops = new HashMap<>();
-            collectLootTableDrops(tables, entityType.getDefaultLootTable().location(), possibleDrops,
-                    new HashSet<>(), "");
-            if (ModList.get().isLoaded("draconicevolution")) {
-                DraconicEvolutionIntegration.addLootFabricatorPreviewDrops(entityType, possibleDrops);
-            }
+            Map<Identifier, LootDropInfo> possibleDrops = new HashMap<>();
+            if (entityType == null) continue;
+            entityType.getDefaultLootTable().ifPresent(table ->
+                    collectLootTableDrops(tables, table.identifier(), possibleDrops, new HashSet<>(), ""));
             addVanillaBossPreviewDrops(entityType, possibleDrops);
             result.put(BuiltInRegistries.ITEM.getKey(item), possibleDrops.values().stream()
                     .sorted(java.util.Comparator.comparing(drop -> drop.itemId().toString()))
@@ -141,16 +137,16 @@ public final class MobLootSpawnEggHelper {
         }
     }
 
-    private static void addVanillaBossPreviewDrops(EntityType<?> entityType, Map<ResourceLocation, LootDropInfo> drops) {
+    private static void addVanillaBossPreviewDrops(EntityType<?> entityType, Map<Identifier, LootDropInfo> drops) {
         if (entityType == EntityType.WITHER) {
-            ResourceLocation netherStar = BuiltInRegistries.ITEM.getKey(Items.NETHER_STAR);
+            Identifier netherStar = BuiltInRegistries.ITEM.getKey(Items.NETHER_STAR);
             drops.put(netherStar, new LootDropInfo(netherStar, 1, 1, ""));
         }
     }
 
-    private static void collectLootTableDrops(Function<ResourceLocation, JsonElement> tables, ResourceLocation tableId,
-                                              Map<ResourceLocation, LootDropInfo> output,
-                                              Set<ResourceLocation> visitedTables, String inheritedChance) {
+    private static void collectLootTableDrops(Function<Identifier, JsonElement> tables, Identifier tableId,
+                                              Map<Identifier, LootDropInfo> output,
+                                              Set<Identifier> visitedTables, String inheritedChance) {
         if (!visitedTables.add(tableId)) return;
         JsonElement json = tables.apply(tableId);
         if (json != null) {
@@ -158,8 +154,8 @@ public final class MobLootSpawnEggHelper {
         }
     }
 
-    private static JsonElement readLootTableJson(ResourceManager resources, ResourceLocation tableId) {
-        ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(
+    private static JsonElement readLootTableJson(ResourceManager resources, Identifier tableId) {
+        Identifier resourceId = Identifier.fromNamespaceAndPath(
                 tableId.getNamespace(), "loot_table/" + tableId.getPath() + ".json");
         return resources.getResource(resourceId).map(resource -> {
             try (Reader reader = resource.openAsReader()) {
@@ -171,9 +167,9 @@ public final class MobLootSpawnEggHelper {
     }
 
     private static void collectJsonDrops(JsonElement element,
-                                         Map<ResourceLocation, LootDropInfo> output,
-                                         Set<ResourceLocation> visitedTables,
-                                         Function<ResourceLocation, JsonElement> nestedResolver,
+                                         Map<Identifier, LootDropInfo> output,
+                                         Set<Identifier> visitedTables,
+                                         Function<Identifier, JsonElement> nestedResolver,
                                          String inheritedChance) {
         if (element.isJsonArray()) {
             JsonArray array = element.getAsJsonArray();
@@ -186,19 +182,19 @@ public final class MobLootSpawnEggHelper {
 
         JsonObject object = element.getAsJsonObject();
         String chance = mergeChance(inheritedChance, readChance(object));
-        ResourceLocation type = getResourceLocation(object, "type");
+        Identifier type = getResourceLocation(object, "type");
         if (type != null && type.getPath().equals("item")) {
-            ResourceLocation itemId = getResourceLocation(object, "name");
+            Identifier itemId = getResourceLocation(object, "name");
             if (itemId != null) addDrop(output, itemId, readCountRange(object), chance);
         } else if (type != null && type.getPath().equals("tag")) {
-            ResourceLocation tagId = getResourceLocation(object, "name");
+            Identifier tagId = getResourceLocation(object, "name");
             if (tagId != null) {
                 int[] range = readCountRange(object);
-                BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, tagId)).ifPresent(holders ->
+                BuiltInRegistries.ITEM.get(TagKey.create(Registries.ITEM, tagId)).ifPresent(holders ->
                         holders.forEach(holder -> addDrop(output, BuiltInRegistries.ITEM.getKey(holder.value()), range, chance)));
             }
         } else if (type != null && type.getPath().equals("loot_table")) {
-            ResourceLocation nested = getResourceLocation(object, "value");
+            Identifier nested = getResourceLocation(object, "value");
             if (nested == null) nested = getResourceLocation(object, "name");
             if (nested != null && visitedTables.add(nested)) {
                 JsonElement nestedJson = nestedResolver.apply(nested);
@@ -213,7 +209,7 @@ public final class MobLootSpawnEggHelper {
                 .forEach(entry -> collectJsonDrops(entry.getValue(), output, visitedTables, nestedResolver, chance));
     }
 
-    private static void addDrop(Map<ResourceLocation, LootDropInfo> output, ResourceLocation itemId, int[] range, String chance) {
+    private static void addDrop(Map<Identifier, LootDropInfo> output, Identifier itemId, int[] range, String chance) {
         output.merge(itemId, new LootDropInfo(itemId, range[0], range[1], chance), (left, right) ->
                 new LootDropInfo(itemId, Math.min(left.minCount(), right.minCount()),
                         Math.max(left.maxCount(), right.maxCount()), mergeChance(left.chanceLabel(), right.chanceLabel())));
@@ -225,7 +221,7 @@ public final class MobLootSpawnEggHelper {
         for (JsonElement functionElement : functions) {
             if (!functionElement.isJsonObject()) continue;
             JsonObject function = functionElement.getAsJsonObject();
-            ResourceLocation functionType = getResourceLocation(function, "function");
+            Identifier functionType = getResourceLocation(function, "function");
             if (functionType == null || !functionType.getPath().equals("set_count")) continue;
             JsonElement count = function.get("count");
             if (count == null) continue;
@@ -262,7 +258,7 @@ public final class MobLootSpawnEggHelper {
         for (JsonElement conditionElement : conditions) {
             if (!conditionElement.isJsonObject()) continue;
             JsonObject condition = conditionElement.getAsJsonObject();
-            ResourceLocation conditionType = getResourceLocation(condition, "condition");
+            Identifier conditionType = getResourceLocation(condition, "condition");
             if (conditionType != null && conditionType.getPath().equals("random_chance") && condition.has("chance")) {
                 JsonElement chance = condition.get("chance");
                 return chance.isJsonPrimitive() && chance.getAsJsonPrimitive().isNumber()
@@ -292,16 +288,17 @@ public final class MobLootSpawnEggHelper {
             }
 
             ItemStack eggStack = new ItemStack(spawnEgg);
-            if (spawnEgg.getType(eggStack) == EntityType.WITHER
-                    || spawnEgg.getType(eggStack) == EntityType.ENDER_DRAGON
-                    || spawnEgg.getType(eggStack) == EntityType.ELDER_GUARDIAN) {
+            EntityType<?> entityType = spawnEgg.getType(eggStack);
+            if (entityType == null || entityType == EntityType.WITHER
+                    || entityType == EntityType.ENDER_DRAGON || entityType == EntityType.ELDER_GUARDIAN) {
                 continue;
             }
             if (isInfusionBlacklisted(spawnEgg, eggStack)) {
                 continue;
             }
             Set<Item> possibleDrops = new HashSet<>();
-            collectLootTableItems(resources, spawnEgg.getType(eggStack).getDefaultLootTable().location(), possibleDrops, new HashSet<>());
+            entityType.getDefaultLootTable().ifPresent(table ->
+                    collectLootTableItems(resources, table.identifier(), possibleDrops, new HashSet<>()));
             for (Item drop : possibleDrops) {
                 if (drop.getDefaultMaxStackSize() > 1) {
                     candidates.computeIfAbsent(drop, ignored -> new ArrayList<>()).add(eggStack.copy());
@@ -329,8 +326,8 @@ public final class MobLootSpawnEggHelper {
         if (blacklist.isEmpty()) {
             return false;
         }
-        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(spawnEgg);
-        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(spawnEgg.getType(eggStack));
+        Identifier itemId = BuiltInRegistries.ITEM.getKey(spawnEgg);
+        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(spawnEgg.getType(eggStack));
         for (String entry : blacklist) {
             if (entry == null || entry.isBlank()) {
                 continue;
@@ -347,13 +344,13 @@ public final class MobLootSpawnEggHelper {
         return false;
     }
 
-    private static void collectLootTableItems(ResourceManager resources, ResourceLocation tableId,
-                                              Set<Item> output, Set<ResourceLocation> visitedTables) {
+    private static void collectLootTableItems(ResourceManager resources, Identifier tableId,
+                                              Set<Item> output, Set<Identifier> visitedTables) {
         if (!visitedTables.add(tableId)) {
             return;
         }
 
-        ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(
+        Identifier resourceId = Identifier.fromNamespaceAndPath(
                 tableId.getNamespace(), "loot_table/" + tableId.getPath() + ".json");
         resources.getResource(resourceId).ifPresent(resource -> {
             try (Reader reader = resource.openAsReader()) {
@@ -364,7 +361,7 @@ public final class MobLootSpawnEggHelper {
     }
 
     private static void collectJsonItems(ResourceManager resources, JsonElement element,
-                                         Set<Item> output, Set<ResourceLocation> visitedTables) {
+                                         Set<Item> output, Set<Identifier> visitedTables) {
         if (element.isJsonArray()) {
             JsonArray array = element.getAsJsonArray();
             array.forEach(child -> collectJsonItems(resources, child, output, visitedTables));
@@ -375,20 +372,20 @@ public final class MobLootSpawnEggHelper {
         }
 
         JsonObject object = element.getAsJsonObject();
-        ResourceLocation type = getResourceLocation(object, "type");
+        Identifier type = getResourceLocation(object, "type");
         if (type != null && type.getPath().equals("item")) {
-            ResourceLocation itemId = getResourceLocation(object, "name");
+            Identifier itemId = getResourceLocation(object, "name");
             if (itemId != null) {
                 BuiltInRegistries.ITEM.getOptional(itemId).ifPresent(output::add);
             }
         } else if (type != null && type.getPath().equals("tag")) {
-            ResourceLocation tagId = getResourceLocation(object, "name");
+            Identifier tagId = getResourceLocation(object, "name");
             if (tagId != null) {
-                BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, tagId))
+                BuiltInRegistries.ITEM.get(TagKey.create(Registries.ITEM, tagId))
                         .ifPresent(holders -> holders.forEach(holder -> output.add(holder.value())));
             }
         } else if (type != null && type.getPath().equals("loot_table")) {
-            ResourceLocation nestedTable = getResourceLocation(object, "value");
+            Identifier nestedTable = getResourceLocation(object, "value");
             if (nestedTable == null) {
                 nestedTable = getResourceLocation(object, "name");
             }
@@ -400,11 +397,11 @@ public final class MobLootSpawnEggHelper {
         object.entrySet().forEach(entry -> collectJsonItems(resources, entry.getValue(), output, visitedTables));
     }
 
-    private static ResourceLocation getResourceLocation(JsonObject object, String key) {
+    private static Identifier getResourceLocation(JsonObject object, String key) {
         JsonElement value = object.get(key);
         if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) {
             return null;
         }
-        return ResourceLocation.tryParse(value.getAsString());
+        return Identifier.tryParse(value.getAsString());
     }
 }

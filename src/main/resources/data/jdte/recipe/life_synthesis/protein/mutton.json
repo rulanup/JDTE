@@ -2,7 +2,7 @@
   "type": "jdte:life_synthesis",
   "tier": "protein",
   "inputs": [
-    { "ingredient": [ { "item": "minecraft:mutton" }, { "item": "minecraft:cooked_mutton" } ], "count": 4 }
+    { "ingredient": [ "minecraft:mutton", "minecraft:cooked_mutton" ], "count": 4 }
   ],
   "fluid_inputs": [ { "id": "minecraft:water", "amount": 1000 } ],
   "output": { "id": "jdte:life_fluid_source", "amount": 500 },

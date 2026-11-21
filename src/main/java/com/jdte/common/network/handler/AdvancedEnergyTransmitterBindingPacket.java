@@ -20,11 +20,11 @@ public final class AdvancedEnergyTransmitterBindingPacket {
                 return;
             }
             AdvancedEnergyTransmitterBE.BindingResult result = transmitter.togglePlayerBinding(player);
-            player.displayClientMessage(Component.translatable(switch (result) {
+            player.sendOverlayMessage(Component.translatable(switch (result) {
                 case BOUND -> "message.jdte.energy_transmitter.player_bound";
                 case UNBOUND -> "message.jdte.energy_transmitter.player_unbound";
                 case DENIED -> "message.jdte.energy_transmitter.binding_denied";
-            }), true);
+            }));
         });
     }
 }

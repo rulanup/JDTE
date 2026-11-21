@@ -16,11 +16,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,7 +64,7 @@ public final class AdvancedItemCollectorManager {
         if (!collector.isRemoved()) register(collector);
     }
 
-    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+    public static void onBlockBreak(BreakBlockEvent event) {
         if (com.jdte.common.factory.FactoryPermissionProbe.isPermissionProbe() || event.isCanceled()
                 || !JDTEConfig.COMMON.advancedItemCollectorPreDrainEnabled.get()
                 || !(event.getLevel() instanceof ServerLevel level)) {
@@ -76,43 +77,42 @@ public final class AdvancedItemCollectorManager {
         Set<AdvancedItemCollectorBE> collectors = INDEX.entriesAt(level, Vec3.atCenterOf(sourcePos));
         if (collectors.isEmpty()) return;
 
-        IItemHandlerModifiable source = findModifiableItemHandler(level, sourcePos);
+        ItemStacksResourceHandler source = findModifiableItemHandler(level, sourcePos);
         int threshold = JDTEConfig.COMMON.advancedItemCollectorPreDrainThreshold.get();
         if (source == null || !hasThresholdStack(source, threshold)) return;
 
         if (!transferOversizedSlots(source, sourcePos, collectors, threshold)) {
             event.setCanceled(true);
-            event.getPlayer().displayClientMessage(
+            event.getPlayer().sendOverlayMessage(
                     Component.translatable("message.jdte.advanced_item_collector.break_blocked", threshold)
-                            .withStyle(ChatFormatting.RED),
-                    true);
+                            .withStyle(ChatFormatting.RED));
         }
     }
 
-    private static IItemHandlerModifiable findModifiableItemHandler(ServerLevel level, BlockPos pos) {
-        IItemHandler unsided = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-        if (unsided instanceof IItemHandlerModifiable modifiable) return modifiable;
+    private static ItemStacksResourceHandler findModifiableItemHandler(ServerLevel level, BlockPos pos) {
+        var unsided = level.getCapability(Capabilities.Item.BLOCK, pos, null);
+        if (unsided instanceof ItemStacksResourceHandler modifiable) return modifiable;
         for (Direction direction : Direction.values()) {
-            IItemHandler sided = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction);
-            if (sided instanceof IItemHandlerModifiable modifiable) return modifiable;
+            var sided = level.getCapability(Capabilities.Item.BLOCK, pos, direction);
+            if (sided instanceof ItemStacksResourceHandler modifiable) return modifiable;
         }
         return null;
     }
 
-    private static boolean hasThresholdStack(IItemHandler handler, int threshold) {
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            if (handler.getStackInSlot(slot).getCount() >= threshold) return true;
+    private static boolean hasThresholdStack(ItemStacksResourceHandler handler, int threshold) {
+        for (int slot = 0; slot < handler.size(); slot++) {
+            if (handler.getAmountAsLong(slot) >= threshold) return true;
         }
         return false;
     }
 
-    private static boolean transferOversizedSlots(IItemHandlerModifiable source, BlockPos sourcePos,
+    private static boolean transferOversizedSlots(ItemStacksResourceHandler source, BlockPos sourcePos,
                                                    Set<AdvancedItemCollectorBE> collectors, int threshold) {
-        // Direct slot replacement avoids IItemHandler's one-normal-stack extraction limit.
+        // Remove the whole oversized slot before an external network can accept it.
         Vec3 sourceCenter = Vec3.atCenterOf(sourcePos);
         boolean fullyDrained = true;
-        for (int slot = 0; slot < source.getSlots(); slot++) {
-            ItemStack remaining = source.getStackInSlot(slot);
+        for (int slot = 0; slot < source.size(); slot++) {
+            ItemStack remaining = source.getResource(slot).toStack(source.getAmountAsInt(slot));
             if (remaining.getCount() < threshold) continue;
 
             for (AdvancedItemCollectorBE collector : collectors) {
@@ -127,24 +127,24 @@ public final class AdvancedItemCollectorManager {
                 if (!simulatedRemainder.isEmpty()) continue;
 
                 ItemStack toInsert = remaining.copy();
-                source.setStackInSlot(slot, ItemStack.EMPTY);
+                source.set(slot, ItemResource.EMPTY, 0);
 
                 ItemStack insertionRemainder = collector.insertCollectedStack(toInsert, false);
                 if (!insertionRemainder.isEmpty()) {
                     restoreToSourceSlot(source, slot, insertionRemainder, insertionRemainder.getCount());
                 }
-                remaining = source.getStackInSlot(slot);
+                remaining = source.getResource(slot).toStack(source.getAmountAsInt(slot));
             }
-            if (!source.getStackInSlot(slot).isEmpty()) fullyDrained = false;
+            if (!source.getResource(slot).toStack(source.getAmountAsInt(slot)).isEmpty()) fullyDrained = false;
         }
         return fullyDrained;
     }
 
-    private static void restoreToSourceSlot(IItemHandlerModifiable source, int slot, ItemStack template, int amount) {
-        ItemStack current = source.getStackInSlot(slot);
+    private static void restoreToSourceSlot(ItemStacksResourceHandler source, int slot, ItemStack template, int amount) {
+        ItemStack current = source.getResource(slot).toStack(source.getAmountAsInt(slot));
         ItemStack restored = current.isEmpty() ? template.copyWithCount(amount) : current.copy();
         if (!current.isEmpty()) restored.grow(amount);
-        source.setStackInSlot(slot, restored);
+        source.set(slot, ItemResource.of(restored), restored.getCount());
     }
 
     public static void onEntityJoin(EntityJoinLevelEvent event) {

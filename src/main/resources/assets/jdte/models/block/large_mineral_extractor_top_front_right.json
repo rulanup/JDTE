@@ -1,548 +1,461 @@
 {
   "parent": "minecraft:block/block",
-  "ambientocclusion": false,
-  "render_type": "minecraft:cutout",
   "textures": {
-    "casing": "justdirethings:block/eclipsealloy_block",
-    "frame": "justdirethings:block/blazegold_block",
-    "foundation": "minecraft:block/polished_deepslate",
-    "rail": "minecraft:block/smooth_basalt",
-    "metal": "minecraft:block/iron_block",
-    "pipe": "minecraft:block/cut_copper",
-    "glass": "minecraft:block/tinted_glass",
-    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
-    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
-    "output": "jdte:block/advanced_item_receiver_top",
-    "particle": "minecraft:block/polished_deepslate"
+    "0": "jdte:block/large_mineral_extractor",
+    "particle": "jdte:block/large_mineral_extractor"
   },
+  "render_type": "minecraft:translucent",
   "elements": [
     {
-      "name": "lower_column",
+      "name": "gantry_pillar_ne",
       "from": [
-        8,
+        8.0,
         0,
-        5
+        2.0
       ],
       "to": [
-        12,
-        3,
-        9
+        14.0,
+        11,
+        8.0
       ],
       "faces": {
-        "up": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            5,
-            12,
-            9
-          ],
-          "shade": false
-        },
         "north": {
-          "texture": "#casing",
           "uv": [
-            8,
-            13,
-            12,
-            16
+            12.0,
+            0.0,
+            16.0,
+            2.0
           ],
-          "shade": false
-        },
-        "south": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            13,
-            12,
-            16
-          ],
-          "shade": false
-        },
-        "west": {
-          "texture": "#casing",
-          "uv": [
-            5,
-            13,
-            9,
-            16
-          ],
-          "shade": false
+          "texture": "#0"
         },
         "east": {
-          "texture": "#casing",
           "uv": [
-            5,
-            13,
-            9,
-            16
+            12.0,
+            0.0,
+            16.0,
+            2.0
           ],
-          "shade": false
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            16.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            16.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#0"
         }
       }
     },
     {
-      "name": "column_joint",
+      "name": "gantry_cap_ne",
       "from": [
         7,
-        2,
-        4
+        10.0,
+        1.0
       ],
       "to": [
-        13,
-        5,
-        10
-      ],
-      "faces": {
-        "down": {
-          "texture": "#frame",
-          "uv": [
-            7,
-            4,
-            13,
-            10
-          ],
-          "shade": false
-        },
-        "up": {
-          "texture": "#frame",
-          "uv": [
-            7,
-            4,
-            13,
-            10
-          ],
-          "shade": false
-        },
-        "north": {
-          "texture": "#frame",
-          "uv": [
-            7,
-            11,
-            13,
-            14
-          ],
-          "shade": false
-        },
-        "south": {
-          "texture": "#frame",
-          "uv": [
-            7,
-            11,
-            13,
-            14
-          ],
-          "shade": false
-        },
-        "west": {
-          "texture": "#frame",
-          "uv": [
-            4,
-            11,
-            10,
-            14
-          ],
-          "shade": false
-        },
-        "east": {
-          "texture": "#frame",
-          "uv": [
-            4,
-            11,
-            10,
-            14
-          ],
-          "shade": false
-        }
-      }
-    },
-    {
-      "name": "upper_column",
-      "from": [
-        8,
-        5,
-        5
-      ],
-      "to": [
-        12,
-        11,
+        15.0,
+        13.0,
         9
       ],
       "faces": {
-        "down": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            5,
-            12,
-            9
-          ],
-          "shade": false
-        },
-        "up": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            5,
-            12,
-            9
-          ],
-          "shade": false
-        },
         "north": {
-          "texture": "#casing",
           "uv": [
-            8,
-            5,
-            12,
-            11
+            8.0,
+            0.0,
+            12.0,
+            4.0
           ],
-          "shade": false
-        },
-        "south": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            5,
-            12,
-            11
-          ],
-          "shade": false
-        },
-        "west": {
-          "texture": "#casing",
-          "uv": [
-            5,
-            5,
-            9,
-            11
-          ],
-          "shade": false
+          "texture": "#0"
         },
         "east": {
-          "texture": "#casing",
           "uv": [
-            5,
-            5,
-            9,
-            11
+            8.0,
+            0.0,
+            12.0,
+            4.0
           ],
-          "shade": false
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            0.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#0"
         }
       }
     },
     {
-      "name": "right_window",
+      "name": "chamber_glass_n",
       "from": [
-        10,
         0,
-        13
+        0,
+        7.2
       ],
       "to": [
-        11,
-        2,
+        8.0,
+        8,
+        7.8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            4.0,
+            13.0,
+            6.0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            4.0,
+            16.0,
+            6.0
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            15.0,
+            4.0,
+            16.0,
+            6.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            15.0,
+            4.0,
+            16.0,
+            8.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "chamber_glass_e",
+      "from": [
+        8.2,
+        0,
+        8.0
+      ],
+      "to": [
+        8.8,
+        8,
         16
       ],
       "faces": {
-        "up": {
-          "texture": "#glass",
-          "uv": [
-            10,
-            13,
-            11,
-            16
-          ],
-          "shade": false
-        },
         "north": {
-          "texture": "#glass",
           "uv": [
-            10,
-            14,
-            11,
-            16
+            12.0,
+            4.0,
+            16.0,
+            6.0
           ],
-          "shade": false
-        },
-        "west": {
-          "texture": "#glass",
-          "uv": [
-            13,
-            14,
-            16,
-            16
-          ],
-          "shade": false
+          "texture": "#0"
         },
         "east": {
-          "texture": "#glass",
           "uv": [
-            13,
-            14,
-            16,
-            16
+            15.0,
+            4.0,
+            16.0,
+            6.0
           ],
-          "shade": false
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            4.0,
+            13.0,
+            6.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            4.0,
+            16.0,
+            5.0
+          ],
+          "texture": "#0"
         }
       }
     },
     {
-      "name": "right_window_upper",
+      "name": "upper_gantry_n",
       "from": [
-        9,
+        0,
+        8,
+        4.0
+      ],
+      "to": [
+        12.0,
+        11,
+        11.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            1.2,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            2.8,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            2.8,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            2.8,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "upper_gantry_e",
+      "from": [
+        5.0,
+        8,
+        11.0
+      ],
+      "to": [
+        12.0,
+        11,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            3.230769,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            0.769231,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            0.769231
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            3.230769,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "drill_collar_bridge",
+      "from": [
+        0,
+        9.0,
+        11.0
+      ],
+      "to": [
+        5.0,
+        12.0,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            8.769231,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            11.230769,
+            0.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            3.230769,
+            0.0,
+            4.0,
+            0.769231
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            3.230769,
+            3.230769,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "drill_drive_housing",
+      "from": [
+        0,
+        12.0,
+        15
+      ],
+      "to": [
         1,
-        11
-      ],
-      "to": [
-        12,
-        3,
+        14.5,
         16
       ],
       "faces": {
-        "down": {
-          "texture": "#casing",
-          "uv": [
-            9,
-            11,
-            12,
-            16
-          ],
-          "shade": false
-        },
-        "up": {
-          "texture": "#casing",
-          "uv": [
-            9,
-            11,
-            12,
-            16
-          ],
-          "shade": false
-        },
         "north": {
-          "texture": "#casing",
           "uv": [
-            9,
-            13,
-            12,
-            15
+            4.0,
+            4.0,
+            4.222222,
+            8.0
           ],
-          "shade": false
-        },
-        "west": {
-          "texture": "#casing",
-          "uv": [
-            11,
-            13,
-            16,
-            15
-          ],
-          "shade": false
+          "texture": "#0"
         },
         "east": {
-          "texture": "#casing",
           "uv": [
-            11,
-            13,
-            16,
-            15
+            7.777778,
+            4.0,
+            8.0,
+            8.0
           ],
-          "shade": false
-        }
-      }
-    },
-    {
-      "name": "front_top_beam",
-      "from": [
-        0,
-        11,
-        3
-      ],
-      "to": [
-        13,
-        15,
-        8
-      ],
-      "faces": {
-        "down": {
-          "texture": "#casing",
-          "uv": [
-            0,
-            3,
-            13,
-            8
-          ],
-          "shade": false
+          "texture": "#0"
         },
         "up": {
-          "texture": "#casing",
           "uv": [
-            0,
-            3,
-            13,
-            8
+            11.777778,
+            0.0,
+            12.0,
+            0.222222
           ],
-          "shade": false
+          "texture": "#0"
         },
-        "north": {
-          "texture": "#casing",
-          "uv": [
-            0,
-            1,
-            13,
-            5
-          ],
-          "shade": false
-        },
-        "south": {
-          "texture": "#casing",
-          "uv": [
-            0,
-            1,
-            13,
-            5
-          ],
-          "shade": false
-        },
-        "east": {
-          "texture": "#casing",
-          "uv": [
-            3,
-            1,
-            8,
-            5
-          ],
-          "shade": false
-        }
-      }
-    },
-    {
-      "name": "right_top_beam",
-      "from": [
-        8,
-        11,
-        8
-      ],
-      "to": [
-        13,
-        15,
-        16
-      ],
-      "faces": {
         "down": {
-          "texture": "#casing",
           "uv": [
-            8,
-            8,
-            13,
-            16
+            7.777778,
+            7.777778,
+            8.0,
+            8.0
           ],
-          "shade": false
-        },
-        "up": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            8,
-            13,
-            16
-          ],
-          "shade": false
-        },
-        "north": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            1,
-            13,
-            5
-          ],
-          "shade": false
-        },
-        "west": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            1,
-            16,
-            5
-          ],
-          "shade": false
-        },
-        "east": {
-          "texture": "#casing",
-          "uv": [
-            8,
-            1,
-            16,
-            5
-          ],
-          "shade": false
-        }
-      }
-    },
-    {
-      "name": "front_energy_strip",
-      "from": [
-        0,
-        10,
-        7
-      ],
-      "to": [
-        8,
-        12,
-        9
-      ],
-      "faces": {
-        "down": {
-          "texture": "#frame",
-          "uv": [
-            0,
-            7,
-            8,
-            9
-          ],
-          "shade": false
-        },
-        "up": {
-          "texture": "#frame",
-          "uv": [
-            0,
-            7,
-            8,
-            9
-          ],
-          "shade": false
-        },
-        "north": {
-          "texture": "#frame",
-          "uv": [
-            0,
-            4,
-            8,
-            6
-          ],
-          "shade": false
-        },
-        "south": {
-          "texture": "#frame",
-          "uv": [
-            0,
-            4,
-            8,
-            6
-          ],
-          "shade": false
-        },
-        "east": {
-          "texture": "#frame",
-          "uv": [
-            7,
-            4,
-            9,
-            6
-          ],
-          "shade": false
+          "texture": "#0"
         }
       }
     }

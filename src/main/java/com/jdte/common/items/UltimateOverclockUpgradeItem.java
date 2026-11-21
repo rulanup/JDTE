@@ -1,5 +1,9 @@
 package com.jdte.common.items;
 
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.sounds.SoundEvents;
@@ -9,8 +13,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class UltimateOverclockUpgradeItem extends UpgradeCardItem {
-    public UltimateOverclockUpgradeItem() {
-        super(UpgradeType.ULTIMATE_OVERCLOCK);
+    public UltimateOverclockUpgradeItem(Properties properties) {
+        super(properties, UpgradeType.ULTIMATE_OVERCLOCK);
     }
 
     @Override
@@ -31,9 +35,9 @@ public class UltimateOverclockUpgradeItem extends UpgradeCardItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.jdte.ultimate_overclock_upgrade.wand")
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        tooltip.accept(net.minecraft.network.chat.Component.translatable("tooltip.jdte.ultimate_overclock_upgrade.wand")
                 .withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE));
     }
 }

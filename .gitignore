@@ -28,3 +28,6 @@ __pycache__/
 
 # Eclipse
 .eclipse/
+
+# Local runtime logs
+logs/

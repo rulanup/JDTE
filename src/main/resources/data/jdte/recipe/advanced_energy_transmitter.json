@@ -8,9 +8,9 @@
     "ECE"
   ],
   "key": {
-    "E": { "item": "justdirethings:eclipsealloy_ingot" },
-    "C": { "item": "justdirethings:energytransmitter" },
-    "T": { "item": "justdirethings:time_crystal_block" }
+    "E": "justdirethings:eclipsealloy_ingot",
+    "C": "justdirethings:energytransmitter",
+    "T": "justdirethings:time_crystal_block"
   },
   "result": {
     "id": "jdte:advanced_energy_transmitter",

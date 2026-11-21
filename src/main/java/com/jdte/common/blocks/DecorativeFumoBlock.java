@@ -11,21 +11,21 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class DecorativeFumoBlock extends HorizontalDirectionalBlock {
     public static final MapCodec<DecorativeFumoBlock> CODEC = BlockBehaviour.simpleCodec(DecorativeFumoBlock::new);
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 
     private static final VoxelShape NORTH_SHAPE = Block.box(3.9, 0, 3.8, 12.2, 13.6, 14.7);
     private static final VoxelShape EAST_SHAPE = Block.box(1.3, 0, 3.9, 12.2, 13.6, 12.2);
     private static final VoxelShape SOUTH_SHAPE = Block.box(3.8, 0, 1.3, 12.7, 13.6, 12.2);
     private static final VoxelShape WEST_SHAPE = Block.box(3.8, 0, 3.8, 14.7, 13.6, 12.1);
 
-    public DecorativeFumoBlock() {
-        this(Properties.of().strength(0.2f).sound(SoundType.WOOL).noOcclusion());
+    public static DecorativeFumoBlock create(Properties properties) {
+        return new DecorativeFumoBlock(properties.strength(0.2f).sound(SoundType.WOOL).noOcclusion());
     }
 
     private DecorativeFumoBlock(Properties properties) {

@@ -1,5 +1,13 @@
 package com.jdte.common.blockentities;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
@@ -34,9 +42,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.fml.ModList;
 
 import java.util.ConcurrentModificationException;
@@ -70,11 +75,11 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     public final ContainerData waterFluidData;
     public final ContainerData timeFluidData;
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
-    protected final ItemStackHandler itemHandler;
+    protected final MachineInventoryHandler itemHandler;
     private final AdvancedPotionBrewerUpgradeItemStackHandler upgradeHandler;
-    protected final IItemHandler automationItemHandler;
-    protected final Map<Direction, IItemHandler> sidedAutomationItemHandlers = new EnumMap<>(Direction.class);
-    protected final IFluidHandler fluidHandler;
+    protected final ResourceHandler<ItemResource> automationItemHandler;
+    protected final Map<Direction, ResourceHandler<ItemResource>> sidedAutomationItemHandlers = new EnumMap<>(Direction.class);
+    protected final ResourceHandler<FluidResource> fluidHandler;
     protected int fuel = 0;
     protected int brewProgress = 0;
     protected int activeBrewTime = BREW_TIME;
@@ -120,108 +125,21 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
             }
             @Override public int getCount() { return 5; }
         };
-        fluidHandler = new IFluidHandler() {
+        fluidHandler = new CombinedResourceHandler<>(waterFluidTank, timeFluidTank);
+        itemHandler = new MachineInventoryHandler(TOTAL_SLOTS) {
             @Override
-            public int getTanks() {
-                return 2;
-            }
-
-            @Override
-            public FluidStack getFluidInTank(int tank) {
-                JDTEFluidTank target = getFluidTankByIndex(tank);
-                return target == null ? FluidStack.EMPTY : target.getFluid();
-            }
-
-            @Override
-            public int getTankCapacity(int tank) {
-                JDTEFluidTank target = getFluidTankByIndex(tank);
-                return target == null ? 0 : target.getCapacity();
-            }
-
-            @Override
-            public boolean isFluidValid(int tank, FluidStack stack) {
-                JDTEFluidTank target = getFluidTankByIndex(tank);
-                return target != null && target.isFluidValid(stack);
-            }
-
-            @Override
-            public int fill(FluidStack resource, FluidAction action) {
-                if (resource.isEmpty()) {
-                    return 0;
-                }
-                if (waterFluidTank.isFluidValid(resource)) {
-                    return waterFluidTank.fill(resource, action);
-                }
-                if (timeFluidTank.isFluidValid(resource)) {
-                    return timeFluidTank.fill(resource, action);
-                }
-                return 0;
-            }
-
-            @Override
-            public FluidStack drain(FluidStack resource, FluidAction action) {
-                if (resource.isEmpty()) {
-                    return FluidStack.EMPTY;
-                }
-                if (!waterFluidTank.getFluid().isEmpty() && waterFluidTank.getFluid().is(resource.getFluid())) {
-                    return waterFluidTank.drain(resource, action);
-                }
-                if (!timeFluidTank.getFluid().isEmpty() && timeFluidTank.getFluid().is(resource.getFluid())) {
-                    return timeFluidTank.drain(resource, action);
-                }
-                return FluidStack.EMPTY;
-            }
-
-            @Override
-            public FluidStack drain(int maxDrain, FluidAction action) {
-                FluidStack drained = waterFluidTank.drain(maxDrain, action);
-                if (!drained.isEmpty()) {
-                    return drained;
-                }
-                return timeFluidTank.drain(maxDrain, action);
-            }
-        };
-        itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
-            @Override
-            protected void onContentsChanged(int slot) {
+            protected void onContentsChanged(int slot, ItemStack previous) {
                 setChanged();
                 if (slot != FUEL_SLOT) {
                     hasValidIngredients = checkIngredients();
                 }
             }
             @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                return isValidForMachineSlot(slot, stack);
+            public boolean isValid(int slot, ItemResource resource) {
+                return resource.isEmpty() || isValidForMachineSlot(slot, resource.toStack(1));
             }
-            @Override
-            public int getSlotLimit(int slot) {
-                if (isBottleSlot(slot) || isOutputSlot(slot)) {
-                    return 1;
-                }
-                return super.getSlotLimit(slot);
-            }
-            @Override
-            public int getStackLimit(int slot, ItemStack stack) {
-                if (isBottleSlot(slot) || isOutputSlot(slot)) {
-                    return 1;
-                }
-                return super.getStackLimit(slot, stack);
-            }
-            @Override
-            public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-                super.deserializeNBT(provider, nbt);
-                if (getSlots() == TOTAL_SLOTS) {
-                    return;
-                }
-                int oldSlots = Math.min(getSlots(), TOTAL_SLOTS);
-                ItemStack[] oldStacks = new ItemStack[oldSlots];
-                for (int i = 0; i < oldSlots; i++) {
-                    oldStacks[i] = getStackInSlot(i).copy();
-                }
-                setSize(TOTAL_SLOTS);
-                for (int i = 0; i < oldStacks.length; i++) {
-                    setStackInSlot(i, oldStacks[i]);
-                }
+            @Override protected int getCapacity(int slot, ItemResource resource) {
+                return isBottleSlot(slot) || isOutputSlot(slot) ? 1 : super.getCapacity(slot, resource);
             }
         };
         automationItemHandler = createAutomationItemHandler(null);
@@ -230,45 +148,10 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         }
     }
 
-    private IItemHandler createAutomationItemHandler(Direction accessSide) {
-        return new IItemHandler() {
-            @Override
-            public int getSlots() {
-                return itemHandler.getSlots();
-            }
-
-            @Override
-            public ItemStack getStackInSlot(int slot) {
-                if (!isValidSlotIndex(slot)) {
-                    return ItemStack.EMPTY;
-                }
-                return itemHandler.getStackInSlot(slot);
-            }
-
-            @Override
-            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                if (!isValidForAutomationSlot(slot, stack, accessSide)) {
-                    return stack;
-                }
-                return itemHandler.insertItem(slot, stack, simulate);
-            }
-
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if (!isValidSlotIndex(slot) || !isOutputSlot(slot)) {
-                    return ItemStack.EMPTY;
-                }
-                return itemHandler.extractItem(slot, amount, simulate);
-            }
-
-            @Override
-            public int getSlotLimit(int slot) {
-                return isValidSlotIndex(slot) ? itemHandler.getSlotLimit(slot) : 0;
-            }
-
-            @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                return isValidForAutomationSlot(slot, stack, accessSide);
+    private ResourceHandler<ItemResource> createAutomationItemHandler(Direction accessSide) {
+        return new MachineAutomationHandler<>(itemHandler, slot -> !isOutputSlot(slot), this::isOutputSlot) {
+            @Override public boolean isValid(int slot, ItemResource resource) {
+                return resource.isEmpty() || isValidForAutomationSlot(slot, resource.toStack(1), accessSide);
             }
         };
     }
@@ -369,7 +252,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     }
 
     private boolean isValidSlotIndex(int slot) {
-        return slot >= 0 && slot < itemHandler.getSlots();
+        return slot >= 0 && slot < itemHandler.size();
     }
 
     private boolean isRecipeLockedSlot(int slot) {
@@ -396,7 +279,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return itemHandler;
     }
 
@@ -409,11 +292,11 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         return upgradeHandler.hasEnergyBrewingUpgrade();
     }
 
-    public IItemHandler getAutomationItemHandler() {
+    public ResourceHandler<ItemResource> getAutomationItemHandler() {
         return automationItemHandler;
     }
 
-    public IItemHandler getAutomationItemHandler(Direction side) {
+    public ResourceHandler<ItemResource> getAutomationItemHandler(Direction side) {
         return side == null ? automationItemHandler : sidedAutomationItemHandlers.get(side);
     }
 
@@ -531,10 +414,10 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
                     setChanged();
                 }
             } else {
-                ItemStack fuelStack = itemHandler.getStackInSlot(FUEL_SLOT);
+                ItemStack fuelStack = itemHandler.copyStack(FUEL_SLOT);
                 if (!fuelStack.isEmpty() && fuelStack.is(Items.BLAZE_POWDER)) {
                     fuelStack.shrink(1);
-                    itemHandler.setStackInSlot(FUEL_SLOT, fuelStack);
+                    itemHandler.setStack(FUEL_SLOT, fuelStack);
                     fuel = FUEL_PER_BLAZE;
                     setChanged();
                 }
@@ -573,7 +456,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
                 extractEnergy(energyCost, false);
             }
             if (activeTimeFluidCost > 0) {
-                timeFluidTank.drain(activeTimeFluidCost, IFluidHandler.FluidAction.EXECUTE);
+                timeFluidTank.extractFluid(activeTimeFluidCost);
             }
         }
 
@@ -600,14 +483,14 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
             if (waterFluidTank.getFluidAmount() < InfusionFluidHelper.BOTTLE_FLUID_AMOUNT) {
                 break;
             }
-            ItemStack stack = itemHandler.getStackInSlot(slot);
+            ItemStack stack = itemHandler.copyStack(slot);
             if (!stack.is(Items.GLASS_BOTTLE)) {
                 continue;
             }
-            waterFluidTank.drain(InfusionFluidHelper.BOTTLE_FLUID_AMOUNT, IFluidHandler.FluidAction.EXECUTE);
+            waterFluidTank.extractFluid(InfusionFluidHelper.BOTTLE_FLUID_AMOUNT);
             ItemStack waterBottle = PotionContents.createItemStack(Items.POTION, Potions.WATER);
             waterBottle.setCount(1);
-            itemHandler.setStackInSlot(slot, waterBottle);
+            itemHandler.setStack(slot, waterBottle);
             filled = true;
         }
 
@@ -644,7 +527,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     private boolean hasEnoughTimeFluid(int amount) {
         return UpgradeHelper.hasCreativeUpgrade(this)
                 || amount <= 0
-                || timeFluidTank.drain(amount, IFluidHandler.FluidAction.SIMULATE).getAmount() == amount;
+                || timeFluidTank.getFluidAmount() >= amount;
     }
 
     private int getDisplayedBrewTime() {
@@ -715,12 +598,12 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         if (ingredientSlot < 0) {
             return false;
         }
-        ItemStack ingredient = itemHandler.getStackInSlot(ingredientSlot);
+        ItemStack ingredient = itemHandler.copyStack(ingredientSlot);
         if (ingredient.isEmpty() || !brewing.isIngredient(ingredient) || !isAllowedByRecipeLock(ingredientSlot, ingredient)) {
             return false;
         }
         for (int i = BOTTLE_SLOT_0; i <= BOTTLE_SLOT_2; i++) {
-            ItemStack bottle = itemHandler.getStackInSlot(i);
+            ItemStack bottle = itemHandler.copyStack(i);
             if (!bottle.isEmpty() && brewing.hasMix(bottle, ingredient)) {
                 return true;
             }
@@ -733,7 +616,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         if (ingredientSlot < 0) {
             return false;
         }
-        ItemStack ingredientStack = itemHandler.getStackInSlot(ingredientSlot);
+        ItemStack ingredientStack = itemHandler.copyStack(ingredientSlot);
         if (ingredientStack.isEmpty() || !brewing.isIngredient(ingredientStack) || !isAllowedByRecipeLock(ingredientSlot, ingredientStack)) {
             return false;
         }
@@ -741,11 +624,11 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         ItemStack ingredient = ingredientStack.copyWithCount(1);
         boolean applied = false;
         for (int i = BOTTLE_SLOT_0; i <= BOTTLE_SLOT_2; i++) {
-            ItemStack bottleStack = itemHandler.getStackInSlot(i);
+            ItemStack bottleStack = itemHandler.copyStack(i);
             if (bottleStack.isEmpty()) continue;
             ItemStack result = getBrewingResult(bottleStack, ingredient);
             if (!result.isEmpty()) {
-                itemHandler.setStackInSlot(i, result.copyWithCount(1));
+                itemHandler.setStack(i, result.copyWithCount(1));
                 processedBottleMask |= 1 << (i - BOTTLE_SLOT_0);
                 applied = true;
             }
@@ -756,7 +639,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         }
 
         ingredientStack.shrink(1);
-        itemHandler.setStackInSlot(ingredientSlot, ingredientStack);
+        itemHandler.setStack(ingredientSlot, ingredientStack);
         sequenceActive = true;
         nextIngredientOrder = activeIngredientOrder + 1;
         activeIngredientOrder = -1;
@@ -771,14 +654,14 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
     private int simulateSequence(PotionBrewing brewing, int startOrder, NonNullList<ItemStack> simulatedBottles) {
         for (int i = 0; i < OUTPUT_SLOT_COUNT; i++) {
-            simulatedBottles.set(i, itemHandler.getStackInSlot(BOTTLE_SLOT_0 + i).copy());
+            simulatedBottles.set(i, itemHandler.copyStack(BOTTLE_SLOT_0 + i).copy());
         }
 
         int mask = 0;
         int[] ingredientSlots = getIngredientSlots();
         for (int order = Math.max(0, startOrder); order < ingredientSlots.length; order++) {
             int ingredientSlot = ingredientSlots[order];
-            ItemStack ingredientStack = itemHandler.getStackInSlot(ingredientSlot);
+            ItemStack ingredientStack = itemHandler.copyStack(ingredientSlot);
             if (ingredientStack.isEmpty() || !brewing.isIngredient(ingredientStack) || !isAllowedByRecipeLock(ingredientSlot, ingredientStack)) {
                 continue;
             }
@@ -811,12 +694,12 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
                 continue;
             }
             int bottleSlot = BOTTLE_SLOT_0 + i;
-            ItemStack bottleStack = itemHandler.getStackInSlot(bottleSlot);
+            ItemStack bottleStack = itemHandler.copyStack(bottleSlot);
             if (bottleStack.isEmpty()) {
                 continue;
             }
             insertOutput(OUTPUT_SLOT_START + i, bottleStack.copy());
-            itemHandler.setStackInSlot(bottleSlot, ItemStack.EMPTY);
+            itemHandler.setStack(bottleSlot, ItemStack.EMPTY);
         }
         clearSequenceState();
         return true;
@@ -825,7 +708,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     private boolean canInsertSequenceOutputs() {
         NonNullList<ItemStack> outputs = NonNullList.withSize(OUTPUT_SLOT_COUNT, ItemStack.EMPTY);
         for (int i = 0; i < OUTPUT_SLOT_COUNT; i++) {
-            outputs.set(i, itemHandler.getStackInSlot(BOTTLE_SLOT_0 + i).copy());
+            outputs.set(i, itemHandler.copyStack(BOTTLE_SLOT_0 + i).copy());
         }
         return canInsertOutputs(processedBottleMask, outputs);
     }
@@ -850,23 +733,23 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         if (!isAllowedByRecipeLock(slot, stack)) {
             return false;
         }
-        ItemStack existing = itemHandler.getStackInSlot(slot);
+        ItemStack existing = itemHandler.copyStack(slot);
         if (existing.isEmpty()) return true;
         if (!ItemStack.isSameItemSameComponents(existing, stack)) return false;
-        int maxSize = Math.min(existing.getMaxStackSize(), itemHandler.getSlotLimit(slot));
+        int maxSize = Math.min(existing.getMaxStackSize(), itemHandler.getCapacityAsInt(slot, ItemResource.EMPTY));
         return existing.getCount() + stack.getCount() <= maxSize;
     }
 
     private void insertOutput(int slot, ItemStack stack) {
-        ItemStack existing = itemHandler.getStackInSlot(slot);
+        ItemStack existing = itemHandler.copyStack(slot);
         if (existing.isEmpty()) {
-            itemHandler.setStackInSlot(slot, stack.copy());
+            itemHandler.setStack(slot, stack.copy());
             return;
         }
         if (ItemStack.isSameItemSameComponents(existing, stack)) {
             ItemStack merged = existing.copy();
             merged.grow(stack.getCount());
-            itemHandler.setStackInSlot(slot, merged);
+            itemHandler.setStack(slot, merged);
         }
     }
 
@@ -921,7 +804,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         return timeFluidTank;
     }
 
-    public IFluidHandler getFluidHandler() {
+    public ResourceHandler<FluidResource> getFluidHandler() {
         return fluidHandler;
     }
 
@@ -931,14 +814,6 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
 
     public ContainerData getTimeFluidData() {
         return timeFluidData;
-    }
-
-    private JDTEFluidTank getFluidTankByIndex(int tank) {
-        return switch (tank) {
-            case 0 -> waterFluidTank;
-            case 1 -> timeFluidTank;
-            default -> null;
-        };
     }
 
     private void syncFluidCapacities() {
@@ -1029,7 +904,7 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
             if (!isRecipeLockedSlot(slot)) {
                 continue;
             }
-            ItemStack stack = itemHandler.getStackInSlot(slot);
+            ItemStack stack = itemHandler.copyStack(slot);
             if (stack.isEmpty()) {
                 continue;
             }
@@ -1095,11 +970,11 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
-        tag.put("waterFluidTank", waterFluidTank.serializeNBT(provider));
-        tag.put("timeFluidTank", timeFluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
+        tag.putChild("waterFluidTank", waterFluidTank);
+        tag.putChild("timeFluidTank", timeFluidTank);
         tag.putInt("fuel", fuel);
         tag.putInt("brewProgress", brewProgress);
         tag.putInt("brewActiveTime", activeBrewTime);
@@ -1110,48 +985,39 @@ public class AdvancedPotionBrewerBE extends BaseMachineBE implements PoweredMach
         tag.putInt("brewProcessedBottleMask", processedBottleMask);
         tag.putBoolean("recipeLocked", recipeLocked);
         tag.putBoolean("fuelInputEnabled", fuelInputEnabled);
-        CompoundTag recipeLockTag = new CompoundTag();
+        ValueOutput recipeLockTag = tag.child("recipeLockTemplates");
         for (int i = 0; i < lockedRecipeTemplates.size(); i++) {
-            recipeLockTag.put("slot_" + i, lockedRecipeTemplates.get(i).saveOptional(provider));
+            if (!lockedRecipeTemplates.get(i).isEmpty()) recipeLockTag.store("slot_" + i, ItemStack.CODEC, lockedRecipeTemplates.get(i));
         }
-        tag.put("recipeLockTemplates", recipeLockTag);
         tag.putInt("energy", energyStorage.getEnergyStored());
         saveRedstoneSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
-        if (tag.contains("waterFluidTank")) {
-            waterFluidTank.deserializeNBT(provider, tag.getCompound("waterFluidTank"));
-        }
-        if (tag.contains("timeFluidTank")) {
-            timeFluidTank.deserializeNBT(provider, tag.getCompound("timeFluidTank"));
-        }
-        fuel = tag.getInt("fuel");
-        brewProgress = tag.getInt("brewProgress");
-        activeBrewTime = tag.contains("brewActiveTime") ? Math.max(MIN_ACCELERATED_BREW_TIME, tag.getInt("brewActiveTime")) : BREW_TIME;
-        activeTimeFluidCost = tag.contains("brewActiveTimeFluidCost") ? Math.max(0, tag.getInt("brewActiveTimeFluidCost")) : 0;
-        sequenceActive = tag.getBoolean("brewSequenceActive");
-        nextIngredientOrder = tag.getInt("brewNextIngredientOrder");
-        activeIngredientOrder = tag.contains("brewActiveIngredientOrder") ? tag.getInt("brewActiveIngredientOrder") : -1;
-        processedBottleMask = tag.getInt("brewProcessedBottleMask");
-        recipeLocked = tag.getBoolean("recipeLocked");
-        fuelInputEnabled = tag.contains("fuelInputEnabled")
-                ? tag.getBoolean("fuelInputEnabled")
-                : !tag.contains("fuelInputSide") || tag.getInt("fuelInputSide") >= 0;
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.readChild("inventory", itemHandler);
+        tag.readChild("waterFluidTank", waterFluidTank);
+        tag.readChild("timeFluidTank", timeFluidTank);
+        fuel = tag.getIntOr("fuel", 0);
+        brewProgress = tag.getIntOr("brewProgress", 0);
+        activeBrewTime = tag.getInt("brewActiveTime").isPresent() ? Math.max(MIN_ACCELERATED_BREW_TIME, tag.getIntOr("brewActiveTime", 0)) : BREW_TIME;
+        activeTimeFluidCost = tag.getInt("brewActiveTimeFluidCost").isPresent() ? Math.max(0, tag.getIntOr("brewActiveTimeFluidCost", 0)) : 0;
+        sequenceActive = tag.getBooleanOr("brewSequenceActive", false);
+        nextIngredientOrder = tag.getIntOr("brewNextIngredientOrder", 0);
+        activeIngredientOrder = tag.getIntOr("brewActiveIngredientOrder", -1);
+        processedBottleMask = tag.getIntOr("brewProcessedBottleMask", 0);
+        recipeLocked = tag.getBooleanOr("recipeLocked", false);
+        fuelInputEnabled = tag.getBooleanOr("fuelInputEnabled", tag.getIntOr("fuelInputSide", 0) >= 0);
         clearLockedRecipeTemplates();
-        if (tag.contains("recipeLockTemplates", Tag.TAG_COMPOUND)) {
-            CompoundTag recipeLockTag = tag.getCompound("recipeLockTemplates");
+        if (tag.child("recipeLockTemplates").isPresent()) {
+            ValueInput recipeLockTag = tag.childOrEmpty("recipeLockTemplates");
             for (int i = 0; i < lockedRecipeTemplates.size(); i++) {
-                lockedRecipeTemplates.set(i, ItemStack.parseOptional(provider, recipeLockTag.getCompound("slot_" + i)));
+                lockedRecipeTemplates.set(i, recipeLockTag.read("slot_" + i, ItemStack.CODEC).orElse(ItemStack.EMPTY));
             }
         }
-        if (tag.contains("energy")) {
-            energyStorage.setEnergy(tag.getInt("energy"));
+        if (tag.getInt("energy").isPresent()) {
+            energyStorage.setEnergy(tag.getIntOr("energy", 0));
         }
         loadRedstoneSettings(tag);
         hasValidIngredients = checkIngredients();

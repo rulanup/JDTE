@@ -38,7 +38,7 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
 import com.jdte.setup.JDTEConfig;
@@ -47,7 +47,7 @@ import com.jdte.common.content.JDTEContentControl;
 
 @JeiPlugin
 public class JDTEJeiPlugin implements IModPlugin {
-    private static final ResourceLocation PLUGIN_ID = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "jei_plugin");
+    private static final Identifier PLUGIN_ID = Identifier.fromNamespaceAndPath(JDTE.MODID, "jei_plugin");
     private static IJeiRuntime runtime;
     private static java.util.List<InfusionJeiRecipe> visibleSpawnEggRecipes = java.util.List.of();
     private static boolean infusionRecipesRegistered;
@@ -57,7 +57,7 @@ public class JDTEJeiPlugin implements IModPlugin {
     private static boolean mineralExtractorRecipesRegistered;
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return PLUGIN_ID;
     }
 

@@ -4,18 +4,21 @@ import com.direwolf20.justdirethings.client.renderers.RenderHelpers;
 import com.mojang.logging.LogUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.util.context.ContextKey;
+import com.direwolf20.justdirethings.client.renderers.OurRenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import org.joml.Matrix4f;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import java.util.HashMap;
 import org.slf4j.Logger;
 
 import java.awt.Color;
@@ -28,90 +31,97 @@ public final class AreaPreviewRenderBatch {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Color MAIN_LINE_COLOR = Color.GREEN;
     private static final Color OFFSET_LINE_COLOR = Color.WHITE;
-    private static final List<Preview> PREVIEWS = new ArrayList<>();
-    private static final List<Blueprint> BLUEPRINTS = new ArrayList<>();
+    private static final ContextKey<AreaPreviewRenderBatch> KEY =
+            new ContextKey<>(Identifier.fromNamespaceAndPath("jdte", "area_previews"));
+    private static final BlockDisplayContext MODEL_CONTEXT = BlockDisplayContext.create();
     private static final Set<BlockState> FAILED_BLUEPRINT_STATES = ConcurrentHashMap.newKeySet();
+    private final List<Preview> previews = new ArrayList<>();
+    private final List<ModelPreview> models = new ArrayList<>();
 
-    private AreaPreviewRenderBatch() {
-    }
-
-    public static void enqueueMain(AABB area) {
-        enqueueMain(area, null);
-    }
-
-    public static void enqueueMain(AABB area, Direction selectedFace) {
-        PREVIEWS.add(new Preview(area, false, selectedFace));
-    }
-
-    public static void enqueueOffset(AABB area) {
-        PREVIEWS.add(new Preview(area, true, null));
-    }
-
-    public static void enqueueBlueprint(BlockPos origin, List<BlueprintBlock> blocks) {
-        if (!blocks.isEmpty()) BLUEPRINTS.add(new Blueprint(origin, blocks));
-    }
-
-    public static void onRenderLevel(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES
-                || PREVIEWS.isEmpty() && BLUEPRINTS.isEmpty()) {
-            return;
+    private static AreaPreviewRenderBatch batch(LevelRenderState level) {
+        var batch = level.getRenderData(KEY);
+        if (batch == null) {
+            batch = new AreaPreviewRenderBatch();
+            level.setRenderData(KEY, batch);
         }
+        return batch;
+    }
 
-        Minecraft minecraft = Minecraft.getInstance();
-        PoseStack poseStack = event.getPoseStack();
-        MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        poseStack.pushPose();
-        var camera = event.getCamera().getPosition();
-        poseStack.translate(-camera.x, -camera.y, -camera.z);
-        Matrix4f matrix = poseStack.last().pose();
-        try {
-            for (Preview preview : PREVIEWS) {
-                RenderHelpers.renderLines(poseStack, preview.area(),
-                        preview.offset() ? OFFSET_LINE_COLOR : MAIN_LINE_COLOR, buffers);
-            }
-            for (Preview preview : PREVIEWS) {
-                if (preview.offset()) {
-                    RenderHelpers.renderBoxSolid(poseStack, matrix, buffers, preview.area(), 0, 0, 1, 0.125F);
-                } else {
-                    RenderHelpers.renderBoxSolid(poseStack, matrix, buffers, preview.area(), 1, 0, 0, 0.125F);
-                }
-                if (preview.selectedFace() != null) {
-                    RenderHelpers.renderBoxSolid(poseStack, matrix, buffers,
-                            faceHighlight(preview.area(), preview.selectedFace()), 1.0F, 0.75F, 0.1F, 0.3F);
-                }
-            }
-            for (Blueprint blueprint : BLUEPRINTS) {
-                poseStack.pushPose();
-                poseStack.translate(blueprint.origin().getX(), blueprint.origin().getY(), blueprint.origin().getZ());
-                Matrix4f blueprintMatrix = poseStack.last().pose();
-                for (BlueprintBlock block : blueprint.blocks()) {
-                    AABB bounds = new AABB(block.relativePos());
-                    RenderHelpers.renderBoxSolid(poseStack, blueprintMatrix, buffers, bounds,
-                            0.15F, 0.85F, 1.0F, 0.18F);
-                }
-                for (BlueprintBlock block : blueprint.blocks()) {
-                    if (FAILED_BLUEPRINT_STATES.contains(block.state())) continue;
-                    poseStack.pushPose();
-                    try {
-                        poseStack.translate(block.relativePos().getX(), block.relativePos().getY(), block.relativePos().getZ());
-                        renderBlueprintBlock(minecraft, poseStack, buffers, block.state());
-                    } catch (Throwable throwable) {
-                        if (FAILED_BLUEPRINT_STATES.add(block.state())) {
-                            LOGGER.warn("Skipping unsafe Factory Package preview model for {}",
-                                    block.state(), throwable);
-                        }
-                    } finally {
-                        poseStack.popPose();
+    public static void enqueueMain(LevelRenderState level, AABB area, Direction selectedFace) {
+        batch(level).previews.add(new Preview(area, false, selectedFace));
+    }
+
+    public static void enqueueOffset(LevelRenderState level, AABB area) {
+        batch(level).previews.add(new Preview(area, true, null));
+    }
+
+    public static void enqueueBlueprint(LevelRenderState level, BlockPos origin, List<BlueprintBlock> blocks) {
+        var resolver = Minecraft.getInstance().getBlockModelResolver();
+        var batch = batch(level);
+        var byState = new HashMap<BlockState, BlockModelRenderState>();
+        for (var block : blocks) {
+            BlockModelRenderState model = null;
+            if (!FAILED_BLUEPRINT_STATES.contains(block.state())) {
+                try {
+                    model = byState.computeIfAbsent(block.state(), state -> {
+                        var extracted = new BlockModelRenderState();
+                        resolver.update(extracted, state, MODEL_CONTEXT);
+                        return extracted;
+                    });
+                } catch (RuntimeException ex) {
+                    if (FAILED_BLUEPRINT_STATES.add(block.state())) {
+                        LOGGER.warn("Cannot extract Factory Package preview for {}", block.state(), ex);
                     }
                 }
-                poseStack.popPose();
             }
-            buffers.endBatch();
-        } finally {
-            PREVIEWS.clear();
-            BLUEPRINTS.clear();
-            poseStack.popPose();
+            batch.models.add(new ModelPreview(origin.offset(block.relativePos()), model));
         }
+    }
+
+    public static void onRenderLevel(SubmitCustomGeometryEvent event) {
+        var level = event.getLevelRenderState();
+        var batch = level.getRenderData(KEY);
+        if (batch == null) return;
+        var camera = level.cameraRenderState.pos;
+        var pose = event.getPoseStack();
+        var collector = event.getSubmitNodeCollector();
+        pose.pushPose();
+        pose.translate(-camera.x, -camera.y, -camera.z);
+        try {
+            for (var preview : batch.previews) {
+                collector.submitCustomGeometry(pose, OurRenderTypes.lines(), (snapshot, vertices) -> {
+                    PoseStack lines = new PoseStack();
+                    lines.last().set(snapshot);
+                    RenderHelpers.renderLines(lines, preview.area(), preview.offset() ? OFFSET_LINE_COLOR : MAIN_LINE_COLOR,
+                            type -> vertices);
+                });
+                submitBox(pose, collector, preview.area(), preview.offset() ? 0 : 1, 0,
+                        preview.offset() ? 1 : 0, 0.125F);
+                if (preview.selectedFace() != null) {
+                    submitBox(pose, collector, faceHighlight(preview.area(), preview.selectedFace()), 1, 0.75F, 0.1F, 0.3F);
+                }
+            }
+            for (var block : batch.models) {
+                submitBox(pose, collector, new AABB(block.pos()), 0.15F, 0.85F, 1, 0.18F);
+                if (block.model() == null) continue;
+                pose.pushPose();
+                try {
+                    pose.translate(block.pos().getX(), block.pos().getY(), block.pos().getZ());
+                    block.model().submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+                } finally {
+                    pose.popPose();
+                }
+            }
+        } finally {
+            pose.popPose();
+        }
+    }
+
+    private static void submitBox(PoseStack pose, SubmitNodeCollector collector, AABB box,
+                                  float red, float green, float blue, float alpha) {
+        collector.submitCustomGeometry(pose, OurRenderTypes.TRANSPARENT_BOX, (snapshot, vertices) ->
+                RenderHelpers.renderBoxSolid(snapshot, snapshot.pose(), type -> vertices,
+                        box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, red, green, blue, alpha));
     }
 
     private static AABB faceHighlight(AABB area, Direction face) {
@@ -135,24 +145,7 @@ public final class AreaPreviewRenderBatch {
     private record Preview(AABB area, boolean offset, Direction selectedFace) {
     }
 
-    private record Blueprint(BlockPos origin, List<BlueprintBlock> blocks) {
-    }
+    private record ModelPreview(BlockPos pos, BlockModelRenderState model) {}
 
     public record BlueprintBlock(BlockPos relativePos, BlockState state) {}
-
-    private static void renderBlueprintBlock(Minecraft minecraft, PoseStack poseStack,
-                                             MultiBufferSource buffers, BlockState state) {
-        if (state.getRenderShape() == RenderShape.ENTITYBLOCK_ANIMATED) {
-            ItemStack stack = new ItemStack(state.getBlock());
-            if (!stack.isEmpty()) {
-                poseStack.translate(0.5F, 0.5F, 0.5F);
-                minecraft.getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED,
-                        LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, poseStack, buffers,
-                        minecraft.level, 0);
-            }
-            return;
-        }
-        minecraft.getBlockRenderer().renderSingleBlock(state, poseStack, buffers,
-                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
-    }
 }

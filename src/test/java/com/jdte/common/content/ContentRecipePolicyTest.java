@@ -1,6 +1,6 @@
 package com.jdte.common.content;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ContentRecipePolicyTest {
-    private static ResourceLocation id(String value) {
-        return ResourceLocation.parse(value);
+    private static Identifier id(String value) {
+        return Identifier.parse(value);
     }
 
     @Test

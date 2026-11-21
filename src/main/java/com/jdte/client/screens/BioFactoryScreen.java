@@ -1,9 +1,17 @@
 package com.jdte.client.screens;
 
+import com.jdte.client.screens.util.MachineFluidBarRenderer;
+
+import net.minecraft.client.input.MouseButtonEvent;
+
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
+import com.direwolf20.justdirethings.util.MiscHelpers;
+import com.direwolf20.justdirethings.util.MiscTools;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
@@ -11,34 +19,22 @@ import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.containers.BioFactoryContainer;
 import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.network.data.TimeAcceleratorPayload;
-import com.jdte.setup.JDTEFluids;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import com.jdte.client.screens.util.GreenhouseSlotCountRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 
 public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
-    private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
-    private static final ResourceLocation NEXT = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
+    private static final Identifier PREV = Identifier.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
+    private static final Identifier NEXT = Identifier.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
     private static final int TANK_WIDTH = 18;
     private static final int TANK_HEIGHT = 72;
     private static final Component SPECIMEN = Component.translatable("jdte.slot.bio_factory_specimen");
@@ -53,9 +49,9 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
     }
 
     @Override
-    protected void renderSlotContents(GuiGraphics graphics, ItemStack stack, Slot slot, String countLabel) {
+    protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack stack, Slot slot, String countLabel) {
         if (factoryContainer.isOutputSlot(slot) && stack.getCount() > 1) {
-            GreenhouseSlotCountRenderer.render(graphics, font, stack, slot, imageWidth, countLabel);
+            GreenhouseSlotCountRenderer.extractRenderState(graphics, font, stack, slot, imageWidth, countLabel);
             return;
         }
         super.renderSlotContents(graphics, stack, slot, countLabel);
@@ -67,8 +63,8 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         extraHeight = layout.getBioFactoryExtraHeight();
     }
 
-    @Override protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
+    @Override public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
         renderMachineSlots(graphics);
         renderProgress(graphics);
         BioFactoryBE factory = factoryContainer.getFactory();
@@ -79,29 +75,27 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         renderTank(graphics, layout.getBioFactoryProductFluidX(), factory.getProductFluidTank().getFluid(), factoryContainer.getProductFluid());
         if (factoryContainer.getMaxOutputPage() > 0) {
             int buttonSize = 12;
-            graphics.blit(PREV, getGuiLeft() + layout.getBioFactoryOutputPrevX(), getGuiTop() + layout.getBioFactoryOutputPrevY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-            graphics.blit(NEXT, getGuiLeft() + layout.getBioFactoryOutputNextX(), getGuiTop() + layout.getBioFactoryOutputNextY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-            graphics.drawString(font, (factoryContainer.getOutputPage() + 1) + "/" + (factoryContainer.getMaxOutputPage() + 1),
-                    getGuiLeft() + layout.getBioFactoryOutputPageTextX(), getGuiTop() + layout.getBioFactoryOutputPageTextY(), 0x555555, false);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, PREV, getGuiLeft() + layout.getBioFactoryOutputPrevX(), getGuiTop() + layout.getBioFactoryOutputPrevY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, NEXT, getGuiLeft() + layout.getBioFactoryOutputNextX(), getGuiTop() + layout.getBioFactoryOutputNextY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+            graphics.text(font, (factoryContainer.getOutputPage() + 1) + "/" + (factoryContainer.getMaxOutputPage() + 1),
+                    getGuiLeft() + layout.getBioFactoryOutputPageTextX(), getGuiTop() + layout.getBioFactoryOutputPageTextY(), 0xFF555555, false);
         }
     }
 
-    private void renderMachineSlots(GuiGraphics graphics) {
+    private void renderMachineSlots(GuiGraphicsExtractor graphics) {
         for (int i = 0; i < 1 + BioFactoryBE.INPUT_SLOTS + BioFactoryBE.BASE_OUTPUT_SLOTS; i++) {
             Slot slot = container.slots.get(i);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
         Slot specimen = container.slots.getFirst();
         if (!specimen.hasItem()) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.28F);
-            graphics.renderFakeItem(new ItemStack(Items.BEE_SPAWN_EGG),
-                    getGuiLeft() + specimen.x, getGuiTop() + specimen.y);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            GhostItemRenderer.draw(graphics, new ItemStack(Items.BEE_SPAWN_EGG),
+                    getGuiLeft() + specimen.x, getGuiTop() + specimen.y, 0xB8888888);
         }
     }
 
-    private void renderProgress(GuiGraphics graphics) {
+    private void renderProgress(GuiGraphicsExtractor graphics) {
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int x = getGuiLeft() + layout.getBioFactoryProgressArrowX();
         int y = getGuiTop() + layout.getBioFactoryProgressArrowY();
@@ -114,7 +108,7 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         }
     }
 
-    private void drawArrow(GuiGraphics graphics, int x, int y, int width, int color) {
+    private void drawArrow(GuiGraphicsExtractor graphics, int x, int y, int width, int color) {
         int clampedWidth = Math.clamp(width, 0, 24);
         if (clampedWidth <= 0) return;
         int bodyWidth = Math.min(16, clampedWidth);
@@ -127,37 +121,20 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         if (headWidth > 6) drawArrowHead(graphics, x + 22, y + 1, Math.min(headWidth - 6, 2), 13, color);
     }
 
-    private void drawArrowHead(GuiGraphics graphics, int x, int y, int width, int height, int color) {
+    private void drawArrowHead(GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
         if (width > 0) graphics.fill(x, y, x + width, y + height, color);
     }
 
-    private void renderTank(GuiGraphics graphics, int relativeX, FluidStack stack, int amount) {
+    private void renderTank(GuiGraphicsExtractor graphics, int relativeX, FluidStack stack, int amount) {
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int x = getGuiLeft() + relativeX;
         int y = getGuiTop() + layout.getBioFactoryFluidY();
-        graphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
         int height = Math.clamp((int) ((long) amount * 70L / Math.max(1, factoryContainer.getFluidCapacity())), 0, 70);
-        if (height > 0 && !stack.isEmpty()) renderFluid(graphics, stack, x + 1, y + 71, 16, height);
-        graphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
+        if (height > 0 && !stack.isEmpty()) MachineFluidBarRenderer.renderStretchedFluid(graphics, stack, x + 1, y + 71, 16, height);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
     }
 
-    private void renderFluid(GuiGraphics graphics, FluidStack stack, int x, int bottom, int width, int height) {
-        var extension = IClientFluidTypeExtensions.of(stack.getFluid());
-        TextureAtlasSprite sprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(extension.getStillTexture());
-        int tint = extension.getTintColor(stack);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-        RenderSystem.setShaderColor((tint >> 16 & 255) / 255.0F, (tint >> 8 & 255) / 255.0F,
-                (tint & 255) / 255.0F, (tint >>> 24) / 255.0F);
-        PoseStack pose = graphics.pose();
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        buffer.addVertex(pose.last().pose(), x, bottom, 0).setUv(sprite.getU0(), sprite.getV1());
-        buffer.addVertex(pose.last().pose(), x + width, bottom, 0).setUv(sprite.getU1(), sprite.getV1());
-        buffer.addVertex(pose.last().pose(), x + width, bottom - height, 0).setUv(sprite.getU1(), sprite.getV0());
-        buffer.addVertex(pose.last().pose(), x, bottom - height, 0).setUv(sprite.getU0(), sprite.getV0());
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-    }
 
     @Override public void addRedstoneButtons() {
         var layout = GuiUpgradeLayoutConfig.getInstance();
@@ -174,7 +151,7 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
                 getGuiTop() + layout.getBioFactoryMultiplierButtonY(),
                 24, 12, factoryContainer.getMultiplier(), 1, factoryContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.bio_factory.multiplier"), button ->
-                PacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
+                ClientPacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
         addRenderableWidget(multiplierButton);
     }
     @Override protected void containerTick() {
@@ -185,28 +162,31 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
         }
     }
 
-    @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0 && factoryContainer.getMaxOutputPage() > 0) {
             var layout = GuiUpgradeLayoutConfig.getInstance();
             int buttonSize = 12;
             int page = factoryContainer.getOutputPage();
             if (MiscTools.inBounds(getGuiLeft() + layout.getBioFactoryOutputPrevX(), getGuiTop() + layout.getBioFactoryOutputPrevY(), buttonSize, buttonSize, mouseX, mouseY)) page--;
             else if (MiscTools.inBounds(getGuiLeft() + layout.getBioFactoryOutputNextX(), getGuiTop() + layout.getBioFactoryOutputNextY(), buttonSize, buttonSize, mouseX, mouseY)) page++;
-            else return super.mouseClicked(mouseX, mouseY, button);
+            else return super.mouseClicked(event, doubleClick);
             factoryContainer.setOutputPage(page);
-            PacketDistributor.sendToServer(new FilterPagePayload(factoryContainer.getOutputPage()));
+            ClientPacketDistributor.sendToServer(new FilterPagePayload(factoryContainer.getOutputPage()));
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
-    @Override protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderTooltip(graphics, mouseX, mouseY);
+    @Override protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
         if (hoveredSlot != null && !hoveredSlot.hasItem()) {
-            if (factoryContainer.isSpecimenSlot(hoveredSlot)) graphics.renderTooltip(font, SPECIMEN, mouseX, mouseY);
-            else if (factoryContainer.isFoodSlot(hoveredSlot)) graphics.renderTooltip(font, FOOD, mouseX, mouseY);
-            else if (factoryContainer.isOutputSlot(hoveredSlot)) graphics.renderTooltip(font, OUTPUT, mouseX, mouseY);
+            if (factoryContainer.isSpecimenSlot(hoveredSlot)) graphics.setTooltipForNextFrame(font, SPECIMEN, mouseX, mouseY);
+            else if (factoryContainer.isFoodSlot(hoveredSlot)) graphics.setTooltipForNextFrame(font, FOOD, mouseX, mouseY);
+            else if (factoryContainer.isOutputSlot(hoveredSlot)) graphics.setTooltipForNextFrame(font, OUTPUT, mouseX, mouseY);
         }
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int fluidY = layout.getBioFactoryFluidY();
@@ -217,7 +197,7 @@ public class BioFactoryScreen extends BaseMachineScreen<BioFactoryContainer> {
                 factoryContainer.getProcessFluid(), factoryContainer.getProductFluid()};
         for (int i = 0; i < fluidXs.length; i++) {
             if (MiscTools.inBounds(getGuiLeft() + fluidXs[i], getGuiTop() + fluidY, TANK_WIDTH, TANK_HEIGHT, mouseX, mouseY)) {
-                graphics.renderTooltip(font, Component.translatable("jdte.screen.bio_factory." + keys[i],
+                graphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.bio_factory." + keys[i],
                         amounts[i], factoryContainer.getFluidCapacity()), mouseX, mouseY);
                 return;
             }

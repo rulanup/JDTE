@@ -85,11 +85,11 @@ class FactoryTransformTest {
 
         CompoundTag result = t.blockEntityData(original, new BlockPos(100, 0, 100), false);
 
-        assertEquals(100, result.getInt("x"));
-        assertEquals(0, result.getInt("y"));
-        assertEquals(100, result.getInt("z"));
-        assertEquals("value", result.getString("custom"));
-        assertEquals(10, original.getInt("x"));
+        assertEquals(100, result.getInt("x").orElseThrow());
+        assertEquals(0, result.getInt("y").orElseThrow());
+        assertEquals(100, result.getInt("z").orElseThrow());
+        assertEquals("value", result.getString("custom").orElseThrow());
+        assertEquals(10, original.getInt("x").orElseThrow());
     }
 
     @Test
@@ -101,8 +101,8 @@ class FactoryTransformTest {
 
         CompoundTag result = t.blockEntityData(original, new BlockPos(100, 0, 100), true);
 
-        assertEquals(new BlockPos(101, 0, 102), BlockPos.of(result.getLong("linkedpos")));
-        assertEquals(new BlockPos(50, 0, 50), BlockPos.of(result.getLong("externalpos")));
+        assertEquals(new BlockPos(101, 0, 102), BlockPos.of(result.getLong("linkedpos").orElseThrow()));
+        assertEquals(new BlockPos(50, 0, 50), BlockPos.of(result.getLong("externalpos").orElseThrow()));
     }
 
     @Test
@@ -118,14 +118,14 @@ class FactoryTransformTest {
 
         CompoundTag result = t.blockEntityData(original, new BlockPos(100, 0, 100), true);
 
-        int[] remapped = result.getIntArray("controllerpos");
+        int[] remapped = result.getIntArray("controllerpos").orElseThrow();
         assertEquals(102, remapped[0]);
         assertEquals(2, remapped[1]);
         assertEquals(100, remapped[2]);
-        CompoundTag nestedResult = result.getCompound("masterpos");
-        assertEquals(101, nestedResult.getInt("x"));
-        assertEquals(1, nestedResult.getInt("y"));
-        assertEquals(101, nestedResult.getInt("z"));
+        CompoundTag nestedResult = result.getCompound("masterpos").orElseThrow();
+        assertEquals(101, nestedResult.getInt("x").orElseThrow());
+        assertEquals(1, nestedResult.getInt("y").orElseThrow());
+        assertEquals(101, nestedResult.getInt("z").orElseThrow());
     }
 
     @Test
@@ -137,7 +137,7 @@ class FactoryTransformTest {
 
         CompoundTag result = t.blockEntityData(original, new BlockPos(100, 0, 100), true);
 
-        assertEquals("east", result.getString("facing"));
+        assertEquals("east", result.getString("facing").orElseThrow());
     }
 
     @Test
@@ -155,14 +155,14 @@ class FactoryTransformTest {
 
         CompoundTag result = t.entityData(entity, false);
 
-        ListTag pos = result.getList("Pos", Tag.TAG_DOUBLE);
+        ListTag pos = result.getList("Pos").orElseThrow();
         assertEquals(new Vec3(101.5, 0.0, 101.5),
-                new Vec3(pos.getDouble(0), pos.getDouble(1), pos.getDouble(2)));
-        assertEquals(135.0F, result.getList("Rotation", Tag.TAG_FLOAT).getFloat(0));
-        CompoundTag passengerResult = result.getList("Passengers", Tag.TAG_COMPOUND).getCompound(0);
-        ListTag passengerPos = passengerResult.getList("Pos", Tag.TAG_DOUBLE);
-        assertEquals(1.0, passengerPos.getDouble(1));
-        assertEquals(90.0F, passengerResult.getList("Rotation", Tag.TAG_FLOAT).getFloat(0));
+                new Vec3(pos.getDouble(0).orElseThrow(), pos.getDouble(1).orElseThrow(), pos.getDouble(2).orElseThrow()));
+        assertEquals(135.0F, result.getList("Rotation").orElseThrow().getFloat(0).orElseThrow());
+        CompoundTag passengerResult = result.getList("Passengers").orElseThrow().getCompound(0).orElseThrow();
+        ListTag passengerPos = passengerResult.getList("Pos").orElseThrow();
+        assertEquals(1.0, passengerPos.getDouble(1).orElseThrow());
+        assertEquals(90.0F, passengerResult.getList("Rotation").orElseThrow().getFloat(0).orElseThrow());
     }
 
     private static ListTag doubles(double x, double y, double z) {

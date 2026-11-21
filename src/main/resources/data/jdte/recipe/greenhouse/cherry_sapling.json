@@ -1,6 +1,6 @@
 {
   "type": "jdte:greenhouse",
-  "seed": { "item": "minecraft:cherry_sapling" },
+  "seed": "minecraft:cherry_sapling",
   "outputs": [
     { "id": "minecraft:cherry_log", "count": 4 },
     { "id": "minecraft:cherry_sapling", "count": 1 }

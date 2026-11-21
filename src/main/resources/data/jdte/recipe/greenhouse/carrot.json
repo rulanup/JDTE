@@ -1,6 +1,6 @@
 {
   "type": "jdte:greenhouse",
-  "seed": { "item": "minecraft:carrot" },
+  "seed": "minecraft:carrot",
   "outputs": [{ "id": "minecraft:carrot", "count": 3 }],
   "display_block": "minecraft:carrots",
   "growth_work": 4096,

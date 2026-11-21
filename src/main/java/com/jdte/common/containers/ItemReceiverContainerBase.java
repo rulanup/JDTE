@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public abstract class ItemReceiverContainerBase extends BaseMachineContainer {
     private final Block machineBlock;
@@ -32,7 +32,7 @@ public abstract class ItemReceiverContainerBase extends BaseMachineContainer {
         int spacing = basic ? config.getBasicItemReceiverSlotSpacing() : config.getItemReceiverSlotSpacing();
         int count = basic ? config.getBasicItemReceiverSlotCount() : config.getItemReceiverSlotCount();
         for (int i = 0; i < count; i++) {
-            addSlot(new SlotItemHandler(machineHandler, i, startX + i * spacing, startY));
+            addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, i, startX + i * spacing, startY));
         }
     }
 

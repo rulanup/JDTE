@@ -55,7 +55,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -289,7 +289,7 @@ public final class MachineSettingsTestFixtures {
     }
 
     public static void applyCodec(BaseMachineBE source, BaseMachineBE target) {
-        ResourceLocation type = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
+        Identifier type = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
         MachineSettingsCodec codec = MachineSettingsCodecRegistry.find(type, source).orElseThrow();
         CompoundTag encoded = codec.encode(source, REGISTRIES);
         MachineSettingsCodecRegistry.find(type, target).orElseThrow()
@@ -351,9 +351,9 @@ public final class MachineSettingsTestFixtures {
         }
     }
 
-    public static ResourceLocation jdtBlockEntityTypeId(String fieldName) {
+    public static Identifier jdtBlockEntityTypeId(String fieldName) {
         try {
-            return ResourceLocation.parse(resolveBlockEntityTypeId(fieldName));
+            return Identifier.parse(resolveBlockEntityTypeId(fieldName));
         } catch (ReflectiveOperationException e) {
             throw new AssertionError("Failed to resolve JDT block entity type id: " + fieldName, e);
         }
@@ -364,7 +364,7 @@ public final class MachineSettingsTestFixtures {
         try {
             Class<?> rawClass = Class.forName(className);
             Class<? extends BaseMachineBE> machineClass = (Class<? extends BaseMachineBE>) rawClass.asSubclass(BaseMachineBE.class);
-            ResourceLocation id = ResourceLocation.parse(blockId);
+            Identifier id = Identifier.parse(blockId);
             Block block = BuiltInRegistries.BLOCK.getOptional(id)
                     .orElseThrow(() -> new AssertionError("Missing block registry entry: " + blockId));
             BlockState state = block.defaultBlockState();
@@ -389,7 +389,7 @@ public final class MachineSettingsTestFixtures {
             Class<?> rawClass = Class.forName(className);
             Class<? extends BaseMachineBE> machineClass = (Class<? extends BaseMachineBE>) rawClass.asSubclass(BaseMachineBE.class);
             BaseMachineBE machine = allocate(machineClass);
-            ResourceLocation blockIdLocation = ResourceLocation.parse(blockId);
+            Identifier blockIdLocation = Identifier.parse(blockId);
             Block block = BuiltInRegistries.BLOCK.getOptional(blockIdLocation)
                     .orElseThrow(() -> new AssertionError("Missing block registry entry: " + blockId));
             setField(net.minecraft.world.level.block.entity.BlockEntity.class, machine, "type",
@@ -406,7 +406,7 @@ public final class MachineSettingsTestFixtures {
     }
 
     private static BlockEntityType<?> resolveBlockEntityType(String fieldName) throws ReflectiveOperationException {
-        Class<?> registrationClass = Class.forName("com.direwolf20.justdirethings.setup.Registration");
+        Class<?> registrationClass = Class.forName("com.direwolf20.justdirethings.setup.JDTRegistration");
         Field field = registrationClass.getField(fieldName);
         Object holder = field.get(null);
         if (!(holder instanceof Supplier<?> supplier)) {
@@ -421,7 +421,7 @@ public final class MachineSettingsTestFixtures {
 
     private static String resolveBlockEntityTypeId(String fieldName) throws ReflectiveOperationException {
         BlockEntityType<?> type = resolveBlockEntityType(fieldName);
-        ResourceLocation key = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
+        Identifier key = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
         if (key == null) {
             throw new AssertionError("Missing block entity type registry entry: " + fieldName);
         }

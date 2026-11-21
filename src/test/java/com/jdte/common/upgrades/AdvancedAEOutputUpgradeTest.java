@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AdvancedAEOutputUpgradeTest {
+class AdvancedAEOutputUpgradeTest implements com.jdte.test.WorldRegistryTest {
 
     @Test
     void upgradeTypeConfiguredCorrectly() {

@@ -23,6 +23,23 @@
     },
     {
       "type": "patchouli:text",
+      "text": "$(bold)顶级容量升级$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_capacity_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "每台机器最多安装 1 张。单个升级提供相当于 50 倍容量升级的效果，成倍扩充机器的能量存储与流体存储容量，并在生物粉碎机、矿物提取机等机器上将有效输出槽位拉满至最大上限；在温室、大型温室与生物工厂中，更可将单槽产物堆叠上限飞跃提升至 6,400,000。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_capacity_upgrade"
+    },
+    {
+      "type": "patchouli:text",
       "text": "$(bold)超频升级$()"
     },
     {
@@ -37,6 +54,23 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:overclock_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)顶级超频升级$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_overclock_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "每台机器最多安装 1 张，与普通超频升级和降频升级互斥。$(br2)放入机器时，强制机器以 1 tick 间隔运行，且每 tick 执行 10 次操作。单次操作耗电量增加为基础能耗的 50 倍。$(br2)亦可打在$(bold)顶级时间手杖$()上（直接在背包中右键手杖或通过工作台合成），使其加速倍率上限从原先的 1024X（10 阶）提升至 $(bold)32768X$()（15 阶）。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_overclock_upgrade"
     },
     {
       "type": "patchouli:text",
@@ -227,6 +261,23 @@
     },
     {
       "type": "patchouli:text",
+      "text": "$(bold)高级 AE 输出升级$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_ae_output_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "在 AE 输出升级的基础上，结合蚀空合金锭、下界之星与时间水晶合成的极致输出升级。同样在 AE2 无线访问点 UI 中绑定后安装至机器中。$(br2)与标准 AE 输出升级相比，高级版本将单次流体抽取上限提升至极大值（21.47 亿 mB），并且在每 1 Tick 内高速连续执行 10 次抽取回传（与顶级超频升级 1T/10 次完美同步，或在极速时间法杖加速期间防爆仓实时回传），彻底解决大批量极速自动化下的产物积压与停工瓶颈。每台机器最多安装 1 张，与标准 AE 输出升级互斥。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_ae_output_upgrade"
+    },
+    {
+      "type": "patchouli:text",
       "text": "$(bold)AE 提取升级$()"
     },
     {
@@ -253,7 +304,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "仅限顶级时间手杖。安装后，手杖不仅可以加速方块，还可以右键加速实体。在锻造台或工作台中与顶级时间手杖组合，或者直接在物品栏中手持该升级右键顶级时间手杖即可安装。$(br2)加速实体时，实体的 AI 不加速，确保生物不会因超高速产生寻路计算拥堵、超速移动或异常攻击，而实体的生命周期、生长（幼年到成年）、繁殖冷却、药水效果及产出计时等均按设定倍率加速生效。"
+      "text": "仅限顶级时间手杖。安装后，手杖不仅可以加速方块，还可以右键加速实体。在锻造台中以此升级为模板、顶级时间手杖为底材、时间流体催化剂为添加物，或者直接在物品栏中手持该升级右键顶级时间手杖即可安装。$(br2)加速实体时，实体的 AI 不加速，确保生物不会因超高速产生寻路计算拥堵、超速移动或异常攻击，而实体的生命周期、生长（幼年到成年）、繁殖冷却、药水效果及产出计时等均按设定倍率加速生效。"
     },
     {
       "type": "patchouli:crafting",
@@ -278,7 +329,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)种子转化升级$()"
+      "text": "绑定合成样板后可指定配方；普通版 1 个样板，高级版 3 个，顶级版 2147483647 个。详见$(l:jdte:crafting-patterns)合成样板与高级精华转化$(/l)。$(br2)$(bold)种子转化升级$()"
     },
     {
       "type": "patchouli:spotlight",
@@ -394,93 +445,35 @@
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:advanced_upgrade_storage"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(bold)顶级容量升级$()"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "jdte:ultimate_capacity_upgrade",
-      "text": ""
-    },
-    {
-      "type": "patchouli:text",
-      "text": "每台机器最多安装 1 张。提供相当于 50 倍容量升级的效果，成倍提升机器能量和流体容量，并在生物粉碎机、矿物提取机等机器上将有效输出槽位拉满至最大上限；在温室、大型温室与生物工厂中，单槽产物堆叠上限将提升至 6,400,000。"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "jdte:ultimate_capacity_upgrade"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(bold)顶级超频升级$()"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "jdte:ultimate_overclock_upgrade",
-      "text": ""
-    },
-    {
-      "type": "patchouli:text",
-      "text": "每台机器最多安装 1 张，与普通超频和降频互斥。放入机器时强制 1 刻运行且每刻运行 10 次，耗电量增加至 50 倍。亦可打在顶级时间手杖上，使其最高可调节至 32768X 加速。"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "jdte:ultimate_overclock_upgrade"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "jdte:crafting_pattern",
-      "text": "右键打开 3×3 配方格。用光标材料或 Shift 点击背包材料复制样品，Shift 点击样品格清空。材料不消耗，右侧只预览产物。服务端判定配方有效后，点击“记录配方”保存。"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "jdte:crafting_pattern"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "铁砧左槽放单个精华转化升级，右槽放已记录样板。每次绑定消耗样板和 1 级经验。普通版最多 1 个样板，高级版最多 3 个；重复或无效配方不能绑定。每台温室或大型温室最多安装 1 张，两种等级互斥。"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "jdte:advanced_essence_conversion_upgrade",
-      "text": "在锻造台中，以普通精华转化升级为底材、下界合金升级锻造模板为模板、钻石为添加物，制作高级版。保留原升级已绑定的样板。"
-    },
-    {
-      "type": "patchouli:text",
-      "text": "绑定配方优先，共享材料按合成次数轮流，不同材料组各自合成。轮转位置随机器保存。所有原料必须在输出缓冲区内凑齐；保留配方返还物，空间不足不扣料。每次 AE 输出前先转化，待合成原料留在机器中。其他精华沿用原有唯一纯精华配方规则。Jade 和物品提示显示数量、产物与配方有效状态。"
     }
   ],
   "extra_recipe_mappings": {
     "jdte:capacity_upgrade": 1,
-    "jdte:overclock_upgrade": 5,
-    "jdte:underclock_upgrade": 9,
-    "jdte:fluid_upgrade": 13,
-    "jdte:fluid_storage_upgrade": 17,
-    "jdte:generator_upgrade": 21,
-    "jdte:range_upgrade": 25,
-    "jdte:filter_upgrade": 29,
-    "jdte:creative_upgrade": 33,
-    "jdte:fortune_upgrade": 37,
-    "jdte:precision_upgrade": 41,
-    "jdte:ae_acceleration_upgrade": 45,
-    "jdte:ae_crafting_read_upgrade": 49,
+    "jdte:overclock_upgrade": 9,
+    "jdte:underclock_upgrade": 17,
+    "jdte:fluid_upgrade": 21,
+    "jdte:fluid_storage_upgrade": 25,
+    "jdte:generator_upgrade": 29,
+    "jdte:range_upgrade": 33,
+    "jdte:filter_upgrade": 37,
+    "jdte:creative_upgrade": 41,
+    "jdte:fortune_upgrade": 45,
+    "jdte:precision_upgrade": 49,
+    "jdte:ae_acceleration_upgrade": 53,
+    "jdte:ae_crafting_read_upgrade": 57,
     "jdte:ae_output_upgrade": 0,
-    "jdte:advanced_ae_output_upgrade": 0,
-    "jdte:ae_extraction_upgrade": 53,
-    "jdte:entity_acceleration_upgrade": 57,
-    "jdte:essence_conversion_upgrade": 61,
-    "jdte:seed_conversion_upgrade": 65,
-    "jdte:looting_upgrade": 69,
-    "jdte:sharpness_upgrade": 73,
-    "jdte:energy_brewing_upgrade": 77,
-    "jdte:energy_overload_upgrade": 81,
-    "jdte:upgrade_storage": 85,
-    "jdte:advanced_upgrade_storage": 89,
-    "jdte:ultimate_capacity_upgrade": 93,
-    "jdte:ultimate_overclock_upgrade": 97,
-    "jdte:crafting_pattern": 100,
-    "jdte:advanced_essence_conversion_upgrade": 103
+    "jdte:advanced_ae_output_upgrade": 61,
+    "jdte:ae_extraction_upgrade": 65,
+    "jdte:entity_acceleration_upgrade": 69,
+    "jdte:essence_conversion_upgrade": 73,
+    "jdte:seed_conversion_upgrade": 77,
+    "jdte:looting_upgrade": 81,
+    "jdte:sharpness_upgrade": 85,
+    "jdte:energy_brewing_upgrade": 89,
+    "jdte:energy_overload_upgrade": 93,
+    "jdte:ultimate_capacity_upgrade": 5,
+    "jdte:ultimate_overclock_upgrade": 13,
+    "jdte:upgrade_storage": 97,
+    "jdte:advanced_upgrade_storage": 101
   }
 }

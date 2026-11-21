@@ -1,5 +1,8 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.GrayscaleButton;
@@ -9,12 +12,12 @@ import com.jdte.common.blockentities.ExtendedExperienceHolderBE;
 import com.jdte.common.containers.ExtendedExperienceHolderContainer;
 import com.jdte.common.network.data.ExtendedExperienceHolderPayload;
 import com.jdte.common.network.data.ExtendedExperienceHolderSettingsPayload;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class ExtendedExperienceHolderScreen extends BaseMachineScreen<ExtendedExperienceHolderContainer> {
     private ExtendedExperienceHolderBE experienceHolderBE;
@@ -22,10 +25,10 @@ public class ExtendedExperienceHolderScreen extends BaseMachineScreen<ExtendedEx
     private boolean ownerOnly;
     private boolean collectExp;
     public boolean showParticles = true;
-    private static final ResourceLocation EXPERIENCE_BAR_BACKGROUND_SPRITE =
-            ResourceLocation.withDefaultNamespace("hud/experience_bar_background");
-    private static final ResourceLocation EXPERIENCE_BAR_PROGRESS_SPRITE =
-            ResourceLocation.withDefaultNamespace("hud/experience_bar_progress");
+    private static final Identifier EXPERIENCE_BAR_BACKGROUND_SPRITE =
+            Identifier.withDefaultNamespace("hud/experience_bar_background");
+    private static final Identifier EXPERIENCE_BAR_PROGRESS_SPRITE =
+            Identifier.withDefaultNamespace("hud/experience_bar_progress");
 
     public ExtendedExperienceHolderScreen(
             ExtendedExperienceHolderContainer container, Inventory inventory, Component name) {
@@ -45,23 +48,23 @@ public class ExtendedExperienceHolderScreen extends BaseMachineScreen<ExtendedEx
         addRenderableWidget(ToggleButtonFactory.STOREEXPBUTTON(
                 topSectionLeft + (topSectionWidth / 2) + 15, topSectionTop + 62, true, button -> {
                     int amount = 1;
-                    if (Screen.hasControlDown()) {
+                    if (Minecraft.getInstance().hasControlDown()) {
                         amount = -1;
-                    } else if (Screen.hasShiftDown()) {
+                    } else if (Minecraft.getInstance().hasShiftDown()) {
                         amount *= 10;
                     }
-                    PacketDistributor.sendToServer(new ExtendedExperienceHolderPayload(
+                    ClientPacketDistributor.sendToServer(new ExtendedExperienceHolderPayload(
                             experienceHolderBE.getBlockPos(), true, amount));
                 }));
         addRenderableWidget(ToggleButtonFactory.EXTRACTEXPBUTTON(
                 topSectionLeft + (topSectionWidth / 2) - 15 - 18, topSectionTop + 62, true, button -> {
                     int amount = 1;
-                    if (Screen.hasControlDown()) {
+                    if (Minecraft.getInstance().hasControlDown()) {
                         amount = -1;
-                    } else if (Screen.hasShiftDown()) {
+                    } else if (Minecraft.getInstance().hasShiftDown()) {
                         amount *= 10;
                     }
-                    PacketDistributor.sendToServer(new ExtendedExperienceHolderPayload(
+                    ClientPacketDistributor.sendToServer(new ExtendedExperienceHolderPayload(
                             experienceHolderBE.getBlockPos(), false, amount));
                 }));
         addRenderableWidget(ToggleButtonFactory.TARGETEXPBUTTON(
@@ -90,34 +93,34 @@ public class ExtendedExperienceHolderScreen extends BaseMachineScreen<ExtendedEx
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
         renderXPBar(guiGraphics);
     }
 
-    public void renderXPBar(GuiGraphics guiGraphics) {
+    public void renderXPBar(GuiGraphicsExtractor guiGraphics) {
         int barX = topSectionLeft + (topSectionWidth / 2) - (182 / 2);
         int barY = topSectionTop + topSectionHeight - 15;
-        guiGraphics.blitSprite(EXPERIENCE_BAR_BACKGROUND_SPRITE, barX, barY, 182, 5);
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, EXPERIENCE_BAR_BACKGROUND_SPRITE, barX, barY, 182, 5);
         int partialAmount = (int) (ExperienceUtils.getProgressToNextLevel(experienceHolderBE.exp) * 183.0F);
         if (partialAmount > 0) {
-            guiGraphics.blitSprite(EXPERIENCE_BAR_PROGRESS_SPRITE,
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, EXPERIENCE_BAR_PROGRESS_SPRITE,
                     182, 5, 0, 0, barX, barY, partialAmount, 5);
         }
         String level = String.valueOf(ExperienceUtils.getLevelFromTotalExperience(experienceHolderBE.exp));
         int textX = topSectionLeft + (topSectionWidth / 2) - font.width(level) / 2;
         int textY = topSectionTop + 62 + (font.lineHeight / 2);
-        guiGraphics.drawString(font, level, textX + 1, textY, 0, false);
-        guiGraphics.drawString(font, level, textX - 1, textY, 0, false);
-        guiGraphics.drawString(font, level, textX, textY + 1, 0, false);
-        guiGraphics.drawString(font, level, textX, textY - 1, 0, false);
-        guiGraphics.drawString(font, level, textX, textY, 8453920, false);
+        guiGraphics.text(font, level, textX + 1, textY, 0, false);
+        guiGraphics.text(font, level, textX - 1, textY, 0, false);
+        guiGraphics.text(font, level, textX, textY + 1, 0, false);
+        guiGraphics.text(font, level, textX, textY - 1, 0, false);
+        guiGraphics.text(font, level, textX, textY, 8453920, false);
     }
 
     @Override
     public void saveSettings() {
         super.saveSettings();
-        PacketDistributor.sendToServer(new ExtendedExperienceHolderSettingsPayload(
+        ClientPacketDistributor.sendToServer(new ExtendedExperienceHolderSettingsPayload(
                 experienceHolderBE.getBlockPos(), targetExp, ownerOnly, collectExp, showParticles));
     }
 }

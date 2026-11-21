@@ -1,128 +1,305 @@
 {
   "parent": "minecraft:block/block",
-  "ambientocclusion": false,
-  "render_type": "minecraft:cutout",
   "textures": {
-    "casing": "justdirethings:block/eclipsealloy_block",
-    "frame": "justdirethings:block/blazegold_block",
-    "foundation": "minecraft:block/polished_deepslate",
-    "rail": "minecraft:block/smooth_basalt",
-    "metal": "minecraft:block/iron_block",
-    "pipe": "minecraft:block/cut_copper",
-    "glass": "minecraft:block/tinted_glass",
-    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
-    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
-    "output": "jdte:block/advanced_item_receiver_top",
-    "particle": "minecraft:block/polished_deepslate"
+    "0": "jdte:block/large_mineral_extractor",
+    "particle": "jdte:block/large_mineral_extractor"
   },
+  "render_type": "minecraft:translucent",
   "elements": [
     {
-      "name": "front_top_beam",
+      "name": "chamber_glass_n",
       "from": [
         0,
-        11,
-        3
+        0,
+        7.2
       ],
       "to": [
         16,
-        15,
-        8
+        8,
+        7.8
       ],
       "faces": {
-        "down": {
-          "texture": "#casing",
-          "uv": [
-            0,
-            3,
-            16,
-            8
-          ],
-          "shade": false
-        },
-        "up": {
-          "texture": "#casing",
-          "uv": [
-            0,
-            3,
-            16,
-            8
-          ],
-          "shade": false
-        },
         "north": {
-          "texture": "#casing",
           "uv": [
-            0,
-            1,
-            16,
-            5
+            13.0,
+            4.0,
+            15.0,
+            6.0
           ],
-          "shade": false
+          "texture": "#0"
         },
         "south": {
-          "texture": "#casing",
           "uv": [
-            0,
-            1,
-            16,
-            5
+            13.0,
+            4.0,
+            15.0,
+            6.0
           ],
-          "shade": false
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            13.0,
+            4.0,
+            15.0,
+            8.0
+          ],
+          "texture": "#0"
         }
       }
     },
     {
-      "name": "front_energy_strip",
+      "name": "frame_strut_n_17",
+      "from": [
+        1.0,
+        0,
+        6.5
+      ],
+      "to": [
+        3.0,
+        8,
+        8.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "frame_strut_n_29",
+      "from": [
+        13.0,
+        0,
+        6.5
+      ],
+      "to": [
+        15.0,
+        8,
+        8.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "upper_gantry_n",
       "from": [
         0,
-        10,
-        7
+        8,
+        4.0
       ],
       "to": [
         16,
-        12,
-        9
+        11,
+        11.0
       ],
       "faces": {
-        "down": {
-          "texture": "#frame",
-          "uv": [
-            0,
-            7,
-            16,
-            9
-          ],
-          "shade": false
-        },
-        "up": {
-          "texture": "#frame",
-          "uv": [
-            0,
-            7,
-            16,
-            9
-          ],
-          "shade": false
-        },
         "north": {
-          "texture": "#frame",
           "uv": [
-            0,
-            4,
-            16,
-            6
+            1.2,
+            0.0,
+            2.8,
+            4.0
           ],
-          "shade": false
+          "texture": "#0"
         },
         "south": {
-          "texture": "#frame",
           "uv": [
-            0,
-            4,
-            16,
-            6
+            1.2,
+            0.0,
+            2.8,
+            4.0
           ],
-          "shade": false
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            1.2,
+            0.0,
+            2.8,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            1.2,
+            0.0,
+            2.8,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "drill_collar_bridge",
+      "from": [
+        0,
+        9.0,
+        11.0
+      ],
+      "to": [
+        16,
+        12.0,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.769231,
+            0.0,
+            11.230769,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0.769231,
+            0.0,
+            3.230769,
+            0.769231
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0.769231,
+            3.230769,
+            3.230769,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "drill_drive_housing",
+      "from": [
+        0,
+        12.0,
+        15
+      ],
+      "to": [
+        16,
+        14.5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.222222,
+            4.0,
+            7.777778,
+            8.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            8.222222,
+            0.0,
+            11.777778,
+            0.222222
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            4.222222,
+            7.777778,
+            7.777778,
+            8.0
+          ],
+          "texture": "#0"
         }
       }
     }

@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": { "item": "jdte:advanced_entity_accelerator" },
-    "C": { "item": "justdirethings:celestigem" },
-    "D": { "item": "minecraft:diamond_block" },
-    "E": { "item": "jdte:extended_upgrade" }
+    "A": "jdte:advanced_entity_accelerator",
+    "C": "justdirethings:celestigem",
+    "D": "minecraft:diamond_block",
+    "E": "jdte:extended_upgrade"
   },
   "pattern": [
     "CDC",

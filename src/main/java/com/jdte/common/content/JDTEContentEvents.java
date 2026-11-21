@@ -4,6 +4,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.ModifyRecipeJsonsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 
@@ -14,6 +15,10 @@ import java.util.List;
 /** Runtime boundaries for content disabled through the common content config. */
 public final class JDTEContentEvents {
     private JDTEContentEvents() {
+    }
+
+    public static void onModifyRecipeJsons(ModifyRecipeJsonsEvent event) {
+        JDTERecipeFilter.filterDisabledRecipes(event.getRecipeJsons(), JDTEContentControl.current());
     }
 
     /** Prevents a disabled block from being introduced by a placement event. */

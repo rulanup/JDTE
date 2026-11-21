@@ -5,7 +5,11 @@ import com.jdte.common.items.UltimateTimeWandData;
 import com.jdte.setup.JDTEEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -51,7 +55,7 @@ public class UltimateTimeWandEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide) {
+        if (level().isClientSide()) {
             return;
         }
         if (!(level() instanceof ServerLevel serverLevel) || target == null || getRemainingTime() <= 0) {
@@ -72,6 +76,11 @@ public class UltimateTimeWandEntity extends Entity {
     }
 
     @Override
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel level, net.minecraft.world.damagesource.DamageSource source, float amount) {
+        return false;
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(EXPONENT, 0);
         builder.define(TOTAL_TIME, DEFAULT_DURATION);
@@ -79,13 +88,13 @@ public class UltimateTimeWandEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
-        applyState(loadState(tag));
+    protected void readAdditionalSaveData(ValueInput tag) {
+        applyState(tag.read(WandState.CODEC).orElse(WandState.EMPTY));
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
-        tag.merge(saveState(state()));
+    protected void addAdditionalSaveData(ValueOutput tag) {
+        tag.store(WandState.CODEC, state());
     }
 
     public BlockPos getTarget() {
@@ -123,16 +132,12 @@ public class UltimateTimeWandEntity extends Entity {
 
     public static CompoundTag saveState(WandState state) {
         CompoundTag tag = new CompoundTag();
-        tag.put(TARGET_TAG, NbtUtils.writeBlockPos(state.target()));
-        tag.putInt(EXPONENT_TAG, state.exponent());
-        tag.putInt(TOTAL_TIME_TAG, state.totalTime());
-        tag.putInt(REMAINING_TIME_TAG, state.remainingTime());
+        tag.store(WandState.CODEC, state);
         return tag;
     }
 
     public static WandState loadState(CompoundTag tag) {
-        BlockPos target = NbtUtils.readBlockPos(tag, TARGET_TAG).orElse(BlockPos.ZERO);
-        return new WandState(target, tag.getInt(EXPONENT_TAG), tag.getInt(TOTAL_TIME_TAG), tag.getInt(REMAINING_TIME_TAG));
+        return tag.read(WandState.CODEC).orElse(WandState.EMPTY);
     }
 
     public static WandState merge(WandState state, int exponentStep, int maxExponent) {
@@ -151,10 +156,17 @@ public class UltimateTimeWandEntity extends Entity {
         entityData.set(TOTAL_TIME, Math.max(0, state.totalTime()));
         entityData.set(REMAINING_TIME, Math.max(0, Math.min(getTotalTime(), state.remainingTime())));
         if (target != null) {
-            moveTo(target.getX() + 0.5D, target.getY(), target.getZ() + 0.5D);
+            snapTo(target.getX() + 0.5D, target.getY(), target.getZ() + 0.5D);
         }
     }
 
     public record WandState(BlockPos target, int exponent, int totalTime, int remainingTime) {
+        private static final WandState EMPTY = new WandState(BlockPos.ZERO, 0, 0, 0);
+        private static final MapCodec<WandState> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                BlockPos.CODEC.optionalFieldOf(TARGET_TAG, BlockPos.ZERO).forGetter(WandState::target),
+                Codec.INT.optionalFieldOf(EXPONENT_TAG, 0).forGetter(WandState::exponent),
+                Codec.INT.optionalFieldOf(TOTAL_TIME_TAG, 0).forGetter(WandState::totalTime),
+                Codec.INT.optionalFieldOf(REMAINING_TIME_TAG, 0).forGetter(WandState::remainingTime)
+        ).apply(instance, WandState::new));
     }
 }

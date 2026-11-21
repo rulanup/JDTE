@@ -1,5 +1,6 @@
 package com.jdte.common.upgrades;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jdte.common.items.UltimateTimeWandData;
@@ -195,7 +196,7 @@ class UltimateOverclockAndCapacityUpgradeTest {
 
         handler.setStackInSlot(1, new net.minecraft.world.item.ItemStack(com.jdte.setup.JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
         assertEquals(6_400_000, bioFactory.getOutputSlotLimit());
-        assertEquals(6_400_000, bioFactory.getMachineHandler().getSlotLimit(com.jdte.common.blockentities.BioFactoryBE.OUTPUT_START_SLOT));
+        assertEquals(6_400_000, bioFactory.getMachineHandler().getCapacityAsInt(com.jdte.common.blockentities.BioFactoryBE.OUTPUT_START_SLOT, ItemResource.of(net.minecraft.world.item.Items.DIAMOND)));
     }
 
     @Test

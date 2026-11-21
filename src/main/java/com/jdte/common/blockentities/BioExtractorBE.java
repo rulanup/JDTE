@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
@@ -10,7 +11,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -21,14 +22,14 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -39,10 +40,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,8 +69,8 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
     public final RedstoneControlData redstoneControlData = new RedstoneControlData();
     public final AreaAffectingData areaAffectingData;
 
-    protected final ItemStackHandler itemHandler;
-    protected final IItemHandler automationItemHandler;
+    private final MachineInventoryHandler itemHandler;
+    private final ResourceHandler<ItemResource> automationItemHandler;
     protected int tickCounter = 0;
 
     protected BioExtractorBE(BlockEntityType<?> type, BlockPos pos, BlockState state,
@@ -90,57 +93,22 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
         fluidTank = new JDTEFluidTank(getMaxMB(), f -> true);
         fluidContainerData = new FluidContainerData(this);
 
-        itemHandler = new ItemStackHandler(outputSlotCount) {
+        itemHandler = new MachineInventoryHandler(outputSlotCount) {
             @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                return false; // machine output only, no manual insertion
-            }
-
-            @Override
-            protected void onContentsChanged(int slot) {
+            protected void onContentsChanged(int slot, ItemStack previous) {
                 setChanged();
             }
         };
 
-        automationItemHandler = new IItemHandler() {
-            @Override
-            public int getSlots() {
-                return outputSlotCount;
-            }
-
-            @Override
-            public ItemStack getStackInSlot(int slot) {
-                return itemHandler.getStackInSlot(slot);
-            }
-
-            @Override
-            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                return stack; // Output only
-            }
-
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                return itemHandler.extractItem(slot, amount, simulate);
-            }
-
-            @Override
-            public int getSlotLimit(int slot) {
-                return itemHandler.getSlotLimit(slot);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                return false;
-            }
-        };
+        automationItemHandler = new MachineAutomationHandler<>(itemHandler, slot -> false, slot -> true);
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return itemHandler;
     }
 
-    public IItemHandler getAutomationItemHandler() {
+    public ResourceHandler<ItemResource> getAutomationItemHandler() {
         return automationItemHandler;
     }
 
@@ -190,7 +158,7 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -305,7 +273,7 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
             if (processed >= maxEntities) break;
             if (!(entity instanceof LivingEntity living)) continue;
 
-            long cooldownEnd = living.getPersistentData().getLong(COOLDOWN_KEY);
+            long cooldownEnd = living.getPersistentData().getLongOr(COOLDOWN_KEY, 0L);
             if (serverLevel.getGameTime() < cooldownEnd) continue;
 
             if (living instanceof Sheep sheep && sheep.isSheared()) {
@@ -320,27 +288,15 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
                 break;
             }
 
-            // Check if fluid fits
-            if (recipe.outputFluid().isPresent()) {
-                FluidStack fluid = recipe.outputFluid().get();
-                if (fluidTank.fill(fluid, IFluidHandler.FluidAction.SIMULATE) < fluid.getAmount()) {
-                    continue;
+            try (Transaction transaction = Transaction.openRoot()) {
+                if (recipe.outputFluid().isPresent()) {
+                    FluidStack fluid = recipe.outputFluid().get();
+                    if (!fluid.isEmpty() && fluidTank.insert(FluidResource.of(fluid), fluid.getAmount(),
+                            transaction) != fluid.getAmount()) continue;
                 }
-            }
-
-            // Roll item outputs
-            List<ItemStack> rolledItems = rollOutputs(recipe, living, serverLevel);
-            if (!canFitAll(rolledItems)) {
-                continue;
-            }
-
-            // Execute extraction
-            if (recipe.outputFluid().isPresent()) {
-                fluidTank.fill(recipe.outputFluid().get(), IFluidHandler.FluidAction.EXECUTE);
-            }
-
-            for (ItemStack item : rolledItems) {
-                insertOutput(item);
+                if (!itemHandler.insertBatch(0, outputSlotCount, rollOutputs(recipe, living, serverLevel),
+                        transaction)) continue;
+                transaction.commit();
             }
 
             if (energyCost > 0 && !UpgradeHelper.hasCreativeUpgrade(this)) {
@@ -381,7 +337,7 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
 
     public BioExtractorRecipe findRecipe(LivingEntity entity) {
         if (level == null) return null;
-        for (RecipeHolder<BioExtractorRecipe> holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.BIO_EXTRACTOR_RECIPE_TYPE.get())) {
+        for (RecipeHolder<BioExtractorRecipe> holder : MachineRecipeHelper.recipes(level).byType(JDTERecipes.BIO_EXTRACTOR_RECIPE_TYPE.get())) {
             if (holder.value().matches(entity.getType())) {
                 return holder.value();
             }
@@ -392,7 +348,7 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
     private List<ItemStack> rollOutputs(BioExtractorRecipe recipe, LivingEntity living, ServerLevel serverLevel) {
         List<ItemStack> results = new ArrayList<>();
         for (BioFactoryOutput output : recipe.outputItems()) {
-            ItemStack stack = output.roll(serverLevel.random, 1.0D);
+            ItemStack stack = output.roll(serverLevel.getRandom(), 1.0D);
             if (!stack.isEmpty()) {
                 if (living instanceof Sheep sheep && stack.is(net.minecraft.world.item.Items.WHITE_WOOL)) {
                     net.minecraft.world.item.Item woolItem = switch (sheep.getColor()) {
@@ -421,27 +377,6 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
         return results;
     }
 
-    private boolean canFitAll(List<ItemStack> items) {
-        if (items.isEmpty()) return true;
-        ItemStackHandler copy = new ItemStackHandler(outputSlotCount);
-        for (int i = 0; i < outputSlotCount; i++) {
-            copy.setStackInSlot(i, itemHandler.getStackInSlot(i).copy());
-        }
-        for (ItemStack item : items) {
-            if (!ItemHandlerHelper.insertItemStacked(copy, item.copy(), false).isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void insertOutput(ItemStack stack) {
-        ItemStack remaining = stack.copy();
-        for (int i = 0; i < outputSlotCount && !remaining.isEmpty(); i++) {
-            remaining = itemHandler.insertItem(i, remaining, false);
-        }
-    }
-
     private void playExtractionSound(ServerLevel level, LivingEntity entity, BioExtractorRecipe recipe) {
         if (recipe.outputFluid().isPresent() && recipe.outputFluid().get().getFluid().toString().contains("milk")) {
             level.playSound(null, entity.blockPosition(), SoundEvents.COW_MILK, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -453,20 +388,20 @@ public abstract class BioExtractorBE extends BaseMachineBE implements AreaAffect
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put("itemHandler", itemHandler.serializeNBT(registries));
-        tag.put("fluidTank", fluidTank.serializeNBT(registries));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("itemHandler", itemHandler);
+        tag.putChild("fluidTank", fluidTank);
         tag.putInt("energy", energyStorage.getEnergyStored());
         saveAreaSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains("itemHandler")) itemHandler.deserializeNBT(registries, tag.getCompound("itemHandler"));
-        if (tag.contains("fluidTank")) fluidTank.deserializeNBT(registries, tag.getCompound("fluidTank"));
-        if (tag.contains("energy")) energyStorage.setEnergy(tag.getInt("energy"));
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        if (tag.keySet().contains("itemHandler")) itemHandler.deserialize(tag.childOrEmpty("itemHandler"));
+        if (tag.keySet().contains("fluidTank")) fluidTank.deserialize(tag.childOrEmpty("fluidTank"));
+        if (tag.keySet().contains("energy")) energyStorage.setEnergy(tag.getIntOr("energy", 0));
         loadAreaSettings(tag);
     }
 }

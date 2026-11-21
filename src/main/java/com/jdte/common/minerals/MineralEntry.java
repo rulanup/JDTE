@@ -4,10 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record MineralEntry(
-        ResourceLocation oreId,
+        Identifier oreId,
         long weight,
         int minY,
         int maxY,
@@ -15,7 +15,7 @@ public record MineralEntry(
         Confidence confidence
 ) {
     public static final Codec<MineralEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("ore").forGetter(MineralEntry::oreId),
+            Identifier.CODEC.fieldOf("ore").forGetter(MineralEntry::oreId),
             Codec.LONG.fieldOf("weight").forGetter(MineralEntry::weight),
             Codec.INT.optionalFieldOf("min_y", Integer.MIN_VALUE).forGetter(MineralEntry::minY),
             Codec.INT.optionalFieldOf("max_y", Integer.MAX_VALUE).forGetter(MineralEntry::maxY),
@@ -25,7 +25,7 @@ public record MineralEntry(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MineralEntry> STREAM_CODEC = StreamCodec.of(
             (buffer, entry) -> {
-                ResourceLocation.STREAM_CODEC.encode(buffer, entry.oreId());
+                Identifier.STREAM_CODEC.encode(buffer, entry.oreId());
                 buffer.writeVarLong(entry.weight());
                 buffer.writeVarInt(entry.minY());
                 buffer.writeVarInt(entry.maxY());
@@ -33,7 +33,7 @@ public record MineralEntry(
                 buffer.writeEnum(entry.confidence());
             },
             buffer -> new MineralEntry(
-                    ResourceLocation.STREAM_CODEC.decode(buffer),
+                    Identifier.STREAM_CODEC.decode(buffer),
                     buffer.readVarLong(),
                     buffer.readVarInt(),
                     buffer.readVarInt(),

@@ -6,7 +6,7 @@ import com.jdte.setup.JDTEMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class AdvancedBioExtractorContainer extends BioExtractorContainer {
     public AdvancedBioExtractorContainer(int windowId, Inventory playerInventory, BlockPos blockPos) {
@@ -24,7 +24,8 @@ public class AdvancedBioExtractorContainer extends BioExtractorContainer {
             for (int row = 0; row < 3; row++) {
                 for (int col = 0; col < 3; col++) {
                     int slotIndex = row * 3 + col;
-                    addSlot(new SlotItemHandler(machineHandler, slotIndex, 62 + col * 18, 20 + row * 18));
+                    addSlot(new ResourceHandlerSlot(extractor.getAutomationItemHandler(), machineHandler::set,
+                            slotIndex, 62 + col * 18, 20 + row * 18));
                 }
             }
         }

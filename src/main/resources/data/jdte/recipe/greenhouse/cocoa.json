@@ -1,6 +1,6 @@
 {
   "type": "jdte:greenhouse",
-  "seed": { "item": "minecraft:cocoa_beans" },
+  "seed": "minecraft:cocoa_beans",
   "outputs": [{ "id": "minecraft:cocoa_beans", "count": 3 }],
   "display_block": "minecraft:cocoa",
   "growth_work": 8192,

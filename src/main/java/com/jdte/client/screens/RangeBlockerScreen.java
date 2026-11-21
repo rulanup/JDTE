@@ -1,19 +1,19 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory.TextureLocalization;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.jdte.common.blockentities.RangeBlockerBE;
 import com.jdte.common.containers.RangeBlockerContainer;
 import com.jdte.common.network.data.RangeBlockerPayload;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 
@@ -78,7 +78,7 @@ public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer>
     @Override public void setTopSection() { extraWidth = 60; extraHeight = 0; }
 
     private static TextureLocalization texture(String path, String translation) {
-        return new TextureLocalization(ResourceLocation.fromNamespaceAndPath(JDT, path),
+        return new TextureLocalization(Identifier.fromNamespaceAndPath(JDT, path),
                 Component.translatable(translation));
     }
 
@@ -99,17 +99,13 @@ public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer>
         }
 
         @Override
-        public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             if (active) {
-                super.renderWidget(graphics, mouseX, mouseY, partialTick);
+                super.extractContents(graphics, mouseX, mouseY, partialTick);
                 return;
             }
-            ResourceLocation texture = textures.get(getTexturePosition()).texture();
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, texture);
-            RenderSystem.setShaderColor(0.38F, 0.38F, 0.38F, 0.65F);
-            graphics.blit(texture, getX(), getY(), 0, 0, width, height, width, height);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            Identifier texture = textures.get(getTexturePosition()).texture();
+            graphics.blit(RenderPipelines.GUI_TEXTURED, texture, getX(), getY(), 0, 0, width, height, width, height, 0xA6616161);
         }
     }
 
@@ -118,6 +114,6 @@ public class RangeBlockerScreen extends BaseMachineScreen<RangeBlockerContainer>
         if (baseMachineBE instanceof RangeBlockerBE blocker) {
             blocker.applyClientSettings(mode, target, blacklist);
         }
-        PacketDistributor.sendToServer(new RangeBlockerPayload(mode, target, blacklist));
+        ClientPacketDistributor.sendToServer(new RangeBlockerPayload(mode, target, blacklist));
     }
 }

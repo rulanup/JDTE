@@ -11,7 +11,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
@@ -173,7 +173,7 @@ class MineralFeatureAnalyzerTest {
     @Test
     void extractsModdedOreConfigurationFromJsonCodec() {
         MockJsonOnlyOreConfig jsonConfig = new MockJsonOnlyOreConfig(
-                List.of(ResourceLocation.parse("minecraft:emerald_ore")), 5
+                List.of(Identifier.parse("minecraft:emerald_ore")), 5
         );
         MockJsonFeature jsonFeature = new MockJsonFeature(MockJsonOnlyOreConfig.CODEC);
         PlacedFeature placed = new PlacedFeature(
@@ -286,9 +286,6 @@ class MineralFeatureAnalyzerTest {
                 .downfall(0.5f)
                 .specialEffects(new BiomeSpecialEffects.Builder()
                         .waterColor(0x3f76e4)
-                        .waterFogColor(0x050533)
-                        .fogColor(0xc0d8ff)
-                        .skyColor(0x77adff)
                         .build())
                 .mobSpawnSettings(MobSpawnSettings.EMPTY)
                 .generationSettings(gen.build())
@@ -296,7 +293,7 @@ class MineralFeatureAnalyzerTest {
     }
 
     private static MineralEntry findEntry(List<MineralEntry> entries, String id) {
-        ResourceLocation loc = ResourceLocation.parse(id);
+        Identifier loc = Identifier.parse(id);
         return entries.stream()
                 .filter(e -> e.oreId().equals(loc))
                 .findFirst()
@@ -325,9 +322,9 @@ class MineralFeatureAnalyzerTest {
     }
 
     // Mock config testing the pure JSON codec fallback (no targetStates() or size() methods)
-    public record MockJsonOnlyOreConfig(List<ResourceLocation> oreIds, int amount) implements FeatureConfiguration {
+    public record MockJsonOnlyOreConfig(List<Identifier> oreIds, int amount) implements FeatureConfiguration {
         public static final Codec<MockJsonOnlyOreConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ResourceLocation.CODEC.listOf().fieldOf("targets").forGetter(MockJsonOnlyOreConfig::oreIds),
+                Identifier.CODEC.listOf().fieldOf("targets").forGetter(MockJsonOnlyOreConfig::oreIds),
                 Codec.INT.fieldOf("size").forGetter(MockJsonOnlyOreConfig::amount)
         ).apply(instance, MockJsonOnlyOreConfig::new));
     }

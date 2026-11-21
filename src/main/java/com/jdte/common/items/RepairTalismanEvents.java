@@ -6,7 +6,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public final class RepairTalismanEvents {
 
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
-        if (player.level().isClientSide || player.isRemoved() || player.isDeadOrDying()) {
+        if (player.level().isClientSide() || player.isRemoved() || player.isDeadOrDying()) {
             return;
         }
         int interval = JDTEConfig.COMMON.repairTalismanCycleInterval.get();
@@ -61,10 +63,10 @@ public final class RepairTalismanEvents {
                 repaired = true;
             }
         } else {
-            List<IEnergyStorage> sources = collectEnergySources(inventory);
+            List<EnergyHandler> sources = collectEnergySources(inventory);
             long available = 0;
-            for (IEnergyStorage source : sources) {
-                available += source.extractEnergy(Integer.MAX_VALUE, true);
+            try (var probe = Transaction.openRoot()) {
+                for (EnergyHandler source : sources) available += source.extract(Integer.MAX_VALUE, probe);
             }
             for (ItemStack stack : damaged) {
                 if (available < costPerDurability) {
@@ -101,15 +103,15 @@ public final class RepairTalismanEvents {
     }
 
     /** 收集背包中可放电的能量物品（电池、便携发电机等），按槽位顺序。 */
-    private static List<IEnergyStorage> collectEnergySources(Inventory inventory) {
-        List<IEnergyStorage> sources = new ArrayList<>();
+    private static List<EnergyHandler> collectEnergySources(Inventory inventory) {
+        List<EnergyHandler> sources = new ArrayList<>();
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty()) {
                 continue;
             }
-            IEnergyStorage storage = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-            if (storage != null && storage.canExtract()) {
+            EnergyHandler storage = ItemAccess.forStack(stack).getCapability(Capabilities.Energy.ITEM);
+            if (storage != null) {
                 sources.add(storage);
             }
         }
@@ -117,22 +119,22 @@ public final class RepairTalismanEvents {
     }
 
     /** 从能量物品中按顺序抽取指定 FE，抽取不足时不产生部分支付。 */
-    private static boolean extractFromSources(List<IEnergyStorage> sources, long amount) {
+    private static boolean extractFromSources(List<EnergyHandler> sources, long amount) {
         long remaining = amount;
-        for (IEnergyStorage source : sources) {
-            while (remaining > 0) {
-                int step = (int) Math.min(remaining, Integer.MAX_VALUE);
-                int extracted = source.extractEnergy(step, false);
-                if (extracted <= 0) {
-                    break;
+        try (var tx = Transaction.openRoot()) {
+            for (EnergyHandler source : sources) {
+                while (remaining > 0) {
+                    int step = (int) Math.min(remaining, Integer.MAX_VALUE);
+                    int extracted = source.extract(step, tx);
+                    if (extracted == 0) break;
+                    remaining -= extracted;
                 }
-                remaining -= extracted;
+                if (remaining == 0) {
+                    tx.commit();
+                    return true;
+                }
             }
-            if (remaining <= 0) {
-                return true;
-            }
+            return false;
         }
-        // 能量不足：无法回滚已抽取部分，理论仅在并发修改时发生；尽力而为
-        return remaining <= 0;
     }
 }

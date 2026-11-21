@@ -31,7 +31,7 @@ public final class UpgradeCardInsertionHelper {
                 || !(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof BaseMachineBE)) {
             return InteractionResult.PASS;
         }
-        if (context.getLevel().isClientSide) {
+        if (context.getLevel().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         return insertAll(context.getLevel(), context.getClickedPos(), player, context.getItemInHand()) > 0

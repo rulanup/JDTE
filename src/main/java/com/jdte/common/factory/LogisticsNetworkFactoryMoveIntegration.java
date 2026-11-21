@@ -29,20 +29,24 @@ final class LogisticsNetworkFactoryMoveIntegration {
         UUID networkId = node.getNetworkId();
         if (networkId != null) {
             registry.addNodeToNetwork(networkId, node.getUUID());
-            registry.markNetworkDirty(networkId);
+            registry.invalidateNetwork(networkId);
         }
-        registry.evictCapabilities(level, node.getAttachedPos());
+        level.invalidateCapabilities(node.getAttachedPos());
     }
 
     static void prepareRemoval(ServerLevel level, Entity entity) {
         if (!(entity instanceof LogisticsNodeEntity node)) return;
         NetworkRegistry registry = NetworkRegistry.get(level);
-        UUID networkId = node.getNetworkId();
-        if (networkId != null) {
-            registry.removeNodeFromNetwork(networkId, node.getUUID());
-            registry.markNetworkDirty(networkId);
-        }
-        registry.evictCapabilities(level, node.getAttachedPos());
+        detachForMove(registry, node.getNetworkId(), node.getUUID());
+        level.invalidateCapabilities(node.getAttachedPos());
     }
 
+    static void detachForMove(NetworkRegistry registry, UUID networkId, UUID nodeId) {
+        var network = networkId == null ? null : registry.getNetwork(networkId);
+        if (network == null) return;
+        // Registry removal deletes the network when its last node is packed.
+        network.removeNode(nodeId);
+        registry.invalidateNetwork(networkId);
+        registry.setDirty();
+    }
 }

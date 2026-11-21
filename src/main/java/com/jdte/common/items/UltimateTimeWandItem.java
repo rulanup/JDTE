@@ -1,5 +1,9 @@
 package com.jdte.common.items;
 
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
 import com.direwolf20.justdirethings.common.items.interfaces.FluidContainingItem;
 import com.direwolf20.justdirethings.common.items.interfaces.PoweredItem;
 import com.direwolf20.justdirethings.setup.Config;
@@ -18,7 +22,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,9 +32,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.List;
 
@@ -48,8 +50,8 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         ACCELERATE
     }
 
-    public UltimateTimeWandItem() {
-        super(new Properties().stacksTo(1));
+    public UltimateTimeWandItem(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Override
@@ -63,15 +65,15 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (useInteractionTarget(player.isShiftKeyDown()) != InteractionAction.CYCLE_MODE) {
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
         }
         if (!level.isClientSide()) {
             cycleMode(player, stack);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
     }
 
     @Override
@@ -83,7 +85,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         Level level = context.getLevel();
         ItemStack stack = context.getItemInHand();
         if (level.isClientSide() || !(level instanceof ServerLevel serverLevel)) {
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         }
         if (useOnInteractionTarget(player.isShiftKeyDown()) != InteractionAction.ACCELERATE) {
             return InteractionResult.PASS;
@@ -192,23 +194,23 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
-                                List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand").withStyle(ChatFormatting.GRAY));
+                                TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        tooltip.accept(Component.translatable("tooltip.jdte.ultimate_time_wand").withStyle(ChatFormatting.GRAY));
         if (hasUltimateOverclock(stack)) {
-            tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.ultimate_overclock_installed")
+            tooltip.accept(Component.translatable("tooltip.jdte.ultimate_time_wand.ultimate_overclock_installed")
                     .withStyle(ChatFormatting.LIGHT_PURPLE));
         }
         if (hasEntityAcceleration(stack)) {
-            tooltip.add(Component.translatable("tooltip.jdte.ultimate_time_wand.entity_acceleration_installed")
+            tooltip.accept(Component.translatable("tooltip.jdte.ultimate_time_wand.entity_acceleration_installed")
                     .withStyle(ChatFormatting.GOLD));
         }
         if (stack.has(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get())) {
-            tooltip.add(modeTooltipComponent(getMode(stack)));
+            tooltip.accept(modeTooltipComponent(getMode(stack)));
         }
-        tooltip.addAll(resourceTooltipComponents(Math.max(0, FluidContainingItem.getAvailableFluid(stack)),
+        resourceTooltipComponents(Math.max(0, FluidContainingItem.getAvailableFluid(stack)),
                 configuredFluidCapacity(), Math.max(0, PoweredItem.getAvailableEnergy(stack)),
-                configuredEnergyCapacity()));
+                configuredEnergyCapacity()).forEach(tooltip);
     }
 
     public static boolean hasEntityAcceleration(ItemStack stack) {
@@ -261,16 +263,16 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, net.minecraft.world.entity.LivingEntity interactionTarget, InteractionHand hand) {
         if (!hasEntityAcceleration(stack)) {
             if (!player.level().isClientSide()) {
-                player.displayClientMessage(
+                player.sendOverlayMessage(
                         Component.translatable("message.jdte.ultimate_time_wand.requires_entity_acceleration")
-                                .withStyle(ChatFormatting.RED), true);
+                                .withStyle(ChatFormatting.RED));
             }
             return InteractionResult.FAIL;
         }
 
         Level level = player.level();
         if (level.isClientSide() || !(level instanceof ServerLevel serverLevel)) {
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         }
 
         return applyToEntityTarget(serverLevel, player, stack, interactionTarget)
@@ -375,6 +377,27 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         boolean commitResources();
     }
 
+    private static ItemStackComponentTransaction preparePayment(ItemStack stack, UltimateTimeWandData.OperationResult operation) {
+        return ItemStackComponentTransaction.prepare(stack, staged -> {
+            var access = ItemAccess.forStack(staged);
+            try (var tx = Transaction.openRoot()) {
+                int fluidCost = operation.fluidCost();
+                if (fluidCost > 0) {
+                    var fluid = access.getCapability(Capabilities.Fluid.ITEM);
+                    if (fluid == null || fluid.getResource(0).isEmpty()
+                            || fluid.extract(0, fluid.getResource(0), fluidCost, tx) != fluidCost) return false;
+                }
+                int energyCost = operation.energyCost();
+                if (energyCost > 0) {
+                    var energy = access.getCapability(Capabilities.Energy.ITEM);
+                    if (energy == null || energy.extract(energyCost, tx) != energyCost) return false;
+                }
+                tx.commit();
+                return true;
+            }
+        }).orElse(null);
+    }
+
     private static final class ServerCommitPort implements CommitPort {
         private final ServerLevel level;
         private final ItemStack stack;
@@ -395,22 +418,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
         @Override
         public boolean prepareResources(UltimateTimeWandData.OperationResult operation) {
-            preparedResources = ItemStackComponentTransaction.prepare(stack, staged -> {
-                if (operation.fluidCost() > 0) {
-                    IFluidHandlerItem fluid = staged.getCapability(Capabilities.FluidHandler.ITEM);
-                    if (fluid == null || fluid.drain(operation.fluidCost(), IFluidHandler.FluidAction.EXECUTE).getAmount()
-                            != operation.fluidCost()) {
-                        return false;
-                    }
-                }
-                if (operation.energyCost() > 0) {
-                    IEnergyStorage energy = staged.getCapability(Capabilities.EnergyStorage.ITEM);
-                    if (energy == null || energy.extractEnergy(operation.energyCost(), false) != operation.energyCost()) {
-                        return false;
-                    }
-                }
-                return true;
-            }).orElse(null);
+            preparedResources = preparePayment(stack, operation);
             return preparedResources != null;
         }
 
@@ -450,8 +458,8 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
     public static boolean applyToEntityTarget(ServerLevel level, Player player, ItemStack stack, net.minecraft.world.entity.Entity target) {
         if (!isValidEntityTarget(target)) {
-            player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.invalid_target")
-                    .withStyle(ChatFormatting.RED), true);
+            player.sendOverlayMessage(Component.translatable("message.jdte.ultimate_time_wand.invalid_target")
+                    .withStyle(ChatFormatting.RED));
             return false;
         }
 
@@ -465,8 +473,8 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         int maxExponent = getMaxExponent(stack);
         int finalExponent = UltimateTimeWandData.addStep(before.exponent(), mode, maxExponent);
         if (finalExponent <= before.exponent()) {
-            player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.max_multiplier")
-                    .withStyle(ChatFormatting.RED), true);
+            player.sendOverlayMessage(Component.translatable("message.jdte.ultimate_time_wand.max_multiplier")
+                    .withStyle(ChatFormatting.RED));
             return false;
         }
 
@@ -478,16 +486,16 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
         UltimateTimeWandData.OperationResult operation = planWithResources(
                 player, stack, before, mode, fluidSettlement.drainMb(), energyCost, maxExponent);
         if (!operation.success()) {
-            player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.insufficient_resources")
-                    .withStyle(ChatFormatting.RED), true);
+            player.sendOverlayMessage(Component.translatable("message.jdte.ultimate_time_wand.insufficient_resources")
+                    .withStyle(ChatFormatting.RED));
             return false;
         }
 
         boolean creative = player.getAbilities().instabuild;
         EntityCommitPort commitPort = new EntityCommitPort(target, stack, before);
         if (!creative && !hasFluidForSettlement(stack, fluidSettlement)) {
-            player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.insufficient_resources")
-                    .withStyle(ChatFormatting.RED), true);
+            player.sendOverlayMessage(Component.translatable("message.jdte.ultimate_time_wand.insufficient_resources")
+                    .withStyle(ChatFormatting.RED));
             return false;
         }
         if (!commitIfTargetValid(true, creative, operation, commitPort).success()) {
@@ -517,22 +525,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
 
         @Override
         public boolean prepareResources(UltimateTimeWandData.OperationResult operation) {
-            preparedResources = ItemStackComponentTransaction.prepare(stack, staged -> {
-                if (operation.fluidCost() > 0) {
-                    IFluidHandlerItem fluid = staged.getCapability(Capabilities.FluidHandler.ITEM);
-                    if (fluid == null || fluid.drain(operation.fluidCost(), IFluidHandler.FluidAction.EXECUTE).getAmount()
-                            != operation.fluidCost()) {
-                        return false;
-                    }
-                }
-                if (operation.energyCost() > 0) {
-                    IEnergyStorage energy = staged.getCapability(Capabilities.EnergyStorage.ITEM);
-                    if (energy == null || energy.extractEnergy(operation.energyCost(), false) != operation.energyCost()) {
-                        return false;
-                    }
-                }
-                return true;
-            }).orElse(null);
+            preparedResources = preparePayment(stack, operation);
             return preparedResources != null;
         }
 
@@ -562,7 +555,7 @@ public class UltimateTimeWandItem extends Item implements FluidContainingItem, P
     private static void cycleMode(Player player, ItemStack stack) {
         UltimateTimeWandData.Mode next = getMode(stack).next();
         stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get(), next.serializedName());
-        player.displayClientMessage(Component.translatable("message.jdte.ultimate_time_wand.mode", next.serializedName())
-                .withStyle(ChatFormatting.AQUA), true);
+        player.sendOverlayMessage(Component.translatable("message.jdte.ultimate_time_wand.mode", next.serializedName())
+                .withStyle(ChatFormatting.AQUA));
     }
 }

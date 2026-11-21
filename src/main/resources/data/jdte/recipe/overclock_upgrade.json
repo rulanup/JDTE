@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "justdirethings:blazegold_ingot"
-    },
-    "C": {
-      "item": "minecraft:clock"
-    },
-    "R": {
-      "item": "minecraft:redstone"
-    },
-    "T": {
-      "item": "justdirethings:time_crystal"
-    }
+    "B": "justdirethings:blazegold_ingot",
+    "C": "minecraft:clock",
+    "R": "minecraft:redstone",
+    "T": "justdirethings:time_crystal"
   },
   "pattern": [
     "RTR",

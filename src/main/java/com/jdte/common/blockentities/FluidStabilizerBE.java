@@ -1,19 +1,20 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.direwolf20.justdirethings.datagen.recipes.FluidDropRecipe;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -25,8 +26,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 public abstract class FluidStabilizerBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, BaseFilterMachine {
     public static final int CATALYST_SLOT = 0;
@@ -34,27 +35,27 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
     public FilterData filterData = new FilterData();
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     public AreaAffectingData areaAffectingData;
-    protected final ItemStackHandler itemHandler;
+    protected final ItemStacksResourceHandler itemHandler;
 
     protected FluidStabilizerBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         MACHINE_SLOTS = 1;
         areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
-        itemHandler = new ItemStackHandler(1) {
+        itemHandler = new MachineInventoryHandler(1) {
             @Override
-            protected void onContentsChanged(int slot) {
+            protected void onContentsChanged(int slot, ItemStack previous) {
                 setChanged();
             }
 
             @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return slot == CATALYST_SLOT && isValidCatalyst(stack);
+            public boolean isValid(int slot, ItemResource resource) {
+                return slot == CATALYST_SLOT && isValidCatalyst(resource.toStack());
             }
         };
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return itemHandler;
     }
 
@@ -69,7 +70,7 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
     private void stabilizeFluid() {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
-        ItemStack catalystStack = itemHandler.getStackInSlot(CATALYST_SLOT);
+        ItemStack catalystStack = itemHandler.getResource(CATALYST_SLOT).toStack(itemHandler.getAmountAsInt(CATALYST_SLOT));
         if (catalystStack.isEmpty()) return;
 
         int energyCost = getStandardEnergyCost();
@@ -112,7 +113,7 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
                 extractEnergy(energyCost, false);
             }
             catalystStack.shrink(1);
-            itemHandler.setStackInSlot(CATALYST_SLOT, catalystStack);
+            itemHandler.set(CATALYST_SLOT, ItemResource.of(catalystStack), catalystStack.getCount());
         }
         setChanged();
         return true;
@@ -127,7 +128,7 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
         if (level == null) {
             return null;
         }
-        for (RecipeHolder<?> recipe : level.getRecipeManager().getAllRecipesFor(Registration.FLUID_DROP_RECIPE_TYPE.get())) {
+        for (RecipeHolder<?> recipe : MachineRecipeHelper.recipes(level).byType(JDTRegistration.FLUID_DROP_RECIPE_TYPE.get())) {
             if (recipe.value() instanceof FluidDropRecipe fluidDropRecipe && fluidDropRecipe.matches(inputState, catalystStack)) {
                 return fluidDropRecipe;
             }
@@ -142,7 +143,7 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
         if (level == null) {
             return true;
         }
-        for (RecipeHolder<?> recipe : level.getRecipeManager().getAllRecipesFor(Registration.FLUID_DROP_RECIPE_TYPE.get())) {
+        for (RecipeHolder<?> recipe : MachineRecipeHelper.recipes(level).byType(JDTRegistration.FLUID_DROP_RECIPE_TYPE.get())) {
             if (recipe.value() instanceof FluidDropRecipe fluidDropRecipe && stack.is(fluidDropRecipe.getCatalyst())) {
                 return true;
             }
@@ -165,7 +166,7 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -189,16 +190,14 @@ public abstract class FluidStabilizerBE extends BaseMachineBE implements Filtera
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("inventory").ifPresent(itemHandler::deserialize);
     }
 }

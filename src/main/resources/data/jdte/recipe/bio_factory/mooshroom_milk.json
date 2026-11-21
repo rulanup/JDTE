@@ -1,8 +1,8 @@
 {
   "type": "jdte:bio_factory",
-  "specimen": { "item": "minecraft:mooshroom_spawn_egg" },
+  "specimen": "minecraft:mooshroom_spawn_egg",
   "inputs": [
-    { "ingredient": { "item": "minecraft:wheat" } }
+    { "ingredient": "minecraft:wheat" }
   ],
   "outputs": [],
   "output_fluid": "minecraft:milk",

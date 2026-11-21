@@ -1038,7 +1038,7 @@ class ExtendedTimeAccelerationManagerTest {
         @Override
         public Map<BlockPos, BlockEntity> blockEntities(ServerLevel level, net.minecraft.world.level.ChunkPos chunkPos) {
             blockEntitiesCalls++;
-            return chunkPos.x == 0 && chunkPos.z == 0 ? discovered : Map.of();
+            return chunkPos.x() == 0 && chunkPos.z() == 0 ? discovered : Map.of();
         }
 
         @Override

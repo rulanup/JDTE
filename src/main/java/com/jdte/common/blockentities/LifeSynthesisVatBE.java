@@ -1,5 +1,13 @@
 package com.jdte.common.blockentities;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
@@ -25,8 +33,8 @@ import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.Item;
@@ -38,9 +46,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.ChunkPos;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -84,13 +89,13 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             stack -> stack.getFluid() instanceof TimeFluid);
     private final JDTEFluidTank lifeFluidTank = vatTank(stack ->
             stack.is(JDTEFluids.LIFE_FLUID_SOURCE.get()) || stack.is(JDTEFluids.LIFE_FLUID_FLOWING.get()));
-    /** 组合流体处理器视图（养分/时间/生命），避免每次查询分配数组。 */
-    private final JDTEFluidTank[] combinedTanks = {nutrientTank, timeFluidTank, lifeFluidTank};
     private final FluidContainerData fluidData = new FluidContainerData(this);
     private final RedstoneControlData redstoneData = new RedstoneControlData();
-    private final ItemStackHandler itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
+    private final MachineInventoryHandler itemHandler = new MachineInventoryHandler(TOTAL_SLOTS) {
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
+        public boolean isValid(int slot, ItemResource resource) {
+            if (resource.isEmpty()) return true;
+            ItemStack stack = resource.toStack(1);
             if (slot < 0 || slot >= INPUT_SLOTS || stack.isEmpty()) return false;
             for (ItemStack banned : BANNED_INPUTS) {
                 if (ItemStack.isSameItemSameComponents(banned, stack)) return false;
@@ -100,26 +105,16 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
         }
 
         @Override
-        protected void onContentsChanged(int slot) {
+        protected void onContentsChanged(int slot, ItemStack previous) {
             renderInputRevision++;
             setChanged();
             markDirtyClient();
         }
     };
-    private final IItemHandler automationItemHandler = new IItemHandler() {
-        @Override public int getSlots() { return INPUT_SLOTS; }
-        @Override public ItemStack getStackInSlot(int slot) { return valid(slot) ? itemHandler.getStackInSlot(slot) : ItemStack.EMPTY; }
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return valid(slot) ? itemHandler.insertItem(slot, stack, simulate) : stack;
-        }
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) { return ItemStack.EMPTY; }
-        @Override public int getSlotLimit(int slot) { return valid(slot) ? itemHandler.getSlotLimit(slot) : 0; }
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return valid(slot) && itemHandler.isItemValid(slot, stack);
-        }
-        private boolean valid(int slot) { return slot >= 0 && slot < INPUT_SLOTS; }
-    };
-    private final IFluidHandler combinedFluidHandler = new CombinedFluidHandler();
+    private final ResourceHandler<ItemResource> automationItemHandler = new MachineAutomationHandler<>(
+            itemHandler, slot -> true, slot -> false);
+    private final ResourceHandler<FluidResource> combinedFluidHandler = new MachineAutomationHandler<>(
+            new CombinedResourceHandler<>(nutrientTank, timeFluidTank, lifeFluidTank), slot -> slot < 2, slot -> slot == 2);
     private final ContainerData vatData = new ContainerData() {
         @Override
         public int get(int index) {
@@ -326,7 +321,6 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
         int outputPerBatch = recipe.output().getAmount();
 
         int batches = 0;
-        // 输入列表在循环外取一次：consumeStrict 直接修改槽内 ItemStack 引用，避免逐批重建
         List<ItemStack> inputs = getInputStacks();
         while (cultureWork >= processTicks && batches < maxBatches && pendingLifeFluid < pendingCap) {
             if (!creative && (energyStorage.getEnergyStored() < energyPerBatch
@@ -336,13 +330,19 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             if (!recipe.consumeStrict(inputs)) break;
             cultureWork -= processTicks;
             // 养分与培养基即使创造升级也照常消耗，防止生命流体正反馈循环
-            nutrientTank.drain(nutrientAmount, IFluidHandler.FluidAction.EXECUTE);
+            nutrientTank.extractFluid(nutrientAmount);
             if (!creative) {
                 energyStorage.extractEnergy(energyPerBatch, false);
-                if (timeBoost) timeFluidTank.drain(timeCost, IFluidHandler.FluidAction.EXECUTE);
+                if (timeBoost) timeFluidTank.extractFluid(timeCost);
             }
             pendingLifeFluid = saturatingAdd(pendingLifeFluid, outputPerBatch);
             batches++;
+        }
+        if (batches > 0) {
+            for (int slot = 0; slot < INPUT_SLOTS; slot++) {
+                ItemStack remaining = inputs.get(slot);
+                if (itemHandler.getAmountAsInt(slot) != remaining.getCount()) itemHandler.setStack(slot, remaining);
+            }
         }
         distill();
         // 结算必然改变 settlementTicker/进度/待蒸馏量等存档状态；客户端显示由罐回调与 ContainerData 覆盖
@@ -362,15 +362,18 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             // 失败邻居短期退避，避免全满/不支持时每结算做全量能力探测
             Long retryUntil = neighborCooldown.get(neighbor);
             if (retryUntil != null && now < retryUntil) continue;
-            IFluidHandler handler = neighbor.pos() != null && level != null
-                    ? level.getCapability(Capabilities.FluidHandler.BLOCK, neighbor.pos(), neighbor.exposedSide())
+            ResourceHandler<FluidResource> handler = neighbor.pos() != null && level != null
+                    ? level.getCapability(Capabilities.Fluid.BLOCK, neighbor.pos(), neighbor.exposedSide())
                     : null;
             if (handler == null) {
                 neighborCooldown.put(neighbor, now + NEIGHBOR_RETRY_TICKS);
                 continue;
             }
-            int accepted = handler.fill(new FluidStack(lifeFluid, remaining),
-                    IFluidHandler.FluidAction.EXECUTE);
+            int accepted;
+            try (var transaction = Transaction.openRoot()) {
+                accepted = handler.insert(FluidResource.of(lifeFluid), remaining, transaction);
+                transaction.commit();
+            }
             if (accepted > 0) {
                 remaining -= accepted;
                 neighborCooldown.remove(neighbor);
@@ -380,8 +383,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
             }
         }
         if (remaining > 0) {
-            remaining -= lifeFluidTank.fill(new FluidStack(lifeFluid, remaining),
-                    IFluidHandler.FluidAction.EXECUTE);
+            remaining -= lifeFluidTank.insertFluid(new FluidStack(lifeFluid, remaining));
         }
         if (remaining != pendingLifeFluid) {
             pendingLifeFluid = remaining;
@@ -415,14 +417,14 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
     private LifeSynthesisRecipe findRecipe(List<ItemStack> inputs) {
         if (level == null) return null;
         int index = 0;
-        for (var holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get())) {
+        for (var holder : MachineRecipeHelper.recipes(level).byType(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get())) {
             LifeSynthesisRecipe recipe = holder.value();
             if (!recipe.matchesSlots(inputs)) {
                 index++;
                 continue;
             }
             FluidStack nutrient = recipe.nutrient();
-            if (!nutrient.isEmpty() && !nutrientTank.isEmpty() && !nutrient.is(nutrientTank.getFluid().getFluid())) {
+            if (!nutrient.isEmpty() && !nutrientTank.getFluid().isEmpty() && !nutrient.is(nutrientTank.getFluid().getFluid())) {
                 index++;
                 continue;
             }
@@ -457,7 +459,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
         if (running == newRunning) return;
         running = newRunning;
         if (level instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(worldPosition),
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(worldPosition),
                     new LifeSynthesisRunningPayload(worldPosition, newRunning));
         }
     }
@@ -472,9 +474,9 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
         if (generation != supportedMaterialsGeneration) {
             supportedMaterialsGeneration = generation;
             Set<Item> items = new HashSet<>();
-            for (var holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get())) {
+            for (var holder : MachineRecipeHelper.recipes(level).byType(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get())) {
                 for (LifeSynthesisRecipe.InputSlot slot : holder.value().inputs()) {
-                    for (ItemStack sample : slot.ingredient().getItems()) items.add(sample.getItem());
+                    slot.ingredient().items().forEach(item -> items.add(item.value()));
                 }
             }
             supportedMaterials = Set.copyOf(items);
@@ -484,7 +486,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
 
     private List<ItemStack> getInputStacks() {
         List<ItemStack> stacks = new ArrayList<>(INPUT_SLOTS);
-        for (int slot = 0; slot < INPUT_SLOTS; slot++) stacks.add(itemHandler.getStackInSlot(slot));
+        for (int slot = 0; slot < INPUT_SLOTS; slot++) stacks.add(itemHandler.copyStack(slot));
         return stacks;
     }
 
@@ -589,7 +591,7 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
         if (cachedRenderInputRevision != renderInputRevision) {
             cachedRenderInput = ItemStack.EMPTY;
             for (int slot = 0; slot < INPUT_SLOTS; slot++) {
-                ItemStack stack = itemHandler.getStackInSlot(slot);
+                ItemStack stack = itemHandler.copyStack(slot);
                 if (!stack.isEmpty()) {
                     cachedRenderInput = stack.copyWithCount(1);
                     break;
@@ -609,13 +611,13 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
     public int getSyncedLifeFluid() { return syncedLifeFluid; }
     public int getSyncedFluidCapacity() { return Math.max(1, syncedFluidCapacity); }
     public ContainerData getVatData() { return vatData; }
-    public IItemHandler getAutomationItemHandler() { return automationItemHandler; }
-    public IFluidHandler getCombinedFluidHandler() { return combinedFluidHandler; }
+    public ResourceHandler<ItemResource> getAutomationItemHandler() { return automationItemHandler; }
+    public ResourceHandler<FluidResource> getCombinedFluidHandler() { return combinedFluidHandler; }
     public JDTEFluidTank getNutrientTank() { return nutrientTank; }
     public JDTEFluidTank getTimeFluidTank() { return timeFluidTank; }
     public JDTEFluidTank getLifeFluidTank() { return lifeFluidTank; }
 
-    @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
+    @Override public ItemStacksResourceHandler getMachineHandler() { return itemHandler; }
     @Override public int getMaxEnergy() { return UpgradeHelper.adjustEnergyCapacity(this, JDTEConfig.COMMON.lifeSynthesisVat.energyCapacity.get()); }
     @Override public MachineEnergyStorage getEnergyStorage() { return energyStorage; }
     @Override public ContainerData getContainerData() { return poweredData; }
@@ -652,15 +654,15 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
         return left > Integer.MAX_VALUE - right ? Integer.MAX_VALUE : left + right;
     }
 
-    private boolean isClientSide() { return level != null && level.isClientSide; }
+    private boolean isClientSide() { return level != null && level.isClientSide(); }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
-        tag.put("nutrientFluid", nutrientTank.serializeNBT(provider));
-        tag.put("timeFluid", timeFluidTank.serializeNBT(provider));
-        tag.put("lifeFluid", lifeFluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
+        tag.putChild("nutrientFluid", nutrientTank);
+        tag.putChild("timeFluid", timeFluidTank);
+        tag.putChild("lifeFluid", lifeFluidTank);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("cultureWork", cultureWork);
         tag.putInt("pendingLifeFluid", pendingLifeFluid);
@@ -670,56 +672,23 @@ public class LifeSynthesisVatBE extends BaseMachineBE implements PoweredMachineB
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-            // deserializeNBT 会按 NBT Size 重建槽列表；旧版存档只有 9 个输入槽时扩到 12 槽。
-            // 注意 setSize 会清空列表（NonNullList.withSize 重建），而客户端每次 NBT 同步
-            // 都经过 loadAdditional，槽数已足够时绝不能调用，否则输入槽图标会在每次同步后消失。
-            if (itemHandler.getSlots() < INPUT_SLOTS) {
-                List<ItemStack> legacy = new ArrayList<>(itemHandler.getSlots());
-                for (int i = 0; i < itemHandler.getSlots(); i++) legacy.add(itemHandler.getStackInSlot(i));
-                itemHandler.setSize(INPUT_SLOTS);
-                for (int i = 0; i < legacy.size(); i++) itemHandler.setStackInSlot(i, legacy.get(i));
-            }
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.readChild("inventory", itemHandler);
         renderInputRevision++;
         cachedRenderInputRevision = -1;
-        if (tag.contains("nutrientFluid")) nutrientTank.deserializeNBT(provider, tag.getCompound("nutrientFluid"));
-        if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(provider, tag.getCompound("timeFluid"));
-        if (tag.contains("lifeFluid")) lifeFluidTank.deserializeNBT(provider, tag.getCompound("lifeFluid"));
-        if (tag.contains("energy")) energyStorage.setEnergy(tag.getInt("energy"));
-        cultureWork = Math.max(0, tag.getInt("cultureWork"));
-        pendingLifeFluid = Math.max(0, tag.getInt("pendingLifeFluid"));
-        multiplier = tag.contains("multiplier") ? tag.getInt("multiplier")
-                : JDTEConfig.COMMON.lifeSynthesisVat.defaultSpeedMultiplier.get();
-        settlementTicker = Math.max(0, tag.getInt("settlementTicker"));
-        accumulatedAcceleratedTicks = Math.max(0, tag.getInt("acceleratedTicks"));
+        if (tag.keySet().contains("nutrientFluid")) nutrientTank.deserialize(tag.childOrEmpty("nutrientFluid"));
+        if (tag.keySet().contains("timeFluid")) timeFluidTank.deserialize(tag.childOrEmpty("timeFluid"));
+        if (tag.keySet().contains("lifeFluid")) lifeFluidTank.deserialize(tag.childOrEmpty("lifeFluid"));
+        if (tag.keySet().contains("energy")) energyStorage.setEnergy(tag.getIntOr("energy", 0));
+        cultureWork = Math.max(0, tag.getIntOr("cultureWork", 0));
+        pendingLifeFluid = Math.max(0, tag.getIntOr("pendingLifeFluid", 0));
+        multiplier = tag.getIntOr("multiplier", JDTEConfig.COMMON.lifeSynthesisVat.defaultSpeedMultiplier.get());
+        settlementTicker = Math.max(0, tag.getIntOr("settlementTicker", 0));
+        accumulatedAcceleratedTicks = Math.max(0, tag.getIntOr("acceleratedTicks", 0));
         invalidateRecipeCache();
         neighborCooldown.clear();
     }
 
-    private abstract class TankView implements IFluidHandler {
-        protected abstract JDTEFluidTank[] tanks();
-        @Override public int getTanks() { return tanks().length; }
-        @Override public FluidStack getFluidInTank(int tank) { return valid(tank) ? tanks()[tank].getFluid() : FluidStack.EMPTY; }
-        @Override public int getTankCapacity(int tank) { return valid(tank) ? tanks()[tank].getCapacity() : 0; }
-        @Override public boolean isFluidValid(int tank, FluidStack stack) { return valid(tank) && tanks()[tank].isFluidValid(stack); }
-        protected boolean valid(int tank) { return tank >= 0 && tank < tanks().length; }
-    }
-
-    /** 养分罐 + 时间流体罐可插入，生命流体罐可抽取。 */
-    private final class CombinedFluidHandler extends TankView {
-        @Override protected JDTEFluidTank[] tanks() { return combinedTanks; }
-        @Override public int fill(FluidStack stack, FluidAction action) {
-            for (JDTEFluidTank tank : tanks()) {
-                if (tank == lifeFluidTank) continue;
-                if (tank.isFluidValid(stack)) return tank.fill(stack, action);
-            }
-            return 0;
-        }
-        @Override public FluidStack drain(FluidStack stack, FluidAction action) { return lifeFluidTank.drain(stack, action); }
-        @Override public FluidStack drain(int amount, FluidAction action) { return lifeFluidTank.drain(amount, action); }
-    }
 }
+

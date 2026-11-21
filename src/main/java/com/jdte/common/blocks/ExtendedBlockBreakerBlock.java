@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public class ExtendedBlockBreakerBlock extends BaseMachineBlock {
-    public ExtendedBlockBreakerBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(2.5f).isRedstoneConductor(BaseMachineBlock::never));
+    public ExtendedBlockBreakerBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(2.5f).isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Nullable @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new ExtendedBlockBreakerBE(pos, state); }

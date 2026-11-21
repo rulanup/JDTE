@@ -18,7 +18,7 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -53,7 +53,7 @@ import java.util.function.Supplier;
 
 public final class ExtendedTimeAccelerationManager {
     private static final TagKey<Block> JDT_TICK_SPEED_DENY = BlockTags.create(
-            ResourceLocation.fromNamespaceAndPath("justdirethings", "tick_speed_deny"));
+            Identifier.fromNamespaceAndPath("justdirethings", "tick_speed_deny"));
     private static final boolean AE2_LOADED = ModList.get().isLoaded("ae2");
     private static final Map<ServerLevel, LevelState> LEVELS = new IdentityHashMap<>();
     private static final Map<MinecraftServer, Integer> LEVEL_CURSORS = new IdentityHashMap<>();
@@ -752,7 +752,7 @@ public final class ExtendedTimeAccelerationManager {
 
         @Override
         public Map<BlockPos, BlockEntity> blockEntities(ServerLevel level, ChunkPos chunkPos) {
-            LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
+            LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x(), chunkPos.z());
             return chunk == null ? Map.of() : chunk.getBlockEntities();
         }
 
@@ -910,7 +910,7 @@ public final class ExtendedTimeAccelerationManager {
                     int maxChunkZ = SectionPos.blockToSectionCoord(Mth.ceil(area.maxZ) - 1);
                     for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
                         for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                            byChunk.computeIfAbsent(ChunkPos.asLong(chunkX, chunkZ), ignored -> new ArrayList<>()).add(context);
+                            byChunk.computeIfAbsent(ChunkPos.pack(chunkX, chunkZ), ignored -> new ArrayList<>()).add(context);
                         }
                     }
                 }
@@ -1003,7 +1003,7 @@ public final class ExtendedTimeAccelerationManager {
         private void discoverBlockEntities(ServerLevel level, Map<Long, List<AcceleratorContext>> byChunk,
                                            LevelPreparationAdapter adapter) {
             for (Map.Entry<Long, List<AcceleratorContext>> entry : byChunk.entrySet()) {
-                ChunkPos chunkPos = new ChunkPos(entry.getKey());
+                ChunkPos chunkPos = ChunkPos.unpack(entry.getKey());
                 for (Map.Entry<BlockPos, BlockEntity> blockEntityEntry
                         : adapter.blockEntities(level, chunkPos).entrySet()) {
                     BlockPos pos = blockEntityEntry.getKey();

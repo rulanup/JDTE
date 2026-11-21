@@ -10,15 +10,17 @@ import com.jdte.common.items.machinesettings.MachineSettingsSnapshot;
 import com.jdte.common.items.machinesettings.MachineUpgradeHandlers;
 import com.jdte.common.items.machinesettings.MachineUpgradeTransfer;
 import net.minecraft.core.HolderLookup;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import com.jdte.common.utils.PlayerSoundHelper;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -30,8 +32,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
-    public AdvancedMachineSettingsCopierItem() {
-        super();
+    public AdvancedMachineSettingsCopierItem(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Override
@@ -62,17 +64,17 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         Optional<MachineUpgradeTransfer> transfer = MachineUpgradeTransfer.prepare(
                 player, getPlayerInventory(player), exchange.required());
         if (transfer.isEmpty()) {
-            if (player != null) player.displayClientMessage(
-                    Component.translatable("jdte.message.settings_copier.missing_upgrades"), true);
+            if (player != null) player.sendOverlayMessage(
+                    Component.translatable("jdte.message.settings_copier.missing_upgrades"));
             return InteractionResult.PASS;
         }
 
         MachineUpgradeHandlers.PreparedHandlers previous = prepared.get().upgrades().captureCurrent(machine);
-        try {
-            transfer.get().consume();
+        try (var tx = Transaction.openRoot()) {
+            transfer.get().consume(tx);
             prepared.get().apply(this, level, blockEntity, machine, stack);
+            tx.commit();
         } catch (RuntimeException failure) {
-            transfer.get().rollback();
             previous.apply(machine);
             throw failure;
         }
@@ -82,8 +84,8 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
             }
             player.getInventory().setChanged();
             player.containerMenu.broadcastChanges();
-            player.displayClientMessage(Component.translatable("justdirethings.settingspasted"), true);
-            player.playNotifySound(SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.sendOverlayMessage(Component.translatable("justdirethings.settingspasted"));
+            PlayerSoundHelper.notify(player, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         return InteractionResult.SUCCESS;
     }
@@ -97,7 +99,7 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
                 : new CompoundTag();
 
         if (blockEntity instanceof BaseMachineBE machine) {
-            ResourceLocation machineTypeId = getBlockEntityTypeId(machine);
+            Identifier machineTypeId = getBlockEntityTypeId(machine);
             if (machineTypeId == null) {
                 AdvancedMachineSettingsCopierData.remove(copiedData);
                 AdvancedMachineSettingsCopierData.clearMachineSettings(copiedData);
@@ -151,11 +153,11 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         super.loadSettings(level, blockEntity, stack);
     }
 
-    protected ResourceLocation getBlockEntityTypeId(BaseMachineBE machine) {
+    protected Identifier getBlockEntityTypeId(BaseMachineBE machine) {
         return BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType());
     }
 
-    protected Optional<MachineSettingsCodec> getMachineSettingsCodec(ResourceLocation machineType,
+    protected Optional<MachineSettingsCodec> getMachineSettingsCodec(Identifier machineType,
                                                                        BaseMachineBE machine) {
         return MachineSettingsCodecRegistry.find(machineType, machine);
     }
@@ -190,7 +192,7 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         MachineUpgradeHandlers.write(copiedData, machine, registries);
     }
 
-    private void saveMachineSettings(Level level, BaseMachineBE machine, ResourceLocation machineType,
+    private void saveMachineSettings(Level level, BaseMachineBE machine, Identifier machineType,
                                      CompoundTag copiedData) {
         HolderLookup.Provider registries = getRegistryAccess(level);
         if (registries == null) {
@@ -240,11 +242,14 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         Optional<MachineUpgradeTransfer> transfer = MachineUpgradeTransfer.prepare(
                 player, getPlayerInventory(player), required);
         if (transfer.isEmpty()) return false;
-        transfer.get().consume();
-        return true;
+        try (var tx = Transaction.openRoot()) {
+            transfer.get().consume(tx);
+            tx.commit();
+            return true;
+        }
     }
 
-    protected Inventory getPlayerInventory(Player player) {
+    protected Container getPlayerInventory(Player player) {
         return player == null ? null : player.getInventory();
     }
 
@@ -257,7 +262,7 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
     }
 
     private boolean hasCompatibleType(BaseMachineBE machine, CompoundTag copiedData) {
-        ResourceLocation machineTypeId = getBlockEntityTypeId(machine);
+        Identifier machineTypeId = getBlockEntityTypeId(machine);
         if (machineTypeId == null) {
             return false;
         }
@@ -273,7 +278,7 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
         }
 
         CompoundTag copiedData = copierStack.get(JustDireDataComponents.COPIED_MACHINE_DATA).copyTag();
-        ResourceLocation machineType = getBlockEntityTypeId(machine);
+        Identifier machineType = getBlockEntityTypeId(machine);
         HolderLookup.Provider registries = getRegistryAccess(level);
         if (machineType == null || registries == null || !hasCompatibleType(machine, copiedData)) {
             return Optional.empty();
@@ -308,10 +313,10 @@ public class AdvancedMachineSettingsCopierItem extends MachineSettingsCopier {
 
     private static boolean hasMatchingCommonFields(MachineSettingsSnapshot snapshot) {
         CompoundTag custom = snapshot.custom();
-        return custom.contains("tickSpeed", Tag.TAG_INT)
-                && custom.contains("direction", Tag.TAG_INT)
-                && custom.getInt("tickSpeed") == snapshot.tickSpeed()
-                && custom.getInt("direction") == snapshot.direction();
+        return (custom.get("tickSpeed") instanceof net.minecraft.nbt.IntTag)
+                && (custom.get("direction") instanceof net.minecraft.nbt.IntTag)
+                && custom.getIntOr("tickSpeed", 0) == snapshot.tickSpeed()
+                && custom.getIntOr("direction", 0) == snapshot.direction();
     }
 
     private record PreparedPaste(MachineSettingsCodec.PreparedSettings settings,

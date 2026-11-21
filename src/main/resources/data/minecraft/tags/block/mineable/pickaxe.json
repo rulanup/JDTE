@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "jdte:creative_energy_cell",
     "jdte:basic_time_accelerator",
     "jdte:advanced_time_accelerator",
     "jdte:advanced_entity_accelerator",

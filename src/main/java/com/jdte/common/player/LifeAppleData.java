@@ -1,10 +1,10 @@
 package com.jdte.common.player;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-public class LifeAppleData implements INBTSerializable<CompoundTag> {
+public class LifeAppleData implements ValueIOSerializable {
     private long consumed;
 
     public long getConsumed() {
@@ -22,14 +22,12 @@ public class LifeAppleData implements INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        tag.putLong("consumed", consumed);
-        return tag;
+    public void serialize(ValueOutput output) {
+        output.putLong("consumed", consumed);
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        setConsumed(nbt.getLong("consumed"));
+    public void deserialize(ValueInput input) {
+        setConsumed(input.getLongOr("consumed", 0L));
     }
 }

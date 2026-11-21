@@ -1,6 +1,5 @@
 package com.jdte.common.containers;
 
-import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.SharpnessUpgradeItem;
@@ -12,11 +11,12 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 import javax.annotation.Nullable;
 
-public abstract class BioCrusherContainer extends BaseMachineContainer implements FilterPageHolder {
+public abstract class BioCrusherContainer extends PagedMachineContainer implements FilterPageHolder {
     protected ContainerData bioCrusherData;
     private int outputPage = 0;
 
@@ -213,11 +213,11 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
         }
     }
 
-    public static class BioCrusherOutputSlot extends SlotItemHandler {
+    public static class BioCrusherOutputSlot extends PagedMachineSlot {
         private final BioCrusherContainer container;
         private final int pageColumn;
 
-        private BioCrusherOutputSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition, BioCrusherContainer container, int pageColumn) {
+        private BioCrusherOutputSlot(ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition, BioCrusherContainer container, int pageColumn) {
             super(itemHandler, index, xPosition, yPosition);
             this.container = container;
             this.pageColumn = pageColumn;
@@ -229,58 +229,14 @@ public abstract class BioCrusherContainer extends BaseMachineContainer implement
         }
 
         @Override
-        public ItemStack getItem() {
-            return isActiveSlot() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY;
-        }
-
-        @Override
-        public boolean hasItem() {
-            return !getItem().isEmpty();
-        }
-
-        @Override
-        public void set(ItemStack stack) {
-            if (!isActiveSlot()) {
-                return;
-            }
-            ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
-            setChanged();
-        }
-
-        @Override
-        public void initialize(ItemStack stack) {
-            set(stack);
-        }
-
-        @Override
-        public int getMaxStackSize() {
-            return isActiveSlot() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
-        }
-
-        @Override
-        public int getMaxStackSize(ItemStack stack) {
-            return isActiveSlot() ? Math.min(stack.getMaxStackSize(), getItemHandler().getSlotLimit(getSlotIndex())) : 0;
-        }
-
-        @Override
-        public ItemStack remove(int amount) {
-            return isActiveSlot() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY;
-        }
-
-        @Override
-        public boolean mayPickup(Player player) {
-            return isActiveSlot() && !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty();
-        }
-
-        @Override
         public boolean mayPlace(ItemStack stack) {
             return false;
         }
 
-        private boolean isActiveSlot() {
+        @Override protected boolean isActiveSlot() {
             return container.baseMachineBE instanceof BioCrusherBE crusher
                     && getSlotIndex() < crusher.getActiveOutputSlotCount()
-                    && getSlotIndex() < getItemHandler().getSlots();
+                    && getSlotIndex() < crusher.getMachineHandler().size();
         }
     }
 

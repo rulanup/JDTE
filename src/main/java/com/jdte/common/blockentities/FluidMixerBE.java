@@ -1,5 +1,10 @@
 package com.jdte.common.blockentities;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
@@ -16,9 +21,9 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -29,9 +34,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.List;
 
@@ -55,12 +59,13 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
     public final JDTEFluidTank inputTankB;
     /** 流体输出罐。 */
     public final JDTEFluidTank outputTank;
+    private final ResourceHandler<FluidResource> combinedFluidHandler;
     public final FluidContainerData fluidData;
     /** 额外 ContainerData：输入罐 B 和输出罐同步到客户端。 */
     public final ContainerData fluidMixerData;
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
 
-    protected final ItemStackHandler itemHandler;
+    protected final ItemStacksResourceHandler itemHandler;
     protected int progress = 0;
     private final int baseEnergyCapacity;
 
@@ -80,6 +85,18 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         // Internal production must be able to fill this tank. The combined capability
         // restricts external fills to inputTankA/inputTankB.
         outputTank = new JDTEFluidTank(getMaxMB());
+        combinedFluidHandler = new MachineAutomationHandler<>(
+                new CombinedResourceHandler<>(inputTankA, inputTankB, outputTank), slot -> slot < 2, slot -> slot == 2) {
+            @Override public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+                for (int slot = 0; slot < 2; slot++) {
+                    if (getResource(slot).equals(resource)) return insert(slot, resource, amount, transaction);
+                }
+                for (int slot = 0; slot < 2; slot++) {
+                    if (getResource(slot).isEmpty()) return insert(slot, resource, amount, transaction);
+                }
+                return 0;
+            }
+        };
         fluidData = new FluidContainerData(this);
         fluidMixerData = new ContainerData() {
             private int clientProgress;
@@ -138,9 +155,9 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
                 return 8;
             }
         };
-        itemHandler = new ItemStackHandler(TOTAL_SLOTS) {
+        itemHandler = new MachineInventoryHandler(TOTAL_SLOTS) {
             @Override
-            protected void onContentsChanged(int slot) {
+            protected void onContentsChanged(int slot, ItemStack previous) {
                 setChanged();
             }
         };
@@ -195,7 +212,7 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return itemHandler;
     }
 
@@ -207,71 +224,8 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
      * 供自动化使用的组合流体处理器：将三个罐组合为一个视图。
      * 罐 0/1 为输入（可灌入）、罐 2 为输出（只抽出）。
      */
-    public IFluidHandler getCombinedFluidHandler() {
-        return new IFluidHandler() {
-            @Override
-            public int getTanks() {
-                return 3;
-            }
-
-            @Override
-            public FluidStack getFluidInTank(int tank) {
-                return switch (tank) {
-                    case 0 -> inputTankA.getFluid();
-                    case 1 -> inputTankB.getFluid();
-                    case 2 -> outputTank.getFluid();
-                    default -> FluidStack.EMPTY;
-                };
-            }
-
-            @Override
-            public int getTankCapacity(int tank) {
-                return switch (tank) {
-                    case 0 -> inputTankA.getCapacity();
-                    case 1 -> inputTankB.getCapacity();
-                    case 2 -> outputTank.getCapacity();
-                    default -> 0;
-                };
-            }
-
-            @Override
-            public boolean isFluidValid(int tank, FluidStack stack) {
-                return tank == 0 || tank == 1; // 输出罐不接受灌入
-            }
-
-            @Override
-            public int fill(FluidStack resource, FluidAction action) {
-                if (resource.isEmpty()) return 0;
-                // 优先填入匹配的罐；若都空则 A 先填
-                if (!inputTankA.getFluid().isEmpty() && inputTankA.getFluid().is(resource.getFluid())) {
-                    return inputTankA.fill(resource, action);
-                }
-                if (!inputTankB.getFluid().isEmpty() && inputTankB.getFluid().is(resource.getFluid())) {
-                    return inputTankB.fill(resource, action);
-                }
-                if (inputTankA.getFluid().isEmpty()) {
-                    return inputTankA.fill(resource, action);
-                }
-                if (inputTankB.getFluid().isEmpty()) {
-                    return inputTankB.fill(resource, action);
-                }
-                return 0;
-            }
-
-            @Override
-            public FluidStack drain(FluidStack resource, FluidAction action) {
-                // 只从输出罐抽取
-                if (!resource.isEmpty() && outputTank.getFluid().is(resource.getFluid())) {
-                    return outputTank.drain(resource, action);
-                }
-                return FluidStack.EMPTY;
-            }
-
-            @Override
-            public FluidStack drain(int maxDrain, FluidAction action) {
-                return outputTank.drain(maxDrain, action);
-            }
-        };
+    public ResourceHandler<FluidResource> getCombinedFluidHandler() {
+        return combinedFluidHandler;
     }
 
     // ------ 工作逻辑 ------
@@ -295,7 +249,7 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
 
         FluidStack tankAFluid = inputTankA.getFluid();
         FluidStack tankBFluid = inputTankB.getFluid();
-        ItemStack catalyst = itemHandler.getStackInSlot(CATALYST_SLOT);
+        ItemStack catalyst = itemHandler.getResource(CATALYST_SLOT).toStack(itemHandler.getAmountAsInt(CATALYST_SLOT));
 
         FluidMixerRecipe recipe = findRecipe(tankAFluid, tankBFluid, catalyst);
         if (recipe == null) {
@@ -347,12 +301,12 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         }
 
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-            inputTankA.drain(totalDrainA, IFluidHandler.FluidAction.EXECUTE);
-            inputTankB.drain(totalDrainB, IFluidHandler.FluidAction.EXECUTE);
+            inputTankA.extractFluid(totalDrainA);
+            inputTankB.extractFluid(totalDrainB);
             if (recipe.itemInput().isPresent()) {
                 int itemDrain = recipe.itemInput().get().count() * parallel;
                 catalyst.shrink(itemDrain);
-                itemHandler.setStackInSlot(CATALYST_SLOT, catalyst);
+                itemHandler.set(CATALYST_SLOT, ItemResource.of(catalyst), catalyst.getCount());
             }
             if (totalEnergy > 0) {
                 extractEnergy(totalEnergy, false);
@@ -386,7 +340,7 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         if (!(level instanceof ServerLevel)) return;
         FluidStack tankAFluid = inputTankA.getFluid();
         FluidStack tankBFluid = inputTankB.getFluid();
-        ItemStack catalyst = itemHandler.getStackInSlot(CATALYST_SLOT);
+        ItemStack catalyst = itemHandler.getResource(CATALYST_SLOT).toStack(itemHandler.getAmountAsInt(CATALYST_SLOT));
         FluidMixerRecipe recipe = findRecipe(tankAFluid, tankBFluid, catalyst);
         if (recipe == null || !recipe.hasEnoughFluids(tankAFluid, tankBFluid)) {
             resetProgress();
@@ -426,12 +380,12 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         }
 
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-            inputTankA.drain(totalDrainA, IFluidHandler.FluidAction.EXECUTE);
-            inputTankB.drain(totalDrainB, IFluidHandler.FluidAction.EXECUTE);
+            inputTankA.extractFluid(totalDrainA);
+            inputTankB.extractFluid(totalDrainB);
             if (recipe.itemInput().isPresent()) {
                 int itemDrain = recipe.itemInput().get().count() * parallel;
                 catalyst.shrink(itemDrain);
-                itemHandler.setStackInSlot(CATALYST_SLOT, catalyst);
+                itemHandler.set(CATALYST_SLOT, ItemResource.of(catalyst), catalyst.getCount());
             }
             if (totalEnergy > 0) {
                 extractEnergy(totalEnergy, false);
@@ -507,9 +461,9 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
         }
 
         // 从 JDTE 配方查找
-        if (level != null) {
-            for (RecipeHolder<FluidMixerRecipe> holder : level.getRecipeManager()
-                    .getAllRecipesFor(JDTERecipes.FLUID_MIXER_RECIPE_TYPE.get())) {
+        if (level instanceof ServerLevel serverLevel) {
+            for (RecipeHolder<FluidMixerRecipe> holder : serverLevel.getServer().getRecipeManager()
+                    .recipeMap().byType(JDTERecipes.FLUID_MIXER_RECIPE_TYPE.get())) {
                 if (holder.value().matchesFluids(tankA, tankB, catalyst)) {
                     return holder.value();
                 }
@@ -531,13 +485,13 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
 
     private boolean canOutputFluid(FluidStack result) {
         return !result.isEmpty()
-                && outputTank.fill(result, IFluidHandler.FluidAction.SIMULATE) == result.getAmount();
+                && outputTank.canStore(result);
     }
 
     private boolean storeOutput(FluidStack result) {
         if (!canOutputFluid(result)) return false;
         FluidStack previous = outputTank.getFluid().copy();
-        if (outputTank.fill(result, IFluidHandler.FluidAction.EXECUTE) != result.getAmount()) {
+        if (outputTank.insertFluid(result) != result.getAmount()) {
             outputTank.setFluid(previous);
             return false;
         }
@@ -565,37 +519,25 @@ public abstract class FluidMixerBE extends BaseMachineBE implements PoweredMachi
     // ------ 序列化 ------
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
-        tag.put("inputTankA", inputTankA.serializeNBT(provider));
-        tag.put("inputTankB", inputTankB.serializeNBT(provider));
-        tag.put("outputTank", outputTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
+        tag.putChild("inputTankA", inputTankA);
+        tag.putChild("inputTankB", inputTankB);
+        tag.putChild("outputTank", outputTank);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("progress", progress);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
-        if (tag.contains("inputTankA")) {
-            inputTankA.deserializeNBT(provider, tag.getCompound("inputTankA"));
-        }
-        if (tag.contains("inputTankB")) {
-            inputTankB.deserializeNBT(provider, tag.getCompound("inputTankB"));
-        }
-        if (tag.contains("outputTank")) {
-            outputTank.deserializeNBT(provider, tag.getCompound("outputTank"));
-        }
-        if (tag.contains("energy")) {
-            energyStorage.setEnergy(tag.getInt("energy"));
-        }
-        if (tag.contains("progress")) {
-            progress = tag.getInt("progress");
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("inventory").ifPresent(itemHandler::deserialize);
+        tag.child("inputTankA").ifPresent(inputTankA::deserialize);
+        tag.child("inputTankB").ifPresent(inputTankB::deserialize);
+        tag.child("outputTank").ifPresent(outputTank::deserialize);
+        tag.getInt("energy").ifPresent(energyStorage::setEnergy);
+        progress = tag.getIntOr("progress", progress);
     }
 
     // ------ Mek 桥接（延迟加载）------

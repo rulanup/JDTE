@@ -2,7 +2,7 @@ package com.jdte.common.player;
 
 import com.jdte.JDTE;
 import com.jdte.setup.JDTEAttachments;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -11,9 +11,9 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 public final class LifeAppleProgression {
-    private static final ResourceLocation HEALTH_ID = JDTE.id("life_apple_health");
-    private static final ResourceLocation ARMOR_ID = JDTE.id("life_apple_armor");
-    private static final ResourceLocation TOUGHNESS_ID = JDTE.id("life_apple_armor_toughness");
+    private static final Identifier HEALTH_ID = JDTE.id("life_apple_health");
+    private static final Identifier ARMOR_ID = JDTE.id("life_apple_armor");
+    private static final Identifier TOUGHNESS_ID = JDTE.id("life_apple_armor_toughness");
 
     private LifeAppleProgression() {
     }
@@ -62,7 +62,7 @@ public final class LifeAppleProgression {
         return consumed * 0.01D + (consumed / 10L) * 0.05D;
     }
 
-    private static void replaceModifier(AttributeInstance attribute, ResourceLocation id, double amount,
+    private static void replaceModifier(AttributeInstance attribute, Identifier id, double amount,
                                         AttributeModifier.Operation operation) {
         if (attribute == null) {
             return;

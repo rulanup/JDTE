@@ -1,9 +1,9 @@
 package com.jdte.client.jei.bioextractor;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import com.jdte.JDTE;
 import com.jdte.common.recipes.BioFactoryOutput;
 import com.jdte.setup.JDTEBlocks;
-import com.mojang.blaze3d.systems.RenderSystem;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -13,19 +13,19 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class BioExtractorRecipeCategory implements IRecipeCategory<BioExtractorJeiRecipe> {
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "bio_extractor");
+    public static final Identifier UID = Identifier.fromNamespaceAndPath(JDTE.MODID, "bio_extractor");
     public static final RecipeType<BioExtractorJeiRecipe> RECIPE_TYPE = new RecipeType<>(UID, BioExtractorJeiRecipe.class);
 
-    private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
-    private static final ResourceLocation JDT_BACKGROUND = ResourceLocation.fromNamespaceAndPath("justdirethings", "background");
-    private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
+    private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
+    private static final Identifier JDT_BACKGROUND = Identifier.fromNamespaceAndPath("justdirethings", "background");
+    private static final Identifier JDTE_FLUID_BAR = Identifier.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
 
     private static final int WIDTH = 168;
     private static final int HEIGHT = 70;
@@ -104,27 +104,26 @@ public class BioExtractorRecipeCategory implements IRecipeCategory<BioExtractorJ
     }
 
     @Override
-    public ResourceLocation getRegistryName(BioExtractorJeiRecipe recipe) {
+    public Identifier getRegistryName(BioExtractorJeiRecipe recipe) {
         return recipe.id();
     }
 
     @Override
-    public void draw(BioExtractorJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blitSprite(JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
+    public void draw(BioExtractorJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
 
-        guiGraphics.blitSprite(SLOT_SPRITE, ENTITY_SLOT_X, ENTITY_SLOT_Y, 18, 18);
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, ENTITY_SLOT_X, ENTITY_SLOT_Y, 18, 18);
 
         for (int i = 0; i < Math.min(3, Math.max(1, recipe.outputItems().size())); i++) {
-            guiGraphics.blitSprite(SLOT_SPRITE, ITEM_OUTPUT_X + i * 20, ITEM_OUTPUT_Y, 18, 18);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, ITEM_OUTPUT_X + i * 20, ITEM_OUTPUT_Y, 18, 18);
         }
 
         guiGraphics.fill(ARROW_X, ARROW_Y + 5, ARROW_X + 20, ARROW_Y + 9, 0xFF4A90D9);
 
         String entityTitle = recipe.entityType().getPath();
-        guiGraphics.drawString(Minecraft.getInstance().font, entityTitle, ENTITY_SLOT_X, 8, 0xFF444444, false);
+        guiGraphics.text(Minecraft.getInstance().font, entityTitle, ENTITY_SLOT_X, 8, 0xFF444444, false);
 
         String info = (recipe.cooldown() / 20) + "s | " + recipe.energy() + " FE";
-        guiGraphics.drawString(Minecraft.getInstance().font, info, 42, 54, 0xFF777777, false);
+        guiGraphics.text(Minecraft.getInstance().font, info, 42, 54, 0xFF777777, false);
     }
 }

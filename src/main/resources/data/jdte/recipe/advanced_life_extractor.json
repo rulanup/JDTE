@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "E": { "item": "jdte:extended_bio_crusher" },
-    "G": { "item": "minecraft:gold_ingot" },
-    "D": { "item": "minecraft:diamond" },
-    "R": { "item": "minecraft:redstone" }
+    "E": "jdte:extended_bio_crusher",
+    "G": "minecraft:gold_ingot",
+    "D": "minecraft:diamond",
+    "R": "minecraft:redstone"
   },
   "pattern": [
     "GRG",

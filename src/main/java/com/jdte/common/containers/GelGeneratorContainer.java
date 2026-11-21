@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 import javax.annotation.Nullable;
 
@@ -43,11 +43,11 @@ public abstract class GelGeneratorContainer extends BaseMachineContainer {
     public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
         // 坐标对应 gui_layout.json 中的 gel_generator_slots 默认值
-        addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.GEL_SLOT, 8, -12));
-        addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.FOOD_SLOT, 8, 24));
+        addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, GelGeneratorBE.GEL_SLOT, 8, -12));
+        addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, GelGeneratorBE.FOOD_SLOT, 8, 24));
         for (int i = 0; i < GelGeneratorBE.INPUT_SLOTS; i++) {
-            addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.INPUT_START_SLOT + i, 44, -21 + i * 18));
-            addSlot(new SlotItemHandler(machineHandler, GelGeneratorBE.OUTPUT_START_SLOT + i, 116, -21 + i * 18));
+            addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, GelGeneratorBE.INPUT_START_SLOT + i, 44, -21 + i * 18));
+            addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, GelGeneratorBE.OUTPUT_START_SLOT + i, 116, -21 + i * 18));
         }
     }
 

@@ -1,6 +1,6 @@
 package com.jdte.common.minerals;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MineralOutputPlannerTest {
-    private static final ResourceLocation IRON = id("iron_ore");
-    private static final ResourceLocation GOLD = id("gold_ore");
-    private static final ResourceLocation LIMITED = id("limited_ore");
+    private static final Identifier IRON = id("iron_ore");
+    private static final Identifier GOLD = id("gold_ore");
+    private static final Identifier LIMITED = id("limited_ore");
 
     @Test
     void selectsPartialBatchWhenBacklogExceedsEmptyInventory() {
@@ -72,7 +72,7 @@ class MineralOutputPlannerTest {
     @Test
     void respectsMultipleMineralsAndLowItemStackLimits() {
         List<MineralOutputPlanner.SlotState> slots = emptySlots(3, 64);
-        Map<ResourceLocation, Long> amounts = new LinkedHashMap<>();
+        Map<Identifier, Long> amounts = new LinkedHashMap<>();
         amounts.put(IRON, 64L);
         amounts.put(LIMITED, 32L);
 
@@ -133,7 +133,7 @@ class MineralOutputPlannerTest {
         return List.copyOf(slots);
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("test", path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath("test", path);
     }
 }

@@ -7,7 +7,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerD
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -18,8 +18,8 @@ import com.jdte.common.autoioconfig.OverclockDirectTransferHelper;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -28,8 +28,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -117,7 +117,7 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
         int targetCount = cachedTargets.size();
         int startIndex = Math.floorMod(targetCursor, targetCount);
         int attempted = 0;
-        while (attempted < targetCount && transferred < transferLimit && !fluidTank.isEmpty()) {
+        while (attempted < targetCount && transferred < transferLimit && !fluidTank.getFluid().isEmpty()) {
             int targetIndex = (startIndex + attempted) % targetCount;
             transferred += sendFluidToTarget(serverLevel, cachedTargets.get(targetIndex), transferLimit - transferred);
             attempted++;
@@ -156,30 +156,11 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
     }
 
     private int sendFluidToSide(ServerLevel serverLevel, BlockPos targetPos, Direction side, int limit) {
-        IFluidHandler targetHandler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, side);
-        if (targetHandler == null) return 0;
-
-        FluidStack toSend = fluidTank.drain(limit, IFluidHandler.FluidAction.SIMULATE);
-        if (toSend.isEmpty()) return 0;
-
-        int fillable = targetHandler.fill(toSend, IFluidHandler.FluidAction.SIMULATE);
-        if (fillable <= 0) return 0;
-
-        FluidStack drained = fluidTank.drain(fillable, IFluidHandler.FluidAction.EXECUTE);
-        if (drained.isEmpty()) return 0;
-
-        int filled = targetHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-        if (filled <= 0) {
-            fluidTank.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-            return 0;
-        }
-        if (filled < drained.getAmount()) {
-            FluidStack remainder = drained.copy();
-            remainder.setAmount(drained.getAmount() - filled);
-            fluidTank.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
-        }
+        var target = serverLevel.getCapability(Capabilities.Fluid.BLOCK, targetPos, side);
+        var moved = ResourceHandlerUtil.moveFirst(fluidTank, target, resource -> true, limit, null);
+        if (moved == null) return 0;
         setChanged();
-        return filled;
+        return moved.amount();
     }
 
     private void refreshTargetsIfNeeded(ServerLevel serverLevel) {
@@ -209,16 +190,16 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
     private boolean hasFluidTarget(ServerLevel serverLevel, BlockPos targetPos) {
         Direction preferredSide = getSideFacingMachine(targetPos);
         if (preferredSide != null
-                && serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, preferredSide) != null) {
+                && serverLevel.getCapability(Capabilities.Fluid.BLOCK, targetPos, preferredSide) != null) {
             return true;
         }
         for (Direction side : Direction.values()) {
             if (side != preferredSide
-                    && serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, side) != null) {
+                    && serverLevel.getCapability(Capabilities.Fluid.BLOCK, targetPos, side) != null) {
                 return true;
             }
         }
-        return serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, null) != null;
+        return serverLevel.getCapability(Capabilities.Fluid.BLOCK, targetPos, null) != null;
     }
 
     private boolean sameArea(AABB first, AABB second) {
@@ -297,7 +278,7 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -316,18 +297,16 @@ public abstract class FluidSenderBE extends BaseMachineBE implements FilterableB
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("fluidTank", fluidTank);
         saveAreaSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("fluidTank").ifPresent(fluidTank::deserialize);
         loadAreaSettings(tag);
         areaAffectingData.area = null;
         cachedTargetArea = null;

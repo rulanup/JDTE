@@ -1,6 +1,6 @@
 package com.jdte.common.content;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 
@@ -14,7 +14,7 @@ public final class JDTERecipeFilter {
      * mutable map from its reload listener; keeping this helper generic makes
      * the policy independently testable without loading the recipe framework.
      */
-    public static <T> void filterDisabledRecipes(Map<ResourceLocation, T> recipes,
+    public static <T> void filterDisabledRecipes(Map<Identifier, T> recipes,
                                                  JDTEContentControl control) {
         if (recipes == null || control == null) {
             return;

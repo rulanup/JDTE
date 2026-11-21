@@ -9,7 +9,7 @@ public final class FactoryPackagePreviewChunkPacket {
     private FactoryPackagePreviewChunkPacket() {}
 
     public static void handle(FactoryPackagePreviewChunkPayload payload, IPayloadContext context) {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             ClientHandler.handle(payload, context);
         }
     }

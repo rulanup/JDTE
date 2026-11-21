@@ -1,5 +1,11 @@
 package com.jdte.common.items;
 
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
+import net.minecraft.core.UUIDUtil;
+
 import com.jdte.setup.JDTEItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -8,7 +14,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -32,8 +38,8 @@ public class FactoryPackageItem extends Item {
     private static final String TARGET_DIMENSION = "jdteFactoryPackageTargetDimension";
     private static final String ROTATION = "jdteFactoryPackageRotation";
 
-    public FactoryPackageItem() {
-        super(new Properties().stacksTo(1));
+    public FactoryPackageItem(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     public static boolean isFactoryPackage(ItemStack stack) {
@@ -47,7 +53,7 @@ public class FactoryPackageItem extends Item {
     public static Optional<UUID> getPackageId(ItemStack stack) {
         if (!isFactoryPackage(stack)) return Optional.empty();
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        return tag.hasUUID(PACKAGE_ID) ? Optional.of(tag.getUUID(PACKAGE_ID)) : Optional.empty();
+        return tag.read(PACKAGE_ID, UUIDUtil.CODEC);
     }
 
     public static ItemStack createFilled(UUID packageId, Vec3i size, int blockCount) {
@@ -57,7 +63,7 @@ public class FactoryPackageItem extends Item {
     public static ItemStack createFilled(UUID packageId, Vec3i size, int blockCount, int entityCount) {
         ItemStack stack = new ItemStack(JDTEItems.FACTORY_PACKAGE.get());
         CompoundTag tag = new CompoundTag();
-        tag.putUUID(PACKAGE_ID, packageId);
+        tag.store(PACKAGE_ID, UUIDUtil.CODEC, packageId);
         tag.putInt(SIZE_X, size.getX());
         tag.putInt(SIZE_Y, size.getY());
         tag.putInt(SIZE_Z, size.getZ());
@@ -70,9 +76,9 @@ public class FactoryPackageItem extends Item {
     public static Optional<Vec3i> getSize(ItemStack stack) {
         if (!isFilled(stack)) return Optional.empty();
         CompoundTag tag = getTag(stack);
-        int x = tag.getInt(SIZE_X);
-        int y = tag.getInt(SIZE_Y);
-        int z = tag.getInt(SIZE_Z);
+        int x = tag.getIntOr(SIZE_X, 0);
+        int y = tag.getIntOr(SIZE_Y, 0);
+        int z = tag.getIntOr(SIZE_Z, 0);
         return x > 0 && y > 0 && z > 0 ? Optional.of(new Vec3i(x, y, z)) : Optional.empty();
     }
 
@@ -82,12 +88,12 @@ public class FactoryPackageItem extends Item {
     }
 
     public static int getRotation(ItemStack stack) {
-        return Math.floorMod(getTag(stack).getInt(ROTATION), 4);
+        return Math.floorMod(getTag(stack).getIntOr(ROTATION, 0), 4);
     }
 
     public static void rotate(ItemStack stack, int delta) {
         CompoundTag tag = getTag(stack);
-        tag.putInt(ROTATION, Math.floorMod(tag.getInt(ROTATION) + delta, 4));
+        tag.putInt(ROTATION, Math.floorMod(tag.getIntOr(ROTATION, 0) + delta, 4));
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
@@ -95,12 +101,12 @@ public class FactoryPackageItem extends Item {
         if (!isFilled(stack)) return Optional.empty();
         CompoundTag tag = getTag(stack);
         if (!tag.contains(TARGET_POS) || !tag.contains(TARGET_DIMENSION)) return Optional.empty();
-        ResourceLocation dimension = ResourceLocation.tryParse(tag.getString(TARGET_DIMENSION));
+        Identifier dimension = Identifier.tryParse(tag.getStringOr(TARGET_DIMENSION, ""));
         return dimension == null ? Optional.empty()
-                : Optional.of(new PlacementTarget(BlockPos.of(tag.getLong(TARGET_POS)), dimension));
+                : Optional.of(new PlacementTarget(BlockPos.of(tag.getLongOr(TARGET_POS, 0L)), dimension));
     }
 
-    public static void setPlacementTarget(ItemStack stack, BlockPos origin, ResourceLocation dimension) {
+    public static void setPlacementTarget(ItemStack stack, BlockPos origin, Identifier dimension) {
         CompoundTag tag = getTag(stack);
         tag.putLong(TARGET_POS, origin.asLong());
         tag.putString(TARGET_DIMENSION, dimension.toString());
@@ -124,23 +130,23 @@ public class FactoryPackageItem extends Item {
         if (!isFilled(stack) || getSize(stack).isEmpty()) return InteractionResult.PASS;
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             clearPlacementTarget(stack);
-            if (!context.getLevel().isClientSide) {
-                context.getPlayer().displayClientMessage(
-                        Component.translatable("message.jdte.factory_package.target_cleared"), true);
+            if (!context.getLevel().isClientSide()) {
+                context.getPlayer().sendOverlayMessage(
+                        Component.translatable("message.jdte.factory_package.target_cleared"));
                 context.getPlayer().playSound(SoundEvents.ITEM_FRAME_REMOVE_ITEM, 0.7F, 1.0F);
             }
-            return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
+            return context.getLevel().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         }
         Vec3i size = getRotatedSize(stack);
         BlockPos origin = getPlacementOrigin(context.getClickedPos(), context.getClickedFace(), size);
-        setPlacementTarget(stack, origin, context.getLevel().dimension().location());
-        if (context.getPlayer() != null && !context.getLevel().isClientSide) {
-            context.getPlayer().displayClientMessage(
+        setPlacementTarget(stack, origin, context.getLevel().dimension().identifier());
+        if (context.getPlayer() != null && !context.getLevel().isClientSide()) {
+            context.getPlayer().sendOverlayMessage(
                     Component.translatable("message.jdte.factory_package.target_set",
-                            origin.getX(), origin.getY(), origin.getZ()), true);
+                            origin.getX(), origin.getY(), origin.getZ()));
             context.getPlayer().playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.7F, 1.1F);
         }
-        return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
+        return context.getLevel().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
     }
 
     public static BlockPos getPlacementOrigin(BlockPos clickedPos, Direction face, Vec3i size) {
@@ -159,36 +165,36 @@ public class FactoryPackageItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines,
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> lines,
                                 TooltipFlag tooltipFlag) {
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        if (!tag.hasUUID(PACKAGE_ID)) {
-            lines.add(Component.translatable("tooltip.jdte.factory_package.empty")
+        if (!tag.read(PACKAGE_ID, UUIDUtil.CODEC).isPresent()) {
+            lines.accept(Component.translatable("tooltip.jdte.factory_package.empty")
                     .withStyle(ChatFormatting.GRAY));
             return;
         }
-        lines.add(Component.translatable("tooltip.jdte.factory_package.size",
+        lines.accept(Component.translatable("tooltip.jdte.factory_package.size",
                         tag.getInt(SIZE_X), tag.getInt(SIZE_Y), tag.getInt(SIZE_Z))
                 .withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("tooltip.jdte.factory_package.blocks", tag.getInt(BLOCK_COUNT))
+        lines.accept(Component.translatable("tooltip.jdte.factory_package.blocks", tag.getInt(BLOCK_COUNT))
                 .withStyle(ChatFormatting.GRAY));
-        if (tag.getInt(ENTITY_COUNT) > 0) {
-            lines.add(Component.translatable("tooltip.jdte.factory_package.entities", tag.getInt(ENTITY_COUNT))
+        if (tag.getIntOr(ENTITY_COUNT, 0) > 0) {
+            lines.accept(Component.translatable("tooltip.jdte.factory_package.entities", tag.getIntOr(ENTITY_COUNT, 0))
                     .withStyle(ChatFormatting.GRAY));
         }
         if (getRotation(stack) != 0) {
-            lines.add(Component.translatable("tooltip.jdte.factory_package.rotation", getRotation(stack) * 90)
+            lines.accept(Component.translatable("tooltip.jdte.factory_package.rotation", getRotation(stack) * 90)
                     .withStyle(ChatFormatting.GRAY));
         }
-        getPlacementTarget(stack).ifPresent(target -> lines.add(
+        getPlacementTarget(stack).ifPresent(target -> lines.accept(
                 Component.translatable("tooltip.jdte.factory_package.target",
                                 target.origin().getX(), target.origin().getY(), target.origin().getZ(),
                                 target.dimension().toString())
                         .withStyle(ChatFormatting.AQUA)));
         if (tooltipFlag.isAdvanced()) {
-            lines.add(Component.literal(tag.getUUID(PACKAGE_ID).toString()).withStyle(ChatFormatting.DARK_GRAY));
+            lines.accept(Component.literal(tag.read(PACKAGE_ID, UUIDUtil.CODEC).orElseThrow().toString()).withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 
-    public record PlacementTarget(BlockPos origin, ResourceLocation dimension) {}
+    public record PlacementTarget(BlockPos origin, Identifier dimension) {}
 }

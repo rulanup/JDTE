@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "jdte:item/basic_item_sender"
+  }
+}
