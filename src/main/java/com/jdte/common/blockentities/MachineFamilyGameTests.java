@@ -30,7 +30,6 @@ public final class MachineFamilyGameTests {
     @GameTest(template = "mineral_empty")
     public static void extendedGelGeneratorConvertsARealGooSpreadRecipe(GameTestHelper h) {
         assertGelConversion(h, JDTEBlocks.EXTENDED_GEL_GENERATOR.get(), new BlockPos(4, 1, 2));
-        h.succeed();
     }
 
     private static void assertGelConversion(GameTestHelper h, net.minecraft.world.level.block.Block block,
@@ -81,5 +80,6 @@ public final class MachineFamilyGameTests {
         }
         h.assertTrue(produced, "the generator converted " + recipe.getInput().getBlock()
                 + " into " + expected.getItem());
+        h.succeed();
     }
 }
