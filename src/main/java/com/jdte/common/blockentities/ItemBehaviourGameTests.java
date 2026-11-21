@@ -1,6 +1,7 @@
 package com.jdte.common.blockentities;
 
 import com.jdte.setup.JDTEBlocks;
+import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -125,5 +126,39 @@ public final class ItemBehaviourGameTests {
         var found = h.getLevel().getEntitiesOfClass(type, new net.minecraft.world.phys.AABB(h.absolutePos(relative)).inflate(8));
         h.assertTrue(!found.isEmpty(), "the spawned " + expected + " is present in the level, found=" + found.size());
         found.forEach(Entity::discard);
+    }
+
+    /**
+     * The two Bio Crusher cards are consumed through their dedicated handlers, so the test
+     * drives the machine's own damage and looting calculations instead of spawning a mob:
+     * each card must add exactly its configured step, and each handler must reject the
+     * other card.
+     */
+    @GameTest(template = "mineral_empty")
+    public static void bioCrusherUpgradeCardsDriveDamageAndLooting(GameTestHelper h) {
+        h.setBlock(new BlockPos(2, 1, 2), JDTEBlocks.EXTENDED_BIO_CRUSHER.get());
+        BioCrusherBE crusher = (BioCrusherBE) h.getBlockEntity(new BlockPos(2, 1, 2));
+        int sharpnessStep = JDTEConfig.COMMON.sharpnessDamagePerUpgrade.get();
+
+        h.assertTrue(crusher.getLootingLevel() == 0,
+                "no looting level without a card, actual=" + crusher.getLootingLevel());
+        h.assertTrue(crusher.getLootingHandler().isItemValid(0, new ItemStack(JDTEItems.LOOTING_UPGRADE.get())),
+                "the looting handler accepts its own card");
+        h.assertTrue(!crusher.getLootingHandler().isItemValid(0, new ItemStack(JDTEItems.SHARPNESS_UPGRADE.get())),
+                "the looting handler rejects the sharpness card");
+        h.assertTrue(crusher.getSharpnessHandler().isItemValid(0, new ItemStack(JDTEItems.SHARPNESS_UPGRADE.get())),
+                "the sharpness handler accepts its own card");
+
+        int baseDamage = crusher.calculateDamage();
+        crusher.getSharpnessHandler().setStackInSlot(0, new ItemStack(JDTEItems.SHARPNESS_UPGRADE.get(), 2));
+        int withSharpness = crusher.calculateDamage();
+        h.assertTrue(withSharpness == baseDamage + 2 * sharpnessStep,
+                "two sharpness cards add 2x" + sharpnessStep + " damage, base=" + baseDamage
+                        + " actual=" + withSharpness);
+
+        crusher.getLootingHandler().setStackInSlot(0, new ItemStack(JDTEItems.LOOTING_UPGRADE.get(), 3));
+        h.assertTrue(crusher.getLootingLevel() == 3,
+                "three looting cards give level 3, actual=" + crusher.getLootingLevel());
+        h.succeed();
     }
 }
