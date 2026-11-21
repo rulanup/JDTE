@@ -114,12 +114,14 @@ public final class ItemBehaviourGameTests {
         h.setBlock(new BlockPos(3, 1, 3), Blocks.STONE);
         BlockPos ground = h.absolutePos(new BlockPos(3, 1, 3));
         var player = h.makeMockSurvivalPlayer();
-        new ItemStack(JDTEItems.WITHER_SPAWN_EGG.get()).useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+        ItemStack egg = new ItemStack(JDTEItems.WITHER_SPAWN_EGG.get());
+        var result = egg.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
                 new BlockHitResult(Vec3.atCenterOf(ground), Direction.UP, ground, false)));
 
         var found = h.getLevel().getEntitiesOfClass(
                 net.minecraft.world.entity.boss.wither.WitherBoss.class, new AABB(ground).inflate(10));
-        h.assertTrue(!found.isEmpty(), "the egg spawned a wither, found=" + found.size());
+        h.assertTrue(!found.isEmpty(), "the egg spawned a wither, result=" + result
+                + " stackLeft=" + egg.getCount() + " (0 means spawnMob returned an entity) found=" + found.size());
         found.forEach(Entity::discard);
         h.succeed();
     }
