@@ -467,8 +467,8 @@
     {
       "id": "advanced_gel_generator",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-21 by MachineFamilyGameTests.advancedGelGeneratorConvertsARealGooSpreadRecipe: the test discovers a real tier-1 JDT goo-spread recipe at runtime, installs a Creative card so the pass needs neither fuel nor FE, feeds tier-1 gel plus the recipe input, runs a full conversion and asserts the mapped output item lands in an output slot. Not covered: the fed-fuel and charged-FE paths, and the fluid conversion half."
     },
     {
       "id": "extended_gel_generator",
