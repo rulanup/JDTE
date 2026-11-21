@@ -725,8 +725,8 @@
     {
       "id": "repair_talisman",
       "initial_list": true,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Verified 2026-11-21 by ItemBehaviourGameTests.repairTalismanRepairsDamagedItemsInTheInventory: a damaged iron pickaxe in the inventory is untouched while no talisman is present, and once the talisman is carried one handler cycle repairs exactly the configured amount. The per-durability FE cost is forced to zero for the duration and restored in a finally block because no chargeable item exists in the test world, so the paid path is not covered."
     }
   ]
 }
