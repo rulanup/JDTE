@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.items.RepairTalismanEvents;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEConfig;
@@ -199,6 +200,44 @@ public final class ItemBehaviourGameTests {
         UpgradeHelper.fillClickerItemFromTank(clicker);
         h.assertTrue(tank.getFluidAmount() < 1000,
                 "with the card the tank filled the held bucket, left=" + tank.getFluidAmount());
+        h.succeed();
+    }
+
+    /**
+     * The talisman repairs damaged inventory items on a periodic player tick, and does
+     * nothing without the talisman. The per-durability FE cost is forced to zero for the
+     * duration because no chargeable item exists in this test world; the paying path is
+     * recorded as uncovered.
+     */
+    @GameTest(template = "mineral_empty")
+    public static void repairTalismanRepairsDamagedItemsInTheInventory(GameTestHelper h) {
+        var amount = JDTEConfig.COMMON.repairTalisman.repairTalismanAmountPerCycle;
+        var cost = JDTEConfig.COMMON.repairTalisman.repairTalismanEnergyPerDurability;
+        int originalCost = cost.get();
+        cost.set(0);
+        try {
+            var player = h.makeMockSurvivalPlayer();
+            player.tickCount = 0;
+            ItemStack pick = new ItemStack(net.minecraft.world.item.Items.IRON_PICKAXE);
+            pick.setDamageValue(10);
+            player.getInventory().add(pick);
+
+            int before = pick.getDamageValue();
+            RepairTalismanEvents.onPlayerTick(new net.minecraftforge.event.TickEvent.PlayerTickEvent(
+                    net.minecraftforge.event.TickEvent.Phase.END, player));
+            h.assertTrue(pick.getDamageValue() == before,
+                    "without the talisman nothing is repaired, damage=" + pick.getDamageValue());
+
+            player.getInventory().add(new ItemStack(JDTEItems.REPAIR_TALISMAN.get()));
+            player.tickCount = 0;
+            RepairTalismanEvents.onPlayerTick(new net.minecraftforge.event.TickEvent.PlayerTickEvent(
+                    net.minecraftforge.event.TickEvent.Phase.END, player));
+            h.assertTrue(pick.getDamageValue() == Math.max(0, before - amount.get()),
+                    "one cycle repairs exactly " + amount.get() + " points, before=" + before
+                            + " after=" + pick.getDamageValue());
+        } finally {
+            cost.set(originalCost);
+        }
         h.succeed();
     }
 }
