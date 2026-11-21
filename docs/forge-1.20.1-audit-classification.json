@@ -473,8 +473,8 @@
     {
       "id": "extended_gel_generator",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Implemented and wired. The Ultimate-card restriction that kept this row at P is closed: the gate now mirrors the 1.21.1 source shape, so both Ultimate cards install here. What remains is acceptance coverage, not source behaviour: no dedicated per-family behavioural round exists for this machine (both cards are covered generically by Ultimate27GameTests), so the row is U, not V."
+      "status": "verified",
+      "note": "Verified 2026-11-21 by MachineFamilyGameTests.extendedGelGeneratorConvertsARealGooSpreadRecipe: the extended tier shares the tested conversion body (runtime-discovered tier-1 goo-spread recipe, Creative card to skip fuel and FE, a full progress bar) and produces the mapped output item in an output slot. Not covered: the fed-fuel and charged-FE paths, the fluid conversion half, and the eight-slot upgrade handler."
     },
     {
       "id": "basic_fluid_stabilizer",
