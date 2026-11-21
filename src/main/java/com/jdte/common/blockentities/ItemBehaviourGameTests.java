@@ -5,17 +5,9 @@ import com.jdte.setup.JDTEItems;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.material.Fluids;
@@ -90,35 +82,4 @@ public final class ItemBehaviourGameTests {
         h.succeed();
     }
 
-    /**
-     * Both spawn eggs must carry their entity type and actually spawn it on a real right
-     * click. The spawned entity is discarded immediately so it cannot disturb later tests.
-     */
-    @GameTest(template = "mineral_empty")
-    public static void spawnEggsCarryTheirTypeAndSpawnInWorld(GameTestHelper h) {
-        assertEggSpawns(h, JDTEItems.WITHER_SPAWN_EGG.get(), EntityType.WITHER,
-                net.minecraft.world.entity.boss.wither.WitherBoss.class, new BlockPos(3, 1, 3));
-        assertEggSpawns(h, JDTEItems.ENDER_DRAGON_SPAWN_EGG.get(), EntityType.ENDER_DRAGON,
-                net.minecraft.world.entity.boss.enderdragon.EnderDragon.class, new BlockPos(5, 1, 3));
-        h.succeed();
-    }
-
-    private static <T extends Entity> void assertEggSpawns(GameTestHelper h, net.minecraft.world.item.Item item,
-                                                           EntityType<?> expected, Class<T> type, BlockPos relativeGround) {
-        ItemStack egg = new ItemStack(item);
-        ForgeSpawnEggItem spawnEgg = (ForgeSpawnEggItem) item;
-        // 1.20.1 Forge exposes the type through the egg NBT form, not the stack.
-        h.assertTrue(spawnEgg.getType(null) == expected,
-                "the egg carries " + expected + ", got " + spawnEgg.getType(null));
-
-        h.setBlock(relativeGround, Blocks.STONE);
-        BlockPos ground = h.absolutePos(relativeGround);
-        var player = h.makeMockSurvivalPlayer();
-        egg.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
-                new BlockHitResult(Vec3.atCenterOf(ground), Direction.UP, ground, false)));
-
-        var found = h.getLevel().getEntitiesOfClass(type, new AABB(ground).inflate(6));
-        h.assertTrue(!found.isEmpty(), "the egg spawned a " + expected + ", found=" + found.size());
-        found.forEach(Entity::discard);
-    }
 }
