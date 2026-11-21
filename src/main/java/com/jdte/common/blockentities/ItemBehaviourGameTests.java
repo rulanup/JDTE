@@ -7,7 +7,13 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.block.Blocks;
@@ -90,4 +96,34 @@ public final class ItemBehaviourGameTests {
 
 
 
+
+    /**
+     * JDTE contributes only the registration for these two eggs, so the test covers that
+     * contribution end to end: the item is a spawn egg carrying the expected EntityType, and
+     * that type really is summonable in a live world. The vanilla right-click glue is not
+     * exercised here because a GameTest mock-player context returns PASS before it runs.
+     */
+    @GameTest(template = "mineral_empty")
+    public static void bossSpawnEggsCarrySummonableTypes(GameTestHelper h) {
+        assertSummonableEgg(h, JDTEItems.WITHER_SPAWN_EGG.get(), EntityType.WITHER,
+                net.minecraft.world.entity.boss.wither.WitherBoss.class, new BlockPos(2, 2, 2));
+        assertSummonableEgg(h, JDTEItems.ENDER_DRAGON_SPAWN_EGG.get(), EntityType.ENDER_DRAGON,
+                net.minecraft.world.entity.boss.enderdragon.EnderDragon.class, new BlockPos(5, 2, 5));
+        h.succeed();
+    }
+
+    private static <T extends Entity> void assertSummonableEgg(GameTestHelper h, net.minecraft.world.item.Item item,
+                                                              EntityType<?> expected, Class<T> type, BlockPos relative) {
+        h.assertTrue(item instanceof ForgeSpawnEggItem,
+                "the registered item is a ForgeSpawnEggItem, actual=" + item.getClass().getName());
+        EntityType<?> carried = ((ForgeSpawnEggItem) item).getType(null);
+        h.assertTrue(carried == expected, "the egg carries " + expected + ", actual=" + carried);
+
+        h.setBlock(relative.below(), Blocks.STONE);
+        Entity spawned = expected.spawn((ServerLevel) h.getLevel(), h.absolutePos(relative), MobSpawnType.COMMAND);
+        h.assertTrue(spawned != null, "the carried type spawns in a live world: " + expected);
+        var found = h.getLevel().getEntitiesOfClass(type, new net.minecraft.world.phys.AABB(h.absolutePos(relative)).inflate(8));
+        h.assertTrue(!found.isEmpty(), "the spawned " + expected + " is present in the level, found=" + found.size());
+        found.forEach(Entity::discard);
+    }
 }
