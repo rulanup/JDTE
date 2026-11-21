@@ -163,20 +163,26 @@ public final class ItemBehaviourGameTests {
         h.succeed();
     }
 
+
     /**
-     * The Fluid Storage card is the only way a Clicker gets an internal tank, so the test
-     * installs it and drives the two helpers the clicker tick uses: the tank capacity must
-     * rise above the base, and the tank must then fill a held bucket.
+     * The Fluid Storage card gates the Clicker's tank-to-item path: without it the clicker
+     * ignores its tank, with it a held bucket is topped up from the tank. The base tank
+     * capacity itself does not change, which is why the assertions drive the fill.
      */
     @GameTest(template = "mineral_empty")
-    public static void fluidStorageUpgradeGivesTheClickerItsOwnTank(GameTestHelper h) {
+    public static void fluidStorageUpgradeLetsTheClickerFillItemsFromItsTank(GameTestHelper h) {
         h.setBlock(new BlockPos(2, 1, 2), JDTEBlocks.EXTENDED_CLICKER.get());
         ExtendedClickerBE clicker = (ExtendedClickerBE) h.getBlockEntity(new BlockPos(2, 1, 2));
-
+        var tank = UpgradeHelper.getClickerFluidTank(clicker);
+        h.assertTrue(tank.getCapacity() > 0, "the clicker always has a tank object, capacity=" + tank.getCapacity());
         h.assertTrue(!UpgradeHelper.hasFluidStorageUpgrade(clicker),
-                "no tank upgrade before the card is installed");
-        UpgradeHelper.syncClickerFluidTank(clicker);
-        int baseCapacity = UpgradeHelper.getClickerFluidTank(clicker).getCapacity();
+                "the tank upgrade is absent before the card is installed");
+
+        tank.setFluid(new FluidStack(Fluids.WATER, 1000));
+        clicker.getMachineHandler().setStackInSlot(0, new ItemStack(net.minecraft.world.item.Items.BUCKET));
+        UpgradeHelper.fillClickerItemFromTank(clicker);
+        h.assertTrue(tank.getFluidAmount() == 1000,
+                "without the card the clicker leaves its tank alone, left=" + tank.getFluidAmount());
 
         boolean installed = false;
         var upgrades = UpgradeHelper.getUpgradeHandler(clicker);
@@ -190,16 +196,9 @@ public final class ItemBehaviourGameTests {
         h.assertTrue(installed, "the clicker has a slot that accepts the fluid storage card");
         h.assertTrue(UpgradeHelper.hasFluidStorageUpgrade(clicker), "the installed card is recognised");
 
-        UpgradeHelper.syncClickerFluidTank(clicker);
-        var tank = UpgradeHelper.getClickerFluidTank(clicker);
-        h.assertTrue(tank.getCapacity() > baseCapacity,
-                "the card raised the tank capacity, base=" + baseCapacity + " actual=" + tank.getCapacity());
-
-        tank.setFluid(new FluidStack(Fluids.WATER, 1000));
-        clicker.getMachineHandler().setStackInSlot(0, new ItemStack(net.minecraft.world.item.Items.BUCKET));
         UpgradeHelper.fillClickerItemFromTank(clicker);
         h.assertTrue(tank.getFluidAmount() < 1000,
-                "the tank filled the held bucket, left=" + tank.getFluidAmount());
+                "with the card the tank filled the held bucket, left=" + tank.getFluidAmount());
         h.succeed();
     }
 }
