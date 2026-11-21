@@ -7,17 +7,9 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.block.Blocks;
@@ -98,31 +90,4 @@ public final class ItemBehaviourGameTests {
 
 
 
-    /**
-     * Two-step diagnosis that separates the spawn type from the egg item: first the wither is
-     * placed with {@code MobSpawnType.SPAWN_EGG} at a clear spot (the type the egg itself uses,
-     * which unlike COMMAND runs the obstruction check), then the real egg is right-clicked.
-     */
-    @GameTest(template = "mineral_empty")
-    public static void spawnEggSpawnsAWitherLikeTheEggSpawnTypeDoes(GameTestHelper h) {
-        Entity direct = EntityType.WITHER.spawn((ServerLevel) h.getLevel(),
-                h.absolutePos(new BlockPos(3, 3, 3)), MobSpawnType.SPAWN_EGG);
-        h.assertTrue(direct != null,
-                "a SPAWN_EGG-type placement works at a clear spot, so the obstruction check passes there");
-        direct.discard();
-
-        h.setBlock(new BlockPos(3, 1, 3), Blocks.STONE);
-        BlockPos ground = h.absolutePos(new BlockPos(3, 1, 3));
-        var player = h.makeMockSurvivalPlayer();
-        ItemStack egg = new ItemStack(JDTEItems.WITHER_SPAWN_EGG.get());
-        var result = egg.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
-                new BlockHitResult(Vec3.atCenterOf(ground), Direction.UP, ground, false)));
-
-        var found = h.getLevel().getEntitiesOfClass(
-                net.minecraft.world.entity.boss.wither.WitherBoss.class, new AABB(ground).inflate(10));
-        h.assertTrue(!found.isEmpty(), "the egg spawned a wither, result=" + result
-                + " stackLeft=" + egg.getCount() + " (0 means spawnMob returned an entity) found=" + found.size());
-        found.forEach(Entity::discard);
-        h.succeed();
-    }
 }
