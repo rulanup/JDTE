@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEItems;
@@ -159,6 +160,46 @@ public final class ItemBehaviourGameTests {
         crusher.getLootingHandler().setStackInSlot(0, new ItemStack(JDTEItems.LOOTING_UPGRADE.get(), 3));
         h.assertTrue(crusher.getLootingLevel() == 3,
                 "three looting cards give level 3, actual=" + crusher.getLootingLevel());
+        h.succeed();
+    }
+
+    /**
+     * The Fluid Storage card is the only way a Clicker gets an internal tank, so the test
+     * installs it and drives the two helpers the clicker tick uses: the tank capacity must
+     * rise above the base, and the tank must then fill a held bucket.
+     */
+    @GameTest(template = "mineral_empty")
+    public static void fluidStorageUpgradeGivesTheClickerItsOwnTank(GameTestHelper h) {
+        h.setBlock(new BlockPos(2, 1, 2), JDTEBlocks.EXTENDED_CLICKER.get());
+        ExtendedClickerBE clicker = (ExtendedClickerBE) h.getBlockEntity(new BlockPos(2, 1, 2));
+
+        h.assertTrue(!UpgradeHelper.hasFluidStorageUpgrade(clicker),
+                "no tank upgrade before the card is installed");
+        UpgradeHelper.syncClickerFluidTank(clicker);
+        int baseCapacity = UpgradeHelper.getClickerFluidTank(clicker).getCapacity();
+
+        boolean installed = false;
+        var upgrades = UpgradeHelper.getUpgradeHandler(clicker);
+        for (int i = 0; i < upgrades.getSlots(); i++) {
+            if (upgrades.isItemValid(i, new ItemStack(JDTEItems.FLUID_STORAGE_UPGRADE.get()))) {
+                upgrades.setStackInSlot(i, new ItemStack(JDTEItems.FLUID_STORAGE_UPGRADE.get()));
+                installed = true;
+                break;
+            }
+        }
+        h.assertTrue(installed, "the clicker has a slot that accepts the fluid storage card");
+        h.assertTrue(UpgradeHelper.hasFluidStorageUpgrade(clicker), "the installed card is recognised");
+
+        UpgradeHelper.syncClickerFluidTank(clicker);
+        var tank = UpgradeHelper.getClickerFluidTank(clicker);
+        h.assertTrue(tank.getCapacity() > baseCapacity,
+                "the card raised the tank capacity, base=" + baseCapacity + " actual=" + tank.getCapacity());
+
+        tank.setFluid(new FluidStack(Fluids.WATER, 1000));
+        clicker.getMachineHandler().setStackInSlot(0, new ItemStack(net.minecraft.world.item.Items.BUCKET));
+        UpgradeHelper.fillClickerItemFromTank(clicker);
+        h.assertTrue(tank.getFluidAmount() < 1000,
+                "the tank filled the held bucket, left=" + tank.getFluidAmount());
         h.succeed();
     }
 }
