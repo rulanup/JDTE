@@ -240,4 +240,30 @@ public final class ItemBehaviourGameTests {
         }
         h.succeed();
     }
+
+    /**
+     * The extended freezer is a thin shell over the same block entity, so it must pin the
+     * dimension clock through the identical manager path. It gets its own test because a
+     * second freezer activated in the same world interferes with the first one's state.
+     */
+    @GameTest(template = "mineral_empty")
+    public static void extendedTimeFreezerPinsTheDayTimeOfItsDimension(GameTestHelper h) {
+        h.setBlock(new BlockPos(2, 1, 2), JDTEBlocks.EXTENDED_TIME_FREEZER.get());
+        TimeFreezerBE freezer = (TimeFreezerBE) h.getBlockEntity(new BlockPos(2, 1, 2));
+        freezer.setTimeFreezeEnabled(true);
+        ServerLevel level = h.getLevel();
+
+        TimeFreezerManager.activate(freezer, level);
+        try {
+            long frozen = level.getDayTime();
+            level.setDayTime(frozen + 6_000L);
+            TimeFreezerManager.refreshActive(freezer, level);
+            h.assertTrue(level.getDayTime() == frozen,
+                    "the extended freezer pinned the day time, expected=" + frozen
+                            + " actual=" + level.getDayTime());
+        } finally {
+            TimeFreezerManager.deactivate(freezer);
+        }
+        h.succeed();
+    }
 }
