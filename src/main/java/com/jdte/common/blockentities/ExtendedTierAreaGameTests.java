@@ -157,4 +157,27 @@ public final class ExtendedTierAreaGameTests {
                 "the swapper sees more than the single faced block, found=" + found.size() + " " + found);
         h.succeed();
     }
+
+    /**
+     * The dropper has no area discovery: its operation is a real drop, and BaseMachineBE only
+     * allows one while operationTicks is zero, so the machine must be driven through its own
+     * ticker for a full drop period rather than a handful of ticks.
+     */
+    @GameTest(template = "mineral_empty")
+    public static void extendedDropperDropsARealItemEntityFromItsTicker(GameTestHelper h) {
+        ExtendedDropperBE dropper = place(h, JDTEBlocks.EXTENDED_DROPPER.get(), ExtendedDropperBE.class);
+        dropper.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        dropper.getEnergyStorage().setEnergy(dropper.getMaxEnergy());
+        h.setBlock(POS.north(), Blocks.AIR);
+        dropper.getMachineHandler().setStackInSlot(0, new ItemStack(Items.STONE, 8));
+
+        // A full drop period can be longer than a few ticks, so give the machine plenty of them.
+        tick(h, dropper, 60);
+
+        int dropped = h.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                new AABB(h.absolutePos(POS).offset(-3, -3, -3), h.absolutePos(POS).offset(3, 3, 3))).size();
+        h.assertTrue(dropped >= 1, "the dropper dropped a real item entity, dropped=" + dropped
+                + " input=" + dropper.getMachineHandler().getStackInSlot(0));
+        h.succeed();
+    }
 }
