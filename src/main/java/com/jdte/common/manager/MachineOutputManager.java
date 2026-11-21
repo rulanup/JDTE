@@ -40,8 +40,7 @@ public final class MachineOutputManager {
         OutputRange range = outputRange(machine);
         if (range == null) return;
         for (int slot = range.start(); slot < range.start() + range.count(); slot++) {
-            ItemStack stack = machine.getMachineHandler().getStackInSlot(slot);
-            if (!stack.isEmpty()) submit(machine, slot);
+            if (!machine.getMachineHandler().getResource(slot).isEmpty()) submit(machine, slot);
         }
         if (machine.getLevel() instanceof ServerLevel level) {
             PendingOutput pending = LEVELS.getOrDefault(level, new IdentityHashMap<>()).get(machine);
@@ -132,9 +131,9 @@ public final class MachineOutputManager {
     }
 
     private static void pruneEmptySlots(BaseMachineBE machine, BitSet slots) {
-        int handlerSlots = machine.getMachineHandler().getSlots();
+        int handlerSlots = machine.getMachineHandler().size();
         for (int slot = slots.nextSetBit(0); slot >= 0; slot = slots.nextSetBit(slot + 1)) {
-            if (slot >= handlerSlots || machine.getMachineHandler().getStackInSlot(slot).isEmpty()) slots.clear(slot);
+            if (slot >= handlerSlots || machine.getMachineHandler().getResource(slot).isEmpty()) slots.clear(slot);
             if (slot == Integer.MAX_VALUE) break;
         }
     }

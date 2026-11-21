@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "jdte:filled",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "jdte:item/factory_package"
+    },
+    "entries": [
+      {
+        "threshold": 1.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "jdte:item/factory_package_filled"
+        }
+      }
+    ]
+  }
+}

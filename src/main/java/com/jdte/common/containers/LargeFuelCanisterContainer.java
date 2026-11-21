@@ -10,8 +10,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class LargeFuelCanisterContainer extends BaseContainer {
     public final LargeFuelCanisterHandler handler;
@@ -46,8 +46,8 @@ public class LargeFuelCanisterContainer extends BaseContainer {
         this.playerEntity = player;
         this.fuelCanisterItemstack = stack;
         this.binding = binding;
-        this.handler = new LargeFuelCanisterHandler(1, stack);
-        addSlotRange(handler, 0, 80, 35, 1, 18);
+        this.handler = new LargeFuelCanisterHandler(1, stack, player.level().fuelValues());
+        addSlot(new ResourceHandlerSlot(handler, handler::set, 0, 80, 35));
         addPlayerSlots(inventory, 8, 84);
     }
 
@@ -87,11 +87,11 @@ public class LargeFuelCanisterContainer extends BaseContainer {
 
     @Override
     public void removed(Player player) {
-        if (!player.level().isClientSide) {
-            ItemStack remaining = handler.getStackInSlot(0);
+        if (!player.level().isClientSide()) {
+            ItemStack remaining = handler.getResource(0).toStack(handler.getAmountAsInt(0));
             if (!remaining.isEmpty()) {
-                handler.setStackInSlot(0, ItemStack.EMPTY);
-                ItemHandlerHelper.giveItemToPlayer(player, remaining);
+                handler.set(0, ItemResource.EMPTY, 0);
+                player.getInventory().placeItemBackInInventory(remaining);
             }
         }
         super.removed(player);

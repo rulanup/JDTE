@@ -10,7 +10,7 @@ public final class SpawnEggRecipeSyncPacket {
     }
 
     public static void handle(SpawnEggRecipeSyncPayload payload, IPayloadContext context) {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             ClientHandler.handle(payload, context);
         }
     }

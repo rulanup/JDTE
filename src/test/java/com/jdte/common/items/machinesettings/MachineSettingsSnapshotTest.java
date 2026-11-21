@@ -2,7 +2,7 @@ package com.jdte.common.items.machinesettings;
 
 import com.jdte.common.items.AdvancedMachineSettingsCopierData;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -15,7 +15,7 @@ class MachineSettingsSnapshotTest {
     void roundTripsCommonSettingsAndCustomSettings() {
         CompoundTag copied = new CompoundTag();
         MachineSettingsSnapshot.write(copied,
-                ResourceLocation.parse("justdirethings:clicker_t2"),
+                Identifier.parse("justdirethings:clicker_t2"),
                 7, 4, new CompoundTag());
 
         MachineSettingsSnapshot snapshot = MachineSettingsSnapshot.read(copied).orElseThrow();
@@ -23,7 +23,7 @@ class MachineSettingsSnapshotTest {
         assertEquals(1, snapshot.schemaVersion());
         assertEquals(7, snapshot.tickSpeed());
         assertEquals(4, snapshot.direction());
-        assertEquals(ResourceLocation.parse("justdirethings:clicker_t2"), snapshot.machineType());
+        assertEquals(Identifier.parse("justdirethings:clicker_t2"), snapshot.machineType());
     }
 
     @Test
@@ -44,10 +44,10 @@ class MachineSettingsSnapshotTest {
     void acceptsLegacyCopiedDataWithoutTheNewSettingsNode() {
         CompoundTag copied = new CompoundTag();
         AdvancedMachineSettingsCopierData.writeMachineType(
-                copied, ResourceLocation.parse("justdirethings:clicker_t1"));
+                copied, Identifier.parse("justdirethings:clicker_t1"));
 
         assertTrue(MachineSettingsSnapshot.read(copied).isEmpty());
-        assertEquals(Optional.of(ResourceLocation.parse("justdirethings:clicker_t1")),
+        assertEquals(Optional.of(Identifier.parse("justdirethings:clicker_t1")),
                 AdvancedMachineSettingsCopierData.readMachineType(copied));
     }
 
@@ -58,7 +58,7 @@ class MachineSettingsSnapshotTest {
 
         CompoundTag copied = new CompoundTag();
         MachineSettingsSnapshot.write(copied,
-                ResourceLocation.parse("justdirethings:clicker_t2"),
+                Identifier.parse("justdirethings:clicker_t2"),
                 7, 4, custom);
 
         custom.putInt("Size", 9);
@@ -66,6 +66,6 @@ class MachineSettingsSnapshotTest {
         MachineSettingsSnapshot snapshot = MachineSettingsSnapshot.read(copied).orElseThrow();
         snapshot.custom().putInt("Size", 12);
 
-        assertEquals(4, copied.getCompound("jdteMachineSettings").getCompound("custom").getInt("Size"));
+        assertEquals(4, copied.getCompound("jdteMachineSettings").orElseThrow().getCompound("custom").orElseThrow().getInt("Size").orElseThrow());
     }
 }

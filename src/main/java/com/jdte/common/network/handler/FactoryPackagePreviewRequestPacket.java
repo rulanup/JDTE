@@ -7,7 +7,7 @@ import com.jdte.common.network.data.FactoryPackagePreviewChunkPayload;
 import com.jdte.common.network.data.FactoryPackagePreviewChunkPayload.PreviewBlock;
 import com.jdte.common.network.data.FactoryPackagePreviewRequestPayload;
 import com.jdte.setup.JDTEConfig;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,7 +32,7 @@ public final class FactoryPackagePreviewRequestPacket {
             ItemStack held = FactoryPackageItem.isFilled(player.getMainHandItem())
                     ? player.getMainHandItem() : player.getOffhandItem();
             if (!FactoryPackageItem.getPackageId(held).filter(payload.packageId()::equals).isPresent()) return;
-            MinecraftServer server = player.getServer();
+            MinecraftServer server = player.level().getServer();
             if (server == null) return;
             Util.ioPool().execute(() -> {
                 try {

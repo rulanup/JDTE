@@ -50,53 +50,6 @@
     {
       "when": {
         "facing": "north",
-        "x_part": "right",
-        "depth_part": "front",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_front_right"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "right",
-        "depth_part": "front",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_front_right",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "right",
-        "depth_part": "front",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_front_right",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "right",
-        "depth_part": "front",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_front_right",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
         "x_part": "left",
         "depth_part": "middle",
         "layer_part": "base"
@@ -138,100 +91,6 @@
       },
       "apply": {
         "model": "jdte:block/large_mineral_extractor_base_middle_left",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
-        "x_part": "center",
-        "depth_part": "middle",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_middle_center"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "center",
-        "depth_part": "middle",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_middle_center",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "center",
-        "depth_part": "middle",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_middle_center",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "center",
-        "depth_part": "middle",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_middle_center",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
-        "x_part": "right",
-        "depth_part": "middle",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_middle_right"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "right",
-        "depth_part": "middle",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_middle_right",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "right",
-        "depth_part": "middle",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_middle_right",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "right",
-        "depth_part": "middle",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_middle_right",
         "y": 270
       }
     },
@@ -285,100 +144,6 @@
     {
       "when": {
         "facing": "north",
-        "x_part": "center",
-        "depth_part": "back",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_back_center"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "center",
-        "depth_part": "back",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_back_center",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "center",
-        "depth_part": "back",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_back_center",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "center",
-        "depth_part": "back",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_back_center",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
-        "x_part": "right",
-        "depth_part": "back",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_back_right"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "right",
-        "depth_part": "back",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_back_right",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "right",
-        "depth_part": "back",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_back_right",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "right",
-        "depth_part": "back",
-        "layer_part": "base"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_base_back_right",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
         "x_part": "left",
         "depth_part": "front",
         "layer_part": "top"
@@ -426,100 +191,6 @@
     {
       "when": {
         "facing": "north",
-        "x_part": "center",
-        "depth_part": "front",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_front_center"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "center",
-        "depth_part": "front",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_front_center",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "center",
-        "depth_part": "front",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_front_center",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "center",
-        "depth_part": "front",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_front_center",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
-        "x_part": "right",
-        "depth_part": "front",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_front_right"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "right",
-        "depth_part": "front",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_front_right",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "right",
-        "depth_part": "front",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_front_right",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "right",
-        "depth_part": "front",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_front_right",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
         "x_part": "left",
         "depth_part": "middle",
         "layer_part": "top"
@@ -561,100 +232,6 @@
       },
       "apply": {
         "model": "jdte:block/large_mineral_extractor_top_middle_left",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
-        "x_part": "center",
-        "depth_part": "middle",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_middle_center"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "center",
-        "depth_part": "middle",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_middle_center",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "center",
-        "depth_part": "middle",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_middle_center",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "center",
-        "depth_part": "middle",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_middle_center",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "facing": "north",
-        "x_part": "right",
-        "depth_part": "middle",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_middle_right"
-      }
-    },
-    {
-      "when": {
-        "facing": "east",
-        "x_part": "right",
-        "depth_part": "middle",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_middle_right",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south",
-        "x_part": "right",
-        "depth_part": "middle",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_middle_right",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west",
-        "x_part": "right",
-        "depth_part": "middle",
-        "layer_part": "top"
-      },
-      "apply": {
-        "model": "jdte:block/large_mineral_extractor_top_middle_right",
         "y": 270
       }
     },
@@ -709,6 +286,194 @@
       "when": {
         "facing": "north",
         "x_part": "center",
+        "depth_part": "middle",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_middle_center"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "center",
+        "depth_part": "middle",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_middle_center",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "center",
+        "depth_part": "middle",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_middle_center",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "center",
+        "depth_part": "middle",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_middle_center",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "center",
+        "depth_part": "back",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_back_center"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "center",
+        "depth_part": "back",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_back_center",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "center",
+        "depth_part": "back",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_back_center",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "center",
+        "depth_part": "back",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_back_center",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "center",
+        "depth_part": "front",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_front_center"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "center",
+        "depth_part": "front",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_front_center",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "center",
+        "depth_part": "front",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_front_center",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "center",
+        "depth_part": "front",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_front_center",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "center",
+        "depth_part": "middle",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_middle_center"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "center",
+        "depth_part": "middle",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_middle_center",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "center",
+        "depth_part": "middle",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_middle_center",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "center",
+        "depth_part": "middle",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_middle_center",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "center",
         "depth_part": "back",
         "layer_part": "top"
       },
@@ -749,6 +514,241 @@
       },
       "apply": {
         "model": "jdte:block/large_mineral_extractor_top_back_center",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "right",
+        "depth_part": "front",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_front_right"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "right",
+        "depth_part": "front",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_front_right",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "right",
+        "depth_part": "front",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_front_right",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "right",
+        "depth_part": "front",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_front_right",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "right",
+        "depth_part": "middle",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_middle_right"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "right",
+        "depth_part": "middle",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_middle_right",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "right",
+        "depth_part": "middle",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_middle_right",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "right",
+        "depth_part": "middle",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_middle_right",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "right",
+        "depth_part": "back",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_back_right"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "right",
+        "depth_part": "back",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_back_right",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "right",
+        "depth_part": "back",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_back_right",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "right",
+        "depth_part": "back",
+        "layer_part": "base"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_base_back_right",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "right",
+        "depth_part": "front",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_front_right"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "right",
+        "depth_part": "front",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_front_right",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "right",
+        "depth_part": "front",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_front_right",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "right",
+        "depth_part": "front",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_front_right",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "x_part": "right",
+        "depth_part": "middle",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_middle_right"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "x_part": "right",
+        "depth_part": "middle",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_middle_right",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "x_part": "right",
+        "depth_part": "middle",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_middle_right",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "x_part": "right",
+        "depth_part": "middle",
+        "layer_part": "top"
+      },
+      "apply": {
+        "model": "jdte:block/large_mineral_extractor_top_middle_right",
         "y": 270
       }
     },

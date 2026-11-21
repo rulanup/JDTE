@@ -38,7 +38,7 @@ public final class RegionChunkIndex<K, T> {
     public Set<T> entriesAt(Level level, double x, double z) {
         LevelData<K, T> data = levels.get(level);
         if (data == null) return Collections.emptySet();
-        return data.byChunk.getOrDefault(ChunkPos.asLong(
+        return data.byChunk.getOrDefault(ChunkPos.pack(
                 SectionPos.blockToSectionCoord(Mth.floor(x)),
                 SectionPos.blockToSectionCoord(Mth.floor(z))), Collections.emptySet());
     }
@@ -65,7 +65,7 @@ public final class RegionChunkIndex<K, T> {
             Set<Long> chunks = new LinkedHashSet<>();
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    long key = ChunkPos.asLong(x, z);
+                    long key = ChunkPos.pack(x, z);
                     chunks.add(key);
                     byChunk.computeIfAbsent(key, ignored -> new LinkedHashSet<>()).add(entry);
                 }

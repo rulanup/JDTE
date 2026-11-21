@@ -1,7 +1,6 @@
 package com.jdte.common.blockentities;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.List;
 
@@ -17,34 +16,16 @@ final class GreenhouseCapacityLedger {
         this.limits = limits;
     }
 
-    static GreenhouseCapacityLedger capture(IItemHandler handler) {
-        return capture(handler, ItemStack.EMPTY);
-    }
-
-    static GreenhouseCapacityLedger captureWithout(IItemHandler handler, ItemStack excluded) {
-        return capture(handler, excluded);
-    }
-
-    static GreenhouseCapacityLedger empty(IItemHandler handler) {
-        GreenhouseCapacityLedger ledger = capture(handler);
-        java.util.Arrays.fill(ledger.types, ItemStack.EMPTY);
-        java.util.Arrays.fill(ledger.counts, 0);
-        return ledger;
-    }
-
-    private static GreenhouseCapacityLedger capture(IItemHandler handler, ItemStack excluded) {
-        int slots = handler.getSlots();
+    static GreenhouseCapacityLedger capture(GreenhouseOutputInventory handler) {
+        int slots = handler.size();
         ItemStack[] types = new ItemStack[slots];
         int[] counts = new int[slots];
         int[] limits = new int[slots];
         for (int slot = 0; slot < slots; slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
-            if (!excluded.isEmpty() && ItemStack.isSameItemSameComponents(stack, excluded)) {
-                stack = ItemStack.EMPTY;
-            }
+            ItemStack stack = handler.copyStack(slot);
             types[slot] = stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
             counts[slot] = stack.getCount();
-            limits[slot] = handler.getSlotLimit(slot);
+            limits[slot] = handler.slotLimit(slot);
         }
         return new GreenhouseCapacityLedger(types, counts, limits);
     }

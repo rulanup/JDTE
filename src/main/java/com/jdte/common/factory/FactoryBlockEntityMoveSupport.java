@@ -6,12 +6,13 @@ import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.neoforged.fml.ModList;
 
 public final class FactoryBlockEntityMoveSupport {
@@ -26,7 +27,9 @@ public final class FactoryBlockEntityMoveSupport {
             rotated = state.rotate(rotation);
         }
         for (var property : state.getProperties()) {
-            if (property instanceof DirectionProperty directionProperty) {
+            if (property instanceof EnumProperty<?> && property.getValueClass() == Direction.class) {
+                @SuppressWarnings("unchecked")
+                EnumProperty<Direction> directionProperty = (EnumProperty<Direction>) property;
                 var before = state.getValue(directionProperty);
                 var after = rotated.getValue(directionProperty);
                 var expected = rotation.rotate(before);
@@ -75,7 +78,18 @@ public final class FactoryBlockEntityMoveSupport {
         if (JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get() && ModList.get().isLoaded("ae2")) {
             return AE2FactoryMoveIntegration.beginMove(blockEntity, registries);
         }
-        return blockEntity.saveWithId(registries);
+        return saveWithId(blockEntity, registries);
+    }
+
+    public static CompoundTag saveWithId(BlockEntity blockEntity, HolderLookup.Provider registries) {
+        var problems = new net.minecraft.util.ProblemReporter.Collector();
+        var output = net.minecraft.world.level.storage.TagValueOutput.createWithContext(problems, registries);
+        blockEntity.saveWithId(output);
+        if (!problems.isEmpty()) {
+            throw new IllegalStateException("Cannot capture block entity at " + blockEntity.getBlockPos()
+                    + ": " + problems.getReport());
+        }
+        return output.buildResult();
     }
 
     public static MekanismFactoryMoveIntegration.ReactorCheck validateMekanismMove(BlockEntity blockEntity,
@@ -84,18 +98,18 @@ public final class FactoryBlockEntityMoveSupport {
         if (!ModList.get().isLoaded("mekanismgenerators")) {
             return new MekanismFactoryMoveIntegration.ReactorCheck(false, true, BlockPos.ZERO, BlockPos.ZERO);
         }
-        return MekanismFactoryMoveIntegration.validate(blockEntity, selectionMin, selectionMax);
+        return MekanismFactoryMoveIntegration.FissionReactor.validate(blockEntity, selectionMin, selectionMax);
     }
 
     public static void quiesceForMove(BlockEntity blockEntity) {
         if (ModList.get().isLoaded("mekanismgenerators")) {
-            MekanismFactoryMoveIntegration.quiesce(blockEntity);
+            MekanismFactoryMoveIntegration.FissionReactor.quiesce(blockEntity);
         }
     }
 
     public static boolean isQuiescedForMove(BlockEntity blockEntity) {
         return !ModList.get().isLoaded("mekanismgenerators")
-                || MekanismFactoryMoveIntegration.isQuiesced(blockEntity);
+                || MekanismFactoryMoveIntegration.FissionReactor.isQuiesced(blockEntity);
     }
 
     public static void preserveMekanismTransmitterContents(BlockEntity blockEntity) {
@@ -114,7 +128,7 @@ public final class FactoryBlockEntityMoveSupport {
     }
 
     public static boolean isExpectedMultiblockTeardown(BlockState expected, BlockState current) {
-        ResourceLocation expectedId = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(expected.getBlock());
+        Identifier expectedId = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(expected.getBlock());
         if (expectedId.getNamespace().equals("mekanism") && expectedId.getPath().equals("bounding_block")) {
             return current.isAir();
         }
@@ -138,7 +152,7 @@ public final class FactoryBlockEntityMoveSupport {
         }
     }
 
-    public static void finalizeExternalMove(BlockEntity blockEntity, ResourceLocation sourceDimension,
+    public static void finalizeExternalMove(BlockEntity blockEntity, Identifier sourceDimension,
                                             BlockPos sourcePos) {
         if (blockEntity == null || !JDTEConfig.COMMON.factoryPackerUseModMoveStrategies.get()) return;
         if (ModList.get().isLoaded("ae2cs")) {

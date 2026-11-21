@@ -1,6 +1,7 @@
 package com.jdte.common.entities;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -10,7 +11,7 @@ import net.minecraft.network.codec.StreamCodec;
  * Data stored on an entity that is currently accelerated by the Ultimate Time Wand.
  */
 public class EntityAccelerationData {
-    public static final Codec<EntityAccelerationData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final MapCodec<EntityAccelerationData> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.INT.fieldOf("exponent").forGetter(EntityAccelerationData::getExponent),
             Codec.INT.fieldOf("totalTime").forGetter(EntityAccelerationData::getTotalTime),
             Codec.INT.fieldOf("remainingTime").forGetter(EntityAccelerationData::getRemainingTime)

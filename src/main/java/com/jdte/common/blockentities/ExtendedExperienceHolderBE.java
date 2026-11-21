@@ -4,7 +4,7 @@ import com.direwolf20.justdirethings.client.particles.itemparticle.ItemFlowParti
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.ExperienceUtils;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
@@ -12,8 +12,8 @@ import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
@@ -24,16 +24,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.List;
 
 public class ExtendedExperienceHolderBE extends BaseMachineBE
         implements AreaAffectingBE, RedstoneControlledBE {
-    protected BlockCapabilityCache<IFluidHandler, Direction> attachedTank;
     public AreaAffectingData areaAffectingData = new AreaAffectingData(
             getBlockState().getValue(BlockStateProperties.FACING).getOpposite());
     public RedstoneControlData redstoneControlData = getDefaultRedstoneData();
@@ -43,7 +42,7 @@ public class ExtendedExperienceHolderBE extends BaseMachineBE
     public boolean collectExp;
     public boolean ownerOnly;
     public boolean showParticles = true;
-    private final IFluidHandler xpFluidHandler = new XpFluidHandler();
+    private final ResourceHandler<FluidResource> xpFluidHandler = new XpFluidHandler();
 
     public ExtendedExperienceHolderBE(BlockPos pos, BlockState state) {
         super(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), pos, state);
@@ -252,28 +251,13 @@ public class ExtendedExperienceHolderBE extends BaseMachineBE
         }
     }
 
-    private IFluidHandler getAttachedTank() {
-        if (attachedTank == null) {
-            assert this.level != null;
-            BlockState state = level.getBlockState(getBlockPos());
-            Direction facing = state.getValue(BlockStateProperties.FACING);
-            BlockPos inventoryPos = getBlockPos().relative(facing);
-            attachedTank = BlockCapabilityCache.create(
-                    Capabilities.FluidHandler.BLOCK,
-                    (ServerLevel) this.level,
-                    inventoryPos,
-                    facing.getOpposite());
-        }
-        return attachedTank.getCapability();
-    }
-
-    public IFluidHandler getXpFluidHandler() {
+    public ResourceHandler<FluidResource> getXpFluidHandler() {
         return xpFluidHandler;
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putInt("exp", exp);
         tag.putInt("targetExp", targetExp);
         tag.putBoolean("collectExp", collectExp);
@@ -282,13 +266,13 @@ public class ExtendedExperienceHolderBE extends BaseMachineBE
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        exp = tag.getInt("exp");
-        targetExp = tag.getInt("targetExp");
-        collectExp = tag.getBoolean("collectExp");
-        ownerOnly = tag.getBoolean("ownerOnly");
-        showParticles = tag.getBoolean("showParticles");
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        exp = tag.getIntOr("exp", 0);
+        targetExp = tag.getIntOr("targetExp", 0);
+        collectExp = tag.getBooleanOr("collectExp", false);
+        ownerOnly = tag.getBooleanOr("ownerOnly", false);
+        showParticles = tag.getBooleanOr("showParticles", false);
     }
 
     @Override
@@ -317,63 +301,40 @@ public class ExtendedExperienceHolderBE extends BaseMachineBE
         return true;
     }
 
-    private final class XpFluidHandler implements IFluidHandler {
+    private final class XpFluidHandler extends SnapshotJournal<Integer> implements ResourceHandler<FluidResource> {
         private static final int MB_PER_XP = 20;
 
-        @Override
-        public int getTanks() {
-            return 1;
+        @Override public int size() { return 1; }
+        @Override public FluidResource getResource(int index) {
+            return exp > 0 ? FluidResource.of(JDTRegistration.XP_FLUID_SOURCE.get()) : FluidResource.EMPTY;
         }
-
-        @Override
-        public FluidStack getFluidInTank(int tank) {
-            if (tank != 0 || exp <= 0) return FluidStack.EMPTY;
-            return new FluidStack(Registration.XP_FLUID_SOURCE.get(), fluidAmount());
+        @Override public long getAmountAsLong(int index) {
+            return Math.min(Integer.MAX_VALUE, Math.max(0L, (long) exp * MB_PER_XP));
         }
-
-        @Override
-        public int getTankCapacity(int tank) {
-            return Integer.MAX_VALUE;
+        @Override public long getCapacityAsLong(int index, FluidResource resource) {
+            return isValid(index, resource) ? Integer.MAX_VALUE : 0;
         }
-
-        @Override
-        public boolean isFluidValid(int tank, FluidStack stack) {
-            return tank == 0 && stack.getFluid() == Registration.XP_FLUID_SOURCE.get();
+        @Override public boolean isValid(int index, FluidResource resource) {
+            return index == 0 && (resource.isEmpty() || resource.equals(FluidResource.of(JDTRegistration.XP_FLUID_SOURCE.get())));
         }
-
-        @Override
-        public int fill(FluidStack resource, FluidAction action) {
-            if (!isFluidValid(0, resource)) return 0;
-            int accepted = (int) Math.min(
-                    (long) (resource.getAmount() / MB_PER_XP) * MB_PER_XP,
-                    (long) Integer.MAX_VALUE - (long) exp * MB_PER_XP);
-            accepted -= accepted % MB_PER_XP;
-            if (action.execute() && accepted > 0) {
-                exp = Math.min(Integer.MAX_VALUE, exp + accepted / MB_PER_XP);
-                setChanged();
-            }
-            return accepted;
+        @Override public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            if (resource.isEmpty() || !isValid(index, resource)) return 0;
+            int points = (int) (Math.min(amount, Integer.MAX_VALUE - getAmountAsLong(index)) / MB_PER_XP);
+            if (points <= 0) return 0;
+            updateSnapshots(transaction);
+            exp += points;
+            return points * MB_PER_XP;
         }
-
-        @Override
-        public FluidStack drain(FluidStack resource, FluidAction action) {
-            if (!isFluidValid(0, resource)) return FluidStack.EMPTY;
-            return drain(resource.getAmount(), action);
+        @Override public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            if (resource.isEmpty() || !isValid(index, resource)) return 0;
+            int points = Math.min(exp, amount / MB_PER_XP);
+            if (points <= 0) return 0;
+            updateSnapshots(transaction);
+            exp -= points;
+            return points * MB_PER_XP;
         }
-
-        @Override
-        public FluidStack drain(int amount, FluidAction action) {
-            int drained = Math.min(exp, Math.max(0, amount / MB_PER_XP)) * MB_PER_XP;
-            if (drained <= 0) return FluidStack.EMPTY;
-            if (action.execute()) {
-                exp -= drained / MB_PER_XP;
-                setChanged();
-            }
-            return new FluidStack(Registration.XP_FLUID_SOURCE.get(), drained);
-        }
-
-        private int fluidAmount() {
-            return (int) Math.min(Integer.MAX_VALUE, (long) exp * MB_PER_XP);
-        }
+        @Override protected Integer createSnapshot() { return exp; }
+        @Override protected void revertToSnapshot(Integer snapshot) { exp = snapshot; }
+        @Override protected void onRootCommit(Integer previous) { if (previous != exp) setChanged(); }
     }
 }

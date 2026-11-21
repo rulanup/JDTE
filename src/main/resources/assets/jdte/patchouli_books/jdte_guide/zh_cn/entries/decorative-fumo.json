@@ -1,0 +1,17 @@
+{
+  "name": "装饰玩偶",
+  "icon": "jdte:xingye_fumo",
+  "category": "jdte:control_special",
+  "sortnum": 4400,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "星野、菜鸟哟和麦麒麟玩偶均可放置在世界中。放置后玩偶面向玩家，外形随朝向旋转。"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:xingye_fumo": 0,
+    "jdte:cainiaoyo_fumo": 0,
+    "jdte:maiqilin_fumo": 0
+  }
+}

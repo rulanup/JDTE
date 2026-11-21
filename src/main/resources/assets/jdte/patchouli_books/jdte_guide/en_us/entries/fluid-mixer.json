@@ -1,48 +1,88 @@
 {
   "name": "Fluid Mixer",
   "icon": "jdte:advanced_fluid_mixer",
-  "category": "jdte:biology_life",
+  "category": "jdte:logistics_automation",
   "sortnum": 1550,
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The Fluid Mixer consumes FE to mix one or two input fluids (Tank A and Tank B) along with an optional item catalyst, outputting a new target fluid. It natively supports custom datapack recipes ($(thing)jdte:fluid_mixer$()) and Mekanism Chemical Infuser and Pigment Mixer recipes when Mekanism is present. $(br2)$(bold)Variants$()$(br2)$(bold)Machine | Upgrades | Energy | Tanks$()$(br)Advanced Fluid Mixer | 4+1 | 100k FE | 3 × 8k mB$(br)Extended Fluid Mixer | 8+1 | 200k FE | 3 × 8k mB"
+      "text": "The Fluid Mixer consumes FE to mix one or two input fluids (Tank A and Tank B) along with an optional item catalyst, outputting a new target fluid.$(br2)It natively supports custom datapack recipes ($(thing)jdte:fluid_mixer$()). When the Mekanism mod is installed, it also automatically discovers and supports Chemical Infuser and Pigment Mixer recipes.$(br2)$(bold)Variants$()$(br2)$(bold)Machine | Standard Upgrade Slots | Dedicated Upgrade Slots | Energy Capacity | Fluid Tank Capacity$()$(br)Advanced Fluid Mixer | 4 | 1 (Mixing Upgrade) | 100,000 FE | 3 × 8,000 mB$(br)Extended Fluid Mixer | 8 | 1 (Mixing Upgrade) | 200,000 FE | 3 × 8,000 mB$(br2)$(bold)Features & Layout$()"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Layout$()$(br2)$(li)$(bold)Input Tank A (Left)$(): Base capacity 8,000 mB$(li)$(bold)Input Tank B (Right)$(): Base capacity 8,000 mB$(li)$(bold)Catalyst Slot (Center)$(): 1 slot for optional item catalyst$(li)$(bold)Output Tank (Bottom)$(): Base capacity 8,000 mB for outputs$(br2)$(bold)Parallel Upgrades$()$(br2)The dedicated slot accepts either the $(bold)Mixing Parallel Upgrade$() (up to 8 batches) or the $(bold)Ultimate Mixing Parallel Upgrade$() (up to 2,147,483,647 batches). They are mutually exclusive; actual batches remain limited by ingredients, output space, and FE."
+      "text": "$(bold)Tank & Slot Structure$()$(br2)$(li)$(bold)Input Tank A (Left)$(): Base capacity of 8,000 mB for the first recipe fluid.$(li)$(bold)Input Tank B (Right)$(): Base capacity of 8,000 mB for the second recipe fluid.$(li)$(bold)Item Catalyst Slot (Center)$(): 1 slot for an optional item catalyst (such as a cactus for the Time Fluid recipe).$(li)$(bold)Output Tank (Bottom Center)$(): Base capacity of 8,000 mB for the mixed output fluid. Does not accept external insertion; fluids can only be extracted or sent via Auto I/O.$(br2)$(bold)Workflow$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "1. The machine constantly monitors Tank A, Tank B, and the catalyst slot to match a valid fluid mixing recipe.$(br)2. When ingredients and FE requirements are satisfied, processing begins. Upon completion, ingredients are consumed and output fluid is deposited.$(br)3. Supports absolute-direction Auto I/O to pull fluids/items from or push fluids to adjacent inventories.$(br)4. Supports redstone control (Ignored, Low, High).$(br2)$(bold)Mixing Upgrade & Parallel Processing$()$(br2)The Fluid Mixer features a dedicated upgrade slot that accepts either the $(bold)Mixing Parallel Upgrade$() or $(bold)Ultimate Mixing Parallel Upgrade$() (one total; they are mutually exclusive)."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(bold)Uninstalled$(): Processes 1 standard recipe batch per cycle.$(li)$(bold)Mixing Parallel Upgrade$(): Processes at most 8 batches in parallel.$(li)$(bold)Ultimate Mixing Parallel Upgrade$(): Raises the parallel limit to 2,147,483,647. Both upgrades still respect available ingredients, output space, and FE.$(br2)$(bold)Upgrade Effects$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Upgrade | Effect$()$(br)Capacity | Doubles FE energy capacity and all 3 fluid tanks' capacity (max 3)$(br)Fluid | Doubles all 3 fluid tanks' capacity only (max 3)$(br)Overclock | Locks speed to 1 tick, runs twice per tick, triples energy cost$(br)Underclock | Locks speed to 40 ticks, reduces energy cost to 20%$(br)Creative | Eliminates FE cost and applies Overclock speed$(br)Mixing Parallel | Dedicated slot, up to 8 parallel batches$(br)Ultimate Mixing Parallel | Mutually exclusive dedicated upgrade, up to 2,147,483,647 parallel batches$(br)AE Crafting Read | Only operates when a bound AE2 network has active crafting jobs$(br)AE Output | Automatically exports outputs to a bound AE2"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "network$(br2)$(bold)Built-in Recipe Example: Time Fluid$()$(br2)$(bold)Input Fluid A | Input Fluid B | Item Catalyst | Output Fluid | Process Ticks | Energy$()$(br)Water 1,000 mB | — | Time Fluid Catalyst ×1 | Time Fluid 250 mB | 100 ticks (5s) | 5,000 FE$(br2)$(bold)Mekanism Integration$()$(br2)When the $(bold)Mekanism$() mod is present, the Fluid Mixer automatically supports:$(br2)$(li)$(bold)Chemical Infuser Recipes$(): Maps gas/fluid infusion reactions directly into the mixer.$(li)$(bold)Pigment Mixer Recipes$(): Enables high-efficiency dye and pigment combining.$(br2)$(bold)Crafting$()$(br2)$(bold)Advanced Fluid Mixer$()"
     },
     {
       "type": "patchouli:spotlight",
       "item": "jdte:advanced_fluid_mixer",
-      "text": "The standard Advanced Fluid Mixer with 4 standard upgrade slots and 1 Mixing Upgrade slot."
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:advanced_fluid_mixer"
     },
     {
+      "type": "patchouli:text",
+      "text": "$(bold)Extended Fluid Mixer$()"
+    },
+    {
       "type": "patchouli:spotlight",
       "item": "jdte:extended_fluid_mixer",
-      "text": "The Extended Fluid Mixer with 8 standard upgrade slots. Upgraded from an Advanced Fluid Mixer with an Extended Upgrade."
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Extended variant of the Advanced Fluid Mixer with 8 upgrade slots. Can be upgraded from an Advanced Fluid Mixer by right-clicking with an Extended Upgrade."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:extended_fluid_mixer"
     },
     {
+      "type": "patchouli:text",
+      "text": "$(bold)Mixing Parallel Upgrade$()"
+    },
+    {
       "type": "patchouli:spotlight",
       "item": "jdte:mixing_upgrade",
-      "text": "Mixing Parallel Upgrade: Fluid Mixers only. Enables up to 8 parallel batches."
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Processes at most 8 batches in parallel."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "jdte:mixing_upgrade"
     },
     {
+      "type": "patchouli:text",
+      "text": "$(bold)Ultimate Mixing Parallel Upgrade$()"
+    },
+    {
       "type": "patchouli:spotlight",
       "item": "jdte:ultimate_mixing_parallel_upgrade",
-      "text": "Ultimate Mixing Parallel Upgrade: Fluid Mixers only. Raises the parallel limit to 2,147,483,647 batches."
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Raises the parallel limit to 2,147,483,647 batches."
     },
     {
       "type": "patchouli:crafting",
@@ -50,9 +90,9 @@
     }
   ],
   "extra_recipe_mappings": {
-    "jdte:advanced_fluid_mixer": 2,
-    "jdte:extended_fluid_mixer": 4,
-    "jdte:mixing_upgrade": 6,
-    "jdte:ultimate_mixing_parallel_upgrade": 8
+    "jdte:advanced_fluid_mixer": 6,
+    "jdte:extended_fluid_mixer": 9,
+    "jdte:mixing_upgrade": 13,
+    "jdte:ultimate_mixing_parallel_upgrade": 17
   }
 }

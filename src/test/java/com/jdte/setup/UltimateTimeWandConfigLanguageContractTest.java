@@ -7,15 +7,14 @@ import com.google.gson.JsonParser;
 import com.jdte.common.items.UltimateTimeWandData;
 import com.jdte.common.items.UltimateTimeWandItem;
 import com.jdte.setup.JDTEItems;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class UltimateTimeWandConfigLanguageContractTest {
+class UltimateTimeWandConfigLanguageContractTest implements com.jdte.test.WorldRegistryTest {
     private static final String LANGUAGE_ROOT = "src/main/resources/assets/jdte/lang";
     private static final String ITEM_ID = "jdte:ultimate_time_wand";
     private static final String RECIPE_ID = "jdte:ultimate_time_wand";
@@ -100,7 +99,7 @@ class UltimateTimeWandConfigLanguageContractTest {
         assertEquals(4, ingredients.size(), "Ultimate Time Wand recipe must have exactly four ingredients");
         Set<String> ingredientIds = new HashSet<>();
         for (JsonElement ingredient : ingredients) {
-            String itemId = ingredient.getAsJsonObject().get("item").getAsString();
+            String itemId = ingredient.getAsString();
             ingredientIds.add(itemId);
             int namespaceSeparator = itemId.indexOf(':');
             assertTrue(namespaceSeparator > 0, () -> "Ingredient must be namespaced: " + itemId);
@@ -127,16 +126,21 @@ class UltimateTimeWandConfigLanguageContractTest {
         UltimateTimeWandItem wand = JDTEItems.ULTIMATE_TIME_WAND.get();
         ItemStack stack = new ItemStack(wand);
         stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get(), UltimateTimeWandData.Mode.NORMAL.serializedName());
-        IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        var fluid = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
         assertTrue(fluid != null, "Ultimate Time Wand should expose a fluid capability");
-        assertEquals(1_234, fluid.fill(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 1_234),
-                IFluidHandler.FluidAction.EXECUTE));
-        IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        try (var transaction = Transaction.openRoot()) {
+            assertEquals(1_234, fluid.insert(FluidResource.of(JDTRegistration.TIME_FLUID_SOURCE.get()), 1_234, transaction));
+            transaction.commit();
+        }
+        var energy = ItemAccess.forStack(stack).getCapability(Capabilities.Energy.ITEM);
         assertTrue(energy != null, "Ultimate Time Wand should expose an energy capability");
-        assertEquals(2_222, energy.receiveEnergy(2_222, false));
+        try (var transaction = Transaction.openRoot()) {
+            assertEquals(2_222, energy.insert(2_222, transaction));
+            transaction.commit();
+        }
 
         List<Component> tooltip = new ArrayList<>();
-        wand.appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
+        wand.appendHoverText(stack, null, net.minecraft.world.item.component.TooltipDisplay.DEFAULT, tooltip::add, TooltipFlag.Default.NORMAL);
         assertEquals(4, tooltip.size());
         String currentFluid = MagicHelpers.formatted(1_234);
         String maximumFluid = MagicHelpers.formatted(wand.getMaxMB());

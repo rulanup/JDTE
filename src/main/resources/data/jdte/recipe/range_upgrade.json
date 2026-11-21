@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": { "item": "minecraft:compass" },
-    "E": { "item": "minecraft:ender_eye" },
-    "R": { "item": "justdirethings:celestigem" }
+    "C": "minecraft:compass",
+    "E": "minecraft:ender_eye",
+    "R": "justdirethings:celestigem"
   },
   "pattern": [
     "RER",

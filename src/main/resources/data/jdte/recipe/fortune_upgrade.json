@@ -7,9 +7,9 @@
     "LEL"
   ],
   "key": {
-    "E": { "item": "minecraft:emerald" },
-    "I": { "item": "justdirethings:upgrade_instabreak" },
-    "L": { "item": "minecraft:lapis_lazuli" }
+    "E": "minecraft:emerald",
+    "I": "justdirethings:upgrade_instabreak",
+    "L": "minecraft:lapis_lazuli"
   },
   "result": {
     "count": 1,

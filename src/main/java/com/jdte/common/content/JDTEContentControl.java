@@ -3,7 +3,7 @@ package com.jdte.common.content;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.config.ContentConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -89,7 +89,7 @@ public record JDTEContentControl(
         }
     }
 
-    public boolean isBlockEnabled(ResourceLocation id) {
+    public boolean isBlockEnabled(Identifier id) {
         return !isBlockDisabled(id);
     }
 
@@ -104,7 +104,7 @@ public record JDTEContentControl(
         return !(stack.getItem() instanceof BlockItem blockItem) || isBlockEnabled(blockItem.getBlock());
     }
 
-    public boolean isBlockDisabled(ResourceLocation id) {
+    public boolean isBlockDisabled(Identifier id) {
         if (matchesAny(disabledBlocks, id) || controllerDisabledForPart(id)) {
             return true;
         }
@@ -116,11 +116,11 @@ public record JDTEContentControl(
                 || (!timeFreezerEnabled && isTimeFreezerBlock(path));
     }
 
-    public boolean isRecipeEnabled(ResourceLocation id) {
+    public boolean isRecipeEnabled(Identifier id) {
         return !isRecipeDisabled(id);
     }
 
-    public boolean isRecipeDisabled(ResourceLocation id) {
+    public boolean isRecipeDisabled(Identifier id) {
         return matchesAny(disabledRecipes, id)
                 || matchesAny(disabledBlocks, id)
                 || matchesGeneratedFamilyRoot(disabledRecipes, id)
@@ -136,22 +136,22 @@ public record JDTEContentControl(
         if (!configured) {
             return false;
         }
-        ResourceLocation root = switch (family) {
-            case GREENHOUSE -> ResourceLocation.fromNamespaceAndPath("jdte", "greenhouse");
-            case LOOT_FABRICATOR -> ResourceLocation.fromNamespaceAndPath("jdte", "loot_fabricator");
-            case BIO_FACTORY -> ResourceLocation.fromNamespaceAndPath("jdte", "bio_factory");
+        Identifier root = switch (family) {
+            case GREENHOUSE -> Identifier.fromNamespaceAndPath("jdte", "greenhouse");
+            case LOOT_FABRICATOR -> Identifier.fromNamespaceAndPath("jdte", "loot_fabricator");
+            case BIO_FACTORY -> Identifier.fromNamespaceAndPath("jdte", "bio_factory");
         };
         boolean blockAvailable = switch (family) {
             case GREENHOUSE -> isBlockEnabled(root)
-                    || isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "large_greenhouse"));
+                    || isBlockEnabled(Identifier.fromNamespaceAndPath("jdte", "large_greenhouse"));
             case LOOT_FABRICATOR, BIO_FACTORY -> isBlockEnabled(root);
         };
-        ResourceLocation generatedRoot = ResourceLocation.fromNamespaceAndPath("jdte", "jei/" + root.getPath());
+        Identifier generatedRoot = Identifier.fromNamespaceAndPath("jdte", "jei/" + root.getPath());
         return blockAvailable && !matchesAny(disabledRecipes, root)
                 && !matchesAny(disabledRecipes, generatedRoot);
     }
 
-    private static boolean matchesAny(Collection<ContentSelection> selections, ResourceLocation id) {
+    private static boolean matchesAny(Collection<ContentSelection> selections, Identifier id) {
         for (ContentSelection selection : selections) {
             if (selection.matches(id)) {
                 return true;
@@ -160,7 +160,7 @@ public record JDTEContentControl(
         return false;
     }
 
-    private boolean isDisabledTimeRecipe(ResourceLocation id) {
+    private boolean isDisabledTimeRecipe(Identifier id) {
         if (id == null || !"jdte".equals(id.getNamespace())) {
             return false;
         }
@@ -179,7 +179,7 @@ public record JDTEContentControl(
     }
 
     private static boolean matchesGeneratedFamilyRoot(Collection<ContentSelection> selections,
-                                                      ResourceLocation id) {
+                                                      Identifier id) {
         if (id == null || !"jdte".equals(id.getNamespace())) {
             return false;
         }
@@ -188,20 +188,20 @@ public record JDTEContentControl(
                 : path.startsWith("jei/loot_fabricator/") ? "loot_fabricator"
                 : path.startsWith("jei/bio_factory/") ? "bio_factory" : null;
         return family != null && matchesAny(selections,
-                ResourceLocation.fromNamespaceAndPath("jdte", family));
+                Identifier.fromNamespaceAndPath("jdte", family));
     }
 
-    private boolean controllerDisabledForPart(ResourceLocation id) {
+    private boolean controllerDisabledForPart(Identifier id) {
         if (id == null || !"jdte".equals(id.getNamespace())) {
             return false;
         }
         return switch (id.getPath()) {
             case "large_greenhouse_part" -> matchesAny(disabledBlocks,
-                    ResourceLocation.fromNamespaceAndPath("jdte", "large_greenhouse"));
+                    Identifier.fromNamespaceAndPath("jdte", "large_greenhouse"));
             case "life_synthesis_part" -> matchesAny(disabledBlocks,
-                    ResourceLocation.fromNamespaceAndPath("jdte", "life_synthesis_vat"));
+                    Identifier.fromNamespaceAndPath("jdte", "life_synthesis_vat"));
             case "large_mineral_extractor_part" -> matchesAny(disabledBlocks,
-                    ResourceLocation.fromNamespaceAndPath("jdte", "large_mineral_extractor"));
+                    Identifier.fromNamespaceAndPath("jdte", "large_mineral_extractor"));
             default -> false;
         };
     }

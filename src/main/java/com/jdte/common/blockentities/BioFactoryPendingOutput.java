@@ -1,9 +1,7 @@
 package com.jdte.common.blockentities;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -58,29 +56,25 @@ final class BioFactoryPendingOutput {
                 inputCounts == null ? null : inputCounts.clone());
     }
 
-    static BioFactoryPendingOutput load(CompoundTag tag, HolderLookup.Provider provider) {
+    static BioFactoryPendingOutput load(ValueInput tag) {
         List<ItemStack> items = new ArrayList<>();
-        ListTag itemTags = tag.getList(ITEMS_TAG, Tag.TAG_COMPOUND);
-        for (int i = 0; i < itemTags.size(); i++) {
-            ItemStack item = OversizedItemStackHandlerSerialization.deserializeStack(provider, itemTags.getCompound(i));
+        for (ValueInput entry : tag.childrenListOrEmpty(ITEMS_TAG)) {
+            ItemStack item = OversizedItemStackHandlerSerialization.deserializeStack(entry);
             if (!item.isEmpty()) items.add(item);
         }
-        FluidStack fluid = tag.contains(FLUID_TAG)
-                ? FluidStack.parse(provider, tag.getCompound(FLUID_TAG)).orElse(FluidStack.EMPTY)
-                : FluidStack.EMPTY;
+        FluidStack fluid = tag.read(FLUID_TAG, FluidStack.CODEC)
+                .orElse(FluidStack.EMPTY);
         int[] inputSlots = readInts(tag, INPUT_SLOTS_TAG);
         int[] inputCounts = readInts(tag, INPUT_COUNTS_TAG);
-        return new BioFactoryPendingOutput(items, fluid, tag.getInt(ENERGY_COST_TAG), tag.getInt(TIME_COST_TAG),
-                tag.getInt(LIFE_COST_TAG), tag.getInt(PROCESS_COST_TAG), tag.getBoolean(CREATIVE_TAG),
+        return new BioFactoryPendingOutput(items, fluid, tag.getIntOr(ENERGY_COST_TAG, 0), tag.getIntOr(TIME_COST_TAG, 0),
+                tag.getIntOr(LIFE_COST_TAG, 0), tag.getIntOr(PROCESS_COST_TAG, 0), tag.getBooleanOr(CREATIVE_TAG, false),
                 inputSlots.length == 0 ? null : inputSlots, inputCounts.length == 0 ? null : inputCounts);
     }
 
-    CompoundTag save(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        ListTag itemTags = new ListTag();
-        for (ItemStack item : items) itemTags.add(OversizedItemStackHandlerSerialization.serializeStack(item, provider));
-        tag.put(ITEMS_TAG, itemTags);
-        if (!fluid.isEmpty()) tag.put(FLUID_TAG, fluid.save(provider));
+    void save(ValueOutput tag) {
+        var itemTags = tag.childrenList(ITEMS_TAG);
+        for (ItemStack item : items) OversizedItemStackHandlerSerialization.serializeStack(item, itemTags.addChild());
+        if (!fluid.isEmpty()) tag.store(FLUID_TAG, FluidStack.CODEC, fluid);
         tag.putInt(ENERGY_COST_TAG, energyCost);
         tag.putInt(TIME_COST_TAG, timeCost);
         tag.putInt(LIFE_COST_TAG, lifeCost);
@@ -88,14 +82,13 @@ final class BioFactoryPendingOutput {
         tag.putBoolean(CREATIVE_TAG, creative);
         writeInts(tag, INPUT_SLOTS_TAG, inputSlots);
         writeInts(tag, INPUT_COUNTS_TAG, inputCounts);
-        return tag;
     }
 
-    private static int[] readInts(CompoundTag tag, String key) {
-        return tag.contains(key) ? tag.getIntArray(key) : new int[0];
+    private static int[] readInts(ValueInput tag, String key) {
+        return tag.getIntArray(key).orElseGet(() -> new int[0]);
     }
 
-    private static void writeInts(CompoundTag tag, String key, int[] values) {
+    private static void writeInts(ValueOutput tag, String key, int[] values) {
         if (values != null) tag.putIntArray(key, values);
     }
 

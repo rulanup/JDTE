@@ -5,17 +5,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.Vec2;
 
 import java.util.Locale;
 import java.util.Set;
 
 public record FactoryTransform(Vec3i sourceSize, int quarterTurns, BlockPos sourceOrigin, BlockPos targetOrigin,
-                               ResourceLocation sourceDimension, ResourceLocation targetDimension) {
+                               Identifier sourceDimension, Identifier targetDimension) {
     private static final Set<String> POSITION_NAMES = Set.of(
             "pos", "position", "target", "controller", "controllerpos", "controller_pos", "link", "linkedpos",
             "linked_pos", "main", "master", "masterpos", "master_pos", "origin", "location", "boundpos",
@@ -79,21 +80,12 @@ public record FactoryTransform(Vec3i sourceSize, int quarterTurns, BlockPos sour
     }
 
     private void transformEntityTree(CompoundTag entity, boolean remapLinks) {
-        ListTag pos = entity.getList("Pos", Tag.TAG_DOUBLE);
-        if (pos.size() == 3) {
-            Vec3 absolute = new Vec3(pos.getDouble(0), pos.getDouble(1), pos.getDouble(2));
-            Vec3 transformed = targetPoint(absolute);
-            entity.put("Pos", newDoubleList(transformed.x, transformed.y, transformed.z));
-        }
-        ListTag rotation = entity.getList("Rotation", Tag.TAG_FLOAT);
-        if (rotation.size() >= 2) {
-            float yaw = rotation.getFloat(0) + quarterTurns * 90.0F;
-            entity.put("Rotation", newFloatList(yaw, rotation.getFloat(1)));
-        }
+        entity.read("Pos", Vec3.CODEC).ifPresent(pos -> entity.store("Pos", Vec3.CODEC, targetPoint(pos)));
+        entity.read("Rotation", Vec2.CODEC).ifPresent(rotation -> entity.store("Rotation", Vec2.CODEC,
+                new Vec2(rotation.x + quarterTurns * 90.0F, rotation.y)));
         if (remapLinks) remapCompound(entity, "", false);
-        ListTag passengers = entity.getList("Passengers", Tag.TAG_COMPOUND);
-        for (int index = 0; index < passengers.size(); index++) {
-            transformEntityTree(passengers.getCompound(index), remapLinks);
+        for (var passenger : entity.getListOrEmpty("Passengers")) {
+            if (passenger instanceof CompoundTag child) transformEntityTree(child, remapLinks);
         }
     }
 
@@ -105,25 +97,24 @@ public record FactoryTransform(Vec3i sourceSize, int quarterTurns, BlockPos sour
 
     private boolean remapCompound(CompoundTag compound, String parentName, boolean root) {
         boolean changedPosition = false;
-        for (String key : Set.copyOf(compound.getAllKeys())) {
+        for (String key : Set.copyOf(compound.keySet())) {
             String normalized = key.toLowerCase(Locale.ROOT);
             if (normalized.equals("passengers")) continue;
-            if (compound.contains(key, Tag.TAG_COMPOUND)) {
-                changedPosition |= remapCompound(compound.getCompound(key), normalized, false);
-            } else if (compound.contains(key, Tag.TAG_LIST)) {
-                ListTag list = compound.getList(key, Tag.TAG_COMPOUND);
-                for (int index = 0; index < list.size(); index++) {
-                    changedPosition |= remapCompound(list.getCompound(index), normalized, false);
+            if ((compound.get(key) instanceof net.minecraft.nbt.CompoundTag)) {
+                changedPosition |= remapCompound(compound.getCompoundOrEmpty(key), normalized, false);
+            } else if (compound.get(key) instanceof ListTag list) {
+                for (var element : list) {
+                    if (element instanceof CompoundTag child) changedPosition |= remapCompound(child, normalized, false);
                 }
-            } else if (isPositionName(normalized) && compound.contains(key, Tag.TAG_LONG)) {
-                BlockPos original = BlockPos.of(compound.getLong(key));
+            } else if (isPositionName(normalized) && (compound.get(key) instanceof net.minecraft.nbt.LongTag)) {
+                BlockPos original = BlockPos.of(compound.getLongOr(key, 0L));
                 BlockPos moved = relocateIfInternal(original);
                 if (!moved.equals(original)) {
                     compound.putLong(key, moved.asLong());
                     changedPosition = true;
                 }
-            } else if (isPositionName(normalized) && compound.contains(key, Tag.TAG_INT_ARRAY)) {
-                int[] value = compound.getIntArray(key);
+            } else if (isPositionName(normalized) && (compound.get(key) instanceof net.minecraft.nbt.IntArrayTag)) {
+                int[] value = compound.getIntArray(key).orElseThrow();
                 if (value.length == 3) {
                     BlockPos original = new BlockPos(value[0], value[1], value[2]);
                     BlockPos moved = relocateIfInternal(original);
@@ -132,20 +123,20 @@ public record FactoryTransform(Vec3i sourceSize, int quarterTurns, BlockPos sour
                         changedPosition = true;
                     }
                 }
-            } else if (isDirectionName(normalized) && compound.contains(key, Tag.TAG_STRING)) {
-                Direction direction = Direction.byName(compound.getString(key));
+            } else if (isDirectionName(normalized) && (compound.get(key) instanceof net.minecraft.nbt.StringTag)) {
+                Direction direction = Direction.byName(compound.getStringOr(key, ""));
                 if (direction != null) compound.putString(key, rotation().rotate(direction).getName());
-            } else if (isDirectionName(normalized) && compound.contains(key, Tag.TAG_ANY_NUMERIC)) {
-                Direction direction = Direction.from3DDataValue(compound.getInt(key));
+            } else if (isDirectionName(normalized) && compound.get(key) instanceof NumericTag) {
+                Direction direction = Direction.from3DDataValue(compound.getIntOr(key, 0));
                 compound.putInt(key, rotation().rotate(direction).get3DDataValue());
             }
         }
 
         if (!root && isPositionName(parentName)
-                && compound.contains("x", Tag.TAG_ANY_NUMERIC)
-                && compound.contains("y", Tag.TAG_ANY_NUMERIC)
-                && compound.contains("z", Tag.TAG_ANY_NUMERIC)) {
-            BlockPos original = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
+                && compound.get("x") instanceof NumericTag
+                && compound.get("y") instanceof NumericTag
+                && compound.get("z") instanceof NumericTag) {
+            BlockPos original = new BlockPos(compound.getIntOr("x", 0), compound.getIntOr("y", 0), compound.getIntOr("z", 0));
             BlockPos moved = relocateIfInternal(original);
             if (!moved.equals(original)) {
                 compound.putInt("x", moved.getX());
@@ -155,10 +146,10 @@ public record FactoryTransform(Vec3i sourceSize, int quarterTurns, BlockPos sour
             }
         }
         if (changedPosition && sourceDimension != null && targetDimension != null) {
-            for (String key : Set.copyOf(compound.getAllKeys())) {
+            for (String key : Set.copyOf(compound.keySet())) {
                 String normalized = key.toLowerCase(Locale.ROOT);
                 if ((normalized.contains("dimension") || normalized.equals("dim"))
-                        && compound.contains(key, Tag.TAG_STRING)
+                        && (compound.get(key) instanceof net.minecraft.nbt.StringTag)
                         && sourceDimension.toString().equals(compound.getString(key))) {
                     compound.putString(key, targetDimension.toString());
                 }
@@ -186,18 +177,4 @@ public record FactoryTransform(Vec3i sourceSize, int quarterTurns, BlockPos sour
                 || name.endsWith("_direction");
     }
 
-    private static ListTag newDoubleList(double x, double y, double z) {
-        ListTag list = new ListTag();
-        list.add(net.minecraft.nbt.DoubleTag.valueOf(x));
-        list.add(net.minecraft.nbt.DoubleTag.valueOf(y));
-        list.add(net.minecraft.nbt.DoubleTag.valueOf(z));
-        return list;
-    }
-
-    private static ListTag newFloatList(float yaw, float pitch) {
-        ListTag list = new ListTag();
-        list.add(net.minecraft.nbt.FloatTag.valueOf(yaw));
-        list.add(net.minecraft.nbt.FloatTag.valueOf(pitch));
-        return list;
-    }
 }

@@ -7,7 +7,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerD
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -18,8 +18,8 @@ import com.jdte.common.autoioconfig.OverclockDirectTransferHelper;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,8 +27,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public abstract class FluidReceiverBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, FluidMachineBE, AreaAffectingBE, BaseFilterMachine {
     public static final int BASE_FLUID_CAPACITY = 8000; // 8 buckets
@@ -124,30 +124,9 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
     }
 
     private boolean receiveFluidFromSide(ServerLevel serverLevel, BlockPos sourcePos, Direction side, int fluidToReceive) {
-        IFluidHandler sourceHandler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, sourcePos, side);
-        if (sourceHandler == null) return false;
-
-        FluidStack extracted = sourceHandler.drain(fluidToReceive, IFluidHandler.FluidAction.SIMULATE);
-        if (extracted.isEmpty()) return false;
-
-        int fillable = fluidTank.fill(extracted, IFluidHandler.FluidAction.SIMULATE);
-        if (fillable <= 0) return false;
-
-        FluidStack toDrain = extracted.copy();
-        toDrain.setAmount(fillable);
-        FluidStack drained = sourceHandler.drain(toDrain, IFluidHandler.FluidAction.EXECUTE);
-        if (drained.isEmpty()) return false;
-
-        int filled = fluidTank.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-        if (filled <= 0) {
-            sourceHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-            return false;
-        }
-        if (filled < drained.getAmount()) {
-            FluidStack remainder = drained.copy();
-            remainder.setAmount(drained.getAmount() - filled);
-            sourceHandler.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
-        }
+        var source = serverLevel.getCapability(Capabilities.Fluid.BLOCK, sourcePos, side);
+        var moved = ResourceHandlerUtil.moveFirst(source, fluidTank, resource -> true, fluidToReceive, null);
+        if (moved == null) return false;
         setChanged();
         transferMoved = true;
         return true;
@@ -216,7 +195,7 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -235,18 +214,16 @@ public abstract class FluidReceiverBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("fluidTank", fluidTank);
         saveAreaSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("fluidTank").ifPresent(fluidTank::deserialize);
         loadAreaSettings(tag);
         areaAffectingData.area = null;
         OverclockDirectTransferHelper.invalidate(this);

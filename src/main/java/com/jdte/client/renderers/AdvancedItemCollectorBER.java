@@ -3,35 +3,49 @@ package com.jdte.client.renderers;
 import com.jdte.common.blockentities.AdvancedItemCollectorBE;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-public class AdvancedItemCollectorBER extends AreaAffectingBER {
+public class AdvancedItemCollectorBER extends AreaAffectingBER<AdvancedItemCollectorBE, AdvancedItemCollectorBER.State> {
+    public static final class State extends AreaAffectingRenderState {
+        Direction direction;
+        float animationTick;
+    }
+
     public AdvancedItemCollectorBER(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public void render(BlockEntity blockEntity, float partialTicks, PoseStack poseStack,
-                       MultiBufferSource buffers, int packedLight, int packedOverlay) {
-        super.render(blockEntity, partialTicks, poseStack, buffers, packedLight, packedOverlay);
-        if (!(blockEntity instanceof AdvancedItemCollectorBE) || blockEntity.getLevel() == null) return;
+    public State createRenderState() { return new State(); }
 
-        long gameTime = blockEntity.getLevel().getGameTime();
-        Direction direction = blockEntity.getBlockState().getValue(BlockStateProperties.FACING).getOpposite();
-        renderPortalCube(direction, poseStack.last().pose(), buffers.getBuffer(RenderType.endPortal()),
-                gameTime, partialTicks);
+    @Override
+    public void extractRenderState(AdvancedItemCollectorBE blockEntity, State state, float partialTicks,
+                                   Vec3 cameraPosition, ModelFeatureRenderer.CrumblingOverlay overlay) {
+        super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, overlay);
+        state.direction = blockEntity.getBlockState().getValue(BlockStateProperties.FACING).getOpposite();
+        state.animationTick = Math.floorMod(blockEntity.getLevel().getGameTime(), 80L) + partialTicks;
+    }
+
+    @Override
+    public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
+        super.submit(state, poseStack, collector, camera);
+        Direction direction = state.direction;
+        float animationTick = state.animationTick;
+        collector.submitCustomGeometry(poseStack, RenderTypes.endPortal(),
+                (pose, vertices) -> renderPortalCube(direction, pose.pose(), vertices, animationTick));
     }
 
     private static void renderPortalCube(Direction direction, Matrix4f pose, VertexConsumer vertices,
-                                         long gameTime, float partialTicks) {
-        float animationTick = Math.floorMod(gameTime, 80L) + partialTicks;
+                                         float animationTick) {
         float pulse = Mth.cos(animationTick / 80.0F * (float) (Math.PI * 2.0)) * 0.25F + 0.25F;
         float zero = Mth.lerp(pulse, 0.46875F, 0.4375F);
         float one = Mth.lerp(pulse, 0.53125F, 0.5625F);

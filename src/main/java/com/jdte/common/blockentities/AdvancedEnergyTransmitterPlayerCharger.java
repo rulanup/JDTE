@@ -3,8 +3,10 @@ package com.jdte.common.blockentities;
 import com.jdte.common.integrations.curios.AdvancedEnergyTransmitterPlayerEquipmentSources;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -12,10 +14,10 @@ import java.util.List;
 
 final class AdvancedEnergyTransmitterPlayerCharger {
     private static final class PlannedItem {
-        private IEnergyStorage receiver;
+        private EnergyHandler receiver;
         private int demand;
 
-        private void set(IEnergyStorage receiver, int demand) {
+        private void set(EnergyHandler receiver, int demand) {
             this.receiver = receiver;
             this.demand = demand;
         }
@@ -23,7 +25,7 @@ final class AdvancedEnergyTransmitterPlayerCharger {
 
     private final List<PlannedItem> plan = new ArrayList<>();
     private final IdentityHashMap<ItemStack, Boolean> seenStacks = new IdentityHashMap<>();
-    private final IdentityHashMap<IEnergyStorage, Boolean> seenReceivers = new IdentityHashMap<>();
+    private final IdentityHashMap<EnergyHandler, Boolean> seenReceivers = new IdentityHashMap<>();
     private int plannedCount;
     private int inspectedCount;
 
@@ -34,16 +36,13 @@ final class AdvancedEnergyTransmitterPlayerCharger {
         seenReceivers.clear();
 
         for (int slot = 0; slot < 9 && inspectedCount < maxItems; slot++) {
-            inspect(player.getInventory().getItem(slot), maxItems);
+            inspect(player.getInventory().getItem(slot), ItemAccess.forPlayerSlot(player, slot), maxItems);
         }
-        for (ItemStack armor : player.getInventory().armor) {
-            if (!inspect(armor, maxItems)) {
-                break;
-            }
+        for (int slot = Inventory.INVENTORY_SIZE; slot <= Inventory.SLOT_OFFHAND && inspectedCount < maxItems; slot++) {
+            inspect(player.getInventory().getItem(slot), ItemAccess.forPlayerSlot(player, slot), maxItems);
         }
-        inspect(player.getOffhandItem(), maxItems);
         AdvancedEnergyTransmitterPlayerEquipmentSources.collectCurios(
-                player, stack -> inspect(stack, maxItems));
+                player, stack -> inspect(stack, ItemAccess.forStack(stack), maxItems));
 
         long total = 0L;
         for (int index = 0; index < plannedCount; index++) {
@@ -65,7 +64,7 @@ final class AdvancedEnergyTransmitterPlayerCharger {
         return transferred;
     }
 
-    private boolean inspect(ItemStack stack, int maxItems) {
+    private boolean inspect(ItemStack stack, ItemAccess access, int maxItems) {
         if (inspectedCount >= maxItems) {
             return false;
         }
@@ -73,17 +72,17 @@ final class AdvancedEnergyTransmitterPlayerCharger {
             return true;
         }
         inspectedCount++;
-        IEnergyStorage receiver = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-        if (receiver == null || !receiver.canReceive()
+        EnergyHandler receiver = access.getCapability(Capabilities.Energy.ITEM);
+        if (receiver == null
                 || seenReceivers.put(receiver, Boolean.TRUE) != null) {
             return inspectedCount < maxItems;
         }
-        int simulated = receiver.receiveEnergy(Integer.MAX_VALUE, true);
+        int simulated = AdvancedEnergyTransmitterScheduler.receive(receiver, Integer.MAX_VALUE, true);
         if (simulated <= 0) {
             return inspectedCount < maxItems;
         }
         long reportedGap = Math.max(0L,
-                (long) receiver.getMaxEnergyStored() - Math.max(0, receiver.getEnergyStored()));
+                receiver.getCapacityAsLong() - receiver.getAmountAsLong());
         int demand = AdvancedEnergyTransmitterScheduler.clampToInt(
                 Math.max(simulated, reportedGap));
         ensureCapacity(plannedCount + 1);

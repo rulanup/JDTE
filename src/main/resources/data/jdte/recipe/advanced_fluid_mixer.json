@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": { "item": "minecraft:cauldron" },
-    "B": { "item": "minecraft:bucket" },
-    "G": { "item": "minecraft:gold_ingot" },
-    "R": { "item": "minecraft:redstone" },
-    "F": { "item": "jdte:fluid_upgrade" }
+    "C": "minecraft:cauldron",
+    "B": "minecraft:bucket",
+    "G": "minecraft:gold_ingot",
+    "R": "minecraft:redstone",
+    "F": "jdte:fluid_upgrade"
   },
   "pattern": [
     "GRG",

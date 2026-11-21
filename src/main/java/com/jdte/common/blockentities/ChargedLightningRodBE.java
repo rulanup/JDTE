@@ -11,16 +11,19 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightningRodBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.fml.ModList;
 
 public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachineBE, SelectiveUpgradeMachine {
     public static final int ENERGY_PER_STRIKE = 10_000;
@@ -28,6 +31,8 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
     private static final int ENERGY_CAPACITY = 10_000_000;
     private static final String NATURAL_LIGHTNING_TAG = "ae2lt.natural_weather_lightning";
     private static final String MACHINE_POSITION_TAG = "jdte.charged_lightning_rod_pos";
+    // AE2LT checks the vanilla rod block itself when resolving a strike ritual.
+    private final boolean requiresVanillaRod = ModList.get().isLoaded("ae2lt");
 
     private final PoweredMachineContainerData poweredData = new PoweredMachineContainerData(this);
     private final MachineEnergyStorage energy = new MachineEnergyStorage(ENERGY_CAPACITY);
@@ -53,6 +58,12 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
         if (lastProcessedGameTime == gameTime) return;
         lastProcessedGameTime = gameTime;
         super.tickServer();
+        if (!requiresVanillaRod && ownsLightningRod) {
+            removeOwnedLightningRod();
+            ownsLightningRod = false;
+            lightningRodSetupAttempted = false;
+            setChanged();
+        }
         if (strikeCooldown > 0) {
             strikeCooldown--;
         }
@@ -61,16 +72,17 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
         ChargedLightningRodMode mode = getStrikeMode();
         if (mode == ChargedLightningRodMode.NORMAL && strikeCooldown > 0) return;
         if (energy.extractEnergy(mode.energyPerStrike, true) < mode.energyPerStrike) return;
-        updateLightningRod(serverLevel);
-        if (!serverLevel.getBlockState(getBlockPos().above()).is(Blocks.LIGHTNING_ROD)) {
-            return;
+        if (requiresVanillaRod) {
+            updateLightningRod(serverLevel);
+            if (!serverLevel.getBlockState(getBlockPos().above()).is(Blocks.LIGHTNING_ROD)) return;
         }
+        // Put a rodless strike inside the copper contact rather than in the air block above it.
+        double strikeY = getBlockPos().getY() + (requiresVanillaRod ? 2.0 : 15.99 / 16.0);
         for (int strike = 0; strike < mode.strikesPerCycle; strike++) {
             if (energy.extractEnergy(mode.energyPerStrike, true) < mode.energyPerStrike) break;
-            LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(serverLevel);
+            LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(serverLevel, EntitySpawnReason.TRIGGERED);
             if (lightning == null) break;
-            BlockPos strikePos = getBlockPos().above(2);
-            lightning.setPos(strikePos.getX() + 0.5, strikePos.getY(), strikePos.getZ() + 0.5);
+            lightning.setPos(getBlockPos().getX() + 0.5, strikeY, getBlockPos().getZ() + 0.5);
             lightning.setVisualOnly(false);
             lightning.getPersistentData().putBoolean(NATURAL_LIGHTNING_TAG, true);
             lightning.getPersistentData().putLong(MACHINE_POSITION_TAG, getBlockPos().asLong());
@@ -110,7 +122,7 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
             for (LightningBolt lightning : serverLevel.getEntitiesOfClass(LightningBolt.class,
                     new AABB(getBlockPos()).inflate(4, 16, 4))) {
                 CompoundTag data = lightning.getPersistentData();
-                if (data.contains(MACHINE_POSITION_TAG) && data.getLong(MACHINE_POSITION_TAG) == getBlockPos().asLong()) {
+                if (data.getLong(MACHINE_POSITION_TAG).filter(pos -> pos == getBlockPos().asLong()).isPresent()) {
                     applyLightningEffects(lightning);
                 }
             }
@@ -150,6 +162,11 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
         }
     }
 
+    @Override public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        removeOwnedLightningRod();
+        super.preRemoveSideEffects(pos, state);
+    }
+
     public void removeOwnedLightningRod() {
         if (ownsLightningRod && level instanceof ServerLevel serverLevel) {
             BlockPos rodPos = getBlockPos().above();
@@ -169,8 +186,8 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putInt("chargedLightningRodEnergy", energy.getEnergyStored());
         tag.putInt("chargedLightningRodCooldown", strikeCooldown);
         tag.putBoolean("chargedLightningRodSetupAttempted", lightningRodSetupAttempted);
@@ -180,15 +197,13 @@ public class ChargedLightningRodBE extends BaseMachineBE implements PoweredMachi
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("chargedLightningRodEnergy")) {
-            energy.setEnergy(tag.getInt("chargedLightningRodEnergy"));
-        }
-        strikeCooldown = Math.max(0, tag.getInt("chargedLightningRodCooldown"));
-        lightningRodSetupAttempted = tag.getBoolean("chargedLightningRodSetupAttempted");
-        ownsLightningRod = tag.getBoolean("chargedLightningRodOwnsRod");
-        renderLightning = !tag.contains("chargedLightningRodRender") || tag.getBoolean("chargedLightningRodRender");
-        playLightningSound = !tag.contains("chargedLightningRodSound") || tag.getBoolean("chargedLightningRodSound");
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.getInt("chargedLightningRodEnergy").ifPresent(energy::setEnergy);
+        strikeCooldown = Math.max(0, tag.getIntOr("chargedLightningRodCooldown", 0));
+        lightningRodSetupAttempted = tag.getBooleanOr("chargedLightningRodSetupAttempted", false);
+        ownsLightningRod = tag.getBooleanOr("chargedLightningRodOwnsRod", false);
+        renderLightning = tag.getBooleanOr("chargedLightningRodRender", true);
+        playLightningSound = tag.getBooleanOr("chargedLightningRodSound", true);
     }
 }

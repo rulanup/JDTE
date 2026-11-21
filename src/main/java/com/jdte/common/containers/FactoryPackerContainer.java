@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class FactoryPackerContainer extends BaseMachineContainer {
     public FactoryPackerContainer(int id, Inventory inventory, FriendlyByteBuf data) {
@@ -99,11 +99,11 @@ public class FactoryPackerContainer extends BaseMachineContainer {
         return moved;
     }
 
-    private static final class PackageSlot extends SlotItemHandler {
+    private static final class PackageSlot extends ResourceHandlerSlot {
         private final FactoryPackerBE packer;
 
         private PackageSlot(FactoryPackerBE packer, int x, int y) {
-            super(packer.getMachineHandler(), 0, x, y);
+            super(packer.getMachineHandler(), packer.getMachineHandler()::set, 0, x, y);
             this.packer = packer;
         }
 

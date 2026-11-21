@@ -4,7 +4,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -18,19 +19,19 @@ public final class AEExtractionFluidPolicy {
     private AEExtractionFluidPolicy() {
     }
 
-    public static FluidStack select(IFluidHandler handler, int tank, List<net.minecraft.world.level.material.Fluid> candidates) {
-        return select(handler, tank, candidates, true);
+    public static FluidStack select(ItemStack container, ResourceHandler<FluidResource> handler, int tank, List<net.minecraft.world.level.material.Fluid> candidates) {
+        return select(container, handler, tank, candidates, true);
     }
 
-    public static FluidStack select(IFluidHandler handler, int tank,
+    public static FluidStack select(ItemStack container, ResourceHandler<FluidResource> handler, int tank,
                                     List<net.minecraft.world.level.material.Fluid> candidates, boolean useCache) {
-        if (handler == null || tank < 0 || tank >= handler.getTanks()) return null;
-        FluidStack stored = handler.getFluidInTank(tank);
-        if (!stored.isEmpty()) return stored.copyWithAmount(1);
+        if (handler == null || tank < 0 || tank >= handler.size()) return null;
+        FluidResource stored = handler.getResource(tank);
+        if (!stored.isEmpty()) return stored.toStack(1);
 
         FluidStack cached = null;
-        if (useCache && handler instanceof net.neoforged.neoforge.fluids.capability.IFluidHandlerItem itemHandler) {
-            Item item = itemHandler.getContainer().getItem();
+        if (useCache && !container.isEmpty()) {
+            Item item = container.getItem();
             cached = UNIQUE_FLUID_CACHE.computeIfAbsent(item, ignored -> new HashMap<>()).get(tank);
             if (cached != null) return cached.copy();
         }
@@ -40,7 +41,7 @@ public final class AEExtractionFluidPolicy {
         for (net.minecraft.world.level.material.Fluid fluid : candidates) {
             if (fluid == null) continue;
             FluidStack probe = new FluidStack(fluid, 1);
-            if (!handler.isFluidValid(tank, probe)) continue;
+            if (!handler.isValid(tank, FluidResource.of(probe))) continue;
             FluidType type = fluid.getFluidType();
             FluidStack prior = byType.get(type);
             if (prior == null || (fluid.defaultFluidState().isSource()
@@ -49,8 +50,8 @@ public final class AEExtractionFluidPolicy {
             }
         }
         if (byType.size() == 1) unique = byType.values().iterator().next();
-        if (unique != null && handler instanceof net.neoforged.neoforge.fluids.capability.IFluidHandlerItem itemHandler) {
-            UNIQUE_FLUID_CACHE.computeIfAbsent(itemHandler.getContainer().getItem(), ignored -> new java.util.HashMap<>())
+        if (unique != null && !container.isEmpty()) {
+            UNIQUE_FLUID_CACHE.computeIfAbsent(container.getItem(), ignored -> new java.util.HashMap<>())
                     .put(tank, unique.copy());
         }
         return unique;

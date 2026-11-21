@@ -50,7 +50,7 @@ class ExtendedEnergyTransmitterHandlerTest {
     /** Models a target removed after JDT's transmitter-position scan. */
     private static final class MissingTargetLevel extends ServerLevel {
         private MissingTargetLevel() {
-            super(null, null, null, null, null, null, null, false, 0, java.util.List.of(), false, null);
+            super(null, null, null, null, null, null, false, 0, java.util.List.of(), false);
         }
 
         @Override

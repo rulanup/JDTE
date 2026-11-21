@@ -3,7 +3,8 @@ package com.jdte.common.integrations;
 import com.jdte.common.items.EclipseAlloyWrenchItem;
 import com.jdte.common.upgrades.UpgradeCardInsertionHelper;
 import dev.ftb.mods.ftbultimine.FTBUltimine;
-import dev.ftb.mods.ftbultimine.api.rightclick.RegisterRightClickHandlerEvent;
+import dev.ftb.mods.ftbultimine.api.neoforge.FTBUltimineEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import dev.ftb.mods.ftbultimine.api.FTBUltimineAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +17,8 @@ import java.util.Optional;
 
 public class JDTEUltimineIntegration {
     public static void register() {
-        RegisterRightClickHandlerEvent.REGISTER.register(event -> event.registerHandler((context, hand, positions) -> {
+        NeoForge.EVENT_BUS.addListener((FTBUltimineEvent.RegisterRightClickHandler event) ->
+                event.getEventData().registerHandler((context, hand, positions) -> {
             ServerPlayer player = context.player();
             ItemStack stack = player.getItemInHand(hand);
             if (!player.mayBuild()) {

@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import com.jdte.common.utils.PlayerSoundHelper;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -56,20 +57,20 @@ public class WrenchAreaSelectionPacket {
             if (radiusX > maxRadius || radiusY > maxRadius || radiusZ > maxRadius
                     || Math.abs(offsetX) > maxOffset || Math.abs(offsetY) > maxOffset
                     || Math.abs(offsetZ) > maxOffset) {
-                player.displayClientMessage(
+                player.sendOverlayMessage(
                         Component.translatable("message.jdte.wrench_selection.too_large", maxRadius, maxOffset)
-                                .withStyle(ChatFormatting.RED), true);
-                player.level().playSound(null, payload.machinePos(), SoundEvents.ITEM_BREAK,
+                                .withStyle(ChatFormatting.RED));
+                player.level().playSound(null, payload.machinePos(), SoundEvents.ITEM_BREAK.value(),
                         SoundSource.BLOCKS, 0.8F, 0.8F);
                 return;
             }
 
             areaMachine.setAreaSettings(radiusX, radiusY, radiusZ, offsetX, offsetY, offsetZ,
                     areaMachine.getAreaAffectingData().renderArea);
-            player.displayClientMessage(
+            player.sendOverlayMessage(
                     Component.translatable("message.jdte.wrench_selection.applied", sizeX, sizeY, sizeZ)
-                            .withStyle(ChatFormatting.GREEN), true);
-            player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.0F, 1.4F);
+                            .withStyle(ChatFormatting.GREEN));
+            PlayerSoundHelper.notify(player, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.0F, 1.4F);
         });
     }
 
@@ -81,8 +82,8 @@ public class WrenchAreaSelectionPacket {
     }
 
     private static void showFailure(ServerPlayer player, BlockPos pos, String translationKey) {
-        player.displayClientMessage(Component.translatable(translationKey).withStyle(ChatFormatting.RED), true);
-        player.level().playSound(null, pos, SoundEvents.ITEM_BREAK, SoundSource.BLOCKS, 0.8F, 0.8F);
+        player.sendOverlayMessage(Component.translatable(translationKey).withStyle(ChatFormatting.RED));
+        player.level().playSound(null, pos, SoundEvents.ITEM_BREAK.value(), SoundSource.BLOCKS, 0.8F, 0.8F);
     }
 
     private static BlockPos min(BlockPos first, BlockPos second) {

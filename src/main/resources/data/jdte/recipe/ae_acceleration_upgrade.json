@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ae2:speed_card"
-    },
-    {
-      "item": "jdte:overclock_upgrade"
-    },
-    {
-      "item": "justdirethings:time_crystal"
-    }
+    "ae2:speed_card",
+    "jdte:overclock_upgrade",
+    "justdirethings:time_crystal"
   ],
   "result": {
     "count": 1,

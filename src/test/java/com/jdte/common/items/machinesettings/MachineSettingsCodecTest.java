@@ -1,5 +1,10 @@
 package com.jdte.common.items.machinesettings;
 
+import static com.jdte.test.TestItemHandlers.stackAt;
+
+import static com.jdte.test.TestItemHandlers.setStack;
+
+import com.jdte.common.utils.HandlerTagHelper;
 import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT1BE;
 import com.direwolf20.justdirethings.common.blockentities.EnergyTransmitterBE;
@@ -11,7 +16,7 @@ import com.direwolf20.justdirethings.common.blockentities.PlayerAccessorBE;
 import com.direwolf20.justdirethings.common.blockentities.SensorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.ClickerT2BE;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.jdte.common.blockentities.AdvancedBioCrusherBE;
 import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.AdvancedGelGeneratorBE;
@@ -54,7 +59,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -62,7 +67,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -81,7 +85,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class MachineSettingsCodecTest {
+class MachineSettingsCodecTest implements com.jdte.test.WorldRegistryTest {
     private static final RegistryAccess.Frozen REGISTRIES =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
@@ -108,9 +112,9 @@ class MachineSettingsCodecTest {
 
         CompoundTag encoded = MachineSettingsCodecRegistry.common().encode(source, REGISTRIES);
 
-        assertEquals(2, encoded.getAllKeys().size());
-        assertEquals(11, encoded.getInt("tickSpeed"));
-        assertEquals(4, encoded.getInt("direction"));
+        assertEquals(2, encoded.keySet().size());
+        assertEquals(11, encoded.getInt("tickSpeed").orElseThrow());
+        assertEquals(4, encoded.getInt("direction").orElseThrow());
         assertTrue(encoded.contains("tickSpeed"));
         assertTrue(encoded.contains("direction"));
     }
@@ -136,7 +140,7 @@ class MachineSettingsCodecTest {
     @Test
     void registryFindsARealJdtMachineByItsRegisteredType() {
         ClickerT2BE machine = MachineSettingsTestFixtures.clicker();
-        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType());
+        Identifier typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType());
 
         assertFalse(MachineSettingsCodecRegistry.find(typeId, machine).isEmpty());
     }
@@ -268,14 +272,14 @@ class MachineSettingsCodecTest {
     @Test
     void sensorCodecCopiesOrdinaryValuesWithoutApplyingBlockStateProperties() {
         var source = MachineSettingsTestFixtures.sensor();
-        source.getFilterHandler().setStackInSlot(0, new ItemStack(Items.FURNACE));
+        setStack(source.getFilterHandler(), 0, new ItemStack(Items.FURNACE));
         source.sense_target = SensorT1BE.SENSE_TARGET.values()[1];
         source.strongSignal = true;
         source.senseAmount = 13;
         source.equality = 2;
         source.addBlockStateProperty(0, MachineSettingsTestFixtures.blockStateProperties());
         var target = MachineSettingsTestFixtures.sensor();
-        target.getFilterHandler().setStackInSlot(0, new ItemStack(Items.FURNACE));
+        setStack(target.getFilterHandler(), 0, new ItemStack(Items.FURNACE));
         target.addBlockStateProperty(0, MachineSettingsTestFixtures.blockStateProperties(Direction.WEST));
         CompoundTag targetBlockStateProperties = target.saveBlockStateProperties();
         target.sense_target = SensorT1BE.SENSE_TARGET.values()[0];
@@ -295,10 +299,10 @@ class MachineSettingsCodecTest {
     @Test
     void sensorCodecAppliesBlockStatePropertiesOnlyWhenFilterSettingsAreRequested() {
         var source = MachineSettingsTestFixtures.sensor();
-        source.getFilterHandler().setStackInSlot(0, new ItemStack(Items.FURNACE));
+        setStack(source.getFilterHandler(), 0, new ItemStack(Items.FURNACE));
         source.addBlockStateProperty(0, MachineSettingsTestFixtures.blockStateProperties());
         var target = MachineSettingsTestFixtures.sensor();
-        target.getFilterHandler().setStackInSlot(0, new ItemStack(Items.FURNACE));
+        setStack(target.getFilterHandler(), 0, new ItemStack(Items.FURNACE));
         target.addBlockStateProperty(0, MachineSettingsTestFixtures.blockStateProperties(Direction.WEST));
         CompoundTag targetBlockStateProperties = target.saveBlockStateProperties();
         MachineSettingsCodec.PreparedSettings prepared = preparedSettings(source);
@@ -370,13 +374,13 @@ class MachineSettingsCodecTest {
     void inventoryHolderCodecCopiesOrdinarySettingsWithoutApplyingFilterHandler() {
         InventoryHolderBE source = MachineSettingsTestFixtures.inventoryHolder();
         source.saveSettings(true, true, true, false, false, true, 4);
-        source.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIAMOND));
+        setStack(source.filterBasicHandler, 0, new ItemStack(Items.DIAMOND));
         InventoryHolderBE target = MachineSettingsTestFixtures.inventoryHolder();
         target.saveSettings(false, false, false, true, true, false, 0);
         ItemStack targetStack = new ItemStack(Items.COBBLESTONE, 3);
-        target.getMachineHandler().setStackInSlot(0, targetStack);
-        target.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIRT));
-        CompoundTag targetFilterSettings = target.filterBasicHandler.serializeNBT(REGISTRIES);
+        setStack(target.getMachineHandler(), 0, targetStack);
+        setStack(target.filterBasicHandler, 0, new ItemStack(Items.DIRT));
+        CompoundTag targetFilterSettings = HandlerTagHelper.write(target.filterBasicHandler, REGISTRIES);
 
         MachineSettingsTestFixtures.applyCodec(source, target);
 
@@ -387,24 +391,24 @@ class MachineSettingsCodecTest {
         assertFalse(target.automatedCompareCounts);
         assertEquals(4, target.renderedSlot);
         assertTrue(target.renderPlayer);
-        assertEquals(targetFilterSettings, target.filterBasicHandler.serializeNBT(REGISTRIES));
-        assertEquals(targetStack, target.getMachineHandler().getStackInSlot(0));
+        assertEquals(targetFilterSettings, HandlerTagHelper.write(target.filterBasicHandler, REGISTRIES));
+        assertTrue(ItemStack.matches(targetStack, stackAt(target.getMachineHandler(), 0)));
     }
 
     @Test
     void inventoryHolderCodecAppliesFilterHandlerOnlyWhenFilterSettingsAreRequested() {
         InventoryHolderBE source = MachineSettingsTestFixtures.inventoryHolder();
-        source.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIAMOND));
+        setStack(source.filterBasicHandler, 0, new ItemStack(Items.DIAMOND));
         InventoryHolderBE target = MachineSettingsTestFixtures.inventoryHolder();
-        target.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIRT));
-        CompoundTag targetFilterSettings = target.filterBasicHandler.serializeNBT(REGISTRIES);
+        setStack(target.filterBasicHandler, 0, new ItemStack(Items.DIRT));
+        CompoundTag targetFilterSettings = HandlerTagHelper.write(target.filterBasicHandler, REGISTRIES);
         MachineSettingsCodec.PreparedSettings prepared = preparedSettings(source);
 
         prepared.apply(target);
-        assertEquals(targetFilterSettings, target.filterBasicHandler.serializeNBT(REGISTRIES));
+        assertEquals(targetFilterSettings, HandlerTagHelper.write(target.filterBasicHandler, REGISTRIES));
 
         prepared.applyFilterSettings(target);
-        assertEquals(source.filterBasicHandler.serializeNBT(REGISTRIES), target.filterBasicHandler.serializeNBT(REGISTRIES));
+        assertEquals(HandlerTagHelper.write(source.filterBasicHandler, REGISTRIES), HandlerTagHelper.write(target.filterBasicHandler, REGISTRIES));
     }
 
     @Test
@@ -415,7 +419,10 @@ class MachineSettingsCodecTest {
     @Test
     void inventoryHolderCodecRejectsAnOutOfRangeFilterHandlerSlotWithoutMutatingTarget() {
         assertInventoryHolderFilterSnapshotRejected(filterSettings ->
-                filterSettings.getList("Items", net.minecraft.nbt.Tag.TAG_COMPOUND).getCompound(0).putInt("Slot", 41));
+                {
+                    var entries = filterSettings.getList("stacks").orElseThrow();
+                    entries.add(entries.getFirst().copy());
+                });
     }
 
     @Test
@@ -461,10 +468,10 @@ class MachineSettingsCodecTest {
     void playerAccessorCodecRejectsAnInvalidSidedInventoryType() {
         PlayerAccessorBE source = MachineSettingsTestFixtures.playerAccessor();
         source.updateSidedInventory(Direction.NORTH, 1);
-        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
+        Identifier typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
         MachineSettingsCodec codec = MachineSettingsCodecRegistry.find(typeId, source).orElseThrow();
         CompoundTag encoded = codec.encode(source, REGISTRIES);
-        encoded.getCompound("sidedInventoryTypes").putInt(Direction.NORTH.getSerializedName(), 3);
+        encoded.getCompound("sidedInventoryTypes").orElseThrow().putInt(Direction.NORTH.getSerializedName(), 3);
 
         assertTrue(codec.decode(encoded, REGISTRIES).isEmpty());
     }
@@ -519,7 +526,7 @@ class MachineSettingsCodecTest {
                 MachineSettingsTestFixtures.extendedExperienceHolder());
 
         for (BaseMachineBE machine : machines) {
-            ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType());
+            Identifier typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType());
             assertTrue(MachineSettingsCodecRegistry.find(typeId, machine).isPresent(),
                     () -> "Missing Codec for exact block entity type " + typeId);
         }
@@ -665,8 +672,8 @@ class MachineSettingsCodecTest {
         target.brewerData.set(0, 8);
         target.brewerData.set(2, 17);
         ItemStack targetInput = new ItemStack(Items.POTION);
-        target.getMachineHandler().setStackInSlot(AdvancedPotionBrewerBE.BOTTLE_SLOT_0, targetInput.copy());
-        target.getWaterFluidTank().fill(new FluidStack(Fluids.WATER, 123), IFluidHandler.FluidAction.EXECUTE);
+        setStack(target.getMachineHandler(), AdvancedPotionBrewerBE.BOTTLE_SLOT_0, targetInput.copy());
+        target.getWaterFluidTank().insertFluid(new FluidStack(Fluids.WATER, 123));
         target.energyStorage.setEnergy(91);
 
         MachineSettingsTestFixtures.applyCodec(source, target);
@@ -680,7 +687,7 @@ class MachineSettingsCodecTest {
         assertEquals(8, target.getBrewProgress());
         assertEquals(17, target.getFuel());
         assertTrue(ItemStack.isSameItemSameComponents(targetInput,
-                target.getMachineHandler().getStackInSlot(AdvancedPotionBrewerBE.BOTTLE_SLOT_0)));
+                stackAt(target.getMachineHandler(), AdvancedPotionBrewerBE.BOTTLE_SLOT_0)));
         assertEquals(123, target.getWaterFluidTank().getFluidAmount());
         assertEquals(91, target.energyStorage.getEnergyStored());
     }
@@ -722,7 +729,7 @@ class MachineSettingsCodecTest {
         source.setMultiplier(7);
         LifeBreederBE target = MachineSettingsTestFixtures.lifeBreeder();
         target.setMultiplier(3);
-        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
+        Identifier typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
         MachineSettingsCodec codec = MachineSettingsCodecRegistry.find(typeId, source).orElseThrow();
         CompoundTag encoded = codec.encode(source, REGISTRIES);
         encoded.putString("mode", "not_a_mode");
@@ -753,41 +760,44 @@ class MachineSettingsCodecTest {
         brewer.applyCopiedRecipeLock(true, templates);
         MachineSettingsCodec brewerCodec = codecFor(brewer);
         CompoundTag badTemplate = brewerCodec.encode(brewer, REGISTRIES);
-        badTemplate.getCompound("recipeLockTemplates").put("slot_0",
-                new ItemStack(Items.NETHER_WART).saveOptional(REGISTRIES));
+        badTemplate.getCompound("recipeLockTemplates").orElseThrow().put("slot_0",
+                ItemStack.CODEC.encodeStart(REGISTRIES.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE),
+                        new ItemStack(Items.NETHER_WART)).getOrThrow());
         assertTrue(brewerCodec.decode(badTemplate, REGISTRIES).isEmpty());
     }
 
     @Test
     void registryCoversEveryCurrentJdteAndJdtBaseMachineTypeExactly() {
-        Set<ResourceLocation> expected = new HashSet<>(JDTEBlockEntities.BLOCK_ENTITIES.getEntries().stream()
+        Set<Identifier> expected = new HashSet<>(JDTEBlockEntities.BLOCK_ENTITIES.getEntries().stream()
                 .map(holder -> typeId(holder.get()))
                 .collect(Collectors.toSet()));
+        // The creative cell is an always-on FE source with no machine settings to copy.
+        expected.remove(typeId(JDTEBlockEntities.CREATIVE_ENERGY_CELL.get()));
         expected.addAll(Set.of(
-                typeId(Registration.ItemCollectorBE.get()),
-                typeId(Registration.BlockBreakerT1BE.get()),
-                typeId(Registration.BlockBreakerT2BE.get()),
-                typeId(Registration.BlockPlacerT1BE.get()),
-                typeId(Registration.BlockPlacerT2BE.get()),
-                typeId(Registration.ClickerT1BE.get()),
-                typeId(Registration.ClickerT2BE.get()),
-                typeId(Registration.SensorT1BE.get()),
-                typeId(Registration.SensorT2BE.get()),
-                typeId(Registration.DropperT1BE.get()),
-                typeId(Registration.DropperT2BE.get()),
-                typeId(Registration.GeneratorT1BE.get()),
-                typeId(Registration.GeneratorFluidT1BE.get()),
-                typeId(Registration.EnergyTransmitterBE.get()),
-                typeId(Registration.BlockSwapperT1BE.get()),
-                typeId(Registration.BlockSwapperT2BE.get()),
-                typeId(Registration.PlayerAccessorBE.get()),
-                typeId(Registration.FluidPlacerT1BE.get()),
-                typeId(Registration.FluidPlacerT2BE.get()),
-                typeId(Registration.FluidCollectorT1BE.get()),
-                typeId(Registration.FluidCollectorT2BE.get()),
-                typeId(Registration.ParadoxMachineBE.get()),
-                typeId(Registration.InventoryHolderBE.get()),
-                typeId(Registration.ExperienceHolderBE.get())));
+                typeId(JDTRegistration.ItemCollectorBE.get()),
+                typeId(JDTRegistration.BlockBreakerT1BE.get()),
+                typeId(JDTRegistration.BlockBreakerT2BE.get()),
+                typeId(JDTRegistration.BlockPlacerT1BE.get()),
+                typeId(JDTRegistration.BlockPlacerT2BE.get()),
+                typeId(JDTRegistration.ClickerT1BE.get()),
+                typeId(JDTRegistration.ClickerT2BE.get()),
+                typeId(JDTRegistration.SensorT1BE.get()),
+                typeId(JDTRegistration.SensorT2BE.get()),
+                typeId(JDTRegistration.DropperT1BE.get()),
+                typeId(JDTRegistration.DropperT2BE.get()),
+                typeId(JDTRegistration.GeneratorT1BE.get()),
+                typeId(JDTRegistration.GeneratorFluidT1BE.get()),
+                typeId(JDTRegistration.EnergyTransmitterBE.get()),
+                typeId(JDTRegistration.BlockSwapperT1BE.get()),
+                typeId(JDTRegistration.BlockSwapperT2BE.get()),
+                typeId(JDTRegistration.PlayerAccessorBE.get()),
+                typeId(JDTRegistration.FluidPlacerT1BE.get()),
+                typeId(JDTRegistration.FluidPlacerT2BE.get()),
+                typeId(JDTRegistration.FluidCollectorT1BE.get()),
+                typeId(JDTRegistration.FluidCollectorT2BE.get()),
+                typeId(JDTRegistration.ParadoxMachineBE.get()),
+                typeId(JDTRegistration.InventoryHolderBE.get()),
+                typeId(JDTRegistration.ExperienceHolderBE.get())));
 
         assertEquals(expected, MachineSettingsCodecRegistry.registeredTypeIds());
     }
@@ -804,30 +814,30 @@ class MachineSettingsCodecTest {
                 BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType()), machine).orElseThrow();
     }
 
-    private static ResourceLocation typeId(BlockEntityType<?> type) {
+    private static Identifier typeId(BlockEntityType<?> type) {
         return BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
     }
 
     private void assertInventoryHolderFilterSnapshotRejected(Consumer<CompoundTag> tamper) {
         InventoryHolderBE source = MachineSettingsTestFixtures.inventoryHolder();
-        source.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIAMOND));
+        setStack(source.filterBasicHandler, 0, new ItemStack(Items.DIAMOND));
         InventoryHolderBE target = MachineSettingsTestFixtures.inventoryHolder();
         target.saveSettings(false, false, false, true, true, false, 0);
-        target.filterBasicHandler.setStackInSlot(0, new ItemStack(Items.DIRT));
-        CompoundTag targetFilterSettings = target.filterBasicHandler.serializeNBT(REGISTRIES);
-        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
+        setStack(target.filterBasicHandler, 0, new ItemStack(Items.DIRT));
+        CompoundTag targetFilterSettings = HandlerTagHelper.write(target.filterBasicHandler, REGISTRIES);
+        Identifier typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
         MachineSettingsCodec codec = MachineSettingsCodecRegistry.find(typeId, source).orElseThrow();
         CompoundTag encoded = codec.encode(source, REGISTRIES);
 
-        tamper.accept(encoded.getCompound("filterBasicHandler"));
+        tamper.accept(encoded.getCompound("filterBasicHandler").orElseThrow());
 
         assertTrue(codec.decode(encoded, REGISTRIES).isEmpty());
         assertFalse(target.compareNBT);
-        assertEquals(targetFilterSettings, target.filterBasicHandler.serializeNBT(REGISTRIES));
+        assertEquals(targetFilterSettings, HandlerTagHelper.write(target.filterBasicHandler, REGISTRIES));
     }
 
     private MachineSettingsCodec.PreparedSettings preparedSettings(BaseMachineBE source) {
-        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
+        Identifier typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(source.getType());
         MachineSettingsCodec codec = MachineSettingsCodecRegistry.find(typeId, source).orElseThrow();
         return codec.decode(codec.encode(source, REGISTRIES), REGISTRIES).orElseThrow();
     }

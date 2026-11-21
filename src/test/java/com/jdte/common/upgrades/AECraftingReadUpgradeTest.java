@@ -4,7 +4,7 @@ import com.jdte.common.integrations.ae2.AE2CraftingReadNetwork;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
@@ -17,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class AECraftingReadUpgradeTest {
+class AECraftingReadUpgradeTest implements com.jdte.test.WorldRegistryTest {
     private static final GlobalPos TARGET = GlobalPos.of(
             ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
-                    ResourceLocation.withDefaultNamespace("overworld")),
+                    Identifier.withDefaultNamespace("overworld")),
             net.minecraft.core.BlockPos.ZERO);
 
     @Test

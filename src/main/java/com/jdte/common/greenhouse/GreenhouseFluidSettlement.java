@@ -1,9 +1,11 @@
 package com.jdte.common.greenhouse;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.List;
 
@@ -13,36 +15,36 @@ public final class GreenhouseFluidSettlement {
     private GreenhouseFluidSettlement() {
     }
 
-    public static int normalSupportedHarvests(IFluidHandler tank, ResourceLocation requiredFluid,
+    public static int normalSupportedHarvests(ResourceHandler<FluidResource> tank, Identifier requiredFluid,
                                                int fluidPerHarvest, int requestedHarvests,
                                                boolean creative) {
         return supportedHarvests(List.of(tank), requiredFluid, fluidPerHarvest,
                 requestedHarvests, 1, creative);
     }
 
-    public static boolean normalTryPay(IFluidHandler tank, ResourceLocation requiredFluid,
+    public static boolean normalTryPay(ResourceHandler<FluidResource> tank, Identifier requiredFluid,
                                        int fluidPerHarvest, int paidHarvests,
                                        boolean creative) {
         return tryPay(List.of(tank), requiredFluid, fluidPerHarvest,
                 paidHarvests, 1, creative);
     }
 
-    public static int largeSupportedHarvests(List<? extends IFluidHandler> memberTanks,
-                                              ResourceLocation requiredFluid, int fluidPerHarvest,
+    public static int largeSupportedHarvests(List<? extends ResourceHandler<FluidResource>> memberTanks,
+                                              Identifier requiredFluid, int fluidPerHarvest,
                                               int requestedHarvests, boolean creative) {
         return supportedHarvests(memberTanks, requiredFluid, fluidPerHarvest,
                 requestedHarvests, LARGE_EFFICIENCY_MULTIPLIER, creative);
     }
 
-    public static boolean largeTryPay(List<? extends IFluidHandler> memberTanks,
-                                      ResourceLocation requiredFluid, int fluidPerHarvest,
+    public static boolean largeTryPay(List<? extends ResourceHandler<FluidResource>> memberTanks,
+                                      Identifier requiredFluid, int fluidPerHarvest,
                                       int paidHarvests, boolean creative) {
         return tryPay(memberTanks, requiredFluid, fluidPerHarvest,
                 paidHarvests, LARGE_EFFICIENCY_MULTIPLIER, creative);
     }
 
-    private static int supportedHarvests(List<? extends IFluidHandler> tanks,
-                                         ResourceLocation requiredFluid, int fluidPerHarvest,
+    private static int supportedHarvests(List<? extends ResourceHandler<FluidResource>> tanks,
+                                         Identifier requiredFluid, int fluidPerHarvest,
                                          int requestedHarvests, int efficiencyMultiplier,
                                          boolean creative) {
         int requested = Math.max(0, requestedHarvests);
@@ -52,8 +54,8 @@ public final class GreenhouseFluidSettlement {
         return (int) Math.min(requested, supported);
     }
 
-    private static boolean tryPay(List<? extends IFluidHandler> tanks,
-                                  ResourceLocation requiredFluid, int fluidPerHarvest,
+    private static boolean tryPay(List<? extends ResourceHandler<FluidResource>> tanks,
+                                  Identifier requiredFluid, int fluidPerHarvest,
                                   int paidHarvests, int efficiencyMultiplier,
                                   boolean creative) {
         if (creative || paidHarvests <= 0 || fluidPerHarvest <= 0) return true;
@@ -69,11 +71,11 @@ public final class GreenhouseFluidSettlement {
         return (int) Math.min(Integer.MAX_VALUE, cost);
     }
 
-    private static long available(List<? extends IFluidHandler> tanks, ResourceLocation requiredFluid) {
+    private static long available(List<? extends ResourceHandler<FluidResource>> tanks, Identifier requiredFluid) {
         long total = 0L;
-        for (IFluidHandler tank : tanks) {
-            for (int index = 0; index < tank.getTanks(); index++) {
-                FluidStack stored = tank.getFluidInTank(index);
+        for (ResourceHandler<FluidResource> tank : tanks) {
+            for (int index = 0; index < tank.size(); index++) {
+                FluidStack stored = tank.getResource(index).toStack(tank.getAmountAsInt(index));
                 total = Math.min(Integer.MAX_VALUE,
                         total + GreenhouseFluidPolicy.available(stored, requiredFluid));
             }
@@ -81,27 +83,22 @@ public final class GreenhouseFluidSettlement {
         return total;
     }
 
-    private static int drain(List<? extends IFluidHandler> tanks, ResourceLocation requiredFluid, int amount) {
+    private static int drain(List<? extends ResourceHandler<FluidResource>> tanks, Identifier requiredFluid, int amount) {
         if (amount <= 0 || !BuiltInRegistries.FLUID.containsKey(requiredFluid)) return 0;
         int remaining = amount;
-        for (IFluidHandler handler : tanks) {
-            for (int tank = 0; tank < handler.getTanks() && remaining > 0; tank++) {
-                while (remaining > 0) {
-                    FluidStack stored = handler.getFluidInTank(tank);
-                    if (!GreenhouseFluidPolicy.matches(stored, requiredFluid)) break;
-                    int request = Math.min(remaining, stored.getAmount());
-                    FluidStack requestedVariant = stored.copyWithAmount(request);
-                    FluidStack drained = handler.drain(requestedVariant,
-                            IFluidHandler.FluidAction.EXECUTE);
-                    if (drained.isEmpty()
-                            || !FluidStack.isSameFluidSameComponents(requestedVariant, drained)) break;
-                    int accepted = Math.min(request, drained.getAmount());
-                    remaining -= accepted;
-                    if (accepted < request) break;
+        try (var transaction = Transaction.openRoot()) {
+            for (var handler : tanks) {
+                for (int index = 0; index < handler.size() && remaining > 0; index++) {
+                    var resource = handler.getResource(index);
+                    if (!GreenhouseFluidPolicy.matches(resource.toStack(1), requiredFluid)) continue;
+                    remaining -= handler.extract(index, resource, remaining, transaction);
+                }
+                if (remaining == 0) {
+                    transaction.commit();
+                    return amount;
                 }
             }
-            if (remaining == 0) break;
+            return 0;
         }
-        return amount - remaining;
     }
 }

@@ -1,5 +1,6 @@
 package com.jdte.common.items;
 
+import com.jdte.common.utils.HandlerTagHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.items.MachineSettingsCopier;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
@@ -20,11 +21,11 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -39,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class AdvancedMachineSettingsCopierItemTest {
+class AdvancedMachineSettingsCopierItemTest implements com.jdte.test.WorldRegistryTest {
     private static final HolderLookup.Provider REGISTRIES =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
@@ -54,7 +55,7 @@ class AdvancedMachineSettingsCopierItemTest {
         copier.loadSettings(null, target, stack);
 
         assertEquals(1, copier.baseLoadCalls);
-        assertEquals(Optional.of(ResourceLocation.parse("justdirethings:clicker_t1")),
+        assertEquals(Optional.of(Identifier.parse("justdirethings:clicker_t1")),
                 AdvancedMachineSettingsCopierData.readMachineType(copiedData(stack)));
         assertEquals(Optional.of(new AdvancedMachineSettingsCopierData.Masks(0b11_1111, 0b10_1010)),
                 AdvancedMachineSettingsCopierData.readMasks(copiedData(stack)));
@@ -112,7 +113,7 @@ class AdvancedMachineSettingsCopierItemTest {
         TrackingCopierItem copier = newTrackingCopier();
         ItemStack stack = new ItemStack(Items.STICK);
         TestMachine source = new TestMachine("justdirethings:clicker_t1", 7, 0, 0, false);
-        Inventory inventory = new Inventory(null);
+        SimpleContainer inventory = new SimpleContainer(36);
         copier.inventory = inventory;
         UpgradeHelper.getUpgradeHandler(source).setStackInSlot(0,
                 new ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
@@ -128,7 +129,7 @@ class AdvancedMachineSettingsCopierItemTest {
         TrackingCopierItem copier = newTrackingCopier();
         ItemStack stack = new ItemStack(Items.STICK);
         TestMachine source = new TestMachine("justdirethings:clicker_t1", 7, 0, 0, false);
-        Inventory inventory = new Inventory(null);
+        SimpleContainer inventory = new SimpleContainer(36);
         copier.inventory = inventory;
         UpgradeHelper.getUpgradeHandler(source).setStackInSlot(0,
                 new ItemStack(com.jdte.setup.JDTEItems.CAPACITY_UPGRADE.get()));
@@ -193,7 +194,7 @@ class AdvancedMachineSettingsCopierItemTest {
         copierStack.set(JustDireDataComponents.COPIED_MACHINE_DATA, CustomData.of(copiedData));
 
         TrackingCopierItem copier = newTrackingCopier();
-        Inventory inventory = new Inventory(null);
+        SimpleContainer inventory = new SimpleContainer(36);
         copier.inventory = inventory;
         inventory.setItem(0, new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()));
         inventory.setItem(1, new ItemStack(JDTEItems.LOOTING_UPGRADE.get()));
@@ -213,8 +214,8 @@ class AdvancedMachineSettingsCopierItemTest {
         CompoundTag copiedData = new CompoundTag();
         MachineUpgradeHandlers.write(copiedData, source, REGISTRIES);
 
-        CompoundTag handlers = copiedData.getCompound(AdvancedMachineSettingsCopierData.UPGRADE_HANDLERS_KEY);
-        CompoundTag looting = handlers.getCompound(MachineUpgradeHandlers.LOOTING_HANDLER);
+        CompoundTag handlers = copiedData.getCompound(AdvancedMachineSettingsCopierData.UPGRADE_HANDLERS_KEY).orElseThrow();
+        CompoundTag looting = handlers.getCompound(MachineUpgradeHandlers.LOOTING_HANDLER).orElseThrow();
         looting.putInt("Size", 0);
         handlers.put(MachineUpgradeHandlers.LOOTING_HANDLER, looting);
         copiedData.put(AdvancedMachineSettingsCopierData.UPGRADE_HANDLERS_KEY, handlers);
@@ -232,10 +233,12 @@ class AdvancedMachineSettingsCopierItemTest {
         TestMachine target = new TestMachine("justdirethings:clicker_t1", 2, 0, 0, false);
         CompoundTag copiedData = new CompoundTag();
         AdvancedMachineSettingsCopierData.writeMachineType(copiedData,
-                ResourceLocation.parse("justdirethings:clicker_t1"));
+                Identifier.parse("justdirethings:clicker_t1"));
         ItemStackHandler legacyHandler = new ItemStackHandler(UpgradeHelper.getUpgradeHandler(target).getSlots());
         legacyHandler.setStackInSlot(0, new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()));
-        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, legacyHandler.serializeNBT(REGISTRIES));
+        var legacy = HandlerTagHelper.write(legacyHandler, REGISTRIES);
+        legacy.getListOrEmpty("Items").getCompoundOrEmpty(0).putInt("Slot", 0);
+        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, legacy);
         stack.set(JustDireDataComponents.COPIED_MACHINE_DATA, CustomData.of(copiedData));
 
         copier.loadSettings(null, target, stack);
@@ -268,7 +271,7 @@ class AdvancedMachineSettingsCopierItemTest {
         ItemStack stack = new ItemStack(Items.STICK);
         CompoundTag copiedData = new CompoundTag();
         AdvancedMachineSettingsCopierData.writeMachineType(copiedData,
-                ResourceLocation.parse("justdirethings:clicker_t1"));
+                Identifier.parse("justdirethings:clicker_t1"));
         CompoundTag settings = new CompoundTag();
         settings.putInt("schemaVersion", MachineSettingsSnapshot.CURRENT_SCHEMA);
         settings.putString("machineType", "justdirethings:clicker_t1");
@@ -289,15 +292,15 @@ class AdvancedMachineSettingsCopierItemTest {
     @Test
     void malformedCustomSettingsDoNotConsumeUpgradeCards() {
         TrackingCopierItem copier = newTrackingCopier();
-        Inventory inventory = new Inventory(null);
+        SimpleContainer inventory = new SimpleContainer(36);
         copier.inventory = inventory;
         ItemStack stack = new ItemStack(Items.STICK);
         CompoundTag copiedData = new CompoundTag();
         AdvancedMachineSettingsCopierData.writeMachineType(copiedData,
-                ResourceLocation.parse("justdirethings:clicker_t1"));
+                Identifier.parse("justdirethings:clicker_t1"));
         ItemStackHandler upgrades = new ItemStackHandler(4);
         upgrades.setStackInSlot(0, new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()));
-        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, upgrades.serializeNBT(REGISTRIES));
+        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, HandlerTagHelper.write(upgrades, REGISTRIES));
         CompoundTag settings = new CompoundTag();
         settings.putInt("schemaVersion", MachineSettingsSnapshot.CURRENT_SCHEMA);
         settings.putString("machineType", "justdirethings:clicker_t1");
@@ -324,8 +327,8 @@ class AdvancedMachineSettingsCopierItemTest {
         copier.saveSettings(null, source, stack);
 
         CompoundTag copiedData = copiedData(stack);
-        CompoundTag settings = copiedData.getCompound(AdvancedMachineSettingsCopierData.MACHINE_SETTINGS_KEY);
-        CompoundTag custom = settings.getCompound("custom");
+        CompoundTag settings = copiedData.getCompound(AdvancedMachineSettingsCopierData.MACHINE_SETTINGS_KEY).orElseThrow();
+        CompoundTag custom = settings.getCompound("custom").orElseThrow();
         custom.putInt("tickSpeed", 8);
         settings.put("custom", custom);
         copiedData.put(AdvancedMachineSettingsCopierData.MACHINE_SETTINGS_KEY, settings);
@@ -368,11 +371,11 @@ class AdvancedMachineSettingsCopierItemTest {
         CompoundTag copiedData = new CompoundTag();
         copiedData.putInt(TrackingCopierItem.PARENT_SETTING_KEY, 7);
         AdvancedMachineSettingsCopierData.writeMachineType(copiedData,
-                ResourceLocation.parse("justdirethings:clicker_t1"));
+                Identifier.parse("justdirethings:clicker_t1"));
         AdvancedMachineSettingsCopierData.writeMasks(copiedData, 0b11_1111, 0b10_1010);
         ItemStackHandler upgrades = new ItemStackHandler(UpgradeHelper.getUpgradeHandler(target).getSlots());
         upgrades.setStackInSlot(0, new ItemStack(JDTEItems.CAPACITY_UPGRADE.get()));
-        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, upgrades.serializeNBT(REGISTRIES));
+        AdvancedMachineSettingsCopierData.writeUpgrades(copiedData, HandlerTagHelper.write(upgrades, REGISTRIES));
         stack.set(JustDireDataComponents.COPIED_MACHINE_DATA, CustomData.of(copiedData));
 
         copier.loadSettings(null, target, stack);
@@ -455,8 +458,12 @@ class AdvancedMachineSettingsCopierItemTest {
     private static final class TrackingCopierItem extends AdvancedMachineSettingsCopierItem {
         private static final String PARENT_SETTING_KEY = "testParentSetting";
 
+        private TrackingCopierItem(Properties properties) {
+            super(properties);
+        }
+
         private int baseLoadCalls;
-        private Inventory inventory;
+        private SimpleContainer inventory;
 
         private boolean consumeUpgradeCost(net.minecraft.world.level.Level level, BaseMachineBE machine,
                                             ItemStack stack, Player player) {
@@ -480,12 +487,12 @@ class AdvancedMachineSettingsCopierItemTest {
                                         ItemStack stack) {
             baseLoadCalls++;
             if (MachineSettingsCopier.getCopyArea(stack)) {
-                ((TestMachine) blockEntity).parentSetting = copiedData(stack).getInt(PARENT_SETTING_KEY);
+                ((TestMachine) blockEntity).parentSetting = copiedData(stack).getIntOr(PARENT_SETTING_KEY, 0);
             }
         }
 
         @Override
-        protected ResourceLocation getBlockEntityTypeId(BaseMachineBE machine) {
+        protected Identifier getBlockEntityTypeId(BaseMachineBE machine) {
             return machine instanceof TestMachine testMachine
                     ? testMachine.typeId
                     : super.getBlockEntityTypeId(machine);
@@ -528,7 +535,7 @@ class AdvancedMachineSettingsCopierItemTest {
         }
 
         @Override
-        protected Optional<MachineSettingsCodec> getMachineSettingsCodec(ResourceLocation machineType,
+        protected Optional<MachineSettingsCodec> getMachineSettingsCodec(Identifier machineType,
                                                                           BaseMachineBE machine) {
             return machine instanceof TestMachine
                     ? Optional.of(MachineSettingsCodecRegistry.common())
@@ -536,13 +543,13 @@ class AdvancedMachineSettingsCopierItemTest {
         }
 
         @Override
-        protected Inventory getPlayerInventory(Player player) {
+        protected SimpleContainer getPlayerInventory(Player player) {
             return inventory;
         }
     }
 
     private static final class TestMachine extends BaseMachineBE {
-        private final ResourceLocation typeId;
+        private final Identifier typeId;
         private final boolean configurableIo;
         private int parentSetting;
         private int inputMask;
@@ -550,7 +557,7 @@ class AdvancedMachineSettingsCopierItemTest {
 
         private TestMachine(String typeId, int parentSetting, int inputMask, int outputMask, boolean configurableIo) {
             super(BlockEntityType.SIGN, BlockPos.ZERO, Blocks.OAK_SIGN.defaultBlockState());
-            this.typeId = ResourceLocation.parse(typeId);
+            this.typeId = Identifier.parse(typeId);
             this.parentSetting = parentSetting;
             this.inputMask = inputMask;
             this.outputMask = outputMask;

@@ -1,5 +1,9 @@
 package com.jdte.common.items;
 
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
 import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.ChatFormatting;
@@ -16,14 +20,14 @@ import net.minecraft.world.item.TooltipFlag;
 import java.util.List;
 
 public class EntityAccelerationUpgradeItem extends Item {
-    public EntityAccelerationUpgradeItem() {
-        super(new Properties().stacksTo(64));
+    public EntityAccelerationUpgradeItem(Properties properties) {
+        super(properties.stacksTo(64));
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.jdte.entity_acceleration_upgrade")
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        tooltip.accept(Component.translatable("tooltip.jdte.entity_acceleration_upgrade")
                 .withStyle(ChatFormatting.GRAY));
     }
 

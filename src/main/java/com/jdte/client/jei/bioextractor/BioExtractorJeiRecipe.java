@@ -6,7 +6,7 @@ import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public record BioExtractorJeiRecipe(ResourceLocation id,
-                                   ResourceLocation entityType,
+public record BioExtractorJeiRecipe(Identifier id,
+                                   Identifier entityType,
                                    ItemStack entityIcon,
                                    Optional<FluidStack> outputFluid,
                                    List<BioFactoryOutput> outputItems,
@@ -30,16 +30,13 @@ public record BioExtractorJeiRecipe(ResourceLocation id,
 
     public static List<BioExtractorJeiRecipe> getRecipes() {
         List<BioExtractorJeiRecipe> recipes = new ArrayList<>();
-        RecipeManager rm = getRecipeManager();
-        if (rm == null) return recipes;
-
-        for (RecipeHolder<BioExtractorRecipe> holder : rm.getAllRecipesFor(JDTERecipes.BIO_EXTRACTOR_RECIPE_TYPE.get())) {
+        for (RecipeHolder<BioExtractorRecipe> holder : com.jdte.client.ClientRecipeEvents.recipes().byType(JDTERecipes.BIO_EXTRACTOR_RECIPE_TYPE.get())) {
             BioExtractorRecipe recipe = holder.value();
-            EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(recipe.entityType());
-            SpawnEggItem egg = SpawnEggItem.byId(type);
-            ItemStack icon = egg != null ? new ItemStack(egg) : new ItemStack(Items.EGG);
+            EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(recipe.entityType());
+            ItemStack icon = type == null ? new ItemStack(Items.EGG)
+                    : SpawnEggItem.byId(type).map(ItemStack::new).orElseGet(() -> new ItemStack(Items.EGG));
             recipes.add(new BioExtractorJeiRecipe(
-                    holder.id(),
+                    holder.id().identifier(),
                     recipe.entityType(),
                     icon,
                     recipe.outputFluid(),
@@ -59,14 +56,4 @@ public record BioExtractorJeiRecipe(ResourceLocation id,
         );
     }
 
-    private static RecipeManager getRecipeManager() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level != null) {
-            return mc.level.getRecipeManager();
-        }
-        if (mc.hasSingleplayerServer() && mc.getSingleplayerServer() != null) {
-            return mc.getSingleplayerServer().getRecipeManager();
-        }
-        return null;
-    }
 }

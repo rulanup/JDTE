@@ -5,7 +5,7 @@ import com.jdte.common.recipes.FluidMixerRecipe;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -25,8 +25,8 @@ public record FluidMixerJeiRecipe(
         int processTicks,
         int energy
 ) {
-    public ResourceLocation id() {
-        return ResourceLocation.fromNamespaceAndPath("jdte", "jei/fluid_mixer/"
+    public Identifier id() {
+        return Identifier.fromNamespaceAndPath("jdte", "jei/fluid_mixer/"
                 + Integer.toUnsignedString((fluidInputA.toString() + fluidInputB.toString() + output.toString()).hashCode(), 16));
     }
 
@@ -42,17 +42,10 @@ public record FluidMixerJeiRecipe(
         Level level = Minecraft.getInstance().level;
         if (level == null) return recipes;
 
-        RecipeManager recipeManager = level.getRecipeManager();
-        if (recipeManager != null) {
-            for (RecipeHolder<FluidMixerRecipe> holder : recipeManager.getAllRecipesFor(JDTERecipes.FLUID_MIXER_RECIPE_TYPE.get())) {
+        for (RecipeHolder<FluidMixerRecipe> holder : com.jdte.client.ClientRecipeEvents.recipes().byType(JDTERecipes.FLUID_MIXER_RECIPE_TYPE.get())) {
                 FluidMixerRecipe r = holder.value();
                 List<ItemStack> items = r.itemInput().map(input -> {
-                    ItemStack[] matching = input.ingredient().getItems();
-                    return Arrays.stream(matching).map(s -> {
-                        ItemStack copy = s.copy();
-                        copy.setCount(input.count());
-                        return copy;
-                    }).toList();
+                    return input.ingredient().items().map(item -> new ItemStack(item, input.count())).toList();
                 }).orElse(List.of());
 
                 recipes.add(new FluidMixerJeiRecipe(
@@ -63,7 +56,6 @@ public record FluidMixerJeiRecipe(
                         r.processTicks(),
                         r.energy()
                 ));
-            }
         }
 
         if (ModList.get().isLoaded("mekanism")) {

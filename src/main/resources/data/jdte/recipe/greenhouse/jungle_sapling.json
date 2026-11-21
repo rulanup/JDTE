@@ -1,6 +1,6 @@
 {
   "type": "jdte:greenhouse",
-  "seed": { "item": "minecraft:jungle_sapling" },
+  "seed": "minecraft:jungle_sapling",
   "outputs": [
     { "id": "minecraft:jungle_log", "count": 4 },
     { "id": "minecraft:jungle_sapling", "count": 1 }

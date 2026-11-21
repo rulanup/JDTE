@@ -1,7 +1,8 @@
 package com.jdte.common.blockentities;
 
 import org.junit.jupiter.api.Test;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +101,7 @@ class AdvancedEnergyTransmitterSchedulerTest {
         assertEquals(500L, AdvancedEnergyTransmitterScheduler.boundedReceive(
                 receiver, 1_000, 1_000L, 5));
         assertEquals(5, receiver.calls);
-        assertEquals(500, receiver.stored);
+        assertEquals(500, receiver.getAmountAsInt());
     }
 
     @Test
@@ -118,55 +119,20 @@ class AdvancedEnergyTransmitterSchedulerTest {
 
         assertEquals(250L, AdvancedEnergyTransmitterScheduler.boundedReceive(
                 receiver, 1_000, 250L, 16));
-        assertEquals(250, receiver.stored);
+        assertEquals(250, receiver.getAmountAsInt());
     }
 
-    private static final class LimitedReceiver implements IEnergyStorage {
-        private final int capacity;
-        private final int perCall;
-        private int stored;
+    private static final class LimitedReceiver extends SimpleEnergyHandler {
         private int calls;
 
         private LimitedReceiver(int capacity, int perCall) {
-            this.capacity = capacity;
-            this.perCall = perCall;
+            super(capacity, perCall, 0);
         }
 
         @Override
-        public int receiveEnergy(int maxReceive, boolean simulate) {
-            if (!simulate) {
-                calls++;
-            }
-            int accepted = Math.min(Math.min(maxReceive, perCall), capacity - stored);
-            if (!simulate) {
-                stored += accepted;
-            }
-            return accepted;
-        }
-
-        @Override
-        public int extractEnergy(int maxExtract, boolean simulate) {
-            return 0;
-        }
-
-        @Override
-        public int getEnergyStored() {
-            return stored;
-        }
-
-        @Override
-        public int getMaxEnergyStored() {
-            return capacity;
-        }
-
-        @Override
-        public boolean canExtract() {
-            return false;
-        }
-
-        @Override
-        public boolean canReceive() {
-            return true;
+        public int insert(int amount, TransactionContext transaction) {
+            calls++;
+            return super.insert(amount, transaction);
         }
     }
 }

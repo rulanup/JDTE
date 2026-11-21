@@ -3,7 +3,7 @@ package com.jdte.common.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.fml.loading.FMLEnvironment;
 
@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class GuiUpgradeLayoutConfig {
     private static final String CONFIG_RESOURCE = "/assets/jdte/gui_layout.json";
-    private static final ResourceLocation LAYOUT_RESOURCE = ResourceLocation.fromNamespaceAndPath("jdte", "gui_layout.json");
+    private static final Identifier LAYOUT_RESOURCE = Identifier.fromNamespaceAndPath("jdte", "gui_layout.json");
     private static volatile GuiUpgradeLayoutConfig INSTANCE;
 
     private final Map<String, JsonObject> sections = new HashMap<>();
@@ -68,7 +68,7 @@ public class GuiUpgradeLayoutConfig {
     }
 
     private static GuiUpgradeLayoutConfig loadDevelopmentSource() {
-        if (FMLEnvironment.production) return null;
+        if (FMLEnvironment.isProduction()) return null;
         Path source = Path.of("src", "main", "resources", "assets", "jdte", "gui_layout.json");
         if (!Files.isRegularFile(source)) return null;
         try (var reader = Files.newBufferedReader(source, StandardCharsets.UTF_8)) {

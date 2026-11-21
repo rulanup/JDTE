@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class AEExtractionPlayerServiceTest {
+class AEExtractionPlayerServiceTest implements com.jdte.test.WorldRegistryTest {
     @Test
     void markedStackIsCollectedOnceByIdentity() {
         ItemStack marked = marked(new ItemStack(Items.STICK));

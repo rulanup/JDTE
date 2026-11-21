@@ -40,8 +40,8 @@ public final class PortableFuelBurnSpeedHelper {
      * vanilla fuel tag, so their burn time must use the matching vanilla coal
      * value as a fallback.
      */
-    public static int resolveBurnTime(ItemStack fuelStack) {
-        int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING);
+    public static int resolveBurnTime(ItemStack fuelStack, net.minecraft.world.level.block.entity.FuelValues fuels) {
+        int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING, fuels);
         if (burnTime > 0) {
             return burnTime;
         }

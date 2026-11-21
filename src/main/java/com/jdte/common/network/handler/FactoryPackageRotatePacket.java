@@ -18,8 +18,8 @@ public final class FactoryPackageRotatePacket {
             if (!FactoryPackageItem.isFilled(stack) || payload.delta() == 0) return;
             FactoryPackageItem.rotate(stack, Integer.signum(payload.delta()));
             player.getInventory().setChanged();
-            player.displayClientMessage(Component.translatable("message.jdte.factory_package.rotated",
-                    FactoryPackageItem.getRotation(stack) * 90), true);
+            player.sendOverlayMessage(Component.translatable("message.jdte.factory_package.rotated",
+                    FactoryPackageItem.getRotation(stack) * 90));
         });
     }
 }

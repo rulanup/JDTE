@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class UltimatePortalGunCostTest {
+class UltimatePortalGunCostTest implements com.jdte.test.WorldRegistryTest {
     @Test
     void manualSameDimensionCostUsesRealDistanceAndRoundsUp() {
         NBTHelpers.PortalDestination destination = destination(Level.OVERWORLD, new Vec3(3, 68, 0));

@@ -20,9 +20,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public final class WrenchAreaSelectionClient {
     private static BlockPos firstCorner;
@@ -51,9 +51,9 @@ public final class WrenchAreaSelectionClient {
         if (player.isShiftKeyDown()) {
             boolean hadSelection = firstCorner != null;
             clearSelection();
-            player.displayClientMessage(
+            player.sendOverlayMessage(
                     Component.translatable("message.jdte.wrench_selection.cancelled")
-                            .withStyle(ChatFormatting.YELLOW), true);
+                            .withStyle(ChatFormatting.YELLOW));
             if (hadSelection) {
                 player.playSound(SoundEvents.ITEM_FRAME_REMOVE_ITEM, 0.8F, 0.9F);
             }
@@ -70,43 +70,43 @@ public final class WrenchAreaSelectionClient {
         cancelAttack(event);
         if (firstCorner == null) {
             firstCorner = clickedPos;
-            player.displayClientMessage(
+            player.sendOverlayMessage(
                     Component.translatable("message.jdte.wrench_selection.first", format(clickedPos))
-                            .withStyle(ChatFormatting.GREEN), true);
+                            .withStyle(ChatFormatting.GREEN));
             player.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, 0.8F, 0.8F);
             return;
         }
         if (secondCorner == null) {
             secondCorner = clickedPos;
             int[] size = getSize(firstCorner, secondCorner);
-            player.displayClientMessage(
+            player.sendOverlayMessage(
                     Component.translatable("message.jdte.wrench_selection.second", size[0], size[1], size[2])
-                            .withStyle(ChatFormatting.GREEN), true);
+                            .withStyle(ChatFormatting.GREEN));
             player.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, 0.8F, 1.2F);
             return;
         }
 
         if (minecraft.level.getBlockEntity(clickedPos) instanceof AreaAffectingBE) {
-            PacketDistributor.sendToServer(new WrenchAreaSelectionPayload(clickedPos, firstCorner, secondCorner));
+            ClientPacketDistributor.sendToServer(new WrenchAreaSelectionPayload(clickedPos, firstCorner, secondCorner));
             return;
         }
 
         if (minecraft.level.getBlockEntity(clickedPos) instanceof BaseMachineBE) {
-            player.displayClientMessage(
+            player.sendOverlayMessage(
                     Component.translatable("message.jdte.wrench_selection.not_area_machine")
-                            .withStyle(ChatFormatting.RED), true);
-            player.playSound(SoundEvents.ITEM_BREAK, 0.7F, 0.8F);
+                            .withStyle(ChatFormatting.RED));
+            player.playSound(SoundEvents.ITEM_BREAK.value(), 0.7F, 0.8F);
             return;
         }
 
-        player.displayClientMessage(
+        player.sendOverlayMessage(
                 Component.translatable("message.jdte.wrench_selection.locked")
-                        .withStyle(ChatFormatting.YELLOW), true);
+                        .withStyle(ChatFormatting.YELLOW));
         player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5F, 0.7F);
     }
 
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
-        if (event.isCanceled() || secondCorner == null || !Screen.hasControlDown()) {
+        if (event.isCanceled() || secondCorner == null || !Minecraft.getInstance().hasControlDown()) {
             return;
         }
 
@@ -122,7 +122,7 @@ public final class WrenchAreaSelectionClient {
         BlockPos min = min(firstCorner, secondCorner);
         BlockPos max = max(firstCorner, secondCorner);
         AABB area = AABB.encapsulatingFullBlocks(min, max);
-        Vec3 camera = minecraft.gameRenderer.getMainCamera().getPosition();
+        Vec3 camera = minecraft.gameRenderer.getMainCamera().position();
         Direction face = findLookedAtFace(area, camera, player.getLookAngle(), 75.0D);
         if (face == null) return;
 
@@ -133,15 +133,15 @@ public final class WrenchAreaSelectionClient {
         secondCorner = adjusted[1];
 
         int[] size = getSize(firstCorner, secondCorner);
-        player.displayClientMessage(
+        player.sendOverlayMessage(
                 Component.translatable("message.jdte.wrench_selection.adjusted",
                         Component.translatable("message.jdte.wrench_selection.face." + face.getName()),
-                        size[0], size[1], size[2]).withStyle(ChatFormatting.GREEN), true);
+                        size[0], size[1], size[2]).withStyle(ChatFormatting.GREEN));
         event.setCanceled(true);
     }
 
-    public static void onRenderLevel(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES || firstCorner == null) {
+    public static void onRenderLevel(ExtractLevelRenderStateEvent event) {
+        if (firstCorner == null) {
             return;
         }
 
@@ -153,8 +153,8 @@ public final class WrenchAreaSelectionClient {
         BlockPos previewCorner = getPreviewCorner(minecraft);
         AABB area = AABB.encapsulatingFullBlocks(firstCorner, previewCorner);
         Direction selectedFace = secondCorner == null ? null : findLookedAtFace(area,
-                minecraft.gameRenderer.getMainCamera().getPosition(), minecraft.player.getLookAngle(), 75.0D);
-        AreaPreviewRenderBatch.enqueueMain(area, selectedFace);
+                minecraft.gameRenderer.getMainCamera().position(), minecraft.player.getLookAngle(), 75.0D);
+        AreaPreviewRenderBatch.enqueueMain(event.getRenderState(), area, selectedFace);
     }
 
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -175,7 +175,7 @@ public final class WrenchAreaSelectionClient {
         Component text = Component.translatable("message.jdte.wrench_selection.size", size[0], size[1], size[2]);
         int x = event.getGuiGraphics().guiWidth() / 2;
         int y = event.getGuiGraphics().guiHeight() / 2 + 28;
-        event.getGuiGraphics().drawCenteredString(minecraft.font, text, x, y, 0x55FF55);
+        event.getGuiGraphics().centeredText(minecraft.font, text, x, y, 0xFF55FF55);
     }
 
     public static void clearSelection() {
@@ -238,8 +238,8 @@ public final class WrenchAreaSelectionClient {
         switch (face) {
             case WEST -> minX = Math.min(maxX, minX + delta);
             case EAST -> maxX = Math.max(minX, maxX - delta);
-            case DOWN -> minY = Math.max(minecraft.level.getMinBuildHeight(), Math.min(maxY, minY + delta));
-            case UP -> maxY = Math.min(minecraft.level.getMaxBuildHeight() - 1, Math.max(minY, maxY - delta));
+            case DOWN -> minY = Math.max(minecraft.level.getMinY(), Math.min(maxY, minY + delta));
+            case UP -> maxY = Math.min(minecraft.level.getMaxY(), Math.max(minY, maxY - delta));
             case NORTH -> minZ = Math.min(maxZ, minZ + delta);
             case SOUTH -> maxZ = Math.max(minZ, maxZ - delta);
         }

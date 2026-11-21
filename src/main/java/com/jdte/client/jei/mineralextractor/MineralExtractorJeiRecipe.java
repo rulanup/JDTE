@@ -12,25 +12,24 @@ import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
-import net.minecraft.client.Minecraft;
+import com.jdte.client.ClientRecipeEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeManager;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public record MineralExtractorJeiRecipe(
-        ResourceLocation biomeId,
-        ResourceLocation dimensionId,
+        Identifier biomeId,
+        Identifier dimensionId,
         ItemStack surveyStack,
         List<DisplayMineral> minerals,
         int outputPage,
         int totalPages,
-        ResourceLocation fortuneFluid,
-        ResourceLocation accelerationFluid,
+        Identifier fortuneFluid,
+        Identifier accelerationFluid,
         int experienceFluidCost,
         int timeFluidCost,
         int fortuneBonusPercent,
@@ -40,8 +39,8 @@ public record MineralExtractorJeiRecipe(
 
     public record DisplayMineral(ItemStack stack, MineralEntry entry, String chancePercent) { }
 
-    public ResourceLocation id() {
-        return ResourceLocation.fromNamespaceAndPath("jdte",
+    public Identifier id() {
+        return Identifier.fromNamespaceAndPath("jdte",
                 "jei/mineral_extractor/" + biomeId.getNamespace() + "/" + biomeId.getPath()
                         + (totalPages > 1 ? "/" + outputPage : ""));
     }
@@ -58,8 +57,7 @@ public record MineralExtractorJeiRecipe(
             return List.of();
         }
 
-        RecipeManager recipeManager = getRecipeManager();
-        MineralExtractorFluidRoles roles = MineralExtractorResourceResolver.resolve(recipeManager);
+        MineralExtractorFluidRoles roles = MineralExtractorResourceResolver.resolve(ClientRecipeEvents.recipes());
         int experienceFluidCost = getExperienceFluidPerCycle();
         int timeFluidCost = getTimeFluidPerAcceleratedCycle();
         int fortuneBonusPercent = getFortuneBonusPercent();
@@ -67,8 +65,8 @@ public record MineralExtractorJeiRecipe(
 
         List<MineralExtractorJeiRecipe> list = new ArrayList<>();
         for (MineralSurveyData survey : surveys) {
-            ResourceLocation biomeId = survey.biomeId();
-            ResourceLocation dimensionId = survey.dimensionId();
+            Identifier biomeId = survey.biomeId();
+            Identifier dimensionId = survey.dimensionId();
             long totalWeight = survey.totalWeight();
 
             List<DisplayMineral> validMinerals = new ArrayList<>();
@@ -114,23 +112,10 @@ public record MineralExtractorJeiRecipe(
         return machines;
     }
 
-    private static ItemStack oreStack(ResourceLocation id) {
+    private static ItemStack oreStack(Identifier id) {
         return BuiltInRegistries.BLOCK.getOptional(id)
                 .map(block -> new ItemStack(block.asItem()))
                 .orElse(ItemStack.EMPTY);
-    }
-
-    private static RecipeManager getRecipeManager() {
-        try {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc == null) return null;
-            if (mc.level != null) return mc.level.getRecipeManager();
-            if (mc.hasSingleplayerServer() && mc.getSingleplayerServer() != null) {
-                return mc.getSingleplayerServer().getRecipeManager();
-            }
-        } catch (Throwable ignored) {
-        }
-        return null;
     }
 
     private static int getExperienceFluidPerCycle() {

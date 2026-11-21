@@ -2,7 +2,6 @@ package com.jdte.client.jei.greenhouse;
 
 import com.jdte.common.recipes.GreenhouseCropDefinition;
 import com.jdte.common.recipes.GreenhouseCropResolver;
-import com.jdte.common.integrations.BotanyPotsGreenhouseIntegration;
 import com.jdte.common.integrations.MysticalAgricultureGreenhouseIntegration;
 import com.jdte.common.recipes.GreenhouseRecipe;
 import com.jdte.setup.JDTEConfig;
@@ -10,7 +9,7 @@ import com.jdte.setup.JDTERecipes;
 import com.jdte.common.content.JDTEContentControl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,29 +22,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<ItemStack> outputs,
-                                  ResourceLocation fluid, int timeFluid, int energy, int growthWork) {
+public record GreenhouseJeiRecipe(Identifier id, ItemStack seed, List<ItemStack> outputs,
+                                  Identifier fluid, int timeFluid, int energy, int growthWork) {
     public static List<GreenhouseJeiRecipe> getRecipes() {
         JDTEContentControl control = JDTEContentControl.current();
-        if (!control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "greenhouse"))
-                && !control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "large_greenhouse"))) {
+        if (!control.isBlockEnabled(Identifier.fromNamespaceAndPath("jdte", "greenhouse"))
+                && !control.isBlockEnabled(Identifier.fromNamespaceAndPath("jdte", "large_greenhouse"))) {
             return List.of();
         }
         boolean dynamicGeneration = control.isDynamicRecipeGenerationEnabled(
                 JDTEContentControl.DynamicRecipeFamily.GREENHOUSE);
         Minecraft minecraft = Minecraft.getInstance();
-        RecipeManager manager = minecraft.level != null ? minecraft.level.getRecipeManager()
-                : minecraft.getConnection() != null ? minecraft.getConnection().getRecipeManager() : null;
-        if (manager == null) return List.of();
+        var recipes = com.jdte.client.ClientRecipeEvents.recipes();
         List<GreenhouseJeiRecipe> result = new ArrayList<>();
         Set<Item> seen = new HashSet<>();
 
-        for (var holder : manager.getAllRecipesFor(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
-            if (!control.isRecipeEnabled(holder.id())) continue;
+        for (var holder : recipes.byType(JDTERecipes.GREENHOUSE_RECIPE_TYPE.get())) {
+            if (!control.isRecipeEnabled(holder.id().identifier())) continue;
             GreenhouseRecipe recipe = holder.value();
-            for (ItemStack stack : recipe.seed().getItems()) {
+            for (ItemStack stack : recipe.seed().items().map(ItemStack::new).toList()) {
                 if (!stack.isEmpty() && seen.add(stack.getItem())) {
-                    result.add(create(holder.id(), stack, recipe.outputs(), recipe.fluid(), recipe.timeFluid(),
+                    result.add(create(holder.id().identifier(), stack, recipe.outputs(), recipe.fluid(), recipe.timeFluid(),
                             recipe.growthWork()));
                 }
             }
@@ -54,29 +51,14 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
         if (dynamicGeneration && ModList.get().isLoaded("mysticalagriculture")) {
             MysticalAgricultureGreenhouseIntegration.getCrops().forEach((item, definition) -> {
                 if (!seen.add(item) || definition.outputs().isEmpty()) return;
-                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
-                ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath("jdte",
+                Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
+                Identifier recipeId = Identifier.fromNamespaceAndPath("jdte",
                         "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath());
                 if (control.isRecipeEnabled(recipeId)) {
                     result.add(create(recipeId, new ItemStack(item), definition.outputs(), definition.fluid(),
                             definition.timeFluid(), definition.growthWork()));
                 }
             });
-        }
-
-        if (dynamicGeneration && ModList.get().isLoaded("botanypots") && minecraft.level != null) {
-            for (var crop : BotanyPotsGreenhouseIntegration.getCrops(minecraft.level)) {
-                if (!seen.add(crop.seed().getItem()) || crop.definition().outputs().isEmpty()) continue;
-                ResourceLocation seedId = BuiltInRegistries.ITEM.getKey(crop.seed().getItem());
-                ResourceLocation recipeId = crop.recipeId();
-                ResourceLocation displayId = ResourceLocation.fromNamespaceAndPath("jdte",
-                        "jei/greenhouse/botanypots/" + recipeId.getNamespace() + "/"
-                                + recipeId.getPath() + "/" + seedId.getNamespace() + "/" + seedId.getPath());
-                if (control.isRecipeEnabled(displayId)) {
-                    result.add(create(displayId, crop.seed(), crop.definition().outputs(), crop.definition().fluid(),
-                            crop.definition().timeFluid(), crop.definition().growthWork()));
-                }
-            }
         }
 
         if (dynamicGeneration) {
@@ -87,8 +69,8 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
                 GreenhouseCropDefinition definition = GreenhouseCropResolver.findGeneric(seed);
                 if (definition == null || definition.outputs().isEmpty()) continue;
                 seen.add(item);
-                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
-                ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath("jdte",
+                Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
+                Identifier recipeId = Identifier.fromNamespaceAndPath("jdte",
                         "jei/greenhouse/" + itemId.getNamespace() + "/" + itemId.getPath());
                 if (control.isRecipeEnabled(recipeId)) {
                     result.add(create(recipeId, seed, definition.outputs(), definition.fluid(), definition.timeFluid(),
@@ -101,8 +83,8 @@ public record GreenhouseJeiRecipe(ResourceLocation id, ItemStack seed, List<Item
         return result;
     }
 
-    private static GreenhouseJeiRecipe create(ResourceLocation id, ItemStack seed, List<ItemStack> outputs,
-                                               ResourceLocation fluidType, int rawFluid, int growthWork) {
+    private static GreenhouseJeiRecipe create(Identifier id, ItemStack seed, List<ItemStack> outputs,
+                                               Identifier fluidType, int rawFluid, int growthWork) {
         int divisor = JDTEConfig.COMMON.greenhouseFluidCostDivisor.get();
         int fluid = Math.max(1, (rawFluid + divisor - 1) / divisor);
         return new GreenhouseJeiRecipe(id, seed.copyWithCount(1), outputs.stream().map(ItemStack::copy).toList(),

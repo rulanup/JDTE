@@ -23,18 +23,19 @@ import com.jdte.common.manager.TimeFreezerManager;
 import com.jdte.common.capabilities.MachineCapabilities;
 import com.jdte.common.content.JDTEContentControl;
 import com.jdte.common.content.JDTEContentEvents;
-import com.jdte.common.integrations.BotanyPotsGreenhouseIntegration;
 import com.jdte.common.integrations.JDTEUltimineIntegration;
 import com.jdte.common.items.UltimatePortalGunItem;
 import com.jdte.common.items.RepairTalismanEvents;
 import com.jdte.common.items.LargePocketGeneratorItem;
 import com.jdte.common.items.TimeMultitoolMiningEvents;
 import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemstack;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import com.direwolf20.justdirethings.common.capabilities.FluidHandlerItemStack;
+import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySources;
 import com.jdte.common.integrations.ae2.AEExtractionNetwork;
 import com.jdte.common.manager.AEExtractionPlayerManager;
@@ -50,7 +51,7 @@ import com.jdte.common.recipes.RecipeCacheSignal;
 import com.jdte.common.network.data.SpawnEggRecipeSyncPayload;
 import com.jdte.common.network.data.LootFabricatorLootSyncPayload;
 import com.jdte.common.network.data.MineralSurveySyncPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.ModContainer;
@@ -59,7 +60,10 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
+import com.jdte.common.containers.AdvancedUpgradeStorageContainer;
+import com.jdte.common.containers.UpgradeStorageContainer;
+import com.jdte.common.containers.handlers.UpgradeStorageHandler;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -75,7 +79,8 @@ public class JDTE {
         modContainer.registerConfig(ModConfig.Type.CLIENT, JDTEConfig.LOCAL_SPEC, JDTE.MODID + "/time-accelerator-local.toml");
         modContainer.registerConfig(ModConfig.Type.SERVER, JDTEConfig.SERVER_SPEC, JDTE.MODID + "/time-accelerator-server.toml");
         JDTEBlocks.BLOCKS.register(modEventBus);
-        modEventBus.addListener(com.jdte.datagen.JDTEDataGenerators::gatherData);
+        modEventBus.addListener(com.jdte.datagen.JDTEDataGenerators::gatherClientData);
+        modEventBus.addListener(com.jdte.datagen.JDTEDataGenerators::gatherServerData);
         JDTEBlocks.BLOCK_TYPES.register(modEventBus);
         JDTEItems.ITEMS.register(modEventBus);
         JDTEDataComponents.DATA_COMPONENTS.register(modEventBus);
@@ -101,10 +106,6 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(this::syncSpawnEggRecipes);
         NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
         NeoForge.EVENT_BUS.addListener(this::clearMineralIndex);
-        if (ModList.get().isLoaded("botanypots")) {
-            NeoForge.EVENT_BUS.addListener(BotanyPotsGreenhouseIntegration::onLevelUnload);
-            NeoForge.EVENT_BUS.addListener(BotanyPotsGreenhouseIntegration::onServerStopped);
-        }
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onClone);
         NeoForge.EVENT_BUS.addListener(LifeAppleProgression::onLogin);
         NeoForge.EVENT_BUS.addListener(RepairTalismanEvents::onPlayerTick);
@@ -145,26 +146,30 @@ public class JDTE {
         NeoForge.EVENT_BUS.addListener(RangeBlockerManager::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, com.jdte.common.factory.FactoryPermissionProbe::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, JDTEContentEvents::onBlockPlace);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, JDTEContentEvents::onModifyRecipeJsons);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, JDTEContentEvents::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onEntityTickPost);
         NeoForge.EVENT_BUS.addListener(com.jdte.common.manager.EntityAccelerationManager::onEntityInteract);
-        if (ModList.get().isLoaded("curios")) {
-            NeoForge.EVENT_BUS.addListener(com.jdte.common.integrations.curios.BigFluidTankCuriosIntegration::onPlayerLoggedIn);
-        }
         if (ModList.get().isLoaded("ftbultimine")) {
             JDTEUltimineIntegration.register();
         }
     }
 
     private void syncSpawnEggRecipes(OnDatapackSyncEvent event) {
+        event.sendRecipes(JDTERecipes.INFUSION_RECIPE_TYPE.get(), JDTERecipes.GREENHOUSE_RECIPE_TYPE.get(),
+                JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get(), JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get(),
+                JDTERecipes.MINERAL_EXTRACTOR_RESOURCES_RECIPE_TYPE.get(), JDTERecipes.FLUID_MIXER_RECIPE_TYPE.get(),
+                JDTERecipes.LOOT_FABRICATOR_RECIPE_TYPE.get(), JDTERecipes.LIFE_EXTRACTOR_RECIPE_TYPE.get(),
+                JDTERecipes.BIO_EXTRACTOR_RECIPE_TYPE.get(), JDTRegistration.GOO_SPREAD_RECIPE_TYPE.get(),
+                JDTRegistration.FLUID_DROP_RECIPE_TYPE.get());
+        if (ModList.get().isLoaded("productivebees")) {
+            com.jdte.common.integrations.ProductiveBeesBioFactoryIntegration.syncHiveRecipes(event);
+        }
         if (event.getPlayer() == null) {
             MineralSurveyIndex.rebuild(event.getPlayerList().getServer());
         }
         GreenhouseCropResolver.invalidateCaches();
         RecipeCacheSignal.invalidate();
-        if (ModList.get().isLoaded("botanypots")) {
-            BotanyPotsGreenhouseIntegration.invalidateCrops();
-        }
         MobLootSpawnEggHelper.invalidate(event.getPlayerList().getServer().getResourceManager());
         SpawnEggRecipeSyncPayload payload = new SpawnEggRecipeSyncPayload(
                 MobLootSpawnEggHelper.getRecipeIds(event.getPlayerList().getServer().getResourceManager()));
@@ -195,8 +200,8 @@ public class JDTE {
         }
     }
 
-    private void addReloadListeners(AddReloadListenerEvent event) {
-        event.addListener(new MineralSourceReloadListener());
+    private void addReloadListeners(AddServerReloadListenersEvent event) {
+        event.addListener(id("mineral_sources"), new MineralSourceReloadListener());
     }
 
     private void clearMineralIndex(ServerStoppedEvent event) {
@@ -205,76 +210,60 @@ public class JDTE {
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         MachineCapabilities.register(event);
-        event.registerItem(Capabilities.FluidHandler.ITEM,
+        AdvancedEnergyTransmitterEnergySources.registerCapabilities(event);
+        event.registerItem(Capabilities.Fluid.ITEM,
                 (stack, context) -> new FluidHandlerItemStack(
-                        com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
-                        stack, JDTEConfig.COMMON.ultimatePortalGun.ultimatePortalGunFluidCapacity.get()) {
+                        context != null ? context : ItemAccess.forStack(stack), JustDireDataComponents.FLUID_CONTAINER.get(), JDTEConfig.COMMON.ultimatePortalGun.ultimatePortalGunFluidCapacity.get()) {
                     @Override
-                    public boolean isFluidValid(int tank, FluidStack fluid) {
-                        return fluid.is(Registration.PORTAL_FLUID_TYPE.get());
-                    }
-
-                    @Override
-                    public boolean canFillFluidType(FluidStack fluid) {
-                        return fluid.is(Registration.PORTAL_FLUID_TYPE.get());
+                    public boolean isFluidValid(FluidResource fluid) {
+                        return fluid.is(JDTRegistration.PORTAL_FLUID_TYPE.get());
                     }
                 },
                 JDTEItems.ULTIMATE_PORTAL_GUN.get());
-        event.registerItem(Capabilities.EnergyStorage.ITEM,
+        event.registerItem(Capabilities.Energy.ITEM,
                 (stack, context) -> new EnergyStorageItemstack(
-                        JDTEConfig.COMMON.ultimatePortalGun.ultimatePortalGunEnergyCapacity.get(), stack),
+                        context != null ? context : ItemAccess.forStack(stack), JDTEConfig.COMMON.ultimatePortalGun.ultimatePortalGunEnergyCapacity.get()),
                 JDTEItems.ULTIMATE_PORTAL_GUN.get());
-        event.registerItem(Capabilities.FluidHandler.ITEM,
+        event.registerItem(Capabilities.Fluid.ITEM,
                 (stack, context) -> new FluidHandlerItemStack(
-                        com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
-                        stack, com.jdte.common.items.BigFluidTankItem.MAX_MB),
+                        context != null ? context : ItemAccess.forStack(stack), JustDireDataComponents.FLUID_CONTAINER.get(), com.jdte.common.items.BigFluidTankItem.MAX_MB),
                 JDTEItems.BIG_FLUID_TANK.get());
-        event.registerItem(Capabilities.EnergyStorage.ITEM,
+        event.registerItem(Capabilities.Energy.ITEM,
                 (stack, context) -> new EnergyStorageItemstack(
-                        com.jdte.common.items.TimeMultitoolItem.MAX_ENERGY, stack),
+                        context != null ? context : ItemAccess.forStack(stack), com.jdte.common.items.TimeMultitoolItem.MAX_ENERGY),
                 JDTEItems.TIME_MULTITOOL.get());
-        event.registerItem(Capabilities.EnergyStorage.ITEM,
+        event.registerItem(Capabilities.Energy.ITEM,
                 (stack, context) -> new EnergyStorageItemstack(
-                        JDTEConfig.COMMON.ultimateTimeWandEnergyCapacity.get(), stack),
+                        context != null ? context : ItemAccess.forStack(stack), JDTEConfig.COMMON.ultimateTimeWandEnergyCapacity.get()),
                 JDTEItems.ULTIMATE_TIME_WAND.get());
-        event.registerItem(Capabilities.EnergyStorage.ITEM,
-                (stack, context) -> LargePocketGeneratorItem.createEnergyStorage(stack),
+        event.registerItem(Capabilities.Energy.ITEM,
+                (stack, context) -> LargePocketGeneratorItem.createEnergyStorage(context != null ? context : ItemAccess.forStack(stack)),
                 JDTEItems.LARGE_POCKET_GENERATOR.get());
-        event.registerItem(Capabilities.FluidHandler.ITEM,
+        event.registerItem(Capabilities.Fluid.ITEM,
                 (stack, context) -> new FluidHandlerItemStack(
-                        com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
-                        stack, com.jdte.common.items.TimeMultitoolItem.MAX_TIME_FLUID) {
+                        context != null ? context : ItemAccess.forStack(stack), JustDireDataComponents.FLUID_CONTAINER.get(), com.jdte.common.items.TimeMultitoolItem.MAX_TIME_FLUID) {
                     @Override
-                    public boolean isFluidValid(int tank, FluidStack fluid) {
-                        return fluid.is(Registration.TIME_FLUID_TYPE.get());
-                    }
-
-                    @Override
-                    public boolean canFillFluidType(FluidStack fluid) {
-                        return fluid.is(Registration.TIME_FLUID_TYPE.get());
+                    public boolean isFluidValid(FluidResource fluid) {
+                        return fluid.is(JDTRegistration.TIME_FLUID_TYPE.get());
                     }
                 },
                 JDTEItems.TIME_MULTITOOL.get());
-        event.registerItem(Capabilities.FluidHandler.ITEM,
+        event.registerItem(Capabilities.Fluid.ITEM,
                 (stack, context) -> new FluidHandlerItemStack(
-                        com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents.FLUID_CONTAINER,
-                        stack, JDTEConfig.COMMON.ultimateTimeWandFluidCapacity.get()) {
+                        context != null ? context : ItemAccess.forStack(stack), JustDireDataComponents.FLUID_CONTAINER.get(), JDTEConfig.COMMON.ultimateTimeWandFluidCapacity.get()) {
                     @Override
-                    public boolean isFluidValid(int tank, FluidStack fluid) {
-                        return fluid.is(Registration.TIME_FLUID_TYPE.get());
-                    }
-
-                    @Override
-                    public boolean canFillFluidType(FluidStack fluid) {
-                        return fluid.is(Registration.TIME_FLUID_TYPE.get());
+                    public boolean isFluidValid(FluidResource fluid) {
+                        return fluid.is(JDTRegistration.TIME_FLUID_TYPE.get());
                     }
                 },
                 JDTEItems.ULTIMATE_TIME_WAND.get());
-        event.registerItem(Capabilities.ItemHandler.ITEM,
-                (stack, context) -> new com.jdte.common.containers.handlers.UpgradeStorageHandler(stack),
+        event.registerItem(Capabilities.Item.ITEM,
+                (stack, context) -> new UpgradeStorageHandler(
+                        context != null ? context : ItemAccess.forStack(stack), UpgradeStorageContainer.SLOTS),
                 JDTEItems.UPGRADE_STORAGE.get());
-        event.registerItem(Capabilities.ItemHandler.ITEM,
-                (stack, context) -> new com.jdte.common.containers.handlers.AdvancedUpgradeStorageHandler(stack),
+        event.registerItem(Capabilities.Item.ITEM,
+                (stack, context) -> new UpgradeStorageHandler(
+                        context != null ? context : ItemAccess.forStack(stack), AdvancedUpgradeStorageContainer.SLOTS),
                 JDTEItems.ADVANCED_UPGRADE_STORAGE.get());
     }
 
@@ -289,7 +278,7 @@ public class JDTE {
         });
     }
 
-    public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 }

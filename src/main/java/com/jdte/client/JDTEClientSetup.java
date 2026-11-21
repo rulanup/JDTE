@@ -9,84 +9,49 @@ import com.jdte.client.renderers.ExtendedExperienceHolderBER;
 import com.jdte.client.renderers.MineralExtractorBER;
 import com.jdte.client.renderers.TimeAcceleratorBER;
 import com.jdte.client.screens.*;
-import com.jdte.common.integrations.BotanyPotsGreenhouseIntegration;
-import com.jdte.common.items.FactoryPackageItem;
-import com.jdte.common.items.LargeFuelCanisterItem;
-import com.jdte.common.items.LargePocketGeneratorItem;
-import com.jdte.common.items.LargePotionCanisterItem;
-import com.jdte.common.items.UltimateTimeWandData;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEEntities;
-import com.jdte.setup.JDTEItems;
-import com.jdte.setup.JDTEDataComponents;
-import com.jdte.setup.JDTEConfig;
+import com.jdte.setup.JDTEFluids;
+import com.jdte.common.fluid.LifeFluidType;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
+import net.neoforged.neoforge.client.fluid.FluidTintSources;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.event.RegisterRangeSelectItemModelPropertyEvent;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 
-@EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = JDTE.MODID, value = Dist.CLIENT)
 public class JDTEClientSetup {
     @SubscribeEvent
+    public static void registerFluidModels(RegisterFluidModelsEvent event) {
+        event.register(new FluidModel.Unbaked(new Material(LifeFluidType.STILL_TEXTURE),
+                        new Material(LifeFluidType.FLOWING_TEXTURE), null, FluidTintSources.constant(0xFFDC143C)),
+                JDTEFluids.LIFE_FLUID_SOURCE, JDTEFluids.LIFE_FLUID_FLOWING);
+    }
+
+    @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
-        // Guarded so the optional Botany Pots integration class never loads without the mod, and
-        // registered here so the client-only event class never loads on the dedicated server.
-        if (ModList.get().isLoaded("botanypots")) {
-            NeoForge.EVENT_BUS.addListener((RecipesUpdatedEvent recipesEvent) ->
-                    BotanyPotsGreenhouseIntegration.invalidateCrops());
-        }
         event.enqueueWork(() -> LegacyTexturePackExporter.exportIfMissing(
                 Minecraft.getInstance().gameDirectory.toPath(),
                 () -> JDTE.class.getResourceAsStream(LegacyTexturePackExporter.PACK_RESOURCE)));
-        event.enqueueWork(() -> ItemProperties.register(
-                JDTEItems.FACTORY_PACKAGE.get(),
-                ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "filled"),
-                (stack, level, entity, seed) -> FactoryPackageItem.isFilled(stack) ? 1.0F : 0.0F));
-        event.enqueueWork(() -> {
-            ItemProperties.register(
-                    JDTEItems.ULTIMATE_PORTAL_GUN.get(),
-                    ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fullness"),
-                    (stack, level, entity, seed) -> com.jdte.common.items.UltimatePortalGunItem.getFullness(stack));
-            ItemProperties.register(
-                    JDTEItems.ULTIMATE_TIME_WAND.get(),
-                    ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "mode"),
-                    (stack, level, entity, seed) -> UltimateTimeWandData.Mode.fromName(
-                            stack.getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_MODE.get(),
-                                    UltimateTimeWandData.Mode.NORMAL.serializedName())).ordinal());
-            ItemProperties.register(
-                    JDTEItems.ULTIMATE_TIME_WAND.get(),
-                    ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fullness"),
-                    (stack, level, entity, seed) -> {
-                        var fluid = stack.getCapability(net.neoforged.neoforge.capabilities.Capabilities.FluidHandler.ITEM);
-                        return fluid == null ? 0.0F : (float) fluid.getFluidInTank(0).getAmount()
-                                / Math.max(1, JDTEConfig.COMMON.ultimateTimeWandFluidCapacity.get());
-                    });
-            ItemProperties.register(
-                    JDTEItems.LARGE_POCKET_GENERATOR.get(),
-                    ResourceLocation.fromNamespaceAndPath("justdirethings", "enabled"),
-                    (stack, level, entity, seed) -> LargePocketGeneratorItem.getEnabledProperty(stack));
-            ItemProperties.register(
-                    JDTEItems.LARGE_POTION_CANISTER.get(),
-                    ResourceLocation.fromNamespaceAndPath("justdirethings", "potion_fullness"),
-                    (stack, level, entity, seed) -> LargePotionCanisterItem.getFullness(stack));
-            ItemProperties.register(
-                    JDTEItems.LARGE_FUEL_CANISTER.get(),
-                    ResourceLocation.fromNamespaceAndPath("justdirethings", "fullness"),
-                    (stack, level, entity, seed) -> LargeFuelCanisterItem.getFullness(stack));
-        });
+    }
+
+    @SubscribeEvent
+    public static void registerItemProperties(RegisterRangeSelectItemModelPropertyEvent event) {
+        for (MachineItemModelProperty property : MachineItemModelProperty.values()) {
+            event.register(JDTE.id(property.id), property.type());
+        }
     }
 
     @SubscribeEvent
@@ -196,8 +161,8 @@ public class JDTEClientSetup {
     }
 
     @SubscribeEvent
-    public static void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener((ResourceManagerReloadListener) GuiUpgradeLayoutConfig::reload);
+    public static void registerClientReloadListeners(AddClientReloadListenersEvent event) {
+        event.addListener(JDTE.id("gui_upgrade_layout"), (ResourceManagerReloadListener) GuiUpgradeLayoutConfig::reload);
     }
 
     @SubscribeEvent
@@ -220,17 +185,17 @@ public class JDTEClientSetup {
         event.registerEntityRenderer(JDTEEntities.ULTIMATE_TIME_WAND.get(), UltimateTimeWandRenderer::new);
 
         // Extended Machines
-        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_CLICKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.ClickerT2BER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_CLICKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_EXPERIENCE_HOLDER.get(), ExtendedExperienceHolderBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.get(),
                 com.direwolf20.justdirethings.client.blockentityrenders.EnergyTransmitterRenderer::new);
-        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_BREAKER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockBreakerT2BER::new);
-        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_PLACER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockPlacerT2BER::new);
-        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_SWAPPER.get(), com.direwolf20.justdirethings.client.blockentityrenders.BlockSwapperT2BER::new);
-        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_DROPPER.get(), com.direwolf20.justdirethings.client.blockentityrenders.DropperT2BER::new);
-        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_SENSOR.get(), com.direwolf20.justdirethings.client.blockentityrenders.SensorT2BER::new);
-        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_COLLECTOR.get(), com.direwolf20.justdirethings.client.blockentityrenders.FluidCollectorT2BER::new);
-        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_PLACER.get(), com.direwolf20.justdirethings.client.blockentityrenders.FluidPlacerT2BER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_BREAKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_PLACER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_BLOCK_SWAPPER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_DROPPER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_SENSOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_COLLECTOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
+        event.registerBlockEntityRenderer(JDTEBlockEntities.EXTENDED_FLUID_PLACER.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ADVANCED_ITEM_COLLECTOR.get(), AdvancedItemCollectorBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.ENTITY_SUPPRESSOR.get(), com.jdte.client.renderers.AreaAffectingBER::new);
         event.registerBlockEntityRenderer(JDTEBlockEntities.RANGE_BLOCKER.get(), com.jdte.client.renderers.AreaAffectingBER::new);

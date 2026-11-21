@@ -1,10 +1,10 @@
 package com.jdte.common.autoioconfig;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-public class AutoIoConfigData implements INBTSerializable<CompoundTag> {
+public class AutoIoConfigData implements ValueIOSerializable {
     public static final int SIDE_COUNT = 6;
     public static final int DEFAULT_SIDE_MASK = 0;
     public static final int ALL_SIDES_MASK = (1 << SIDE_COUNT) - 1;
@@ -59,20 +59,20 @@ public class AutoIoConfigData implements INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("inputMask", getInputMask());
-        tag.putInt("outputMask", getOutputMask());
-        return tag;
+    public void serialize(ValueOutput output) {
+        output.putInt("inputMask", getInputMask());
+        output.putInt("outputMask", getOutputMask());
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        if (nbt.contains("inputMask") || nbt.contains("outputMask")) {
-            setMasks(nbt.getInt("inputMask"), nbt.getInt("outputMask"));
+    public void deserialize(ValueInput input) {
+        var inbound = input.getInt("inputMask");
+        var outbound = input.getInt("outputMask");
+        if (inbound.isPresent() || outbound.isPresent()) {
+            setMasks(inbound.orElse(0), outbound.orElse(0));
             return;
         }
-        int legacyMask = nbt.getInt("sideMask");
+        int legacyMask = input.getIntOr("sideMask", 0);
         setMasks(legacyMask, legacyMask);
     }
 }

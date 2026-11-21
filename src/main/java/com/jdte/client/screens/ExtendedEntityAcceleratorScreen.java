@@ -7,7 +7,7 @@ import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class ExtendedEntityAcceleratorScreen extends BaseMachineScreen<ExtendedEntityAcceleratorContainer> {
     private int multiplier;
@@ -24,7 +24,7 @@ public class ExtendedEntityAcceleratorScreen extends BaseMachineScreen<ExtendedE
                 JDTEConfig.COMMON.entityAccelerator.extendedMaxMultiplier.get(),
                 Component.translatable("jdte.screen.multiplier"), b -> {
             multiplier = ((NumberButton) b).getValue();
-            PacketDistributor.sendToServer(new TimeAcceleratorPayload(multiplier));
+            ClientPacketDistributor.sendToServer(new TimeAcceleratorPayload(multiplier));
         }));
     }
 

@@ -1,20 +1,20 @@
 package com.jdte.client.screens.util;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.autoioconfig.AutoIoConfigData;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 public final class AutoIoConfigPanelHelper {
-    private static final ResourceLocation IO_NORTH = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-north.png");
-    private static final ResourceLocation IO_SOUTH = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-south.png");
-    private static final ResourceLocation IO_WEST = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-west.png");
-    private static final ResourceLocation IO_EAST = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-east.png");
-    private static final ResourceLocation IO_UP = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-up.png");
-    private static final ResourceLocation IO_DOWN = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-down.png");
+    private static final Identifier IO_NORTH = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-north.png");
+    private static final Identifier IO_SOUTH = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-south.png");
+    private static final Identifier IO_WEST = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-west.png");
+    private static final Identifier IO_EAST = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-east.png");
+    private static final Identifier IO_UP = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-up.png");
+    private static final Identifier IO_DOWN = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/direction-down.png");
 
     public static final int BUTTON_SIZE = 12;
     public static final int BUTTON_SPACING = 12;
@@ -31,9 +31,9 @@ public final class AutoIoConfigPanelHelper {
     private AutoIoConfigPanelHelper() {
     }
 
-    public static void renderPanel(GuiGraphics guiGraphics, ResourceLocation background, int panelX, int panelY,
+    public static void renderPanel(GuiGraphicsExtractor guiGraphics, Identifier background, int panelX, int panelY,
                                    int inputMask, int outputMask) {
-        guiGraphics.blitSprite(background, panelX, panelY, PANEL_SIZE, PANEL_SIZE);
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, background, panelX, panelY, PANEL_SIZE, PANEL_SIZE);
 
         drawSide(guiGraphics, panelX, panelY, inputMask, outputMask, SIDE_NORTH);
         drawSide(guiGraphics, panelX, panelY, inputMask, outputMask, SIDE_WEST);
@@ -43,7 +43,7 @@ public final class AutoIoConfigPanelHelper {
         drawSide(guiGraphics, panelX, panelY, inputMask, outputMask, SIDE_DOWN);
     }
 
-    private static void drawSide(GuiGraphics guiGraphics, int panelX, int panelY, int inputMask, int outputMask, int side) {
+    private static void drawSide(GuiGraphicsExtractor guiGraphics, int panelX, int panelY, int inputMask, int outputMask, int side) {
         drawSideButton(guiGraphics, getSideX(panelX, side), getSideY(panelY, side),
                 getSideIcon(side), AutoIoConfigHelper.getMode(inputMask, outputMask, side));
     }
@@ -75,7 +75,7 @@ public final class AutoIoConfigPanelHelper {
         return panelY + PANEL_PADDING + row * BUTTON_SPACING;
     }
 
-    private static ResourceLocation getSideIcon(int side) {
+    private static Identifier getSideIcon(int side) {
         return switch (side) {
             case SIDE_NORTH -> IO_NORTH;
             case SIDE_SOUTH -> IO_SOUTH;
@@ -86,7 +86,7 @@ public final class AutoIoConfigPanelHelper {
         };
     }
 
-    private static void drawSideButton(GuiGraphics guiGraphics, int x, int y, ResourceLocation icon, int mode) {
+    private static void drawSideButton(GuiGraphicsExtractor guiGraphics, int x, int y, Identifier icon, int mode) {
         float red;
         float green;
         float blue;
@@ -113,25 +113,21 @@ public final class AutoIoConfigPanelHelper {
             }
         }
 
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(x, y, 0);
-        poseStack.scale(0.75F, 0.75F, 1.0F);
-        RenderSystem.setShaderColor(red, green, blue, 1.0F);
-        guiGraphics.blit(icon, 0, 0, 0, 0, 16, 16, 16, 16);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        poseStack.popPose();
+        var poseStack = guiGraphics.pose();
+        poseStack.pushMatrix();
+        poseStack.translate(x, y);
+        poseStack.scale(0.75F, 0.75F);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, icon, 0, 0, 0, 0, 16, 16, 16, 16, net.minecraft.util.ARGB.colorFromFloat(1.0F, red, green, blue));
+        poseStack.popMatrix();
     }
 
-    public static void drawSmallIconButton(GuiGraphics guiGraphics, int x, int y, ResourceLocation icon, boolean active) {
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(x, y, 0);
-        poseStack.scale(0.75f, 0.75f, 1.0f);
-        RenderSystem.setShaderColor(active ? 1.0f : 0.33f, active ? 1.0f : 0.33f, active ? 1.0f : 0.33f, 1.0f);
-        guiGraphics.blit(icon, 0, 0, 0, 0, 16, 16, 16, 16);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        poseStack.popPose();
+    public static void drawSmallIconButton(GuiGraphicsExtractor guiGraphics, int x, int y, Identifier icon, boolean active) {
+        var poseStack = guiGraphics.pose();
+        poseStack.pushMatrix();
+        poseStack.translate(x, y);
+        poseStack.scale(0.75f, 0.75f);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, icon, 0, 0, 0, 0, 16, 16, 16, 16, active ? -1 : 0xFF545454);
+        poseStack.popMatrix();
     }
 
     public static String getModeTranslationKey(int mode) {

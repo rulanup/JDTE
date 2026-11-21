@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public class BasicFluidStabilizerBlock extends BaseMachineBlock {
-    public BasicFluidStabilizerBlock() {
-        super(Properties.of()
+    public BasicFluidStabilizerBlock(Properties properties) {
+        super(properties
                 .sound(SoundType.METAL)
                 .strength(2.0f)
                 .isRedstoneConductor(BaseMachineBlock::never)

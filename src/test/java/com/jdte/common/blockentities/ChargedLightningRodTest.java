@@ -1,5 +1,7 @@
 package com.jdte.common.blockentities;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import com.jdte.common.entities.MachineLightningEffects;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
@@ -12,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ChargedLightningRodTest {
+class ChargedLightningRodTest implements com.jdte.test.WorldRegistryTest {
     private ChargedLightningRodBE machine() {
         return new ChargedLightningRodBE(BlockPos.ZERO, JDTEBlocks.CHARGED_LIGHTNING_ROD.get().defaultBlockState());
     }
@@ -54,7 +56,7 @@ class ChargedLightningRodTest {
         rod.setLightningEffects(false, true);
         var restored = machine();
         var registries = net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY);
-        restored.loadAdditional(rod.saveWithoutMetadata(registries), registries);
+        restored.loadAdditional(TagValueInput.create(new ProblemReporter.Collector(), registries, rod.saveWithoutMetadata(registries)));
         assertFalse(restored.isLightningRenderEnabled());
         assertTrue(restored.isLightningSoundEnabled());
         restored.setLightningEffects(true, false);

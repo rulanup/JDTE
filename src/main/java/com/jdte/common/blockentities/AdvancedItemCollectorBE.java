@@ -6,7 +6,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -24,13 +24,15 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.fml.ModList;
 
 public class AdvancedItemCollectorBE extends BaseMachineBE
         implements FilterableBE, AreaAffectingBE, RedstoneControlledBE, ExtendedUpgradeMachine {
-    private BlockCapabilityCache<IItemHandler, Direction> attachedInventory;
+    private BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> attachedInventory;
     private final FilterData filterData = new FilterData();
     private final RedstoneControlData redstoneControlData = new RedstoneControlData();
     private final AreaAffectingData areaAffectingData;
@@ -52,7 +54,7 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -119,21 +121,30 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
                 || !UpgradeHelper.mayRunWithUpgrades(this)) {
             return stack;
         }
-        IItemHandler inventory = getAttachedInventory();
+        ResourceHandler<ItemResource> inventory = getAttachedInventory();
         if (inventory == null) return stack;
 
-        ItemStack normalRemainder = ItemHandlerHelper.insertItemStacked(inventory, stack, true);
+        ItemStack normalRemainder = insertIntoInventory(inventory, stack, true);
         if (normalRemainder.isEmpty()) {
-            return simulate ? ItemStack.EMPTY : ItemHandlerHelper.insertItemStacked(inventory, stack, false);
+            return simulate ? ItemStack.EMPTY : insertIntoInventory(inventory, stack, false);
         }
 
         if (JDTEConfig.COMMON.advancedItemCollectorMeDirectTransferEnabled.get()
                 && ModList.get().isLoaded("ae2")) {
             ItemStack meRemainder = AdvancedItemCollectorAE2Integration.insertCollectedStack(stack, this, simulate);
             if (meRemainder.isEmpty()) return ItemStack.EMPTY;
+            if (meRemainder.getCount() < stack.getCount()) return insertIntoInventory(inventory, meRemainder, simulate);
         }
 
-        return simulate ? normalRemainder : ItemHandlerHelper.insertItemStacked(inventory, stack, false);
+        return simulate ? normalRemainder : insertIntoInventory(inventory, stack, false);
+    }
+
+    private static ItemStack insertIntoInventory(ResourceHandler<ItemResource> handler, ItemStack stack, boolean simulate) {
+        try (var tx = Transaction.openRoot()) {
+            int moved = ResourceHandlerUtil.insertStacking(handler, ItemResource.of(stack), stack.getCount(), tx);
+            if (!simulate) tx.commit();
+            return stack.copyWithCount(stack.getCount() - moved);
+        }
     }
 
     public boolean isAttachedInventoryAt(BlockPos pos) {
@@ -141,12 +152,12 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
         return getBlockPos().relative(facing).equals(pos);
     }
 
-    private IItemHandler getAttachedInventory() {
+    private ResourceHandler<ItemResource> getAttachedInventory() {
         if (!(level instanceof ServerLevel serverLevel)) return null;
         if (attachedInventory == null) {
             Direction facing = getBlockState().getValue(BlockStateProperties.FACING);
             attachedInventory = BlockCapabilityCache.create(
-                    Capabilities.ItemHandler.BLOCK,
+                    Capabilities.Item.BLOCK,
                     serverLevel,
                     getBlockPos().relative(facing),
                     facing.getOpposite());

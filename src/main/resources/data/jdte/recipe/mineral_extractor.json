@@ -3,11 +3,11 @@
   "category": "misc",
   "pattern": ["CFC", "DND", "CTC"],
   "key": {
-    "C": { "item": "jdte:capacity_upgrade" },
-    "F": { "item": "jdte:filter_upgrade" },
-    "D": { "item": "minecraft:diamond_pickaxe" },
-    "N": { "item": "minecraft:nether_star" },
-    "T": { "item": "jdte:advanced_time_accelerator" }
+    "C": "jdte:capacity_upgrade",
+    "F": "jdte:filter_upgrade",
+    "D": "minecraft:diamond_pickaxe",
+    "N": "minecraft:nether_star",
+    "T": "jdte:advanced_time_accelerator"
   },
   "result": { "id": "jdte:mineral_extractor", "count": 1 }
 }

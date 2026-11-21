@@ -12,10 +12,10 @@ class LootFabricatorLootingProfileTest {
         GameProfile first = LootFabricatorBE.createLootingProfile();
         GameProfile second = LootFabricatorBE.createLootingProfile();
 
-        assertEquals("[JDTE Loot Fabricator]", first.getName());
-        assertEquals("[JDTE Loot Fabricator]", second.getName());
-        assertNotNull(first.getId());
+        assertEquals("[JDTE Loot Fabricator]", first.name());
+        assertEquals("[JDTE Loot Fabricator]", second.name());
+        assertNotNull(first.id());
         assertEquals(first, second);
-        assertEquals(first.getId(), second.getId());
+        assertEquals(first.id(), second.id());
     }
 }

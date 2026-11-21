@@ -2,7 +2,16 @@
 
 ### English
 
-#### v0.6.5.4 (Current)
+#### v26.0.0 (Current)
+
+- First Minecraft 26.1.2 release. Ported JDTE and JDTE-AE to NeoForge 26.1.2.126, Java 25, Just Dire Things 1.6.11 and AE2 26.1.13-beta, using the native transfer APIs and `ValueInput`/`ValueOutput` persistence.
+- Redrew the Thunderstorm Upgrade, Charged Lightning Rod, Large Greenhouse, Life Synthesis Vat and Large Mineral Extractor models and textures in Blockbench.
+- Botany Pots and Draconic Evolution integrations are on hold until 26.1.2 builds exist.
+- Updated JDTE and the matching optional JDTE-AE addon to 26.0.0.
+
+Full details: [26.0.0 release notes](docs/releases/26.0.0.md).
+
+#### v0.6.5.4 — 2026-10-27
 
 - Made Curios API an optional dependency rather than an undeclared hard requirement, resolving startup crashes when Curios is absent while preserving full Curios functionality when installed.
 - Decoupled `BigFluidTankItem` from `ICurioItem` and dynamically register Curios behaviors at runtime when Curios is available.
@@ -451,7 +460,16 @@ Stability and automation prerelease for Minecraft 1.21.1, NeoForge 21.1.216+, JD
 
 ### 中文
 
-#### v0.6.5.4（当前）
+#### v26.0.0（当前）
+
+- 首个 Minecraft 26.1.2 版本：JDTE 与 JDTE-AE 移植到 NeoForge 26.1.2.126、Java 25、Just Dire Things 1.6.11、AE2 26.1.13-beta，改用原生 transfer API 与 `ValueInput`/`ValueOutput` 存档。
+- 用 Blockbench 重绘雷暴升级、带电引雷针、大型温室、生命合成舱和大型矿物提取机的模型与贴图。
+- Botany Pots 与 Draconic Evolution 尚无 26.1.2 版本，相关联动暂停。
+- 主模组与配套可选 JDTE-AE 附属版本统一为 26.0.0。
+
+完整说明：[26.0.0 发布说明](docs/releases/26.0.0.md)。
+
+#### v0.6.5.4 — 2026-10-27
 
 - 将 Curios API 依赖全面改为可选依赖，明确在 `neoforge.mods.toml` 中声明 `curios` 为可选依赖，彻底解决未安装 Curios 时的崩溃问题。
 - 大型流体储罐（`BigFluidTankItem`）解除对 `ICurioItem` 接口的直接依赖，改为在检测到 Curios 时动态注册饰品行为。

@@ -7,10 +7,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -48,8 +47,9 @@ public final class AEExtractionPlayerManager {
         for (ItemStack stack : candidates) {
             if (stack.isEmpty() || !stack.getOrDefault(JDTEDataComponents.AE_EXTRACTION_ENABLED.get(), false)
                     || seenStacks.put(stack, Boolean.TRUE) != null) continue;
-            Object energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-            Object fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
+            var access = ItemAccess.forStack(stack);
+            Object energy = access.getCapability(Capabilities.Energy.ITEM);
+            Object fluid = access.getCapability(Capabilities.Fluid.ITEM);
             boolean duplicateCapability = energy != null && seenCapabilities.containsKey(energy)
                     || fluid != null && seenCapabilities.containsKey(fluid);
             if (duplicateCapability) continue;

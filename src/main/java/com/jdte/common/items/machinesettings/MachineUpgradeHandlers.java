@@ -1,5 +1,6 @@
 package com.jdte.common.items.machinesettings;
 
+import com.jdte.common.utils.HandlerTagHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
@@ -71,7 +72,7 @@ public final class MachineUpgradeHandlers {
             AdvancedMachineSettingsCopierData.clearUpgrades(copiedData);
         } else {
             AdvancedMachineSettingsCopierData.writeUpgrades(copiedData,
-                    standard.handler().serializeNBT(registries));
+                    HandlerTagHelper.write(standard.handler(), registries));
         }
 
         if (handlers.isEmpty()) {
@@ -81,7 +82,7 @@ public final class MachineUpgradeHandlers {
 
         CompoundTag encodedHandlers = new CompoundTag();
         for (NamedHandler handler : handlers) {
-            encodedHandlers.put(handler.name(), handler.handler().serializeNBT(registries));
+            encodedHandlers.put(handler.name(), HandlerTagHelper.write(handler.handler(), registries));
         }
         AdvancedMachineSettingsCopierData.writeUpgradeHandlers(copiedData, encodedHandlers);
     }
@@ -118,16 +119,16 @@ public final class MachineUpgradeHandlers {
     private static Optional<PreparedHandlers> prepareNamed(CompoundTag encodedHandlers, BaseMachineBE machine,
                                                             List<NamedHandler> targetHandlers,
                                                             HolderLookup.Provider registries) {
-        if (encodedHandlers.getAllKeys().size() != targetHandlers.size()) {
+        if (encodedHandlers.keySet().size() != targetHandlers.size()) {
             return Optional.empty();
         }
 
         List<NamedHandler> decoded = new ArrayList<>(targetHandlers.size());
         for (NamedHandler target : targetHandlers) {
-            if (!encodedHandlers.contains(target.name(), Tag.TAG_COMPOUND)) {
+            if (!encodedHandlers.getCompound(target.name()).isPresent()) {
                 return Optional.empty();
             }
-            Optional<NamedHandler> handler = readHandler(target.name(), encodedHandlers.getCompound(target.name()),
+            Optional<NamedHandler> handler = readHandler(target.name(), encodedHandlers.getCompoundOrEmpty(target.name()),
                     machine, target.handler(), registries);
             if (handler.isEmpty()) {
                 return Optional.empty();
@@ -139,19 +140,19 @@ public final class MachineUpgradeHandlers {
 
     private static Optional<NamedHandler> readHandler(String name, CompoundTag encoded, BaseMachineBE machine,
                                                        ItemStackHandler target, HolderLookup.Provider registries) {
-        if (!encoded.contains("Size", Tag.TAG_INT) || encoded.getInt("Size") != target.getSlots()
-                || !encoded.contains("Items", Tag.TAG_LIST)) {
+        if (!(encoded.get("Size") instanceof net.minecraft.nbt.IntTag) || encoded.getIntOr("Size", 0) != target.getSlots()
+                || !(encoded.get("Items") instanceof net.minecraft.nbt.ListTag)) {
             return Optional.empty();
         }
 
         ItemStackHandler decoded = new ItemStackHandler(target.getSlots());
         try {
-            decoded.deserializeNBT(registries, encoded);
+            HandlerTagHelper.read(decoded, registries, encoded);
         } catch (RuntimeException ignored) {
             return Optional.empty();
         }
         if (decoded.getSlots() != target.getSlots()
-                || !decoded.serializeNBT(registries).equals(encoded)
+                || !HandlerTagHelper.matchesItemHandlerTag(encoded, HandlerTagHelper.write(decoded, registries))
                 || !hasValidContents(name, machine, target, decoded)) {
             return Optional.empty();
         }
@@ -241,7 +242,7 @@ public final class MachineUpgradeHandlers {
             List<ItemStack> required = new ArrayList<>();
             for (NamedHandler handler : handlers) {
                 List<ItemStack> stacks = copyStacks(handler.handler());
-                copiedContents.add(new HandlerContents(handler.name(), handler.handler().serializeNBT(registries), stacks));
+                copiedContents.add(new HandlerContents(handler.name(), HandlerTagHelper.write(handler.handler(), registries), stacks));
                 for (ItemStack stack : stacks) {
                     for (int count = 0; count < stack.getCount(); count++) {
                         required.add(stack.copyWithCount(1));
@@ -298,7 +299,7 @@ public final class MachineUpgradeHandlers {
                 if (target == null || target.getSlots() != content.stacks().size()) {
                     throw new IllegalArgumentException("Target machine does not expose upgrade handler " + content.name());
                 }
-                previous.add(new HandlerContents(content.name(), target.serializeNBT(registries), copyStacks(target)));
+                previous.add(new HandlerContents(content.name(), HandlerTagHelper.write(target, registries), copyStacks(target)));
             }
 
             try {
@@ -320,7 +321,7 @@ public final class MachineUpgradeHandlers {
         }
 
         private void replaceContents(ItemStackHandler target, HandlerContents content) {
-            target.deserializeNBT(registries, content.serialized());
+            HandlerTagHelper.read(target, registries, content.serialized());
             if (target.getSlots() != content.stacks().size()) {
                 throw new IllegalStateException("Copied upgrade handler changed its slot count");
             }

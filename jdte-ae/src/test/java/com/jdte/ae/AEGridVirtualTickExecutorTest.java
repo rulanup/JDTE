@@ -109,7 +109,15 @@ class AEGridVirtualTickExecutorTest {
                         new AEGridVirtualTickExecutor.GridWork(broken, 3))));
 
         assertSame(failure, reported.getCause());
-        String report = reported.getReport().getFriendlyReport(ReportType.TEST);
+        String report;
+        Thread thread = Thread.currentThread();
+        ClassLoader previous = thread.getContextClassLoader();
+        try {
+            thread.setContextClassLoader(AEGridVirtualTickExecutor.class.getClassLoader());
+            report = reported.getReport().getFriendlyReport(ReportType.TEST);
+        } finally {
+            thread.setContextClassLoader(previous);
+        }
         assertTrue(report.contains("Grid serial"));
         assertTrue(report.contains("7"));
         assertTrue(report.contains("Grid anchors"));

@@ -27,7 +27,6 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get());
                 output.accept(JDTEItems.MIXING_UPGRADE.get());
                 output.accept(JDTEItems.ULTIMATE_MIXING_PARALLEL_UPGRADE.get());
-                output.accept(JDTEItems.AE_OUTPUT_UPGRADE.get());
                 output.accept(JDTEItems.AE_EXTRACTION_UPGRADE.get());
                 output.accept(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
                 output.accept(JDTEItems.EXTENDED_UPGRADE.get());
@@ -75,6 +74,7 @@ public class JDTECreativeTabs {
                 output.accept(JDTEItems.ADVANCED_ITEM_COLLECTOR.get());
                 output.accept(JDTEItems.ENTITY_SUPPRESSOR.get());
                 output.accept(JDTEItems.RANGE_BLOCKER.get());
+                output.accept(JDTEItems.CREATIVE_ENERGY_CELL.get());
                 output.accept(JDTEItems.CHARGED_LIGHTNING_ROD.get());
                 output.accept(JDTEItems.FACTORY_PACKER.get());
 

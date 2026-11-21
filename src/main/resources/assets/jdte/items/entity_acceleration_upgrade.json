@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "jdte:item/entity_acceleration_upgrade"
+  }
+}

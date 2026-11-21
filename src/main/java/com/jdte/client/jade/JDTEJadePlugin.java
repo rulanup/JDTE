@@ -21,14 +21,10 @@ import com.jdte.common.items.EssenceConversionUpgradeItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
-import snownee.jade.api.Accessor;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -38,13 +34,7 @@ import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.fluid.JadeFluidObject;
-import snownee.jade.api.ui.IElementHelper;
-import snownee.jade.api.view.ClientViewGroup;
-import snownee.jade.api.view.FluidView;
-import snownee.jade.api.view.IClientExtensionProvider;
-import snownee.jade.api.view.IServerExtensionProvider;
-import snownee.jade.api.view.ViewGroup;
+import snownee.jade.api.ui.JadeUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +42,10 @@ import java.util.Locale;
 
 @WailaPlugin(JDTE.MODID)
 public class JDTEJadePlugin implements IWailaPlugin {
-    private static final ResourceLocation UID = JDTE.id("installed_upgrades");
-    private static final ResourceLocation TRANSMITTER_STATUS_UID = JDTE.id("advanced_energy_transmitter_status");
-    private static final ResourceLocation MINERAL_EXTRACTOR_STATUS_UID = JDTE.id("mineral_extractor_status");
-    private static final ResourceLocation GREENHOUSE_STATUS_UID = JDTE.id("greenhouse_status");
+    private static final Identifier UID = JDTE.id("installed_upgrades");
+    private static final Identifier TRANSMITTER_STATUS_UID = JDTE.id("advanced_energy_transmitter_status");
+    private static final Identifier MINERAL_EXTRACTOR_STATUS_UID = JDTE.id("mineral_extractor_status");
+    private static final Identifier GREENHOUSE_STATUS_UID = JDTE.id("greenhouse_status");
     private static final String TAG_UPGRADES = "jdte_upgrades";
     private static final String TAG_CONVERSION_PATTERNS = "jdte_conversion_pattern_status";
     private static final String TAG_ME_STATUS = "jdte_me_status";
@@ -68,56 +58,55 @@ public class JDTEJadePlugin implements IWailaPlugin {
     private static final String TAG_EXTRACTOR_MULTIPLIER = "jdte_extractor_multiplier";
     private static final String TAG_EXTRACTOR_MAX_MULTIPLIER = "jdte_extractor_max_multiplier";
     private static final String TAG_GREENHOUSE_ULTIMATE_CAPACITY_WARNING = "jdte_greenhouse_ultimate_capacity_warning";
-    private static final UpgradeProvider UPGRADE_PROVIDER = new UpgradeProvider();
-    private static final TransmitterStatusProvider TRANSMITTER_STATUS_PROVIDER =
-            new TransmitterStatusProvider();
-    private static final MineralExtractorStatusProvider MINERAL_EXTRACTOR_STATUS_PROVIDER =
-            new MineralExtractorStatusProvider();
-    private static final GreenhouseStatusProvider GREENHOUSE_STATUS_PROVIDER =
-            new GreenhouseStatusProvider();
-
     @Override
     public void register(IWailaCommonRegistration registration) {
-        registration.registerBlockDataProvider(UPGRADE_PROVIDER, BaseMachineBE.class);
-        registration.registerBlockDataProvider(UPGRADE_PROVIDER, LargeGreenhousePartBlock.class);
-        registration.registerBlockDataProvider(UPGRADE_PROVIDER, LargeMineralExtractorPartBlock.class);
+        var upgrade = new UpgradeDataProvider();
+        var transmitterStatus = new TransmitterStatusDataProvider();
+        var mineralExtractorStatus = new MineralExtractorStatusDataProvider();
+        var greenhouseStatus = new GreenhouseStatusDataProvider();
+        registration.registerBlockDataProvider(upgrade, BaseMachineBE.class);
+        registration.registerBlockDataProvider(upgrade, LargeGreenhousePartBlock.class);
+        registration.registerBlockDataProvider(upgrade, LargeMineralExtractorPartBlock.class);
         registration.registerBlockDataProvider(
-                TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBE.class);
+                transmitterStatus, AdvancedEnergyTransmitterBE.class);
         registration.registerBlockDataProvider(
-                MINERAL_EXTRACTOR_STATUS_PROVIDER, MineralExtractorBE.class);
+                mineralExtractorStatus, MineralExtractorBE.class);
         registration.registerBlockDataProvider(
-                MINERAL_EXTRACTOR_STATUS_PROVIDER, LargeMineralExtractorPartBlock.class);
+                mineralExtractorStatus, LargeMineralExtractorPartBlock.class);
         registration.registerBlockDataProvider(
-                GREENHOUSE_STATUS_PROVIDER, GreenhouseBE.class);
+                greenhouseStatus, GreenhouseBE.class);
         registration.registerBlockDataProvider(
-                GREENHOUSE_STATUS_PROVIDER, LargeGreenhouseBE.class);
+                greenhouseStatus, LargeGreenhouseBE.class);
         registration.registerBlockDataProvider(
-                GREENHOUSE_STATUS_PROVIDER, LargeGreenhousePartBlock.class);
+                greenhouseStatus, LargeGreenhousePartBlock.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        registration.registerBlockComponent(UPGRADE_PROVIDER, BaseMachineBlock.class);
-        registration.registerBlockComponent(UPGRADE_PROVIDER, LargeGreenhousePartBlock.class);
-        registration.registerBlockComponent(UPGRADE_PROVIDER, LargeMineralExtractorPartBlock.class);
+        var upgrade = new UpgradeComponentProvider();
+        var transmitterStatus = new TransmitterStatusComponentProvider();
+        var mineralExtractorStatus = new MineralExtractorStatusComponentProvider();
+        var greenhouseStatus = new GreenhouseStatusComponentProvider();
+        registration.registerBlockComponent(upgrade, BaseMachineBlock.class);
+        registration.registerBlockComponent(upgrade, LargeGreenhousePartBlock.class);
+        registration.registerBlockComponent(upgrade, LargeMineralExtractorPartBlock.class);
         registration.registerBlockComponent(
-                TRANSMITTER_STATUS_PROVIDER, AdvancedEnergyTransmitterBlock.class);
+                transmitterStatus, AdvancedEnergyTransmitterBlock.class);
         registration.registerBlockComponent(
-                MINERAL_EXTRACTOR_STATUS_PROVIDER, MineralExtractorBlock.class);
+                mineralExtractorStatus, MineralExtractorBlock.class);
         registration.registerBlockComponent(
-                MINERAL_EXTRACTOR_STATUS_PROVIDER, LargeMineralExtractorBlock.class);
+                mineralExtractorStatus, LargeMineralExtractorBlock.class);
         registration.registerBlockComponent(
-                MINERAL_EXTRACTOR_STATUS_PROVIDER, LargeMineralExtractorPartBlock.class);
+                mineralExtractorStatus, LargeMineralExtractorPartBlock.class);
         registration.registerBlockComponent(
-                GREENHOUSE_STATUS_PROVIDER, GreenhouseBlock.class);
+                greenhouseStatus, GreenhouseBlock.class);
         registration.registerBlockComponent(
-                GREENHOUSE_STATUS_PROVIDER, LargeGreenhouseBlock.class);
+                greenhouseStatus, LargeGreenhouseBlock.class);
         registration.registerBlockComponent(
-                GREENHOUSE_STATUS_PROVIDER, LargeGreenhousePartBlock.class);
+                greenhouseStatus, LargeGreenhousePartBlock.class);
     }
 
-    private static class MineralExtractorStatusProvider
-            implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
+    private static class MineralExtractorStatusDataProvider implements IServerDataProvider<BlockAccessor> {
         @Override
         public void appendServerData(CompoundTag data, BlockAccessor accessor) {
             MineralExtractorBE extractor = accessor.getBlockEntity() instanceof MineralExtractorBE direct
@@ -134,33 +123,39 @@ public class JDTEJadePlugin implements IWailaPlugin {
         }
 
         @Override
+        public Identifier getUid() {
+            return MINERAL_EXTRACTOR_STATUS_UID;
+        }
+    }
+
+    private static class MineralExtractorStatusComponentProvider implements IBlockComponentProvider {
+        @Override
         public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
             CompoundTag data = accessor.getServerData();
             MineralExtractorBE.State[] states = MineralExtractorBE.State.values();
-            MineralExtractorBE.State state = states[Math.floorMod(data.getInt(TAG_EXTRACTOR_STATE), states.length)];
+            MineralExtractorBE.State state = states[Math.floorMod(data.getIntOr(TAG_EXTRACTOR_STATE, 0), states.length)];
             ChatFormatting stateColor = state == MineralExtractorBE.State.RUNNING
                     ? ChatFormatting.GREEN
                     : state == MineralExtractorBE.State.IDLE ? ChatFormatting.GRAY : ChatFormatting.RED;
             tooltip.add(Component.translatable("jdte.screen.mineral_extractor.state."
                     + state.name().toLowerCase(Locale.ROOT)).withStyle(stateColor));
-            tooltip.add(Component.translatable(data.getBoolean(TAG_EXTRACTOR_SURVEY)
+            tooltip.add(Component.translatable(data.getBooleanOr(TAG_EXTRACTOR_SURVEY, false)
                     ? "jdte.screen.mineral_extractor.source.survey"
                     : "jdte.screen.mineral_extractor.source.local").withStyle(ChatFormatting.GRAY));
             tooltip.add(Component.translatable("jdte.screen.mineral_extractor.minerals",
-                    data.getInt(TAG_EXTRACTOR_MINERALS)).withStyle(ChatFormatting.GRAY));
+                    data.getIntOr(TAG_EXTRACTOR_MINERALS, 0)).withStyle(ChatFormatting.GRAY));
             tooltip.add(Component.translatable("jade.jdte.mineral_extractor.speed",
-                    data.getInt(TAG_EXTRACTOR_MULTIPLIER), data.getInt(TAG_EXTRACTOR_MAX_MULTIPLIER))
+                    data.getIntOr(TAG_EXTRACTOR_MULTIPLIER, 0), data.getIntOr(TAG_EXTRACTOR_MAX_MULTIPLIER, 0))
                     .withStyle(ChatFormatting.GRAY));
         }
 
         @Override
-        public ResourceLocation getUid() {
+        public Identifier getUid() {
             return MINERAL_EXTRACTOR_STATUS_UID;
         }
     }
 
-    private static class TransmitterStatusProvider
-            implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
+    private static class TransmitterStatusDataProvider implements IServerDataProvider<BlockAccessor> {
         @Override
         public void appendServerData(CompoundTag data, BlockAccessor accessor) {
             if (!(accessor.getBlockEntity() instanceof AdvancedEnergyTransmitterBE transmitter)) {
@@ -173,11 +168,18 @@ public class JDTEJadePlugin implements IWailaPlugin {
         }
 
         @Override
+        public Identifier getUid() {
+            return TRANSMITTER_STATUS_UID;
+        }
+    }
+
+    private static class TransmitterStatusComponentProvider implements IBlockComponentProvider {
+        @Override
         public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
             CompoundTag data = accessor.getServerData();
             AdvancedEnergyTransmitterEnergySource.Status[] statuses =
                     AdvancedEnergyTransmitterEnergySource.Status.values();
-            int ordinal = Math.floorMod(data.getInt(TAG_ME_STATUS), statuses.length);
+            int ordinal = Math.floorMod(data.getIntOr(TAG_ME_STATUS, 0), statuses.length);
             AdvancedEnergyTransmitterEnergySource.Status status = statuses[ordinal];
             String meKey = switch (status) {
                 case ONLINE -> "jdte.screen.energy_transmitter.me_online_direct";
@@ -190,26 +192,26 @@ public class JDTEJadePlugin implements IWailaPlugin {
                     ? ChatFormatting.RED : ChatFormatting.GRAY;
             tooltip.add(Component.translatable(meKey).withStyle(meColor));
 
-            if (!data.getBoolean(TAG_PLAYER_BOUND)) {
+            if (!data.getBooleanOr(TAG_PLAYER_BOUND, false)) {
                 tooltip.add(Component.translatable("jdte.screen.energy_transmitter.player_unbound")
                         .withStyle(ChatFormatting.GRAY));
                 return;
             }
-            boolean online = data.getBoolean(TAG_PLAYER_ONLINE);
+            boolean online = data.getBooleanOr(TAG_PLAYER_ONLINE, false);
             tooltip.add(Component.translatable(online
                             ? "jdte.screen.energy_transmitter.player_online"
                             : "jdte.screen.energy_transmitter.player_offline",
-                    data.getString(TAG_PLAYER_NAME)).withStyle(
+                    data.getStringOr(TAG_PLAYER_NAME, "")).withStyle(
                     online ? ChatFormatting.GREEN : ChatFormatting.RED));
         }
 
         @Override
-        public ResourceLocation getUid() {
+        public Identifier getUid() {
             return TRANSMITTER_STATUS_UID;
         }
     }
 
-    private static class UpgradeProvider implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
+    private static class UpgradeDataProvider implements IServerDataProvider<BlockAccessor> {
         @Override
         public void appendServerData(CompoundTag data, BlockAccessor accessor) {
             BaseMachineBE machine = resolveMachine(accessor);
@@ -230,7 +232,8 @@ public class JDTEJadePlugin implements IWailaPlugin {
             ListTag serialized = new ListTag();
             ListTag patternStatuses = new ListTag();
             for (ItemStack upgrade : upgrades) {
-                serialized.add(upgrade.save(accessor.getLevel().registryAccess()));
+                serialized.add(ItemStack.CODEC.encodeStart(accessor.getLevel().registryAccess()
+                        .createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), upgrade).getOrThrow());
                 CompoundTag statuses = new CompoundTag();
                 var patterns = EssenceConversionUpgradeItem.patterns(upgrade);
                 for (int index = 0; index < patterns.size(); index++) {
@@ -256,50 +259,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
         }
 
         @Override
-        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-            ListTag serialized = accessor.getServerData().getList(TAG_UPGRADES, Tag.TAG_COMPOUND);
-            if (serialized.isEmpty()) {
-                return;
-            }
-
-            tooltip.add(Component.translatable("jade.jdte.installed_upgrades").withStyle(ChatFormatting.GRAY));
-            IElementHelper elements = IElementHelper.get();
-            ListTag patternStatuses = accessor.getServerData().getList(TAG_CONVERSION_PATTERNS, Tag.TAG_COMPOUND);
-            for (int index = 0; index < serialized.size(); index++) {
-                ItemStack upgrade = ItemStack.parseOptional(
-                        accessor.getLevel().registryAccess(), serialized.getCompound(index));
-                if (upgrade.isEmpty()) {
-                    continue;
-                }
-                Component label = Component.literal(" ")
-                        .append(upgrade.getHoverName())
-                        .append(Component.literal(" x" + upgrade.getCount()).withStyle(ChatFormatting.GRAY));
-                tooltip.add(List.of(elements.smallItem(upgrade.copyWithCount(1)), elements.text(label)));
-                if (upgrade.getItem() instanceof EssenceConversionUpgradeItem item) {
-                    var patterns = EssenceConversionUpgradeItem.patterns(upgrade);
-                    tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.patterns", patterns.size(), item.patternLimit())
-                            .withStyle(ChatFormatting.AQUA));
-                    CompoundTag statuses = index < patternStatuses.size() ? patternStatuses.getCompound(index) : new CompoundTag();
-                    int maxDisplay = Math.min(patterns.size(), 6);
-                    for (int patternIndex = 0; patternIndex < maxDisplay; patternIndex++) {
-                        var pattern = patterns.get(patternIndex);
-                        boolean valid = statuses.getBoolean(Integer.toString(patternIndex));
-                        Component patternLabel = Component.translatable("jdte.jade.essence_conversion.pattern",
-                                patternIndex + 1, pattern.result().getHoverName(), pattern.result().getCount(),
-                                Component.translatable(valid ? "jdte.jade.essence_conversion.valid" : "jdte.jade.essence_conversion.invalid"))
-                                .withStyle(valid ? ChatFormatting.GREEN : ChatFormatting.RED);
-                        tooltip.add(List.of(elements.smallItem(pattern.result()), elements.text(patternLabel)));
-                    }
-                    if (patterns.size() > maxDisplay) {
-                        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.more", patterns.size() - maxDisplay)
-                                .withStyle(ChatFormatting.GRAY));
-                    }
-                }
-            }
-        }
-
-        @Override
-        public ResourceLocation getUid() {
+        public Identifier getUid() {
             return UID;
         }
 
@@ -323,8 +283,56 @@ public class JDTEJadePlugin implements IWailaPlugin {
         }
     }
 
-    private static class GreenhouseStatusProvider
-            implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
+    private static class UpgradeComponentProvider implements IBlockComponentProvider {
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            ListTag serialized = accessor.getServerData().getListOrEmpty(TAG_UPGRADES);
+            if (serialized.isEmpty()) {
+                return;
+            }
+
+            tooltip.add(Component.translatable("jade.jdte.installed_upgrades").withStyle(ChatFormatting.GRAY));
+            ListTag patternStatuses = accessor.getServerData().getListOrEmpty(TAG_CONVERSION_PATTERNS);
+            for (int index = 0; index < serialized.size(); index++) {
+                ItemStack upgrade = ItemStack.CODEC.parse(accessor.getLevel().registryAccess()
+                        .createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), serialized.get(index)).result().orElse(ItemStack.EMPTY);
+                if (upgrade.isEmpty()) {
+                    continue;
+                }
+                Component label = Component.literal(" ")
+                        .append(upgrade.getHoverName())
+                        .append(Component.literal(" x" + upgrade.getCount()).withStyle(ChatFormatting.GRAY));
+                tooltip.add(List.of(JadeUI.smallItem(upgrade.copyWithCount(1)), JadeUI.text(label)));
+                if (upgrade.getItem() instanceof EssenceConversionUpgradeItem item) {
+                    var patterns = EssenceConversionUpgradeItem.patterns(upgrade);
+                    tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.patterns", patterns.size(), item.patternLimit())
+                            .withStyle(ChatFormatting.AQUA));
+                    CompoundTag statuses = index < patternStatuses.size() ? patternStatuses.getCompoundOrEmpty(index) : new CompoundTag();
+                    int maxDisplay = Math.min(patterns.size(), 6);
+                    for (int patternIndex = 0; patternIndex < maxDisplay; patternIndex++) {
+                        var pattern = patterns.get(patternIndex);
+                        boolean valid = statuses.getBooleanOr(Integer.toString(patternIndex), false);
+                        Component patternLabel = Component.translatable("jdte.jade.essence_conversion.pattern",
+                                patternIndex + 1, pattern.result().getHoverName(), pattern.result().getCount(),
+                                Component.translatable(valid ? "jdte.jade.essence_conversion.valid" : "jdte.jade.essence_conversion.invalid"))
+                                .withStyle(valid ? ChatFormatting.GREEN : ChatFormatting.RED);
+                        tooltip.add(List.of(JadeUI.smallItem(pattern.result()), JadeUI.text(patternLabel)));
+                    }
+                    if (patterns.size() > maxDisplay) {
+                        tooltip.add(Component.translatable("jdte.tooltip.essence_conversion.more", patterns.size() - maxDisplay)
+                                .withStyle(ChatFormatting.GRAY));
+                    }
+                }
+            }
+        }
+
+        @Override
+        public Identifier getUid() {
+            return UID;
+        }
+    }
+
+    private static class GreenhouseStatusDataProvider implements IServerDataProvider<BlockAccessor> {
         @Override
         public void appendServerData(CompoundTag data, BlockAccessor accessor) {
             BaseMachineBE machine = resolveGreenhouse(accessor);
@@ -341,16 +349,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
         }
 
         @Override
-        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-            CompoundTag data = accessor.getServerData();
-            if (data.getBoolean(TAG_GREENHOUSE_ULTIMATE_CAPACITY_WARNING)) {
-                tooltip.add(Component.translatable("jade.jdte.greenhouse.ultimate_capacity_warning")
-                        .withStyle(ChatFormatting.RED));
-            }
-        }
-
-        @Override
-        public ResourceLocation getUid() {
+        public Identifier getUid() {
             return GREENHOUSE_STATUS_UID;
         }
 
@@ -365,6 +364,22 @@ public class JDTEJadePlugin implements IWailaPlugin {
                 return part.getController(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState());
             }
             return null;
+        }
+    }
+
+    private static class GreenhouseStatusComponentProvider implements IBlockComponentProvider {
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            CompoundTag data = accessor.getServerData();
+            if (data.getBooleanOr(TAG_GREENHOUSE_ULTIMATE_CAPACITY_WARNING, false)) {
+                tooltip.add(Component.translatable("jade.jdte.greenhouse.ultimate_capacity_warning")
+                        .withStyle(ChatFormatting.RED));
+            }
+        }
+
+        @Override
+        public Identifier getUid() {
+            return GREENHOUSE_STATUS_UID;
         }
     }
 }

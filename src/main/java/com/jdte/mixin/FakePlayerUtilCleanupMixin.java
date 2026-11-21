@@ -15,9 +15,11 @@ public abstract class FakePlayerUtilCleanupMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;dropAll()V")
     )
     private static void jdte$clearFakePlayerInventory(Inventory inventory) {
-        inventory.items.replaceAll(stack -> stack.getItem() instanceof BucketItem ? stack : ItemStack.EMPTY);
-        inventory.armor.replaceAll(stack -> ItemStack.EMPTY);
-        inventory.offhand.replaceAll(stack -> ItemStack.EMPTY);
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            if (slot >= Inventory.INVENTORY_SIZE || !(inventory.getItem(slot).getItem() instanceof BucketItem)) {
+                inventory.setItem(slot, ItemStack.EMPTY);
+            }
+        }
         inventory.dropAll();
     }
 }

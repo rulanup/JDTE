@@ -7,7 +7,7 @@ import com.jdte.common.network.data.TimeFreezerPayload;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public abstract class TimeFreezerScreenBase<T extends BaseMachineContainer> extends BaseMachineScreen<T> {
     private boolean timeFreezeEnabled = true;
@@ -64,7 +64,7 @@ public abstract class TimeFreezerScreenBase<T extends BaseMachineContainer> exte
     }
 
     private void sendSettings() {
-        PacketDistributor.sendToServer(new TimeFreezerPayload(timeFreezeEnabled, weatherFreezeEnabled));
+        ClientPacketDistributor.sendToServer(new TimeFreezerPayload(timeFreezeEnabled, weatherFreezeEnabled));
     }
 
     /** 时间定格器不依赖 JDT 的 tick 速度设置，隐藏无关按钮。 */

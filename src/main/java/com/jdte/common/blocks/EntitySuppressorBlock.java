@@ -12,8 +12,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class EntitySuppressorBlock extends BaseMachineBlock {
-    public EntitySuppressorBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(2.5f).noOcclusion()
+    public EntitySuppressorBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(2.5f).noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));
     }
 

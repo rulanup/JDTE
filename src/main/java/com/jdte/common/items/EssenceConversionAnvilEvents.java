@@ -37,6 +37,6 @@ public final class EssenceConversionAnvilEvents {
         }
         event.setOutput(output);
         event.setMaterialCost(1);
-        event.setCost(1);
+        event.setXpCost(1);
     }
 }

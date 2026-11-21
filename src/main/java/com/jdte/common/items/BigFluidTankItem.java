@@ -1,5 +1,9 @@
 package com.jdte.common.items;
 
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.direwolf20.justdirethings.common.items.interfaces.FluidContainingItem;
 import com.direwolf20.justdirethings.JustDireThings;
@@ -17,7 +21,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -33,19 +37,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import com.direwolf20.justdirethings.common.items.FluidCanister;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * 大型流体储罐：操作逻辑与 JDT 原版 FluidCanister 一致，容量 1000 B。
@@ -77,8 +83,8 @@ public class BigFluidTankItem extends Item implements FluidContainingItem {
     /** 1000 B = 1,000,000 mB。 */
     public static final int MAX_MB = 1_000_000;
 
-    public BigFluidTankItem() {
-        super(new Properties().stacksTo(1));
+    public BigFluidTankItem(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Override
@@ -87,96 +93,73 @@ public class BigFluidTankItem extends Item implements FluidContainingItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         BlockHitResult blockhitresult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         if (blockhitresult.getType() == HitResult.Type.BLOCK) {
             if (player.isShiftKeyDown()) {
                 if (placeFluid(level, player, itemStack, blockhitresult)) {
-                    return InteractionResultHolder.success(itemStack);
+                    return InteractionResult.SUCCESS;
                 }
             } else {
                 if (pickupFluid(level, player, itemStack, blockhitresult)) {
-                    return InteractionResultHolder.success(itemStack);
+                    return InteractionResult.SUCCESS;
                 } else {
                     if (placeFluid(level, player, itemStack, blockhitresult)) {
-                        return InteractionResultHolder.success(itemStack);
+                        return InteractionResult.SUCCESS;
                     }
                 }
             }
         } else {
             if (player.isShiftKeyDown()) {
                 nextFillMode(itemStack);
-                player.displayClientMessage(Component.translatable("justdirethings.fillmode.changed",
-                        getFillMode(itemStack).getTooltip()), true);
+                player.sendOverlayMessage(Component.translatable("justdirethings.fillmode.changed",
+                        getFillMode(itemStack).getTooltip()));
             }
         }
-        return InteractionResultHolder.fail(itemStack);
+        return InteractionResult.FAIL;
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack itemStack, @NotNull Level world, @NotNull Entity entity,
-                              int itemSlot, boolean isSelected) {
-        if (world.isClientSide) {
-            return;
-        }
-        FillMode fillMode = getFillMode(itemStack);
-        if (fillMode == FillMode.NONE) {
-            return;
-        }
-        if (entity instanceof Player player) {
-            IFluidHandlerItem fluidHandler = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
-            if (fluidHandler == null || fluidHandler.getFluidInTank(0).isEmpty()) {
-                return;
-            }
-            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                ItemStack slotStack = player.getInventory().getItem(i);
-                if (slotStack.getItem() instanceof BigFluidTankItem) {
-                    continue;
-                }
-                if (fillMode == FillMode.JDTONLY
-                        && !slotStack.getItem().getCreatorModId(slotStack).equals(JustDireThings.MODID)) {
-                    continue;
-                }
-                if (fillMode == FillMode.JDTEONLY
-                        && !slotStack.getItem().getCreatorModId(slotStack).equals(JDTE.MODID)) {
-                    continue;
-                }
-                IFluidHandlerItem slotFluidHandler = slotStack.getCapability(Capabilities.FluidHandler.ITEM);
-                if (slotFluidHandler != null) {
-                    FluidStack fluidStack = fluidHandler.getFluidInTank(0);
-                    int amtToFill = Math.min(fluidStack.getAmount(), 100);
-                    int acceptedFluid = slotFluidHandler.fill(
-                            new FluidStack(fluidStack.getFluid(), amtToFill), IFluidHandler.FluidAction.SIMULATE);
-                    if (acceptedFluid > 0) {
-                        FluidStack extractedFluid = fluidHandler.drain(
-                                new FluidStack(fluidStack.getFluid(), acceptedFluid), IFluidHandler.FluidAction.EXECUTE);
-                        slotFluidHandler.fill(extractedFluid, IFluidHandler.FluidAction.EXECUTE);
-                    }
-                }
-            }
+    public void inventoryTick(@NotNull ItemStack itemStack, @NotNull ServerLevel world,
+                              @NotNull Entity entity, @Nullable EquipmentSlot slot) {
+        FillMode mode = getFillMode(itemStack);
+        if (mode == FillMode.NONE || !(entity instanceof Player player)) return;
+        var source = ItemAccess.forStack(itemStack).getCapability(Capabilities.Fluid.ITEM);
+        if (source == null || source.getResource(0).isEmpty()) return;
+
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack target = player.getInventory().getItem(i);
+            if (target.isEmpty() || target.getItem() instanceof BigFluidTankItem) continue;
+            String modId = target.getItem().getCreatorModId(world.registryAccess(), target);
+            if (mode == FillMode.JDTONLY && !JustDireThings.MODID.equals(modId)
+                    || mode == FillMode.JDTEONLY && !JDTE.MODID.equals(modId)) continue;
+            var access = i <= net.minecraft.world.entity.player.Inventory.SLOT_OFFHAND
+                    ? ItemAccess.forPlayerSlot(player, i) : ItemAccess.forStack(target);
+            ResourceHandlerUtil.move(source, access.getCapability(Capabilities.Fluid.ITEM), fluid -> true, 100, null);
+            if (source.getAmountAsInt(0) == 0) break;
         }
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, tooltip, flagIn);
         Level level = context.level();
         if (level == null) {
             return;
         }
-        IFluidHandlerItem fluidHandler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        var fluidHandler = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
         if (fluidHandler == null) {
             return;
         }
-        FluidStack fluidStack = fluidHandler.getFluidInTank(0);
+        FluidStack fluidStack = fluidHandler.getResource(0).toStack(fluidHandler.getAmountAsInt(0));
         int fluidColor = getFluidColor(stack);
         Style fluidStyle = Style.EMPTY.withColor(TextColor.fromRgb(fluidColor));
-        tooltip.add(Component.translatable("justdirethings.fluidname").withStyle(ChatFormatting.GRAY)
+        tooltip.accept(Component.translatable("justdirethings.fluidname").withStyle(ChatFormatting.GRAY)
                 .append(Component.translatable(fluidStack.getHoverName().getString()).withStyle(fluidStyle)));
-        tooltip.add(Component.translatable("justdirethings.fluidamt").withStyle(ChatFormatting.GRAY)
+        tooltip.accept(Component.translatable("justdirethings.fluidamt").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(fluidStack.getAmount() + "/" + getMaxMB()).withStyle(ChatFormatting.GREEN)));
-        tooltip.add(Component.translatable("justdirethings.fillmode").withStyle(ChatFormatting.GRAY)
+        tooltip.accept(Component.translatable("justdirethings.fillmode").withStyle(ChatFormatting.GRAY)
                 .append(Component.translatable(getFillMode(stack).getTooltip().getString()).withStyle(ChatFormatting.GREEN)));
     }
 
@@ -186,11 +169,11 @@ public class BigFluidTankItem extends Item implements FluidContainingItem {
         if (blockstate.getBlock() instanceof LiquidBlock && !player.isShiftKeyDown()) {
             return false;
         }
-        IFluidHandlerItem fluidHandler = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
+        var fluidHandler = ItemAccess.forStack(itemStack).getCapability(Capabilities.Fluid.ITEM);
         if (fluidHandler == null) {
             return false;
         }
-        FluidStack fluidStack = fluidHandler.getFluidInTank(0);
+        FluidStack fluidStack = fluidHandler.getResource(0).toStack(fluidHandler.getAmountAsInt(0));
         if (fluidStack.isEmpty() || fluidStack.getAmount() < 1000) {
             return false;
         }
@@ -198,33 +181,36 @@ public class BigFluidTankItem extends Item implements FluidContainingItem {
         BlockPos blockpos1 = blockpos.relative(direction);
         BlockPos blockpos2 = canBlockContainFluid(player, level, blockpos, blockstate, fluidStack.getFluid())
                 ? blockpos : blockpos1;
-        if (this.emptyContents(player, level, blockpos2, itemStack)) {
-            fluidHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+        try (var tx = Transaction.openRoot()) {
+            if (fluidHandler.extract(0, FluidResource.of(fluidStack), 1000, tx) != 1000) return false;
+            // The handler already reflects the tentative extraction, including when it emptied the tank.
+            if (!emptyFluid(player, level, blockpos2, fluidStack.getFluid())) return false;
+            tx.commit();
             return true;
         }
-        return false;
     }
 
     public boolean pickupFluid(Level level, Player player, ItemStack itemStack, BlockHitResult blockhitresult) {
         BlockPos blockpos = blockhitresult.getBlockPos();
         BlockState blockstate1 = level.getBlockState(blockpos);
         if (blockstate1.getBlock() instanceof LiquidBlock liquidBlock) {
-            IFluidHandlerItem fluidHandler = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
+            var fluidHandler = ItemAccess.forStack(itemStack).getCapability(Capabilities.Fluid.ITEM);
             if (fluidHandler == null) {
                 return false;
             }
             Fluid fluid = liquidBlock.fluid;
-            FluidStack fluidStack = fluidHandler.getFluidInTank(0);
-            if (!liquidBlock.fluid.isSource(liquidBlock.fluid.getSource(false))
+            FluidStack fluidStack = fluidHandler.getResource(0).toStack(fluidHandler.getAmountAsInt(0));
+            if (!blockstate1.getFluidState().isSource()
                     || (!fluidStack.isEmpty() && !fluidStack.is(fluid))) {
                 return false;
             }
-            int filledAmt = fluidHandler.fill(new FluidStack(fluid, 1000), IFluidHandler.FluidAction.SIMULATE);
-            if (filledAmt == 1000) {
+            try (var tx = Transaction.openRoot()) {
+                if (fluidHandler.insert(0, FluidResource.of(fluid), 1000, tx) != 1000) return false;
                 ItemStack itemstack2 = liquidBlock.pickupBlock(player, level, blockpos, blockstate1);
-                fluidHandler.fill(new FluidStack(fluid, 1000), IFluidHandler.FluidAction.EXECUTE);
+                if (itemstack2.isEmpty()) return false;
+                tx.commit();
                 liquidBlock.getPickupSound(blockstate1).ifPresent(p_150709_ -> player.playSound(p_150709_, 1.0F, 1.0F));
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer) player, itemstack2);
                 }
             }
@@ -238,7 +224,10 @@ public class BigFluidTankItem extends Item implements FluidContainingItem {
         if (fluidData == null || fluidData.isEmpty()) {
             return false;
         }
-        Fluid fluid = fluidData.getFluid();
+        return emptyFluid(player, level, pos, fluidData.getFluid());
+    }
+
+    private boolean emptyFluid(@Nullable Player player, Level level, BlockPos pos, Fluid fluid) {
         if (!(fluid instanceof FlowingFluid flowingFluid)) {
             return false;
         }
@@ -259,7 +248,7 @@ public class BigFluidTankItem extends Item implements FluidContainingItem {
             fluid.getFluidType().onVaporize(player, level, pos, fluidStack);
             return true;
         }
-        if (!level.isClientSide && canBeReplaced && !blockState.liquid()) {
+        if (!level.isClientSide() && canBeReplaced && !blockState.liquid()) {
             level.destroyBlock(pos, true);
         }
         if (level.setBlock(pos, fluid.defaultFluidState().createLegacyBlock(), 11)
@@ -307,14 +296,7 @@ public class BigFluidTankItem extends Item implements FluidContainingItem {
     }
 
     public static int getFluidColor(ItemStack itemStack) {
-        SimpleFluidContent fluidData = getFluidData(itemStack);
-        if (fluidData != null && !fluidData.isEmpty()) {
-            if (fluidData.getFluid().isSame(Fluids.LAVA)) {
-                return 0xFFFF4500;
-            }
-            return IClientFluidTypeExtensions.of(fluidData.getFluidType()).getTintColor(fluidData.copy());
-        }
-        return 0xFFFFFFFF;
+        return FluidCanister.getFluidColor(itemStack);
     }
 
     public static FillMode getFillMode(ItemStack itemStack) {

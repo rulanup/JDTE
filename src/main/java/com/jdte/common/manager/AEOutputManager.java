@@ -14,9 +14,10 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -137,32 +138,44 @@ public final class AEOutputManager {
 
     private static void collectItemSources(BaseMachineBE machine, int[] slots,
                                            List<AEOutputNetwork.ItemSource> target) {
-        ItemStackHandler handler = machine.getMachineHandler();
+        ItemStacksResourceHandler handler = machine.getMachineHandler();
         if (handler == null || slots.length == 0) return;
         for (int slot : slots) {
-            if (slot < 0 || slot >= handler.getSlots() || handler.getStackInSlot(slot).isEmpty()) continue;
+            if (slot < 0 || slot >= handler.size() || handler.getResource(slot).isEmpty()) continue;
             if (machine.getLevel() instanceof ServerLevel level
-                    && GreenhouseEssenceConversionHelper.shouldRetainForConversion(level, machine, handler.getStackInSlot(slot))) continue;
+                    && GreenhouseEssenceConversionHelper.shouldRetainForConversion(level, machine,
+                    handler.getResource(slot).toStack(handler.getAmountAsInt(slot)))) continue;
             target.add(new AEOutputNetwork.ItemSource(machine, handler, slot));
         }
     }
 
-    private static int flushFluid(ServerLevel level, ItemStack upgrade, IFluidHandler source, boolean isAdvanced) {
+    private static int flushFluid(ServerLevel level, ItemStack upgrade, ResourceHandler<FluidResource> source, boolean isAdvanced) {
         if (source == null) return 0;
         int budget = isAdvanced ? Integer.MAX_VALUE : FLUID_TRANSFER_BUDGET;
-        if (budget <= 0) return 0;
-        FluidStack offered = source.drain(budget, IFluidHandler.FluidAction.SIMULATE);
-        if (offered.isEmpty()) return 0;
-        int accepted = AEOutputNetwork.insertFluid(level, upgrade, offered, true);
-        if (accepted <= 0) return 0;
-        FluidStack drained = source.drain(Math.min(accepted, offered.getAmount()), IFluidHandler.FluidAction.EXECUTE);
-        if (drained.isEmpty()) return 0;
-        int inserted = AEOutputNetwork.insertFluid(level, upgrade, drained, false);
-        if (inserted < drained.getAmount()) {
-            source.fill(drained.copyWithAmount(drained.getAmount() - Math.max(0, inserted)),
-                    IFluidHandler.FluidAction.EXECUTE);
+        for (int slot = 0; slot < source.size(); slot++) {
+            FluidResource resource = source.getResource(slot);
+            if (resource.isEmpty()) continue;
+            try (var transaction = Transaction.openRoot()) {
+                int inserted;
+                int extracted;
+                try (var reservation = Transaction.open(transaction)) {
+                    extracted = source.extract(slot, resource, budget, reservation);
+                    if (extracted == 0) continue;
+                    inserted = AEOutputNetwork.insertFluid(level, upgrade, resource.toStack(extracted), false);
+                    if (inserted == extracted) {
+                        reservation.commit();
+                    }
+                }
+                // A partial ME insertion rolls the reservation back. Debit exactly the accepted amount.
+                if (inserted == 0) return 0;
+                if (inserted < extracted && source.extract(slot, resource, inserted, transaction) != inserted) {
+                    throw new IllegalStateException("Machine output tank could not settle its reserved ME transfer");
+                }
+                transaction.commit();
+                return inserted;
+            }
         }
-        return Math.max(0, inserted);
+        return 0;
     }
 
     public static void onLevelUnload(LevelEvent.Unload event) {

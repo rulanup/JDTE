@@ -1,6 +1,5 @@
 package com.jdte.common.containers;
 
-import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.utils.ContainerDataEncoding;
@@ -19,13 +18,12 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import org.anti_ad.mc.ipn.api.IPNSlotsIgnoreForInventoryTypes;
 
 @IPNSlotsIgnoreForInventoryTypes("com.jdte.common.containers.DynamicFilterSlot")
-public class MineralExtractorContainer extends BaseMachineContainer implements FilterPageHolder {
+public class MineralExtractorContainer extends PagedMachineContainer implements FilterPageHolder {
     protected static final int OUTPUT_COLUMNS = 4;
     protected static final int OUTPUT_ROWS = 4;
     protected static final int OUTPUT_SLOTS_PER_PAGE = OUTPUT_COLUMNS * OUTPUT_ROWS;
@@ -70,6 +68,7 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
         }
     }
 
+    public boolean isOutputSlot(Slot slot) { return slot instanceof PagedOutputSlot; }
     public int getProgress() { return data(0, 0); }
     public int getProgressMax() { return data(1, 20); }
     public int getActiveOutputSlots() { return data(2, MineralExtractorBE.BASE_OUTPUT_SLOTS); }
@@ -162,15 +161,15 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
                 .jdte$invokeMoveItemStackTo(stack, startIndex, endIndex, reverseDirection);
     }
 
-    private static final class SurveySlot extends SlotItemHandler {
-        private SurveySlot(IItemHandler handler, int slot, int x, int y) { super(handler, slot, x, y); }
+    private static final class SurveySlot extends ResourceHandlerSlot {
+        private SurveySlot(ItemStacksResourceHandler handler, int slot, int x, int y) { super(handler, handler::set, slot, x, y); }
         @Override public int getMaxStackSize() { return 1; }
     }
 
-    private static final class PagedOutputSlot extends SlotItemHandler {
+    private static final class PagedOutputSlot extends PagedMachineSlot {
         private final int pageSlot;
         private final MineralExtractorContainer container;
-        private PagedOutputSlot(IItemHandler handler, int pageSlot, int x, int y,
+        private PagedOutputSlot(ItemStacksResourceHandler handler, int pageSlot, int x, int y,
                                 MineralExtractorContainer container) {
             super(handler, container.outputStartSlot() + pageSlot, x, y);
             this.pageSlot = pageSlot;
@@ -180,28 +179,10 @@ public class MineralExtractorContainer extends BaseMachineContainer implements F
             return container.outputStartSlot()
                     + container.outputPage * OUTPUT_SLOTS_PER_PAGE + pageSlot;
         }
-        @Override public ItemStack getItem() {
-            return active() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY;
-        }
-        @Override public boolean hasItem() { return !getItem().isEmpty(); }
-        @Override public void set(ItemStack stack) {
-            if (active()) ((IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
-        }
-        @Override public void initialize(ItemStack stack) { set(stack); }
-        @Override public ItemStack remove(int amount) {
-            return active() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY;
-        }
-        @Override public int getMaxStackSize() {
-            return active() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
-        }
-        @Override public int getMaxStackSize(ItemStack stack) {
-            return active() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
-        }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
-        @Override public boolean mayPickup(Player player) { return active() && !getItem().isEmpty(); }
-        private boolean active() {
+        @Override protected boolean isActiveSlot() {
             return getSlotIndex() < container.outputStartSlot() + container.getActiveOutputSlots()
-                    && getSlotIndex() < getItemHandler().getSlots();
+                    && getSlotIndex() < getResourceHandler().size();
         }
     }
 }

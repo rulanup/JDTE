@@ -2,36 +2,26 @@ package com.jdte.common.blockentities;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-class GreenhouseEssenceConversionHelperTest {
+class GreenhouseEssenceConversionHelperTest implements com.jdte.test.WorldRegistryTest {
     @Test
-    void extractsEveryChunkFromAnOversizedGreenhouseOutputStack() throws Exception {
-        ItemStackHandler output = new ItemStackHandler(1) {
-            @Override
-            public int getSlotLimit(int slot) {
-                return 2_048;
-            }
-
-            @Override
-            protected int getStackLimit(int slot, ItemStack stack) {
-                return getSlotLimit(slot);
-            }
+    void extractsEveryChunkFromAnOversizedGreenhouseOutputStack() {
+        var handler = new MachineInventoryHandler(1) {
+            @Override protected int getCapacity(int slot, ItemResource resource) { return 2_048; }
         };
+        var output = new GreenhouseOutputInventory(handler, 0, 1);
         ItemStack essence = new ItemStack(Items.WHEAT, 256);
-        output.setStackInSlot(0, essence.copy());
+        handler.setStack(0, essence);
 
-        Method extractAll = GreenhouseEssenceConversionHelper.class
-                .getDeclaredMethod("extractAll", IItemHandler.class, ItemStack.class);
-        extractAll.setAccessible(true);
-        extractAll.invoke(null, output, essence.copyWithCount(1));
-
-        assertTrue(output.getStackInSlot(0).isEmpty());
+        assertFalse(output.replace(List.of(essence), List.of(new ItemStack(Items.BREAD, 2_049))));
+        assertTrue(ItemStack.matches(essence, output.copyStack(0)));
+        assertTrue(output.replace(List.of(essence), List.of(new ItemStack(Items.BREAD, 128))));
+        assertTrue(ItemStack.matches(new ItemStack(Items.BREAD, 128), output.copyStack(0)));
     }
 }

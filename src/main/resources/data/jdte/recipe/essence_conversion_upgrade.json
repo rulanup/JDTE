@@ -7,9 +7,9 @@
     "PEP"
   ],
   "key": {
-    "E": { "item": "mysticalagriculture:inferium_essence" },
-    "P": { "item": "mysticalagriculture:prosperity_shard" },
-    "S": { "item": "justdirethings:upgrade_smelter" }
+    "E": "mysticalagriculture:inferium_essence",
+    "P": "mysticalagriculture:prosperity_shard",
+    "S": "justdirethings:upgrade_smelter"
   },
   "result": {
     "count": 1,

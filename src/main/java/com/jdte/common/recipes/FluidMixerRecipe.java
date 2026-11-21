@@ -4,19 +4,17 @@ import com.jdte.setup.JDTERecipes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import java.util.Optional;
 
@@ -24,17 +22,32 @@ import java.util.Optional;
  * 流体混合器配方：一种或两种流体输入 + 可选物品催化剂 → 流体输出。
  * 物品催化剂在混合过程中被消耗。
  */
-public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
-                               Optional<InputItem> itemInput, FluidStack output,
-                               int processTicks, int energy) implements Recipe<CraftingInput> {
+public record FluidMixerRecipe(FluidStackTemplate inputA, Optional<FluidStackTemplate> inputB,
+                               Optional<InputItem> itemInput, FluidStackTemplate outputTemplate,
+                               int processTicks, int energy) implements MachineRecipe {
+    public FluidMixerRecipe(FluidStack a, FluidStack b, Optional<InputItem> item, FluidStack output, int ticks, int energy) {
+        this(FluidStackTemplate.fromNonEmptyStack(a),
+                b.isEmpty() ? Optional.empty() : Optional.of(FluidStackTemplate.fromNonEmptyStack(b)),
+                item, FluidStackTemplate.fromNonEmptyStack(output), ticks, energy);
+    }
+
+    public FluidStack fluidInputA() { return inputA.create(); }
+    public FluidStack fluidInputB() { return inputB.map(FluidStackTemplate::create).orElse(FluidStack.EMPTY); }
+    public FluidStack output() { return outputTemplate.create(); }
+
+    private boolean matchesB(FluidStack stack) {
+        return inputB.map(template -> stack.is(template.fluid())).orElseGet(stack::isEmpty);
+    }
+
+    private int amountB() { return inputB.map(FluidStackTemplate::amount).orElse(0); }
 
     /**
      * 检查两个流体（不考虑数量）和可选物品是否匹配此配方。
      * 流体顺序无关：A/B 可以互换。
      */
     public boolean matchesFluids(FluidStack tankA, FluidStack tankB, ItemStack catalyst) {
-        boolean fluidsMatch = (tankA.is(fluidInputA.getFluid()) && tankB.is(fluidInputB.getFluid()))
-                || (tankA.is(fluidInputB.getFluid()) && tankB.is(fluidInputA.getFluid()));
+        boolean fluidsMatch = (tankA.is(inputA.fluid()) && matchesB(tankB))
+                || (matchesB(tankA) && tankB.is(inputA.fluid()));
         if (!fluidsMatch) return false;
         if (itemInput.isPresent()) {
             InputItem input = itemInput.get();
@@ -47,23 +60,23 @@ public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
      * 检查两个流体是否有足够的数量。流体顺序由 {@link #matchesFluids} 确定后传入。
      */
     public boolean hasEnoughFluids(FluidStack tankA, FluidStack tankB) {
-        if (tankA.is(fluidInputA.getFluid()) && tankB.is(fluidInputB.getFluid())) {
-            return tankA.getAmount() >= fluidInputA.getAmount()
-                    && tankB.getAmount() >= fluidInputB.getAmount();
+        if (tankA.is(inputA.fluid()) && matchesB(tankB)) {
+            return tankA.getAmount() >= inputA.amount()
+                    && tankB.getAmount() >= amountB();
         }
         // 反向
-        return tankA.getAmount() >= fluidInputB.getAmount()
-                && tankB.getAmount() >= fluidInputA.getAmount();
+        return tankA.getAmount() >= amountB()
+                && tankB.getAmount() >= inputA.amount();
     }
 
     /** 根据实际罐A的流体返回对应的消耗量。 */
     public int getDrainA(FluidStack tankA) {
-        return tankA.is(fluidInputA.getFluid()) ? fluidInputA.getAmount() : fluidInputB.getAmount();
+        return tankA.is(inputA.fluid()) ? inputA.amount() : amountB();
     }
 
     /** 根据实际罐B的流体返回对应的消耗量。 */
     public int getDrainB(FluidStack tankB) {
-        return tankB.is(fluidInputB.getFluid()) ? fluidInputB.getAmount() : fluidInputA.getAmount();
+        return matchesB(tankB) ? amountB() : inputA.amount();
     }
 
     @Override
@@ -72,17 +85,7 @@ public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingInput input) {
         return ItemStack.EMPTY;
     }
 
@@ -92,12 +95,12 @@ public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<FluidMixerRecipe> getSerializer() {
         return JDTERecipes.FLUID_MIXER_RECIPE_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<FluidMixerRecipe> getType() {
         return JDTERecipes.FLUID_MIXER_RECIPE_TYPE.get();
     }
 
@@ -113,62 +116,33 @@ public record FluidMixerRecipe(FluidStack fluidInputA, FluidStack fluidInputB,
                 InputItem::new);
     }
 
-    public static final class Serializer implements RecipeSerializer<FluidMixerRecipe> {
-        private static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> FLUID_STACK_CODEC = StreamCodec.of(
-                (buf, stack) -> {
-                    ByteBufCodecs.holderRegistry(Registries.FLUID).encode(buf, stack.getFluid().builtInRegistryHolder());
-                    ByteBufCodecs.INT.encode(buf, stack.getAmount());
-                },
-                buf -> new FluidStack(ByteBufCodecs.holderRegistry(Registries.FLUID).decode(buf).value(),
-                        ByteBufCodecs.INT.decode(buf)));
+    public static final class Serializer {
+        public static RecipeSerializer<FluidMixerRecipe> create() {
+            return new RecipeSerializer<>(codec(), streamCodec());
+        }
 
         private static final MapCodec<FluidMixerRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                FluidStack.CODEC.fieldOf("fluid_input_a").forGetter(FluidMixerRecipe::fluidInputA),
-                FluidStack.CODEC.optionalFieldOf("fluid_input_b", FluidStack.EMPTY).forGetter(FluidMixerRecipe::fluidInputB),
+                FluidStackTemplate.CODEC.fieldOf("fluid_input_a").forGetter(FluidMixerRecipe::inputA),
+                FluidStackTemplate.CODEC.optionalFieldOf("fluid_input_b").forGetter(FluidMixerRecipe::inputB),
                 InputItem.CODEC.optionalFieldOf("item_input").forGetter(FluidMixerRecipe::itemInput),
-                FluidStack.CODEC.fieldOf("output").forGetter(FluidMixerRecipe::output),
+                FluidStackTemplate.CODEC.fieldOf("output").forGetter(FluidMixerRecipe::outputTemplate),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("process_ticks").forGetter(FluidMixerRecipe::processTicks),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("energy").forGetter(FluidMixerRecipe::energy)
         ).apply(instance, FluidMixerRecipe::new));
 
-        @Override
-        public MapCodec<FluidMixerRecipe> codec() {
+        public static MapCodec<FluidMixerRecipe> codec() {
             return CODEC;
         }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, FluidMixerRecipe> streamCodec() {
-            return new StreamCodec<>() {
-                @Override
-                public FluidMixerRecipe decode(RegistryFriendlyByteBuf buffer) {
-                    FluidStack a = FLUID_STACK_CODEC.decode(buffer);
-                    FluidStack b = ByteBufCodecs.BOOL.decode(buffer)
-                            ? FLUID_STACK_CODEC.decode(buffer)
-                            : FluidStack.EMPTY;
-                    boolean hasItem = ByteBufCodecs.BOOL.decode(buffer);
-                    Optional<InputItem> item = hasItem
-                            ? Optional.of(InputItem.STREAM_CODEC.decode(buffer))
-                            : Optional.empty();
-                    FluidStack out = FLUID_STACK_CODEC.decode(buffer);
-                    int ticks = ByteBufCodecs.VAR_INT.decode(buffer);
-                    int energy = ByteBufCodecs.VAR_INT.decode(buffer);
-                    return new FluidMixerRecipe(a, b, item, out, ticks, energy);
-                }
-
-                @Override
-                public void encode(RegistryFriendlyByteBuf buffer, FluidMixerRecipe recipe) {
-                    FLUID_STACK_CODEC.encode(buffer, recipe.fluidInputA());
-                    ByteBufCodecs.BOOL.encode(buffer, !recipe.fluidInputB().isEmpty());
-                    if (!recipe.fluidInputB().isEmpty()) {
-                        FLUID_STACK_CODEC.encode(buffer, recipe.fluidInputB());
-                    }
-                    ByteBufCodecs.BOOL.encode(buffer, recipe.itemInput().isPresent());
-                    recipe.itemInput().ifPresent(item -> InputItem.STREAM_CODEC.encode(buffer, item));
-                    FLUID_STACK_CODEC.encode(buffer, recipe.output());
-                    ByteBufCodecs.VAR_INT.encode(buffer, recipe.processTicks());
-                    ByteBufCodecs.VAR_INT.encode(buffer, recipe.energy());
-                }
-            };
+        public static StreamCodec<RegistryFriendlyByteBuf, FluidMixerRecipe> streamCodec() {
+            return StreamCodec.composite(
+                    FluidStackTemplate.STREAM_CODEC, FluidMixerRecipe::inputA,
+                    ByteBufCodecs.optional(FluidStackTemplate.STREAM_CODEC), FluidMixerRecipe::inputB,
+                    ByteBufCodecs.optional(InputItem.STREAM_CODEC), FluidMixerRecipe::itemInput,
+                    FluidStackTemplate.STREAM_CODEC, FluidMixerRecipe::outputTemplate,
+                    ByteBufCodecs.VAR_INT, FluidMixerRecipe::processTicks,
+                    ByteBufCodecs.VAR_INT, FluidMixerRecipe::energy,
+                    FluidMixerRecipe::new);
         }
     }
 }

@@ -1,8 +1,8 @@
 {
   "type": "jdte:bio_factory",
-  "specimen": { "item": "minecraft:sheep_spawn_egg" },
+  "specimen": "minecraft:sheep_spawn_egg",
   "inputs": [
-    { "ingredient": { "tag": "c:dyes" } }
+    { "ingredient": "#c:dyes" }
   ],
   "outputs": [
     { "item": { "id": "minecraft:white_wool", "count": 1 } }

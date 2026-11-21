@@ -10,7 +10,7 @@ record MineralExtractorFluidDisplay(
         FluidStack renderedFluid,
         int amount,
         int capacity,
-        boolean configuredGhost
+        Component tooltipName
 ) {
     static MineralExtractorFluidDisplay create(Fluid actual, Fluid configured, int amount, int capacity) {
         Fluid safeActual = actual == null ? Fluids.EMPTY : actual;
@@ -18,14 +18,8 @@ record MineralExtractorFluidDisplay(
         boolean hasActualFluid = safeActual != Fluids.EMPTY;
         Fluid selected = hasActualFluid ? safeActual : safeConfigured;
         int displayedAmount = hasActualFluid ? Math.max(0, amount) : 0;
-        FluidStack rendered = selected == Fluids.EMPTY
-                ? FluidStack.EMPTY
-                : new FluidStack(selected, Math.max(1, displayedAmount));
+        FluidStack rendered = displayedAmount > 0 ? new FluidStack(safeActual, displayedAmount) : FluidStack.EMPTY;
         return new MineralExtractorFluidDisplay(
-                rendered, displayedAmount, Math.max(1, capacity), !hasActualFluid && !rendered.isEmpty());
-    }
-
-    Component tooltipName() {
-        return renderedFluid.getHoverName();
+                rendered, displayedAmount, Math.max(1, capacity), new FluidStack(selected, 1).getHoverName());
     }
 }

@@ -7,10 +7,10 @@ import appeng.api.storage.MEStorage;
 import com.glodblock.github.appflux.common.me.key.FluxKey;
 import com.glodblock.github.appflux.common.me.key.type.EnergyType;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /** Applied Flux bridge. This class is only loaded when appflux is present. */
 final class AEExtractionEnergyIntegration {
@@ -21,8 +21,8 @@ final class AEExtractionEnergyIntegration {
     }
 
     static void refill(MEStorage storage, IActionSource source, GlobalPos link, long gameTime,
-                       ServerPlayer player, ItemStack stack) {
-        IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+                       ItemStack stack) {
+        var energy = ItemAccess.forStack(stack).getCapability(Capabilities.Energy.ITEM);
         if (energy == null) return;
         AEExtractionTransfer.Result result = AEExtractionTransfer.move(MAX,
                 new AEExtractionTransfer.Source() {
@@ -36,7 +36,11 @@ final class AEExtractionEnergyIntegration {
                 },
                 new AEExtractionTransfer.Sink() {
                     @Override public long insert(long amount, boolean simulate) {
-                        return energy.receiveEnergy((int) Math.min(MAX, amount), simulate);
+                        try (var tx = Transaction.openRoot()) {
+                            int accepted = energy.insert((int) Math.min(MAX, amount), tx);
+                            if (!simulate) tx.commit();
+                            return accepted;
+                        }
                     }
                 });
         if (result.unrestored() > 0) {

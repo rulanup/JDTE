@@ -17,10 +17,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.RangedResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,8 +82,8 @@ public final class OverclockDirectTransferHelper {
         List<ItemEndpoint> sources = getAdjacentItemEndpoints(level, machine, AutoIoConfigHelper.getInputMask(machine));
         Set<BlockPos> excludedTargets = endpointPositions(sources);
 
-        if (hasVisibleItems(machine.getItemHandler())) {
-            remaining -= moveItemsToRange(level, machine, machine.getItemHandler(), null, cache, excludedTargets,
+        if (hasVisibleItems(machine.getMachineHandler())) {
+            remaining -= moveItemsToRange(level, machine, machine.getMachineHandler(), null, cache, excludedTargets,
                     remaining, budget);
         }
         for (ItemEndpoint source : sources) {
@@ -102,8 +103,8 @@ public final class OverclockDirectTransferHelper {
         if (targets.isEmpty()) return 0;
         Set<BlockPos> excludedSources = endpointPositions(targets);
 
-        if (hasVisibleItems(machine.getItemHandler())) {
-            remaining -= moveItemsToAdjacent(machine.getItemHandler(), null, targets, remaining, budget,
+        if (hasVisibleItems(machine.getMachineHandler())) {
+            remaining -= moveItemsToAdjacent(machine.getMachineHandler(), null, targets, remaining, budget,
                     ignored -> true);
         }
         int count = cache.positions.size();
@@ -160,7 +161,7 @@ public final class OverclockDirectTransferHelper {
         return limit - remaining;
     }
 
-    private static int moveItemsToRange(ServerLevel level, BaseMachineBE machine, IItemHandler source,
+    private static int moveItemsToRange(ServerLevel level, BaseMachineBE machine, ResourceHandler<ItemResource> source,
                                         BlockPos sourcePos, RangeCache cache, Set<BlockPos> excluded, int limit,
                                         ItemTransferBudget budget) {
         int moved = 0;
@@ -191,7 +192,7 @@ public final class OverclockDirectTransferHelper {
                 source -> moveItemsToAdjacent(source, sourcePos, targets, limit, budget, filter));
     }
 
-    private static int moveItemsToAdjacent(IItemHandler source, BlockPos sourcePos,
+    private static int moveItemsToAdjacent(ResourceHandler<ItemResource> source, BlockPos sourcePos,
                                             List<ItemEndpoint> targets, int limit, ItemTransferBudget budget,
                                             ItemFilter filter) {
         int moved = 0;
@@ -203,7 +204,7 @@ public final class OverclockDirectTransferHelper {
         return moved;
     }
 
-    private static int moveFluidToRange(ServerLevel level, BaseMachineBE machine, IFluidHandler source,
+    private static int moveFluidToRange(ServerLevel level, BaseMachineBE machine, ResourceHandler<FluidResource> source,
                                         BlockPos sourcePos, RangeCache cache, Set<BlockPos> excluded, int limit) {
         int moved = 0;
         int count = cache.positions.size();
@@ -229,7 +230,7 @@ public final class OverclockDirectTransferHelper {
                 source -> moveFluidToAdjacent(source, sourcePos, targets, limit));
     }
 
-    private static int moveFluidToAdjacent(IFluidHandler source, BlockPos sourcePos,
+    private static int moveFluidToAdjacent(ResourceHandler<FluidResource> source, BlockPos sourcePos,
                                            List<FluidEndpoint> targets, int limit) {
         int moved = 0;
         for (FluidEndpoint target : targets) {
@@ -240,27 +241,20 @@ public final class OverclockDirectTransferHelper {
         return moved;
     }
 
-    private static int moveItems(IItemHandler source, IItemHandler target, int limit, ItemTransferBudget budget) {
+    private static int moveItems(ResourceHandler<ItemResource> source, ResourceHandler<ItemResource> target, int limit, ItemTransferBudget budget) {
         return moveItems(source, target, limit, budget, ignored -> true);
     }
 
-    private static int moveItems(IItemHandler source, IItemHandler target, int limit, ItemTransferBudget budget,
+    private static int moveItems(ResourceHandler<ItemResource> source, ResourceHandler<ItemResource> target, int limit, ItemTransferBudget budget,
                                  ItemFilter filter) {
         int moved = 0;
-        for (int slot = 0; slot < source.getSlots() && moved < limit; slot++) {
-            while (moved < limit && !source.getStackInSlot(slot).isEmpty() && budget.beginOperation()) {
-                ItemStack simulated = source.extractItem(slot, limit - moved, true);
-                if (simulated.isEmpty()) break;
-                if (!filter.allows(simulated)) break;
-                ItemStack simulatedRemainder = ItemHandlerHelper.insertItemStacked(target, simulated, true);
-                int movable = simulated.getCount() - simulatedRemainder.getCount();
-                if (movable <= 0) break;
-                ItemStack extracted = source.extractItem(slot, movable, false);
-                if (extracted.isEmpty()) break;
-                ItemStack remainder = ItemHandlerHelper.insertItemStacked(target, extracted, false);
-                int inserted = extracted.getCount() - remainder.getCount();
-                if (!remainder.isEmpty()) source.insertItem(slot, remainder, false);
-                if (inserted <= 0) break;
+        for (int slot = 0; slot < source.size() && moved < limit; slot++) {
+            while (moved < limit && !source.getResource(slot).isEmpty() && budget.beginOperation()) {
+                var resource = source.getResource(slot);
+                if (!filter.allows(resource.toStack(source.getAmountAsInt(slot)))) break;
+                int inserted = ResourceHandlerUtil.moveStacking(RangedResourceHandler.ofSingleIndex(source, slot),
+                        target, resource::equals, limit - moved, null);
+                if (inserted == 0) break;
                 moved += inserted;
             }
             if (!budget.canContinue()) break;
@@ -268,29 +262,15 @@ public final class OverclockDirectTransferHelper {
         return moved;
     }
 
-    private static boolean hasVisibleItems(IItemHandler handler) {
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            if (!handler.getStackInSlot(slot).isEmpty()) return true;
+    private static boolean hasVisibleItems(ResourceHandler<ItemResource> handler) {
+        for (int slot = 0; slot < handler.size(); slot++) {
+            if (!handler.getResource(slot).isEmpty()) return true;
         }
         return false;
     }
 
-    private static int moveFluid(IFluidHandler source, IFluidHandler target, int limit) {
-        FluidStack simulated = source.drain(limit, IFluidHandler.FluidAction.SIMULATE);
-        if (simulated.isEmpty()) return 0;
-        int fillable = target.fill(simulated, IFluidHandler.FluidAction.SIMULATE);
-        if (fillable <= 0) return 0;
-        FluidStack request = simulated.copy();
-        request.setAmount(Math.min(fillable, simulated.getAmount()));
-        FluidStack drained = source.drain(request, IFluidHandler.FluidAction.EXECUTE);
-        if (drained.isEmpty()) return 0;
-        int filled = target.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-        if (filled < drained.getAmount()) {
-            FluidStack remainder = drained.copy();
-            remainder.setAmount(drained.getAmount() - Math.max(0, filled));
-            source.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
-        }
-        return Math.max(0, filled);
+    private static int moveFluid(ResourceHandler<FluidResource> source, ResourceHandler<FluidResource> target, int limit) {
+        return AutoIoTransferHelper.moveFluids(source, target, limit, 0);
     }
 
     private static RangeCache getRangeCache(ServerLevel level, BaseMachineBE machine,
@@ -390,31 +370,31 @@ public final class OverclockDirectTransferHelper {
     }
 
     private static int tryItemSide(ServerLevel level, BlockPos pos, Direction side, ItemHandlerOperation operation) {
-        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side);
+        ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, side);
         return handler == null ? 0 : operation.apply(handler);
     }
 
     private static int tryFluidSide(ServerLevel level, BlockPos pos, Direction side, FluidHandlerOperation operation) {
-        IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, side);
+        ResourceHandler<FluidResource> handler = level.getCapability(Capabilities.Fluid.BLOCK, pos, side);
         return handler == null ? 0 : operation.apply(handler);
     }
 
     private static boolean hasItemCapability(ServerLevel level, BaseMachineBE machine, BlockPos pos) {
         Direction preferred = sideFacingMachine(machine, pos);
-        if (preferred != null && level.getCapability(Capabilities.ItemHandler.BLOCK, pos, preferred) != null) return true;
+        if (preferred != null && level.getCapability(Capabilities.Item.BLOCK, pos, preferred) != null) return true;
         for (Direction side : Direction.values()) {
-            if (side != preferred && level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side) != null) return true;
+            if (side != preferred && level.getCapability(Capabilities.Item.BLOCK, pos, side) != null) return true;
         }
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null) != null;
+        return level.getCapability(Capabilities.Item.BLOCK, pos, null) != null;
     }
 
     private static boolean hasFluidCapability(ServerLevel level, BaseMachineBE machine, BlockPos pos) {
         Direction preferred = sideFacingMachine(machine, pos);
-        if (preferred != null && level.getCapability(Capabilities.FluidHandler.BLOCK, pos, preferred) != null) return true;
+        if (preferred != null && level.getCapability(Capabilities.Fluid.BLOCK, pos, preferred) != null) return true;
         for (Direction side : Direction.values()) {
-            if (side != preferred && level.getCapability(Capabilities.FluidHandler.BLOCK, pos, side) != null) return true;
+            if (side != preferred && level.getCapability(Capabilities.Fluid.BLOCK, pos, side) != null) return true;
         }
-        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null) != null;
+        return level.getCapability(Capabilities.Fluid.BLOCK, pos, null) != null;
     }
 
     private static List<ItemEndpoint> getAdjacentItemEndpoints(ServerLevel level, BaseMachineBE machine, int mask) {
@@ -423,7 +403,7 @@ public final class OverclockDirectTransferHelper {
             if ((mask & (1 << sideIndex)) == 0) continue;
             Direction direction = directionForUiSide(sideIndex);
             BlockPos pos = machine.getBlockPos().relative(direction);
-            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction.getOpposite());
+            ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, direction.getOpposite());
             if (handler != null) endpoints.add(new ItemEndpoint(pos, handler));
         }
         return endpoints;
@@ -435,7 +415,7 @@ public final class OverclockDirectTransferHelper {
             if ((mask & (1 << sideIndex)) == 0) continue;
             Direction direction = directionForUiSide(sideIndex);
             BlockPos pos = machine.getBlockPos().relative(direction);
-            IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, direction.getOpposite());
+            ResourceHandler<FluidResource> handler = level.getCapability(Capabilities.Fluid.BLOCK, pos, direction.getOpposite());
             if (handler != null) endpoints.add(new FluidEndpoint(pos, handler));
         }
         return endpoints;
@@ -494,15 +474,15 @@ public final class OverclockDirectTransferHelper {
                 && Double.compare(first.maxZ, second.maxZ) == 0;
     }
 
-    private record ItemEndpoint(BlockPos pos, IItemHandler handler) {
+    private record ItemEndpoint(BlockPos pos, ResourceHandler<ItemResource> handler) {
     }
 
-    private record FluidEndpoint(BlockPos pos, IFluidHandler handler) {
+    private record FluidEndpoint(BlockPos pos, ResourceHandler<FluidResource> handler) {
     }
 
     @FunctionalInterface
     private interface ItemHandlerOperation {
-        int apply(IItemHandler handler);
+        int apply(ResourceHandler<ItemResource> handler);
     }
 
     @FunctionalInterface
@@ -512,7 +492,7 @@ public final class OverclockDirectTransferHelper {
 
     @FunctionalInterface
     private interface FluidHandlerOperation {
-        int apply(IFluidHandler handler);
+        int apply(ResourceHandler<FluidResource> handler);
     }
 
     private static final class RangeCache {

@@ -5,11 +5,10 @@ import com.jdte.setup.JDTERecipes;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -17,8 +16,13 @@ import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
+import java.util.List;
 
 public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) implements CraftingRecipe {
     private static final Item ECLIPSE_ALLOY_INGOT = item("justdirethings", "eclipsealloy_ingot");
@@ -58,7 +62,7 @@ public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) imp
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingInput input) {
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
             if (stack.is(sourceItem) && stack.getCount() == 1) {
@@ -69,22 +73,24 @@ public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) imp
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 6;
+    public PlacementInfo placementInfo() {
+        Ingredient ingot = Ingredient.of(ECLIPSE_ALLOY_INGOT);
+        return PlacementInfo.create(List.of(Ingredient.of(sourceItem), ingot, ingot, ingot, ingot,
+                Ingredient.of(JDTEItems.TIME_FLUID_CATALYST.get())));
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return new ItemStack(resultItem);
+    public List<RecipeDisplay> display() {
+        return List.of(new ShapelessCraftingRecipeDisplay(
+                placementInfo().ingredients().stream().map(Ingredient::display).toList(),
+                new SlotDisplay.ItemSlotDisplay(resultItem), new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)));
     }
 
-    @Override
-    public RecipeType<?> getType() {
-        return RecipeType.CRAFTING;
-    }
+    @Override public boolean showNotification() { return true; }
+    @Override public String group() { return ""; }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<LargePortableContainerRecipe> getSerializer() {
         return JDTERecipes.LARGE_PORTABLE_CONTAINER_RECIPE_SERIALIZER.get();
     }
 
@@ -100,13 +106,17 @@ public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) imp
     }
 
     private static Item item(String namespace, String path) {
-        return BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(namespace, path));
+        return BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath(namespace, path));
     }
 
-    public static final class Serializer implements RecipeSerializer<LargePortableContainerRecipe> {
+    public static final class Serializer {
+        public static RecipeSerializer<LargePortableContainerRecipe> create() {
+            return new RecipeSerializer<>(codec(), streamCodec());
+        }
+
         private static final MapCodec<RecipeData> RAW_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ResourceLocation.CODEC.fieldOf("source_item").forGetter(RecipeData::sourceId),
-                ResourceLocation.CODEC.fieldOf("result").forGetter(RecipeData::resultId)
+                Identifier.CODEC.fieldOf("source_item").forGetter(RecipeData::sourceId),
+                Identifier.CODEC.fieldOf("result").forGetter(RecipeData::resultId)
         ).apply(instance, RecipeData::new));
         private static final MapCodec<LargePortableContainerRecipe> CODEC = RAW_CODEC.flatXmap(
                 data -> validated(data.sourceId(), data.resultId()),
@@ -114,38 +124,36 @@ public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) imp
                         BuiltInRegistries.ITEM.getKey(recipe.sourceItem()),
                         BuiltInRegistries.ITEM.getKey(recipe.resultItem()))));
 
-        @Override
-        public MapCodec<LargePortableContainerRecipe> codec() {
+        public static MapCodec<LargePortableContainerRecipe> codec() {
             return CODEC;
         }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, LargePortableContainerRecipe> streamCodec() {
+        public static StreamCodec<RegistryFriendlyByteBuf, LargePortableContainerRecipe> streamCodec() {
             return new StreamCodec<>() {
                 @Override
                 public LargePortableContainerRecipe decode(RegistryFriendlyByteBuf buffer) {
                     return validated(
-                            ResourceLocation.STREAM_CODEC.decode(buffer),
-                            ResourceLocation.STREAM_CODEC.decode(buffer)
+                            Identifier.STREAM_CODEC.decode(buffer),
+                            Identifier.STREAM_CODEC.decode(buffer)
                     ).getOrThrow();
                 }
 
                 @Override
                 public void encode(RegistryFriendlyByteBuf buffer, LargePortableContainerRecipe recipe) {
-                    ResourceLocation.STREAM_CODEC.encode(buffer, BuiltInRegistries.ITEM.getKey(recipe.sourceItem()));
-                    ResourceLocation.STREAM_CODEC.encode(buffer, BuiltInRegistries.ITEM.getKey(recipe.resultItem()));
+                    Identifier.STREAM_CODEC.encode(buffer, BuiltInRegistries.ITEM.getKey(recipe.sourceItem()));
+                    Identifier.STREAM_CODEC.encode(buffer, BuiltInRegistries.ITEM.getKey(recipe.resultItem()));
                 }
             };
         }
 
-        private static DataResult<LargePortableContainerRecipe> validated(ResourceLocation sourceId,
-                                                                          ResourceLocation resultId) {
-            Item sourceItem = BuiltInRegistries.ITEM.get(sourceId);
+        private static DataResult<LargePortableContainerRecipe> validated(Identifier sourceId,
+                                                                          Identifier resultId) {
+            Item sourceItem = BuiltInRegistries.ITEM.getValue(sourceId);
             if (sourceItem == Items.AIR) {
                 return DataResult.error(() -> "Unknown source_item: " + sourceId);
             }
 
-            Item resultItem = BuiltInRegistries.ITEM.get(resultId);
+            Item resultItem = BuiltInRegistries.ITEM.getValue(resultId);
             if (resultItem == Items.AIR) {
                 return DataResult.error(() -> "Unknown result item: " + resultId);
             }
@@ -159,7 +167,7 @@ public record LargePortableContainerRecipe(Item sourceItem, Item resultItem) imp
             return DataResult.success(new LargePortableContainerRecipe(sourceItem, resultItem));
         }
 
-        private record RecipeData(ResourceLocation sourceId, ResourceLocation resultId) {
+        private record RecipeData(Identifier sourceId, Identifier resultId) {
         }
     }
 }

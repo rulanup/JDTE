@@ -4,13 +4,13 @@ import com.direwolf20.justdirethings.common.items.FuelCanister;
 import com.jdte.common.items.PortableFuelBurnSpeedHelper;
 import com.jdte.setup.JDTEItems;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LargePocketGeneratorScreenTest {
+class LargePocketGeneratorScreenTest implements com.jdte.test.WorldRegistryTest {
     @Test
     void fuelBarHeightMatchesTheOriginalJdtScreenCalculation() {
         assertEquals(6, LargePocketGeneratorScreen.fuelBarHeight(20, 40));
@@ -25,8 +25,8 @@ class LargePocketGeneratorScreenTest {
 
     @Test
     void burnSpeedTooltipUsesResolvedFuelCanisterMultiplierLogic() {
-        ItemStack plainFuelCanister = new ItemStack(BuiltInRegistries.ITEM.get(
-                ResourceLocation.fromNamespaceAndPath("justdirethings", "fuel_canister")));
+        ItemStack plainFuelCanister = new ItemStack(BuiltInRegistries.ITEM.getValue(
+                Identifier.fromNamespaceAndPath("justdirethings", "fuel_canister")));
         FuelCanister.setBurnSpeed(plainFuelCanister, 2.0D);
 
         ItemStack largeFuelCanister = new ItemStack(JDTEItems.LARGE_FUEL_CANISTER.get());

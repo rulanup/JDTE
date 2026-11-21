@@ -1,5 +1,7 @@
 package com.jdte.common.blockentities;
 
+import static com.jdte.test.TestItemHandlers.setStack;
+
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +17,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ItemReceiverRegressionTest {
+class ItemReceiverRegressionTest implements com.jdte.test.WorldRegistryTest {
     @Test
     void incomingFilterUsesAllowlistAndRefreshesAfterMarkerChanges() {
         TestReceiver receiver = new TestReceiver();
@@ -24,7 +26,7 @@ class ItemReceiverRegressionTest {
 
         assertTrue(receiver.allowsIncomingItem(dirt), "an empty blacklist should allow all items");
 
-        receiver.getFilterHandler().setStackInSlot(0, apple);
+        setStack(receiver.getFilterHandler(), 0, apple);
         receiver.filterData.allowlist = true;
 
         assertTrue(receiver.allowsIncomingItem(apple));
@@ -35,7 +37,7 @@ class ItemReceiverRegressionTest {
     void normalReceiverTransferMustApplyTheConfiguredItemFilter() throws Exception {
         String source = readProjectFile("src/main/java/com/jdte/common/blockentities/ItemReceiverBE.java");
 
-        assertTrue(source.contains("isStackValidFilter(simulated)"),
+        assertTrue(source.contains("resource -> isStackValidFilter(resource.toStack(1))"),
                 "normal receiver pulls must reject source stacks outside the configured filter");
     }
 

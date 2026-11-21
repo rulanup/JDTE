@@ -4,19 +4,17 @@ import com.jdte.setup.JDTERecipes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import java.util.List;
 
@@ -24,13 +22,15 @@ import java.util.List;
  * 生命合成舱配方：若干培养基（物品）+ 养分流体 -> 生命流体。
  * 同一输入槽只匹配一个物品槽，避免不同输入行重复扣减同一槽。
  */
-public record LifeSynthesisRecipe(List<InputSlot> inputs, List<FluidStack> fluidInputs,
-                                  FluidStack output, int processTicks, int energy,
-                                  String tier) implements Recipe<CraftingInput> {
+public record LifeSynthesisRecipe(List<InputSlot> inputs, List<FluidStackTemplate> fluidTemplates,
+                                  FluidStackTemplate outputTemplate, int processTicks, int energy,
+                                  String tier) implements MachineRecipe {
+    public List<FluidStack> fluidInputs() { return fluidTemplates.stream().map(FluidStackTemplate::create).toList(); }
+    public FluidStack output() { return outputTemplate.create(); }
 
     /** 当前实现只支持单养分罐，取第一种养分流体。 */
     public FluidStack nutrient() {
-        return fluidInputs.isEmpty() ? FluidStack.EMPTY : fluidInputs.getFirst();
+        return fluidTemplates.isEmpty() ? FluidStack.EMPTY : fluidTemplates.getFirst().create();
     }
 
     public boolean matchesSlots(List<ItemStack> slots) {
@@ -78,17 +78,7 @@ public record LifeSynthesisRecipe(List<InputSlot> inputs, List<FluidStack> fluid
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingInput input) {
         return ItemStack.EMPTY;
     }
 
@@ -98,12 +88,12 @@ public record LifeSynthesisRecipe(List<InputSlot> inputs, List<FluidStack> fluid
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<LifeSynthesisRecipe> getSerializer() {
         return JDTERecipes.LIFE_SYNTHESIS_RECIPE_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<LifeSynthesisRecipe> getType() {
         return JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get();
     }
 
@@ -119,38 +109,32 @@ public record LifeSynthesisRecipe(List<InputSlot> inputs, List<FluidStack> fluid
                 InputSlot::new);
     }
 
-    public static final class Serializer implements RecipeSerializer<LifeSynthesisRecipe> {
-        private static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> FLUID_STACK_CODEC = StreamCodec.of(
-                (buf, stack) -> {
-                    ByteBufCodecs.holderRegistry(Registries.FLUID).encode(buf, stack.getFluid().builtInRegistryHolder());
-                    ByteBufCodecs.INT.encode(buf, stack.getAmount());
-                },
-                buf -> new FluidStack(ByteBufCodecs.holderRegistry(Registries.FLUID).decode(buf).value(),
-                        ByteBufCodecs.INT.decode(buf)));
+    public static final class Serializer {
+        public static RecipeSerializer<LifeSynthesisRecipe> create() {
+            return new RecipeSerializer<>(codec(), streamCodec());
+        }
 
         private static final MapCodec<LifeSynthesisRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 InputSlot.CODEC.listOf().fieldOf("inputs").forGetter(LifeSynthesisRecipe::inputs),
-                FluidStack.CODEC.listOf().fieldOf("fluid_inputs").forGetter(LifeSynthesisRecipe::fluidInputs),
-                FluidStack.CODEC.fieldOf("output").forGetter(LifeSynthesisRecipe::output),
+                FluidStackTemplate.CODEC.listOf().fieldOf("fluid_inputs").forGetter(LifeSynthesisRecipe::fluidTemplates),
+                FluidStackTemplate.CODEC.fieldOf("output").forGetter(LifeSynthesisRecipe::outputTemplate),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("process_ticks").forGetter(LifeSynthesisRecipe::processTicks),
                 net.minecraft.util.ExtraCodecs.POSITIVE_INT.fieldOf("energy").forGetter(LifeSynthesisRecipe::energy),
                 net.minecraft.util.ExtraCodecs.NON_EMPTY_STRING.fieldOf("tier").forGetter(LifeSynthesisRecipe::tier)
         ).apply(instance, LifeSynthesisRecipe::new));
 
-        @Override
-        public MapCodec<LifeSynthesisRecipe> codec() {
+        public static MapCodec<LifeSynthesisRecipe> codec() {
             return CODEC;
         }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, LifeSynthesisRecipe> streamCodec() {
+        public static StreamCodec<RegistryFriendlyByteBuf, LifeSynthesisRecipe> streamCodec() {
             return new StreamCodec<>() {
                 @Override
                 public LifeSynthesisRecipe decode(RegistryFriendlyByteBuf buffer) {
                     return new LifeSynthesisRecipe(
                             InputSlot.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer),
-                            FLUID_STACK_CODEC.apply(ByteBufCodecs.list()).decode(buffer),
-                            FLUID_STACK_CODEC.decode(buffer),
+                            FluidStackTemplate.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer),
+                            FluidStackTemplate.STREAM_CODEC.decode(buffer),
                             ByteBufCodecs.VAR_INT.decode(buffer),
                             ByteBufCodecs.VAR_INT.decode(buffer),
                             ByteBufCodecs.STRING_UTF8.decode(buffer));
@@ -159,8 +143,8 @@ public record LifeSynthesisRecipe(List<InputSlot> inputs, List<FluidStack> fluid
                 @Override
                 public void encode(RegistryFriendlyByteBuf buffer, LifeSynthesisRecipe recipe) {
                     InputSlot.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.inputs());
-                    FLUID_STACK_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.fluidInputs());
-                    FLUID_STACK_CODEC.encode(buffer, recipe.output());
+                    FluidStackTemplate.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.fluidTemplates());
+                    FluidStackTemplate.STREAM_CODEC.encode(buffer, recipe.outputTemplate());
                     ByteBufCodecs.VAR_INT.encode(buffer, recipe.processTicks());
                     ByteBufCodecs.VAR_INT.encode(buffer, recipe.energy());
                     ByteBufCodecs.STRING_UTF8.encode(buffer, recipe.tier());

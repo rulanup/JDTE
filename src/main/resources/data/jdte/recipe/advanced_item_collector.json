@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "redstone",
   "ingredients": [
-    {
-      "item": "justdirethings:itemcollector"
-    },
-    {
-      "item": "jdte:extended_upgrade"
-    }
+    "justdirethings:itemcollector",
+    "jdte:extended_upgrade"
   ],
   "result": {
     "count": 1,

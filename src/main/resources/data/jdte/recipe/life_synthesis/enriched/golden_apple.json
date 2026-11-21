@@ -1,7 +1,7 @@
 {
   "type": "jdte:life_synthesis",
   "tier": "enriched",
-  "inputs": [ { "ingredient": { "item": "minecraft:golden_apple" }, "count": 1 } ],
+  "inputs": [ { "ingredient": "minecraft:golden_apple", "count": 1 } ],
   "fluid_inputs": [ { "id": "minecraft:water", "amount": 1000 } ],
   "output": { "id": "jdte:life_fluid_source", "amount": 1250 },
   "process_ticks": 800,

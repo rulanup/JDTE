@@ -1,6 +1,5 @@
 package com.jdte.common.containers;
 
-import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
@@ -17,9 +16,10 @@ import net.minecraft.world.item.SpawnEggItem;
 import com.jdte.common.items.LootingUpgradeItem;
 import com.jdte.common.items.UpgradeCardItem;
 import com.jdte.common.upgrades.UpgradeType;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
-public class LootFabricatorContainer extends BaseMachineContainer implements FilterPageHolder {
+public class LootFabricatorContainer extends PagedMachineContainer implements FilterPageHolder {
     private int outputPage;
     public LootFabricatorContainer(int id, Inventory inventory, FriendlyByteBuf data) { this(id, inventory, data.readBlockPos()); }
     public LootFabricatorContainer(int id, Inventory inventory, BlockPos pos) {
@@ -125,36 +125,24 @@ public class LootFabricatorContainer extends BaseMachineContainer implements Fil
         return moved;
     }
 
-    private static class SingleSlot extends SlotItemHandler {
-        SingleSlot(net.neoforged.neoforge.items.IItemHandler handler, int index, int x, int y) { super(handler, index, x, y); }
+    private static class SingleSlot extends ResourceHandlerSlot {
+        SingleSlot(ItemStacksResourceHandler handler, int index, int x, int y) { super(handler, handler::set, index, x, y); }
         @Override public int getMaxStackSize() { return 1; }
     }
-    private static class OutputSlot extends SlotItemHandler {
+    private static class OutputSlot extends PagedMachineSlot {
         private final LootFabricatorContainer container;
         private final int pageSlot;
-        OutputSlot(net.neoforged.neoforge.items.IItemHandler handler, int pageSlot, int x, int y, LootFabricatorContainer container) {
+        OutputSlot(ItemStacksResourceHandler handler, int pageSlot, int x, int y, LootFabricatorContainer container) {
             super(handler, LootFabricatorBE.INPUT_SLOTS + pageSlot, x, y);
             this.container = container;
             this.pageSlot = pageSlot;
         }
         @Override public int getSlotIndex() { return LootFabricatorBE.INPUT_SLOTS + container.getOutputPage() * container.getOutputSlotsPerPage() + pageSlot; }
-        @Override public ItemStack getItem() { return isActiveSlot() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY; }
-        @Override public boolean hasItem() { return !getItem().isEmpty(); }
-        @Override public void set(ItemStack stack) {
-            if (!isActiveSlot()) return;
-            ((net.neoforged.neoforge.items.IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
-            setChanged();
-        }
-        @Override public void initialize(ItemStack stack) { set(stack); }
-        @Override public ItemStack remove(int amount) { return isActiveSlot() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY; }
-        @Override public int getMaxStackSize() { return isActiveSlot() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0; }
-        @Override public int getMaxStackSize(ItemStack stack) { return isActiveSlot() ? Math.min(stack.getMaxStackSize(), getItemHandler().getSlotLimit(getSlotIndex())) : 0; }
-        @Override public boolean mayPickup(Player player) { return isActiveSlot() && !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty(); }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
-        private boolean isActiveSlot() {
+        @Override protected boolean isActiveSlot() {
             return container.baseMachineBE instanceof LootFabricatorBE machine
                     && getSlotIndex() < LootFabricatorBE.INPUT_SLOTS + machine.getActiveOutputSlots()
-                    && getSlotIndex() < getItemHandler().getSlots();
+                    && getSlotIndex() < getResourceHandler().size();
         }
     }
 }

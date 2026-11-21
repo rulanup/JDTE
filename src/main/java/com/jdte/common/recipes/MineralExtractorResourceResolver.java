@@ -5,8 +5,8 @@ import com.jdte.common.minerals.MineralExtractorFluidRoles;
 import com.jdte.setup.JDTERecipes;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 
@@ -14,9 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Resolves the datapack-selected mineral extractor production fluids by their stable recipe id. */
 public final class MineralExtractorResourceResolver {
-    public static final ResourceLocation RECIPE_ID = JDTE.id("mineral_extractor_resources");
-    private static final ResourceLocation DEFAULT_FORTUNE_FLUID = ResourceLocation.fromNamespaceAndPath("justdirethings", "xp_fluid_source");
-    private static final ResourceLocation DEFAULT_ACCELERATION_FLUID = ResourceLocation.fromNamespaceAndPath("justdirethings", "time_fluid_source");
+    public static final Identifier RECIPE_ID = JDTE.id("mineral_extractor_resources");
+    private static final Identifier DEFAULT_FORTUNE_FLUID = Identifier.fromNamespaceAndPath("justdirethings", "xp_fluid_source");
+    private static final Identifier DEFAULT_ACCELERATION_FLUID = Identifier.fromNamespaceAndPath("justdirethings", "time_fluid_source");
     private static final MineralExtractorFluidRoles DEFAULT_ROLES = new MineralExtractorFluidRoles(
             DEFAULT_FORTUNE_FLUID, DEFAULT_ACCELERATION_FLUID);
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -26,16 +26,12 @@ public final class MineralExtractorResourceResolver {
     }
 
     public static MineralExtractorFluidRoles resolve(Level level) {
-        return level == null ? fallback("no level is available") : resolve(level.getRecipeManager());
+        return resolve(MachineRecipeHelper.recipes(level));
     }
 
-    public static MineralExtractorFluidRoles resolve(RecipeManager recipeManager) {
-        if (recipeManager == null) {
-            return fallback("the recipe manager is unavailable");
-        }
-
-        return recipeManager.getAllRecipesFor(JDTERecipes.MINERAL_EXTRACTOR_RESOURCES_RECIPE_TYPE.get()).stream()
-                .filter(holder -> holder.id().equals(RECIPE_ID))
+    public static MineralExtractorFluidRoles resolve(RecipeMap recipes) {
+        return recipes.byType(JDTERecipes.MINERAL_EXTRACTOR_RESOURCES_RECIPE_TYPE.get()).stream()
+                .filter(holder -> holder.id().identifier().equals(RECIPE_ID))
                 .findFirst()
                 .filter(holder -> hasRegisteredFluids(holder.value()))
                 .<MineralExtractorFluidRoles>map(holder -> new MineralExtractorFluidRoles(

@@ -6,8 +6,7 @@ import com.jdte.common.blockentities.FluidMixerBE;
 import com.jdte.common.manager.AEOutputManager;
 import com.jdte.common.items.UpgradeCardItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -134,9 +133,9 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
-        super.deserializeNBT(provider, tag);
-        contentVersion++;
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
+        onLoad();
     }
 
     private int countSmelter(int ignoredSlot) {

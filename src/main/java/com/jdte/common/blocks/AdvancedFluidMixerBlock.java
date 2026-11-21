@@ -6,7 +6,7 @@ import com.jdte.common.containers.AdvancedFluidMixerContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,8 +19,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 
 public class AdvancedFluidMixerBlock extends BaseMachineBlock {
-    public AdvancedFluidMixerBlock() {
-        super(Properties.of()
+    public AdvancedFluidMixerBlock(Properties properties) {
+        super(properties
                 .sound(SoundType.METAL)
                 .strength(3.0F)
                 .noOcclusion()
@@ -28,7 +28,7 @@ public class AdvancedFluidMixerBlock extends BaseMachineBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
         return FluidContainerTransfer.useItemOn(stack, state, level, pos, player, hand, hit);
     }

@@ -25,7 +25,7 @@ class AEExtractionUpgradeResourceTest {
         assertEquals("minecraft:crafting_shapeless", craft.get("type").getAsString());
         Set<String> ingredients = new HashSet<>();
         for (var element : craft.getAsJsonArray("ingredients")) {
-            ingredients.add(element.getAsJsonObject().get("item").getAsString());
+            ingredients.add(element.getAsString());
         }
         assertEquals(Set.of("ae2:wireless_receiver", "ae2:export_bus", "jdte:capacity_upgrade"), ingredients);
         assertEquals("jdte:ae_extraction_upgrade", craft.getAsJsonObject("result").get("id").getAsString());

@@ -1,5 +1,7 @@
 package com.jdte.client.jei.greenhouse;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.mojang.logging.LogUtils;
 import com.jdte.JDTE;
 import com.jdte.setup.JDTEBlocks;
@@ -12,10 +14,10 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import org.slf4j.Logger;
@@ -25,13 +27,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class GreenhouseRecipeCategory implements IRecipeCategory<GreenhouseJeiRecipe> {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Set<ResourceLocation> MISSING_FLUID_WARNINGS = ConcurrentHashMap.newKeySet();
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "greenhouse");
+    private static final Set<Identifier> MISSING_FLUID_WARNINGS = ConcurrentHashMap.newKeySet();
+    public static final Identifier UID = Identifier.fromNamespaceAndPath(JDTE.MODID, "greenhouse");
     public static final RecipeType<GreenhouseJeiRecipe> RECIPE_TYPE = new RecipeType<>(UID, GreenhouseJeiRecipe.class);
-    private static final ResourceLocation SLOT = ResourceLocation.withDefaultNamespace("container/slot");
-    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("justdirethings", "background");
-    private static final ResourceLocation POWER_BAR = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
-    private static final ResourceLocation FLUID_BAR = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/fluid_bar.png");
+    private static final Identifier SLOT = Identifier.withDefaultNamespace("container/slot");
+    private static final Identifier BACKGROUND = Identifier.fromNamespaceAndPath("justdirethings", "background");
+    private static final Identifier POWER_BAR = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
+    private static final Identifier FLUID_BAR = Identifier.fromNamespaceAndPath("jdte", "textures/gui/fluid_bar.png");
     private static final int WIDTH = 176;
     private static final int HEIGHT = 84;
     private static final int INPUT_X = 10;
@@ -59,7 +61,7 @@ public class GreenhouseRecipeCategory implements IRecipeCategory<GreenhouseJeiRe
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, GreenhouseJeiRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.CATALYST, INPUT_X + 1, INPUT_Y + 1).addItemStack(recipe.seed());
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, INPUT_X + 1, INPUT_Y + 1).addItemStack(recipe.seed());
         Fluid requiredFluid = BuiltInRegistries.FLUID.getOptional(recipe.fluid()).orElse(null);
         if (requiredFluid == null) {
             if (MISSING_FLUID_WARNINGS.add(recipe.id())) {
@@ -77,26 +79,26 @@ public class GreenhouseRecipeCategory implements IRecipeCategory<GreenhouseJeiRe
         }
     }
 
-    @Override public ResourceLocation getRegistryName(GreenhouseJeiRecipe recipe) { return recipe.id(); }
+    @Override public Identifier getRegistryName(GreenhouseJeiRecipe recipe) { return recipe.id(); }
 
     @Override
-    public void draw(GreenhouseJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphics graphics, double mouseX, double mouseY) {
-        graphics.blitSprite(BACKGROUND, 0, 0, WIDTH, HEIGHT);
-        graphics.blitSprite(SLOT, INPUT_X, INPUT_Y, 18, 18);
+    public void draw(GreenhouseJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND, 0, 0, WIDTH, HEIGHT);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT, INPUT_X, INPUT_Y, 18, 18);
         for (int i = 0; i < 16; i++) {
-            graphics.blitSprite(SLOT, OUTPUT_X + (i % 4) * 18, OUTPUT_Y + (i / 4) * 18, 18, 18);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT, OUTPUT_X + (i % 4) * 18, OUTPUT_Y + (i / 4) * 18, 18, 18);
         }
         drawPlantProgress(graphics, 64, 31);
         int fill = 1 + (int) ((System.currentTimeMillis() / 35) % 70);
-        graphics.blit(POWER_BAR, ENERGY_X, FLUID_Y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(POWER_BAR, ENERGY_X + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWER_BAR, ENERGY_X, FLUID_Y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWER_BAR, ENERGY_X + 1, FLUID_Y + 70 - fill, 19, 70 - fill, 16, fill, 36, 72);
         if (mouseX >= ENERGY_X && mouseX < ENERGY_X + 18 && mouseY >= FLUID_Y && mouseY < FLUID_Y + 72) {
-            graphics.renderTooltip(Minecraft.getInstance().font,
+            graphics.setTooltipForNextFrame(Minecraft.getInstance().font,
                     Component.literal(recipe.energy() + " FE"), (int) mouseX, (int) mouseY);
         }
     }
 
-    private void drawPlantProgress(GuiGraphics graphics, int x, int y) {
+    private void drawPlantProgress(GuiGraphicsExtractor graphics, int x, int y) {
         int stage = (int) ((System.currentTimeMillis() / 250) % 6);
         graphics.fill(x, y + 10, x + 12, y + 14, 0xFF38271E);
         graphics.fill(x + 1, y + 10, x + 11, y + 12, 0xFF6A4930);

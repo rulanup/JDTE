@@ -1,6 +1,6 @@
 {
   "type": "jdte:greenhouse",
-  "seed": { "item": "forbidden_arcanus:growing_edelwood" },
+  "seed": "forbidden_arcanus:growing_edelwood",
   "outputs": [
     { "id": "forbidden_arcanus:edelwood_log", "count": 4 },
     { "id": "forbidden_arcanus:growing_edelwood", "count": 1 }

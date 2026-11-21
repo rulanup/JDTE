@@ -3,8 +3,8 @@
   "category": "misc",
   "pattern": ["PPP", "PCP", "PPP"],
   "key": {
-    "P": { "item": "minecraft:paper" },
-    "C": { "item": "minecraft:crafting_table" }
+    "P": "minecraft:paper",
+    "C": "minecraft:crafting_table"
   },
   "result": { "id": "jdte:crafting_pattern", "count": 1 }
 }

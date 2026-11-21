@@ -1,9 +1,10 @@
 package com.jdte.client.jei.potionbrewer;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.jdte.JDTE;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEBlocks;
-import com.mojang.blaze3d.systems.RenderSystem;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -13,24 +14,24 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJeiRecipe> {
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "advanced_potion_brewer");
+    public static final Identifier UID = Identifier.fromNamespaceAndPath(JDTE.MODID, "advanced_potion_brewer");
     public static final RecipeType<PotionBrewerJeiRecipe> RECIPE_TYPE = new RecipeType<>(UID, PotionBrewerJeiRecipe.class);
 
-    private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
-    private static final ResourceLocation JDT_BACKGROUND = ResourceLocation.fromNamespaceAndPath("justdirethings", "background");
-    private static final ResourceLocation JDT_POWER_BAR = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
-    private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
-    private static final ResourceLocation BREWING_STAND_BG = ResourceLocation.withDefaultNamespace("textures/gui/container/brewing_stand.png");
-    private static final ResourceLocation FUEL_LENGTH_SPRITE = ResourceLocation.withDefaultNamespace("container/brewing_stand/fuel_length");
-    private static final ResourceLocation BREW_PROGRESS_SPRITE = ResourceLocation.withDefaultNamespace("container/brewing_stand/brew_progress");
-    private static final ResourceLocation BUBBLES_SPRITE = ResourceLocation.withDefaultNamespace("container/brewing_stand/bubbles");
+    private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
+    private static final Identifier JDT_BACKGROUND = Identifier.fromNamespaceAndPath("justdirethings", "background");
+    private static final Identifier JDT_POWER_BAR = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
+    private static final Identifier JDTE_FLUID_BAR = Identifier.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
+    private static final Identifier BREWING_STAND_BG = Identifier.withDefaultNamespace("textures/gui/container/brewing_stand.png");
+    private static final Identifier FUEL_LENGTH_SPRITE = Identifier.withDefaultNamespace("container/brewing_stand/fuel_length");
+    private static final Identifier BREW_PROGRESS_SPRITE = Identifier.withDefaultNamespace("container/brewing_stand/brew_progress");
+    private static final Identifier BUBBLES_SPRITE = Identifier.withDefaultNamespace("container/brewing_stand/bubbles");
 
     private static final int WIDTH = 190;
     private static final int HEIGHT = 100;
@@ -95,7 +96,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
     public void setRecipe(IRecipeLayoutBuilder builder, PotionBrewerJeiRecipe recipe, IFocusGroup focuses) {
         GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
 
-        builder.addSlot(RecipeIngredientRole.CATALYST, brewingCoreIngredientX(config.getPotionBrewerFuelSlotX()), brewingCoreIngredientY(config.getPotionBrewerFuelSlotY()))
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, brewingCoreIngredientX(config.getPotionBrewerFuelSlotX()), brewingCoreIngredientY(config.getPotionBrewerFuelSlotY()))
                 .addItemStack(new ItemStack(Items.BLAZE_POWDER));
 
         addBottleInputSlot(builder, config.getPotionBrewerBottleSlot0X(), config.getPotionBrewerBottleSlot0Y(), recipe);
@@ -123,12 +124,12 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
     }
 
     @Override
-    public ResourceLocation getRegistryName(PotionBrewerJeiRecipe recipe) {
+    public Identifier getRegistryName(PotionBrewerJeiRecipe recipe) {
         return recipe.id();
     }
 
     @Override
-    public void draw(PotionBrewerJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(PotionBrewerJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
 
         drawPanel(guiGraphics);
@@ -142,36 +143,34 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
         drawEnergyBar(guiGraphics, recipe, config, mouseX, mouseY);
     }
 
-    private void drawPanel(GuiGraphics guiGraphics) {
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blitSprite(JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
+    private void drawPanel(GuiGraphicsExtractor guiGraphics) {
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
     }
 
-    private void drawSlot(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blitSprite(SLOT_SPRITE, x, y, SLOT_SIZE, SLOT_SIZE);
+    private void drawSlot(GuiGraphicsExtractor guiGraphics, int x, int y) {
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, x, y, SLOT_SIZE, SLOT_SIZE);
     }
 
-    private void drawBrewingBackground(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
-        guiGraphics.blit(BREWING_STAND_BG,
+    private void drawBrewingBackground(GuiGraphicsExtractor guiGraphics, GuiUpgradeLayoutConfig config) {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BREWING_STAND_BG,
                 slotX(config.getPotionBrewerBgX()),
                 slotY(config.getPotionBrewerBgY()),
                 config.getPotionBrewerBgSrcX(),
                 config.getPotionBrewerBgSrcY(),
                 config.getPotionBrewerBgWidth(),
-                config.getPotionBrewerBgHeight());
+                config.getPotionBrewerBgHeight(), 256, 256);
     }
 
-    private void drawFluidBars(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
+    private void drawFluidBars(GuiGraphicsExtractor guiGraphics, GuiUpgradeLayoutConfig config) {
         drawFluidBar(guiGraphics, config.getPotionBrewerWaterFluidX(), config.getPotionBrewerWaterFluidY());
     }
 
-    private void drawFluidBar(GuiGraphics guiGraphics, int machineX, int machineY) {
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blit(JDTE_FLUID_BAR, slotX(machineX), slotY(machineY), 0, 0, 18, 72, 36, 72);
-        guiGraphics.blit(JDTE_FLUID_BAR, slotX(machineX), slotY(machineY), 18, 0, 18, 72, 36, 72);
+    private void drawFluidBar(GuiGraphicsExtractor guiGraphics, int machineX, int machineY) {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, JDTE_FLUID_BAR, slotX(machineX), slotY(machineY), 0, 0, 18, 72, 36, 72);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, JDTE_FLUID_BAR, slotX(machineX), slotY(machineY), 18, 0, 18, 72, 36, 72);
     }
 
-    private void drawItemSlots(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
+    private void drawItemSlots(GuiGraphicsExtractor guiGraphics, GuiUpgradeLayoutConfig config) {
         drawBrewingCoreSlot(guiGraphics, config.getPotionBrewerFuelSlotX(), config.getPotionBrewerFuelSlotY());
         drawBrewingCoreSlot(guiGraphics, config.getPotionBrewerIngredientSlotX(), config.getPotionBrewerIngredientSlotY());
         drawBrewingCoreSlot(guiGraphics, config.getPotionBrewerBottleSlot0X(), config.getPotionBrewerBottleSlot0Y());
@@ -191,25 +190,25 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
         }
     }
 
-    private void drawOutputBottleGhosts(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
+    private void drawOutputBottleGhosts(GuiGraphicsExtractor guiGraphics, GuiUpgradeLayoutConfig config) {
         for (int i = 0; i < config.getPotionBrewerOutputCount(); i++) {
-            guiGraphics.blit(BREWING_STAND_BG,
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BREWING_STAND_BG,
                     slotX(config.getPotionBrewerOutputStartX()) + OUTPUT_GHOST_OFFSET,
                     slotY(config.getPotionBrewerOutputStartY() + i * config.getPotionBrewerOutputSpacing()) + OUTPUT_GHOST_OFFSET,
                     VANILLA_BOTTLE_GHOST_SRC_X,
                     VANILLA_BOTTLE_GHOST_SRC_Y,
                     VANILLA_BOTTLE_GHOST_SIZE,
-                    VANILLA_BOTTLE_GHOST_SIZE);
+                    VANILLA_BOTTLE_GHOST_SIZE, 256, 256);
         }
     }
 
-    private void drawBrewingCoreSlot(GuiGraphics guiGraphics, int machineX, int machineY) {
+    private void drawBrewingCoreSlot(GuiGraphicsExtractor guiGraphics, int machineX, int machineY) {
         drawSlot(guiGraphics, brewingCoreSlotX(machineX), brewingCoreSlotY(machineY));
     }
 
-    private void drawFuelBar(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
+    private void drawFuelBar(GuiGraphicsExtractor guiGraphics, GuiUpgradeLayoutConfig config) {
         int fuelWidth = 1 + (int) ((System.currentTimeMillis() / 90) % FUEL_BAR_WIDTH);
-        guiGraphics.blitSprite(FUEL_LENGTH_SPRITE,
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, FUEL_LENGTH_SPRITE,
                 FUEL_BAR_WIDTH,
                 FUEL_BAR_HEIGHT,
                 0,
@@ -220,10 +219,10 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
                 FUEL_BAR_HEIGHT);
     }
 
-    private void drawBubbles(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
+    private void drawBubbles(GuiGraphicsExtractor guiGraphics, GuiUpgradeLayoutConfig config) {
         int bubbleHeight = BUBBLE_LENGTHS[(int) ((System.currentTimeMillis() / 180) % BUBBLE_LENGTHS.length)];
         if (bubbleHeight > 0) {
-            guiGraphics.blitSprite(BUBBLES_SPRITE,
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BUBBLES_SPRITE,
                     BUBBLES_WIDTH,
                     BUBBLES_HEIGHT,
                     0,
@@ -235,9 +234,9 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
         }
     }
 
-    private void drawBrewProgress(GuiGraphics guiGraphics, GuiUpgradeLayoutConfig config) {
+    private void drawBrewProgress(GuiGraphicsExtractor guiGraphics, GuiUpgradeLayoutConfig config) {
         int progressHeight = 1 + (int) ((System.currentTimeMillis() / 35) % BREW_PROGRESS_HEIGHT);
-        guiGraphics.blitSprite(BREW_PROGRESS_SPRITE,
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BREW_PROGRESS_SPRITE,
                 BREW_PROGRESS_WIDTH,
                 BREW_PROGRESS_HEIGHT,
                 0,
@@ -248,17 +247,16 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
                 progressHeight);
     }
 
-    private void drawEnergyBar(GuiGraphics guiGraphics, PotionBrewerJeiRecipe recipe, GuiUpgradeLayoutConfig config, double mouseX, double mouseY) {
+    private void drawEnergyBar(GuiGraphicsExtractor guiGraphics, PotionBrewerJeiRecipe recipe, GuiUpgradeLayoutConfig config, double mouseX, double mouseY) {
         int x = energyBarX(config);
         int y = energyBarY(config);
         int fillHeight = 1 + (int) ((System.currentTimeMillis() / 35) % 70);
 
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blit(JDT_POWER_BAR, x, y, 0, 0, 18, 72, 36, 72);
-        guiGraphics.blit(JDT_POWER_BAR, x + 1, y + 70 - fillHeight, 19, 70 - fillHeight, 16, fillHeight, 36, 72);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, JDT_POWER_BAR, x, y, 0, 0, 18, 72, 36, 72);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, JDT_POWER_BAR, x + 1, y + 70 - fillHeight, 19, 70 - fillHeight, 16, fillHeight, 36, 72);
 
         if (mouseX >= x && mouseX < x + 18 && mouseY >= y && mouseY < y + 72) {
-            guiGraphics.renderTooltip(Minecraft.getInstance().font,
+            guiGraphics.setTooltipForNextFrame(Minecraft.getInstance().font,
                     Component.literal(recipe.energyCost() + " FE"), (int) mouseX, (int) mouseY);
         }
     }

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class MineralExtractorFluidDisplayTest {
+class MineralExtractorFluidDisplayTest implements com.jdte.test.WorldRegistryTest {
     @Test
     void nonEmptyTankUsesActualFluidAndAmountForRenderingAndTooltip() {
         MineralExtractorFluidDisplay display = MineralExtractorFluidDisplay.create(
@@ -22,20 +22,17 @@ class MineralExtractorFluidDisplayTest {
         assertEquals(375, display.renderedFluid().getAmount());
         assertEquals(375, display.amount());
         assertEquals(1_000, display.capacity());
-        assertFalse(display.configuredGhost());
         assertEquals(new FluidStack(Fluids.LAVA, 1).getHoverName(), display.tooltipName());
     }
 
     @Test
-    void emptyTankUsesAConfiguredGhostWithoutInventingStoredAmount() {
+    void emptyTankDisplaysOnlyTheConfiguredFluidNameInItsTooltip() {
         MineralExtractorFluidDisplay display = MineralExtractorFluidDisplay.create(
                 Fluids.EMPTY, Fluids.WATER, 0, 1_000);
 
-        assertSame(Fluids.WATER, display.renderedFluid().getFluid());
-        assertEquals(1, display.renderedFluid().getAmount());
+        assertTrue(display.renderedFluid().isEmpty());
         assertEquals(0, display.amount());
         assertEquals(1_000, display.capacity());
-        assertTrue(display.configuredGhost());
         assertEquals(new FluidStack(Fluids.WATER, 1).getHoverName(), display.tooltipName());
     }
 
@@ -45,7 +42,7 @@ class MineralExtractorFluidDisplayTest {
                 Fluids.EMPTY, Fluids.WATER, 375, 1_000);
 
         assertEquals(0, display.amount());
-        assertTrue(display.configuredGhost());
+        assertTrue(display.renderedFluid().isEmpty());
     }
 
     @Test

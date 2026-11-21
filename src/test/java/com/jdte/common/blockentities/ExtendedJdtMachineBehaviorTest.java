@@ -17,7 +17,7 @@ import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTEMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ExtendedJdtMachineBehaviorTest {
+class ExtendedJdtMachineBehaviorTest implements com.jdte.test.WorldRegistryTest {
     @Test
     void extendedTransmitterIsTheOrdinaryJdtTransmitterOnly() {
         ExtendedEnergyTransmitterBE machine = new ExtendedEnergyTransmitterBE(
@@ -45,8 +45,8 @@ class ExtendedJdtMachineBehaviorTest {
         assertEquals(ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT,
                 UpgradeHelper.getUpgradeHandler(machine).getSlots());
 
-        ResourceLocation transmitterId = ResourceLocation.fromNamespaceAndPath("jdte", "extended_energy_transmitter");
-        assertEquals(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get(), BuiltInRegistries.BLOCK.get(transmitterId));
+        Identifier transmitterId = Identifier.fromNamespaceAndPath("jdte", "extended_energy_transmitter");
+        assertEquals(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get(), BuiltInRegistries.BLOCK.getValue(transmitterId));
         assertEquals(transmitterId, BuiltInRegistries.BLOCK.getKey(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER.get()));
         assertEquals(transmitterId, BuiltInRegistries.ITEM.getKey(JDTEItems.EXTENDED_ENERGY_TRANSMITTER.get()));
         assertEquals(transmitterId, JDTEBlockEntities.EXTENDED_ENERGY_TRANSMITTER.getId());
@@ -93,10 +93,10 @@ class ExtendedJdtMachineBehaviorTest {
         assertEquals(ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT,
                 UpgradeHelper.getUpgradeHandler(machine).getSlots());
 
-        ResourceLocation generatorId = ResourceLocation.fromNamespaceAndPath("jdte", "extended_generator");
-        assertEquals(JDTEBlocks.EXTENDED_GENERATOR.get(), BuiltInRegistries.BLOCK.get(generatorId));
+        Identifier generatorId = Identifier.fromNamespaceAndPath("jdte", "extended_generator");
+        assertEquals(JDTEBlocks.EXTENDED_GENERATOR.get(), BuiltInRegistries.BLOCK.getValue(generatorId));
         assertEquals(JDTEBlocks.EXTENDED_GENERATOR.getId(), BuiltInRegistries.BLOCK.getKey(JDTEBlocks.EXTENDED_GENERATOR.get()));
-        assertEquals(JDTEBlocks.EXTENDED_GENERATOR.getId(), BuiltInRegistries.ITEM.getKey(BuiltInRegistries.ITEM.get(generatorId)));
+        assertEquals(JDTEBlocks.EXTENDED_GENERATOR.getId(), BuiltInRegistries.ITEM.getKey(BuiltInRegistries.ITEM.getValue(generatorId)));
         assertEquals(generatorId, JDTEMenus.EXTENDED_GENERATOR.getId());
     }
 
@@ -111,12 +111,12 @@ class ExtendedJdtMachineBehaviorTest {
         assertEquals(ExtendedUpgradeItemStackHandler.EXTENDED_SLOT_COUNT,
                 UpgradeHelper.getUpgradeHandler(machine).getSlots());
 
-        ResourceLocation generatorId = ResourceLocation.fromNamespaceAndPath("jdte", "extended_fluid_generator");
-        assertEquals(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(), BuiltInRegistries.BLOCK.get(generatorId));
+        Identifier generatorId = Identifier.fromNamespaceAndPath("jdte", "extended_fluid_generator");
+        assertEquals(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get(), BuiltInRegistries.BLOCK.getValue(generatorId));
         assertEquals(JDTEBlocks.EXTENDED_FLUID_GENERATOR.getId(),
                 BuiltInRegistries.BLOCK.getKey(JDTEBlocks.EXTENDED_FLUID_GENERATOR.get()));
         assertEquals(JDTEBlocks.EXTENDED_FLUID_GENERATOR.getId(),
-                BuiltInRegistries.ITEM.getKey(BuiltInRegistries.ITEM.get(generatorId)));
+                BuiltInRegistries.ITEM.getKey(BuiltInRegistries.ITEM.getValue(generatorId)));
         assertEquals(generatorId, JDTEMenus.EXTENDED_FLUID_GENERATOR.getId());
     }
 
@@ -127,7 +127,7 @@ class ExtendedJdtMachineBehaviorTest {
                 .map(method -> method.getName())
                 .collect(Collectors.toSet());
 
-        assertEquals(Set.of("addMachineSlots", "addFuelSlotRange", "stillValid", "quickMoveStack", "removed"),
+        assertEquals(Set.of("addMachineSlots", "stillValid", "quickMoveStack", "removed"),
                 declaredMethods);
     }
 

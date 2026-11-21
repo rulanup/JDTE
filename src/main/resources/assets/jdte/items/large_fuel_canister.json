@@ -1,0 +1,40 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "jdte:fuel_fullness",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "jdte:item/large_fuel_canister"
+    },
+    "entries": [
+      {
+        "threshold": 1,
+        "model": {
+          "type": "minecraft:model",
+          "model": "jdte:item/large_fuel_canister_1"
+        }
+      },
+      {
+        "threshold": 2,
+        "model": {
+          "type": "minecraft:model",
+          "model": "jdte:item/large_fuel_canister_2"
+        }
+      },
+      {
+        "threshold": 3,
+        "model": {
+          "type": "minecraft:model",
+          "model": "jdte:item/large_fuel_canister_3"
+        }
+      },
+      {
+        "threshold": 4,
+        "model": {
+          "type": "minecraft:model",
+          "model": "jdte:item/large_fuel_canister_4"
+        }
+      }
+    ]
+  }
+}

@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "E": { "item": "justdirethings:eclipsealloy_ingot" },
-    "N": { "item": "minecraft:nether_star" },
-    "M": { "item": "jdte:mixing_upgrade" },
-    "U": { "item": "jdte:ultimate_overclock_upgrade" },
-    "T": { "item": "justdirethings:time_crystal" }
+    "E": "justdirethings:eclipsealloy_ingot",
+    "N": "minecraft:nether_star",
+    "M": "jdte:mixing_upgrade",
+    "U": "jdte:ultimate_overclock_upgrade",
+    "T": "justdirethings:time_crystal"
   },
   "pattern": [
     "TET",

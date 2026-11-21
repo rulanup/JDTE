@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.jdte.common.recipes.GreenhouseCropResolver;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.jdte.common.items.CraftingPatternData;
@@ -7,16 +8,17 @@ import com.jdte.common.items.EssenceConversionUpgradeItem;
 import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +29,7 @@ import java.util.Optional;
 /** Resolves unambiguous, essence-only crafting recipes and applies their ratios to greenhouse output. */
 public final class GreenhouseEssenceConversionHelper {
     private static final TagKey<Item> MYSTICAL_ESSENCES = TagKey.create(
-            Registries.ITEM, ResourceLocation.fromNamespaceAndPath("mysticalagriculture", "essences"));
+            Registries.ITEM, Identifier.fromNamespaceAndPath("mysticalagriculture", "essences"));
     private static final Map<StackKey, Optional<Conversion>> CONVERSIONS = new HashMap<>();
     private static long cachedGeneration = Long.MIN_VALUE;
 
@@ -96,11 +98,11 @@ public final class GreenhouseEssenceConversionHelper {
         return getConversionResult(level, essence);
     }
 
-    static boolean convertStored(ServerLevel level, IItemHandler handler, BaseMachineBE machine) {
+    static boolean convertStored(ServerLevel level, GreenhouseOutputInventory handler, BaseMachineBE machine) {
         if (patterns(machine).isEmpty()) return convertStored(level, handler);
         List<ItemStack> before = new ArrayList<>();
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
+        for (int slot = 0; slot < handler.size(); slot++) {
+            ItemStack stack = handler.copyStack(slot);
             if (!stack.isEmpty()) addAmount(before, stack, stack.getCount());
         }
         int[] rotation = rotation(machine);
@@ -117,13 +119,7 @@ public final class GreenhouseEssenceConversionHelper {
             commitRotation(machine, plan.rotation());
             return !java.util.Arrays.equals(rotation, plan.rotation());
         }
-        if (!GreenhouseCapacityLedger.empty(handler).canFit(after, 1)) return false;
-        for (ItemStack stack : before) extractAll(handler, stack);
-        if (!insertAll(handler, after)) {
-            for (int slot = 0; slot < handler.getSlots(); slot++) extractAll(handler, handler.getStackInSlot(slot).copy());
-            if (!insertAll(handler, before)) throw new IllegalStateException("Could not restore greenhouse conversion inputs");
-            throw new IllegalStateException("Recorded greenhouse crafting exceeded reserved capacity");
-        }
+        if (!handler.replace(before, after)) return false;
         commitRotation(machine, plan.rotation());
         return true;
     }
@@ -172,10 +168,10 @@ public final class GreenhouseEssenceConversionHelper {
         return findConversion(level, essence).map(conversion -> conversion.result().copy()).orElse(ItemStack.EMPTY);
     }
 
-    static boolean convertStored(ServerLevel level, IItemHandler outputHandler) {
+    static boolean convertStored(ServerLevel level, GreenhouseOutputInventory outputHandler) {
         List<ItemStack> essenceTypes = new ArrayList<>();
-        for (int slot = 0; slot < outputHandler.getSlots(); slot++) {
-            ItemStack stack = outputHandler.getStackInSlot(slot);
+        for (int slot = 0; slot < outputHandler.size(); slot++) {
+            ItemStack stack = outputHandler.copyStack(slot);
             if (stack.isEmpty() || essenceTypes.stream()
                     .anyMatch(existing -> ItemStack.isSameItemSameComponents(existing, stack))) continue;
             if (findConversion(level, stack).isPresent()) essenceTypes.add(stack.copyWithCount(1));
@@ -192,14 +188,7 @@ public final class GreenhouseEssenceConversionHelper {
             List<ItemStack> replacement = new ArrayList<>(2);
             addAmount(replacement, conversion.result(), crafts * conversion.result().getCount());
             addAmount(replacement, essence, stored % conversion.essenceCount());
-            GreenhouseCapacityLedger capacity = GreenhouseCapacityLedger.captureWithout(outputHandler, essence);
-            if (!capacity.canFit(replacement, 1)) continue;
-
-            extractAll(outputHandler, essence);
-            if (!insertAll(outputHandler, replacement)) {
-                throw new IllegalStateException("Simulated Greenhouse essence conversion did not fit");
-            }
-            changed = true;
+            changed |= outputHandler.replace(List.of(essence), replacement);
         }
         return changed;
     }
@@ -221,7 +210,7 @@ public final class GreenhouseEssenceConversionHelper {
     private static Optional<Conversion> resolveConversion(ServerLevel level, ItemStack essence) {
         Conversion candidate = null;
         int matchingRecipes = 0;
-        for (var holder : level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
+        for (var holder : MachineRecipeHelper.recipes(level).byType(RecipeType.CRAFTING)) {
             CraftingRecipe recipe = holder.value();
             if (!usesEssence(recipe, essence)) continue;
             if (++matchingRecipes > 1) return Optional.empty();
@@ -231,23 +220,34 @@ public final class GreenhouseEssenceConversionHelper {
     }
 
     private static boolean usesEssence(CraftingRecipe recipe, ItemStack essence) {
-        for (Ingredient ingredient : recipe.getIngredients()) {
-            if (!ingredient.isEmpty() && ingredient.test(essence)) return true;
+        for (Ingredient ingredient : recipe.placementInfo().ingredients()) {
+            if (ingredient.test(essence)) return true;
         }
         return false;
     }
 
     private static Conversion analyzeRecipe(ServerLevel level, CraftingRecipe recipe, ItemStack essence) {
-        int essenceCount = 0;
-        for (Ingredient ingredient : recipe.getIngredients()) {
-            if (ingredient.isEmpty()) continue;
-            ItemStack[] choices = ingredient.getItems();
-            if (choices.length != 1 || !ItemStack.isSameItemSameComponents(choices[0], essence)) return null;
-            essenceCount++;
+        PlacementInfo placement = recipe.placementInfo();
+        if (placement.isImpossibleToPlace()) return null;
+        for (Ingredient ingredient : placement.ingredients()) {
+            var choices = ingredient.items().limit(2).toList();
+            if (choices.size() != 1 || !ingredient.test(essence)
+                    || !ItemStack.isSameItemSameComponents(new ItemStack(choices.getFirst()), essence)) return null;
         }
-        ItemStack result = recipe.getResultItem(level.registryAccess());
-        if (essenceCount <= 0 || result.isEmpty() || ItemStack.isSameItemSameComponents(result, essence)) return null;
-        return new Conversion(essenceCount, result.copy());
+        var indices = placement.slotsToIngredientIndex();
+        if (indices.isEmpty() || indices.size() > 9) return null;
+        int width = recipe instanceof ShapedRecipe shaped ? shaped.getWidth() : Math.min(3, indices.size());
+        int height = Math.ceilDiv(indices.size(), width);
+        List<ItemStack> grid = new ArrayList<>(width * height);
+        for (int slot = 0; slot < width * height; slot++) {
+            grid.add(slot < indices.size() && indices.getInt(slot) != PlacementInfo.EMPTY_SLOT
+                    ? essence.copyWithCount(1) : ItemStack.EMPTY);
+        }
+        CraftingInput input = CraftingInput.of(width, height, grid);
+        if (!recipe.matches(input, level)) return null;
+        ItemStack result = recipe.assemble(input);
+        if (result.isEmpty() || ItemStack.isSameItemSameComponents(result, essence)) return null;
+        return new Conversion(input.ingredientCount(), result);
     }
 
     static void addAmount(List<ItemStack> stacks, ItemStack template, long amount) {
@@ -266,62 +266,15 @@ public final class GreenhouseEssenceConversionHelper {
         }
     }
 
-    private static long count(IItemHandler handler, ItemStack template) {
+    private static long count(GreenhouseOutputInventory handler, ItemStack template) {
         long count = 0L;
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            ItemStack stack = handler.getStackInSlot(slot);
+        for (int slot = 0; slot < handler.size(); slot++) {
+            ItemStack stack = handler.copyStack(slot);
             if (ItemStack.isSameItemSameComponents(stack, template)) count += stack.getCount();
         }
         return count;
     }
 
-    private static void extractAll(IItemHandler handler, ItemStack template) {
-        if (template.isEmpty()) return;
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            if (handler instanceof IItemHandlerModifiable modifiable
-                    && ItemStack.isSameItemSameComponents(handler.getStackInSlot(slot), template)) {
-                modifiable.setStackInSlot(slot, ItemStack.EMPTY);
-                continue;
-            }
-            while (true) {
-                ItemStack before = handler.getStackInSlot(slot);
-                if (!ItemStack.isSameItemSameComponents(before, template)) break;
-
-                int beforeCount = before.getCount();
-                ItemStack extracted = handler.extractItem(slot, beforeCount, false);
-                ItemStack after = handler.getStackInSlot(slot);
-                if (extracted.isEmpty()
-                        || ItemStack.isSameItemSameComponents(after, template) && after.getCount() >= beforeCount) {
-                    break;
-                }
-            }
-        }
-    }
-
-    private static boolean insertAll(IItemHandler handler, List<ItemStack> stacks) {
-        for (ItemStack stack : stacks) {
-            long remaining = stack.getCount();
-            for (int slot = 0; slot < handler.getSlots() && remaining > 0; slot++) {
-                ItemStack existing = handler.getStackInSlot(slot);
-                if (!existing.isEmpty() && ItemStack.isSameItemSameComponents(existing, stack)) {
-                    remaining -= insert(handler, slot, stack, remaining);
-                }
-            }
-            for (int slot = 0; slot < handler.getSlots() && remaining > 0; slot++) {
-                if (handler.getStackInSlot(slot).isEmpty()) {
-                    remaining -= insert(handler, slot, stack, remaining);
-                }
-            }
-            if (remaining > 0) return false;
-        }
-        return true;
-    }
-
-    private static int insert(IItemHandler handler, int slot, ItemStack template, long amount) {
-        int offered = (int) Math.min(amount, handler.getSlotLimit(slot));
-        ItemStack remainder = handler.insertItem(slot, template.copyWithCount(offered), false);
-        return offered - remainder.getCount();
-    }
 
     private record StackKey(Item item, DataComponentPatch components) {
     }

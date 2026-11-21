@@ -1,12 +1,13 @@
 package com.jdte.common.integrations;
 
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.jdte.common.recipes.FluidMixerRecipe;
 import com.jdte.common.recipes.RecipeCacheSignal;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.recipes.ChemicalChemicalToChemicalRecipe;
 import mekanism.api.recipes.MekanismRecipeTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
@@ -58,18 +59,19 @@ public final class MekanismFluidMixerIntegration {
             if (mekType == null) return Collections.emptyList();
 
             List<FluidMixerRecipe> results = new ArrayList<>();
-            for (RecipeHolder<ChemicalChemicalToChemicalRecipe> holder : level.getRecipeManager().getAllRecipesFor(mekType)) {
+            var context = net.minecraft.world.item.crafting.display.SlotDisplayContext.fromLevel(level);
+            for (RecipeHolder<ChemicalChemicalToChemicalRecipe> holder : MachineRecipeHelper.recipes(level).byType(mekType)) {
                 ChemicalChemicalToChemicalRecipe recipe = holder.value();
                 try {
-                    List<ChemicalStack> leftStacks = recipe.getLeftInput().getRepresentations();
-                    List<ChemicalStack> rightStacks = recipe.getRightInput().getRepresentations();
-                    List<ChemicalStack> outputStacks = recipe.getOutputDefinition();
+                    List<ChemicalStack> leftStacks = recipe.getLeftInput().getRepresentations(context);
+                    List<ChemicalStack> rightStacks = recipe.getRightInput().getRepresentations(context);
+                    var outputStacks = recipe.getOutputDefinition();
 
                     if (leftStacks.isEmpty() || rightStacks.isEmpty() || outputStacks.isEmpty()) continue;
 
                     ChemicalStack left = leftStacks.getFirst();
                     ChemicalStack right = rightStacks.getFirst();
-                    ChemicalStack output = outputStacks.getFirst();
+                    ChemicalStack output = outputStacks.getFirst().create();
 
                     FluidStack fluidA = chemicalToFluid(left);
                     FluidStack fluidB = chemicalToFluid(right);
@@ -100,15 +102,14 @@ public final class MekanismFluidMixerIntegration {
     private static FluidStack chemicalToFluid(ChemicalStack chemicalStack) {
         if (chemicalStack == null || chemicalStack.isEmpty()) return FluidStack.EMPTY;
         try {
-            ResourceLocation chemicalId = chemicalStack.getChemicalHolder().unwrapKey()
-                    .map(net.minecraft.resources.ResourceKey::location)
+            Identifier chemicalId = chemicalStack.typeHolder().unwrapKey()
+                    .map(net.minecraft.resources.ResourceKey::identifier)
                     .orElse(null);
             if (chemicalId == null) return FluidStack.EMPTY;
 
-            Fluid fluid = BuiltInRegistries.FLUID.get(chemicalId);
+            Fluid fluid = BuiltInRegistries.FLUID.getValue(chemicalId);
             if (fluid != null && fluid != Fluids.EMPTY) {
-                int amount = (int) Math.min(Integer.MAX_VALUE, Math.max(1, chemicalStack.getAmount()));
-                return new FluidStack(fluid, amount);
+                return new FluidStack(fluid, chemicalStack.amount());
             }
         } catch (Exception ignored) {
         }

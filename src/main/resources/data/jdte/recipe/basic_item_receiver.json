@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "H": { "item": "minecraft:hopper" },
-    "R": { "item": "minecraft:redstone" },
-    "I": { "item": "minecraft:iron_ingot" }
+    "H": "minecraft:hopper",
+    "R": "minecraft:redstone",
+    "I": "minecraft:iron_ingot"
   },
   "pattern": [
     " R ",

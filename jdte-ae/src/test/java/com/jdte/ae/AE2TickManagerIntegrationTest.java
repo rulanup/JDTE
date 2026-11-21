@@ -92,7 +92,7 @@ class AE2TickManagerIntegrationTest {
 
         @Override
         public String anchorSummary() {
-            return level.dimension().location() + "@(0,0,0)";
+            return level.dimension().identifier() + "@(0,0,0)";
         }
 
         @Override

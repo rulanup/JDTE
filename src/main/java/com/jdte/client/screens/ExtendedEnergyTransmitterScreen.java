@@ -8,7 +8,7 @@ import com.jdte.common.containers.ExtendedEnergyTransmitterContainer;
 import com.jdte.common.network.data.ExtendedEnergyTransmitterSettingPayload;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class ExtendedEnergyTransmitterScreen extends BaseMachineScreen<ExtendedEnergyTransmitterContainer> {
     public boolean showParticles;
@@ -50,6 +50,6 @@ public class ExtendedEnergyTransmitterScreen extends BaseMachineScreen<ExtendedE
     @Override
     public void saveSettings() {
         super.saveSettings();
-        PacketDistributor.sendToServer(new ExtendedEnergyTransmitterSettingPayload(showParticles));
+        ClientPacketDistributor.sendToServer(new ExtendedEnergyTransmitterSettingPayload(showParticles));
     }
 }

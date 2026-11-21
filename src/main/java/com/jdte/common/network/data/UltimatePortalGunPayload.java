@@ -6,7 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 /**
@@ -21,7 +21,7 @@ public record UltimatePortalGunPayload(int action, int position, String name,
     public static final int ACTION_REMOVE = 2;
     public static final int ACTION_EDIT = 3;
 
-    public static final Type<UltimatePortalGunPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "ultimate_portal_gun"));
+    public static final Type<UltimatePortalGunPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(JDTE.MODID, "ultimate_portal_gun"));
 
     @Override
     public Type<UltimatePortalGunPayload> type() {

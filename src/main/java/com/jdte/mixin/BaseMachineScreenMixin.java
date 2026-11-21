@@ -30,14 +30,15 @@ import com.jdte.common.upgrades.UpgradeSlot;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.common.utils.UpgradeSlotStorage;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -64,11 +65,11 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
     @Shadow protected int topSectionWidth;
     @Shadow protected int extraWidth;
     @Shadow protected int extraHeight;
-    @Shadow protected ResourceLocation SOCIALBACKGROUND;
+    @Shadow protected Identifier SOCIALBACKGROUND;
     @Shadow protected abstract int getEnergyBarOffset();
 
-    @ModifyArg(method = "renderBg", at = @At(value = "INVOKE",
-            target = "Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;renderFluid(Lnet/minecraft/client/gui/GuiGraphics;IIII)V"),
+    @ModifyArg(method = "extractBackground", at = @At(value = "INVOKE",
+            target = "Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;renderFluid(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIII)V"),
             index = 4)
     private int jdte$clampFluidBarHeight(int originalHeight) {
         return baseMachineBE instanceof FluidMachineBE fluidMachine
@@ -76,7 +77,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 : Math.clamp(originalHeight, 0, 70);
     }
 
-    @Unique private static final ResourceLocation JDTE_IO_CONFIG = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/hammer3.png");
+    @Unique private static final Identifier JDTE_IO_CONFIG = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/hammer3.png");
     @Unique private int jdte$filterPressed = 0;
     @Unique private static final int JDTE_SLOT_SIZE = 18;
     @Unique private int jdte$baseImageHeight = -1;
@@ -114,29 +115,32 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         }
     }
 
-    @Inject(method = "renderBg", at = @At("HEAD"))
-    private void jdte$prepareDynamicLayout(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("HEAD"))
+    private void jdte$prepareDynamicLayout(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (container == null || baseMachineBE == null) return;
         jdte$clampFilterPage();
         UpgradeSlotLayoutHelper.layoutSlots(container, jdte$getUpgradeSlots());
     }
 
-    @Inject(method = "renderBg", at = @At(value = "INVOKE", target = "Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;drawSlot(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V", ordinal = 0))
-    private void jdte$renderUpgradePopup(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At(value = "INVOKE", target = "Lcom/direwolf20/justdirethings/client/screens/basescreens/BaseMachineScreen;drawSlot(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/world/inventory/Slot;)V", ordinal = 0))
+    private void jdte$renderUpgradePopup(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         int slots = jdte$getUpgradeSlots();
         if (slots <= 0) return;
         UpgradeSlotLayoutHelper.renderFixedUpgradePanels(guiGraphics, slots, getGuiLeft(), getGuiTop());
     }
 
     @Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
-    private void jdte$hideInactiveFilterSlots(GuiGraphics guiGraphics, Slot slot, CallbackInfo ci) {
+    private void jdte$hideInactiveFilterSlots(GuiGraphicsExtractor guiGraphics, Slot slot, CallbackInfo ci) {
         if (slot instanceof DynamicFilterSlot filterSlot && !filterSlot.isActive()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void jdte$mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+    private void jdte$mouseClicked(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.mouseClicked((BaseMachineScreen<?>) (Object) this, mouseX, mouseY, button)) {
             cir.setReturnValue(true);
             return;
@@ -268,7 +272,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
             holder.jdte$setFilterPage(newPage);
         }
         UpgradeSlotLayoutHelper.layoutSlots(container, jdte$getUpgradeSlots());
-        PacketDistributor.sendToServer(new FilterPagePayload(newPage));
+        ClientPacketDistributor.sendToServer(new FilterPagePayload(newPage));
         jdte$playClickSound();
     }
 
@@ -282,7 +286,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         if (!jdte$hasFilterUpgrades()) {
             if (holder.jdte$getFilterPage() != 0) {
                 holder.jdte$setFilterPage(0);
-                PacketDistributor.sendToServer(new FilterPagePayload(0));
+                ClientPacketDistributor.sendToServer(new FilterPagePayload(0));
             }
             return;
         }
@@ -290,7 +294,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         int maxPage = FilterPageWidgetHelper.getMaxFilterPage(container, baseMachineBE, slotsPerPage);
         if (holder.jdte$getFilterPage() > maxPage) {
             holder.jdte$setFilterPage(0);
-            PacketDistributor.sendToServer(new FilterPagePayload(0));
+            ClientPacketDistributor.sendToServer(new FilterPagePayload(0));
         }
     }
 
@@ -304,8 +308,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         return MiscTools.inBounds(jdte$filterNextX, jdte$filterButtonsY, 12, 12, mouseX, mouseY);
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
-    private void jdte$renderFilterPageButtons(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("TAIL"))
+    private void jdte$renderFilterPageButtons(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (container == null || baseMachineBE == null) return;
         if (!jdte$hasFilterUpgrades()) return;
         jdte$updateFilterButtonPositions();
@@ -318,8 +322,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 currentPage, maxPage, jdte$filterPressed);
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
-    private void jdte$renderIoConfig(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("TAIL"))
+    private void jdte$renderIoConfig(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (!jdte$hasIoConfigTarget()) return;
         jdte$updateIoConfigButtonPosition();
         if (jdte$ioConfigOpen) {
@@ -375,8 +379,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
-    private void jdte$renderUpgradeTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractTooltip", at = @At("TAIL"))
+    private void jdte$renderUpgradeTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (container == null || baseMachineBE == null) return;
 
         int upgradeSlots = jdte$getUpgradeSlots();
@@ -386,9 +390,9 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
             if (slot instanceof UpgradeSlot) {
                 if (MiscTools.inBounds(getGuiLeft() + slot.x, getGuiTop() + slot.y, 18, 18, mouseX, mouseY)) {
                     if (slot.hasItem()) {
-                        guiGraphics.renderTooltip(font, slot.getItem(), mouseX, mouseY);
+                        guiGraphics.setTooltipForNextFrame(font, slot.getItem(), mouseX, mouseY);
                     } else {
-                        guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(
+                        guiGraphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(
                                 UpgradeSlotLayoutHelper.buildEmptyUpgradeSlotTooltip(baseMachineBE)), mouseX, mouseY);
                     }
                     return;
@@ -417,17 +421,16 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         return 204;
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
-    private void jdte$renderOverflowSafeEnergyBar(GuiGraphics guiGraphics, float partialTicks,
-                                                   int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("TAIL"))
+    private void jdte$renderOverflowSafeEnergyBar(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (!(baseMachineBE instanceof PoweredMachineBE poweredMachine)) return;
         MachineEnergyBarRenderer.renderBar(
                 guiGraphics, container.getEnergy(), poweredMachine.getMaxEnergy(),
                 topSectionLeft + getEnergyBarOffset(), topSectionTop + 5);
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
-    private void jdte$renderClickerFluidBar(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("TAIL"))
+    private void jdte$renderClickerFluidBar(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (!UpgradeHelper.hasFluidStorageUpgrade(baseMachineBE)) {
             return;
         }
@@ -438,8 +441,8 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
                 topSectionLeft + offset, topSectionTop + 5);
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
-    private void jdte$renderClickerFluidTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractTooltip", at = @At("TAIL"))
+    private void jdte$renderClickerFluidTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (!UpgradeHelper.hasFluidStorageUpgrade(baseMachineBE)) {
             return;
         }
@@ -451,31 +454,31 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
 
         FluidStack fluidStack = container.getFluidStack();
         int maxMb = UpgradeHelper.getClickerFluidCapacity(baseMachineBE);
-        guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+        guiGraphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(Arrays.asList(
                 Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(container.getFluidAmount()), MagicHelpers.withSuffix(maxMb))
         )), mouseX, mouseY);
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
-    private void jdte$renderFilterButtonTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractTooltip", at = @At("TAIL"))
+    private void jdte$renderFilterButtonTooltips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (container == null || baseMachineBE == null) return;
         if (!jdte$hasFilterUpgrades()) return;
         jdte$updateFilterButtonPositions();
 
         if (jdte$inFilterPrevButton(mouseX, mouseY)) {
-            guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.filter_prev"), mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.filter_prev"), mouseX, mouseY);
         } else if (jdte$inFilterNextButton(mouseX, mouseY)) {
-            guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.filter_next"), mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.filter_next"), mouseX, mouseY);
         }
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
-    private void jdte$renderIoConfigTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractTooltip", at = @At("TAIL"))
+    private void jdte$renderIoConfigTooltips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (!jdte$hasIoConfigTarget()) return;
         jdte$updateIoConfigButtonPosition();
 
         if (jdte$inIoConfigButton(mouseX, mouseY)) {
-            guiGraphics.renderTooltip(font, Component.translatable("jdte.screen.io_config"), mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.io_config"), mouseX, mouseY);
             return;
         }
         if (!jdte$ioConfigOpen) return;
@@ -484,7 +487,7 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         if (side >= 0) {
             int mode = AutoIoConfigHelper.getMode(
                     AutoIoConfigClientCache.getInputMask(baseMachineBE), AutoIoConfigClientCache.getOutputMask(baseMachineBE), side);
-            guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+            guiGraphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(Arrays.asList(
                     Component.translatable(AutoIoConfigPanelHelper.getSideTranslationKey(side)),
                     Component.translatable(AutoIoConfigPanelHelper.getModeTranslationKey(mode)),
                     Component.translatable(AutoIoConfigPanelHelper.getAvailabilityTranslationKey(
@@ -494,15 +497,15 @@ public abstract class BaseMachineScreenMixin extends AbstractContainerScreenMixi
         }
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
-    private void jdte$renderAdvancedUpgradeStorageBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("TAIL"))
+    private void jdte$renderAdvancedUpgradeStorageBg(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.renderBg(
                 guiGraphics, (BaseMachineScreen<?>) (Object) this, SOCIALBACKGROUND, mouseX, mouseY, partialTicks);
     }
 
-    @Inject(method = "renderTooltip", at = @At("TAIL"))
-    private void jdte$renderAdvancedUpgradeStorageTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
-        com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.renderTooltip(
+    @Inject(method = "extractTooltip", at = @At("TAIL"))
+    private void jdte$renderAdvancedUpgradeStorageTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+        com.jdte.client.screens.util.AdvancedUpgradeStorageScreenHelper.extractTooltip(
                 guiGraphics, (BaseMachineScreen<?>) (Object) this, font, mouseX, mouseY);
     }
 }

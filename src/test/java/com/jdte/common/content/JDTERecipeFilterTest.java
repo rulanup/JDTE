@@ -1,7 +1,7 @@
 package com.jdte.common.content;
 
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -18,15 +18,15 @@ class JDTERecipeFilterTest {
                 List.of(ContentSelection.parse("greenhouse")),
                 List.of(ContentSelection.parse("minecraft:unused")),
                 true, true, true);
-        Map<ResourceLocation, com.google.gson.JsonElement> recipes = new LinkedHashMap<>();
-        recipes.put(ResourceLocation.fromNamespaceAndPath("jdte", "greenhouse/wheat"), new JsonObject());
-        recipes.put(ResourceLocation.fromNamespaceAndPath("minecraft", "unused"), new JsonObject());
-        recipes.put(ResourceLocation.fromNamespaceAndPath("jdte", "extended_clicker"), new JsonObject());
+        Map<Identifier, com.google.gson.JsonElement> recipes = new LinkedHashMap<>();
+        recipes.put(Identifier.fromNamespaceAndPath("jdte", "greenhouse/wheat"), new JsonObject());
+        recipes.put(Identifier.fromNamespaceAndPath("minecraft", "unused"), new JsonObject());
+        recipes.put(Identifier.fromNamespaceAndPath("jdte", "extended_clicker"), new JsonObject());
 
         JDTERecipeFilter.filterDisabledRecipes(recipes, control);
 
-        assertFalse(recipes.containsKey(ResourceLocation.fromNamespaceAndPath("jdte", "greenhouse/wheat")));
-        assertFalse(recipes.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", "unused")));
-        assertTrue(recipes.containsKey(ResourceLocation.fromNamespaceAndPath("jdte", "extended_clicker")));
+        assertFalse(recipes.containsKey(Identifier.fromNamespaceAndPath("jdte", "greenhouse/wheat")));
+        assertFalse(recipes.containsKey(Identifier.fromNamespaceAndPath("minecraft", "unused")));
+        assertTrue(recipes.containsKey(Identifier.fromNamespaceAndPath("jdte", "extended_clicker")));
     }
 }

@@ -1,7 +1,7 @@
 package com.jdte.client.screens;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -46,7 +46,7 @@ public final class UltimatePortalDimensionScreen extends Screen {
             ResourceKey<Level> dimension = pageItems.get(index);
             int absoluteIndex = page * UltimatePortalDimensionPaging.ITEMS_PER_PAGE + index;
             addRenderableWidget(new ExtendedButton(left, top + index * 20, 240, 18,
-                    Component.literal(dimension.location().toString()),
+                    Component.literal(dimension.identifier().toString()),
                     button -> selectDimension(absoluteIndex)));
         }
         int navigationY = top + UltimatePortalDimensionPaging.ITEMS_PER_PAGE * 20 + 8;
@@ -89,16 +89,16 @@ public final class UltimatePortalDimensionScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         int left = width / 2 - 120;
         int top = height / 2 - 108;
-        graphics.drawCenteredString(font, title, width / 2, top, 0xFFFFFF);
-        graphics.drawCenteredString(font,
+        graphics.centeredText(font, title, width / 2, top, 0xFFFFFF);
+        graphics.centeredText(font,
                 Component.translatable("jdte.screen.ultimate_portal_gun.page", page + 1,
                         UltimatePortalDimensionPaging.pageCount(dimensions.size())),
                 width / 2, top + 160, 0xA0A0A0);

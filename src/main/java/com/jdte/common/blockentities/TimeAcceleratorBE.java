@@ -10,7 +10,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControl
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.setup.Config;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -18,8 +18,8 @@ import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -28,11 +28,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public abstract class TimeAcceleratorBE extends BaseMachineBE implements RedstoneControlledBE, AreaAffectingBE, FluidMachineBE, FilterableBE, BaseFilterMachine {
     public final FluidContainerData fluidContainerData;
@@ -117,9 +114,9 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
             return false;
         }
         int activeSlots = UpgradeHelper.getActiveFilterSlots(this, UpgradeHelper.getBaseFilterSlots(handler));
-        int limit = Math.min(activeSlots, handler.getSlots());
+        int limit = Math.min(activeSlots, handler.size());
         for (int i = 0; i < limit; i++) {
-            if (!handler.getStackInSlot(i).isEmpty()) {
+            if (!handler.getResource(i).isEmpty()) {
                 return true;
             }
         }
@@ -150,9 +147,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         } else {
             ItemStack blockItemStack;
             try {
-                blockItemStack = blockState.getCloneItemStack(
-                        new BlockHitResult(Vec3.ZERO, getDirectionValue(), blockPos, false),
-                        serverLevel, blockPos, getFakePlayer(serverLevel));
+                blockItemStack = blockState.getCloneItemStack(blockPos, serverLevel, false, getFakePlayer(serverLevel));
             } catch (Throwable t) {
                 blockItemStack = blockState.getBlock().asItem().getDefaultInstance();
             }
@@ -241,7 +236,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         if (fluidCost <= 0 && getFluidCostPerTick(getAccelerationWorkTicks(getEffectiveMultiplier())) > 0.0D) {
             return !fluidTank.getFluid().isEmpty();
         }
-        return fluidTank.drain(fluidCost, IFluidHandler.FluidAction.SIMULATE).getAmount() == fluidCost;
+        return fluidTank.getFluidAmount() >= fluidCost;
     }
 
     public void consumeResources(int workTicks, int energyCost) {
@@ -251,7 +246,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
         TimeAcceleratorCostMath.Settlement settlement =
                 TimeAcceleratorCostMath.settleFluid(pendingFluidCost, getFluidCostPerTick(workTicks));
         if (settlement.drainMb() > 0) {
-            fluidTank.drain(settlement.drainMb(), IFluidHandler.FluidAction.EXECUTE);
+            fluidTank.extractFluid(settlement.drainMb());
         }
         pendingFluidCost = settlement.remainingCost();
         setChanged();
@@ -322,7 +317,7 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -342,21 +337,17 @@ public abstract class TimeAcceleratorBE extends BaseMachineBE implements Redston
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("fluidTank", fluidTank);
         tag.putDouble("pendingFluidCost", pendingFluidCost);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
         clearBlockFilterCache();
-        if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
-        }
-        if (tag.contains("pendingFluidCost")) {
-            pendingFluidCost = tag.getDouble("pendingFluidCost");
-        }
+        tag.child("fluidTank").ifPresent(fluidTank::deserialize);
+        pendingFluidCost = tag.getDoubleOr("pendingFluidCost", pendingFluidCost);
     }
 }

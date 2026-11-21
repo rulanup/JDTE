@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
@@ -7,7 +8,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.FluidContainerD
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -16,8 +17,8 @@ import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -32,8 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 public abstract class LifeExtractorBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, FluidMachineBE, CoalescedAcceleratedMachine {
     public static final int MODE_HOSTILE = 0;
@@ -53,7 +53,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     protected int mode = MODE_HOSTILE;
     protected int tickCounter = 0;
     protected double pendingLifeFluid = 0.0D;
-    private final ItemStackHandler emptyHandler = new ItemStackHandler(0);
+    private final ItemStacksResourceHandler emptyHandler = new ItemStacksResourceHandler(0);
 
     protected LifeExtractorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -88,7 +88,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return emptyHandler;
     }
 
@@ -214,10 +214,10 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
             com.jdte.common.recipes.LifeExtractorRecipe recipe = findRecipe(livingEntity);
             if (recipe != null) {
                 FluidStack out = recipe.outputFluid();
-                if (fluidTank.fill(out, IFluidHandler.FluidAction.SIMULATE) < out.getAmount()) {
+                if (!fluidTank.canStore(out)) {
                     continue;
                 }
-                fluidTank.fill(out, IFluidHandler.FluidAction.EXECUTE);
+                fluidTank.insertFluid(out);
                 entity.discard();
                 processed++;
                 break;
@@ -276,9 +276,8 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
         }
 
         int requested = (int) Math.min(wholeAmount, Integer.MAX_VALUE);
-        int accepted = fluidTank.fill(
-                new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), requested),
-                IFluidHandler.FluidAction.EXECUTE);
+        int accepted = fluidTank.insertFluid(
+                new FluidStack(JDTEFluids.LIFE_FLUID_SOURCE.get(), requested));
         if (accepted > 0) {
             pendingLifeFluid = Math.max(0.0D, pendingLifeFluid - accepted);
         }
@@ -304,7 +303,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     public com.jdte.common.recipes.LifeExtractorRecipe findRecipe(LivingEntity entity) {
         if (level == null) return null;
         for (net.minecraft.world.item.crafting.RecipeHolder<com.jdte.common.recipes.LifeExtractorRecipe> holder :
-                level.getRecipeManager().getAllRecipesFor(com.jdte.setup.JDTERecipes.LIFE_EXTRACTOR_RECIPE_TYPE.get())) {
+                MachineRecipeHelper.recipes(level).byType(com.jdte.setup.JDTERecipes.LIFE_EXTRACTOR_RECIPE_TYPE.get())) {
             if (holder.value().matches(entity.getType())) {
                 return holder.value();
             }
@@ -359,7 +358,7 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -378,9 +377,9 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("fluidTank", fluidTank.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("fluidTank", fluidTank);
         tag.putInt("mode", mode);
         tag.putInt("tickCounter", tickCounter);
         tag.putDouble("pendingLifeFluid", pendingLifeFluid);
@@ -388,19 +387,13 @@ public abstract class LifeExtractorBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("fluidTank")) {
-            fluidTank.deserializeNBT(provider, tag.getCompound("fluidTank"));
-        }
-        if (tag.contains("mode")) {
-            mode = tag.getInt("mode");
-        }
-        if (tag.contains("tickCounter")) {
-            tickCounter = tag.getInt("tickCounter");
-        }
-        if (tag.contains("pendingLifeFluid")) {
-            pendingLifeFluid = Math.max(0.0D, tag.getDouble("pendingLifeFluid"));
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("fluidTank").ifPresent(fluidTank::deserialize);
+        mode = tag.getIntOr("mode", mode);
+        tickCounter = tag.getIntOr("tickCounter", tickCounter);
+        if (tag.keySet().contains("pendingLifeFluid")) {
+            pendingLifeFluid = Math.max(0.0D, tag.getDoubleOr("pendingLifeFluid", 0D));
         }
         loadAreaSettings(tag);
     }

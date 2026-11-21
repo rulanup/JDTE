@@ -1,7 +1,7 @@
 package com.jdte.common.integrations;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public final class JustDynaThingsGooIntegration {
@@ -66,7 +66,7 @@ public final class JustDynaThingsGooIntegration {
         if (stack.isEmpty()) {
             return null;
         }
-        ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         return MOD_ID.equals(id.getNamespace()) ? id.getPath() : null;
     }
 

@@ -2,7 +2,7 @@ package com.jdte.common.blockentities;
 
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TimeAcceleratorOptimizationTest {
+class TimeAcceleratorOptimizationTest implements com.jdte.test.WorldRegistryTest {
 
     private static Unsafe unsafe() throws Exception {
         Field field = Unsafe.class.getDeclaredField("theUnsafe");
@@ -52,7 +52,7 @@ class TimeAcceleratorOptimizationTest {
         assertFalse(accelerator.canRun());
 
         // With fluid -> can run
-        tank.setFluid(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 100));
+        tank.setFluid(new FluidStack(JDTRegistration.TIME_FLUID_SOURCE.get(), 100));
         assertTrue(accelerator.canRun());
     }
 
@@ -73,7 +73,7 @@ class TimeAcceleratorOptimizationTest {
         assertFalse(accelerator.canRun());
 
         // Fluid but 0 energy -> cannot run
-        tank.setFluid(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 100));
+        tank.setFluid(new FluidStack(JDTRegistration.TIME_FLUID_SOURCE.get(), 100));
         assertFalse(accelerator.canRun());
 
         // Energy but no fluid -> cannot run
@@ -82,7 +82,7 @@ class TimeAcceleratorOptimizationTest {
         assertFalse(accelerator.canRun());
 
         // Both fluid and energy -> can run
-        tank.setFluid(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), 100));
+        tank.setFluid(new FluidStack(JDTRegistration.TIME_FLUID_SOURCE.get(), 100));
         assertTrue(accelerator.canRun());
     }
 }

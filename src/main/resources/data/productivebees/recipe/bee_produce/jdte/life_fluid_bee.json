@@ -4,7 +4,11 @@
   "results": [
     {
       "item": {
-        "item": "productivebees:configurable_honeycomb"
+        "neoforge:ingredient_type": "productivebees:component",
+        "items": "productivebees:configurable_honeycomb",
+        "components": {
+          "productivebees:bee_type": "productivebees:life_fluid"
+        }
       }
     }
   ],

@@ -1,193 +1,323 @@
 {
   "parent": "minecraft:block/block",
-  "ambientocclusion": false,
-  "render_type": "minecraft:cutout",
   "textures": {
-    "casing": "justdirethings:block/eclipsealloy_block",
-    "frame": "justdirethings:block/blazegold_block",
-    "foundation": "minecraft:block/polished_deepslate",
-    "rail": "minecraft:block/smooth_basalt",
-    "metal": "minecraft:block/iron_block",
-    "pipe": "minecraft:block/cut_copper",
-    "glass": "minecraft:block/tinted_glass",
-    "fluid_side": "jdte:block/advanced_fluid_receiver_side",
-    "fluid_top": "jdte:block/advanced_fluid_receiver_top",
-    "output": "jdte:block/advanced_item_receiver_top",
-    "particle": "minecraft:block/polished_deepslate"
+    "0": "jdte:block/large_mineral_extractor",
+    "particle": "jdte:block/large_mineral_extractor"
   },
+  "render_type": "minecraft:translucent",
   "elements": [
     {
-      "name": "foundation",
+      "name": "base_bed",
       "from": [
         0,
-        2,
+        0,
         0
       ],
       "to": [
         16,
-        6,
-        14
+        5.0,
+        13
       ],
       "faces": {
-        "down": {
-          "texture": "#foundation",
+        "south": {
           "uv": [
-            0,
-            0,
-            16,
-            14
+            5.238095,
+            0.0,
+            6.761905,
+            4.0
           ],
-          "shade": false
+          "texture": "#0"
         },
         "up": {
-          "texture": "#foundation",
           "uv": [
-            0,
-            0,
-            16,
-            14
+            1.238095,
+            2.761905,
+            2.761905,
+            4.0
           ],
-          "shade": false
+          "texture": "#0"
         },
-        "south": {
-          "texture": "#foundation",
+        "down": {
           "uv": [
-            0,
-            10,
-            16,
-            14
+            1.238095,
+            0.0,
+            2.761905,
+            1.238095
           ],
-          "shade": false
+          "texture": "#0"
         }
       }
     },
     {
-      "name": "back_rail",
+      "name": "lower_deck",
       "from": [
         0,
-        6,
-        10
+        5.0,
+        0
       ],
       "to": [
         16,
-        8,
-        14
+        8.0,
+        10
       ],
       "faces": {
-        "down": {
-          "texture": "#rail",
+        "south": {
           "uv": [
-            0,
-            10,
-            16,
-            14
+            1.111111,
+            0.0,
+            2.888889,
+            4.0
           ],
-          "shade": false
+          "texture": "#0"
         },
         "up": {
-          "texture": "#rail",
           "uv": [
-            0,
-            10,
-            16,
-            14
+            1.111111,
+            2.888889,
+            2.888889,
+            4.0
           ],
-          "shade": false
+          "texture": "#0"
         },
-        "north": {
-          "texture": "#rail",
+        "down": {
           "uv": [
-            0,
-            8,
-            16,
-            10
+            1.111111,
+            0.0,
+            2.888889,
+            1.111111
           ],
-          "shade": false
-        },
-        "south": {
-          "texture": "#rail",
-          "uv": [
-            0,
-            8,
-            16,
-            10
-          ],
-          "shade": false
+          "texture": "#0"
         }
       }
     },
     {
-      "name": "rear_power_bus",
+      "name": "chamber_glass_s",
       "from": [
-        3,
-        8,
-        12
+        0,
+        8.0,
+        8.2
       ],
       "to": [
-        13,
-        15,
+        16,
+        16,
+        8.8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13.0,
+            6.0,
+            15.0,
+            8.0
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            13.0,
+            6.0,
+            15.0,
+            8.0
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            13.0,
+            4.0,
+            15.0,
+            8.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "frame_strut_s_17",
+      "from": [
+        1.0,
+        8.0,
+        8.0
+      ],
+      "to": [
+        3.0,
+        16,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            2.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            2.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            2.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            2.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "frame_strut_s_29",
+      "from": [
+        13.0,
+        8.0,
+        8.0
+      ],
+      "to": [
+        15.0,
+        16,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            2.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            2.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            2.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            2.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "output_chute_south",
+      "from": [
+        2,
+        2.0,
+        10.5
+      ],
+      "to": [
+        14,
+        10.0,
         16
       ],
       "faces": {
-        "down": {
-          "texture": "#pipe",
-          "uv": [
-            3,
-            12,
-            13,
-            16
-          ],
-          "shade": false
-        },
-        "up": {
-          "texture": "#pipe",
-          "uv": [
-            3,
-            12,
-            13,
-            16
-          ],
-          "shade": false
-        },
         "north": {
-          "texture": "#pipe",
           "uv": [
-            3,
-            1,
-            13,
-            8
+            0.0,
+            0.0,
+            4.0,
+            4.0
           ],
-          "shade": false
-        },
-        "south": {
-          "texture": "#frame",
-          "uv": [
-            3,
-            1,
-            13,
-            8
-          ],
-          "shade": false
-        },
-        "west": {
-          "texture": "#pipe",
-          "uv": [
-            12,
-            1,
-            16,
-            8
-          ],
-          "shade": false
+          "texture": "#0"
         },
         "east": {
-          "texture": "#pipe",
           "uv": [
-            12,
-            1,
-            16,
-            8
+            0.0,
+            0.0,
+            4.0,
+            4.0
           ],
-          "shade": false
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            8.0,
+            4.0,
+            12.0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#0"
         }
       }
     }

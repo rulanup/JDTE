@@ -13,8 +13,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class LifeBreederContainer extends BaseMachineContainer {
     public LifeBreederContainer(int id, Inventory inventory, FriendlyByteBuf data) {
@@ -30,7 +30,7 @@ public class LifeBreederContainer extends BaseMachineContainer {
     @Override public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
         for (int slot = 0; slot < LifeBreederBE.FEED_SLOTS; slot++) {
-            addSlot(new SlotItemHandler(machineHandler, slot,
+            addSlot(new ResourceHandlerSlot(machineHandler, machineHandler::set, slot,
                     8 + (slot % 2) * 18, 15 + (slot / 2) * 18));
         }
         for (int slot = 0; slot < LifeBreederBE.OUTPUT_SLOTS; slot++) {
@@ -73,7 +73,7 @@ public class LifeBreederContainer extends BaseMachineContainer {
         } else if (!moveStackTo(stack, 0, LifeBreederBE.FEED_SLOTS, false)) {
             return ItemStack.EMPTY;
         }
-        if (stack.isEmpty()) slot.set(ItemStack.EMPTY); else slot.setChanged();
+        slot.set(stack);
         slot.onTake(player, stack);
         return original;
     }
@@ -91,7 +91,7 @@ public class LifeBreederContainer extends BaseMachineContainer {
                     if (transferable > 0) {
                         existing.grow(transferable);
                         stack.shrink(transferable);
-                        target.setChanged();
+                        target.set(existing);
                         moved = true;
                     }
                 }
@@ -113,8 +113,10 @@ public class LifeBreederContainer extends BaseMachineContainer {
         return moved;
     }
 
-    private static final class OutputSlot extends SlotItemHandler {
-        private OutputSlot(IItemHandler handler, int slot, int x, int y) { super(handler, slot, x, y); }
+    private static final class OutputSlot extends ResourceHandlerSlot {
+        private OutputSlot(ItemStacksResourceHandler handler, int slot, int x, int y) {
+            super(handler, handler::set, slot, x, y);
+        }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
     }
 }

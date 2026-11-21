@@ -2,10 +2,10 @@
   "type": "jdte:life_synthesis",
   "tier": "plant",
   "inputs": [ { "ingredient": [
-    { "item": "minecraft:short_grass" },
-    { "item": "minecraft:fern" },
-    { "item": "minecraft:tall_grass" },
-    { "item": "minecraft:large_fern" }
+    "minecraft:short_grass",
+    "minecraft:fern",
+    "minecraft:tall_grass",
+    "minecraft:large_fern"
   ], "count": 8 } ],
   "fluid_inputs": [ { "id": "minecraft:water", "amount": 1000 } ],
   "output": { "id": "jdte:life_fluid_source", "amount": 250 },

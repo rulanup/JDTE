@@ -25,7 +25,7 @@ public abstract class GeneratorT1UpgradeMixin {
     @Shadow public abstract int fePerTick();
     @Shadow public abstract int getFePerFuelTick();
     @Shadow public abstract int getBurnSpeedMultiplier();
-    @Shadow public abstract net.neoforged.neoforge.items.ItemStackHandler getMachineHandler();
+    @Shadow public abstract com.direwolf20.justdirethings.common.capabilities.GeneratorItemHandler getMachineHandler();
 
     @Inject(method = "doBurn", at = @At("HEAD"), cancellable = true)
     private void jdte$generatorUpgradeBurn(CallbackInfo ci) {
@@ -43,17 +43,17 @@ public abstract class GeneratorT1UpgradeMixin {
             ci.cancel();
             return;
         }
-        ItemStack fuelStack = getMachineHandler().getStackInSlot(0);
+        ItemStack fuelStack = getMachineHandler().getResource(0).toStack(getMachineHandler().getAmountAsInt(0));
         if (fuelStack.isEmpty()) {
             ci.cancel();
             return;
         }
-        int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING);
+        int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING, ((GeneratorT1BE) (Object) this).getLevel().fuelValues());
         if (burnTime <= 0) {
             ci.cancel();
             return;
         }
-        if (!fuelStack.hasCraftingRemainingItem() && fuelStack.getCount() < 2) {
+        if (!GeneratorUpgradeHelper.consumeFuel(getMachineHandler(), fuelStack)) {
             ci.cancel();
             return;
         }
@@ -63,8 +63,6 @@ public abstract class GeneratorT1UpgradeMixin {
         if (fuelBurnMultiplier != oldMultiplier) {
             ((GeneratorT1BE) (Object) this).markDirtyClient();
         }
-        GeneratorUpgradeHelper.consumeFuel(getMachineHandler(), fuelStack);
-
         feRemaining = burnTime * getFePerFuelTick() * 3;
         maxBurn = (int) (Math.floor(burnTime) / getBurnSpeedMultiplier());
         burnRemaining = maxBurn + 1;

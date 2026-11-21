@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": { "item": "jdte:advanced_time_accelerator" },
-    "C": { "item": "justdirethings:polymorphic_catalyst" },
-    "F": { "item": "jdte:fluid_upgrade" },
-    "R": { "item": "jdte:range_upgrade" },
-    "T": { "item": "jdte:time_fluid_catalyst" }
+    "A": "jdte:advanced_time_accelerator",
+    "C": "justdirethings:polymorphic_catalyst",
+    "F": "jdte:fluid_upgrade",
+    "R": "jdte:range_upgrade",
+    "T": "jdte:time_fluid_catalyst"
   },
   "pattern": [
     "RFR",

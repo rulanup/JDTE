@@ -124,7 +124,7 @@ public final class RangeBlockerManager {
         if (event.getEntity() instanceof ItemEntity item) {
             if (event.loadedFromDisk()) {
                 CompoundTag data = item.getPersistentData();
-                if (data.getBoolean(OWNED_PREVENT) || data.getBoolean(OWNED_ALLOW)) ownedItems(item.level()).add(item);
+                if (data.getBooleanOr(OWNED_PREVENT, false) || data.getBooleanOr(OWNED_ALLOW, false)) ownedItems(item.level()).add(item);
             }
             updateDemagnetization(item);
         }
@@ -246,8 +246,8 @@ public final class RangeBlockerManager {
         Set<ItemEntity> owned = OWNED_DEMAGNETIZED.get(item.level());
         if (owned == null || !owned.remove(item)) return;
         CompoundTag data = item.getPersistentData();
-        if (data.getBoolean(OWNED_PREVENT)) data.remove(PREVENT_REMOTE_MOVEMENT);
-        if (data.getBoolean(OWNED_ALLOW)) data.remove(ALLOW_MACHINE_REMOTE_MOVEMENT);
+        if (data.getBooleanOr(OWNED_PREVENT, false)) data.remove(PREVENT_REMOTE_MOVEMENT);
+        if (data.getBooleanOr(OWNED_ALLOW, false)) data.remove(ALLOW_MACHINE_REMOTE_MOVEMENT);
         data.remove(OWNED_PREVENT);
         data.remove(OWNED_ALLOW);
     }
@@ -341,7 +341,7 @@ public final class RangeBlockerManager {
         entity.setPos(target.x, target.y, target.z);
         entity.setDeltaMovement(clampX ? 0.0D : velocity.x, clampY ? 0.0D : velocity.y,
                 clampZ ? 0.0D : velocity.z);
-        entity.hasImpulse = true;
+        entity.needsSync = true;
         state.lastValidPosition = target;
     }
 
@@ -381,8 +381,8 @@ public final class RangeBlockerManager {
             Set<net.minecraft.world.entity.EntityType<?>> entityTypes =
                     Collections.newSetFromMap(new IdentityHashMap<>());
             List<ItemStack> itemFilters = new ArrayList<>();
-            for (int slot = 0; slot < blocker.getFilterHandler().getSlots(); slot++) {
-                ItemStack filter = blocker.getFilterHandler().getStackInSlot(slot);
+            for (int slot = 0; slot < blocker.getFilterHandler().size(); slot++) {
+                ItemStack filter = blocker.getFilterHandler().getResource(slot).toStack(blocker.getFilterHandler().getAmountAsInt(slot));
                 if (filter.isEmpty()) continue;
                 itemFilters.add(filter.copy());
                 if (filter.getItem() instanceof SpawnEggItem egg) entityTypes.add(egg.getType(filter));

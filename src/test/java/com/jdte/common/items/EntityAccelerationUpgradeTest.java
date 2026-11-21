@@ -8,7 +8,7 @@ import com.jdte.common.recipes.EntityAccelerationSmithingRecipe;
 import com.jdte.common.recipes.UltimateTimeWandUpgradeRecipe;
 import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +27,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EntityAccelerationUpgradeTest {
+class EntityAccelerationUpgradeTest implements com.jdte.test.WorldRegistryTest {
 
     @Test
     void resourcesAndContractsHonored() throws IOException {
@@ -99,7 +99,7 @@ class EntityAccelerationUpgradeTest {
 
         ItemStack upgradeStack = new ItemStack(upgradeItem, 2);
         ItemStack wandStack = new ItemStack(wandItem);
-        ItemStack basicWandStack = new ItemStack(Registration.TimeWand.get());
+        ItemStack basicWandStack = new ItemStack(JDTRegistration.TimeWand.get());
         ItemStack otherStack = new ItemStack(Items.DIAMOND);
 
         // 1. Dragging upgrade onto un-upgraded ultimate wand -> succeeds
@@ -122,13 +122,15 @@ class EntityAccelerationUpgradeTest {
         // 5. Reverse: dragging upgrade onto wand in slot via overrideOtherStackedOnMe
         ItemStack freshWand = new ItemStack(wandItem);
         ItemStack singleUpgrade = new ItemStack(upgradeItem, 1);
-        assertTrue(wandItem.overrideOtherStackedOnMe(freshWand, singleUpgrade, new DummySlot(freshWand), ClickAction.SECONDARY, null, net.minecraft.world.entity.SlotAccess.NULL));
+        var cursor = new java.util.ArrayList<>(java.util.List.of(singleUpgrade));
+        assertTrue(wandItem.overrideOtherStackedOnMe(freshWand, singleUpgrade, new DummySlot(freshWand), ClickAction.SECONDARY, null, net.minecraft.world.entity.SlotAccess.forListElement(cursor, 0)));
         assertTrue(UltimateTimeWandItem.hasEntityAcceleration(freshWand));
         assertEquals(0, singleUpgrade.getCount());
 
         // Reverse on already upgraded -> rejects
         ItemStack anotherUpgrade = new ItemStack(upgradeItem, 1);
-        assertFalse(wandItem.overrideOtherStackedOnMe(freshWand, anotherUpgrade, new DummySlot(freshWand), ClickAction.SECONDARY, null, net.minecraft.world.entity.SlotAccess.NULL));
+        cursor.set(0, anotherUpgrade);
+        assertFalse(wandItem.overrideOtherStackedOnMe(freshWand, anotherUpgrade, new DummySlot(freshWand), ClickAction.SECONDARY, null, net.minecraft.world.entity.SlotAccess.forListElement(cursor, 0)));
         assertEquals(1, anotherUpgrade.getCount());
     }
 
@@ -140,14 +142,14 @@ class EntityAccelerationUpgradeTest {
         ItemStack baseUnupgraded = new ItemStack(JDTEItems.ULTIMATE_TIME_WAND.get());
         ItemStack baseUpgraded = new ItemStack(JDTEItems.ULTIMATE_TIME_WAND.get());
         UltimateTimeWandItem.setEntityAcceleration(baseUpgraded, true);
-        ItemStack baseBasicWand = new ItemStack(Registration.TimeWand.get());
+        ItemStack baseBasicWand = new ItemStack(JDTRegistration.TimeWand.get());
         ItemStack catalyst = new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get());
 
         // Valid input
         SmithingRecipeInput validInput = new SmithingRecipeInput(template, baseUnupgraded, catalyst);
         assertTrue(recipe.matches(validInput, null));
 
-        ItemStack result = recipe.assemble(validInput, null);
+        ItemStack result = recipe.assemble(validInput);
         assertEquals(JDTEItems.ULTIMATE_TIME_WAND.get(), result.getItem());
         assertTrue(UltimateTimeWandItem.hasEntityAcceleration(result));
 
@@ -166,19 +168,19 @@ class EntityAccelerationUpgradeTest {
 
     @Test
     void craftingRecipeMatchesOnlyUltimateTimeWandWithoutUpgrade() {
-        UltimateTimeWandUpgradeRecipe recipe = new UltimateTimeWandUpgradeRecipe(net.minecraft.world.item.crafting.CraftingBookCategory.MISC);
+        UltimateTimeWandUpgradeRecipe recipe = new UltimateTimeWandUpgradeRecipe();
 
         ItemStack upgrade = new ItemStack(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
         ItemStack baseUnupgraded = new ItemStack(JDTEItems.ULTIMATE_TIME_WAND.get());
         ItemStack baseUpgraded = new ItemStack(JDTEItems.ULTIMATE_TIME_WAND.get());
         UltimateTimeWandItem.setEntityAcceleration(baseUpgraded, true);
-        ItemStack baseBasicWand = new ItemStack(Registration.TimeWand.get());
+        ItemStack baseBasicWand = new ItemStack(JDTRegistration.TimeWand.get());
 
         // Grid with upgrade + unupgraded wand -> true
         CraftingInput validInput = CraftingInput.of(2, 1, List.of(upgrade, baseUnupgraded));
         assertTrue(recipe.matches(validInput, null));
 
-        ItemStack result = recipe.assemble(validInput, null);
+        ItemStack result = recipe.assemble(validInput);
         assertEquals(JDTEItems.ULTIMATE_TIME_WAND.get(), result.getItem());
         assertTrue(UltimateTimeWandItem.hasEntityAcceleration(result));
 

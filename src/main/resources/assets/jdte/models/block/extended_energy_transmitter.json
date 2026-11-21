@@ -1,3 +1,6 @@
 {
-  "parent": "justdirethings:block/energytransmitter"
+  "parent": "justdirethings:block/energytransmitter",
+  "textures": {
+    "missing": "#0"
+  }
 }

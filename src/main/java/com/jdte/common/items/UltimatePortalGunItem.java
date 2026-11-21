@@ -1,5 +1,9 @@
 package com.jdte.common.items;
 
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
 import com.direwolf20.justdirethings.common.entities.PortalProjectile;
 import com.direwolf20.justdirethings.common.items.PortalGunV2;
 import com.direwolf20.justdirethings.common.items.interfaces.FluidContainingItem;
@@ -13,9 +17,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import com.jdte.common.utils.PlayerSoundHelper;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -25,7 +30,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +57,8 @@ public class UltimatePortalGunItem extends PortalGunV2 {
     /** 手动坐标槽同维度上限 25,000 mB。 */
     public static final int MANUAL_MAX_DISTANCE_COST = 25_000;
 
-    public UltimatePortalGunItem() {
-        super();
+    public UltimatePortalGunItem(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     public static ItemStack find(Player player) {
@@ -209,18 +214,18 @@ public class UltimatePortalGunItem extends PortalGunV2 {
     // ============================================================
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         BlockHitResult blockhitresult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         if (blockhitresult.getType() == HitResult.Type.BLOCK) {
             if (pickupFluid(level, player, itemStack, blockhitresult)) {
-                return InteractionResultHolder.fail(itemStack);
+                return InteractionResult.FAIL;
             }
         }
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             spawnProjectile(level, player, itemStack, true);
         }
-        return InteractionResultHolder.fail(itemStack);
+        return InteractionResult.FAIL;
     }
 
     /** 手动坐标槽使用降低后的固定距离价格；直接添加的槽沿用 JDT 的距离/跨维规则。 */
@@ -236,19 +241,19 @@ public class UltimatePortalGunItem extends PortalGunV2 {
                 itemStack, previousDestination, sourceLevel.dimension(), player.position(), portalDestination,
                 () -> PortalGunV2.calculateFluidCost(sourceLevel, player, portalDestination));
         if (!FluidContainingItem.hasEnoughFluid(itemStack, cost)) {
-            player.displayClientMessage(Component.translatable("justdirethings.lowportalfluid"), true);
-            player.playNotifySound(SoundEvents.VAULT_INSERT_ITEM_FAIL, SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.sendOverlayMessage(Component.translatable("justdirethings.lowportalfluid"));
+            PlayerSoundHelper.notify(player, SoundEvents.VAULT_INSERT_ITEM_FAIL, SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
-        if (!PoweredItem.consumeEnergy(itemStack, com.direwolf20.justdirethings.setup.Config.PORTAL_GUN_V2_RF_COST.get())) {
-            player.displayClientMessage(Component.translatable("justdirethings.lowenergy"), true);
-            player.playNotifySound(SoundEvents.VAULT_INSERT_ITEM_FAIL, SoundSource.PLAYERS, 1.0F, 1.0F);
+        if (!PoweredItem.consumeEnergy(player, itemStack, com.direwolf20.justdirethings.setup.Config.PORTAL_GUN_V2_RF_COST.get())) {
+            player.sendOverlayMessage(Component.translatable("justdirethings.lowenergy"));
+            PlayerSoundHelper.notify(player, SoundEvents.VAULT_INSERT_ITEM_FAIL, SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
         PortalProjectile projectile = new PortalProjectile(level, player, PortalGunV2.getUUID(itemStack), isPrimaryType, true, portalDestination);
         projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1F, 1.0F);
         level.addFreshEntity(projectile);
-        FluidContainingItem.consumeFluid(itemStack, cost);
+        FluidContainingItem.consumeFluid(player, itemStack, cost);
         PortalGunV2.setPrevious(player, itemStack);
     }
 
@@ -280,9 +285,9 @@ public class UltimatePortalGunItem extends PortalGunV2 {
 
     /** 0 = 空，1 = ≤1/3，2 = ≤2/3，3 = 满；驱动物品模型的大储罐变体。 */
     public static int getFullness(ItemStack stack) {
-        IFluidHandlerItem fluidHandler = stack.getCapability(Capabilities.FluidHandler.ITEM);
-        if (fluidHandler != null && !fluidHandler.getFluidInTank(0).isEmpty()) {
-            float percentFull = ((float) fluidHandler.getFluidInTank(0).getAmount() / MAX_MB) * 100;
+        var fluidHandler = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
+        if (fluidHandler != null && !fluidHandler.getResource(0).isEmpty()) {
+            float percentFull = ((float) fluidHandler.getAmountAsInt(0) / Math.max(1, fluidHandler.getCapacityAsInt(0, fluidHandler.getResource(0)))) * 100;
             if (percentFull > 0 && percentFull <= 33) {
                 return 1;
             } else if (percentFull > 33 && percentFull <= 66) {
@@ -299,19 +304,21 @@ public class UltimatePortalGunItem extends PortalGunV2 {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         // 不调用 JDT 的 super（其流体行使用 8000 mB 容量），自行显示完整信息
-        com.direwolf20.justdirethings.util.TooltipHelpers.appendFEText(stack, tooltip);
+        List<Component> energyLines = new ArrayList<>();
+        com.direwolf20.justdirethings.util.TooltipHelpers.appendFEText(stack, energyLines);
+        energyLines.forEach(tooltip);
         Level level = context.level();
         if (level == null) {
             return;
         }
-        IFluidHandlerItem fluidHandler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        var fluidHandler = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
         if (fluidHandler != null) {
-            tooltip.add(Component.translatable("tooltip.jdte.ultimate_portal_gun.fluid",
-                    fluidHandler.getFluidInTank(0).getAmount(), MAX_MB).withStyle(ChatFormatting.GREEN));
+            tooltip.accept(Component.translatable("tooltip.jdte.ultimate_portal_gun.fluid",
+                    fluidHandler.getAmountAsInt(0), JDTEConfig.COMMON.ultimatePortalGun.ultimatePortalGunFluidCapacity.get()).withStyle(ChatFormatting.GREEN));
         }
         int count = getDestinations(stack).size();
-        tooltip.add(Component.translatable("tooltip.jdte.ultimate_portal_gun.slots", count).withStyle(ChatFormatting.AQUA));
+        tooltip.accept(Component.translatable("tooltip.jdte.ultimate_portal_gun.slots", count).withStyle(ChatFormatting.AQUA));
     }
 }

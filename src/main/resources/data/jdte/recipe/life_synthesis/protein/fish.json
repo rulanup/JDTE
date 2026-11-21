@@ -3,8 +3,8 @@
   "tier": "protein",
   "inputs": [
     { "ingredient": [
-      { "item": "minecraft:cod" }, { "item": "minecraft:cooked_cod" },
-      { "item": "minecraft:salmon" }, { "item": "minecraft:cooked_salmon" }
+      "minecraft:cod", "minecraft:cooked_cod",
+      "minecraft:salmon", "minecraft:cooked_salmon"
     ], "count": 4 }
   ],
   "fluid_inputs": [ { "id": "minecraft:water", "amount": 1000 } ],

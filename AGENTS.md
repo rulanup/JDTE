@@ -8,11 +8,11 @@ JDT Extras (`jdte`) is a NeoForge extension for Just Dire Things (JDT). It adds 
 |----------|-------|
 | Mod ID | `jdte` |
 | Mod name | `JDT Extras` |
-| Current version | `0.6.5.4` |
-| Minecraft | `1.21.1` |
-| NeoForge | `21.1.216+` |
-| Just Dire Things | `1.5.7+` |
-| Java | `21` |
+| Current version | `26.0.0` |
+| Minecraft | `26.1.2` |
+| NeoForge | `26.1.2.126` |
+| Just Dire Things | `1.6.11+` |
+| Java | `25` |
 
 Major features:
 
@@ -74,7 +74,7 @@ Major features:
 - Time Multitool attack gating is client-only. `jdte.timeMultitool.continuousMiningHoldDelayMillis` defaults to 250 in the existing local CLIENT config, allows 0-2000, and resets on release, focus loss, screen/world changes, and hotbar changes. Existing explicitly enabled JDT area abilities remain active.
 - Manual Ultimate Portal Gun destinations cost 25 mB/block up to 25,000 mB in the same dimension, or 500 mB across dimensions. Quick-added and previous destinations keep JDT pricing.
 
-Detailed release notes: [0.6.5.4](docs/releases/0.6.5.4.md).
+Detailed release notes: [26.0.0](docs/releases/26.0.0.md).
 
 ## Naming conventions
 
@@ -88,7 +88,7 @@ Detailed release notes: [0.6.5.4](docs/releases/0.6.5.4.md).
 
 ## Build and Run
 
-The project uses Gradle with NeoForge ModDev. JDT is resolved through CurseMaven file `7463040`; no machine-specific local jar path is required.
+The project uses Gradle with NeoForge ModDev. JDT is resolved through CurseMaven file `8251776`; no machine-specific local jar path is required.
 
 Common commands:
 
@@ -109,9 +109,9 @@ The Productive Bees JEI bridge uses its public `AdvancedBeehiveRecipe` and Produ
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| NeoForge | `21.1.216+`; dev `21.1.233` | Mod loader and API |
-| Just Dire Things | `1.5.7` | Base machines, interfaces, config, and Time Fluid |
-| Applied Energistics 2 | `19.2.17+` | Optional main-mod integrations; required by the matching JDTE-AE full-grid addon |
+| NeoForge | `26.1.2.126` | Mod loader and API |
+| Just Dire Things | `1.6.11` | Base machines, interfaces, config, and Time Fluid |
+| Applied Energistics 2 | `26.1.13-beta` | Optional main-mod integrations; required by the matching JDTE-AE full-grid addon |
 | ExtendedAE | CurseForge `8025439` | Development verification runtime only; never a published JDTE or JDTE-AE hard dependency |
 | GuideME | `21.1.16` | In-game documentation |
 | JEI | `19.27.0.340` | Recipe categories, catalysts, information pages, and GUI click areas |
@@ -264,7 +264,7 @@ All three tiers use the shared `ExtendedTimeAccelerationManager`. Nominal `X` in
 
 The main `jdte` artifact keeps AE2 optional. When no external backend is registered, an AE Acceleration Upgrade uses the public per-device `IGridTickable` fallback, including targets such as a `MolecularAssemblerBlockEntity` that has no vanilla block-entity ticker. `ExternalTimeAccelerationBackend` and `ExternalTimeAccelerationBackends` must remain free of `appeng.*` references. External target resolution is tri-state: an offline or booting AE node is an inactive external target and must not fall through to ordinary ticking.
 
-Full-grid mode requires matching JDTE-AE and JDTE versions plus AE2 19.2.17+ on both client and server. The addon promotes any covered online, booted node to its owning `appeng.me.Grid`, deduplicates multiple covered nodes by Grid identity and contributor identity, and executes `X - 1` synchronous Server Start, Level Start, Level End, and Server End lifecycles per real tick. Thus nominal 1024x executes exactly 1023 extra complete Grid lifecycles. Grid work intentionally bypasses the ordinary default 4096-execution budget and can raise MSPT substantially. The addon must not write AE2's tick counter. Its `TickHandler.getCurrentTick()` Mixin uses a server-thread-local monotonic logical clock: explicit virtual stamps exist only inside lifecycle scopes, while subsequent native observations remain mapped so timestamps never move backward or collide across adjacent frames. The clock resets when its server stops. Grid handles must not survive a frame, and the addon must not access worlds asynchronously or force chunks. Frame ownership, reentry guards, unload/stop cleanup, and temporary scope state must be cleared in `finally`. ExtendedAE is present only on development test/runtime classpaths to verify its assemblers follow this lifecycle; it is not a hard dependency.
+Full-grid mode requires matching JDTE-AE and JDTE versions plus AE2 26.1.13-beta on both client and server. The addon promotes any covered online, booted node to its owning `appeng.me.Grid`, deduplicates multiple covered nodes by Grid identity and contributor identity, and executes `X - 1` synchronous Server Start, Level Start, Level End, and Server End lifecycles per real tick. Thus nominal 1024x executes exactly 1023 extra complete Grid lifecycles. Grid work intentionally bypasses the ordinary default 4096-execution budget and can raise MSPT substantially. The addon must not write AE2's tick counter. Its `TickHandler.getCurrentTick()` Mixin uses a server-thread-local monotonic logical clock: explicit virtual stamps exist only inside lifecycle scopes, while subsequent native observations remain mapped so timestamps never move backward or collide across adjacent frames. The clock resets when its server stops. Grid handles must not survive a frame, and the addon must not access worlds asynchronously or force chunks. Frame ownership, reentry guards, unload/stop cleanup, and temporary scope state must be cleared in `finally`. ExtendedAE is present only on development test/runtime classpaths to verify its assemblers follow this lifecycle; it is not a hard dependency.
 
 ## Extended Machines
 

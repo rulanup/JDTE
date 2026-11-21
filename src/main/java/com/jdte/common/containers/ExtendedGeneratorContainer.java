@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.neoforged.neoforge.items.IItemHandler;
+
 
 public class ExtendedGeneratorContainer extends BaseMachineContainer {
     public ExtendedGeneratorContainer(int windowId, Inventory playerInventory, FriendlyByteBuf extraData) {
@@ -25,7 +25,7 @@ public class ExtendedGeneratorContainer extends BaseMachineContainer {
     @Override
     public void addMachineSlots() {
         machineHandler = baseMachineBE.getMachineHandler();
-        addFuelSlotRange(machineHandler, 0, 80, 13, 1, 18);
+        addSlot(new FuelSlot(machineHandler, machineHandler::set, 0, 80, 13));
     }
 
     public int getBurnRemaining() {
@@ -34,14 +34,6 @@ public class ExtendedGeneratorContainer extends BaseMachineContainer {
 
     public int getMaxBurn() {
         return dataValue(3);
-    }
-
-    protected int addFuelSlotRange(IItemHandler handler, int index, int x, int y, int count, int dx) {
-        for (int i = 0; i < count; i++) {
-            addSlot(new FuelSlot(handler, index++, x, y));
-            x += dx;
-        }
-        return index;
     }
 
     @Override

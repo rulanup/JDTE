@@ -1,21 +1,19 @@
 package com.jdte.client.jei.gelgenerator;
 
-import com.direwolf20.justdirethings.datagen.JustDireItemTags;
+import com.direwolf20.justdirethings.util.ModTags;
 import com.direwolf20.justdirethings.datagen.recipes.GooSpreadRecipe;
-import com.direwolf20.justdirethings.datagen.recipes.GooSpreadRecipeTag;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.jdte.client.ClientRecipeEvents;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.jdte.common.blockentities.GelGeneratorBE;
 import com.jdte.setup.JDTEBlocks;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -35,33 +33,29 @@ public record GelGeneratorJeiRecipe(
         int fluidAmount,
         int energyCost
 ) {
-    public ResourceLocation id() {
+    public Identifier id() {
         String key = stackKey(gelStack) + '|' + foodStacks.stream().map(GelGeneratorJeiRecipe::stackKey).toList()
                 + '|' + stackKey(inputStack) + '|' + stackKey(outputStack)
                 + '|' + BuiltInRegistries.FLUID.getKey(inputFluid) + '|' + BuiltInRegistries.FLUID.getKey(outputFluid)
                 + '|' + fluidAmount;
-        return ResourceLocation.fromNamespaceAndPath("jdte", "jei/gel_generator/" + Integer.toUnsignedString(key.hashCode(), 16));
+        return Identifier.fromNamespaceAndPath("jdte", "jei/gel_generator/" + Integer.toUnsignedString(key.hashCode(), 16));
     }
 
     private static String stackKey(ItemStack stack) {
         return stack.isEmpty() ? "empty" : BuiltInRegistries.ITEM.getKey(stack.getItem()) + "@" + stack.getComponents();
     }
     public static List<GelGeneratorJeiRecipe> getRecipes() {
-        Minecraft minecraft = Minecraft.getInstance();
-        RecipeManager recipeManager = minecraft.level != null
-                ? minecraft.level.getRecipeManager()
-                : minecraft.getConnection() != null ? minecraft.getConnection().getRecipeManager() : null;
-        if (recipeManager == null) {
-            return List.of();
-        }
-
         List<GelGeneratorJeiRecipe> recipes = new ArrayList<>();
-
-        for (RecipeHolder<GooSpreadRecipe> recipe : recipeManager.getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get())) {
-            addBlockRecipe(recipes, recipe.value());
-        }
-        for (RecipeHolder<GooSpreadRecipeTag> recipe : recipeManager.getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE_TAG.get())) {
-            addTagRecipe(recipes, recipe.value());
+        for (RecipeHolder<GooSpreadRecipe> holder : ClientRecipeEvents.recipes().byType(JDTRegistration.GOO_SPREAD_RECIPE_TYPE.get())) {
+            GooSpreadRecipe recipe = holder.value();
+            if (recipe.getInput().asState() != null) {
+                addBlockRecipe(recipes, recipe, recipe.getInput().asState());
+            } else {
+                BuiltInRegistries.BLOCK.get(recipe.getInput().asTag()).stream().flatMap(holders -> holders.stream())
+                        .map(block -> block.value().defaultBlockState())
+                        .sorted(Comparator.comparing(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock())))
+                        .forEach(state -> addBlockRecipe(recipes, recipe, state));
+            }
         }
 
         return recipes;
@@ -82,8 +76,8 @@ public record GelGeneratorJeiRecipe(
         return inputFluid != Fluids.EMPTY && outputFluid != Fluids.EMPTY;
     }
 
-    private static void addBlockRecipe(List<GelGeneratorJeiRecipe> recipes, GooSpreadRecipe recipe) {
-        Fluid inputFluid = getFluid(recipe.getInput());
+    private static void addBlockRecipe(List<GelGeneratorJeiRecipe> recipes, GooSpreadRecipe recipe, BlockState inputState) {
+        Fluid inputFluid = getFluid(inputState);
         Fluid outputFluid = getFluid(recipe.getOutput());
         if (inputFluid != Fluids.EMPTY && outputFluid != Fluids.EMPTY) {
             addRecipeForEachGelFood(recipes, recipe.getTierRequirement(),
@@ -91,30 +85,13 @@ public record GelGeneratorJeiRecipe(
             return;
         }
 
-        ItemStack input = getInputItem(recipe.getInput());
+        ItemStack input = getInputItem(inputState);
         ItemStack output = GelGeneratorBE.getOutputItemForState(recipe.getOutput());
         if (input.isEmpty() || output.isEmpty()) {
             return;
         }
         addRecipeForEachGelFood(recipes, recipe.getTierRequirement(),
                 input, output, Fluids.EMPTY, Fluids.EMPTY, 0);
-    }
-
-    private static void addTagRecipe(List<GelGeneratorJeiRecipe> recipes, GooSpreadRecipeTag recipe) {
-        ItemStack output = GelGeneratorBE.getOutputItemForState(recipe.getOutput());
-        if (output.isEmpty()) {
-            return;
-        }
-
-        List<ItemStack> inputs = recipe.getInput().getItems()
-                .map(GelGeneratorJeiRecipe::single)
-                .filter(stack -> !stack.isEmpty())
-                .sorted(Comparator.comparing(GelGeneratorJeiRecipe::itemId))
-                .toList();
-        for (ItemStack input : inputs) {
-            addRecipeForEachGelFood(recipes, recipe.getTierRequirement(),
-                    input, output, Fluids.EMPTY, Fluids.EMPTY, 0);
-        }
     }
 
     private static void addRecipeForEachGelFood(List<GelGeneratorJeiRecipe> recipes, int tierRequirement,
@@ -141,20 +118,20 @@ public record GelGeneratorJeiRecipe(
 
     private static ItemStack getGelStack(int tier) {
         return switch (tier) {
-            case 1 -> new ItemStack(Registration.GooBlock_Tier1_ITEM.get());
-            case 2 -> new ItemStack(Registration.GooBlock_Tier2_ITEM.get());
-            case 3 -> new ItemStack(Registration.GooBlock_Tier3_ITEM.get());
-            case 4 -> new ItemStack(Registration.GooBlock_Tier4_ITEM.get());
+            case 1 -> new ItemStack(JDTRegistration.GooBlock_Tier1_ITEM.get());
+            case 2 -> new ItemStack(JDTRegistration.GooBlock_Tier2_ITEM.get());
+            case 3 -> new ItemStack(JDTRegistration.GooBlock_Tier3_ITEM.get());
+            case 4 -> new ItemStack(JDTRegistration.GooBlock_Tier4_ITEM.get());
             default -> ItemStack.EMPTY;
         };
     }
 
     private static List<ItemStack> getFoodStacksForTier(int tier) {
         TagKey<Item> tag = switch (tier) {
-            case 1 -> JustDireItemTags.GOO_REVIVE_TIER_1;
-            case 2 -> JustDireItemTags.GOO_REVIVE_TIER_2;
-            case 3 -> JustDireItemTags.GOO_REVIVE_TIER_3;
-            case 4 -> JustDireItemTags.GOO_REVIVE_TIER_4;
+            case 1 -> ModTags.Items.GOO_REVIVE_TIER_1;
+            case 2 -> ModTags.Items.GOO_REVIVE_TIER_2;
+            case 3 -> ModTags.Items.GOO_REVIVE_TIER_3;
+            case 4 -> ModTags.Items.GOO_REVIVE_TIER_4;
             default -> null;
         };
         if (tag == null) {
@@ -182,12 +159,6 @@ public record GelGeneratorJeiRecipe(
             return liquidBlock.fluid;
         }
         return Fluids.EMPTY;
-    }
-
-    private static ItemStack single(ItemStack stack) {
-        ItemStack copy = stack.copy();
-        copy.setCount(1);
-        return copy.is(Items.AIR) ? ItemStack.EMPTY : copy;
     }
 
     private static String itemId(ItemStack stack) {

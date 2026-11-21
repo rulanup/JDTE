@@ -1,6 +1,6 @@
 {
   "type": "jdte:greenhouse",
-  "seed": { "item": "minecraft:birch_sapling" },
+  "seed": "minecraft:birch_sapling",
   "outputs": [
     { "id": "minecraft:birch_log", "count": 4 },
     { "id": "minecraft:birch_sapling", "count": 1 }

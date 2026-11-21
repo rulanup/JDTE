@@ -6,7 +6,7 @@ import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
 import com.direwolf20.justdirethings.common.items.interfaces.FluidContainingItem;
 import com.direwolf20.justdirethings.common.items.interfaces.PoweredItem;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -14,10 +14,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class UltimateTimeWandItemTest {
+class UltimateTimeWandItemTest implements com.jdte.test.WorldRegistryTest {
     private static final WandState BEFORE = new WandState(BlockPos.ZERO, 4, 600, 400);
     private static final UltimateTimeWandData.OperationResult OPERATION =
             new UltimateTimeWandData.OperationResult(true,
@@ -147,7 +146,7 @@ class UltimateTimeWandItemTest {
         fillEnergy(stack, 2_222);
 
         List<Component> tooltip = new ArrayList<>();
-        wand.appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
+        wand.appendHoverText(stack, null, net.minecraft.world.item.component.TooltipDisplay.DEFAULT, tooltip::add, TooltipFlag.Default.NORMAL);
 
         assertEquals(4, tooltip.size());
         String currentFluid = MagicHelpers.formatted(1_234);
@@ -172,18 +171,21 @@ class UltimateTimeWandItemTest {
     }
 
     private static void fillFluid(ItemStack stack, int amount) {
-        IFluidHandlerItem fluid = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        var fluid = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
         assertNotNull(fluid, "Ultimate Time Wand should expose a fluid capability");
-        int accepted = fluid.fill(new FluidStack(Registration.TIME_FLUID_SOURCE.get(), amount),
-                IFluidHandler.FluidAction.EXECUTE);
-        assertEquals(amount, accepted);
+        try (var transaction = Transaction.openRoot()) {
+            assertEquals(amount, fluid.insert(FluidResource.of(JDTRegistration.TIME_FLUID_SOURCE.get()), amount, transaction));
+            transaction.commit();
+        }
     }
 
     private static void fillEnergy(ItemStack stack, int amount) {
-        IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        var energy = ItemAccess.forStack(stack).getCapability(Capabilities.Energy.ITEM);
         assertNotNull(energy, "Ultimate Time Wand should expose an energy capability");
-        int accepted = energy.receiveEnergy(amount, false);
-        assertEquals(amount, accepted);
+        try (var transaction = Transaction.openRoot()) {
+            assertEquals(amount, energy.insert(amount, transaction));
+            transaction.commit();
+        }
     }
 
     private static final class PartialFailureCommitPort implements UltimateTimeWandItem.CommitPort {

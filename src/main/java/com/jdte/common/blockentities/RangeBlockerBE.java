@@ -9,7 +9,7 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
@@ -19,8 +19,8 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -56,7 +56,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     @Override public BlockEntity getBlockEntity() { return this; }
     @Override public AreaAffectingData getAreaAffectingData() { return areaData; }
     @Override public FilterData getFilterData() { return filterData; }
-    @Override public FilterBasicHandler getFilterHandler() { return getData(Registration.HANDLER_BASIC_FILTER); }
+    @Override public FilterBasicHandler getFilterHandler() { return getData(JDTRegistration.HANDLER_BASIC_FILTER); }
     @Override public RedstoneControlData getRedstoneControlData() { return redstoneData; }
     @Override public ContainerData getContainerData() { return poweredData; }
     @Override public MachineEnergyStorage getEnergyStorage() { return energy; }
@@ -111,14 +111,14 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     }
 
     public AABB getIndexedArea() {
-        if (level != null && level.isClientSide && clientSyncedArea != null) return clientSyncedArea;
+        if (level != null && level.isClientSide() && clientSyncedArea != null) return clientSyncedArea;
         return getAABB(getBlockPos());
     }
 
     public boolean canApplyEffectThisTick() {
         if (isRemoved() || level == null || !fieldActive || !isActiveRedstone()
                 || !UpgradeHelper.mayRunWithUpgrades(this)) return false;
-        if (level.isClientSide || UpgradeHelper.hasCreativeUpgrade(this)) return true;
+        if (level.isClientSide() || UpgradeHelper.hasCreativeUpgrade(this)) return true;
         long gameTime = level.getGameTime();
         if (paidGameTime == gameTime) return true;
         int cost = getStandardEnergyCost();
@@ -173,8 +173,8 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     private void refreshFilterIndexIfNeeded() {
         int fingerprint = 1;
         FilterBasicHandler handler = getFilterHandler();
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(handler.getStackInSlot(slot));
+        for (int slot = 0; slot < handler.size(); slot++) {
+            fingerprint = 31 * fingerprint + ItemStack.hashItemAndComponents(handler.getResource(slot).toStack(handler.getAmountAsInt(slot)));
         }
         if (fingerprint != filterFingerprint) {
             filterFingerprint = fingerprint;
@@ -195,7 +195,7 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     private void syncClientState() {
         if (!(level instanceof ServerLevel serverLevel)) return;
         AABB area = getAABB(getBlockPos());
-        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(getBlockPos()),
+        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(getBlockPos()),
                 new RangeBlockerSyncPayload(getBlockPos(), mode.ordinal(), target.ordinal(), blacklist, fieldActive,
                         area.minX, area.minY, area.minZ, area.maxX, area.maxY, area.maxZ));
     }
@@ -216,8 +216,8 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putInt("rangeBlockerMode", mode.ordinal());
         tag.putInt("rangeBlockerTarget", target.ordinal());
         tag.putBoolean("rangeBlockerBlacklist", blacklist);
@@ -226,16 +226,16 @@ public class RangeBlockerBE extends BaseMachineBE implements AreaAffectingBE, Fi
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        mode = Mode.values()[Math.floorMod(tag.getInt("rangeBlockerMode"), Mode.values().length)];
-        target = tag.contains("rangeBlockerTarget")
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        mode = Mode.values()[Math.floorMod(tag.getIntOr("rangeBlockerMode", 0), Mode.values().length)];
+        target = tag.keySet().contains("rangeBlockerTarget")
                 ? EntitySuppressorBE.Target.values()[Math.floorMod(
-                        tag.getInt("rangeBlockerTarget"), EntitySuppressorBE.Target.values().length)]
+                        tag.getIntOr("rangeBlockerTarget", EntitySuppressorBE.Target.ALL_LIVING.ordinal()), EntitySuppressorBE.Target.values().length)]
                 : EntitySuppressorBE.Target.ALL_LIVING;
-        blacklist = tag.getBoolean("rangeBlockerBlacklist");
-        fieldActive = tag.getBoolean("rangeBlockerActive");
-        if (tag.contains("rangeBlockerEnergy")) energy.setEnergy(tag.getInt("rangeBlockerEnergy"));
+        blacklist = tag.getBooleanOr("rangeBlockerBlacklist", false);
+        fieldActive = tag.getBooleanOr("rangeBlockerActive", false);
+        if (tag.keySet().contains("rangeBlockerEnergy")) energy.setEnergy(tag.getIntOr("rangeBlockerEnergy", 0));
         if (level != null) RangeBlockerManager.refresh(this);
     }
 }

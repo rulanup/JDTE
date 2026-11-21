@@ -4,7 +4,7 @@ import com.direwolf20.justdirethings.util.NBTHelpers;
 import com.jdte.common.items.UltimatePortalGunItem;
 import com.jdte.common.network.data.UltimatePortalGunPayload;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.gui.widget.ExtendedButton;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -69,17 +69,17 @@ public class UltimatePortalEditMenu extends Screen {
         }
         List<? extends String> blacklist = com.jdte.setup.JDTEConfig.COMMON.ultimatePortalGun.teleportDimensionBlacklist.get();
         if (!blacklist.isEmpty()) {
-            available.removeIf(key -> blacklist.contains(key.location().toString()));
+            available.removeIf(key -> blacklist.contains(key.identifier().toString()));
         }
         if (available.isEmpty()) {
             available.add(Level.OVERWORLD);
         }
-        available.sort(Comparator.comparing(key -> key.location().toString()));
+        available.sort(Comparator.comparing(key -> key.identifier().toString()));
         return available;
     }
 
     @Override
-    public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+    public void extractBackground(GuiGraphicsExtractor pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
     }
 
     @Override
@@ -142,7 +142,7 @@ public class UltimatePortalEditMenu extends Screen {
             return Component.translatable("jdte.screen.ultimate_portal_gun.no_dimensions");
         }
         ResourceKey<Level> key = dimensions.get(Math.floorMod(selectedDimension, dimensions.size()));
-        return Component.translatable("jdte.screen.ultimate_portal_gun.dimension", key.location().toString());
+        return Component.translatable("jdte.screen.ultimate_portal_gun.dimension", key.identifier().toString());
     }
 
     private void openDimensionSelection() {
@@ -176,7 +176,7 @@ public class UltimatePortalEditMenu extends Screen {
                     net.minecraft.core.Direction.NORTH,
                     nameField.getValue().isEmpty() ? "UNNAMED" : nameField.getValue());
             UltimatePortalGunItem.setDestination(portalGun, slotSelected, destination);
-            PacketDistributor.sendToServer(new UltimatePortalGunPayload(
+            ClientPacketDistributor.sendToServer(new UltimatePortalGunPayload(
                     UltimatePortalGunPayload.ACTION_EDIT, slotSelected, nameField.getValue(), key, x, y, z, false));
             this.onClose();
         } catch (NumberFormatException ignored) {
@@ -195,13 +195,13 @@ public class UltimatePortalEditMenu extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
         int baseX = width / 2 - 115;
         int baseY = height / 2 - 50;
-        guiGraphics.drawString(font, Component.translatable("jdte.screen.ultimate_portal_gun.name"),
+        guiGraphics.text(font, Component.translatable("jdte.screen.ultimate_portal_gun.name"),
                 baseX, baseY - 11, 0xA0A0A0, false);
-        guiGraphics.drawString(font, Component.translatable("jdte.screen.ultimate_portal_gun.coords"),
+        guiGraphics.text(font, Component.translatable("jdte.screen.ultimate_portal_gun.coords"),
                 baseX, baseY + 7, 0xA0A0A0, false);
     }
 }

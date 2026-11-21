@@ -291,10 +291,10 @@ final class JdteMachineSettingsCodecs {
                                                                                 int maximum) {
         return typedCodec(machineType, (machine, ignoredRegistries, custom) ->
                 custom.putInt(MODE_KEY, getter.applyAsInt(machine)), (custom, registries) -> {
-            if (!custom.contains(MODE_KEY, Tag.TAG_INT)) {
+            if (!(custom.get(MODE_KEY) instanceof net.minecraft.nbt.IntTag)) {
                 return Optional.empty();
             }
-            int mode = custom.getInt(MODE_KEY);
+            int mode = custom.getIntOr(MODE_KEY, 0);
             if (!MachineSettingsCodecSupport.isInRange(mode, minimum, maximum)) {
                 return Optional.empty();
             }
@@ -303,10 +303,10 @@ final class JdteMachineSettingsCodecs {
     }
 
     private static Optional<Integer> readMultiplier(CompoundTag custom, int maximum) {
-        if (!custom.contains(MULTIPLIER_KEY, Tag.TAG_INT)) {
+        if (!(custom.get(MULTIPLIER_KEY) instanceof net.minecraft.nbt.IntTag)) {
             return Optional.empty();
         }
-        int multiplier = custom.getInt(MULTIPLIER_KEY);
+        int multiplier = custom.getIntOr(MULTIPLIER_KEY, 0);
         if (!MachineSettingsCodecSupport.isInRange(multiplier, 1, Math.max(1, maximum))) {
             return Optional.empty();
         }
@@ -324,13 +324,13 @@ final class JdteMachineSettingsCodecs {
             }
             return Optional.of(new PlayerBinding(Optional.empty(), ""));
         }
-        if (!custom.contains(BOUND_PLAYER_ID_KEY, Tag.TAG_STRING)
-                || !custom.contains(BOUND_PLAYER_NAME_KEY, Tag.TAG_STRING)) {
+        if (!(custom.get(BOUND_PLAYER_ID_KEY) instanceof net.minecraft.nbt.StringTag)
+                || !(custom.get(BOUND_PLAYER_NAME_KEY) instanceof net.minecraft.nbt.StringTag)) {
             return Optional.empty();
         }
 
-        String serializedId = custom.getString(BOUND_PLAYER_ID_KEY);
-        String playerName = custom.getString(BOUND_PLAYER_NAME_KEY);
+        String serializedId = custom.getStringOr(BOUND_PLAYER_ID_KEY, "");
+        String playerName = custom.getStringOr(BOUND_PLAYER_NAME_KEY, "");
         if (playerName.isEmpty() || playerName.length() > MAX_BOUND_PLAYER_NAME_LENGTH) {
             return Optional.empty();
         }
@@ -351,21 +351,20 @@ final class JdteMachineSettingsCodecs {
         templates.putInt(TEMPLATE_SIZE_KEY, AdvancedPotionBrewerBE.TOTAL_SLOTS);
         for (int slot = 0; slot < AdvancedPotionBrewerBE.TOTAL_SLOTS; slot++) {
             ItemStack template = recipeLocked ? machine.getLockedRecipeTemplate(slot) : ItemStack.EMPTY;
-            templates.put(TEMPLATE_SLOT_PREFIX + slot, template.isEmpty()
-                    ? ItemStack.EMPTY.saveOptional(registries)
-                    : template.copyWithCount(1).saveOptional(registries));
+            templates.put(TEMPLATE_SLOT_PREFIX + slot, ItemStack.OPTIONAL_CODEC.encodeStart(
+                    registries.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), template.copyWithCount(1)).getOrThrow());
         }
         custom.put(RECIPE_LOCK_TEMPLATES_KEY, templates);
     }
 
     private static Optional<RecipeLockTemplates> readRecipeLockTemplates(CompoundTag custom,
                                                                            HolderLookup.Provider registries) {
-        if (!custom.contains(RECIPE_LOCK_TEMPLATES_KEY, Tag.TAG_COMPOUND)) {
+        if (!(custom.get(RECIPE_LOCK_TEMPLATES_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
             return Optional.empty();
         }
-        CompoundTag encodedTemplates = custom.getCompound(RECIPE_LOCK_TEMPLATES_KEY);
-        if (!encodedTemplates.contains(TEMPLATE_SIZE_KEY, Tag.TAG_INT)
-                || encodedTemplates.getInt(TEMPLATE_SIZE_KEY) != AdvancedPotionBrewerBE.TOTAL_SLOTS) {
+        CompoundTag encodedTemplates = custom.getCompoundOrEmpty(RECIPE_LOCK_TEMPLATES_KEY);
+        if (!(encodedTemplates.get(TEMPLATE_SIZE_KEY) instanceof net.minecraft.nbt.IntTag)
+                || encodedTemplates.getIntOr(TEMPLATE_SIZE_KEY, -1) != AdvancedPotionBrewerBE.TOTAL_SLOTS) {
             return Optional.empty();
         }
 
@@ -373,15 +372,15 @@ final class JdteMachineSettingsCodecs {
         NonNullList<ItemStack> templates = NonNullList.withSize(AdvancedPotionBrewerBE.TOTAL_SLOTS, ItemStack.EMPTY);
         for (int slot = 0; slot < AdvancedPotionBrewerBE.TOTAL_SLOTS; slot++) {
             String key = TEMPLATE_SLOT_PREFIX + slot;
-            if (!encodedTemplates.contains(key, Tag.TAG_COMPOUND)) {
+            if (!(encodedTemplates.get(key) instanceof net.minecraft.nbt.CompoundTag)) {
                 return Optional.empty();
             }
-            CompoundTag encodedStack = encodedTemplates.getCompound(key);
+            CompoundTag encodedStack = encodedTemplates.getCompoundOrEmpty(key);
             ItemStack template = ItemStack.EMPTY;
             if (!encodedStack.isEmpty()) {
                 final Optional<ItemStack> parsed;
                 try {
-                    parsed = ItemStack.parse(registries, encodedStack);
+                    parsed = ItemStack.CODEC.parse(registries.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), encodedStack).result();
                 } catch (RuntimeException ignored) {
                     return Optional.empty();
                 }

@@ -6,7 +6,7 @@ import com.jdte.common.containers.ExtendedBioExtractorContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,8 +19,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 
 public class ExtendedBioExtractorBlock extends BaseMachineBlock {
-    public ExtendedBioExtractorBlock() {
-        super(Properties.of()
+    public ExtendedBioExtractorBlock(Properties properties) {
+        super(properties
                 .sound(SoundType.METAL)
                 .strength(2.5f, 3_600_000.0f)
                 .isRedstoneConductor(BaseMachineBlock::never)
@@ -28,7 +28,7 @@ public class ExtendedBioExtractorBlock extends BaseMachineBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult hit) {
         return FluidContainerTransfer.useItemOn(itemStack, blockState, level, blockPos, player, hand, hit);
     }
 

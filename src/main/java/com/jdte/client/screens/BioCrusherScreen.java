@@ -1,5 +1,9 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
+import net.minecraft.client.input.MouseButtonEvent;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
@@ -10,21 +14,20 @@ import com.jdte.common.network.data.FilterPagePayload;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeType;
 import com.jdte.setup.JDTEItems;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends BaseMachineScreen<T> {
-    private static final ResourceLocation SCANNER_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/mobscanner.png");
-    private static final ResourceLocation GLOWING_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/glowing.png");
-    private static final ResourceLocation NIGHTVISION_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/nightvision.png");
-    private static final ResourceLocation OUTPUT_PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
-    private static final ResourceLocation OUTPUT_NEXT = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
+    private static final Identifier SCANNER_ICON = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/mobscanner.png");
+    private static final Identifier GLOWING_ICON = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/glowing.png");
+    private static final Identifier NIGHTVISION_ICON = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/nightvision.png");
+    private static final Identifier OUTPUT_PREV = Identifier.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
+    private static final Identifier OUTPUT_NEXT = Identifier.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
     private static final int OUTPUT_PAGE_BUTTON_SIZE = 12;
     private static final int OUTPUT_PAGE_ICON_SIZE = 16;
 
@@ -54,8 +57,8 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
         if (!hasFilterUpgrade()) {
             renderModeButton(guiGraphics);
         }
@@ -84,7 +87,10 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0 && isOutputPrevClicked(mouseX, mouseY)) {
             changeOutputPage(-1);
             return true;
@@ -95,25 +101,24 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
         }
         if (button == 0 && !hasFilterUpgrade() && isModeButtonClicked(mouseX, mouseY)) {
             localMode = (localMode + 1) % 3;
-            PacketDistributor.sendToServer(new BioCrusherPayload(localMode));
+            ClientPacketDistributor.sendToServer(new BioCrusherPayload(localMode));
             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                     net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
-    private void renderModeButton(GuiGraphics guiGraphics) {
-        ResourceLocation icon = switch (localMode) {
+    private void renderModeButton(GuiGraphicsExtractor guiGraphics) {
+        Identifier icon = switch (localMode) {
             case BioCrusherBE.MODE_HOSTILE -> SCANNER_ICON;
             case BioCrusherBE.MODE_FRIENDLY -> GLOWING_ICON;
             default -> NIGHTVISION_ICON;
         };
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blit(icon, modeBtnX, modeBtnY, 0, 0, 16, 16, 16, 16);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, icon, modeBtnX, modeBtnY, 0, 0, 16, 16, 16, 16);
     }
 
-    private void renderOutputPageButtons(GuiGraphics guiGraphics) {
+    private void renderOutputPageButtons(GuiGraphicsExtractor guiGraphics) {
         BioCrusherContainer bioCrusherContainer = bioCrusherContainer();
         if (!bioCrusherContainer.hasOutputSlots()) {
             return;
@@ -132,29 +137,25 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
 
         drawOutputPageButton(guiGraphics, prevX, y, OUTPUT_PREV, prevActive, false);
         drawOutputPageButton(guiGraphics, nextX, y, OUTPUT_NEXT, nextActive, false);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.drawString(font, Component.literal((currentPage + 1) + "/" + (maxPage + 1)), nextX + OUTPUT_PAGE_BUTTON_SIZE + 2, y + 2, 0xFF404040, false);
+        guiGraphics.text(font, Component.literal((currentPage + 1) + "/" + (maxPage + 1)), nextX + OUTPUT_PAGE_BUTTON_SIZE + 2, y + 2, 0xFF404040, false);
     }
 
-    private void drawOutputPageButton(GuiGraphics guiGraphics, int x, int y, ResourceLocation icon, boolean active, boolean flip) {
+    private void drawOutputPageButton(GuiGraphicsExtractor guiGraphics, int x, int y, Identifier icon, boolean active, boolean flip) {
         var poseStack = guiGraphics.pose();
-        poseStack.pushPose();
+        poseStack.pushMatrix();
         if (flip) {
-            poseStack.translate(x + OUTPUT_PAGE_BUTTON_SIZE / 2.0f, y + OUTPUT_PAGE_BUTTON_SIZE / 2.0f, 0);
-            poseStack.scale(0.75f, 0.75f, 1.0f);
-            poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(180));
-            RenderSystem.setShaderColor(1f, 1f, 1f, active ? 1f : 0.3f);
-            guiGraphics.blit(icon, -OUTPUT_PAGE_ICON_SIZE / 2, -OUTPUT_PAGE_ICON_SIZE / 2, 0, 0,
-                    OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE);
+            poseStack.translate(x + OUTPUT_PAGE_BUTTON_SIZE / 2.0f, y + OUTPUT_PAGE_BUTTON_SIZE / 2.0f);
+            poseStack.scale(0.75f, 0.75f);
+            poseStack.rotate((float) Math.toRadians(180));
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, icon, -OUTPUT_PAGE_ICON_SIZE / 2, -OUTPUT_PAGE_ICON_SIZE / 2, 0, 0,
+                    OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, active ? -1 : 0x4DFFFFFF);
         } else {
-            poseStack.translate(x, y, 0);
-            poseStack.scale(0.75f, 0.75f, 1.0f);
-            RenderSystem.setShaderColor(1f, 1f, 1f, active ? 1f : 0.3f);
-            guiGraphics.blit(icon, 0, 0, 0, 0,
-                    OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE);
+            poseStack.translate(x, y);
+            poseStack.scale(0.75f, 0.75f);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, icon, 0, 0, 0, 0,
+                    OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, OUTPUT_PAGE_ICON_SIZE, active ? -1 : 0x4DFFFFFF);
         }
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        poseStack.popPose();
+        poseStack.popMatrix();
     }
 
     private int getOutputPrevX() {
@@ -191,7 +192,7 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
             return;
         }
         bioCrusherContainer.setOutputPage(newPage);
-        PacketDistributor.sendToServer(new FilterPagePayload(newPage));
+        ClientPacketDistributor.sendToServer(new FilterPagePayload(newPage));
         net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                 net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
@@ -200,7 +201,7 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
         return (BioCrusherContainer) container;
     }
 
-    private void renderDedicatedUpgradeGhosts(GuiGraphics guiGraphics) {
+    private void renderDedicatedUpgradeGhosts(GuiGraphicsExtractor guiGraphics) {
         for (Slot slot : container.slots) {
             if (!(slot instanceof BioCrusherContainer.BioCrusherUpgradeSlot upgradeSlot) || slot.hasItem()) {
                 continue;
@@ -209,9 +210,7 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
             if (ghost.isEmpty()) {
                 continue;
             }
-            RenderSystem.setShaderColor(0.42f, 0.42f, 0.42f, 0.55f);
-            guiGraphics.renderFakeItem(ghost, getGuiLeft() + slot.x, getGuiTop() + slot.y);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            GhostItemRenderer.draw(guiGraphics, ghost, getGuiLeft() + slot.x, getGuiTop() + slot.y, 0x99707070);
         }
     }
 
@@ -230,18 +229,18 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderTooltip(guiGraphics, mouseX, mouseY);
+    protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        super.extractTooltip(guiGraphics, mouseX, mouseY);
         if (hoveredSlot instanceof BioCrusherContainer.BioCrusherUpgradeSlot upgradeSlot && !hoveredSlot.hasItem()) {
-            guiGraphics.renderTooltip(font, getDedicatedUpgradeSlotTooltip(upgradeSlot), mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, getDedicatedUpgradeSlotTooltip(upgradeSlot), mouseX, mouseY);
             return;
         }
         if (isOutputPrevClicked(mouseX, mouseY)) {
-            guiGraphics.renderTooltip(font, TOOLTIP_PREV, mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, TOOLTIP_PREV, mouseX, mouseY);
             return;
         }
         if (isOutputNextClicked(mouseX, mouseY)) {
-            guiGraphics.renderTooltip(font, TOOLTIP_NEXT, mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, TOOLTIP_NEXT, mouseX, mouseY);
             return;
         }
         if (!hasFilterUpgrade() && isModeButtonClicked(mouseX, mouseY)) {
@@ -250,7 +249,7 @@ public abstract class BioCrusherScreen<T extends BioCrusherContainer> extends Ba
                 case BioCrusherBE.MODE_FRIENDLY -> TOOLTIP_FRIENDLY;
                 default -> TOOLTIP_ALL;
             };
-            guiGraphics.renderTooltip(font, tooltip, mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, tooltip, mouseX, mouseY);
         }
     }
 }

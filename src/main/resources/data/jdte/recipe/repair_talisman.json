@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "E": { "item": "justdirethings:eclipsealloy_block" },
-    "T": { "item": "justdirethings:time_crystal_block" }
+    "E": "justdirethings:eclipsealloy_block",
+    "T": "justdirethings:time_crystal_block"
   },
   "pattern": [
     "ETE",

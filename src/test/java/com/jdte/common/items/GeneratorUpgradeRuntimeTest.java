@@ -1,5 +1,9 @@
 package com.jdte.common.items;
 
+import static com.jdte.test.TestItemHandlers.stackAt;
+
+import static com.jdte.test.TestItemHandlers.setStack;
+
 import com.jdte.common.blockentities.ExtendedGeneratorBE;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
@@ -8,7 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import org.junit.jupiter.api.Test;
@@ -17,10 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GeneratorUpgradeRuntimeTest {
+class GeneratorUpgradeRuntimeTest implements com.jdte.test.WorldRegistryTest {
     @Test
-    void installedUpgradeExecutesTheTransformedGeneratorBurnPath() {
+    void installedUpgradeExecutesTheTransformedGeneratorBurnPath() throws ReflectiveOperationException {
         ExtendedGeneratorBE generator = new ConfigIndependentGenerator();
+        var field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+        field.setAccessible(true);
         UpgradeHelper.getUpgradeHandler(generator).setStackInSlot(
                 0, new ItemStack(JDTEItems.GENERATOR_UPGRADE.get()));
         // The unit harness has no furnace fuel data map; supply that external
@@ -30,9 +36,10 @@ class GeneratorUpgradeRuntimeTest {
         };
         NeoForge.EVENT_BUS.addListener(FurnaceFuelBurnTimeEvent.class, fuelValues);
         try {
-            generator.getMachineHandler().setStackInSlot(0, new ItemStack(Items.COAL, 2));
+            setStack(generator.getMachineHandler(), 0, new ItemStack(Items.COAL, 2));
+            generator.setLevel((FuelLevel) ((sun.misc.Unsafe) field.get(null)).allocateInstance(FuelLevel.class));
             assertDoesNotThrow(generator::doBurn);
-            assertTrue(generator.getMachineHandler().getStackInSlot(0).isEmpty(),
+            assertTrue(stackAt(generator.getMachineHandler(), 0).isEmpty(),
                     "The generator upgrade must consume two ordinary fuel items");
             assertEquals(72_000, generator.feRemaining);
             assertTrue(generator.maxBurn > 0);
@@ -44,13 +51,26 @@ class GeneratorUpgradeRuntimeTest {
 
     @Test
     void helperConsumesTwoOrdinaryFuelItemsFromTheRealHandler() {
-        ItemStackHandler handler = new ItemStackHandler(1);
-        handler.setStackInSlot(0, new ItemStack(Items.COAL, 3));
+        ItemStacksResourceHandler handler = new ItemStacksResourceHandler(1);
+        setStack(handler, 0, new ItemStack(Items.COAL, 3));
 
-        GeneratorUpgradeHelper.consumeFuel(handler, handler.getStackInSlot(0));
+        GeneratorUpgradeHelper.consumeFuel(handler, stackAt(handler, 0));
 
-        assertEquals(1, handler.getStackInSlot(0).getCount());
-        assertEquals(Items.COAL, handler.getStackInSlot(0).getItem());
+        assertEquals(1, stackAt(handler, 0).getCount());
+        assertEquals(Items.COAL, stackAt(handler, 0).getItem());
+    }
+
+    private static final class FuelLevel extends net.minecraft.server.level.ServerLevel {
+        private FuelLevel() {
+            super(null, null, null, null, null, null, false, 0, java.util.List.of(), false);
+        }
+        @Override public net.minecraft.world.level.block.entity.FuelValues fuelValues() {
+            return net.minecraft.world.level.block.entity.FuelValues.vanillaBurnTimes(
+                    com.jdte.test.TestWorldRegistries.load(), net.minecraft.world.flag.FeatureFlags.VANILLA_SET);
+        }
+        @Override public void blockEntityChanged(BlockPos pos) {}
+        @Override public void sendBlockUpdated(BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState,
+                net.minecraft.world.level.block.state.BlockState newState, int flags) {}
     }
 
     private static final class ConfigIndependentGenerator extends ExtendedGeneratorBE {

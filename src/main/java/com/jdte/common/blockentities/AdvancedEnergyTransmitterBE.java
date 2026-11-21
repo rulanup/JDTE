@@ -1,5 +1,8 @@
 package com.jdte.common.blockentities;
 
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.core.UUIDUtil;
+
 import com.direwolf20.justdirethings.client.particles.itemparticle.ItemFlowParticleData;
 import com.direwolf20.justdirethings.common.blockentities.basebe.AreaAffectingBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
@@ -9,11 +12,10 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineC
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
-import com.jdte.common.integrations.DraconicFusionEnergyIntegration;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySource;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySources;
 import com.jdte.common.upgrades.UpgradeHelper;
@@ -21,8 +23,8 @@ import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.ContainerData;
@@ -33,13 +35,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,28 +57,21 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         implements PoweredMachineBE, RedstoneControlledBE, AreaAffectingBE,
                    FilterableBE, ExtendedUpgradeMachine, CoalescedAcceleratedMachine {
 
-    private static final boolean DRACONIC_EVOLUTION_LOADED =
-            ModList.get().isLoaded("draconicevolution");
-
     private record EnergyTarget(BlockPos pos, Direction side,
-                                BlockCapabilityCache<IEnergyStorage, Direction> cache) {
+                                BlockCapabilityCache<EnergyHandler, Direction> cache) {
     }
 
-    private record ReceivingCapability(Direction side, IEnergyStorage receiver) {
+    private record ReceivingCapability(Direction side, EnergyHandler receiver) {
     }
 
     private static final class PlannedTransfer {
         private EnergyTarget target;
-        private IEnergyStorage receiver;
+        private EnergyHandler receiver;
         private long demand;
-        private boolean draconicInjector;
-
-        private void set(EnergyTarget target, IEnergyStorage receiver, long demand,
-                         boolean draconicInjector) {
+        private void set(EnergyTarget target, EnergyHandler receiver, long demand) {
             this.target = target;
             this.receiver = receiver;
             this.demand = demand;
-            this.draconicInjector = draconicInjector;
         }
     }
 
@@ -94,23 +90,23 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
      * 使用 long 且独立持久化，避免旧存档的小型内部缓存导致回存失败时能量丢失。
      */
     private long networkEnergyReserve;
-    private final ItemStackHandler machineHandler = new ItemStackHandler(1) {
+    private final MachineInventoryHandler machineHandler = new MachineInventoryHandler(1) {
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            IEnergyStorage itemEnergy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-            return itemEnergy != null && itemEnergy.canExtract();
+        public boolean isValid(int slot, ItemResource resource) {
+            return !resource.isEmpty() && ItemAccess.forStack(resource.toStack())
+                    .getCapability(Capabilities.Energy.ITEM) != null;
         }
 
         @Override
-        protected void onContentsChanged(int slot) {
+        protected void onContentsChanged(int slot, ItemStack previous) {
             setChanged();
         }
     };
     private final List<EnergyTarget> targets = new ArrayList<>();
     private final Map<BlockPos, EnergyTarget> pendingTargets = new LinkedHashMap<>();
-    private final IdentityHashMap<IEnergyStorage, Boolean> pendingReceiverIdentities = new IdentityHashMap<>();
+    private final IdentityHashMap<EnergyHandler, Boolean> pendingReceiverIdentities = new IdentityHashMap<>();
     private final List<PlannedTransfer> transferPlan = new ArrayList<>();
-    private final IdentityHashMap<IEnergyStorage, Boolean> transferReceiverIdentities = new IdentityHashMap<>();
+    private final IdentityHashMap<EnergyHandler, Boolean> transferReceiverIdentities = new IdentityHashMap<>();
     private final AdvancedEnergyTransmitterPlayerCharger playerCharger =
             new AdvancedEnergyTransmitterPlayerCharger();
     private final ContainerData transmitterData;
@@ -254,7 +250,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -274,9 +270,9 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             return false;
         }
         int activeSlots = UpgradeHelper.getActiveFilterSlots(this, UpgradeHelper.getBaseFilterSlots(handler));
-        int limit = Math.min(activeSlots, handler.getSlots());
+        int limit = Math.min(activeSlots, handler.size());
         for (int i = 0; i < limit; i++) {
-            if (!handler.getStackInSlot(i).isEmpty()) {
+            if (!handler.getResource(i).isEmpty()) {
                 return true;
             }
         }
@@ -309,9 +305,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         } else {
             ItemStack blockItemStack;
             try {
-                blockItemStack = state.getCloneItemStack(
-                        new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false),
-                        serverLevel, pos, getFakePlayer(serverLevel));
+                blockItemStack = state.getCloneItemStack(pos, serverLevel, false, getFakePlayer(serverLevel));
             } catch (Throwable t) {
                 blockItemStack = state.getBlock().asItem().getDefaultInstance();
             }
@@ -325,7 +319,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return machineHandler;
     }
 
@@ -399,7 +393,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             return BindingResult.BOUND;
         }
         boolean authorized = boundPlayerId.equals(actor.getUUID())
-                || actor.isCreative() && actor.hasPermissions(2);
+                || actor.isCreative() && actor.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
         if (!authorized) {
             return BindingResult.DENIED;
         }
@@ -411,16 +405,16 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
     private void bindPlayer(ServerPlayer player) {
         boundPlayerId = player.getUUID();
-        boundPlayerName = player.getGameProfile().getName();
+        boundPlayerName = player.getGameProfile().name();
         markDirtyClient();
     }
 
     public boolean hasBoundPlayer() {
-        return level != null && level.isClientSide ? syncedPlayerBound : boundPlayerId != null;
+        return level != null && level.isClientSide() ? syncedPlayerBound : boundPlayerId != null;
     }
 
     public boolean isBoundPlayerOnline() {
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             return syncedBoundPlayerOnline;
         }
         return getBoundPlayer() != null;
@@ -467,11 +461,11 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     public int getTargetCount() {
-        return level != null && level.isClientSide ? syncedTargetCount : targets.size();
+        return level != null && level.isClientSide() ? syncedTargetCount : targets.size();
     }
 
     public int getScanProgress() {
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             return syncedScanProgress;
         }
         if (!scanActive || scanVolume <= 0) {
@@ -489,7 +483,7 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     public AdvancedEnergyTransmitterEnergySource.Status getEnergyNetworkStatus() {
-        int status = level != null && level.isClientSide
+        int status = level != null && level.isClientSide()
                 ? syncedEnergyNetworkStatus : energyNetworkSource.getStatus().ordinal();
         AdvancedEnergyTransmitterEnergySource.Status[] values =
                 AdvancedEnergyTransmitterEnergySource.Status.values();
@@ -497,29 +491,11 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     private void drainEnergyItem(int requested) {
-        ItemStack stack = machineHandler.getStackInSlot(0);
-        if (requested <= 0 || stack.isEmpty()
-                || energyStorage.getEnergyStored() >= energyStorage.getMaxEnergyStored()) {
+        if (requested <= 0 || machineHandler.getAmountAsInt(0) == 0 || EnergyHandlerUtil.isFull(energyStorage)) {
             return;
         }
-        IEnergyStorage itemEnergy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-        if (itemEnergy == null || !itemEnergy.canExtract()) {
-            return;
-        }
-
-        int missing = Math.min(requested,
-                energyStorage.getMaxEnergyStored() - energyStorage.getEnergyStored());
-        int extractable = itemEnergy.extractEnergy(missing, true);
-        if (extractable <= 0) {
-            return;
-        }
-        int accepted = energyStorage.receiveEnergy(extractable, true);
-        if (accepted <= 0) {
-            return;
-        }
-        int extracted = itemEnergy.extractEnergy(accepted, false);
-        if (extracted > 0) {
-            energyStorage.receiveEnergy(extracted, false);
+        var itemEnergy = ItemAccess.forHandlerIndex(machineHandler, 0).getCapability(Capabilities.Energy.ITEM);
+        if (EnergyHandlerUtil.move(itemEnergy, energyStorage, requested, null) > 0) {
             setChanged();
         }
     }
@@ -548,10 +524,10 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
         AABB area = getAABB(getBlockPos());
         scanMinX = (int) Math.floor(area.minX);
-        scanMinY = Math.max(serverLevel.getMinBuildHeight(), (int) Math.floor(area.minY));
+        scanMinY = Math.max(serverLevel.getMinY(), (int) Math.floor(area.minY));
         scanMinZ = (int) Math.floor(area.minZ);
         int maxX = (int) Math.ceil(area.maxX);
-        int maxY = Math.min(serverLevel.getMaxBuildHeight(), (int) Math.ceil(area.maxY));
+        int maxY = Math.min(serverLevel.getMaxY() + 1, (int) Math.ceil(area.maxY));
         int maxZ = (int) Math.ceil(area.maxZ);
         scanSizeX = Math.max(0, maxX - scanMinX);
         scanSizeY = Math.max(0, maxY - scanMinY);
@@ -602,19 +578,13 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
 
         Direction preferredSide = sideFacingTransmitter(pos);
         ReceivingCapability receiving = findReceivingCapability(serverLevel, pos, preferredSide);
-        boolean draconicInjector = DRACONIC_EVOLUTION_LOADED
-                && DraconicFusionEnergyIntegration.isFusionInjector(blockEntity);
-        if (!draconicInjector && receiving == null) {
-            return;
-        }
-        if (!draconicInjector && pendingReceiverIdentities.put(receiving.receiver(), Boolean.TRUE) != null) {
+        if (receiving == null || pendingReceiverIdentities.put(receiving.receiver(), Boolean.TRUE) != null) {
             return;
         }
         BlockPos immutablePos = pos.immutable();
-        Direction capabilitySide = receiving != null
-                ? receiving.side() : preferredSide != null ? preferredSide : Direction.UP;
-        BlockCapabilityCache<IEnergyStorage, Direction> cache = BlockCapabilityCache.create(
-                Capabilities.EnergyStorage.BLOCK, serverLevel, immutablePos, capabilitySide);
+        Direction capabilitySide = receiving.side();
+        BlockCapabilityCache<EnergyHandler, Direction> cache = BlockCapabilityCache.create(
+                Capabilities.Energy.BLOCK, serverLevel, immutablePos, capabilitySide);
         pendingTargets.put(immutablePos, new EnergyTarget(immutablePos, capabilitySide, cache));
     }
 
@@ -626,9 +596,9 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     private ReceivingCapability findReceivingCapability(ServerLevel serverLevel, BlockPos pos,
                                                         Direction preferredSide) {
         if (preferredSide != null) {
-            IEnergyStorage preferred = serverLevel.getCapability(
-                    Capabilities.EnergyStorage.BLOCK, pos, preferredSide);
-            if (preferred != null && preferred.canReceive()) {
+            EnergyHandler preferred = serverLevel.getCapability(
+                    Capabilities.Energy.BLOCK, pos, preferredSide);
+            if (preferred != null && AdvancedEnergyTransmitterScheduler.receive(preferred, 1, true) > 0) {
                 return new ReceivingCapability(preferredSide, preferred);
             }
         }
@@ -636,9 +606,9 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             if (side == preferredSide) {
                 continue;
             }
-            IEnergyStorage receiver = serverLevel.getCapability(
-                    Capabilities.EnergyStorage.BLOCK, pos, side);
-            if (receiver != null && receiver.canReceive()) {
+            EnergyHandler receiver = serverLevel.getCapability(
+                    Capabilities.Energy.BLOCK, pos, side);
+            if (receiver != null && AdvancedEnergyTransmitterScheduler.receive(receiver, 1, true) > 0) {
                 return new ReceivingCapability(side, receiver);
             }
         }
@@ -769,12 +739,8 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             EnergyTarget target = targets.get(AdvancedEnergyTransmitterScheduler.targetIndex(
                     startIndex, attempted, targetCount));
             attempted++;
-            BlockEntity blockEntity = serverLevel.getBlockEntity(target.pos());
-            boolean draconicInjector = DRACONIC_EVOLUTION_LOADED
-                && DraconicFusionEnergyIntegration.isFusionInjector(blockEntity);
-            IEnergyStorage receiver = target.cache().getCapability();
-            if (!draconicInjector && (receiver == null || !receiver.canReceive()
-                    || transferReceiverIdentities.put(receiver, Boolean.TRUE) != null)) {
+            EnergyHandler receiver = target.cache().getCapability();
+            if (receiver == null || transferReceiverIdentities.put(receiver, Boolean.TRUE) != null) {
                 continue;
             }
 
@@ -782,15 +748,11 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
             int perTargetLimit = overload ? 0 : JDTEConfig.COMMON.advancedEnergyTransmitterMaxTransferPerTarget.get();
             int offered = perTargetLimit <= 0
                     ? remainingBudget : Math.min(remainingBudget, perTargetLimit);
-            long demand = draconicInjector
-                    ? DraconicFusionEnergyIntegration.scaledDemand(
-                            blockEntity, Long.MAX_VALUE, operationMultiplier,
-                            transferBudget - plannedTotal)
-                    : receiver.receiveEnergy(offered, true);
+            long demand = AdvancedEnergyTransmitterScheduler.receive(receiver, offered, true);
             if (demand <= 0L) {
                 continue;
             }
-            transferPlan.get(plannedCount++).set(target, receiver, demand, draconicInjector);
+            transferPlan.get(plannedCount++).set(target, receiver, demand);
             plannedTotal = AdvancedEnergyTransmitterScheduler.saturatingAdd(plannedTotal, demand);
         }
 
@@ -820,11 +782,8 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
                 break;
             }
             long offered = Math.min(available, planned.demand);
-            long accepted = planned.draconicInjector
-                    ? DraconicFusionEnergyIntegration.receive(
-                            serverLevel.getBlockEntity(planned.target.pos()), offered)
-                    : planned.receiver.receiveEnergy(
-                            AdvancedEnergyTransmitterScheduler.clampToInt(offered), false);
+            long accepted = AdvancedEnergyTransmitterScheduler.receive(planned.receiver,
+                    AdvancedEnergyTransmitterScheduler.clampToInt(offered), false);
             accepted = Math.min(offered, Math.max(0L, accepted));
             if (accepted <= 0L) {
                 continue;
@@ -931,8 +890,8 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
         hash = 31 * hash + (filterData.allowlist ? 1 : 0);
         hash = 31 * hash + (filterData.compareNBT ? 1 : 0);
         FilterBasicHandler handler = getFilterHandler();
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            hash = 31 * hash + ItemStack.hashItemAndComponents(handler.getStackInSlot(slot));
+        for (int slot = 0; slot < handler.size(); slot++) {
+            hash = 31 * hash + ItemStack.hashItemAndComponents(handler.getResource(slot).toStack(handler.getAmountAsInt(slot)));
         }
         return hash;
     }
@@ -971,14 +930,14 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putLong("networkEnergyReserve", networkEnergyReserve);
-        tag.put("inventory", machineHandler.serializeNBT(provider));
+        tag.putChild("inventory", machineHandler);
         tag.putBoolean("showParticles", showParticles);
         if (boundPlayerId != null) {
-            tag.putUUID("boundPlayer", boundPlayerId);
+            tag.store("boundPlayer", UUIDUtil.CODEC, boundPlayerId);
             tag.putString("boundPlayerName", boundPlayerName);
         }
         energyNetworkSource.save(tag);
@@ -986,21 +945,15 @@ public class AdvancedEnergyTransmitterBE extends BaseMachineBE
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("energy")) {
-            energyStorage.setEnergy(tag.getInt("energy"));
-        }
-        networkEnergyReserve = Math.max(0L, tag.getLong("networkEnergyReserve"));
-        if (tag.contains("inventory")) {
-            machineHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
-        if (tag.contains("showParticles")) {
-            showParticles = tag.getBoolean("showParticles");
-        }
-        if (tag.hasUUID("boundPlayer")) {
-            boundPlayerId = tag.getUUID("boundPlayer");
-            boundPlayerName = tag.getString("boundPlayerName");
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.getInt("energy").ifPresent(energyStorage::setEnergy);
+        networkEnergyReserve = Math.max(0L, tag.getLongOr("networkEnergyReserve", 0L));
+        tag.child("inventory").ifPresent(machineHandler::deserialize);
+        showParticles = tag.getBooleanOr("showParticles", showParticles);
+        if (tag.read("boundPlayer", UUIDUtil.CODEC).isPresent()) {
+            boundPlayerId = tag.read("boundPlayer", UUIDUtil.CODEC).orElseThrow();
+            boundPlayerName = tag.getStringOr("boundPlayerName", "");
         } else {
             boundPlayerId = null;
             boundPlayerName = "";

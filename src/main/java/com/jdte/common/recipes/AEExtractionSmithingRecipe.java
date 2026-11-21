@@ -1,28 +1,28 @@
 package com.jdte.common.recipes;
 
-import appeng.api.ids.AEComponents;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.jdte.common.integrations.ae2.AEExtractionNetwork;
 import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTERecipes;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SmithingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.SimpleSmithingRecipe;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.mojang.serialization.MapCodec;
+import java.util.Optional;
 
-public final class AEExtractionSmithingRecipe implements SmithingRecipe {
+public final class AEExtractionSmithingRecipe extends SimpleSmithingRecipe {
+    public AEExtractionSmithingRecipe() { super(new CommonInfo(false)); }
+
     @Override
     public boolean matches(SmithingRecipeInput input, Level level) {
         return input.template().is(JDTEItems.AE_EXTRACTION_UPGRADE.get())
@@ -34,7 +34,7 @@ public final class AEExtractionSmithingRecipe implements SmithingRecipe {
     }
 
     @Override
-    public ItemStack assemble(SmithingRecipeInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(SmithingRecipeInput input) {
         if (!matches(input, null)) return ItemStack.EMPTY;
         ItemStack result = input.base().copyWithCount(1);
         AEExtractionNetwork.copyLink(input.template(), result);
@@ -43,60 +43,58 @@ public final class AEExtractionSmithingRecipe implements SmithingRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
+    public Optional<Ingredient> templateIngredient() {
+        return Optional.of(Ingredient.of(JDTEItems.AE_EXTRACTION_UPGRADE.get()));
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return ItemStack.EMPTY;
+    public Optional<Ingredient> additionIngredient() {
+        return Optional.empty();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<AEExtractionSmithingRecipe> getSerializer() {
         return JDTERecipes.AE_EXTRACTION_SMITHING_RECIPE_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return RecipeType.SMITHING;
+    public Ingredient baseIngredient() {
+        return Ingredient.of(BuiltInRegistries.ITEM.stream()
+                .filter(item -> isJdtNamespace(BuiltInRegistries.ITEM.getKey(item))));
     }
 
     @Override
-    public boolean isTemplateIngredient(ItemStack stack) {
-        return stack.is(JDTEItems.AE_EXTRACTION_UPGRADE.get()) && AEExtractionNetwork.isLinked(stack);
+    protected PlacementInfo createPlacementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
-    @Override
-    public boolean isBaseIngredient(ItemStack stack) {
-        if (stack.isEmpty() || !isJdtItem(stack) || stack.has(JDTEDataComponents.AE_EXTRACTION_ENABLED.get())) return false;
-        return stack.getCapability(Capabilities.EnergyStorage.ITEM) instanceof IEnergyStorage
-                || stack.getCapability(Capabilities.FluidHandler.ITEM) instanceof IFluidHandlerItem;
+    private boolean isBaseIngredient(ItemStack stack) {
+        if (stack.isEmpty() || !isJdtNamespace(BuiltInRegistries.ITEM.getKey(stack.getItem()))
+                || stack.has(JDTEDataComponents.AE_EXTRACTION_ENABLED.get())) return false;
+        var access = ItemAccess.forStack(stack);
+        return access.getCapability(Capabilities.Energy.ITEM) != null
+                || access.getCapability(Capabilities.Fluid.ITEM) != null;
     }
 
-    @Override
-    public boolean isAdditionIngredient(ItemStack stack) {
-        return false;
-    }
-
-    private static boolean isJdtItem(ItemStack stack) {
-        ResourceLocation key = stack.getItem().builtInRegistryHolder().key().location();
+    private static boolean isJdtNamespace(Identifier key) {
         return key.getNamespace().equals("justdirethings") || key.getNamespace().equals("jdte");
     }
 
-    public static final class Serializer implements RecipeSerializer<AEExtractionSmithingRecipe> {
+    public static final class Serializer {
+        public static RecipeSerializer<AEExtractionSmithingRecipe> create() {
+            return new RecipeSerializer<>(codec(), streamCodec());
+        }
+
         private static final AEExtractionSmithingRecipe INSTANCE = new AEExtractionSmithingRecipe();
         private static final MapCodec<AEExtractionSmithingRecipe> CODEC = MapCodec.unit(INSTANCE);
         private static final StreamCodec<RegistryFriendlyByteBuf, AEExtractionSmithingRecipe> STREAM_CODEC =
                 StreamCodec.unit(INSTANCE);
 
-        @Override
-        public MapCodec<AEExtractionSmithingRecipe> codec() {
+        public static MapCodec<AEExtractionSmithingRecipe> codec() {
             return CODEC;
         }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, AEExtractionSmithingRecipe> streamCodec() {
+        public static StreamCodec<RegistryFriendlyByteBuf, AEExtractionSmithingRecipe> streamCodec() {
             return STREAM_CODEC;
         }
     }

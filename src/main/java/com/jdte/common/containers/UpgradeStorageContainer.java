@@ -8,11 +8,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import org.jetbrains.annotations.NotNull;
 
 public class UpgradeStorageContainer extends BaseContainer {
@@ -57,13 +56,13 @@ public class UpgradeStorageContainer extends BaseContainer {
     }
 
     @Override
-    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+    public void clicked(int slotId, int button, ContainerInput clickType, Player player) {
         if (hand == InteractionHand.MAIN_HAND) {
-            int heldSlotIndex = SLOTS + 27 + player.getInventory().selected;
+            int heldSlotIndex = SLOTS + 27 + player.getInventory().getSelectedSlot();
             if (slotId == heldSlotIndex) {
                 return;
             }
-            if (clickType == ClickType.SWAP && button == player.getInventory().selected) {
+            if (clickType == ContainerInput.SWAP && button == player.getInventory().getSelectedSlot()) {
                 return;
             }
         }
@@ -161,9 +160,9 @@ public class UpgradeStorageContainer extends BaseContainer {
         return moved;
     }
 
-    public static class UpgradeStorageSlot extends SlotItemHandler {
-        public UpgradeStorageSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
-            super(itemHandler, index, xPosition, yPosition);
+    public static class UpgradeStorageSlot extends ResourceHandlerSlot {
+        public UpgradeStorageSlot(UpgradeStorageHandler itemHandler, int index, int xPosition, int yPosition) {
+            super(itemHandler, itemHandler::set, index, xPosition, yPosition);
         }
 
         @Override

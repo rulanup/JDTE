@@ -1,7 +1,7 @@
 {
   "name": "Upgrade Cards",
   "icon": "jdte:capacity_upgrade",
-  "category": "jdte:upgrades_tools",
+  "category": "justdirethings:upgrades_tools",
   "sortnum": 100,
   "pages": [
     {

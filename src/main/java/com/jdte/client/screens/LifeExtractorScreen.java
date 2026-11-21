@@ -1,5 +1,9 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
+import net.minecraft.client.input.MouseButtonEvent;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.JDTE;
@@ -7,17 +11,16 @@ import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.LifeExtractorBE;
 import com.jdte.common.containers.LifeExtractorContainer;
 import com.jdte.common.network.data.LifeExtractorPayload;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public abstract class LifeExtractorScreen<T extends LifeExtractorContainer> extends BaseMachineScreen<T> {
-    private static final ResourceLocation SCANNER_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/mobscanner.png");
-    private static final ResourceLocation GLOWING_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/glowing.png");
-    private static final ResourceLocation NIGHTVISION_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/nightvision.png");
+    private static final Identifier SCANNER_ICON = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/mobscanner.png");
+    private static final Identifier GLOWING_ICON = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/glowing.png");
+    private static final Identifier NIGHTVISION_ICON = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/nightvision.png");
 
     private static final Component TOOLTIP_HOSTILE = Component.translatable("jdte.screen.life_extractor.mode.hostile");
     private static final Component TOOLTIP_FRIENDLY = Component.translatable("jdte.screen.life_extractor.mode.friendly");
@@ -43,8 +46,8 @@ public abstract class LifeExtractorScreen<T extends LifeExtractorContainer> exte
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
         if (!hasFilterUpgrade()) {
             renderModeButton(guiGraphics);
         }
@@ -71,37 +74,39 @@ public abstract class LifeExtractorScreen<T extends LifeExtractorContainer> exte
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0 && !hasFilterUpgrade() && isModeButtonClicked(mouseX, mouseY)) {
             localMode = (localMode + 1) % 3;
-            PacketDistributor.sendToServer(new LifeExtractorPayload(localMode));
+            ClientPacketDistributor.sendToServer(new LifeExtractorPayload(localMode));
             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                     net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
-    private void renderModeButton(GuiGraphics guiGraphics) {
-        ResourceLocation icon = switch (localMode) {
+    private void renderModeButton(GuiGraphicsExtractor guiGraphics) {
+        Identifier icon = switch (localMode) {
             case LifeExtractorBE.MODE_HOSTILE -> SCANNER_ICON;
             case LifeExtractorBE.MODE_FRIENDLY -> GLOWING_ICON;
             default -> NIGHTVISION_ICON;
         };
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blit(icon, modeBtnX, modeBtnY, 0, 0, 16, 16, 16, 16);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, icon, modeBtnX, modeBtnY, 0, 0, 16, 16, 16, 16);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderTooltip(guiGraphics, mouseX, mouseY);
+    protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        super.extractTooltip(guiGraphics, mouseX, mouseY);
         if (!hasFilterUpgrade() && isModeButtonClicked(mouseX, mouseY)) {
             Component tooltip = switch (localMode) {
                 case LifeExtractorBE.MODE_HOSTILE -> TOOLTIP_HOSTILE;
                 case LifeExtractorBE.MODE_FRIENDLY -> TOOLTIP_FRIENDLY;
                 default -> TOOLTIP_ALL;
             };
-            guiGraphics.renderTooltip(font, tooltip, mouseX, mouseY);
+            guiGraphics.setTooltipForNextFrame(font, tooltip, mouseX, mouseY);
         }
     }
 }

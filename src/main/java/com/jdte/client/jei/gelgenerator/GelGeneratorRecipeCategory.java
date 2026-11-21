@@ -1,8 +1,9 @@
 package com.jdte.client.jei.gelgenerator;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.jdte.JDTE;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
-import com.mojang.blaze3d.systems.RenderSystem;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -13,19 +14,19 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJeiRecipe> {
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "gel_generator");
+    public static final Identifier UID = Identifier.fromNamespaceAndPath(JDTE.MODID, "gel_generator");
     public static final RecipeType<GelGeneratorJeiRecipe> RECIPE_TYPE = new RecipeType<>(UID, GelGeneratorJeiRecipe.class);
 
-    private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
-    private static final ResourceLocation JDT_BACKGROUND = ResourceLocation.fromNamespaceAndPath("justdirethings", "background");
-    private static final ResourceLocation JDT_POWER_BAR = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
-    private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
+    private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
+    private static final Identifier JDT_BACKGROUND = Identifier.fromNamespaceAndPath("justdirethings", "background");
+    private static final Identifier JDT_POWER_BAR = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/powerbar.png");
+    private static final Identifier JDTE_FLUID_BAR = Identifier.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
 
     private static final int GUI_Y_OFFSET = 26;
     private static final int WIDTH = 142;
@@ -79,7 +80,7 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
     public void setRecipe(IRecipeLayoutBuilder builder, GelGeneratorJeiRecipe recipe, IFocusGroup focuses) {
         GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
 
-        builder.addSlot(RecipeIngredientRole.CATALYST, ingredientX(config.getGelGenGelX()), ingredientY(config.getGelGenGelY()))
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, ingredientX(config.getGelGenGelX()), ingredientY(config.getGelGenGelY()))
                 .addRichTooltipCallback((slotView, tooltip) ->
                         tooltip.add(Component.translatable("jei.jdte.not_consumed").withStyle(ChatFormatting.GRAY)))
                 .addItemStack(recipe.gelStack());
@@ -108,12 +109,12 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
     }
 
     @Override
-    public ResourceLocation getRegistryName(GelGeneratorJeiRecipe recipe) {
+    public Identifier getRegistryName(GelGeneratorJeiRecipe recipe) {
         return recipe.id();
     }
 
     @Override
-    public void draw(GelGeneratorJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(GelGeneratorJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         drawPanel(guiGraphics);
         drawSlotBorders(guiGraphics, recipe);
         drawProgressArrow(guiGraphics, recipe);
@@ -122,12 +123,11 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
         }
     }
 
-    private void drawPanel(GuiGraphics guiGraphics) {
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blitSprite(JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
+    private void drawPanel(GuiGraphicsExtractor guiGraphics) {
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
     }
 
-    private void drawSlotBorders(GuiGraphics guiGraphics, GelGeneratorJeiRecipe recipe) {
+    private void drawSlotBorders(GuiGraphicsExtractor guiGraphics, GelGeneratorJeiRecipe recipe) {
         GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
         drawSlot(guiGraphics, config.getGelGenGelX(), config.getGelGenGelY());
         drawSlot(guiGraphics, config.getGelGenFoodX(), config.getGelGenFoodY());
@@ -140,17 +140,17 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
         }
     }
 
-    private void drawItemColumnSlots(GuiGraphics guiGraphics, int startX, int startY, int spacing, int count) {
+    private void drawItemColumnSlots(GuiGraphicsExtractor guiGraphics, int startX, int startY, int spacing, int count) {
         for (int i = 0; i < count; i++) {
             drawSlot(guiGraphics, startX, startY + i * spacing);
         }
     }
 
-    private void drawSlot(GuiGraphics guiGraphics, int machineX, int machineY) {
-        guiGraphics.blitSprite(SLOT_SPRITE, slotX(machineX), slotY(machineY), SLOT_SIZE, SLOT_SIZE);
+    private void drawSlot(GuiGraphicsExtractor guiGraphics, int machineX, int machineY) {
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, slotX(machineX), slotY(machineY), SLOT_SIZE, SLOT_SIZE);
     }
 
-    private void drawProgressArrow(GuiGraphics guiGraphics, GelGeneratorJeiRecipe recipe) {
+    private void drawProgressArrow(GuiGraphicsExtractor guiGraphics, GelGeneratorJeiRecipe recipe) {
         GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
         int x = slotX(config.getGelGenProgressArrowX() + (recipe.hasItemConversion() || recipe.hasFluidConversion() ? ITEM_RECIPE_X_SHIFT : 0));
         int y = slotY(config.getGelGenProgressArrowY());
@@ -163,23 +163,22 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
         }
     }
 
-    private void drawEnergyBar(GuiGraphics guiGraphics, GelGeneratorJeiRecipe recipe, double mouseX, double mouseY) {
+    private void drawEnergyBar(GuiGraphicsExtractor guiGraphics, GelGeneratorJeiRecipe recipe, double mouseX, double mouseY) {
         GuiUpgradeLayoutConfig config = GuiUpgradeLayoutConfig.getInstance();
         int x = slotX(energyBarX(config));
         int y = slotY(config.getGelGenOutputStartY());
         int fillHeight = 1 + (int) ((System.currentTimeMillis() / 35) % 70);
 
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blit(JDT_POWER_BAR, x, y, 0, 0, 18, 72, 36, 72);
-        guiGraphics.blit(JDT_POWER_BAR, x + 1, y + 70 - fillHeight, 19, 70 - fillHeight, 16, fillHeight, 36, 72);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, JDT_POWER_BAR, x, y, 0, 0, 18, 72, 36, 72);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, JDT_POWER_BAR, x + 1, y + 70 - fillHeight, 19, 70 - fillHeight, 16, fillHeight, 36, 72);
 
         if (mouseX >= x && mouseX < x + 18 && mouseY >= y && mouseY < y + 72) {
-            guiGraphics.renderTooltip(Minecraft.getInstance().font,
+            guiGraphics.setTooltipForNextFrame(Minecraft.getInstance().font,
                     Component.literal(recipe.energyCost() + " FE"), (int) mouseX, (int) mouseY);
         }
     }
 
-    private void drawArrow(GuiGraphics guiGraphics, int x, int y, int width, int color) {
+    private void drawArrow(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int color) {
         int clampedWidth = Math.max(0, Math.min(24, width));
         if (clampedWidth <= 0) return;
 
@@ -196,7 +195,7 @@ public class GelGeneratorRecipeCategory implements IRecipeCategory<GelGeneratorJ
         if (headWidth > 6) drawHeadPart(guiGraphics, x + 22, y + 1, Math.min(headWidth - 6, 2), 13, color);
     }
 
-    private void drawHeadPart(GuiGraphics guiGraphics, int x, int y, int width, int height, int color) {
+    private void drawHeadPart(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height, int color) {
         if (width > 0) {
             guiGraphics.fill(x, y, x + width, y + height, color);
         }

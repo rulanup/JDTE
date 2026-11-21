@@ -1,5 +1,12 @@
 package com.jdte.common.autoioconfig;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.RangedResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import com.direwolf20.justdirethings.common.blockentities.BlockBreakerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.BlockPlacerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.BlockSwapperT1BE;
@@ -9,7 +16,6 @@ import com.direwolf20.justdirethings.common.blockentities.FluidCollectorT1BE;
 import com.direwolf20.justdirethings.common.blockentities.FluidPlacerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
-import com.direwolf20.justdirethings.util.ItemStackKey;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
 import com.jdte.common.blockentities.FluidMixerBE;
@@ -46,11 +52,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -187,7 +188,7 @@ public final class AutoIoTransferHelper {
             for (BlockPos neighborPos : externalNeighbors(level, machine, side)) {
                 EndpointKey key = new EndpointKey(neighborPos.immutable(), neighborSide);
                 if (!visited.add(key)) continue;
-                IItemHandler target = resolveCachedItemEndpoint(level, key, endpointCache);
+                ResourceHandler<ItemResource> target = resolveCachedItemEndpoint(level, key, endpointCache);
                 if (target != null) {
                     if (machine instanceof ICreativeGreenhouse creativeGreenhouse) {
                         moved |= pushCreativeGreenhouseItems(creativeGreenhouse, sourceSlots, target,
@@ -211,7 +212,7 @@ public final class AutoIoTransferHelper {
         EVENT_OUTPUT_ENDPOINTS.remove(machine);
     }
 
-    private static IItemHandler resolveCachedItemEndpoint(ServerLevel level, EndpointKey key,
+    private static ResourceHandler<ItemResource> resolveCachedItemEndpoint(ServerLevel level, EndpointKey key,
                                                           Map<EndpointKey, CachedItemEndpoint> cache) {
         BlockState state = level.getBlockState(key.pos());
         BlockEntity blockEntity = level.getBlockEntity(key.pos());
@@ -220,7 +221,7 @@ public final class AutoIoTransferHelper {
                 && (blockEntity == null || !blockEntity.isRemoved())) {
             return cached.handler();
         }
-        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, key.pos(), key.side());
+        ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, key.pos(), key.side());
         if (handler == null) cache.remove(key);
         else cache.put(key, new CachedItemEndpoint(state, blockEntity, handler));
         return handler;
@@ -229,14 +230,14 @@ public final class AutoIoTransferHelper {
     public record EventOutputResult(boolean moved, boolean outputEnabled) {
     }
 
-    public record AEOutputRoutes(int[] itemSlots, IFluidHandler fluidOutput) {
+    public record AEOutputRoutes(int[] itemSlots, ResourceHandler<FluidResource> fluidOutput) {
         private static final AEOutputRoutes EMPTY = new AEOutputRoutes(NO_SLOTS, null);
     }
 
     private record EndpointKey(BlockPos pos, Direction side) {
     }
 
-    private record CachedItemEndpoint(BlockState state, BlockEntity blockEntity, IItemHandler handler) {
+    private record CachedItemEndpoint(BlockState state, BlockEntity blockEntity, ResourceHandler<ItemResource> handler) {
     }
 
     private static boolean transferEnabledSides(ServerLevel level, BaseMachineBE machine,
@@ -262,7 +263,7 @@ public final class AutoIoTransferHelper {
     private static boolean transferSide(ServerLevel level, BaseMachineBE machine, Direction side, IoRoutes routes,
                                         boolean inputEnabled, boolean outputEnabled) {
         boolean moved = false;
-        ItemStackHandler internalItems = machine.getMachineHandler();
+        ResourceHandler<ItemResource> internalItems = machine.getMachineHandler();
         for (BlockPos neighborPos : externalNeighbors(level, machine, side)) {
             Direction neighborSide = side.getOpposite();
             if (transferNeighbor(level, machine, neighborPos, neighborSide, routes, inputEnabled, outputEnabled,
@@ -275,36 +276,36 @@ public final class AutoIoTransferHelper {
 
     private static boolean transferNeighbor(ServerLevel level, BaseMachineBE machine, BlockPos neighborPos,
                                             Direction neighborSide, IoRoutes routes, boolean inputEnabled,
-                                            boolean outputEnabled, ItemStackHandler internalItems) {
+                                            boolean outputEnabled, ResourceHandler<ItemResource> internalItems) {
         boolean moved = false;
         if (outputEnabled && internalItems != null && routes.hasItemOutputs()) {
-            IItemHandler externalItems = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, neighborSide);
+            ResourceHandler<ItemResource> externalItems = level.getCapability(Capabilities.Item.BLOCK, neighborPos, neighborSide);
             if (externalItems != null) {
                 moved |= pushItems(internalItems, routes.itemOutputs(), externalItems,
                         JDTEConfig.COMMON.autoIoItemTransferRate.get());
             }
         }
         if (outputEnabled && routes.fluidOutput() != null) {
-            IFluidHandler externalFluid = level.getCapability(Capabilities.FluidHandler.BLOCK, neighborPos, neighborSide);
+            ResourceHandler<FluidResource> externalFluid = level.getCapability(Capabilities.Fluid.BLOCK, neighborPos, neighborSide);
             if (externalFluid != null) {
-                moved |= pushFluid(routes.fluidOutput(), externalFluid,
-                        JDTEConfig.COMMON.autoIoFluidTransferRate.get());
+                moved |= moveFluids(routes.fluidOutput(), externalFluid,
+                        JDTEConfig.COMMON.autoIoFluidTransferRate.get(), level.getGameTime()) > 0;
             }
         }
         if (inputEnabled && internalItems != null && routes.hasItemInputs()) {
-            IItemHandler externalItems = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, neighborSide);
+            ResourceHandler<ItemResource> externalItems = level.getCapability(Capabilities.Item.BLOCK, neighborPos, neighborSide);
             if (externalItems != null) {
-                IItemHandler input = machine instanceof AdvancedPotionBrewerBE brewer
+                ResourceHandler<ItemResource> input = machine instanceof AdvancedPotionBrewerBE brewer
                         ? brewer.getAutomationItemHandler(neighborSide.getOpposite()) : internalItems;
                 moved |= pullItems(externalItems, input, routes.itemInputs(),
                         JDTEConfig.COMMON.autoIoItemTransferRate.get());
             }
         }
         if (inputEnabled && routes.fluidInput() != null) {
-            IFluidHandler externalFluid = level.getCapability(Capabilities.FluidHandler.BLOCK, neighborPos, neighborSide);
+            ResourceHandler<FluidResource> externalFluid = level.getCapability(Capabilities.Fluid.BLOCK, neighborPos, neighborSide);
             if (externalFluid != null) {
-                moved |= pullFluid(externalFluid, routes.fluidInput(),
-                        JDTEConfig.COMMON.autoIoFluidTransferRate.get());
+                moved |= moveFluids(externalFluid, routes.fluidInput(),
+                        JDTEConfig.COMMON.autoIoFluidTransferRate.get(), level.getGameTime()) > 0;
             }
         }
 
@@ -337,11 +338,11 @@ public final class AutoIoTransferHelper {
     }
 
     private static IoRoutes getRoutes(BaseMachineBE machine) {
-        ItemStackHandler handler = machine.getMachineHandler();
+        ResourceHandler<ItemResource> handler = machine.getMachineHandler();
         int[] itemInputs = NO_SLOTS;
         int[] itemOutputs = NO_SLOTS;
-        IFluidHandler fluidInput = null;
-        IFluidHandler fluidOutput = null;
+        ResourceHandler<FluidResource> fluidInput = null;
+        ResourceHandler<FluidResource> fluidOutput = null;
 
         if (machine instanceof GelGeneratorBE generator) {
             itemInputs = boundedSlots(handler,
@@ -445,7 +446,7 @@ public final class AutoIoTransferHelper {
                 || machine instanceof FluidCollectorT1BE
                 || machine instanceof FluidPlacerT1BE) {
             itemInputs = boundedSlots(handler, 0);
-        } else if (!(machine instanceof BlockSwapperT1BE) && handler != null && handler.getSlots() > 0) {
+        } else if (!(machine instanceof BlockSwapperT1BE) && handler != null && handler.size() > 0) {
             itemInputs = allSlots(handler);
         }
 
@@ -462,88 +463,30 @@ public final class AutoIoTransferHelper {
         return new IoRoutes(itemInputs, itemOutputs, fluidInput, fluidOutput);
     }
 
-    private static boolean pullItems(IItemHandler source, IItemHandler target, int[] targetSlots, int limit) {
-        int moved = 0;
-        for (int sourceSlot = 0; sourceSlot < source.getSlots() && moved < limit; sourceSlot++) {
-            ItemStack simulatedExtract = source.extractItem(sourceSlot, limit - moved, true);
-            if (simulatedExtract.isEmpty()) {
-                continue;
-            }
-
-            ItemStack simulatedRemainder = insertIntoSlots(target, targetSlots, simulatedExtract, true);
-            int movable = simulatedExtract.getCount() - simulatedRemainder.getCount();
-            if (movable <= 0) {
-                continue;
-            }
-
-            ItemStack extracted = source.extractItem(sourceSlot, movable, false);
-            if (extracted.isEmpty()) {
-                continue;
-            }
-
-            ItemStack remainder = insertIntoSlots(target, targetSlots, extracted, false);
-            int inserted = extracted.getCount() - remainder.getCount();
-            if (!remainder.isEmpty()) {
-                source.insertItem(sourceSlot, remainder, false);
-            }
-            if (inserted > 0) {
-                moved += inserted;
-            }
-        }
-        return moved > 0;
+    private static ResourceHandler<ItemResource> selectedSlots(ResourceHandler<ItemResource> inventory, int[] slots) {
+        return new CombinedResourceHandler<>(Arrays.stream(slots)
+                .mapToObj(slot -> RangedResourceHandler.ofSingleIndex(inventory, slot)).toList());
     }
 
-    private static boolean pushItems(ItemStackHandler source, int[] sourceSlots, IItemHandler target, int limit) {
-        int moved = 0;
-        for (int sourceSlot : sourceSlots) {
-            if (moved >= limit) {
-                break;
-            }
-
-            ItemStack simulatedExtract = source.extractItem(sourceSlot, limit - moved, true);
-            if (simulatedExtract.isEmpty()) {
-                continue;
-            }
-
-            ItemStack simulatedRemainder = ItemHandlerHelper.insertItemStacked(target, simulatedExtract, true);
-            int movable = simulatedExtract.getCount() - simulatedRemainder.getCount();
-            if (movable <= 0) {
-                continue;
-            }
-
-            ItemStack extracted = source.extractItem(sourceSlot, movable, false);
-            if (extracted.isEmpty()) {
-                continue;
-            }
-
-            ItemStack remainder = ItemHandlerHelper.insertItemStacked(target, extracted, false);
-            int inserted = extracted.getCount() - remainder.getCount();
-            if (!remainder.isEmpty()) {
-                returnToInternalSlot(source, sourceSlot, remainder);
-            }
-            if (inserted > 0) {
-                moved += inserted;
-            }
-        }
-        return moved > 0;
+    private static boolean pullItems(ResourceHandler<ItemResource> source, ResourceHandler<ItemResource> target,
+                                     int[] targetSlots, int limit) {
+        return ResourceHandlerUtil.move(source, selectedSlots(target, targetSlots), item -> true, limit, null) > 0;
     }
 
-    /**
-     * Flushes Greenhouse output without going through ItemStackHandler#extractItem, which deliberately clamps every
-     * extraction to the item's vanilla maximum stack size. Greenhouse slots may contain thousands of items, so the
-     * dirty slots are grouped by their complete item/component identity and offered to the destination as one large
-     * stack per type. The source is changed only after the destination reports how many items it actually accepted.
-     */
-    private static boolean pushGroupedOversizedItems(ItemStackHandler source, int[] sourceSlots, IItemHandler target,
+    private static boolean pushItems(ResourceHandler<ItemResource> source, int[] sourceSlots,
+                                     ResourceHandler<ItemResource> target, int limit) {
+        return ResourceHandlerUtil.moveStacking(selectedSlots(source, sourceSlots), target, item -> true, limit, null) > 0;
+    }
+
+    private static boolean pushGroupedOversizedItems(ResourceHandler<ItemResource> source, int[] sourceSlots, ResourceHandler<ItemResource> target,
                                                      int itemBudget, int typeBudget, long rotationSeed) {
-        Map<ItemStackKey, OversizedSourceGroup> grouped = new LinkedHashMap<>();
+        Map<ItemResource, OversizedSourceGroup> grouped = new LinkedHashMap<>();
         for (int sourceSlot : sourceSlots) {
-            if (sourceSlot < 0 || sourceSlot >= source.getSlots()) continue;
-            ItemStack stack = source.getStackInSlot(sourceSlot);
-            if (stack.isEmpty()) continue;
-            ItemStackKey key = new ItemStackKey(stack, true);
-            grouped.computeIfAbsent(key, ignored -> new OversizedSourceGroup(key))
-                    .add(sourceSlot, stack.getCount());
+            if (sourceSlot < 0 || sourceSlot >= source.size()) continue;
+            ItemResource resource = source.getResource(sourceSlot);
+            if (resource.isEmpty()) continue;
+            grouped.computeIfAbsent(resource, OversizedSourceGroup::new)
+                    .add(sourceSlot, source.getAmountAsInt(sourceSlot));
         }
         if (grouped.isEmpty()) return false;
 
@@ -559,14 +502,19 @@ public final class AutoIoTransferHelper {
             int offeredCount = (int) Math.min(group.totalCount, remainingItemBudget);
             if (offeredCount <= 0) continue;
 
-            ItemStack offered = group.key.getStack(offeredCount);
-            ItemStack remainder = ItemHandlerHelper.insertItemStacked(target, offered, false);
-            int accepted = offeredCount - remainder.getCount();
-            if (accepted <= 0) continue;
-
-            consumeAcceptedItems(source, group, accepted);
-            remainingItemBudget -= accepted;
-            moved = true;
+            try (var transaction = Transaction.openRoot()) {
+                int accepted = ResourceHandlerUtil.insertStacking(target, group.key, offeredCount, transaction);
+                if (accepted == 0) continue;
+                int extracted = 0;
+                for (int slot : group.sourceSlots) {
+                    extracted += source.extract(slot, group.key, accepted - extracted, transaction);
+                    if (extracted == accepted) break;
+                }
+                if (extracted != accepted) continue;
+                transaction.commit();
+                remainingItemBudget -= accepted;
+                moved = true;
+            }
         }
         return moved;
     }
@@ -576,7 +524,7 @@ public final class AutoIoTransferHelper {
      * remains authoritative about its capacity, and the source is intentionally never consumed.
      */
     private static boolean pushCreativeGreenhouseItems(ICreativeGreenhouse source, int[] sourceSlots,
-                                                        IItemHandler target, int typeBudget, long rotationSeed) {
+                                                        ResourceHandler<ItemResource> target, int typeBudget, long rotationSeed) {
         if (sourceSlots.length == 0 || typeBudget <= 0) return false;
         int start = (int) Math.floorMod(rotationSeed, sourceSlots.length);
         int remainingTypes = typeBudget;
@@ -586,34 +534,24 @@ public final class AutoIoTransferHelper {
             int catalogSlot = absoluteSlot - source.outputStartSlot();
             ItemStack offered = source.catalogPrototypeAt(catalogSlot);
             if (offered.isEmpty()) continue;
-            offered = offered.copyWithCount(offered.getMaxStackSize());
-            ItemStack remainder = ItemHandlerHelper.insertItemStacked(target, offered, false);
-            if (remainder.getCount() < offered.getCount()) moved = true;
+            try (var transaction = Transaction.openRoot()) {
+                int inserted = ResourceHandlerUtil.insertStacking(target, ItemResource.of(offered),
+                        offered.getMaxStackSize(), transaction);
+                if (inserted > 0) {
+                    transaction.commit();
+                    moved = true;
+                }
+            }
         }
         return moved;
     }
 
-    private static void consumeAcceptedItems(ItemStackHandler source, OversizedSourceGroup group, int accepted) {
-        int remaining = accepted;
-        for (int sourceSlot : group.sourceSlots) {
-            if (remaining <= 0) break;
-            ItemStack current = source.getStackInSlot(sourceSlot);
-            if (current.isEmpty() || !group.key.equals(new ItemStackKey(current, true))) continue;
-            int consumed = Math.min(current.getCount(), remaining);
-            source.setStackInSlot(sourceSlot, current.copyWithCount(current.getCount() - consumed));
-            remaining -= consumed;
-        }
-        if (remaining != 0) {
-            throw new IllegalStateException("Greenhouse output changed during an atomic server-thread transfer");
-        }
-    }
-
     private static final class OversizedSourceGroup {
-        private final ItemStackKey key;
+        private final ItemResource key;
         private final List<Integer> sourceSlots = new ArrayList<>();
         private long totalCount;
 
-        private OversizedSourceGroup(ItemStackKey key) {
+        private OversizedSourceGroup(ItemResource key) {
             this.key = key;
         }
 
@@ -623,91 +561,30 @@ public final class AutoIoTransferHelper {
         }
     }
 
-    private static ItemStack insertIntoSlots(IItemHandler target, int[] targetSlots, ItemStack stack, boolean simulate) {
-        ItemStack remainder = stack.copy();
-        for (int targetSlot : targetSlots) {
-            if (remainder.isEmpty()) {
-                break;
+    static int moveFluids(ResourceHandler<FluidResource> source, ResourceHandler<FluidResource> target,
+                          int limit, long cycle) {
+        if (source == target || limit <= 0) return 0;
+        if (source.size() <= 1) return ResourceHandlerUtil.move(source, target, fluid -> true, limit, null);
+        var types = new java.util.LinkedHashSet<FluidResource>();
+        for (int slot = 0; slot < source.size(); slot++) {
+            FluidResource resource = source.getResource(slot);
+            if (!resource.isEmpty()) types.add(resource);
+        }
+        if (types.isEmpty()) return 0;
+        var fluids = List.copyOf(types);
+        int start = Math.floorMod(cycle, fluids.size());
+        int remaining = limit;
+        try (var tx = Transaction.openRoot()) {
+            for (int i = 0; i < fluids.size() && remaining > 0; i++) {
+                FluidResource fluid = fluids.get((start + i) % fluids.size());
+                int share = Math.ceilDiv(remaining, fluids.size() - i);
+                remaining -= ResourceHandlerUtil.move(source, target, fluid::equals, share, tx);
             }
-            remainder = target.insertItem(targetSlot, remainder, simulate);
+            // Redistribute unused shares when a tank is empty, full, or rejects a fluid.
+            if (remaining > 0) remaining -= ResourceHandlerUtil.move(source, target, fluid -> true, remaining, tx);
+            tx.commit();
         }
-        return remainder;
-    }
-
-    private static void returnToInternalSlot(ItemStackHandler handler, int slot, ItemStack stack) {
-        if (stack.isEmpty()) {
-            return;
-        }
-        ItemStack current = handler.getStackInSlot(slot);
-        if (current.isEmpty()) {
-            handler.setStackInSlot(slot, stack.copy());
-            return;
-        }
-        if (ItemStack.isSameItemSameComponents(current, stack)) {
-            ItemStack merged = current.copy();
-            merged.grow(stack.getCount());
-            handler.setStackInSlot(slot, merged);
-        }
-    }
-
-    private static boolean pullFluid(IFluidHandler source, IFluidHandler target, int limit) {
-        FluidStack simulatedDrain = source.drain(limit, IFluidHandler.FluidAction.SIMULATE);
-        if (simulatedDrain.isEmpty()) {
-            return false;
-        }
-
-        int fillable = target.fill(simulatedDrain, IFluidHandler.FluidAction.SIMULATE);
-        if (fillable <= 0) {
-            return false;
-        }
-
-        FluidStack toDrain = simulatedDrain.copy();
-        toDrain.setAmount(Math.min(fillable, simulatedDrain.getAmount()));
-        FluidStack drained = source.drain(toDrain, IFluidHandler.FluidAction.EXECUTE);
-        if (drained.isEmpty()) {
-            return false;
-        }
-
-        int filled = target.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-        if (filled <= 0) {
-            source.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-            return false;
-        }
-        if (filled < drained.getAmount()) {
-            FluidStack remainder = drained.copy();
-            remainder.setAmount(drained.getAmount() - filled);
-            source.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
-        }
-        return true;
-    }
-
-    private static boolean pushFluid(IFluidHandler source, IFluidHandler target, int limit) {
-        FluidStack simulatedDrain = source.drain(limit, IFluidHandler.FluidAction.SIMULATE);
-        if (simulatedDrain.isEmpty()) {
-            return false;
-        }
-
-        int fillable = target.fill(simulatedDrain, IFluidHandler.FluidAction.SIMULATE);
-        if (fillable <= 0) {
-            return false;
-        }
-
-        FluidStack drained = source.drain(Math.min(fillable, simulatedDrain.getAmount()), IFluidHandler.FluidAction.EXECUTE);
-        if (drained.isEmpty()) {
-            return false;
-        }
-
-        int filled = target.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-        if (filled <= 0) {
-            source.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-            return false;
-        }
-        if (filled < drained.getAmount()) {
-            FluidStack remainder = drained.copy();
-            remainder.setAmount(drained.getAmount() - filled);
-            source.fill(remainder, IFluidHandler.FluidAction.EXECUTE);
-        }
-        return true;
+        return limit - remaining;
     }
 
     private static Direction directionForUiSide(BaseMachineBE machine, int uiSide) {
@@ -730,19 +607,19 @@ public final class AutoIoTransferHelper {
         return JDTEConfig.COMMON.transferFailureBackoffMax.get();
     }
 
-    private static int[] allSlots(ItemStackHandler handler) {
-        if (handler == null || handler.getSlots() <= 0) {
+    private static int[] allSlots(ResourceHandler<ItemResource> handler) {
+        if (handler == null || handler.size() <= 0) {
             return NO_SLOTS;
         }
-        return range(0, handler.getSlots());
+        return range(0, handler.size());
     }
 
-    private static int[] boundedSlots(ItemStackHandler handler, int... slots) {
-        if (handler == null || handler.getSlots() <= 0 || slots.length == 0) {
+    private static int[] boundedSlots(ResourceHandler<ItemResource> handler, int... slots) {
+        if (handler == null || handler.size() <= 0 || slots.length == 0) {
             return NO_SLOTS;
         }
         int[] bounded = Arrays.stream(slots)
-                .filter(slot -> slot >= 0 && slot < handler.getSlots())
+                .filter(slot -> slot >= 0 && slot < handler.size())
                 .toArray();
         return bounded.length == 0 ? NO_SLOTS : bounded;
     }
@@ -758,7 +635,7 @@ public final class AutoIoTransferHelper {
         return slots;
     }
 
-    private record IoRoutes(int[] itemInputs, int[] itemOutputs, IFluidHandler fluidInput, IFluidHandler fluidOutput) {
+    private record IoRoutes(int[] itemInputs, int[] itemOutputs, ResourceHandler<FluidResource> fluidInput, ResourceHandler<FluidResource> fluidOutput) {
         boolean hasItemInputs() {
             return itemInputs.length > 0;
         }

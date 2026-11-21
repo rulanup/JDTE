@@ -17,24 +17,15 @@ public abstract class ChunkMapShutdownMixin {
     @Shadow @Final ServerLevel level;
 
     @Redirect(
-            method = "scheduleUnload",
+            method = {"scheduleUnload", "lambda$scheduleUnload$0"},
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ChunkHolder;getSaveSyncFuture()Ljava/util/concurrent/CompletableFuture;"
-            )
+            ),
+            require = 2
     )
     private CompletableFuture<?> jdte$doNotWaitForOrphanedSaveBarrierDuringShutdown(ChunkHolder holder) {
         return ChunkMapShutdownPolicy.saveBarrier(level.getServer().isStopped(), holder.getSaveSyncFuture());
     }
 
-    @Redirect(
-            method = "lambda$scheduleUnload$12",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ChunkHolder;isReadyForSaving()Z"
-            )
-    )
-    private boolean jdte$allowFinalUnloadDuringShutdown(ChunkHolder holder) {
-        return ChunkMapShutdownPolicy.readyForUnload(level.getServer().isStopped(), holder.isReadyForSaving());
-    }
 }

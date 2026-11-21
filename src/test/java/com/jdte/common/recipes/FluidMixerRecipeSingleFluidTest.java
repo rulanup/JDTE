@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FluidMixerRecipeSingleFluidTest {
+class FluidMixerRecipeSingleFluidTest implements com.jdte.test.WorldRegistryTest {
     private final FluidMixerRecipe recipe = new FluidMixerRecipe(
             new FluidStack(Fluids.WATER, 1_000),
             FluidStack.EMPTY,

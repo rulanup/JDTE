@@ -1,11 +1,18 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import com.jdte.client.screens.util.MachineFluidBarRenderer;
+
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.common.network.data.TickSpeedPayload;
 import com.direwolf20.justdirethings.util.MagicHelpers;
+import com.direwolf20.justdirethings.util.MiscHelpers;
+import com.direwolf20.justdirethings.util.MiscTools;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.client.PotionBrewerRecipeLockClientCache;
@@ -15,47 +22,35 @@ import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.containers.AdvancedPotionBrewerContainer;
 import com.jdte.common.network.data.PotionBrewerFuelInputPayload;
 import com.jdte.common.network.data.PotionBrewerRecipeLockPayload;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.locale.Language;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotionBrewerContainer> {
-    private static final ResourceLocation BREWING_STAND_BG = ResourceLocation.withDefaultNamespace("textures/gui/container/brewing_stand.png");
-    private static final ResourceLocation FUEL_LENGTH_SPRITE = ResourceLocation.withDefaultNamespace("container/brewing_stand/fuel_length");
-    private static final ResourceLocation BREW_PROGRESS_SPRITE = ResourceLocation.withDefaultNamespace("container/brewing_stand/brew_progress");
-    private static final ResourceLocation BUBBLES_SPRITE = ResourceLocation.withDefaultNamespace("container/brewing_stand/bubbles");
-    private static final ResourceLocation RECIPE_LOCK_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/waterbreathing.png");
-    private static final ResourceLocation FUEL_INPUT_ICON = ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/item/abilityupgrades/blank.png");
+    private static final Identifier BREWING_STAND_BG = Identifier.withDefaultNamespace("textures/gui/container/brewing_stand.png");
+    private static final Identifier FUEL_LENGTH_SPRITE = Identifier.withDefaultNamespace("container/brewing_stand/fuel_length");
+    private static final Identifier BREW_PROGRESS_SPRITE = Identifier.withDefaultNamespace("container/brewing_stand/brew_progress");
+    private static final Identifier BUBBLES_SPRITE = Identifier.withDefaultNamespace("container/brewing_stand/bubbles");
+    private static final Identifier RECIPE_LOCK_ICON = Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/waterbreathing.png");
+    private static final Identifier FUEL_INPUT_ICON = Identifier.fromNamespaceAndPath("justdirethings", "textures/item/abilityupgrades/blank.png");
     private static final Component SLOT_LOCK_ON = Component.translatable("jdte.screen.slot_lock.on");
     private static final Component SLOT_LOCK_OFF = Component.translatable("jdte.screen.slot_lock.off");
     private static final int VANILLA_BOTTLE_GHOST_SRC_X = 57;
@@ -90,25 +85,25 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         addRenderableWidget(new FuelInputWidget(
                 getGuiLeft() + layout.getPotionBrewerFuelInputButtonX(),
                 getGuiTop() + layout.getPotionBrewerFuelInputButtonY()));
-        PacketDistributor.sendToServer(new PotionBrewerRecipeLockPayload(brewerContainer().getBlockPos(), false, true));
+        ClientPacketDistributor.sendToServer(new PotionBrewerRecipeLockPayload(brewerContainer().getBlockPos(), false, true));
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
         int x = getGuiLeft();
         int y = getGuiTop();
         var layout = GuiUpgradeLayoutConfig.getInstance();
 
         AdvancedPotionBrewerContainer brewerContainer = (AdvancedPotionBrewerContainer) container;
 
-        guiGraphics.blit(BREWING_STAND_BG,
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BREWING_STAND_BG,
                 x + layout.getPotionBrewerBgX(),
                 y + layout.getPotionBrewerBgY(),
                 layout.getPotionBrewerBgSrcX(),
                 layout.getPotionBrewerBgSrcY(),
                 layout.getPotionBrewerBgWidth(),
-                layout.getPotionBrewerBgHeight());
+                layout.getPotionBrewerBgHeight(), 256, 256);
 
         renderOutputBottleGhosts(guiGraphics, x, y, layout);
         renderLockedRecipeGhosts(guiGraphics);
@@ -119,8 +114,8 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderTooltip(guiGraphics, mouseX, mouseY);
+    protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        super.extractTooltip(guiGraphics, mouseX, mouseY);
         renderPotionBrewerFluidTooltips(guiGraphics, mouseX, mouseY);
         renderPotionBrewerSlotTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -133,7 +128,7 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
                 getGuiTop() + layout.getPotionBrewerSpeedButtonY(),
                 tickSpeed, b -> {
                     tickSpeed = ((NumberButton) b).getValue();
-                    PacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
+                    ClientPacketDistributor.sendToServer(new TickSpeedPayload(tickSpeed));
                 }));
     }
 
@@ -149,24 +144,24 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
                 }));
     }
 
-    private void renderOutputBottleGhosts(GuiGraphics guiGraphics, int x, int y, GuiUpgradeLayoutConfig layout) {
+    private void renderOutputBottleGhosts(GuiGraphicsExtractor guiGraphics, int x, int y, GuiUpgradeLayoutConfig layout) {
         for (int i = 0; i < AdvancedPotionBrewerBE.OUTPUT_SLOT_COUNT; i++) {
             if (container.slots.get(AdvancedPotionBrewerBE.OUTPUT_SLOT_START + i).hasItem()) {
                 continue;
             }
             int slotX = x + layout.getPotionBrewerOutputStartX();
             int slotY = y + layout.getPotionBrewerOutputStartY() + i * layout.getPotionBrewerOutputSpacing();
-            guiGraphics.blit(BREWING_STAND_BG,
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BREWING_STAND_BG,
                     slotX + 1,
                     slotY + 1,
                     VANILLA_BOTTLE_GHOST_SRC_X,
                     VANILLA_BOTTLE_GHOST_SRC_Y,
                     VANILLA_BOTTLE_GHOST_SIZE,
-                    VANILLA_BOTTLE_GHOST_SIZE);
+                    VANILLA_BOTTLE_GHOST_SIZE, 256, 256);
         }
     }
 
-    private void renderLockedRecipeGhosts(GuiGraphics guiGraphics) {
+    private void renderLockedRecipeGhosts(GuiGraphicsExtractor guiGraphics) {
         if (!isRecipeLocked()) {
             return;
         }
@@ -182,9 +177,7 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
             if (template.isEmpty()) {
                 continue;
             }
-            RenderSystem.setShaderColor(0.42f, 0.42f, 0.42f, 0.55f);
-            guiGraphics.renderFakeItem(template, getGuiLeft() + slot.x, getGuiTop() + slot.y);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            GhostItemRenderer.draw(guiGraphics, template, getGuiLeft() + slot.x, getGuiTop() + slot.y, 0x99707070);
         }
     }
 
@@ -194,11 +187,11 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
                 && slot < AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_START + AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_COUNT);
     }
 
-    private void renderPotionBrewerSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if (!(hoveredSlot instanceof SlotItemHandler slotItemHandler) || slotItemHandler.getItemHandler() != container.machineHandler) {
+    private void renderPotionBrewerSlotTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        if (!(hoveredSlot instanceof ResourceHandlerSlot machineSlot) || machineSlot.getResourceHandler() != container.machineHandler) {
             return;
         }
-        int slot = slotItemHandler.getSlotIndex();
+        int slot = machineSlot.getSlotIndex();
         Component slotLabel = getPotionBrewerSlotLabel(slot);
         if (slotLabel == null || hoveredSlot.hasItem()) {
             return;
@@ -210,7 +203,7 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         if (!lockedTemplate.isEmpty()) {
             lines.add(Component.translatable("jdte.screen.slot_locked_item", lockedTemplate.getHoverName()).withStyle(ChatFormatting.GRAY));
         }
-        guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(lines), mouseX, mouseY);
+        guiGraphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(lines), mouseX, mouseY);
     }
 
     private Component getPotionBrewerSlotLabel(int slot) {
@@ -249,7 +242,7 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         return (AdvancedPotionBrewerContainer) container;
     }
 
-    private void renderPotionBrewerFluidTanks(GuiGraphics guiGraphics, int x, int y, AdvancedPotionBrewerContainer brewerContainer, GuiUpgradeLayoutConfig layout) {
+    private void renderPotionBrewerFluidTanks(GuiGraphicsExtractor guiGraphics, int x, int y, AdvancedPotionBrewerContainer brewerContainer, GuiUpgradeLayoutConfig layout) {
         int capacity = Math.max(1, brewerContainer.getPotionBrewerFluidCapacity());
         renderFluidTank(guiGraphics,
                 x + layout.getPotionBrewerWaterFluidX(),
@@ -265,18 +258,18 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
                 capacity);
     }
 
-    private void renderFluidTank(GuiGraphics guiGraphics, int x, int y, FluidStack fluidStack, int amount, int capacity) {
-        guiGraphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
+    private void renderFluidTank(GuiGraphicsExtractor guiGraphics, int x, int y, FluidStack fluidStack, int amount, int capacity) {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
 
         int fluidHeight = MachineBarMath.scaleClamped(amount, capacity, FLUID_INNER_HEIGHT);
         if (fluidHeight > 0) {
-            renderFluidStack(guiGraphics, fluidStack, x + 1, y + 71, 16, fluidHeight);
+            MachineFluidBarRenderer.renderFluid(guiGraphics, fluidStack, x + 1, y + 71, 16, fluidHeight);
         }
 
-        guiGraphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
     }
 
-    private void renderPotionBrewerFluidTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    private void renderPotionBrewerFluidTooltips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         var layout = GuiUpgradeLayoutConfig.getInstance();
         AdvancedPotionBrewerContainer brewerContainer = brewerContainer();
         int capacity = brewerContainer.getPotionBrewerFluidCapacity();
@@ -295,76 +288,21 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         }
     }
 
-    private void renderFluidTooltip(GuiGraphics guiGraphics, FluidStack fluidStack, int amount, int capacity, int mouseX, int mouseY) {
-        guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+    private void renderFluidTooltip(GuiGraphicsExtractor guiGraphics, FluidStack fluidStack, int amount, int capacity, int mouseX, int mouseY) {
+        guiGraphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(Arrays.asList(
                 Component.translatable("justdirethings.screen.fluid", fluidStack.getHoverName(), MagicHelpers.withSuffix(amount), MagicHelpers.withSuffix(capacity))
         )), mouseX, mouseY);
     }
 
-    private void renderFluidStack(GuiGraphics guiGraphics, FluidStack fluidStack, int startX, int startY, int width, int height) {
-        if (fluidStack.isEmpty() || height <= 0) return;
 
-        Fluid fluid = fluidStack.getFluid();
-        ResourceLocation fluidStill = IClientFluidTypeExtensions.of(fluid).getStillTexture();
-        TextureAtlasSprite fluidStillSprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidStill);
-        int fluidColor = IClientFluidTypeExtensions.of(fluid).getTintColor(fluidStack);
-
-        float red = (float) (fluidColor >> 16 & 255) / 255.0F;
-        float green = (float) (fluidColor >> 8 & 255) / 255.0F;
-        float blue = (float) (fluidColor & 255) / 255.0F;
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        RenderSystem.setShaderColor(red, green, blue, 1.0f);
-
-        int zLevel = 0;
-        float uMin = fluidStillSprite.getU0();
-        float uMax = fluidStillSprite.getU1();
-        float vMin = fluidStillSprite.getV0();
-        float vMax = fluidStillSprite.getV1();
-        int textureWidth = fluidStillSprite.contents().width();
-        int textureHeight = fluidStillSprite.contents().height();
-
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder vertexBuffer = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-
-        int yOffset = 0;
-        while (yOffset < height) {
-            int drawHeight = Math.min(textureHeight, height - yOffset);
-            int drawY = startY - yOffset - drawHeight;
-            float vMaxAdjusted = vMin + (vMax - vMin) * ((float) drawHeight / textureHeight);
-
-            int xOffset = 0;
-            while (xOffset < width) {
-                int drawWidth = Math.min(textureWidth, width - xOffset);
-                float uMaxAdjusted = uMin + (uMax - uMin) * ((float) drawWidth / textureWidth);
-
-                vertexBuffer.addVertex(poseStack.last().pose(), startX + xOffset, drawY + drawHeight, zLevel).setUv(uMin, vMaxAdjusted);
-                vertexBuffer.addVertex(poseStack.last().pose(), startX + xOffset + drawWidth, drawY + drawHeight, zLevel).setUv(uMaxAdjusted, vMaxAdjusted);
-                vertexBuffer.addVertex(poseStack.last().pose(), startX + xOffset + drawWidth, drawY, zLevel).setUv(uMaxAdjusted, vMin);
-                vertexBuffer.addVertex(poseStack.last().pose(), startX + xOffset, drawY, zLevel).setUv(uMin, vMin);
-
-                xOffset += drawWidth;
-            }
-            yOffset += drawHeight;
-        }
-
-        BufferUploader.drawWithShader(vertexBuffer.buildOrThrow());
-        poseStack.popPose();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.applyModelViewMatrix();
-    }
-
-    private void renderFuelBar(GuiGraphics guiGraphics, int x, int y, AdvancedPotionBrewerContainer brewerContainer, GuiUpgradeLayoutConfig layout) {
+    private void renderFuelBar(GuiGraphicsExtractor guiGraphics, int x, int y, AdvancedPotionBrewerContainer brewerContainer, GuiUpgradeLayoutConfig layout) {
         int fuel = brewerContainer.getFuel();
         if (fuel > 0) {
             int fuelWidth = Mth.clamp((FUEL_BAR_WIDTH * fuel + AdvancedPotionBrewerBE.FUEL_PER_BLAZE - 1) / AdvancedPotionBrewerBE.FUEL_PER_BLAZE,
                     0,
                     FUEL_BAR_WIDTH);
             if (fuelWidth > 0) {
-                guiGraphics.blitSprite(FUEL_LENGTH_SPRITE,
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, FUEL_LENGTH_SPRITE,
                         FUEL_BAR_WIDTH,
                         FUEL_BAR_HEIGHT,
                         0,
@@ -377,14 +315,14 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         }
     }
 
-    private void renderBrewBubbles(GuiGraphics guiGraphics, int x, int y, AdvancedPotionBrewerContainer brewerContainer, GuiUpgradeLayoutConfig layout) {
+    private void renderBrewBubbles(GuiGraphicsExtractor guiGraphics, int x, int y, AdvancedPotionBrewerContainer brewerContainer, GuiUpgradeLayoutConfig layout) {
         int progress = brewerContainer.getBrewProgress();
         int maxProgress = brewerContainer.getBrewProgressMax();
         if (maxProgress > 0 && progress > 0) {
             int remainingTicks = Math.max(0, maxProgress - progress);
             int bubbleHeight = BUBBLE_LENGTHS[remainingTicks / 2 % BUBBLE_LENGTHS.length];
             if (bubbleHeight > 0) {
-                guiGraphics.blitSprite(BUBBLES_SPRITE,
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BUBBLES_SPRITE,
                         BUBBLES_WIDTH,
                         BUBBLES_HEIGHT,
                         0,
@@ -397,13 +335,13 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         }
     }
 
-    private void renderBrewArrow(GuiGraphics guiGraphics, int x, int y, AdvancedPotionBrewerContainer brewerContainer, GuiUpgradeLayoutConfig layout) {
+    private void renderBrewArrow(GuiGraphicsExtractor guiGraphics, int x, int y, AdvancedPotionBrewerContainer brewerContainer, GuiUpgradeLayoutConfig layout) {
         int progress = brewerContainer.getBrewProgress();
         int maxProgress = brewerContainer.getBrewProgressMax();
         if (maxProgress > 0 && progress > 0) {
             int arrowHeight = (progress * BREW_PROGRESS_HEIGHT) / maxProgress;
             if (arrowHeight > 0) {
-                guiGraphics.blitSprite(BREW_PROGRESS_SPRITE,
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BREW_PROGRESS_SPRITE,
                         BREW_PROGRESS_WIDTH,
                         BREW_PROGRESS_HEIGHT,
                         0,
@@ -425,22 +363,20 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         }
 
         @Override
-        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
             boolean locked = isRecipeLocked();
             setMessage(locked ? SLOT_LOCK_ON : SLOT_LOCK_OFF);
             if (locked != lastTooltipLocked) {
                 setTooltip(Tooltip.create(locked ? SLOT_LOCK_ON : SLOT_LOCK_OFF));
                 lastTooltipLocked = locked;
             }
-            RenderSystem.setShaderColor(locked ? 1.0f : 0.33f, locked ? 1.0f : 0.33f, locked ? 1.0f : 0.33f, 1.0f);
-            guiGraphics.blit(RECIPE_LOCK_ICON, getX(), getY(), 0, 0, 16, 16, 16, 16);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RECIPE_LOCK_ICON, getX(), getY(), 0, 0, 16, 16, 16, 16, locked ? -1 : 0xFF545454);
         }
 
         @Override
-        public void onClick(double mouseX, double mouseY) {
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
             boolean nextLocked = !isRecipeLocked();
-            PacketDistributor.sendToServer(new PotionBrewerRecipeLockPayload(brewerContainer().getBlockPos(), nextLocked, false));
+            ClientPacketDistributor.sendToServer(new PotionBrewerRecipeLockPayload(brewerContainer().getBlockPos(), nextLocked, false));
         }
 
         @Override
@@ -465,28 +401,25 @@ public class AdvancedPotionBrewerScreen extends BaseMachineScreen<AdvancedPotion
         }
 
         @Override
-        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
             boolean enabled = brewerContainer().isFuelInputEnabled();
             if (enabled != lastTooltipEnabled) {
                 setTooltip(Tooltip.create(getFuelInputTooltip(enabled)));
                 lastTooltipEnabled = enabled;
             }
-            float color = enabled ? 1.0F : 0.33F;
-            RenderSystem.setShaderColor(color, color, color, 1.0F);
-            guiGraphics.blit(FUEL_INPUT_ICON, getX(), getY(), 0, 0, 16, 16, 16, 16);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, FUEL_INPUT_ICON, getX(), getY(), 0, 0, 16, 16, 16, 16, enabled ? -1 : 0xFF545454);
 
-            PoseStack pose = guiGraphics.pose();
-            pose.pushPose();
-            pose.translate(getX() + 4.0F, getY() + 4.0F, 100.0F);
-            pose.scale(0.5F, 0.5F, 1.0F);
-            guiGraphics.renderFakeItem(new ItemStack(Items.BLAZE_POWDER), 0, 0);
-            pose.popPose();
+            var pose = guiGraphics.pose();
+            pose.pushMatrix();
+            pose.translate(getX() + 4.0F, getY() + 4.0F);
+            pose.scale(0.5F, 0.5F);
+            guiGraphics.fakeItem(new ItemStack(Items.BLAZE_POWDER), 0, 0);
+            pose.popMatrix();
         }
 
         @Override
-        public void onClick(double mouseX, double mouseY) {
-            PacketDistributor.sendToServer(new PotionBrewerFuelInputPayload(
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
+            ClientPacketDistributor.sendToServer(new PotionBrewerFuelInputPayload(
                     brewerContainer().getBlockPos(), !brewerContainer().isFuelInputEnabled()));
         }
 

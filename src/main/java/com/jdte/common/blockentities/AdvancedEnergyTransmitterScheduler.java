@@ -1,6 +1,7 @@
 package com.jdte.common.blockentities;
 
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 final class AdvancedEnergyTransmitterScheduler {
     private AdvancedEnergyTransmitterScheduler() {
@@ -68,7 +69,15 @@ final class AdvancedEnergyTransmitterScheduler {
         return Math.max(0L, Math.max(0L, reserve) - Math.max(0L, consumed));
     }
 
-    static long boundedReceive(IEnergyStorage receiver, int demand, long available,
+    static int receive(EnergyHandler receiver, int offered, boolean simulate) {
+        try (var transaction = Transaction.openRoot()) {
+            int accepted = receiver.insert(offered, transaction);
+            if (!simulate) transaction.commit();
+            return accepted;
+        }
+    }
+
+    static long boundedReceive(EnergyHandler receiver, int demand, long available,
                                int maxCalls) {
         int remaining = Math.max(0, demand);
         long availableEnergy = Math.max(0L, available);
@@ -78,7 +87,7 @@ final class AdvancedEnergyTransmitterScheduler {
              call++) {
             int offered = (int) Math.min(Math.min(availableEnergy, Integer.MAX_VALUE), remaining);
             int accepted = Math.min(offered, Math.max(0,
-                    receiver.receiveEnergy(offered, false)));
+                    receive(receiver, offered, false)));
             if (accepted <= 0) {
                 break;
             }

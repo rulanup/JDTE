@@ -2,7 +2,7 @@ package com.jdte.common.fluid;
 
 import com.jdte.setup.JDTEFluids;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -11,8 +11,8 @@ import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 public abstract class LifeFluid extends BaseFlowingFluid {
     public static final Properties PROPERTIES = new Properties(
             JDTEFluids.LIFE_FLUID_TYPE,
-            JDTEFluids.LIFE_FLUID_FLOWING,
-            JDTEFluids.LIFE_FLUID_SOURCE
+            JDTEFluids.LIFE_FLUID_SOURCE,
+            JDTEFluids.LIFE_FLUID_FLOWING
     ).bucket(JDTEFluids.LIFE_FLUID_BUCKET).block(JDTEFluids.LIFE_FLUID_BLOCK);
 
     protected LifeFluid(Properties properties) {
@@ -35,7 +35,7 @@ public abstract class LifeFluid extends BaseFlowingFluid {
     }
 
     @Override
-    protected boolean canConvertToSource(Level level) {
+    protected boolean canConvertToSource(ServerLevel level) {
         return false;
     }
 

@@ -4,24 +4,27 @@ import com.jdte.setup.JDTEDataComponents;
 import com.jdte.setup.JDTEItems;
 import com.jdte.setup.JDTERecipes;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SmithingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
-import net.minecraft.world.item.crafting.SmithingTransformRecipe;
+import net.minecraft.world.item.crafting.SimpleSmithingRecipe;
 import net.minecraft.world.level.Level;
 
-public final class EntityAccelerationSmithingRecipe extends SmithingTransformRecipe {
-    private static final Ingredient TEMPLATE = Ingredient.of(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
-    private static final Ingredient BASE = Ingredient.of(JDTEItems.ULTIMATE_TIME_WAND.get());
-    private static final Ingredient ADDITION = Ingredient.of(JDTEItems.TIME_FLUID_CATALYST.get());
+import java.util.List;
+import java.util.Optional;
 
+public final class EntityAccelerationSmithingRecipe extends SimpleSmithingRecipe {
     public EntityAccelerationSmithingRecipe() {
-        super(TEMPLATE, BASE, ADDITION, ItemStack.EMPTY);
+        super(new CommonInfo(true));
     }
 
     @Override
@@ -29,13 +32,14 @@ public final class EntityAccelerationSmithingRecipe extends SmithingTransformRec
         return input.template().getCount() == 1
                 && input.base().getCount() == 1
                 && input.addition().getCount() == 1
-                && isTemplateIngredient(input.template())
-                && isBaseIngredient(input.base())
-                && isAdditionIngredient(input.addition());
+                && input.template().is(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get())
+                && input.base().is(JDTEItems.ULTIMATE_TIME_WAND.get())
+                && !input.base().getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), false)
+                && input.addition().is(JDTEItems.TIME_FLUID_CATALYST.get());
     }
 
     @Override
-    public ItemStack assemble(SmithingRecipeInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(SmithingRecipeInput input) {
         if (!matches(input, null)) {
             return ItemStack.EMPTY;
         }
@@ -45,52 +49,55 @@ public final class EntityAccelerationSmithingRecipe extends SmithingTransformRec
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
+    public List<RecipeDisplay> display() {
         ItemStack stack = new ItemStack(JDTEItems.ULTIMATE_TIME_WAND.get());
         stack.set(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), true);
-        return stack;
+        return List.of(new SmithingRecipeDisplay(templateIngredient().orElseThrow().display(),
+                baseIngredient().display(), additionIngredient().orElseThrow().display(),
+                new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(stack)),
+                new SlotDisplay.ItemSlotDisplay(Items.SMITHING_TABLE)));
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<EntityAccelerationSmithingRecipe> getSerializer() {
         return JDTERecipes.ENTITY_ACCELERATION_SMITHING_RECIPE_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return RecipeType.SMITHING;
+    protected PlacementInfo createPlacementInfo() {
+        return PlacementInfo.createFromOptionals(List.of(templateIngredient(), Optional.of(baseIngredient()), additionIngredient()));
     }
 
     @Override
-    public boolean isTemplateIngredient(ItemStack stack) {
-        return stack.is(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get());
+    public Optional<Ingredient> templateIngredient() {
+        return Optional.of(Ingredient.of(JDTEItems.ENTITY_ACCELERATION_UPGRADE.get()));
     }
 
     @Override
-    public boolean isBaseIngredient(ItemStack stack) {
-        return !stack.isEmpty()
-                && stack.is(JDTEItems.ULTIMATE_TIME_WAND.get())
-                && !stack.getOrDefault(JDTEDataComponents.ULTIMATE_TIME_WAND_ENTITY_ACCELERATION.get(), false);
+    public Ingredient baseIngredient() {
+        return Ingredient.of(JDTEItems.ULTIMATE_TIME_WAND.get());
     }
 
     @Override
-    public boolean isAdditionIngredient(ItemStack stack) {
-        return stack.is(JDTEItems.TIME_FLUID_CATALYST.get());
+    public Optional<Ingredient> additionIngredient() {
+        return Optional.of(Ingredient.of(JDTEItems.TIME_FLUID_CATALYST.get()));
     }
 
-    public static final class Serializer implements RecipeSerializer<EntityAccelerationSmithingRecipe> {
+    public static final class Serializer {
+        public static RecipeSerializer<EntityAccelerationSmithingRecipe> create() {
+            return new RecipeSerializer<>(codec(), streamCodec());
+        }
+
         private static final EntityAccelerationSmithingRecipe INSTANCE = new EntityAccelerationSmithingRecipe();
         private static final MapCodec<EntityAccelerationSmithingRecipe> CODEC = MapCodec.unit(INSTANCE);
         private static final StreamCodec<RegistryFriendlyByteBuf, EntityAccelerationSmithingRecipe> STREAM_CODEC =
                 StreamCodec.unit(INSTANCE);
 
-        @Override
-        public MapCodec<EntityAccelerationSmithingRecipe> codec() {
+        public static MapCodec<EntityAccelerationSmithingRecipe> codec() {
             return CODEC;
         }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, EntityAccelerationSmithingRecipe> streamCodec() {
+        public static StreamCodec<RegistryFriendlyByteBuf, EntityAccelerationSmithingRecipe> streamCodec() {
             return STREAM_CODEC;
         }
     }

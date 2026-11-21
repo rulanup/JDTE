@@ -6,7 +6,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -30,7 +30,7 @@ final class AE2CrystalScienceFactoryMoveIntegration {
         FrequencyBandManager.markDirty();
     }
 
-    static void finalizeMove(BlockEntity blockEntity, ResourceLocation sourceDimension, BlockPos sourcePos) {
+    static void finalizeMove(BlockEntity blockEntity, Identifier sourceDimension, BlockPos sourcePos) {
         if (!(blockEntity instanceof EnderBroadcasterBlockEntity broadcaster)
                 || broadcaster.getLevel() == null || broadcaster.getLevel().isClientSide()
                 || sourceDimension == null) return;

@@ -1,0 +1,64 @@
+{
+  "name": "Crafting Patterns and Essence Conversion",
+  "icon": "jdte:crafting_pattern",
+  "category": "jdte:upgrades_tools",
+  "sortnum": 3900,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:crafting_pattern",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right-click a Crafting Pattern to open its $(bold)3×3 ingredient grid and result preview$(). Click a ghost slot with a carried ingredient, or shift-click an inventory item, to copy a sample. Shift-click a ghost slot to clear it. Samples are not consumed and preview results cannot be taken.$(br2)The screen indicates recipe validity. $(bold)Save Recipe$() validates the current ordinary crafting-table recipe on the server before writing the pattern. $(bold)Clear Pattern$() removes the stored recipe."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:crafting_pattern"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Binding in an anvil$()$(br2)Place $(bold)one Essence Conversion Upgrade$() on the left and $(bold)one recorded Crafting Pattern$() on the right. Binding consumes the pattern and $(bold)one experience level$(). Duplicate recipes, invalid patterns and full cards produce no result.$(br2)$(li)Normal Essence Conversion Upgrade: $(bold)one pattern$().$(li)Advanced Essence Conversion Upgrade: $(bold)three patterns$().$(li)Ultimate Essence Conversion Upgrade: $(bold)2,147,483,647 patterns$().$(li)All three tiers share the $(bold)one card per machine$() limit and support the Greenhouse and Large Greenhouse."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:advanced_essence_conversion_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Smith a $(bold)Netherite Upgrade Smithing Template + normal Essence Conversion Upgrade + diamond$() to obtain the advanced card. Existing bound patterns are retained."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:advanced_essence_conversion_upgrade"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "jdte:ultimate_essence_conversion_upgrade",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Smith a $(bold)Netherite Upgrade Smithing Template + Advanced Essence Conversion Upgrade + Time Crystal$() to obtain the ultimate card. Existing bound patterns are retained."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "jdte:ultimate_essence_conversion_upgrade"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Crafting and export$()$(br2)Recipes sharing ingredients run round-robin by craft count; independent ingredient groups craft separately. Rotation persists with the machine. Other essences retain unambiguous essence-only conversion. Ingredients match the recorded items and components; all ingredients must be present in the output buffer. Crafting respects input/output counts and crafting remainders. Insufficient output space leaves inputs untouched.$(br2)Conversion runs before every AE export. Incomplete ingredient batches remain buffered for later harvests; completed products export normally. Recipes are revalidated after reload and invalid patterns stop crafting."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Item tooltips list pattern counts, ingredients and results. Jade shows installed cards, pattern counts, each result and its recipe validity.$(br2)Remove the conversion card to withdraw reserved ingredients manually."
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:crafting_pattern": 0,
+    "jdte:advanced_essence_conversion_upgrade": 4,
+    "jdte:ultimate_essence_conversion_upgrade": 7
+  }
+}

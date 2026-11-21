@@ -3,7 +3,7 @@ package com.jdte.common.items.machinesettings;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
@@ -18,7 +18,7 @@ final class MachineSettingsCodecSupport {
     private MachineSettingsCodecSupport() {
     }
 
-    static void write(CompoundTag copiedData, int schemaVersion, ResourceLocation machineType, int tickSpeed,
+    static void write(CompoundTag copiedData, int schemaVersion, Identifier machineType, int tickSpeed,
                       int direction, CompoundTag custom) {
         CompoundTag settings = new CompoundTag();
         settings.putInt(SCHEMA_VERSION_KEY, schemaVersion);
@@ -30,35 +30,35 @@ final class MachineSettingsCodecSupport {
     }
 
     static Optional<MachineSettingsSnapshot> read(CompoundTag copiedData) {
-        if (!copiedData.contains(ROOT_KEY, Tag.TAG_COMPOUND)) {
+        if (!(copiedData.get(ROOT_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
             return Optional.empty();
         }
 
-        CompoundTag settings = copiedData.getCompound(ROOT_KEY);
-        if (!settings.contains(SCHEMA_VERSION_KEY, Tag.TAG_INT)
-                || !settings.contains(MACHINE_TYPE_KEY, Tag.TAG_STRING)
-                || !settings.contains(TICK_SPEED_KEY, Tag.TAG_INT)
-                || !settings.contains(DIRECTION_KEY, Tag.TAG_INT)
-                || !settings.contains(CUSTOM_KEY, Tag.TAG_COMPOUND)) {
+        CompoundTag settings = copiedData.getCompoundOrEmpty(ROOT_KEY);
+        if (!(settings.get(SCHEMA_VERSION_KEY) instanceof net.minecraft.nbt.IntTag)
+                || !(settings.get(MACHINE_TYPE_KEY) instanceof net.minecraft.nbt.StringTag)
+                || !(settings.get(TICK_SPEED_KEY) instanceof net.minecraft.nbt.IntTag)
+                || !(settings.get(DIRECTION_KEY) instanceof net.minecraft.nbt.IntTag)
+                || !(settings.get(CUSTOM_KEY) instanceof net.minecraft.nbt.CompoundTag)) {
             return Optional.empty();
         }
 
-        int schemaVersion = settings.getInt(SCHEMA_VERSION_KEY);
+        int schemaVersion = settings.getIntOr(SCHEMA_VERSION_KEY, 0);
         if (schemaVersion != MachineSettingsSnapshot.CURRENT_SCHEMA) {
             return Optional.empty();
         }
 
-        ResourceLocation machineType = ResourceLocation.tryParse(settings.getString(MACHINE_TYPE_KEY));
+        Identifier machineType = Identifier.tryParse(settings.getStringOr(MACHINE_TYPE_KEY, ""));
         if (machineType == null) {
             return Optional.empty();
         }
 
-        int tickSpeed = settings.getInt(TICK_SPEED_KEY);
+        int tickSpeed = settings.getIntOr(TICK_SPEED_KEY, 0);
         if (tickSpeed <= 0) {
             return Optional.empty();
         }
 
-        int direction = settings.getInt(DIRECTION_KEY);
+        int direction = settings.getIntOr(DIRECTION_KEY, 0);
         if (!isValidDirection(direction)) {
             return Optional.empty();
         }
@@ -68,7 +68,7 @@ final class MachineSettingsCodecSupport {
                 machineType,
                 tickSpeed,
                 direction,
-                settings.getCompound(CUSTOM_KEY).copy()));
+                settings.getCompoundOrEmpty(CUSTOM_KEY).copy()));
     }
 
     static boolean isValidDirection(int direction) {
@@ -80,11 +80,11 @@ final class MachineSettingsCodecSupport {
     }
 
     static Optional<Boolean> readBoolean(CompoundTag tag, String key) {
-        if (!tag.contains(key, Tag.TAG_BYTE)) {
+        if (!(tag.get(key) instanceof net.minecraft.nbt.ByteTag)) {
             return Optional.empty();
         }
 
-        byte value = tag.getByte(key);
+        byte value = tag.getByteOr(key, (byte) 0);
         if (value == 0) {
             return Optional.of(false);
         }
@@ -101,12 +101,12 @@ final class MachineSettingsCodecSupport {
     }
 
     static <E extends Enum<E>> Optional<E> readEnum(CompoundTag tag, String key, Class<E> enumType) {
-        if (!tag.contains(key, Tag.TAG_STRING)) {
+        if (!(tag.get(key) instanceof net.minecraft.nbt.StringTag)) {
             return Optional.empty();
         }
 
         try {
-            return Optional.of(Enum.valueOf(enumType, tag.getString(key)));
+            return Optional.of(Enum.valueOf(enumType, tag.getStringOr(key, "")));
         } catch (IllegalArgumentException ignored) {
             return Optional.empty();
         }

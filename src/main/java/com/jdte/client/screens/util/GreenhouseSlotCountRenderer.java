@@ -1,7 +1,7 @@
 package com.jdte.client.screens.util;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -12,19 +12,19 @@ public final class GreenhouseSlotCountRenderer {
     private GreenhouseSlotCountRenderer() {
     }
 
-    public static void render(GuiGraphics graphics, Font font, ItemStack stack, Slot slot,
+    public static void extractRenderState(GuiGraphicsExtractor graphics, Font font, ItemStack stack, Slot slot,
                               int imageWidth, String countLabel) {
         int seed = slot.x + slot.y * imageWidth;
-        if (slot.isFake()) graphics.renderFakeItem(stack, slot.x, slot.y, seed);
-        else graphics.renderItem(stack, slot.x, slot.y, seed);
+        if (slot.isFake()) graphics.fakeItem(stack, slot.x, slot.y, seed);
+        else graphics.item(stack, slot.x, slot.y, seed);
 
         // Preserve durability/cooldown decorations without drawing the vanilla-sized count.
-        graphics.renderItemDecorations(font, stack.copyWithCount(1), slot.x, slot.y, null);
+        graphics.itemDecorations(font, stack.copyWithCount(1), slot.x, slot.y, null);
         String count = countLabel != null ? countLabel : Integer.toString(stack.getCount());
-        graphics.pose().pushPose();
-        graphics.pose().translate(slot.x + 17.0F, slot.y + 12.0F, 250.0F);
-        graphics.pose().scale(COUNT_SCALE, COUNT_SCALE, 1.0F);
-        graphics.drawString(font, count, -font.width(count), 0, 0xFFFFFF, true);
-        graphics.pose().popPose();
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(slot.x + 17.0F, slot.y + 12.0F);
+        graphics.pose().scale(COUNT_SCALE, COUNT_SCALE);
+        graphics.text(font, count, -font.width(count), 0, 0xFFFFFFFF, true);
+        graphics.pose().popMatrix();
     }
 }

@@ -9,7 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -55,13 +55,13 @@ public class AdvancedUpgradeStorageContainer extends BaseContainer {
     }
 
     @Override
-    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+    public void clicked(int slotId, int button, ContainerInput clickType, Player player) {
         if (hand == InteractionHand.MAIN_HAND) {
-            int heldSlotIndex = SLOTS + 27 + player.getInventory().selected;
+            int heldSlotIndex = SLOTS + 27 + player.getInventory().getSelectedSlot();
             if (slotId == heldSlotIndex) {
                 return;
             }
-            if (clickType == ClickType.SWAP && button == player.getInventory().selected) {
+            if (clickType == ContainerInput.SWAP && button == player.getInventory().getSelectedSlot()) {
                 return;
             }
         }

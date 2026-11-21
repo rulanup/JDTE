@@ -1,6 +1,6 @@
 {
   "type": "jdte:greenhouse",
-  "seed": { "item": "minecraft:acacia_sapling" },
+  "seed": "minecraft:acacia_sapling",
   "outputs": [
     { "id": "minecraft:acacia_log", "count": 4 },
     { "id": "minecraft:acacia_sapling", "count": 1 }

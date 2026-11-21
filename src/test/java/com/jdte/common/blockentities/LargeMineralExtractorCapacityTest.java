@@ -1,5 +1,6 @@
 package com.jdte.common.blockentities;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.upgrades.UpgradeItemStackHandler;
 import com.jdte.setup.JDTEBlocks;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LargeMineralExtractorCapacityTest {
+class LargeMineralExtractorCapacityTest implements com.jdte.test.WorldRegistryTest {
     @Test
     void ultimateCapacityAllowsOversizedOutputStacks() {
         LargeMineralExtractorBE extractor = new LargeMineralExtractorBE(
@@ -20,6 +21,6 @@ class LargeMineralExtractorCapacityTest {
         upgrades.setStackInSlot(0, new ItemStack(JDTEItems.ULTIMATE_CAPACITY_UPGRADE.get()));
 
         assertEquals(6_400_000, extractor.getOutputSlotLimit());
-        assertEquals(6_400_000, extractor.getMachineHandler().getSlotLimit(extractor.outputStartSlot()));
+        assertEquals(6_400_000, extractor.getMachineHandler().getCapacityAsInt(extractor.outputStartSlot(), ItemResource.EMPTY));
     }
 }

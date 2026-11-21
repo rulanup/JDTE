@@ -1,0 +1,16 @@
+{
+  "name": "Bio Extractor",
+  "icon": "jdte:advanced_bio_extractor",
+  "category": "jdte:biology_life",
+  "sortnum": 4300,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Set the work area and supply power. Recipes determine what each entity produces, such as milk from cows or matching wool from sheep. Each entity has its own cooldown. Damage depends on the recipe. Leave room for both fluid and item outputs."
+    }
+  ],
+  "extra_recipe_mappings": {
+    "jdte:advanced_bio_extractor": 0,
+    "jdte:extended_bio_extractor": 0
+  }
+}

@@ -1,8 +1,9 @@
 package com.jdte.client.jei.lootfabricator;
 
+import com.jdte.client.ClientRecipeEvents;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import com.jdte.client.LootFabricatorLootClientCache;
 import com.jdte.common.utils.LootDropInfo;
@@ -14,15 +15,15 @@ import java.util.List;
 
 public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> possibleDrops, int outputPage) {
     public record DisplayDrop(ItemStack stack, int minCount, int maxCount, String chanceLabel) { }
-    public ResourceLocation id() {
-        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(spawnEgg.getItem());
-        return ResourceLocation.fromNamespaceAndPath("jdte", "jei/loot_fabricator/" + itemId.getNamespace() + "/" + itemId.getPath() + "/" + outputPage);
+    public Identifier id() {
+        Identifier itemId = BuiltInRegistries.ITEM.getKey(spawnEgg.getItem());
+        return Identifier.fromNamespaceAndPath("jdte", "jei/loot_fabricator/" + itemId.getNamespace() + "/" + itemId.getPath() + "/" + outputPage);
     }
 
     public static List<LootFabricatorJeiRecipe> getRecipes() {
         JDTEContentControl control = JDTEContentControl.current();
         if (!control.isDynamicRecipeGenerationEnabled(JDTEContentControl.DynamicRecipeFamily.LOOT_FABRICATOR)
-                || !control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "loot_fabricator"))) {
+                || !control.isBlockEnabled(Identifier.fromNamespaceAndPath("jdte", "loot_fabricator"))) {
             return List.of();
         }
         List<LootFabricatorJeiRecipe> list = new ArrayList<>();
@@ -42,23 +43,20 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
                                         Math.min(recipe.possibleDrops().size(), (page + 1) * 16))), page)))
                 .toList());
 
-        net.minecraft.world.item.crafting.RecipeManager rm = getRecipeManager();
-        if (rm != null) {
-            for (net.minecraft.world.item.crafting.RecipeHolder<com.jdte.common.recipes.LootFabricatorRecipe> holder :
-                    rm.getAllRecipesFor(com.jdte.setup.JDTERecipes.LOOT_FABRICATOR_RECIPE_TYPE.get())) {
-                com.jdte.common.recipes.LootFabricatorRecipe customRecipe = holder.value();
-                List<DisplayDrop> drops = customRecipe.outputs().stream()
-                        .map(out -> new DisplayDrop(out.stack(), (int) (out.chance() >= 1.0F ? out.stack().getCount() : 0),
-                                out.stack().getCount(),
-                                out.chance() >= 1.0F ? "100%" : String.format("%.0f%%", out.chance() * 100.0F)))
-                        .toList();
-                for (ItemStack inputStack : customRecipe.input().getItems()) {
-                    if (!inputStack.isEmpty() && !drops.isEmpty()) {
-                        int pageCount = (drops.size() + 15) / 16;
-                        for (int page = 0; page < pageCount; page++) {
-                            List<DisplayDrop> pageDrops = List.copyOf(drops.subList(page * 16, Math.min(drops.size(), (page + 1) * 16)));
-                            list.add(new LootFabricatorJeiRecipe(inputStack, pageDrops, page));
-                        }
+        for (net.minecraft.world.item.crafting.RecipeHolder<com.jdte.common.recipes.LootFabricatorRecipe> holder :
+                ClientRecipeEvents.recipes().byType(com.jdte.setup.JDTERecipes.LOOT_FABRICATOR_RECIPE_TYPE.get())) {
+            com.jdte.common.recipes.LootFabricatorRecipe customRecipe = holder.value();
+            List<DisplayDrop> drops = customRecipe.outputs().stream()
+                    .map(out -> new DisplayDrop(out.stack(), (int) (out.chance() >= 1.0F ? out.stack().getCount() : 0),
+                            out.stack().getCount(),
+                            out.chance() >= 1.0F ? "100%" : String.format("%.0f%%", out.chance() * 100.0F)))
+                    .toList();
+            for (ItemStack inputStack : customRecipe.input().items().map(ItemStack::new).toList()) {
+                if (!inputStack.isEmpty() && !drops.isEmpty()) {
+                    int pageCount = (drops.size() + 15) / 16;
+                    for (int page = 0; page < pageCount; page++) {
+                        List<DisplayDrop> pageDrops = List.copyOf(drops.subList(page * 16, Math.min(drops.size(), (page + 1) * 16)));
+                        list.add(new LootFabricatorJeiRecipe(inputStack, pageDrops, page));
                     }
                 }
             }
@@ -68,23 +66,6 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
                 .filter(recipe -> control.isRecipeEnabled(recipe.id()))
                 .sorted(Comparator.comparing(recipe -> BuiltInRegistries.ITEM.getKey(recipe.spawnEgg().getItem()).toString()))
                 .toList();
-    }
-
-    private static net.minecraft.world.item.crafting.RecipeManager getRecipeManager() {
-        try {
-            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-            if (mc == null) {
-                return null;
-            }
-            if (mc.level != null) {
-                return mc.level.getRecipeManager();
-            }
-            if (mc.hasSingleplayerServer() && mc.getSingleplayerServer() != null) {
-                return mc.getSingleplayerServer().getRecipeManager();
-            }
-        } catch (Throwable ignored) {
-        }
-        return null;
     }
 
     private static java.util.Optional<DisplayDrop> toDisplayDrop(LootDropInfo drop) {
@@ -97,7 +78,7 @@ public record LootFabricatorJeiRecipe(ItemStack spawnEgg, List<DisplayDrop> poss
     public static List<ItemStack> getMachines() {
         JDTEContentControl control = JDTEContentControl.current();
         if (!control.isDynamicRecipeGenerationEnabled(JDTEContentControl.DynamicRecipeFamily.LOOT_FABRICATOR)
-                || !control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "loot_fabricator"))) {
+                || !control.isBlockEnabled(Identifier.fromNamespaceAndPath("jdte", "loot_fabricator"))) {
             return List.of();
         }
         return List.of(new ItemStack(JDTEBlocks.LOOT_FABRICATOR.get()));

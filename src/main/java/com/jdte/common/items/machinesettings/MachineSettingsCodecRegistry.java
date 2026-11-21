@@ -2,14 +2,14 @@ package com.jdte.common.items.machinesettings;
 
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.*;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.jdte.common.blockentities.*;
 import com.jdte.setup.JDTEBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.util.LinkedHashMap;
@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 
 public final class MachineSettingsCodecRegistry {
     private static final MachineSettingsCodec COMMON = new CommonMachineSettingsCodec();
-    private static final Map<ResourceLocation, RegisteredCodec> REGISTRY = new LinkedHashMap<>();
+    private static final Map<Identifier, RegisteredCodec> REGISTRY = new LinkedHashMap<>();
 
     static {
         register(JDTEBlockEntities.BASIC_TIME_ACCELERATOR.get(), BasicTimeAcceleratorBE.class);
@@ -123,32 +123,32 @@ public final class MachineSettingsCodecRegistry {
         register(JDTEBlockEntities.ADVANCED_FLUID_MIXER.get(), AdvancedFluidMixerBE.class);
         register(JDTEBlockEntities.EXTENDED_FLUID_MIXER.get(), ExtendedFluidMixerBE.class);
 
-        register(Registration.ClickerT1BE.get(), ClickerT1BE.class, JdtMachineSettingsCodecs.clicker());
-        register(Registration.ClickerT2BE.get(), ClickerT2BE.class, JdtMachineSettingsCodecs.clicker());
-        register(Registration.DropperT1BE.get(), DropperT1BE.class, JdtMachineSettingsCodecs.dropper());
-        register(Registration.DropperT2BE.get(), DropperT2BE.class, JdtMachineSettingsCodecs.dropper());
-        register(Registration.BlockBreakerT1BE.get(), BlockBreakerT1BE.class, JdtMachineSettingsCodecs.blockBreaker());
-        register(Registration.BlockBreakerT2BE.get(), BlockBreakerT2BE.class, JdtMachineSettingsCodecs.blockBreaker());
-        register(Registration.BlockPlacerT1BE.get(), BlockPlacerT1BE.class);
-        register(Registration.BlockPlacerT2BE.get(), BlockPlacerT2BE.class);
-        register(Registration.BlockSwapperT1BE.get(), BlockSwapperT1BE.class, JdtMachineSettingsCodecs.blockSwapper());
-        register(Registration.BlockSwapperT2BE.get(), BlockSwapperT2BE.class, JdtMachineSettingsCodecs.blockSwapper());
-        register(Registration.SensorT1BE.get(), SensorT1BE.class, JdtMachineSettingsCodecs.sensor());
-        register(Registration.SensorT2BE.get(), SensorT2BE.class, JdtMachineSettingsCodecs.sensor());
-        register(Registration.ItemCollectorBE.get(), ItemCollectorBE.class, JdtMachineSettingsCodecs.itemCollector());
-        register(Registration.ExperienceHolderBE.get(), ExperienceHolderBE.class,
+        register(JDTRegistration.ClickerT1BE.get(), ClickerT1BE.class, JdtMachineSettingsCodecs.clicker());
+        register(JDTRegistration.ClickerT2BE.get(), ClickerT2BE.class, JdtMachineSettingsCodecs.clicker());
+        register(JDTRegistration.DropperT1BE.get(), DropperT1BE.class, JdtMachineSettingsCodecs.dropper());
+        register(JDTRegistration.DropperT2BE.get(), DropperT2BE.class, JdtMachineSettingsCodecs.dropper());
+        register(JDTRegistration.BlockBreakerT1BE.get(), BlockBreakerT1BE.class, JdtMachineSettingsCodecs.blockBreaker());
+        register(JDTRegistration.BlockBreakerT2BE.get(), BlockBreakerT2BE.class, JdtMachineSettingsCodecs.blockBreaker());
+        register(JDTRegistration.BlockPlacerT1BE.get(), BlockPlacerT1BE.class);
+        register(JDTRegistration.BlockPlacerT2BE.get(), BlockPlacerT2BE.class);
+        register(JDTRegistration.BlockSwapperT1BE.get(), BlockSwapperT1BE.class, JdtMachineSettingsCodecs.blockSwapper());
+        register(JDTRegistration.BlockSwapperT2BE.get(), BlockSwapperT2BE.class, JdtMachineSettingsCodecs.blockSwapper());
+        register(JDTRegistration.SensorT1BE.get(), SensorT1BE.class, JdtMachineSettingsCodecs.sensor());
+        register(JDTRegistration.SensorT2BE.get(), SensorT2BE.class, JdtMachineSettingsCodecs.sensor());
+        register(JDTRegistration.ItemCollectorBE.get(), ItemCollectorBE.class, JdtMachineSettingsCodecs.itemCollector());
+        register(JDTRegistration.ExperienceHolderBE.get(), ExperienceHolderBE.class,
                 JdtMachineSettingsCodecs.experienceHolder());
-        register(Registration.EnergyTransmitterBE.get(), EnergyTransmitterBE.class,
+        register(JDTRegistration.EnergyTransmitterBE.get(), EnergyTransmitterBE.class,
                 JdtMachineSettingsCodecs.energyTransmitter());
-        register(Registration.GeneratorT1BE.get(), GeneratorT1BE.class);
-        register(Registration.GeneratorFluidT1BE.get(), GeneratorFluidT1BE.class);
-        register(Registration.FluidPlacerT1BE.get(), FluidPlacerT1BE.class);
-        register(Registration.FluidPlacerT2BE.get(), FluidPlacerT2BE.class);
-        register(Registration.FluidCollectorT1BE.get(), FluidCollectorT1BE.class);
-        register(Registration.FluidCollectorT2BE.get(), FluidCollectorT2BE.class);
-        register(Registration.InventoryHolderBE.get(), InventoryHolderBE.class, JdtMachineSettingsCodecs.inventoryHolder());
-        register(Registration.PlayerAccessorBE.get(), PlayerAccessorBE.class, JdtMachineSettingsCodecs.playerAccessor());
-        register(Registration.ParadoxMachineBE.get(), ParadoxMachineBE.class, JdtMachineSettingsCodecs.paradox());
+        register(JDTRegistration.GeneratorT1BE.get(), GeneratorT1BE.class);
+        register(JDTRegistration.GeneratorFluidT1BE.get(), GeneratorFluidT1BE.class);
+        register(JDTRegistration.FluidPlacerT1BE.get(), FluidPlacerT1BE.class);
+        register(JDTRegistration.FluidPlacerT2BE.get(), FluidPlacerT2BE.class);
+        register(JDTRegistration.FluidCollectorT1BE.get(), FluidCollectorT1BE.class);
+        register(JDTRegistration.FluidCollectorT2BE.get(), FluidCollectorT2BE.class);
+        register(JDTRegistration.InventoryHolderBE.get(), InventoryHolderBE.class, JdtMachineSettingsCodecs.inventoryHolder());
+        register(JDTRegistration.PlayerAccessorBE.get(), PlayerAccessorBE.class, JdtMachineSettingsCodecs.playerAccessor());
+        register(JDTRegistration.ParadoxMachineBE.get(), ParadoxMachineBE.class, JdtMachineSettingsCodecs.paradox());
     }
 
     private MachineSettingsCodecRegistry() {
@@ -158,7 +158,7 @@ public final class MachineSettingsCodecRegistry {
         return COMMON;
     }
 
-    public static Optional<MachineSettingsCodec> find(ResourceLocation typeId, BaseMachineBE machine) {
+    public static Optional<MachineSettingsCodec> find(Identifier typeId, BaseMachineBE machine) {
         RegisteredCodec registered = REGISTRY.get(typeId);
         if (registered == null || !registered.machineType().test(machine)) {
             return Optional.empty();
@@ -166,7 +166,7 @@ public final class MachineSettingsCodecRegistry {
         return Optional.of(registered.codec());
     }
 
-    static Set<ResourceLocation> registeredTypeIds() {
+    static Set<Identifier> registeredTypeIds() {
         return Set.copyOf(REGISTRY.keySet());
     }
 
@@ -176,7 +176,7 @@ public final class MachineSettingsCodecRegistry {
 
     private static void register(BlockEntityType<?> type, Class<? extends BaseMachineBE> machineClass,
                                  MachineSettingsCodec codec) {
-        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
+        Identifier typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
         REGISTRY.put(typeId, new RegisteredCodec(machineClass::isInstance, codec));
     }
 
@@ -194,13 +194,13 @@ public final class MachineSettingsCodecRegistry {
 
         @Override
         public Optional<PreparedSettings> decode(CompoundTag custom, HolderLookup.Provider registries) {
-            if (!custom.contains(MachineSettingsCodecSupport.TICK_SPEED_KEY, net.minecraft.nbt.Tag.TAG_INT)
-                    || !custom.contains(MachineSettingsCodecSupport.DIRECTION_KEY, net.minecraft.nbt.Tag.TAG_INT)) {
+            if (!(custom.get(MachineSettingsCodecSupport.TICK_SPEED_KEY) instanceof net.minecraft.nbt.IntTag)
+                    || !(custom.get(MachineSettingsCodecSupport.DIRECTION_KEY) instanceof net.minecraft.nbt.IntTag)) {
                 return Optional.empty();
             }
 
-            int tickSpeed = custom.getInt(MachineSettingsCodecSupport.TICK_SPEED_KEY);
-            int direction = custom.getInt(MachineSettingsCodecSupport.DIRECTION_KEY);
+            int tickSpeed = custom.getIntOr(MachineSettingsCodecSupport.TICK_SPEED_KEY, 0);
+            int direction = custom.getIntOr(MachineSettingsCodecSupport.DIRECTION_KEY, 0);
             if (tickSpeed <= 0 || !MachineSettingsCodecSupport.isValidDirection(direction)) {
                 return Optional.empty();
             }

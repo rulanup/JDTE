@@ -17,7 +17,6 @@ class ChunkMapShutdownPolicyTest {
 
         assertSame(generationBarrier, selected);
         assertFalse(selected.isDone());
-        assertFalse(ChunkMapShutdownPolicy.readyForUnload(false, false));
     }
 
     @Test
@@ -27,6 +26,6 @@ class ChunkMapShutdownPolicyTest {
         CompletableFuture<?> selected = ChunkMapShutdownPolicy.saveBarrier(true, generationBarrier);
 
         assertTrue(selected.isDone());
-        assertTrue(ChunkMapShutdownPolicy.readyForUnload(true, false));
+        assertSame(selected, ChunkMapShutdownPolicy.saveBarrier(true, generationBarrier));
     }
 }

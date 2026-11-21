@@ -2,7 +2,7 @@ package com.jdte.client.screens;
 
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.jdte.common.containers.InfusionMachineContainer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -24,12 +24,12 @@ public abstract class InfusionMachineScreen<T extends InfusionMachineContainer> 
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
         renderProgressArrow(guiGraphics);
     }
 
-    private void renderProgressArrow(GuiGraphics guiGraphics) {
+    private void renderProgressArrow(GuiGraphicsExtractor guiGraphics) {
         int x = getGuiLeft() + 79;
         int y = getGuiTop() + 37;
         InfusionMachineContainer imContainer = (InfusionMachineContainer) container;
@@ -42,7 +42,7 @@ public abstract class InfusionMachineScreen<T extends InfusionMachineContainer> 
         }
     }
 
-    private void drawArrow(GuiGraphics guiGraphics, int x, int y, int width, int color) {
+    private void drawArrow(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int color) {
         int clampedWidth = Math.max(0, Math.min(24, width));
         if (clampedWidth <= 0) return;
         int bodyWidth = Math.min(16, clampedWidth);
@@ -57,7 +57,7 @@ public abstract class InfusionMachineScreen<T extends InfusionMachineContainer> 
         if (headWidth > 6) drawHeadPart(guiGraphics, x + 22, y + 1, Math.min(headWidth - 6, 2), 13, color);
     }
 
-    private void drawHeadPart(GuiGraphics guiGraphics, int x, int y, int width, int height, int color) {
+    private void drawHeadPart(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height, int color) {
         if (width > 0) {
             guiGraphics.fill(x, y, x + width, y + height, color);
         }

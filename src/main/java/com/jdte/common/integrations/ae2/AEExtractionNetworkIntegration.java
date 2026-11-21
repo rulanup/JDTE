@@ -21,7 +21,10 @@ import net.minecraft.world.level.material.Fluid;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
@@ -62,7 +65,7 @@ final class AEExtractionNetworkIntegration {
         }
         for (var entry : groups.entrySet()) {
             GlobalPos link = entry.getKey();
-            ServerLevel level = player.server.getLevel(link.dimension());
+            ServerLevel level = player.level().getServer().getLevel(link.dimension());
             if (level == null || !level.isLoaded(link.pos())) continue;
             BlockEntity blockEntity = level.getBlockEntity(link.pos());
             if (!(blockEntity instanceof IWirelessAccessPoint accessPoint) || !accessPoint.isActive()) continue;
@@ -71,10 +74,10 @@ final class AEExtractionNetworkIntegration {
             MEStorage storage = grid.getStorageService().getInventory();
             IActionSource action = IActionSource.ofPlayer(player, accessPoint);
             for (ItemStack stack : entry.getValue()) {
-                refillFluids(storage, action, link, player.serverLevel().getGameTime(), stack);
+                refillFluids(storage, action, link, player.level().getGameTime(), stack);
                 if (ModList.get().isLoaded("appflux")) {
                     AEExtractionEnergyIntegration.refill(storage, action, link,
-                            player.serverLevel().getGameTime(), player, stack);
+                            player.level().getGameTime(), stack);
                 }
             }
         }
@@ -82,25 +85,26 @@ final class AEExtractionNetworkIntegration {
 
     private static void refillFluids(MEStorage storage, IActionSource action, GlobalPos link, long gameTime,
                                      ItemStack stack) {
-        IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        var access = ItemAccess.forStack(stack);
+        var handler = access.getCapability(Capabilities.Fluid.ITEM);
         if (handler == null) return;
         List<Fluid> candidates = BuiltInRegistries.FLUID.stream().toList();
-        for (int tank = 0; tank < handler.getTanks(); tank++) {
+        for (int tank = 0; tank < handler.size(); tank++) {
             boolean cached = AEExtractionFluidPolicy.hasCached(stack, tank);
-            FluidStack selected = AEExtractionFluidPolicy.select(handler, tank, candidates);
+            FluidStack selected = AEExtractionFluidPolicy.select(stack, handler, tank, candidates);
             if (selected == null || selected.isEmpty()) continue;
             AEFluidKey key = AEFluidKey.of(selected);
             if (key == null) continue;
-            if (cached && handler.getFluidInTank(tank).isEmpty()
-                    && handler.fill(selected.copyWithAmount(1),
-                    net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE) == 0) {
+            if (cached && handler.getResource(tank).isEmpty()
+                    && fill(handler, tank, FluidResource.of(selected), 1, true) == 0) {
                 AEExtractionFluidPolicy.invalidate(stack, tank);
-                selected = AEExtractionFluidPolicy.select(handler, tank, candidates, false);
+                selected = AEExtractionFluidPolicy.select(stack, handler, tank, candidates, false);
                 if (selected == null || selected.isEmpty()) continue;
                 key = AEFluidKey.of(selected);
                 if (key == null) continue;
             }
-            final FluidStack selectedFluid = selected;
+            final FluidResource selectedFluid = FluidResource.of(selected);
+            final int tankIndex = tank;
             final AEFluidKey fluidKey = key;
             boolean[] actualFillRejected = {false};
             AEExtractionTransfer.Result result = AEExtractionTransfer.move(MAX,
@@ -115,11 +119,9 @@ final class AEExtractionNetworkIntegration {
                     },
                     new AEExtractionTransfer.Sink() {
                         @Override public long insert(long amount, boolean simulate) {
-                            IFluidHandlerItem current = stack.getCapability(Capabilities.FluidHandler.ITEM);
-                            if (current == null) return 0;
-                            int accepted = current.fill(selectedFluid.copyWithAmount((int) Math.min(MAX, amount)),
-                                    simulate ? net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE
-                                            : net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+                            var current = access.getCapability(Capabilities.Fluid.ITEM);
+                            if (current == null || tankIndex >= current.size()) return 0;
+                            int accepted = fill(current, tankIndex, selectedFluid, (int) Math.min(MAX, amount), simulate);
                             if (!simulate && amount > 0 && accepted == 0) actualFillRejected[0] = true;
                             return accepted;
                         }
@@ -128,8 +130,17 @@ final class AEExtractionNetworkIntegration {
                 AEExtractionFluidPolicy.invalidate(stack, tank);
             }
             if (result.unrestored() > 0) logRefundFailure(link, fluidKey.toString(), result.unrestored(), gameTime);
-            handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+            handler = access.getCapability(Capabilities.Fluid.ITEM);
             if (handler == null) return;
+        }
+    }
+
+    private static int fill(ResourceHandler<FluidResource> handler, int tank, FluidResource resource,
+                            int amount, boolean simulate) {
+        try (var transaction = Transaction.openRoot()) {
+            int inserted = handler.insert(tank, resource, amount, transaction);
+            if (!simulate) transaction.commit();
+            return inserted;
         }
     }
 

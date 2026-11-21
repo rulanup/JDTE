@@ -2,8 +2,9 @@ package com.jdte.common.greenhouse;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface GreenhouseMatrixMember {
     boolean isMatrixManaged();
     List<GreenhouseMatrixProductionProfile> captureMatrixProfiles(ServerLevel level,
                                                                   GreenhouseMatrixRuntime.Effects effects);
-    IFluidHandler matrixFluidStorage();
-    IEnergyStorage matrixEnergyStorage();
+    ResourceHandler<FluidResource> matrixFluidStorage();
+    EnergyHandler matrixEnergyStorage();
     long matrixOutputCapacity();
 }

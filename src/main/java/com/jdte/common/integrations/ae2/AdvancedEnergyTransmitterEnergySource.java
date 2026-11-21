@@ -1,7 +1,8 @@
 package com.jdte.common.integrations.ae2;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 
 public interface AdvancedEnergyTransmitterEnergySource {
@@ -29,10 +30,10 @@ public interface AdvancedEnergyTransmitterEnergySource {
         return Status.UNAVAILABLE;
     }
 
-    default void save(CompoundTag tag) {
+    default void save(ValueOutput tag) {
     }
 
-    default void load(CompoundTag tag) {
+    default void load(ValueInput tag) {
     }
 
     default void destroy() {

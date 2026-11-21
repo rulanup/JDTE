@@ -8,7 +8,7 @@ import appeng.api.networking.IGrid;
 import appeng.api.networking.crafting.ICraftingCPU;
 import com.jdte.JDTE;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,8 +27,8 @@ final class AE2CraftingReadNetworkIntegration {
 
     static void registerLinkable() {
         if (registered) return;
-        Item item = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "ae_crafting_read_upgrade"));
-        if (item == null || item == BuiltInRegistries.ITEM.get(BuiltInRegistries.ITEM.getDefaultKey())) return;
+        Item item = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath(JDTE.MODID, "ae_crafting_read_upgrade"));
+        if (item == null || item == net.minecraft.world.item.Items.AIR) return;
         registerLinkable(item);
     }
 

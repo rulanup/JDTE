@@ -5,10 +5,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record TimeFreezerPayload(boolean timeFreezeEnabled, boolean weatherFreezeEnabled) implements CustomPacketPayload {
-    public static final Type<TimeFreezerPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "time_freezer"));
+    public static final Type<TimeFreezerPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(JDTE.MODID, "time_freezer"));
 
     @Override
     public Type<TimeFreezerPayload> type() {

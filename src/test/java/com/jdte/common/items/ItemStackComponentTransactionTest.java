@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ItemStackComponentTransactionTest {
+class ItemStackComponentTransactionTest implements com.jdte.test.WorldRegistryTest {
     private static final DataComponentType<Integer> FLUID =
             DataComponentType.<Integer>builder().persistent(Codec.INT).build();
     private static final DataComponentType<Integer> ENERGY =

@@ -5,7 +5,7 @@ import com.jdte.common.integrations.ProductiveBeesBioFactoryIntegration;
 import com.jdte.common.content.JDTEContentControl;
 import com.jdte.setup.JDTERecipes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 
@@ -14,33 +14,31 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public record BioFactoryJeiRecipe(ResourceLocation id, List<ItemStack> specimens, List<JeiInput> inputs,
+public record BioFactoryJeiRecipe(Identifier id, List<ItemStack> specimens, List<JeiInput> inputs,
                                   List<JeiOutput> outputs,
-                                  Optional<ResourceLocation> processFluid, int processFluidAmount,
+                                  Optional<Identifier> processFluid, int processFluidAmount,
                                   boolean processFluidConsumed,
-                                  Optional<ResourceLocation> outputFluid, int outputFluidAmount,
+                                  Optional<Identifier> outputFluid, int outputFluidAmount,
                                   int lifeFluidAmount, int timeFluidAmount,
                                   int processTicks, int energy) {
     public static List<BioFactoryJeiRecipe> getRecipes() {
         JDTEContentControl control = JDTEContentControl.current();
-        if (!control.isBlockEnabled(ResourceLocation.fromNamespaceAndPath("jdte", "bio_factory"))) {
+        if (!control.isBlockEnabled(Identifier.fromNamespaceAndPath("jdte", "bio_factory"))) {
             return List.of();
         }
         boolean dynamicGeneration = control.isDynamicRecipeGenerationEnabled(
                 JDTEContentControl.DynamicRecipeFamily.BIO_FACTORY);
         Minecraft minecraft = Minecraft.getInstance();
-        var manager = minecraft.level != null ? minecraft.level.getRecipeManager()
-                : minecraft.getConnection() != null ? minecraft.getConnection().getRecipeManager() : null;
-        if (manager == null) return List.of();
+        var recipes = com.jdte.client.ClientRecipeEvents.recipes();
         List<BioFactoryJeiRecipe> result = new ArrayList<>();
-        for (var holder : manager.getAllRecipesFor(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get())) {
-            if (!control.isRecipeEnabled(holder.id())) continue;
+        for (var holder : recipes.byType(JDTERecipes.BIO_FACTORY_RECIPE_TYPE.get())) {
+            if (!control.isRecipeEnabled(holder.id().identifier())) continue;
             BioFactoryRecipe recipe = holder.value();
             List<JeiOutput> outputs = recipe.outputs().stream()
                     .map(output -> new JeiOutput(List.of(output.stack()), output.chance())).toList();
             List<JeiInput> inputs = recipe.inputs().stream()
-                    .map(input -> new JeiInput(List.of(input.ingredient().getItems()), input.count())).toList();
-            result.add(new BioFactoryJeiRecipe(holder.id(), List.of(recipe.specimen().getItems()),
+                    .map(input -> new JeiInput(input.ingredient().items().map(ItemStack::new).toList(), input.count())).toList();
+            result.add(new BioFactoryJeiRecipe(holder.id().identifier(), recipe.specimen().items().map(ItemStack::new).toList(),
                     inputs, outputs, recipe.processFluid(),
                     recipe.processFluidAmount(), recipe.processFluid().isPresent() && recipe.processFluidAmount() > 0,
                     recipe.outputFluid(), recipe.outputFluidAmount(),
@@ -50,7 +48,7 @@ public record BioFactoryJeiRecipe(ResourceLocation id, List<ItemStack> specimens
         }
         if (dynamicGeneration && ModList.get().isLoaded("productivebees") && minecraft.level != null) {
             for (var recipe : ProductiveBeesBioFactoryIntegration.getJeiRecipes(
-                    minecraft.level, manager)) {
+                    minecraft.level, recipes)) {
                 if (!control.isRecipeEnabled(recipe.id())) continue;
                 List<JeiOutput> outputs = recipe.outputs().stream()
                         .map(output -> new JeiOutput(output.stacks(), output.chance())).toList();

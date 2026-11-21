@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.List;
 import java.util.Set;
@@ -47,7 +47,7 @@ public final class AEOutputNetwork {
         return AVAILABLE ? AEOutputNetworkIntegration.insertFluid(level, upgrade, stack, simulate) : 0;
     }
 
-    public record ItemSource(BaseMachineBE owner, ItemStackHandler handler, int slot) {
+    public record ItemSource(BaseMachineBE owner, ItemStacksResourceHandler handler, int slot) {
     }
 
     public record ItemTransferResult(long moved, Set<BaseMachineBE> changedMachines, long unrestored) {

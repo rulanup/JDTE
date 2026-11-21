@@ -5,10 +5,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record GelGeneratorPayload(boolean autoBalanceInputs) implements CustomPacketPayload {
-    public static final Type<GelGeneratorPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "gel_generator"));
+    public static final Type<GelGeneratorPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(JDTE.MODID, "gel_generator"));
 
     @Override
     public Type<GelGeneratorPayload> type() {

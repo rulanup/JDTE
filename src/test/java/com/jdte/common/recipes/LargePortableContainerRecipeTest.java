@@ -12,7 +12,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,6 +23,7 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LargePortableContainerRecipeTest {
+class LargePortableContainerRecipeTest implements com.jdte.test.WorldRegistryTest {
     private static final RegistryAccess REGISTRY_ACCESS =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     @Test
@@ -61,7 +62,7 @@ class LargePortableContainerRecipeTest {
 
         assertTrue(recipe.matches(input, null));
 
-        ItemStack result = recipe.assemble(input, REGISTRY_ACCESS);
+        ItemStack result = recipe.assemble(input);
 
         assertTrue(result.is(JDTEItems.LARGE_POCKET_GENERATOR.get()));
         assertEquals(12_345, result.get(JustDireDataComponents.FORGE_ENERGY));
@@ -88,7 +89,7 @@ class LargePortableContainerRecipeTest {
 
         ItemStack result = recipe.assemble(craftingInput(source,
                 new ItemStack(item("justdirethings", "eclipsealloy_ingot"), 4),
-                new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get())), REGISTRY_ACCESS);
+                new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get())));
 
         assertTrue(result.is(JDTEItems.LARGE_POTION_CANISTER.get()));
         assertEquals(healing, PotionCanister.getPotionContents(result));
@@ -107,7 +108,7 @@ class LargePortableContainerRecipeTest {
 
         ItemStack result = recipe.assemble(craftingInput(source,
                 new ItemStack(item("justdirethings", "eclipsealloy_ingot"), 4),
-                new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get())), REGISTRY_ACCESS);
+                new ItemStack(JDTEItems.TIME_FLUID_CATALYST.get())));
 
         assertTrue(result.is(JDTEItems.LARGE_FUEL_CANISTER.get()));
         assertEquals(7_654_321, FuelCanister.getFuelLevel(result));
@@ -149,12 +150,12 @@ class LargePortableContainerRecipeTest {
 
     @Test
     void recipeManagerExposesLargePortableUpgradeAsVanillaCraftingRecipe() {
-        RecipeManager recipeManager = new RecipeManager(REGISTRY_ACCESS);
+        ExposedRecipeManager recipeManager = new ExposedRecipeManager();
         RecipeHolder<?> recipeHolder = ExposedRecipeManager.fromJson(
-                ResourceLocation.fromNamespaceAndPath("jdte", "large_pocket_generator"),
+                Identifier.fromNamespaceAndPath("jdte", "large_pocket_generator"),
                 json("data/jdte/recipe/large_pocket_generator.json"),
                 REGISTRY_ACCESS);
-        recipeManager.replaceRecipes(List.of(recipeHolder));
+        recipeManager.install(recipeHolder);
 
         CraftingInput input = craftingInput(
                 new ItemStack(item("justdirethings", "pocket_generator")),
@@ -164,9 +165,9 @@ class LargePortableContainerRecipeTest {
         assertTrue(recipeManager.getRecipeFor(RecipeType.CRAFTING, input, null).isPresent());
         RecipeHolder<CraftingRecipe> craftingHolder = recipeManager.getRecipeFor(RecipeType.CRAFTING, input, null)
                 .orElseThrow();
-        assertEquals(ResourceLocation.fromNamespaceAndPath("jdte", "large_pocket_generator"), craftingHolder.id());
+        assertEquals(Identifier.fromNamespaceAndPath("jdte", "large_pocket_generator"), craftingHolder.id().identifier());
         assertEquals(LargePortableContainerRecipe.class, craftingHolder.value().getClass());
-        assertEquals(1, recipeManager.getAllRecipesFor(RecipeType.CRAFTING).size());
+        assertEquals(1, recipeManager.getRecipes().stream().filter(holder -> holder.value().getType() == RecipeType.CRAFTING).count());
     }
 
     @Test
@@ -193,14 +194,14 @@ class LargePortableContainerRecipeTest {
         assertRecipeResource("large_potion_canister", "justdirethings:potion_canister", "jdte:large_potion_canister");
         assertRecipeResource("large_fuel_canister", "justdirethings:fuel_canister", "jdte:large_fuel_canister");
 
-        JsonObject pocketModel = json("assets/jdte/models/item/large_pocket_generator.json");
-        assertTrue(pocketModel.getAsJsonArray("overrides").toString().contains("justdirethings:enabled"));
+        JsonObject pocketModel = json("assets/jdte/items/large_pocket_generator.json");
+        assertEquals("jdte:generator_enabled", pocketModel.getAsJsonObject("model").get("property").getAsString());
 
-        JsonObject potionModel = json("assets/jdte/models/item/large_potion_canister.json");
-        assertTrue(potionModel.getAsJsonArray("overrides").toString().contains("justdirethings:potion_fullness"));
+        JsonObject potionModel = json("assets/jdte/items/large_potion_canister.json");
+        assertEquals("jdte:potion_fullness", potionModel.getAsJsonObject("model").get("property").getAsString());
 
-        JsonObject fuelModel = json("assets/jdte/models/item/large_fuel_canister.json");
-        assertTrue(fuelModel.getAsJsonArray("overrides").toString().contains("justdirethings:fullness"));
+        JsonObject fuelModel = json("assets/jdte/items/large_fuel_canister.json");
+        assertEquals("jdte:fuel_fullness", fuelModel.getAsJsonObject("model").get("property").getAsString());
     }
 
     @Test
@@ -262,8 +263,8 @@ class LargePortableContainerRecipeTest {
     }
 
     private static Item item(String namespace, String path) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace, path);
-        Item item = BuiltInRegistries.ITEM.get(id);
+        Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
+        Item item = BuiltInRegistries.ITEM.getValue(id);
         assertFalse(item == Items.AIR, () -> "Missing registered item: " + id);
         return item;
     }
@@ -283,9 +284,13 @@ class LargePortableContainerRecipeTest {
             super(REGISTRY_ACCESS);
         }
 
-        protected static RecipeHolder<?> fromJson(ResourceLocation id, JsonObject recipeJson,
+        private void install(RecipeHolder<?> recipe) {
+            apply(RecipeMap.create(List.of(recipe)), null, null);
+        }
+
+        protected static RecipeHolder<?> fromJson(Identifier id, JsonObject recipeJson,
                                                   RegistryAccess registries) {
-            return RecipeManager.fromJson(id, recipeJson, registries);
+            return RecipeManager.fromJson(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, id), recipeJson, registries);
         }
     }
 }

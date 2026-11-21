@@ -1,12 +1,19 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.input.MouseButtonEvent;
+
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
+import com.direwolf20.justdirethings.util.MiscHelpers;
+import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.client.screens.util.MachineFluidBarRenderer;
+import com.jdte.client.screens.util.GreenhouseSlotCountRenderer;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.containers.MineralExtractorContainer;
 import com.jdte.common.network.data.MineralExtractorOutputPagePayload;
@@ -14,32 +21,41 @@ import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.common.recipes.MineralExtractorResourceResolver;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTEItems;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 
 public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorContainer> {
-    private static final ResourceLocation PREV = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
-    private static final ResourceLocation NEXT = ResourceLocation.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
+    private static final Identifier PREV = Identifier.fromNamespaceAndPath("jdte", "textures/gui/filter_prev.png");
+    private static final Identifier NEXT = Identifier.fromNamespaceAndPath("jdte", "textures/gui/filter_next.png");
     private final MineralExtractorContainer extractorContainer;
     private NumberButton multiplierButton;
 
     public MineralExtractorScreen(MineralExtractorContainer container, Inventory inventory, Component title) {
         super(container, inventory, title);
         extractorContainer = container;
+    }
+
+    @Override
+    protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack stack, Slot slot, String countLabel) {
+        if (extractorContainer.isOutputSlot(slot) && stack.getCount() > 1) {
+            GreenhouseSlotCountRenderer.extractRenderState(graphics, font, stack, slot, imageWidth, countLabel);
+            return;
+        }
+        super.renderSlotContents(graphics, stack, slot, countLabel);
     }
 
     @Override public void setTopSection() {
@@ -56,7 +72,7 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
                 getGuiTop() + (large ? layout.getLargeMineralExtractorSpeedY() : layout.getMineralExtractorSpeedY()), 24, 12,
                 extractorContainer.getMultiplier(), 1, extractorContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.mineral_extractor.multiplier"), button ->
-                PacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue()))));
+                ClientPacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue()))));
     }
 
     @Override public void addFilterButtons() {
@@ -87,8 +103,8 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
         }
     }
 
-    @Override protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
+    @Override public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
         renderMachineSlotBackgrounds(graphics);
         renderSurveyGhost(graphics);
         renderProgress(graphics);
@@ -97,27 +113,25 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
         renderPageControls(graphics);
     }
 
-    private void renderMachineSlotBackgrounds(GuiGraphics graphics) {
+    private void renderMachineSlotBackgrounds(GuiGraphicsExtractor graphics) {
         for (int index = 0; index < Math.min(extractorContainer.getMachineSlotCount(), container.slots.size()); index++) {
             Slot slot = container.slots.get(index);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
     }
 
-    private void renderSurveyGhost(GuiGraphics graphics) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.35F);
+    private void renderSurveyGhost(GuiGraphicsExtractor graphics) {
         for (int index = 0; index < extractorContainer.getSurveySlotCount(); index++) {
             Slot surveySlot = container.slots.get(index);
             if (!surveySlot.hasItem()) {
-                graphics.renderFakeItem(new net.minecraft.world.item.ItemStack(JDTEItems.MINERAL_SURVEY.get()),
-                        getGuiLeft() + surveySlot.x, getGuiTop() + surveySlot.y);
+                GhostItemRenderer.draw(graphics, new net.minecraft.world.item.ItemStack(JDTEItems.MINERAL_SURVEY.get()),
+                        getGuiLeft() + surveySlot.x, getGuiTop() + surveySlot.y, 0xA6888888);
             }
         }
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    private void renderProgress(GuiGraphics graphics) {
+    private void renderProgress(GuiGraphicsExtractor graphics) {
         var layout = GuiUpgradeLayoutConfig.getInstance();
         boolean large = extractorContainer.getSurveySlotCount() > 1;
         int x = getGuiLeft() + (large
@@ -143,24 +157,23 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
         }
     }
 
-    private void renderFluidBars(GuiGraphics graphics) {
+    private void renderFluidBars(GuiGraphicsExtractor graphics) {
         var layout = GuiUpgradeLayoutConfig.getInstance();
         FluidDisplays displays = fluidDisplays();
         MineralExtractorFluidDisplay experience = displays.experience();
         MineralExtractorFluidDisplay acceleration = displays.acceleration();
         MachineFluidBarRenderer.renderBar(graphics,
-                experience.renderedFluid(), experience.amount(), experience.capacity(), experience.configuredGhost(),
+                experience.renderedFluid(), experience.amount(), experience.capacity(),
                 getGuiLeft() + layout.getMineralExtractorExperienceFluidX(),
                 getGuiTop() + layout.getMineralExtractorExperienceFluidY());
         MachineFluidBarRenderer.renderBar(graphics,
-                acceleration.renderedFluid(), acceleration.amount(), acceleration.capacity(), acceleration.configuredGhost(),
+                acceleration.renderedFluid(), acceleration.amount(), acceleration.capacity(),
                 getGuiLeft() + layout.getMineralExtractorTimeFluidX(),
                 getGuiTop() + layout.getMineralExtractorTimeFluidY());
     }
 
     private FluidDisplays fluidDisplays() {
-        var roles = MineralExtractorResourceResolver.resolve(
-                minecraft == null || minecraft.level == null ? null : minecraft.level.getRecipeManager());
+        var roles = MineralExtractorResourceResolver.resolve(minecraft.level);
         int capacity = extractorContainer.getFluidCapacity();
         return new FluidDisplays(
                 MineralExtractorFluidDisplay.create(
@@ -195,49 +208,52 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
                         .withStyle(ChatFormatting.DARK_GRAY));
     }
 
-    private void renderStatus(GuiGraphics graphics) {
+    private void renderStatus(GuiGraphicsExtractor graphics) {
         var layout = GuiUpgradeLayoutConfig.getInstance();
         boolean large = extractorContainer.getSurveySlotCount() > 1;
         int x = getGuiLeft() + (large
                 ? layout.getLargeMineralExtractorStatusX() : layout.getMineralExtractorStatusX());
         int y = getGuiTop() + (large
                 ? layout.getLargeMineralExtractorStatusY() : layout.getMineralExtractorStatusY());
-        graphics.pose().pushPose();
-        graphics.pose().translate(x, y, 0.0F);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(x, y);
         float scale = large ? 7.4F / 9.0F : 7.0F / 9.0F;
-        graphics.pose().scale(scale, scale, 1.0F);
+        graphics.pose().scale(scale, scale);
         Component state = Component.translatable(stateTranslation());
         if (large) {
             String text = state.getString();
             int separator = Math.max(text.indexOf('：'), text.indexOf(':'));
             String label = separator >= 0 ? text.substring(0, separator + 1) : text;
             String value = separator >= 0 ? text.substring(separator + 1).stripLeading() : "";
-            graphics.drawString(font, label, 0, 0, stateColor(), false);
+            graphics.text(font, label, 0, 0, stateColor(), false);
             if (!value.isEmpty()) {
-                graphics.drawString(font, value, 0, font.lineHeight, stateColor(), false);
+                graphics.text(font, value, 0, font.lineHeight, stateColor(), false);
             }
         } else {
-            graphics.drawString(font, state, 0, 0, stateColor(), false);
+            graphics.text(font, state, 0, 0, stateColor(), false);
         }
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
-    private void renderPageControls(GuiGraphics graphics) {
+    private void renderPageControls(GuiGraphicsExtractor graphics) {
         if (extractorContainer.getMaxOutputPage() <= 0) return;
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int size = layout.getMineralExtractorOutputPageButtonSize();
         int y = getGuiTop() + layout.getMineralExtractorOutputPageY();
-        graphics.blit(PREV, getGuiLeft() + layout.getMineralExtractorOutputPrevX(), y,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, PREV, getGuiLeft() + layout.getMineralExtractorOutputPrevX(), y,
                 0, 0, size, size, size, size);
-        graphics.blit(NEXT, getGuiLeft() + layout.getMineralExtractorOutputNextX(), y,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, NEXT, getGuiLeft() + layout.getMineralExtractorOutputNextX(), y,
                 0, 0, size, size, size, size);
-        graphics.drawString(font,
+        graphics.text(font,
                 (extractorContainer.getOutputPage() + 1) + "/" + (extractorContainer.getMaxOutputPage() + 1),
                 getGuiLeft() + layout.getMineralExtractorOutputPageTextX(),
-                getGuiTop() + layout.getMineralExtractorOutputPageTextY(), 0x404040);
+                getGuiTop() + layout.getMineralExtractorOutputPageTextY(), 0xFF404040);
     }
 
-    @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0 && extractorContainer.getMaxOutputPage() > 0) {
             var layout = GuiUpgradeLayoutConfig.getInstance();
             int size = layout.getMineralExtractorOutputPageButtonSize();
@@ -250,33 +266,33 @@ public class MineralExtractorScreen extends BaseMachineScreen<MineralExtractorCo
                     size, size, mouseX, mouseY)) {
                 page++;
             } else {
-                return super.mouseClicked(mouseX, mouseY, button);
+                return super.mouseClicked(event, doubleClick);
             }
             extractorContainer.setOutputPage(page);
-            PacketDistributor.sendToServer(new MineralExtractorOutputPagePayload(extractorContainer.getOutputPage()));
+            ClientPacketDistributor.sendToServer(new MineralExtractorOutputPagePayload(extractorContainer.getOutputPage()));
             if (minecraft != null) {
                 minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
-    @Override protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderTooltip(graphics, mouseX, mouseY);
+    @Override protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
         var layout = GuiUpgradeLayoutConfig.getInstance();
         Slot hoveredSurveySlot = hoveredEmptySurveySlot(mouseX, mouseY);
         if (MiscTools.inBounds(getGuiLeft() + layout.getMineralExtractorExperienceFluidX(),
                 getGuiTop() + layout.getMineralExtractorExperienceFluidY(), 18, 72, mouseX, mouseY)) {
-            graphics.renderTooltip(font, Language.getInstance().getVisualOrder(
+            graphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(
                     experienceTooltip(fluidDisplays().experience(), extractorContainer.getFortunePercent())),
                     mouseX, mouseY);
         } else if (MiscTools.inBounds(getGuiLeft() + layout.getMineralExtractorTimeFluidX(),
                 getGuiTop() + layout.getMineralExtractorTimeFluidY(), 18, 72, mouseX, mouseY)) {
-            graphics.renderTooltip(font, Language.getInstance().getVisualOrder(
+            graphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(
                     accelerationTooltip(fluidDisplays().acceleration())), mouseX, mouseY);
         } else if (hoveredSurveySlot != null) {
-            graphics.renderTooltip(font, Language.getInstance().getVisualOrder(java.util.List.of(
+            graphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(java.util.List.of(
                     Component.translatable("jdte.screen.mineral_extractor.survey_slot.title"),
                     Component.translatable("jdte.screen.mineral_extractor.survey_slot.description")
                             .withStyle(ChatFormatting.GRAY),

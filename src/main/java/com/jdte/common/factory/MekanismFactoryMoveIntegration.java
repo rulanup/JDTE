@@ -2,9 +2,9 @@ package com.jdte.common.factory;
 
 import mekanism.generators.common.content.fission.FissionReactorMultiblockData;
 import mekanism.generators.common.tile.fission.TileEntityFissionReactorCasing;
-import mekanism.api.chemical.ChemicalStack;
-import mekanism.api.chemical.IChemicalTank;
-import mekanism.api.chemical.IMekanismChemicalHandler;
+import mekanism.api.chemical.ChemicalResource;
+import mekanism.common.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import mekanism.api.radiation.IRadiationManager;
 import mekanism.common.tile.TileEntityBoundingBlock;
 import mekanism.common.tile.base.TileEntityMekanism;
@@ -22,33 +22,40 @@ import java.util.List;
 public final class MekanismFactoryMoveIntegration {
     private MekanismFactoryMoveIntegration() {}
 
-    public static ReactorCheck validate(BlockEntity blockEntity, BlockPos selectionMin, BlockPos selectionMax) {
-        if (!(blockEntity instanceof TileEntityFissionReactorCasing casing)) return ReactorCheck.NOT_REACTOR;
-        FissionReactorMultiblockData reactor = casing.getMultiblock();
-        if (!reactor.isFormed()) return ReactorCheck.NOT_REACTOR;
-        BlockPos min = reactor.getMinPos();
-        BlockPos max = reactor.getMaxPos();
-        return contains(selectionMin, selectionMax, min, max)
-                ? ReactorCheck.COMPLETE_REACTOR
-                : new ReactorCheck(true, false, min, max);
-    }
+    static final class FissionReactor {
+        private FissionReactor() {}
 
-    public static void quiesce(BlockEntity blockEntity) {
-        if (blockEntity instanceof TileEntityFissionReactorCasing casing) {
+        static ReactorCheck validate(BlockEntity blockEntity, BlockPos selectionMin, BlockPos selectionMax) {
+            if (!(blockEntity instanceof TileEntityFissionReactorCasing casing)) return ReactorCheck.NOT_REACTOR;
             FissionReactorMultiblockData reactor = casing.getMultiblock();
-            if (reactor.isFormed() && reactor.isActive()) casing.setReactorActive(false);
+            if (!reactor.isFormed()) return ReactorCheck.NOT_REACTOR;
+            BlockPos min = reactor.getMinPos();
+            BlockPos max = reactor.getMaxPos();
+            return contains(selectionMin, selectionMax, min, max)
+                    ? ReactorCheck.COMPLETE_REACTOR
+                    : new ReactorCheck(true, false, min, max);
         }
-    }
 
-    public static boolean isQuiesced(BlockEntity blockEntity) {
-        if (!(blockEntity instanceof TileEntityFissionReactorCasing casing)) return true;
-        FissionReactorMultiblockData reactor = casing.getMultiblock();
-        return !reactor.isFormed() || !reactor.isActive() && reactor.lastBurnRate <= 0;
+        static void quiesce(BlockEntity blockEntity) {
+            if (blockEntity instanceof TileEntityFissionReactorCasing casing) {
+                FissionReactorMultiblockData reactor = casing.getMultiblock();
+                if (reactor.isFormed() && reactor.isActive()) casing.setReactorActive(false);
+            }
+        }
+
+        static boolean isQuiesced(BlockEntity blockEntity) {
+            if (!(blockEntity instanceof TileEntityFissionReactorCasing casing)) return true;
+            FissionReactorMultiblockData reactor = casing.getMultiblock();
+            return !reactor.isFormed() || !reactor.isActive() && reactor.lastBurnRate <= 0;
+        }
     }
 
     public static void preserveTransmitterContents(BlockEntity blockEntity) {
         if (blockEntity instanceof TileEntityTransmitter transmitterTile) {
-            transmitterTile.getTransmitter().validateAndTakeShare();
+            try (Transaction transaction = Transaction.openRoot()) {
+                transmitterTile.getTransmitter().validateAndTakeShare(transaction);
+                transaction.commit();
+            }
         }
     }
 
@@ -73,11 +80,13 @@ public final class MekanismFactoryMoveIntegration {
         }
 
         List<String> radioactive = new ArrayList<>();
-        if (chemicalSource instanceof IMekanismChemicalHandler chemicalHandler) {
-            for (IChemicalTank tank : chemicalHandler.getChemicalTanks(null)) {
-                ChemicalStack stack = tank.getStack();
-                if (!stack.isEmpty() && stack.isRadioactive()) {
-                    radioactive.add(stack.getChemicalHolder().getRegisteredName() + "=" + stack.getAmount());
+        var chemicals = chemicalSource == null ? null
+                : level.getCapability(Capabilities.CHEMICAL.block(), chemicalSource.getBlockPos(), null);
+        if (chemicals != null) {
+            for (int index = 0; index < chemicals.size(); index++) {
+                ChemicalResource resource = chemicals.getResource(index);
+                if (!resource.isEmpty() && resource.isRadioactive()) {
+                    radioactive.add(resource.typeHolder().getRegisteredName() + "=" + chemicals.getAmountAsLong(index));
                 }
             }
         }
@@ -91,8 +100,8 @@ public final class MekanismFactoryMoveIntegration {
     }
 
     public static void rotateMoveData(net.minecraft.nbt.CompoundTag data, Rotation rotation) {
-        if (data.contains("connection", net.minecraft.nbt.Tag.TAG_INT_ARRAY)) {
-            int[] connections = data.getIntArray("connection");
+        if (data.get("connection") instanceof net.minecraft.nbt.IntArrayTag array) {
+            int[] connections = array.getAsIntArray();
             if (connections.length == Direction.values().length) {
                 int[] rotated = new int[connections.length];
                 for (Direction direction : Direction.values()) {

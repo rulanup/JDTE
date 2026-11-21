@@ -1,8 +1,9 @@
 package com.jdte.client.jei.fluidmixer;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.jdte.JDTE;
 import com.jdte.setup.JDTEBlocks;
-import com.mojang.blaze3d.systems.RenderSystem;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -12,19 +13,19 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class FluidMixerRecipeCategory implements IRecipeCategory<FluidMixerJeiRecipe> {
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "fluid_mixer");
+    public static final Identifier UID = Identifier.fromNamespaceAndPath(JDTE.MODID, "fluid_mixer");
     public static final RecipeType<FluidMixerJeiRecipe> RECIPE_TYPE = new RecipeType<>(UID, FluidMixerJeiRecipe.class);
 
-    private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
-    private static final ResourceLocation JDT_BACKGROUND = ResourceLocation.fromNamespaceAndPath("justdirethings", "background");
-    private static final ResourceLocation JDTE_FLUID_BAR = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
-    private static final ResourceLocation ARROW_TEXTURE = ResourceLocation.fromNamespaceAndPath(JDTE.MODID, "textures/gui/mixer_arrow.png");
+    private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
+    private static final Identifier JDT_BACKGROUND = Identifier.fromNamespaceAndPath("justdirethings", "background");
+    private static final Identifier JDTE_FLUID_BAR = Identifier.fromNamespaceAndPath(JDTE.MODID, "textures/gui/fluid_bar.png");
+    private static final Identifier ARROW_TEXTURE = Identifier.fromNamespaceAndPath(JDTE.MODID, "textures/gui/mixer_arrow.png");
 
     private static final int WIDTH = 134;
     private static final int HEIGHT = 84;
@@ -114,12 +115,12 @@ public class FluidMixerRecipeCategory implements IRecipeCategory<FluidMixerJeiRe
     }
 
     @Override
-    public ResourceLocation getRegistryName(FluidMixerJeiRecipe recipe) {
+    public Identifier getRegistryName(FluidMixerJeiRecipe recipe) {
         return recipe.id();
     }
 
     @Override
-    public void draw(FluidMixerJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(FluidMixerJeiRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         drawPanel(guiGraphics);
         if (!recipe.itemInputs().isEmpty()) {
             drawSlot(guiGraphics, ITEM_SLOT_X, ITEM_SLOT_Y);
@@ -136,24 +137,23 @@ public class FluidMixerRecipeCategory implements IRecipeCategory<FluidMixerJeiRe
         if (recipe.energy() > 0) {
             String cost = recipe.energy() + " FE";
             int costWidth = Minecraft.getInstance().font.width(cost);
-            guiGraphics.drawString(Minecraft.getInstance().font, cost, WIDTH - costWidth - 4, HEIGHT - 10, 0xFF888888, false);
+            guiGraphics.text(Minecraft.getInstance().font, cost, WIDTH - costWidth - 4, HEIGHT - 10, 0xFF888888, false);
         }
     }
 
-    private void drawPanel(GuiGraphics guiGraphics) {
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blitSprite(JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
+    private void drawPanel(GuiGraphicsExtractor guiGraphics) {
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, JDT_BACKGROUND, 0, 0, WIDTH, HEIGHT);
     }
 
-    private void drawSlot(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blitSprite(SLOT_SPRITE, x, y, 18, 18);
+    private void drawSlot(GuiGraphicsExtractor guiGraphics, int x, int y) {
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, x, y, 18, 18);
     }
 
-    private void drawProgressArrow(GuiGraphics guiGraphics) {
+    private void drawProgressArrow(GuiGraphicsExtractor guiGraphics) {
         int progressWidth = (int) ((System.currentTimeMillis() / 40) % 25);
-        guiGraphics.blit(ARROW_TEXTURE, ARROW_X, ARROW_Y, 0, 0, 24, 17, 24, 34);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, ARROW_TEXTURE, ARROW_X, ARROW_Y, 0, 0, 24, 17, 24, 34);
         if (progressWidth > 0) {
-            guiGraphics.blit(ARROW_TEXTURE, ARROW_X, ARROW_Y, 0, 17, progressWidth, 17, 24, 34);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, ARROW_TEXTURE, ARROW_X, ARROW_Y, 0, 17, progressWidth, 17, 24, 34);
         }
     }
 }

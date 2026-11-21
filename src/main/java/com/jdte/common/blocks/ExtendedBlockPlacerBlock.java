@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public class ExtendedBlockPlacerBlock extends BaseMachineBlock {
-    public ExtendedBlockPlacerBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(2.5f).isRedstoneConductor(BaseMachineBlock::never));
+    public ExtendedBlockPlacerBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(2.5f).isRedstoneConductor(BaseMachineBlock::never));
     }
 
     @Nullable @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new ExtendedBlockPlacerBE(pos, state); }

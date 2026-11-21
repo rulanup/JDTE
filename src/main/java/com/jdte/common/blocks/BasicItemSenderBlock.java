@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public class BasicItemSenderBlock extends BaseMachineBlock {
-    public BasicItemSenderBlock() {
-        super(Properties.of()
+    public BasicItemSenderBlock(Properties properties) {
+        super(properties
                 .sound(SoundType.METAL)
                 .strength(2.0f)
                 .isRedstoneConductor(BaseMachineBlock::never)

@@ -8,9 +8,9 @@
     "PPP"
   ],
   "key": {
-    "P": { "item": "minecraft:paper" },
-    "A": { "item": "minecraft:amethyst_shard" },
-    "C": { "item": "minecraft:compass" }
+    "P": "minecraft:paper",
+    "A": "minecraft:amethyst_shard",
+    "C": "minecraft:compass"
   },
   "result": {
     "id": "jdte:mineral_survey",

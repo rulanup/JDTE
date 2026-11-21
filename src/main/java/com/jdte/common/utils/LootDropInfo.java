@@ -1,5 +1,5 @@
 package com.jdte.common.utils;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
-public record LootDropInfo(ResourceLocation itemId, int minCount, int maxCount, String chanceLabel) { }
+public record LootDropInfo(Identifier itemId, int minCount, int maxCount, String chanceLabel) { }

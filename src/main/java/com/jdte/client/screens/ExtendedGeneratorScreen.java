@@ -8,10 +8,13 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
+import com.direwolf20.justdirethings.util.MiscHelpers;
+import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.containers.ExtendedGeneratorContainer;
 import com.jdte.common.items.PortableFuelBurnSpeedHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -55,20 +58,20 @@ public class ExtendedGeneratorScreen extends BaseMachineScreen<ExtendedGenerator
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
-        guiGraphics.blit(JUSTSLOT, getGuiLeft() + 79, getGuiTop() + 30, 0, 18, 18, 18);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, JUSTSLOT, getGuiLeft() + 79, getGuiTop() + 30, 0, 18, 18, 18, 256, 256);
         int maxBurn = container.getMaxBurn();
         int burnRemaining = container.getBurnRemaining();
         int flameHeight = 18;
         if (maxBurn > 0) {
             int filled = burnRemaining * flameHeight / maxBurn;
-            guiGraphics.blit(JUSTSLOT, getGuiLeft() + 79, getGuiTop() + 48 - filled, 18, 36 - filled, 18, filled + 3);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, JUSTSLOT, getGuiLeft() + 79, getGuiTop() + 48 - filled, 18, 36 - filled, 18, filled + 3, 256, 256);
         }
     }
 
     @Override
-    public void powerBarTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    public void powerBarTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         if (!(baseMachineBE instanceof PoweredMachineBE poweredMachineBE)) {
             return;
         }
@@ -78,7 +81,7 @@ public class ExtendedGeneratorScreen extends BaseMachineScreen<ExtendedGenerator
 
         int burnRemaining = container.getBurnRemaining();
         List<Component> lines = new ArrayList<>();
-        if (Screen.hasShiftDown()) {
+        if (minecraft.hasShiftDown()) {
             lines.add(Component.translatable("justdirethings.screen.energy",
                     MagicHelpers.formatted(container.getEnergy()),
                     MagicHelpers.formatted(poweredMachineBE.getMaxEnergy())));
@@ -92,24 +95,24 @@ public class ExtendedGeneratorScreen extends BaseMachineScreen<ExtendedGenerator
         lines.add(burnRemaining > 0
                 ? Component.translatable("justdirethings.screen.burn_time", MagicHelpers.ticksInSeconds(burnRemaining))
                 : Component.translatable("justdirethings.screen.no_fuel"));
-        guiGraphics.renderTooltip(font, lines, Optional.empty(), mouseX, mouseY);
+        guiGraphics.setTooltipForNextFrame(font, lines, Optional.empty(), mouseX, mouseY);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         if (menu.getCarried().isEmpty() && hoveredSlot != null && hoveredSlot.hasItem()) {
             ItemStack hoveredStack = hoveredSlot.getItem();
-            int burnTime = hoveredStack.getBurnTime(RecipeType.SMELTING);
+            int burnTime = hoveredStack.getBurnTime(RecipeType.SMELTING, minecraft.level.fuelValues());
             if (burnTime > 0) {
                 int burnSpeedMultiplier = burnSpeedMultiplierTooltipValue(hoveredStack);
                 List<Component> components = new ArrayList<>(getTooltipFromContainerItem(hoveredStack));
                 components.add(Component.translatable("justdirethings.screen.burnspeedmultiplier", burnSpeedMultiplier)
                         .withStyle(ChatFormatting.RED));
-                guiGraphics.renderTooltip(font, components, hoveredStack.getTooltipImage(), mouseX, mouseY);
+                guiGraphics.setTooltipForNextFrame(font, components, hoveredStack.getTooltipImage(), mouseX, mouseY);
                 return;
             }
         }
-        super.renderTooltip(guiGraphics, mouseX, mouseY);
+        super.extractTooltip(guiGraphics, mouseX, mouseY);
     }
 
     public static int burnSpeedMultiplierTooltipValue(ItemStack stack) {

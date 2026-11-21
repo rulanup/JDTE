@@ -7,7 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -35,8 +35,8 @@ import java.util.Map;
 
 public final class MineralExtractorBlock extends BaseMachineBlock {
     /** 玩家放置时控制器朝向玩家的水平方向；仅当 FACING 为垂直时生效。 */
-    public static final DirectionProperty HORIZONTAL_FACING =
-            DirectionProperty.create("horizontal_facing", Direction.Plane.HORIZONTAL);
+    public static final EnumProperty<Direction> HORIZONTAL_FACING =
+            EnumProperty.create("horizontal_facing", Direction.class, Direction.Plane.HORIZONTAL);
 
     private static final VoxelShape UP_SHAPE = createUpShape();
     private static final VoxelShape DOWN_SHAPE = rotateX(rotateX(UP_SHAPE));
@@ -44,8 +44,8 @@ public final class MineralExtractorBlock extends BaseMachineBlock {
     private static final Map<Direction, VoxelShape> VERTICAL_DOWN_SHAPES = createVerticalShapes(DOWN_SHAPE);
     private static final Map<Direction, VoxelShape> HORIZONTAL_SHAPES = createHorizontalShapes();
 
-    public MineralExtractorBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(3.0F).noOcclusion()
+    public MineralExtractorBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(3.0F).noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));
         registerDefaultState(defaultBlockState().setValue(HORIZONTAL_FACING, Direction.NORTH));
     }
@@ -80,7 +80,7 @@ public final class MineralExtractorBlock extends BaseMachineBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
         return FluidContainerTransfer.useItemOn(stack, state, level, pos, player, hand, hit);
     }

@@ -5,7 +5,9 @@ import com.jdte.common.content.JDTEContentControl;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraft.core.Holder;
+import net.minecraft.world.clock.WorldClock;
+import net.minecraft.world.level.saveddata.WeatherData;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
@@ -26,14 +28,14 @@ import java.util.Set;
 public final class TimeFreezerManager {
     private static final Set<TimeFreezerBE> REGISTERED = Collections.newSetFromMap(new IdentityHashMap<>());
     private static final Set<TimeFreezerBE> ACTIVE = Collections.newSetFromMap(new IdentityHashMap<>());
-    private static final Map<ResourceKey<Level>, Long> FROZEN_DAY_TIME = new HashMap<>();
+    private static final Map<Holder<WorldClock>, Long> FROZEN_DAY_TIME = new HashMap<>();
     private static final Map<ResourceKey<Level>, FrozenWeather> FROZEN_WEATHER = new HashMap<>();
 
     private TimeFreezerManager() {
     }
 
     public static void register(TimeFreezerBE freezer) {
-        if (freezer.getLevel() == null || freezer.getLevel().isClientSide) {
+        if (freezer.getLevel() == null || freezer.getLevel().isClientSide()) {
             return;
         }
         if (!JDTEContentControl.current().isBlockEnabled(freezer.getBlockState().getBlock())) {
@@ -54,8 +56,9 @@ public final class TimeFreezerManager {
     public static void activate(TimeFreezerBE freezer, ServerLevel serverLevel) {
         ACTIVE.add(freezer);
         ResourceKey<Level> dimension = serverLevel.dimension();
-        if (freezer.isTimeFreezeEnabled() && !FROZEN_DAY_TIME.containsKey(dimension)) {
-            FROZEN_DAY_TIME.put(dimension, serverLevel.getDayTime());
+        if (freezer.isTimeFreezeEnabled()) {
+            serverLevel.dimensionType().defaultClock().ifPresent(clock ->
+                    FROZEN_DAY_TIME.computeIfAbsent(clock, serverLevel.clockManager()::getTotalTicks));
         }
         if (freezer.isWeatherFreezeEnabled() && dimension == Level.OVERWORLD
                 && !FROZEN_WEATHER.containsKey(dimension)) {
@@ -76,15 +79,8 @@ public final class TimeFreezerManager {
         if (!ACTIVE.contains(freezer)) {
             return;
         }
-        ResourceKey<Level> dimension = serverLevel.dimension();
-        if (freezer.isWeatherFreezeEnabled() && dimension == Level.OVERWORLD
-                && !FROZEN_WEATHER.containsKey(dimension)) {
-            FROZEN_WEATHER.put(dimension, FrozenWeather.capture(serverLevel));
-        }
-        if (!freezer.isWeatherFreezeEnabled() && dimension == Level.OVERWORLD) {
-            cleanupDimension(serverLevel);
-        }
-        apply(serverLevel);
+        cleanupDimension(serverLevel);
+        activate(freezer, serverLevel);
     }
 
     public static boolean isActive(TimeFreezerBE freezer) {
@@ -116,10 +112,12 @@ public final class TimeFreezerManager {
 
     private static void apply(ServerLevel serverLevel) {
         ResourceKey<Level> dimension = serverLevel.dimension();
-        Long frozenTime = FROZEN_DAY_TIME.get(dimension);
-        if (frozenTime != null) {
-            serverLevel.setDayTime(frozenTime);
-        }
+        serverLevel.dimensionType().defaultClock().ifPresent(clock -> {
+            Long frozenTime = FROZEN_DAY_TIME.get(clock);
+            if (frozenTime != null && serverLevel.clockManager().getTotalTicks(clock) != frozenTime) {
+                serverLevel.clockManager().setTotalTicks(clock, frozenTime);
+            }
+        });
         if (dimension == Level.OVERWORLD) {
             FrozenWeather weather = FROZEN_WEATHER.get(dimension);
             if (weather != null) {
@@ -133,11 +131,12 @@ public final class TimeFreezerManager {
             return;
         }
         ResourceKey<Level> dimension = level.dimension();
-        boolean anyTime = ACTIVE.stream().anyMatch(freezer -> freezer.getLevel() != null
-                && freezer.getLevel().dimension() == dimension && freezer.isTimeFreezeEnabled());
-        if (!anyTime) {
-            FROZEN_DAY_TIME.remove(dimension);
-        }
+        level.dimensionType().defaultClock().ifPresent(clock -> {
+            boolean anyTime = ACTIVE.stream().anyMatch(freezer -> freezer.isTimeFreezeEnabled()
+                    && freezer.getLevel() != null && freezer.getLevel().dimensionType().defaultClock()
+                    .filter(clock::equals).isPresent());
+            if (!anyTime) FROZEN_DAY_TIME.remove(clock);
+        });
         boolean anyWeather = ACTIVE.stream().anyMatch(freezer -> freezer.getLevel() != null
                 && freezer.getLevel().dimension() == dimension && freezer.isWeatherFreezeEnabled());
         if (!anyWeather) {
@@ -145,18 +144,24 @@ public final class TimeFreezerManager {
         }
     }
 
-    private record FrozenWeather(int clearTime, int rainTime, boolean raining, boolean thundering) {
+    private record FrozenWeather(int clearTime, int rainTime, int thunderTime, boolean raining, boolean thundering) {
         static FrozenWeather capture(ServerLevel level) {
-            ServerLevelData data = (ServerLevelData) level.getLevelData();
+            WeatherData data = level.getWeatherData();
             return new FrozenWeather(
-                    Math.max(1, data.getClearWeatherTime()),
+                    data.getClearWeatherTime(),
                     Math.max(1, data.getRainTime()),
+                    Math.max(1, data.getThunderTime()),
                     data.isRaining(),
                     data.isThundering());
         }
 
         void apply(ServerLevel level) {
-            level.setWeatherParameters(clearTime, rainTime, raining, thundering);
+            WeatherData data = level.getWeatherData();
+            data.setClearWeatherTime(clearTime);
+            data.setRainTime(rainTime);
+            data.setThunderTime(thunderTime);
+            data.setRaining(raining);
+            data.setThundering(thundering);
         }
     }
 }

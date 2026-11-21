@@ -4,7 +4,7 @@ import com.direwolf20.justdirethings.common.blockentities.ClickerT1BE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FluidMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.AdvancedPotionBrewerBE;
 import com.jdte.common.blockentities.BioCrusherBE;
@@ -39,9 +39,11 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.InfiniteEnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -70,22 +72,22 @@ public final class MachineCapabilities {
     // ============================================================
 
     /** 所有实现 {@code PoweredMachineBE} 的机器的能量存储。 */
-    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> POWERED_ENERGY =
+    private static final IBlockCapabilityProvider<EnergyHandler, Direction> POWERED_ENERGY =
             (level, pos, state, be, side) -> be instanceof PoweredMachineBE powered ? powered.getEnergyStorage() : null;
 
     /** 与 JDT 原版传输器一致，只允许朝向面上的相邻设备向传输器输入 FE。 */
-    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> TRANSMITTER_INPUT_ENERGY =
+    private static final IBlockCapabilityProvider<EnergyHandler, Direction> TRANSMITTER_INPUT_ENERGY =
             (level, pos, state, be, side) -> be instanceof AdvancedEnergyTransmitterBE transmitter
                     && side != null && side == state.getValue(BlockStateProperties.FACING)
                     ? transmitter.getEnergyStorage() : null;
 
-    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> EXTENDED_TRANSMITTER_INPUT_ENERGY =
+    private static final IBlockCapabilityProvider<EnergyHandler, Direction> EXTENDED_TRANSMITTER_INPUT_ENERGY =
             (level, pos, state, be, side) -> be instanceof ExtendedEnergyTransmitterBE transmitter
                     && side != null && side == state.getValue(BlockStateProperties.FACING)
                     ? transmitter.getEnergyStorage() : null;
 
     /** 标准机器物品槽（机器自身的机器 handler）。 */
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> MACHINE_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> MACHINE_ITEMS =
             (level, pos, state, be, side) -> be instanceof BaseMachineBE machine ? machine.getMachineHandler() : null;
 
     /**
@@ -93,124 +95,124 @@ public final class MachineCapabilities {
      * 外部运输（管道、漏斗、AE 输入总线/存储总线）只能放入、绝不能抽出，
      * 否则稿子、方块、桶等会被"吞"掉。
      */
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> INSERT_ONLY_MACHINE_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> INSERT_ONLY_MACHINE_ITEMS =
             (level, pos, state, be, side) -> be instanceof BaseMachineBE machine
-                    ? new InsertOnlyItemHandler(machine.getMachineHandler()) : null;
+                    ? new MachineAutomationHandler<>(machine.getMachineHandler(), slot -> true, slot -> false) : null;
 
     /** 实现 {@code FluidMachineBE} 的机器的流体槽。 */
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> FLUID_MACHINE_TANK =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> FLUID_MACHINE_TANK =
             (level, pos, state, be, side) -> be instanceof FluidMachineBE fluidMachine ? fluidMachine.getFluidTank() : null;
 
     /** 时间加速器家族的流体槽（含水晶培育器）。 */
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> TIME_ACCELERATOR_TANK =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> TIME_ACCELERATOR_TANK =
             (level, pos, state, be, side) -> be instanceof TimeAcceleratorBE accelerator ? accelerator.getFluidTank() : null;
 
     /** 大型温室结构部件：转发到其控制器方块实体。 */
-    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> LARGE_GREENHOUSE_PART_ENERGY =
+    private static final IBlockCapabilityProvider<EnergyHandler, Direction> LARGE_GREENHOUSE_PART_ENERGY =
             (level, pos, state, be, side) -> state.getBlock() instanceof LargeGreenhousePartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getEnergyStorage() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LARGE_GREENHOUSE_PART_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> LARGE_GREENHOUSE_PART_FLUID =
             (level, pos, state, be, side) -> state.getBlock() instanceof LargeGreenhousePartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> LARGE_GREENHOUSE_PART_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> LARGE_GREENHOUSE_PART_ITEMS =
             (level, pos, state, be, side) -> state.getBlock() instanceof LargeGreenhousePartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getAutomationItemHandler() : null;
 
     /** 生命合成舱结构部件：转发到其控制器方块实体。 */
-    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> LIFE_SYNTHESIS_PART_ENERGY =
+    private static final IBlockCapabilityProvider<EnergyHandler, Direction> LIFE_SYNTHESIS_PART_ENERGY =
             (level, pos, state, be, side) -> state.getBlock() instanceof LifeSynthesisPartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getEnergyStorage() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LIFE_SYNTHESIS_PART_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> LIFE_SYNTHESIS_PART_FLUID =
             (level, pos, state, be, side) -> state.getBlock() instanceof LifeSynthesisPartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getCombinedFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> LIFE_SYNTHESIS_PART_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> LIFE_SYNTHESIS_PART_ITEMS =
             (level, pos, state, be, side) -> state.getBlock() instanceof LifeSynthesisPartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getAutomationItemHandler() : null;
 
     /** 大型矿物提取机部件：将自动化能力转发到控制器。 */
-    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> LARGE_MINERAL_EXTRACTOR_PART_ENERGY =
+    private static final IBlockCapabilityProvider<EnergyHandler, Direction> LARGE_MINERAL_EXTRACTOR_PART_ENERGY =
             (level, pos, state, be, side) -> state.getBlock() instanceof LargeMineralExtractorPartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getEnergyStorage() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LARGE_MINERAL_EXTRACTOR_PART_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> LARGE_MINERAL_EXTRACTOR_PART_FLUID =
             (level, pos, state, be, side) -> state.getBlock() instanceof LargeMineralExtractorPartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getCombinedFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> LARGE_MINERAL_EXTRACTOR_PART_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> LARGE_MINERAL_EXTRACTOR_PART_ITEMS =
             (level, pos, state, be, side) -> state.getBlock() instanceof LargeMineralExtractorPartBlock part
                     && part.getController(level, pos, state) != null
                     ? part.getController(level, pos, state).getAutomationItemHandler() : null;
 
     // 机器特有的 provider（仅当能力不满足上述通用模式时使用）
 
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> GEL_GENERATOR_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> GEL_GENERATOR_FLUID =
             (level, pos, state, be, side) -> be instanceof GelGeneratorBE generator ? generator.getFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> EXTENDED_EXPERIENCE_HOLDER_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> EXTENDED_EXPERIENCE_HOLDER_FLUID =
             (level, pos, state, be, side) -> be instanceof ExtendedExperienceHolderBE experienceHolder
                     ? experienceHolder.getXpFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> GEL_GENERATOR_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> GEL_GENERATOR_ITEMS =
             (level, pos, state, be, side) -> be instanceof GelGeneratorBE generator ? generator.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> FLUID_SENDER_TANK =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> FLUID_SENDER_TANK =
             (level, pos, state, be, side) -> be instanceof FluidSenderBE sender ? sender.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> FLUID_RECEIVER_TANK =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> FLUID_RECEIVER_TANK =
             (level, pos, state, be, side) -> be instanceof FluidReceiverBE receiver ? receiver.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> BIO_CRUSHER_TANK =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> BIO_CRUSHER_TANK =
             (level, pos, state, be, side) -> be instanceof BioCrusherBE crusher ? crusher.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> BIO_CRUSHER_OUTPUT =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> BIO_CRUSHER_OUTPUT =
             (level, pos, state, be, side) -> be instanceof ExtendedBioCrusherBE crusher ? crusher.getOutputItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LIFE_EXTRACTOR_TANK =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> LIFE_EXTRACTOR_TANK =
             (level, pos, state, be, side) -> be instanceof LifeExtractorBE extractor ? extractor.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> BIO_EXTRACTOR_TANK =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> BIO_EXTRACTOR_TANK =
             (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioExtractorBE extractor ? extractor.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> BIO_EXTRACTOR_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> BIO_EXTRACTOR_ITEMS =
             (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.BioExtractorBE extractor ? extractor.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> INFUSION_MACHINE_TANK =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> INFUSION_MACHINE_TANK =
             (level, pos, state, be, side) -> be instanceof InfusionMachineBE infusion ? infusion.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LOOT_FABRICATOR_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> LOOT_FABRICATOR_FLUID =
             (level, pos, state, be, side) -> be instanceof LootFabricatorBE fabricator ? fabricator.getFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> LOOT_FABRICATOR_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> LOOT_FABRICATOR_ITEMS =
             (level, pos, state, be, side) -> be instanceof LootFabricatorBE fabricator ? fabricator.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> MINERAL_EXTRACTOR_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> MINERAL_EXTRACTOR_FLUID =
             (level, pos, state, be, side) -> be instanceof MineralExtractorBE extractor ? extractor.getCombinedFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> MINERAL_EXTRACTOR_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> MINERAL_EXTRACTOR_ITEMS =
             (level, pos, state, be, side) -> be instanceof MineralExtractorBE extractor ? extractor.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> POTION_BREWER_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> POTION_BREWER_FLUID =
             (level, pos, state, be, side) -> be instanceof AdvancedPotionBrewerBE brewer ? brewer.getFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> POTION_BREWER_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> POTION_BREWER_ITEMS =
             (level, pos, state, be, side) -> be instanceof AdvancedPotionBrewerBE brewer ? brewer.getAutomationItemHandler(side) : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> GREENHOUSE_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> GREENHOUSE_FLUID =
             (level, pos, state, be, side) -> be instanceof GreenhouseBE greenhouse ? greenhouse.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> GREENHOUSE_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> GREENHOUSE_ITEMS =
             (level, pos, state, be, side) -> be instanceof GreenhouseBE greenhouse ? greenhouse.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LARGE_GREENHOUSE_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> LARGE_GREENHOUSE_FLUID =
             (level, pos, state, be, side) -> be instanceof LargeGreenhouseBE greenhouse ? greenhouse.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> LARGE_GREENHOUSE_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> LARGE_GREENHOUSE_ITEMS =
             (level, pos, state, be, side) -> be instanceof LargeGreenhouseBE greenhouse ? greenhouse.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> BIO_FACTORY_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> BIO_FACTORY_FLUID =
             (level, pos, state, be, side) -> be instanceof BioFactoryBE factory ? factory.getCombinedFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> BIO_FACTORY_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> BIO_FACTORY_ITEMS =
             (level, pos, state, be, side) -> be instanceof BioFactoryBE factory ? factory.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LIFE_SYNTHESIS_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> LIFE_SYNTHESIS_FLUID =
             (level, pos, state, be, side) -> be instanceof LifeSynthesisVatBE vat ? vat.getCombinedFluidHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> LIFE_SYNTHESIS_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> LIFE_SYNTHESIS_ITEMS =
             (level, pos, state, be, side) -> be instanceof LifeSynthesisVatBE vat ? vat.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> LIFE_BREEDER_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> LIFE_BREEDER_FLUID =
             (level, pos, state, be, side) -> be instanceof LifeBreederBE breeder ? breeder.getFluidTank() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> LIFE_BREEDER_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> LIFE_BREEDER_ITEMS =
             (level, pos, state, be, side) -> be instanceof LifeBreederBE breeder ? breeder.getAutomationItemHandler() : null;
-    private static final IBlockCapabilityProvider<IItemHandler, Direction> FACTORY_PACKER_ITEMS =
+    private static final IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> FACTORY_PACKER_ITEMS =
             (level, pos, state, be, side) -> be instanceof FactoryPackerBE packer ? packer.getMachineHandler() : null;
     /** Clicker 流体：仅当装有流体存储升级时暴露（也作用于 JDT 自身的 Clicker T1/T2）。 */
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> CLICKER_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> CLICKER_FLUID =
             (level, pos, state, be, side) -> be instanceof ClickerT1BE clicker && UpgradeHelper.hasFluidStorageUpgrade(clicker)
                     ? UpgradeHelper.getClickerFluidTank(clicker) : null;
-    private static final IBlockCapabilityProvider<IFluidHandler, Direction> FLUID_MIXER_FLUID =
+    private static final IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> FLUID_MIXER_FLUID =
             (level, pos, state, be, side) -> be instanceof com.jdte.common.blockentities.FluidMixerBE mixer ? mixer.getCombinedFluidHandler() : null;
 
     // ============================================================
@@ -242,6 +244,7 @@ public final class MachineCapabilities {
 
             // --- 时间定格器 ---
             machine(JDTEBlocks.TIME_FREEZER, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),
+            machine(JDTEBlocks.CREATIVE_ENERGY_CELL, energy((level, pos, state, be, side) -> InfiniteEnergyHandler.INSTANCE)),
             machine(JDTEBlocks.CHARGED_LIGHTNING_ROD, energy(POWERED_ENERGY)),
             machine(JDTEBlocks.EXTENDED_TIME_FREEZER, energy(POWERED_ENERGY), fluid(FLUID_MACHINE_TANK)),
 
@@ -330,8 +333,8 @@ public final class MachineCapabilities {
     /** 跨越 jdte 自身机器表的注册（如 Clicker 流体同时作用于 JDT 的 Clicker T1/T2）。 */
     private static final List<Standalone> STANDALONE = List.of(
             new Standalone(fluid(CLICKER_FLUID), List.of(
-                    Registration.ClickerT1.get(),
-                    Registration.ClickerT2.get(),
+                    JDTRegistration.ClickerT1.get(),
+                    JDTRegistration.ClickerT2.get(),
                     JDTEBlocks.EXTENDED_CLICKER.get()))
     );
 
@@ -387,9 +390,9 @@ public final class MachineCapabilities {
     // ============================================================
 
     private enum CapabilityKey {
-        ENERGY(Capabilities.EnergyStorage.BLOCK),
-        FLUID(Capabilities.FluidHandler.BLOCK),
-        ITEM(Capabilities.ItemHandler.BLOCK);
+        ENERGY(Capabilities.Energy.BLOCK),
+        FLUID(Capabilities.Fluid.BLOCK),
+        ITEM(Capabilities.Item.BLOCK);
 
         final BlockCapability<?, Direction> capability;
 
@@ -428,15 +431,15 @@ public final class MachineCapabilities {
         return new MachineSpec(block.get(), energy, fluid, item);
     }
 
-    private static CapDef energy(IBlockCapabilityProvider<IEnergyStorage, Direction> provider) {
+    private static CapDef energy(IBlockCapabilityProvider<EnergyHandler, Direction> provider) {
         return new CapDef(CapabilityKey.ENERGY, provider);
     }
 
-    private static CapDef fluid(IBlockCapabilityProvider<IFluidHandler, Direction> provider) {
+    private static CapDef fluid(IBlockCapabilityProvider<ResourceHandler<FluidResource>, Direction> provider) {
         return new CapDef(CapabilityKey.FLUID, provider);
     }
 
-    private static CapDef items(IBlockCapabilityProvider<IItemHandler, Direction> provider) {
+    private static CapDef items(IBlockCapabilityProvider<ResourceHandler<ItemResource>, Direction> provider) {
         return new CapDef(CapabilityKey.ITEM, provider);
     }
 }

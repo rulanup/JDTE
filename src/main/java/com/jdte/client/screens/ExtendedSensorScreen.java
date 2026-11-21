@@ -1,5 +1,10 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
+
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.basescreens.SensorScreenInterface;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
@@ -17,7 +22,7 @@ import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.blockentities.ExtendedSensorBE;
 import com.jdte.common.containers.ExtendedSensorContainer;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,7 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,16 +104,16 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
     }
 
     @Override
-    protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn, int mouseButton) {
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn) {
         if (showBlockStates && MiscTools.inBounds(topSectionLeft - 101, topSectionTop, 100, topSectionHeight, mouseX, mouseY))
             return false;
-        return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn, mouseButton);
+        return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn);
     }
 
     @Override
     public void saveSettings() {
         super.saveSettings();
-        PacketDistributor.sendToServer(new SensorPayload(senseTarget, strongSignal, senseAmount, equality));
+        ClientPacketDistributor.sendToServer(new SensorPayload(senseTarget, strongSignal, senseAmount, equality));
     }
 
     @Override
@@ -141,7 +146,7 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
     }
 
     private ItemStack filterStack(int slot) {
-        return container.filterHandler.getStackInSlot(slot);
+        return container.filterHandler.getResource(slot).toStack(container.filterHandler.getAmountAsInt(slot));
     }
 
     public void populateItemStackCache() {
@@ -168,15 +173,15 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
         CompoundTag tag = new CompoundTag();
         ListTag listTag = SensorT1BE.saveBlockStateProperty(props);
         tag.put("tagList", listTag);
-        PacketDistributor.sendToServer(new BlockStateFilterPayload(slot, tag));
+        ClientPacketDistributor.sendToServer(new BlockStateFilterPayload(slot, tag));
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
         validateItemStackCache();
         if (showBlockStates) {
-            guiGraphics.blitSprite(SOCIALBACKGROUND, topSectionLeft - 100, topSectionTop, 100, topSectionHeight);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SOCIALBACKGROUND, topSectionLeft - 100, topSectionTop, 100, topSectionHeight);
             if (blockStateSlot != -1 && !filterStack(blockStateSlot).equals(scrollPanel.getStateStack()))
                 refreshStateWindow();
         }
@@ -190,11 +195,11 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
     }
 
     @Override
-    public void powerBarTooltip(GuiGraphics guiGraphics, int pX, int pY) {
+    public void powerBarTooltip(GuiGraphicsExtractor guiGraphics, int pX, int pY) {
         if (baseMachineBE instanceof PoweredMachineBE poweredMachineBE) {
             if (MiscTools.inBounds(topSectionLeft + 5, topSectionTop + 5, 18, 72, pX, pY)) {
                 List<Component> lines = new ArrayList<>();
-                if (Screen.hasShiftDown()) {
+                if (Minecraft.getInstance().hasShiftDown()) {
                     lines.add(Component.translatable("justdirethings.screen.energy", MagicHelpers.formatted(this.container.getEnergy()), MagicHelpers.formatted(poweredMachineBE.getMaxEnergy())));
                 } else {
                     lines.add(Component.translatable("justdirethings.screen.energy", MagicHelpers.withSuffix(this.container.getEnergy()), MagicHelpers.withSuffix(poweredMachineBE.getMaxEnergy())));
@@ -202,30 +207,33 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
                 if (extendedSensorBE != null) {
                     lines.add(Component.translatable("justdirethings.screen.energycost", MagicHelpers.withSuffix(extendedSensorBE.getStandardEnergyCost())));
                 }
-                guiGraphics.renderTooltip(font, lines, Optional.empty(), pX, pY);
+                guiGraphics.setTooltipForNextFrame(font, lines, Optional.empty(), pX, pY);
             }
         }
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         if (hoveredSlot != null && (hoveredSlot instanceof FilterBasicSlot)) {
             if (this.menu.getCarried().isEmpty() && this.hoveredSlot.hasItem()) {
                 List<Component> components = new ArrayList<>();
                 ItemStack itemstack = this.hoveredSlot.getItem();
                 components.add(Component.translatable("justdirethings.screen.rightclicksettings").withStyle(ChatFormatting.RED));
                 components.addAll(this.getTooltipFromContainerItem(itemstack));
-                guiGraphics.renderTooltip(font, components, itemstack.getTooltipImage(), mouseX, mouseY);
+                guiGraphics.setTooltipForNextFrame(font, components, itemstack.getTooltipImage(), mouseX, mouseY);
             } else {
-                guiGraphics.renderTooltip(font, Component.translatable("justdirethings.screen.rightclicksettings").withStyle(ChatFormatting.RED), mouseX, mouseY);
+                guiGraphics.setTooltipForNextFrame(font, Component.translatable("justdirethings.screen.rightclicksettings").withStyle(ChatFormatting.RED), mouseX, mouseY);
             }
         } else {
-            super.renderTooltip(guiGraphics, mouseX, mouseY);
+            super.extractTooltip(guiGraphics, mouseX, mouseY);
         }
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (baseMachineBE instanceof FilterableBE) {
             if (hoveredSlot != null && (hoveredSlot instanceof FilterBasicSlot)) {
                 if (button == 1) {
@@ -246,6 +254,6 @@ public class ExtendedSensorScreen extends BaseMachineScreen<ExtendedSensorContai
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 }

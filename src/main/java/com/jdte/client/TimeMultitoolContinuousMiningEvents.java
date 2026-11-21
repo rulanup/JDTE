@@ -2,8 +2,9 @@ package com.jdte.client;
 
 import com.jdte.common.items.TimeMultitoolItem;
 import com.jdte.setup.JDTEConfig;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -34,12 +35,13 @@ public final class TimeMultitoolContinuousMiningEvents {
 
     public static void onMouseButton(InputEvent.MouseButton.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.options.keyAttack.matchesMouse(event.getButton())) inputChanged(minecraft, event.getAction());
+        var button = new MouseButtonEvent(minecraft.mouseHandler.xpos(), minecraft.mouseHandler.ypos(), event.getMouseButtonInfo());
+        if (minecraft.options.keyAttack.matchesMouse(button)) inputChanged(minecraft, event.getAction());
     }
 
     public static void onKey(InputEvent.Key event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.options.keyAttack.matches(event.getKey(), event.getScanCode())) inputChanged(minecraft, event.getAction());
+        if (minecraft.options.keyAttack.matches(event.getKeyEvent())) inputChanged(minecraft, event.getAction());
     }
 
     private static void inputChanged(Minecraft minecraft, int action) {
@@ -63,7 +65,7 @@ public final class TimeMultitoolContinuousMiningEvents {
             reset();
             return false;
         }
-        int slot = minecraft.player.getInventory().selected;
+        int slot = minecraft.player.getInventory().getSelectedSlot();
         if (activeLevel != minecraft.level || activeSlot != slot) {
             GATE.reset();
             activeLevel = minecraft.level;

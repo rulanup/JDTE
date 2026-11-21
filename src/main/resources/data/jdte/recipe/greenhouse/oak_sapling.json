@@ -1,6 +1,6 @@
 {
   "type": "jdte:greenhouse",
-  "seed": { "item": "minecraft:oak_sapling" },
+  "seed": "minecraft:oak_sapling",
   "outputs": [
     { "id": "minecraft:oak_log", "count": 4 },
     { "id": "minecraft:oak_sapling", "count": 1 }

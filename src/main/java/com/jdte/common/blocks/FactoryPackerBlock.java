@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class FactoryPackerBlock extends BaseMachineBlock {
-    public FactoryPackerBlock() {
-        super(Properties.of().sound(SoundType.METAL).strength(3.5F)
+    public FactoryPackerBlock(Properties properties) {
+        super(properties.sound(SoundType.METAL).strength(3.5F)
                 .explosionResistance(3_600_000.0F)
                 .noOcclusion()
                 .isRedstoneConductor(BaseMachineBlock::never));

@@ -1,5 +1,8 @@
 package com.jdte.common.blockentities;
 
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import com.jdte.common.recipes.MachineRecipeHelper;
 import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineContainerData;
@@ -8,7 +11,6 @@ import com.direwolf20.justdirethings.common.capabilities.MachineEnergyStorage;
 import com.direwolf20.justdirethings.common.fluids.timefluid.TimeFluid;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.mojang.authlib.GameProfile;
-import com.jdte.common.integrations.DraconicEvolutionIntegration;
 import com.jdte.common.upgrades.JDTEFluidTank;
 import com.jdte.common.upgrades.LootFabricatorUpgradeItemStackHandler;
 import com.jdte.common.upgrades.UpgradeHelper;
@@ -18,10 +20,10 @@ import com.jdte.setup.JDTEConfig;
 import com.jdte.setup.JDTEBlockEntities;
 import com.jdte.setup.JDTEFluids;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -41,13 +43,12 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.IItemHandler;
+import com.jdte.common.capabilities.MachineAutomationHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
-import net.neoforged.fml.ModList;
 import com.jdte.mixin.FluidTankAccessor;
 
 import com.jdte.common.recipes.BioFactoryOutput;
@@ -61,8 +62,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE, RedstoneControlledBE, CoalescedAcceleratedMachine {
-    private static final ResourceLocation PRODUCTIVE_BEES_CONFIGURABLE_EGG =
-            ResourceLocation.fromNamespaceAndPath("productivebees", "spawn_egg_configurable_bee");
+    private static final Identifier PRODUCTIVE_BEES_CONFIGURABLE_EGG =
+            Identifier.fromNamespaceAndPath("productivebees", "spawn_egg_configurable_bee");
     public static final int INPUT_SLOTS = 4;
     public static final int OUTPUT_SLOTS = 64;
     public static final int BASE_OUTPUT_SLOTS = 16;
@@ -88,10 +89,10 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     public final JDTEFluidTank timeFluidTank;
     public final RedstoneControlData redstoneControlData = new RedstoneControlData();
     public final ContainerData machineData;
-    private final ItemStackHandler itemHandler;
+    private final MachineInventoryHandler itemHandler;
     private final LootFabricatorUpgradeItemStackHandler upgradeHandler;
-    private final IFluidHandler fluidHandler;
-    private final IItemHandler automationItemHandler;
+    private final ResourceHandler<FluidResource> fluidHandler;
+    private final ResourceHandler<ItemResource> automationItemHandler;
     private int progress;
     private int nextInputSlot;
     private int timeFluidCreditUnits;
@@ -123,50 +124,24 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         poweredMachineData = new PoweredMachineContainerData(this);
         lifeFluidTank = new JDTEFluidTank(BASE_FLUID_CAPACITY, fluid -> fluid.is(JDTEFluids.LIFE_FLUID_SOURCE.get()));
         timeFluidTank = new JDTEFluidTank(BASE_FLUID_CAPACITY, fluid -> fluid.getFluid() instanceof TimeFluid);
-        itemHandler = new ItemStackHandler(MACHINE_SLOTS) {
-            @Override public int getSlotLimit(int slot) { return slot < INPUT_SLOTS ? 1 : 64; }
-            @Override public boolean isItemValid(int slot, ItemStack stack) {
-                return slot < INPUT_SLOTS ? isSupportedLootTemplate(stack) : slot < MACHINE_SLOTS;
+        itemHandler = new MachineInventoryHandler(MACHINE_SLOTS) {
+            @Override protected int getCapacity(int slot, ItemResource resource) {
+                return slot < INPUT_SLOTS ? 1 : Math.min(64, super.getCapacity(slot, resource));
             }
-            @Override protected void onContentsChanged(int slot) {
+            @Override public boolean isValid(int slot, ItemResource resource) {
+                return resource.isEmpty() || slot >= INPUT_SLOTS || isSupportedLootTemplate(resource.toStack(1));
+            }
+            @Override protected void onContentsChanged(int slot, ItemStack previous) {
                 inputCacheDirty = true;
                 costCacheFresh = false;
                 setChanged();
             }
         };
         upgradeHandler = new LootFabricatorUpgradeItemStackHandler(this);
-        fluidHandler = new IFluidHandler() {
-            @Override public int getTanks() { return 2; }
-            @Override public FluidStack getFluidInTank(int tank) { return tank == 0 ? lifeFluidTank.getFluid() : tank == 1 ? timeFluidTank.getFluid() : FluidStack.EMPTY; }
-            @Override public int getTankCapacity(int tank) { return tank == 0 ? lifeFluidTank.getCapacity() : tank == 1 ? timeFluidTank.getCapacity() : 0; }
-            @Override public boolean isFluidValid(int tank, FluidStack stack) { return tank == 0 ? lifeFluidTank.isFluidValid(stack) : tank == 1 && timeFluidTank.isFluidValid(stack); }
-            @Override public int fill(FluidStack stack, FluidAction action) {
-                if (lifeFluidTank.isFluidValid(stack)) return lifeFluidTank.fill(stack, action);
-                if (timeFluidTank.isFluidValid(stack)) return timeFluidTank.fill(stack, action);
-                return 0;
-            }
-            @Override public FluidStack drain(FluidStack stack, FluidAction action) {
-                if (lifeFluidTank.getFluid().is(stack.getFluid())) return lifeFluidTank.drain(stack, action);
-                if (timeFluidTank.getFluid().is(stack.getFluid())) return timeFluidTank.drain(stack, action);
-                return FluidStack.EMPTY;
-            }
-            @Override public FluidStack drain(int amount, FluidAction action) {
-                FluidStack result = lifeFluidTank.drain(amount, action);
-                return result.isEmpty() ? timeFluidTank.drain(amount, action) : result;
-            }
-        };
-        automationItemHandler = new IItemHandler() {
-            @Override public int getSlots() { return INPUT_SLOTS + getActiveOutputSlots(); }
-            @Override public ItemStack getStackInSlot(int slot) { return valid(slot) ? itemHandler.getStackInSlot(slot) : ItemStack.EMPTY; }
-            @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                return slot >= 0 && slot < INPUT_SLOTS ? itemHandler.insertItem(slot, stack, simulate) : stack;
-            }
-            @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                return slot >= INPUT_SLOTS && slot < getSlots() ? itemHandler.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
-            }
-            @Override public int getSlotLimit(int slot) { return valid(slot) ? itemHandler.getSlotLimit(slot) : 0; }
-            @Override public boolean isItemValid(int slot, ItemStack stack) { return slot >= 0 && slot < INPUT_SLOTS && itemHandler.isItemValid(slot, stack); }
-            private boolean valid(int slot) { return slot >= 0 && slot < getSlots(); }
+        fluidHandler = new CombinedResourceHandler<>(lifeFluidTank, timeFluidTank);
+        automationItemHandler = new MachineAutomationHandler<>(itemHandler, slot -> slot < INPUT_SLOTS,
+                slot -> slot >= INPUT_SLOTS && slot < INPUT_SLOTS + getActiveOutputSlots()) {
+            @Override public int size() { return INPUT_SLOTS + getActiveOutputSlots(); }
         };
         machineData = new ContainerData() {
             @Override public int get(int index) {
@@ -202,7 +177,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     }
 
     private boolean isClientSide() {
-        return level != null && level.isClientSide;
+        return level != null && level.isClientSide();
     }
 
     @Override public void tickServer() {
@@ -232,7 +207,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         cachedEnergyCost = getEffectiveEnergyCost();
         cachedProcessTime = getProcessTime();
         for (int slot = 0; slot < INPUT_SLOTS; slot++) {
-            ItemStack stack = itemHandler.getStackInSlot(slot);
+            ItemStack stack = itemHandler.copyStack(slot);
             costCacheInputs[slot] = stack.copy();
             cachedValidInputs[slot] = isSupportedLootTemplate(stack);
             LootFabricatorRecipe recipe = findRecipe(stack);
@@ -263,7 +238,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     private boolean hasFreeOutputSpace() {
         int active = getActiveOutputSlots();
         for (int i = 0; i < active; i++) {
-            ItemStack stack = itemHandler.getStackInSlot(INPUT_SLOTS + i);
+            ItemStack stack = itemHandler.copyStack(INPUT_SLOTS + i);
             if (stack.isEmpty() || stack.getCount() < stack.getMaxStackSize()) {
                 return true;
             }
@@ -376,15 +351,14 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             resetProgress();
             return false;
         }
-        if (!canFitAll(allDrops)) {
+        if (!itemHandler.insertBatch(INPUT_SLOTS, INPUT_SLOTS + getActiveOutputSlots(), allDrops, null)) {
             resetProgress();
             return false;
         }
-        allDrops.forEach(this::insertOutput);
-        lifeFluidTank.drain(successfulLifeFluidCost, IFluidHandler.FluidAction.EXECUTE);
+        lifeFluidTank.extractFluid(successfulLifeFluidCost);
         LootFabricatorFluidCost.Settlement timeFluidSettlement = LootFabricatorFluidCost.settle(
                 successfulTimeFluidCostUnits, timeFluidCreditUnits);
-        timeFluidTank.drain(timeFluidSettlement.drainMb(), IFluidHandler.FluidAction.EXECUTE);
+        timeFluidTank.extractFluid(timeFluidSettlement.drainMb());
         timeFluidCreditUnits = timeFluidSettlement.remainingCreditUnits();
         extractEnergy(cachedEnergyCost * successfulProcesses, false);
         nextInputSlot = (lastOccupiedSlot + 1) % INPUT_SLOTS;
@@ -399,7 +373,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
             List<ItemStack> drops = new ArrayList<>();
             double lootingMult = 1.0 + getLootingLevel() * 0.5;
             for (BioFactoryOutput output : recipe.outputs()) {
-                ItemStack rolled = output.roll(level.random, lootingMult);
+                ItemStack rolled = output.roll(level.getRandom(), lootingMult);
                 if (!rolled.isEmpty()) {
                     drops.add(rolled);
                 }
@@ -408,9 +382,11 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         }
         if (!(eggStack.getItem() instanceof SpawnEggItem)) return List.of();
         SpawnEggItem egg = (SpawnEggItem) eggStack.getItem();
-        Entity entity = egg.getType(eggStack).create(level);
+        EntityType<?> type = egg.getType(eggStack);
+        if (type == null) return List.of();
+        Entity entity = type.create(level, net.minecraft.world.entity.EntitySpawnReason.SPAWN_ITEM_USE);
         if (!(entity instanceof LivingEntity living)) return List.of();
-        living.moveTo(getBlockPos().getCenter());
+        living.snapTo(getBlockPos().getCenter());
         // Loot tables read Looting from the attacking entity. The factory keeps one
         // dedicated player per level/profile and releases it when that level unloads.
         FakePlayer player = FakePlayerFactory.get(level, createLootingProfile());
@@ -425,11 +401,9 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
                     .withParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, player)
                     .withParameter(LootContextParams.LAST_DAMAGE_PLAYER, player)
                     .create(LootContextParamSets.ENTITY);
-            List<ItemStack> drops = new ArrayList<>(level.getServer().reloadableRegistries()
-                    .getLootTable(living.getLootTable()).getRandomItems(params));
-            if (ModList.get().isLoaded("draconicevolution")) {
-                DraconicEvolutionIntegration.addLootFabricatorDrops(living, level.random, drops);
-            }
+            List<ItemStack> drops = new ArrayList<>();
+            living.getLootTable().ifPresent(table -> drops.addAll(level.getServer().reloadableRegistries()
+                    .getLootTable(table).getRandomItems(params)));
             addVanillaBossDrops(living, drops);
             return applyLootingBonus(level, drops);
         } finally {
@@ -462,7 +436,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         List<ItemStack> result = new ArrayList<>(originalDrops);
         double extraDropChance = JDTEConfig.COMMON.lootingExtraDropChance.get();
         for (int levelIndex = 0; levelIndex < getLootingLevel(); levelIndex++) {
-            if (level.random.nextDouble() < extraDropChance) {
+            if (level.getRandom().nextDouble() < extraDropChance) {
                 originalDrops.forEach(stack -> result.add(stack.copy()));
             }
         }
@@ -485,7 +459,7 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
 
     public LootFabricatorRecipe findRecipe(ItemStack stack) {
         if (level == null || stack.isEmpty()) return null;
-        for (RecipeHolder<LootFabricatorRecipe> holder : level.getRecipeManager().getAllRecipesFor(JDTERecipes.LOOT_FABRICATOR_RECIPE_TYPE.get())) {
+        for (RecipeHolder<LootFabricatorRecipe> holder : MachineRecipeHelper.recipes(level).byType(JDTERecipes.LOOT_FABRICATOR_RECIPE_TYPE.get())) {
             if (holder.value().matches(stack)) {
                 return holder.value();
             }
@@ -506,27 +480,13 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         setChanged();
     }
 
-    private boolean canFitAll(List<ItemStack> drops) {
-        ItemStackHandler copy = new ItemStackHandler(getActiveOutputSlots());
-        for (int i = 0; i < copy.getSlots(); i++) copy.setStackInSlot(i, itemHandler.getStackInSlot(INPUT_SLOTS + i).copy());
-        for (ItemStack drop : drops) if (!ItemHandlerHelper.insertItemStacked(copy, drop.copy(), false).isEmpty()) return false;
-        return true;
-    }
-
-    private void insertOutput(ItemStack stack) {
-        ItemStack remaining = stack.copy();
-        for (int i = 0; i < getActiveOutputSlots() && !remaining.isEmpty(); i++) {
-            remaining = itemHandler.insertItem(INPUT_SLOTS + i, remaining, false);
-        }
-    }
-
     public int getActiveOutputSlots() {
         long gameTick = level == null ? Long.MIN_VALUE : level.getGameTime();
         if (activeOutputSlotsTick == gameTick) return cachedActiveOutputSlots;
         int configured = BASE_OUTPUT_SLOTS + countCapacity(-1) * OUTPUT_SLOTS_PER_CAPACITY;
         int occupied = BASE_OUTPUT_SLOTS;
         for (int i = 0; i < OUTPUT_SLOTS; i++) {
-            if (!itemHandler.getStackInSlot(INPUT_SLOTS + i).isEmpty()) occupied = ((i / 16) + 1) * 16;
+            if (!itemHandler.copyStack(INPUT_SLOTS + i).isEmpty()) occupied = ((i / 16) + 1) * 16;
         }
         cachedActiveOutputSlots = Math.min(OUTPUT_SLOTS, Math.max(configured, occupied));
         activeOutputSlotsTick = gameTick;
@@ -577,12 +537,12 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
     private static int clampRawTickSpeed(int value) { return Math.clamp(value, 1, MAX_TICK_SPEED); }
     private int countCapacity(int ignored) { return UpgradeHelper.countUpgrades(this, UpgradeType.CAPACITY); }
 
-    @Override public ItemStackHandler getMachineHandler() { return itemHandler; }
+    @Override public ItemStacksResourceHandler getMachineHandler() { return itemHandler; }
     public LootFabricatorUpgradeItemStackHandler getUpgradeHandler() { return upgradeHandler; }
     public JDTEFluidTank getLifeFluidTank() { return lifeFluidTank; }
     public JDTEFluidTank getTimeFluidTank() { return timeFluidTank; }
-    public IFluidHandler getFluidHandler() { return fluidHandler; }
-    public IItemHandler getAutomationItemHandler() { return automationItemHandler; }
+    public ResourceHandler<FluidResource> getFluidHandler() { return fluidHandler; }
+    public ResourceHandler<ItemResource> getAutomationItemHandler() { return automationItemHandler; }
     public ContainerData getMachineData() { return machineData; }
     public int getMaxFluidCapacity() { return UpgradeHelper.adjustFluidCapacity(this, BASE_FLUID_CAPACITY); }
     public int getEffectiveEnergyCost() { return UpgradeHelper.adjustEnergyCost(this, ENERGY_COST); }
@@ -605,30 +565,30 @@ public class LootFabricatorBE extends BaseMachineBE implements PoweredMachineBE,
         }
     }
 
-    @Override public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
-        tag.put("upgrades", upgradeHandler.serializeNBT(provider));
-        tag.put("lifeFluid", lifeFluidTank.serializeNBT(provider));
-        tag.put("timeFluid", timeFluidTank.serializeNBT(provider));
+    @Override public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
+        tag.putChild("upgrades", upgradeHandler);
+        tag.putChild("lifeFluid", lifeFluidTank);
+        tag.putChild("timeFluid", timeFluidTank);
         tag.putInt("energy", energyStorage.getEnergyStored());
         tag.putInt("progress", progress);
         tag.putInt("nextInputSlot", nextInputSlot);
         tag.putInt("timeFluidCreditUnits", timeFluidCreditUnits);
     }
 
-    @Override public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        if (tag.contains("upgrades")) upgradeHandler.deserializeNBT(provider, tag.getCompound("upgrades"));
-        if (tag.contains("lifeFluid")) lifeFluidTank.deserializeNBT(provider, tag.getCompound("lifeFluid"));
-        if (tag.contains("timeFluid")) timeFluidTank.deserializeNBT(provider, tag.getCompound("timeFluid"));
-        energyStorage.setEnergy(tag.getInt("energy"));
-        progress = tag.getInt("progress");
-        nextInputSlot = tag.getInt("nextInputSlot");
+    @Override public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        if (tag.keySet().contains("inventory")) itemHandler.deserialize(tag.childOrEmpty("inventory"));
+        if (tag.keySet().contains("upgrades")) upgradeHandler.deserialize(tag.childOrEmpty("upgrades"));
+        if (tag.keySet().contains("lifeFluid")) lifeFluidTank.deserialize(tag.childOrEmpty("lifeFluid"));
+        if (tag.keySet().contains("timeFluid")) timeFluidTank.deserialize(tag.childOrEmpty("timeFluid"));
+        energyStorage.setEnergy(tag.getIntOr("energy", 0));
+        progress = tag.getIntOr("progress", 0);
+        nextInputSlot = tag.getIntOr("nextInputSlot", 0);
         timeFluidCreditUnits = Math.clamp(
-                tag.getInt("timeFluidCreditUnits"), 0, LootFabricatorFluidCost.UNITS_PER_MB - 1);
-        if (!tag.contains("tickspeed") && tag.contains("tickSpeed")) tickSpeed = tag.getInt("tickSpeed");
+                tag.getIntOr("timeFluidCreditUnits", 0), 0, LootFabricatorFluidCost.UNITS_PER_MB - 1);
+        if (!tag.keySet().contains("tickspeed") && tag.keySet().contains("tickSpeed")) tickSpeed = tag.getIntOr("tickSpeed", 0);
         tickSpeed = clampRawTickSpeed(tickSpeed);
         syncFluidCapacities();
         costCacheFresh = false;

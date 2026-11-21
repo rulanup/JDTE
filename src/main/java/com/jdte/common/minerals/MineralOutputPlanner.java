@@ -1,6 +1,6 @@
 package com.jdte.common.minerals;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +37,11 @@ public final class MineralOutputPlanner {
         return new FittingPlan(best, bestPlan);
     }
 
-    public static Plan plan(List<SlotState> currentSlots, Map<ResourceLocation, Long> amounts,
-                            Map<ResourceLocation, Integer> stackLimits) {
+    public static Plan plan(List<SlotState> currentSlots, Map<Identifier, Long> amounts,
+                            Map<Identifier, Integer> stackLimits) {
         List<SlotState> planned = new ArrayList<>(currentSlots);
-        for (Map.Entry<ResourceLocation, Long> entry : amounts.entrySet()) {
-            ResourceLocation itemId = entry.getKey();
+        for (Map.Entry<Identifier, Long> entry : amounts.entrySet()) {
+            Identifier itemId = entry.getKey();
             long remaining = Math.max(0L, entry.getValue());
             int itemLimit = Math.max(1, stackLimits.getOrDefault(itemId, 64));
 
@@ -69,7 +69,7 @@ public final class MineralOutputPlanner {
         return new Plan(true, List.copyOf(planned));
     }
 
-    public record SlotState(ResourceLocation itemId, int count, int limit) {
+    public record SlotState(Identifier itemId, int count, int limit) {
         public SlotState {
             limit = Math.max(1, limit);
             count = Math.clamp(count, 0, limit);

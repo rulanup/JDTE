@@ -8,8 +8,10 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.direwolf20.justdirethings.util.MagicHelpers;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
+import com.direwolf20.justdirethings.util.MiscHelpers;
+import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.containers.ExtendedFluidGeneratorContainer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -57,7 +59,7 @@ public class ExtendedFluidGeneratorScreen extends BaseMachineScreen<ExtendedFlui
     }
 
     @Override
-    public void powerBarTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    public void powerBarTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         if (!(baseMachineBE instanceof PoweredMachineBE poweredMachineBE)) {
             return;
         }
@@ -65,8 +67,8 @@ public class ExtendedFluidGeneratorScreen extends BaseMachineScreen<ExtendedFlui
             return;
         }
 
-        if (hasShiftDown()) {
-            guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+        if (minecraft.hasShiftDown()) {
+            guiGraphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(Arrays.asList(
                     Component.translatable("justdirethings.screen.energy",
                             MagicHelpers.formatted(container.getEnergy()),
                             MagicHelpers.formatted(poweredMachineBE.getMaxEnergy())),
@@ -74,7 +76,7 @@ public class ExtendedFluidGeneratorScreen extends BaseMachineScreen<ExtendedFlui
                             MagicHelpers.formatted(generatorBE.getFePerFuelTick()))
             )), mouseX, mouseY);
         } else {
-            guiGraphics.renderTooltip(font, Language.getInstance().getVisualOrder(Arrays.asList(
+            guiGraphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(Arrays.asList(
                     Component.translatable("justdirethings.screen.energy",
                             MagicHelpers.withSuffix(container.getEnergy()),
                             MagicHelpers.withSuffix(poweredMachineBE.getMaxEnergy())),

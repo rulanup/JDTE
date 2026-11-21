@@ -8,7 +8,7 @@ import com.jdte.common.network.data.WrenchAreaAdjustPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class WrenchScrollHandler {
     private static final String JDT_MODID = "justdirethings";
@@ -56,7 +56,7 @@ public class WrenchScrollHandler {
             return;
         }
 
-        PacketDistributor.sendToServer(new WrenchAreaAdjustPayload(targetPos, delta));
+        ClientPacketDistributor.sendToServer(new WrenchAreaAdjustPayload(targetPos, delta));
         event.setCanceled(true);
     }
 
@@ -65,7 +65,7 @@ public class WrenchScrollHandler {
         if (!(block instanceof BaseMachineBlock)) {
             return false;
         }
-        ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
+        Identifier id = BuiltInRegistries.BLOCK.getKey(block);
         return id != null && (JDTE.MODID.equals(id.getNamespace()) || JDT_MODID.equals(id.getNamespace()));
     }
 

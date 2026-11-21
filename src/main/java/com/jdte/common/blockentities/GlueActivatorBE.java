@@ -5,14 +5,14 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.BaseMachineBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.FilterableBE;
 import com.direwolf20.justdirethings.common.blockentities.basebe.RedstoneControlledBE;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
 import com.jdte.common.upgrades.UpgradeHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,7 +20,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import com.direwolf20.justdirethings.util.ModTags;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 public abstract class GlueActivatorBE extends BaseMachineBE implements FilterableBE, RedstoneControlledBE, AreaAffectingBE, BaseFilterMachine {
     public static final int REVIVE_SLOT = 0;
@@ -29,22 +31,22 @@ public abstract class GlueActivatorBE extends BaseMachineBE implements Filterabl
     public FilterData filterData = new FilterData();
     public RedstoneControlData redstoneControlData = new RedstoneControlData();
     public AreaAffectingData areaAffectingData;
-    protected final ItemStackHandler itemHandler;
+    protected final ItemStacksResourceHandler itemHandler;
 
     protected GlueActivatorBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         MACHINE_SLOTS = 1;
         areaAffectingData = new AreaAffectingData(getBlockState().getValue(BlockStateProperties.FACING));
-        itemHandler = new ItemStackHandler(1) {
+        itemHandler = new MachineInventoryHandler(1) {
             @Override
-            protected void onContentsChanged(int slot) {
+            protected void onContentsChanged(int slot, ItemStack previous) {
                 setChanged();
             }
         };
     }
 
     @Override
-    public ItemStackHandler getMachineHandler() {
+    public ItemStacksResourceHandler getMachineHandler() {
         return itemHandler;
     }
 
@@ -87,7 +89,8 @@ public abstract class GlueActivatorBE extends BaseMachineBE implements Filterabl
     }
 
     protected boolean tryReviveGoo(ServerLevel serverLevel, BlockPos pos, BlockState state) {
-        ItemStack reviveItem = itemHandler.getStackInSlot(REVIVE_SLOT);
+        ItemResource resource = itemHandler.getResource(REVIVE_SLOT);
+        ItemStack reviveItem = resource.toStack(itemHandler.getAmountAsInt(REVIVE_SLOT));
         if (reviveItem.isEmpty()) return false;
 
         // Check if the item is a valid revival item for this goo tier
@@ -98,8 +101,7 @@ public abstract class GlueActivatorBE extends BaseMachineBE implements Filterabl
 
         // Consume item
         if (!UpgradeHelper.hasCreativeUpgrade(this)) {
-            reviveItem.shrink(1);
-            itemHandler.setStackInSlot(REVIVE_SLOT, reviveItem);
+            itemHandler.set(REVIVE_SLOT, resource, reviveItem.getCount() - 1);
         }
 
         setChanged();
@@ -107,19 +109,19 @@ public abstract class GlueActivatorBE extends BaseMachineBE implements Filterabl
     }
 
     protected boolean isValidRevivalItem(ItemStack itemStack) {
-        return itemStack.is(com.direwolf20.justdirethings.datagen.JustDireItemTags.GOO_REVIVE_TIER_1)
-                || itemStack.is(com.direwolf20.justdirethings.datagen.JustDireItemTags.GOO_REVIVE_TIER_2)
-                || itemStack.is(com.direwolf20.justdirethings.datagen.JustDireItemTags.GOO_REVIVE_TIER_3)
-                || itemStack.is(com.direwolf20.justdirethings.datagen.JustDireItemTags.GOO_REVIVE_TIER_4);
+        return itemStack.is(ModTags.Items.GOO_REVIVE_TIER_1)
+                || itemStack.is(ModTags.Items.GOO_REVIVE_TIER_2)
+                || itemStack.is(ModTags.Items.GOO_REVIVE_TIER_3)
+                || itemStack.is(ModTags.Items.GOO_REVIVE_TIER_4);
     }
 
-    public ItemStackHandler getItemHandler() {
+    public ItemStacksResourceHandler getItemHandler() {
         return itemHandler;
     }
 
     @Override
     public FilterBasicHandler getFilterHandler() {
-        return getData(Registration.HANDLER_BASIC_FILTER);
+        return getData(JDTRegistration.HANDLER_BASIC_FILTER);
     }
 
     @Override
@@ -138,18 +140,16 @@ public abstract class GlueActivatorBE extends BaseMachineBE implements Filterabl
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("inventory", itemHandler.serializeNBT(provider));
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.putChild("inventory", itemHandler);
         saveAreaSettings(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("inventory")) {
-            itemHandler.deserializeNBT(provider, tag.getCompound("inventory"));
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.child("inventory").ifPresent(itemHandler::deserialize);
         loadAreaSettings(tag);
     }
 }

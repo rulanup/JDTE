@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TimeMultitoolSpeedStorageTest {
+class TimeMultitoolSpeedStorageTest implements com.jdte.test.WorldRegistryTest {
     private static final DataComponentType<Integer> TEST_COMPONENT = DataComponentType.<Integer>builder()
             .persistent(Codec.INT)
             .networkSynchronized(ByteBufCodecs.VAR_INT)

@@ -6,15 +6,9 @@
     "CUC"
   ],
   "key": {
-    "C": {
-      "item": "justdirethings:clickert2"
-    },
-    "U": {
-      "item": "jdte:capacity_upgrade"
-    },
-    "D": {
-      "item": "minecraft:diamond_block"
-    }
+    "C": "justdirethings:clickert2",
+    "U": "jdte:capacity_upgrade",
+    "D": "minecraft:diamond_block"
   },
   "result": {
     "id": "jdte:extended_clicker",

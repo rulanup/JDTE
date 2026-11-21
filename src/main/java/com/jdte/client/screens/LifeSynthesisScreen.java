@@ -1,9 +1,15 @@
 package com.jdte.client.screens;
 
+import com.jdte.client.screens.util.MachineFluidBarRenderer;
+
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory;
 import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.direwolf20.justdirethings.client.screens.widgets.NumberButton;
+import com.direwolf20.justdirethings.util.MiscHelpers;
+import com.direwolf20.justdirethings.util.MiscTools;
 import com.direwolf20.justdirethings.util.MiscHelpers;
 import com.direwolf20.justdirethings.util.MiscTools;
 import com.jdte.common.blockentities.LifeSynthesisVatBE;
@@ -12,28 +18,18 @@ import com.jdte.common.network.data.TimeAcceleratorPayload;
 import com.jdte.common.recipes.LifeSynthesisRecipe;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.setup.JDTERecipes;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import com.jdte.common.recipes.MachineRecipeHelper;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +65,8 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
         renderEnergyBar(graphics);
         renderMachineSlotBackgrounds(graphics);
         renderCultureProgress(graphics);
@@ -82,24 +78,24 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
     }
 
     /** JDT 基类使用 int 计算填充比例，扩容后的大容量会溢出并把填充高度算成 0。 */
-    private void renderEnergyBar(GuiGraphics graphics) {
+    private void renderEnergyBar(GuiGraphicsExtractor graphics) {
         int maxEnergy = Math.max(1, vatContainer.getVat().getMaxEnergy());
         int fill = Math.clamp((int) ((long) vatContainer.getEnergy() * 70L / maxEnergy), 0, 70);
         int x = topSectionLeft + getEnergyBarOffset();
         int y = topSectionTop + 5;
-        graphics.blit(POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
-        graphics.blit(POWERBAR, x + 1, y + 70 - fill, 19, 69 - fill, 17, fill + 1, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWERBAR, x, y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, POWERBAR, x + 1, y + 70 - fill, 19, 69 - fill, 17, fill + 1, 36, 72);
     }
 
-    private void renderMachineSlotBackgrounds(GuiGraphics graphics) {
+    private void renderMachineSlotBackgrounds(GuiGraphicsExtractor graphics) {
         for (int i = 0; i < LifeSynthesisVatBE.INPUT_SLOTS; i++) {
             Slot slot = container.slots.get(i);
-            graphics.blitSprite(ResourceLocation.withDefaultNamespace("container/slot"),
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("container/slot"),
                     getGuiLeft() + slot.x - 1, getGuiTop() + slot.y - 1, 18, 18);
         }
     }
 
-    private void renderCultureProgress(GuiGraphics graphics) {
+    private void renderCultureProgress(GuiGraphicsExtractor graphics) {
         int x = getGuiLeft() + PROGRESS_X;
         int y = getGuiTop() + PROGRESS_Y;
         int progressWidth = Math.clamp(vatContainer.getProgress() * 24
@@ -109,7 +105,7 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
         graphics.fill(x + 24, y + 3, x + 28, y + 12, 0xFF6A2A2A);
     }
 
-    private void renderTierBadge(GuiGraphics graphics) {
+    private void renderTierBadge(GuiGraphicsExtractor graphics) {
         int tier = vatContainer.getTierCode();
         // 无配方（档位 0）时不再显示“待机”文字
         if (tier <= 0) return;
@@ -119,35 +115,18 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
             case 3 -> Component.translatable("jdte.tier.enriched");
             default -> Component.translatable("jdte.tier.none");
         };
-        graphics.drawString(font, label, getGuiLeft() + STATUS_X, getGuiTop() + STATUS_TIER_Y, 0x555555, false);
+        graphics.text(font, label, getGuiLeft() + STATUS_X, getGuiTop() + STATUS_TIER_Y, 0x555555, false);
     }
 
-    private void renderTank(GuiGraphics graphics, int relativeX, FluidStack stack, int amount) {
+    private void renderTank(GuiGraphicsExtractor graphics, int relativeX, FluidStack stack, int amount) {
         int x = getGuiLeft() + relativeX;
         int y = getGuiTop() + TANK_Y;
-        graphics.blit(FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, FLUIDBAR, x, y, 0, 0, 18, 72, 36, 72);
         int height = Math.clamp((int) ((long) amount * 70L / Math.max(1, vatContainer.getFluidCapacity())), 0, 70);
-        if (height > 0 && !stack.isEmpty()) renderFluid(graphics, stack, x + 1, y + 71, 16, height);
-        graphics.blit(FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
+        if (height > 0 && !stack.isEmpty()) MachineFluidBarRenderer.renderStretchedFluid(graphics, stack, x + 1, y + 71, 16, height);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, FLUIDBAR, x, y, 18, 0, 18, 72, 36, 72);
     }
 
-    private void renderFluid(GuiGraphics graphics, FluidStack stack, int x, int bottom, int width, int height) {
-        var extension = IClientFluidTypeExtensions.of(stack.getFluid());
-        TextureAtlasSprite sprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(extension.getStillTexture());
-        int tint = extension.getTintColor(stack);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-        RenderSystem.setShaderColor((tint >> 16 & 255) / 255.0F, (tint >> 8 & 255) / 255.0F,
-                (tint & 255) / 255.0F, (tint >>> 24) / 255.0F);
-        PoseStack pose = graphics.pose();
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        buffer.addVertex(pose.last().pose(), x, bottom, 0).setUv(sprite.getU0(), sprite.getV1());
-        buffer.addVertex(pose.last().pose(), x + width, bottom, 0).setUv(sprite.getU1(), sprite.getV1());
-        buffer.addVertex(pose.last().pose(), x + width, bottom - height, 0).setUv(sprite.getU1(), sprite.getV0());
-        buffer.addVertex(pose.last().pose(), x, bottom - height, 0).setUv(sprite.getU0(), sprite.getV0());
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-    }
 
     @Override
     public void addRedstoneButtons() {
@@ -167,7 +146,7 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
                 getGuiTop() + SPEED_Y,
                 24, 12, vatContainer.getMultiplier(), 1, vatContainer.getMaxMultiplier(),
                 Component.translatable("jdte.screen.life_synthesis_vat.multiplier"), button ->
-                PacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
+                ClientPacketDistributor.sendToServer(new TimeAcceleratorPayload(((NumberButton) button).getValue())));
         addRenderableWidget(multiplierButton);
     }
 
@@ -190,24 +169,24 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderTooltip(graphics, mouseX, mouseY);
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
         if (hoveredSlot != null && !hoveredSlot.hasItem() && vatContainer.isInputSlot(hoveredSlot)) {
-            graphics.renderTooltip(font, INPUT_TOOLTIP, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(font, INPUT_TOOLTIP, mouseX, mouseY);
         }
         if (MiscTools.inBounds(getGuiLeft() + PROGRESS_X, getGuiTop() + PROGRESS_Y, 28, 12, mouseX, mouseY)) {
             LifeSynthesisRecipe recipe = currentRecipe();
             if (recipe != null) {
                 // 配方 tooltip 固定显示在进度条上方、右移对齐进度条，避免遮挡槽位与罐
                 List<FormattedText> lines = new ArrayList<>(recipeTooltip(recipe));
-                graphics.renderTooltip(font, Language.getInstance().getVisualOrder(lines),
+                graphics.setTooltipForNextFrame(font, Language.getInstance().getVisualOrder(lines),
                         getGuiLeft() + PROGRESS_X + 20, getGuiTop() + PROGRESS_Y - 8);
                 return;
             }
         }
         for (int i = 0; i < TANK_X.length; i++) {
             if (MiscTools.inBounds(getGuiLeft() + TANK_X[i], getGuiTop() + TANK_Y, 18, 72, mouseX, mouseY)) {
-                graphics.renderTooltip(font, Component.translatable("jdte.screen.life_synthesis_vat." + TANK_KEYS[i],
+                graphics.setTooltipForNextFrame(font, Component.translatable("jdte.screen.life_synthesis_vat." + TANK_KEYS[i],
                         tankAmount(i), vatContainer.getFluidCapacity()), mouseX, mouseY);
                 return;
             }
@@ -218,8 +197,8 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
     private LifeSynthesisRecipe currentRecipe() {
         int index = vatContainer.getRecipeIndex();
         if (index < 0 || minecraft == null || minecraft.level == null) return null;
-        List<RecipeHolder<LifeSynthesisRecipe>> recipes = minecraft.level.getRecipeManager()
-                .getAllRecipesFor(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get());
+        List<RecipeHolder<LifeSynthesisRecipe>> recipes = List.copyOf(MachineRecipeHelper.clientRecipes()
+                .byType(JDTERecipes.LIFE_SYNTHESIS_RECIPE_TYPE.get()));
         if (index >= recipes.size()) return null;
         return recipes.get(index).value();
     }
@@ -229,10 +208,10 @@ public class LifeSynthesisScreen extends BaseMachineScreen<LifeSynthesisContaine
         lines.add(Component.translatable("jdte.screen.life_synthesis_vat.recipe_tooltip"));
         StringBuilder summary = new StringBuilder();
         for (LifeSynthesisRecipe.InputSlot slot : recipe.inputs()) {
-            ItemStack[] samples = slot.ingredient().getItems();
-            if (samples.length > 0) {
+            var sample = slot.ingredient().items().findFirst().map(ItemStack::new);
+            if (sample.isPresent()) {
                 if (!summary.isEmpty()) summary.append(" + ");
-                summary.append(samples[0].getHoverName().getString()).append(" ×").append(slot.count());
+                summary.append(sample.get().getHoverName().getString()).append(" ×").append(slot.count());
             }
         }
         FluidStack nutrient = recipe.nutrient();

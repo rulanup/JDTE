@@ -25,7 +25,7 @@ class GreenhouseEdelwoodRecipeResourceTest {
                     .getAsJsonObject();
 
             assertEquals("forbidden_arcanus:growing_edelwood",
-                    recipe.getAsJsonObject("seed").get("item").getAsString());
+                    recipe.get("seed").getAsString());
             assertEquals("forbidden_arcanus:growing_edelwood", recipe.get("display_block").getAsString());
             assertTrue(recipe.getAsJsonArray("outputs").asList().stream().anyMatch(output ->
                     "forbidden_arcanus:edelwood_log".equals(

@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "E": { "item": "jdte:extended_upgrade" },
-    "M": { "item": "justdirethings:experienceholder" }
+    "E": "jdte:extended_upgrade",
+    "M": "justdirethings:experienceholder"
   },
   "pattern": [
     " E ",

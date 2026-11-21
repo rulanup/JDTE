@@ -31,8 +31,8 @@ public class LootFabricatorUpgradeItemStackHandler extends UpgradeItemStackHandl
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-        super.deserializeNBT(provider, tag);
+    public void deserialize(net.minecraft.world.level.storage.ValueInput input) {
+        super.deserialize(input);
         if (getSlots() == SLOT_COUNT) return;
 
         List<ItemStack> oldStacks = new ArrayList<>();

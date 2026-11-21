@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:bucket"
-    },
-    "C": {
-      "item": "justdirethings:clickert1"
-    },
-    "F": {
-      "item": "jdte:fluid_upgrade"
-    },
-    "T": {
-      "item": "justdirethings:time_crystal"
-    }
+    "B": "minecraft:bucket",
+    "C": "justdirethings:clickert1",
+    "F": "jdte:fluid_upgrade",
+    "T": "justdirethings:time_crystal"
   },
   "pattern": [
     "BTB",

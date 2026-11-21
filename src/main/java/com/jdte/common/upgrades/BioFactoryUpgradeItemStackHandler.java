@@ -3,7 +3,7 @@ package com.jdte.common.upgrades;
 import com.jdte.common.blockentities.BioFactoryBE;
 import com.jdte.common.items.LootingUpgradeItem;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,11 +14,11 @@ public class BioFactoryUpgradeItemStackHandler extends UpgradeItemStackHandler {
     public static final int SLOT_COUNT = 8;
     public static final int MAX_PRODUCTIVITY = 4;
     public static final int MAX_LOOTING = 4;
-    private static final Map<ResourceLocation, Integer> PRODUCTIVITY_TIERS = Map.of(
-            ResourceLocation.fromNamespaceAndPath("productivelib", "upgrade_productivity"), 1,
-            ResourceLocation.fromNamespaceAndPath("productivelib", "upgrade_productivity_2"), 2,
-            ResourceLocation.fromNamespaceAndPath("productivelib", "upgrade_productivity_3"), 3,
-            ResourceLocation.fromNamespaceAndPath("productivelib", "upgrade_productivity_4"), 4);
+    private static final Map<Identifier, Integer> PRODUCTIVITY_TIERS = Map.of(
+            Identifier.fromNamespaceAndPath("productivelib", "upgrade_productivity"), 1,
+            Identifier.fromNamespaceAndPath("productivelib", "upgrade_productivity_2"), 2,
+            Identifier.fromNamespaceAndPath("productivelib", "upgrade_productivity_3"), 3,
+            Identifier.fromNamespaceAndPath("productivelib", "upgrade_productivity_4"), 4);
 
     public BioFactoryUpgradeItemStackHandler(BioFactoryBE machine) {
         super(machine, SLOT_COUNT);
@@ -62,7 +62,7 @@ public class BioFactoryUpgradeItemStackHandler extends UpgradeItemStackHandler {
         return PRODUCTIVITY_TIERS.getOrDefault(BuiltInRegistries.ITEM.getKey(stack.getItem()), 0);
     }
 
-    public static List<ResourceLocation> getProductivityUpgradeIds() {
+    public static List<Identifier> getProductivityUpgradeIds() {
         return PRODUCTIVITY_TIERS.keySet().stream().sorted().toList();
     }
 }

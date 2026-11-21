@@ -7,7 +7,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public final class LargePortableContainerClientEvents {
                 JDTEKeyMappings.LARGE_POCKET_GENERATOR::consumeClick,
                 JDTEKeyMappings.LARGE_POTION_CANISTER::consumeClick,
                 JDTEKeyMappings.LARGE_FUEL_CANISTER::consumeClick)) {
-            PacketDistributor.sendToServer(payload);
+            ClientPacketDistributor.sendToServer(payload);
         }
     }
 

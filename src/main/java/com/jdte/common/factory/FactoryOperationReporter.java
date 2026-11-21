@@ -1,5 +1,6 @@
 package com.jdte.common.factory;
 
+import net.minecraft.server.permissions.Permissions;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.setup.JDTEConfig;
 import com.mojang.logging.LogUtils;
@@ -10,7 +11,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
@@ -92,7 +93,7 @@ public final class FactoryOperationReporter {
         if (!JDTEConfig.COMMON.factoryPackerChatNotifications.get()) return;
         ServerPlayer player = owner(level);
         if (player == null) return;
-        Component coordinates = interactiveCoordinates(pos, player.hasPermissions(2),
+        Component coordinates = interactiveCoordinates(pos, player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER),
                 "message.jdte.factory_packer.source_change_teleport");
         Component retry = willRetry
                 ? Component.translatable("message.jdte.factory_packer.source_change_retry",
@@ -123,7 +124,7 @@ public final class FactoryOperationReporter {
     }
 
     private static Component blockStateComponent(BlockState state) {
-        ResourceLocation id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+        Identifier id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
         return Component.translatable("message.jdte.factory_packer.source_block",
                 state.getBlock().getName(), id.toString());
     }
@@ -164,9 +165,9 @@ public final class FactoryOperationReporter {
         player.sendSystemMessage(Component.translatable("message.jdte.factory_packer.blacklist_summary",
                 blacklistedBlockCount, FactoryPackerBE.BLACKLIST.location().toString())
                 .withStyle(ChatFormatting.RED));
-        boolean canTeleport = player.hasPermissions(2);
+        boolean canTeleport = player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
         for (BlacklistedBlock entry : blacklistedBlocks) {
-            ResourceLocation id = BuiltInRegistries.BLOCK.getKey(entry.state().getBlock());
+            Identifier id = BuiltInRegistries.BLOCK.getKey(entry.state().getBlock());
             Component coordinates = interactiveCoordinates(entry.pos(), canTeleport,
                     "message.jdte.factory_packer.blacklist_teleport");
             player.sendSystemMessage(Component.translatable("message.jdte.factory_packer.blacklist_entry",
@@ -187,8 +188,8 @@ public final class FactoryOperationReporter {
         String command = "/tp @s " + (pos.getX() + 0.5D) + " " + (pos.getY() + 1) + " "
                 + (pos.getZ() + 0.5D);
         return coordinates.withStyle(style -> style.withUnderlined(true)
-                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                .withClickEvent(new ClickEvent.RunCommand(command))
+                .withHoverEvent(new HoverEvent.ShowText(
                         Component.translatable(hoverKey))));
     }
 

@@ -5,7 +5,7 @@ import com.jdte.common.network.data.FactoryPackageRotatePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public final class FactoryPackageScrollHandler {
     private FactoryPackageScrollHandler() {}
@@ -22,7 +22,7 @@ public final class FactoryPackageScrollHandler {
         int delta = event.getScrollDeltaY() > 0 ? 1 : event.getScrollDeltaY() < 0 ? -1 : 0;
         if (delta == 0) return;
         FactoryPackageItem.rotate(held, delta);
-        PacketDistributor.sendToServer(new FactoryPackageRotatePayload(delta));
+        ClientPacketDistributor.sendToServer(new FactoryPackageRotatePayload(delta));
         event.setCanceled(true);
     }
 }

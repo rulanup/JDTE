@@ -1,5 +1,9 @@
 package com.jdte.common.items;
 
+import java.util.function.Consumer;
+
+import net.minecraft.world.item.component.TooltipDisplay;
+
 import com.jdte.common.upgrades.UpgradeCardInsertionHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -15,8 +19,8 @@ public class SharpnessUpgradeItem extends Item {
     public static final int MAX_COUNT = 6;
     public static final int DAMAGE_PER_UPGRADE = 5;
 
-    public SharpnessUpgradeItem() {
-        super(new Item.Properties().stacksTo(MAX_COUNT));
+    public SharpnessUpgradeItem(Properties properties) {
+        super(properties.stacksTo(MAX_COUNT));
     }
 
     @Override
@@ -25,9 +29,9 @@ public class SharpnessUpgradeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.jdte.sharpness_upgrade").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("tooltip.jdte.max", MAX_COUNT).withStyle(ChatFormatting.DARK_GRAY));
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        tooltip.accept(Component.translatable("tooltip.jdte.sharpness_upgrade").withStyle(ChatFormatting.GRAY));
+        tooltip.accept(Component.translatable("tooltip.jdte.max", MAX_COUNT).withStyle(ChatFormatting.DARK_GRAY));
     }
 }

@@ -2,9 +2,17 @@
 
 JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/mc-mods/just-dire-things) 的 NeoForge 扩展模组，为 JDT 增加升级卡、扩展机器、时间加速、范围控制和自动化设备。
 
-当前版本：`0.6.5.4`
+当前版本：`26.0.0`
 
 [English README](README_EN.md)
+
+## 26.0.0 更新
+
+- 首个 Minecraft 26.1.2 版本：移植到 NeoForge 26.1.2.126、Java 25、Just Dire Things 1.6.11、AE2 26.1.13-beta，版本号改为跟随 Minecraft 版本。
+- 用 Blockbench 重绘雷暴升级、带电引雷针（与上方原版避雷针衔接）、大型温室、生命合成舱和大型矿物提取机。
+- Botany Pots 与 Draconic Evolution 尚无 26.1.2 版本，相关联动暂不可用。
+
+完整说明：[26.0.0 Release Notes](docs/releases/26.0.0.md)。
 
 ## 0.6.5.4 更新
 
@@ -229,7 +237,7 @@ JDT Extras (`jdte`) 是 [Just Dire Things](https://www.curseforge.com/minecraft/
 - 扩展高级时间加速器：8 槽变体，可调 1-512x，超频或创造升级后 1024x，时间流体成本为初级版的 5 倍。
 - 三档时间加速器共用统一调度器。标称倍率包含目标原生 tick：一台标称 `X` 倍的加速器贡献 `X - 1` 个额外周期，重叠后的总倍率为 `1 + Σ(Xᵢ - 1)`，因此两台 16x 加速器得到 31x。普通方块实体和随机刻目标使用区块发现、已付费积压队列及每 tick 固定执行/扫描预算；服务器 MSPT 过高时不会暂停，超额工作继续排队。
 - 高级与扩展实体加速器：消耗时间流体与 FE 能量直接加速设定范围内的生物实体（LivingEntity），可调倍率 1-64x（扩展版 1-512x，超频最高 1024x）；加速子 tick 期间自动挂起抑制实体的 AI 寻路、位移和碰撞推挤，保证实体平稳加速成长、繁殖与药效结算而不乱窜；支持幽灵刷怪蛋黑白名单过滤，并自动排除玩家。
-- 完整 AE Grid 加速要求客户端和服务端同时安装版本相互匹配的 JDTE-AE（`jdte-ae`）与 JDTE，以及 AE2 19.2.17+。范围命中任一在线且已启动的节点后，其所属整个 Grid 都获得完整倍率；同一 Grid 有多个节点被覆盖时不会重复计算同一台加速器的贡献。
+- 完整 AE Grid 加速要求客户端和服务端同时安装版本相互匹配的 JDTE-AE（`jdte-ae`）与 JDTE，以及 AE2 26.1.13-beta。范围命中任一在线且已启动的节点后，其所属整个 Grid 都获得完整倍率；同一 Grid 有多个节点被覆盖时不会重复计算同一台加速器的贡献。
 - AE Grid 工作同步执行完整 Server Start、Level Start、Level End 和 Server End 生命周期。1024x 每个真实 tick 执行 1023 个额外 Grid 生命周期，不受普通目标默认 4096 次执行预算限制，因此可能显著提高服务器 MSPT。FE 或时间流体不足时整批拒绝，不执行也不扣费，不会静默降为较低倍率。
 - 扩展升级可将 JDT T2 点击器、方块破坏器、方块放置器、方块替换器、投掷器、传感器、流体收集器和流体放置器转换为 8 槽版本，并保留机器数据。
 
@@ -313,12 +321,12 @@ Greenhouse、Loot Fabricator 与 Bio Factory 的 `recipeGenerationEnabled` 只�
 
 ## 安装要求
 
-- Minecraft `1.21.1`
-- NeoForge `21.1.216+`（开发构建使用 `21.1.233`）
-- Just Dire Things `1.5.7+`
-- Java `21`
+- Minecraft `26.1.2`
+- NeoForge `26.1.2.126`
+- Just Dire Things `1.6.11+`
+- Java `25`
 
-将 `jdte-x.x.x.jar` 同时放入客户端和服务器的 `mods` 文件夹。若要启用完整 AE Grid 加速，还需在两端放入同版本的 `jdte-ae-x.x.x.jar` 并安装 AE2 19.2.17+；只安装主模组不强制依赖 AE2。
+将 `jdte-x.x.x.jar` 同时放入客户端和服务器的 `mods` 文件夹。若要启用完整 AE Grid 加速，还需在两端放入同版本的 `jdte-ae-x.x.x.jar` 并安装 AE2 26.1.13-beta；只安装主模组不强制依赖 AE2。
 
 ## 开发构建
 

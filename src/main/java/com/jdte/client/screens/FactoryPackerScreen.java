@@ -1,5 +1,7 @@
 package com.jdte.client.screens;
 
+import net.minecraft.client.renderer.RenderPipelines;
+
 import com.direwolf20.justdirethings.client.screens.basescreens.BaseMachineScreen;
 import com.direwolf20.justdirethings.client.screens.standardbuttons.ToggleButtonFactory.TextureLocalization;
 import com.direwolf20.justdirethings.client.screens.widgets.GrayscaleButton;
@@ -7,11 +9,11 @@ import com.direwolf20.justdirethings.client.screens.widgets.ToggleButton;
 import com.jdte.common.blockentities.FactoryPackerBE;
 import com.jdte.common.containers.FactoryPackerContainer;
 import com.jdte.common.network.data.FactoryPackerStartPayload;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 
@@ -31,9 +33,9 @@ public class FactoryPackerScreen extends BaseMachineScreen<FactoryPackerContaine
         super.init();
         startButton = addRenderableWidget(new ToggleButton(getGuiLeft() + 104, getGuiTop() + 18, 16, 16,
                 List.of(new TextureLocalization(
-                        ResourceLocation.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/positionswap.png"),
+                        Identifier.fromNamespaceAndPath("justdirethings", "textures/gui/buttons/positionswap.png"),
                         Component.translatable("jdte.screen.factory_packer.start"))), 0,
-                button -> PacketDistributor.sendToServer(new FactoryPackerStartPayload())));
+                button -> ClientPacketDistributor.sendToServer(new FactoryPackerStartPayload())));
         updateButton();
     }
 
@@ -65,32 +67,32 @@ public class FactoryPackerScreen extends BaseMachineScreen<FactoryPackerContaine
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
-        graphics.blitSprite(net.minecraft.resources.ResourceLocation.withDefaultNamespace("container/slot"),
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, net.minecraft.resources.Identifier.withDefaultNamespace("container/slot"),
                 getGuiLeft() + 79, getGuiTop() + 17, 18, 18);
         int statusX = getGuiLeft() + 89;
         int statusY = getGuiTop() + 40;
         FactoryPackerBE.Phase phase = FactoryPackerBE.Phase.values()[
                 Math.floorMod(packerContainer.getPhase(), FactoryPackerBE.Phase.values().length)];
-        graphics.drawCenteredString(font,
+        graphics.centeredText(font,
                 Component.translatable("jdte.screen.factory_packer.phase." + phase.ordinal()),
                 statusX, statusY, 0x606060);
         if (phase == FactoryPackerBE.Phase.IDLE && packerContainer.getErrorCode() > 0) {
-            graphics.drawCenteredString(font,
+            graphics.centeredText(font,
                     Component.translatable("jdte.screen.factory_packer.failed", packerContainer.getErrorCode()),
                     statusX, statusY + 12, 0xB03030);
         }
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderTooltip(graphics, mouseX, mouseY);
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
         if (packerContainer.getPhase() == FactoryPackerBE.Phase.IDLE.ordinal()
                 && packerContainer.getErrorCode() > 0
                 && mouseX >= getGuiLeft() + 59 && mouseX < getGuiLeft() + 119
                 && mouseY >= getGuiTop() + 51 && mouseY < getGuiTop() + 65) {
-            graphics.renderTooltip(font,
+            graphics.setTooltipForNextFrame(font,
                     Component.translatable("jdte.screen.factory_packer.error." + packerContainer.getErrorCode()),
                     mouseX, mouseY);
         }

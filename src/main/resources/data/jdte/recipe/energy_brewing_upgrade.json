@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "E": { "item": "justdirethings:eclipsealloy_ingot" },
-    "B": { "item": "minecraft:blaze_rod" },
-    "R": { "item": "minecraft:redstone_block" }
+    "E": "justdirethings:eclipsealloy_ingot",
+    "B": "minecraft:blaze_rod",
+    "R": "minecraft:redstone_block"
   },
   "pattern": [
     " E ",

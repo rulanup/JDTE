@@ -1,3 +1,6 @@
 {
-  "parent": "justdirethings:block/experienceholder"
+  "parent": "justdirethings:block/experienceholder",
+  "textures": {
+    "missing": "#0"
+  }
 }

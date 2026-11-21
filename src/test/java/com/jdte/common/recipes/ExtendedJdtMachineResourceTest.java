@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jdte.setup.JDTEBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.junit.jupiter.api.Test;
@@ -83,7 +83,7 @@ class ExtendedJdtMachineResourceTest {
         JsonObject chinese = readJson("assets/jdte/lang/zh_cn.json");
 
         for (MachineResource machine : MACHINES) {
-            ResourceLocation expectedId = ResourceLocation.fromNamespaceAndPath("jdte", machine.id());
+            Identifier expectedId = Identifier.fromNamespaceAndPath("jdte", machine.id());
             assertEquals(expectedId, machine.block().getId(), machine.id());
             assertEquals(expectedId, BuiltInRegistries.BLOCK.getKey(machine.block().get()), machine.id());
 
@@ -97,13 +97,13 @@ class ExtendedJdtMachineResourceTest {
 
     private static List<String> keyItems(JsonObject recipe) {
         return recipe.getAsJsonObject("key").entrySet().stream()
-                .map(entry -> entry.getValue().getAsJsonObject().get("item").getAsString())
+                .map(entry -> entry.getValue().getAsString())
                 .toList();
     }
 
     private static void assertIngredientUsed(JsonObject recipe, String itemId) {
         String symbol = recipe.getAsJsonObject("key").entrySet().stream()
-                .filter(entry -> itemId.equals(entry.getValue().getAsJsonObject().get("item").getAsString()))
+                .filter(entry -> itemId.equals(entry.getValue().getAsString()))
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Missing recipe key for " + itemId));

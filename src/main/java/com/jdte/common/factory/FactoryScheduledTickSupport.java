@@ -36,7 +36,7 @@ public final class FactoryScheduledTickSupport {
         int maxChunkZ = SectionPos.blockToSectionCoord(bounds.maxZ());
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                var container = containers.get(ChunkPos.asLong(chunkX, chunkZ));
+                var container = containers.get(ChunkPos.pack(chunkX, chunkZ));
                 if (container == null) continue;
                 container.getAll().filter(tick -> bounds.isInside(tick.pos())).forEach(tick -> {
                     var typeId = fluid

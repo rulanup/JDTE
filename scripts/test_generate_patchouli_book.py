@@ -272,7 +272,6 @@ class PatchouliBookGenerationTest(unittest.TestCase):
             "src/main/resources/data/jdte/patchouli_books/jdte_guide/book.json",
             relative_paths,
         )
-        self.assertEqual(93, len(relative_paths))
         for language in ("zh_cn", "en_us"):
             prefix = (
                 "src/main/resources/assets/jdte/patchouli_books/"
@@ -282,10 +281,12 @@ class PatchouliBookGenerationTest(unittest.TestCase):
                 6,
                 sum(path.startswith(f"{prefix}/categories/") for path in relative_paths),
             )
-            self.assertEqual(
-                40,
-                sum(path.startswith(f"{prefix}/entries/") for path in relative_paths),
-            )
+            guide_dir = self.root / "src/main/resources/assets/jdte/guides/jdte/guide"
+            if language == "en_us":
+                guide_dir = guide_dir / "_en_us"
+            expected = {f"{prefix}/entries/{page.stem}.json"
+                        for page in guide_dir.glob("*.md") if page.stem != "index"}
+            self.assertEqual(expected, {p for p in relative_paths if p.startswith(f"{prefix}/entries/")})
 
     def test_new_entries_use_expected_categories(self):
         expected_categories = {

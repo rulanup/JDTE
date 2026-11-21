@@ -10,9 +10,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemContainerContents;
 import org.junit.jupiter.api.Test;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import static com.jdte.test.TestItemHandlers.insertAt;
+import static com.jdte.test.TestItemHandlers.extractAt;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UpgradeStorageTest {
+class UpgradeStorageTest implements com.jdte.test.WorldRegistryTest {
 
     @Test
     void slotCountAndDimensionsAreExactlyTwentyAndFourByFive() {
@@ -22,7 +25,7 @@ class UpgradeStorageTest {
 
         ItemStack storage = new ItemStack(JDTEItems.UPGRADE_STORAGE.get());
         UpgradeStorageHandler handler = new UpgradeStorageHandler(storage);
-        assertEquals(20, handler.getSlots());
+        assertEquals(20, handler.size());
     }
 
     @Test
@@ -73,34 +76,34 @@ class UpgradeStorageTest {
         UpgradeStorageHandler handler = new UpgradeStorageHandler(storage);
 
         for (int i = 0; i < 20; i++) {
-            assertEquals(64, handler.getSlotLimit(i));
+            assertEquals(64, handler.getCapacityAsInt(i, ItemResource.EMPTY));
         }
 
         ItemStack card = new ItemStack(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get(), 1);
         assertEquals(1, card.getMaxStackSize(), "Energy overload upgrade ordinarily stacks to 1");
 
         // Insert 1 card
-        ItemStack remainder1 = handler.insertItem(0, card.copy(), false);
+        ItemStack remainder1 = insertAt(handler, 0, card.copy());
         assertTrue(remainder1.isEmpty());
-        assertEquals(1, handler.getStackInSlot(0).getCount());
+        assertEquals(1, handler.copyStack(0).getCount());
 
         // Insert another 63 cards into the same slot
         ItemStack stack63 = new ItemStack(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get(), 63);
-        ItemStack remainder2 = handler.insertItem(0, stack63, false);
+        ItemStack remainder2 = insertAt(handler, 0, stack63);
         assertTrue(remainder2.isEmpty());
-        assertEquals(64, handler.getStackInSlot(0).getCount());
+        assertEquals(64, handler.copyStack(0).getCount());
 
         // Inserting further into slot 0 should be rejected as slot limit is reached
         ItemStack extra = new ItemStack(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get(), 1);
-        ItemStack remainder3 = handler.insertItem(0, extra, false);
+        ItemStack remainder3 = insertAt(handler, 0, extra);
         assertEquals(1, remainder3.getCount());
-        assertEquals(64, handler.getStackInSlot(0).getCount());
+        assertEquals(64, handler.copyStack(0).getCount());
 
         // Non-upgrades cannot be inserted
         ItemStack dirt = new ItemStack(Items.DIRT, 10);
-        ItemStack dirtRemainder = handler.insertItem(1, dirt, false);
+        ItemStack dirtRemainder = insertAt(handler, 1, dirt);
         assertEquals(10, dirtRemainder.getCount());
-        assertTrue(handler.getStackInSlot(1).isEmpty());
+        assertTrue(handler.copyStack(1).isEmpty());
     }
 
     @Test
@@ -108,30 +111,30 @@ class UpgradeStorageTest {
         ItemStack storage = new ItemStack(JDTEItems.UPGRADE_STORAGE.get());
         UpgradeStorageHandler handler = new UpgradeStorageHandler(storage);
 
-        handler.insertItem(0, new ItemStack(JDTEItems.CAPACITY_UPGRADE.get(), 64), false);
-        handler.insertItem(1, new ItemStack(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get(), 16), false);
-        handler.insertItem(19, new ItemStack(JDTEItems.EXTENDED_UPGRADE.get(), 32), false);
+        insertAt(handler, 0, new ItemStack(JDTEItems.CAPACITY_UPGRADE.get(), 64));
+        insertAt(handler, 1, new ItemStack(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get(), 16));
+        insertAt(handler, 19, new ItemStack(JDTEItems.EXTENDED_UPGRADE.get(), 32));
 
         // Verify the parent itemstack now holds the component
         ItemContainerContents contents = storage.get(JDTEDataComponents.UPGRADE_STORAGE_CONTENTS.get());
         assertNotNull(contents);
-        assertEquals(JDTEItems.CAPACITY_UPGRADE.get(), contents.getStackInSlot(0).getItem());
-        assertEquals(64, contents.getStackInSlot(0).getCount());
-        assertEquals(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get(), contents.getStackInSlot(1).getItem());
-        assertEquals(16, contents.getStackInSlot(1).getCount());
-        assertEquals(JDTEItems.EXTENDED_UPGRADE.get(), contents.getStackInSlot(19).getItem());
-        assertEquals(32, contents.getStackInSlot(19).getCount());
+        assertEquals(JDTEItems.CAPACITY_UPGRADE.get(), com.jdte.common.containers.handlers.BatchComponentItemHandler.readSlot(contents, 0).getItem());
+        assertEquals(64, com.jdte.common.containers.handlers.BatchComponentItemHandler.readSlot(contents, 0).getCount());
+        assertEquals(JDTEItems.ENERGY_OVERLOAD_UPGRADE.get(), com.jdte.common.containers.handlers.BatchComponentItemHandler.readSlot(contents, 1).getItem());
+        assertEquals(16, com.jdte.common.containers.handlers.BatchComponentItemHandler.readSlot(contents, 1).getCount());
+        assertEquals(JDTEItems.EXTENDED_UPGRADE.get(), com.jdte.common.containers.handlers.BatchComponentItemHandler.readSlot(contents, 19).getItem());
+        assertEquals(32, com.jdte.common.containers.handlers.BatchComponentItemHandler.readSlot(contents, 19).getCount());
 
         // Restoring in a new handler instance from the same stack
         UpgradeStorageHandler restoredHandler = new UpgradeStorageHandler(storage);
-        assertEquals(64, restoredHandler.getStackInSlot(0).getCount());
-        assertEquals(16, restoredHandler.getStackInSlot(1).getCount());
-        assertEquals(32, restoredHandler.getStackInSlot(19).getCount());
+        assertEquals(64, restoredHandler.copyStack(0).getCount());
+        assertEquals(16, restoredHandler.copyStack(1).getCount());
+        assertEquals(32, restoredHandler.copyStack(19).getCount());
 
         // Extracting items from slot 0
-        ItemStack extracted = restoredHandler.extractItem(0, 20, false);
+        ItemStack extracted = extractAt(restoredHandler, 0, 20);
         assertEquals(20, extracted.getCount());
-        assertEquals(44, restoredHandler.getStackInSlot(0).getCount());
+        assertEquals(44, restoredHandler.copyStack(0).getCount());
     }
 
     @Test

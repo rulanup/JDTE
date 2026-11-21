@@ -1,40 +1,27 @@
 package com.jdte.mixin;
 
 import com.jdte.common.entities.MachineLightningEffects;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
+import com.jdte.setup.JDTEAttachments;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LightningBolt.class)
 public abstract class LightningBoltEffectsMixin implements MachineLightningEffects {
-    @Unique
-    private static final EntityDataAccessor<Boolean> jdte$RENDER_LIGHTNING =
-            SynchedEntityData.defineId(LightningBolt.class, EntityDataSerializers.BOOLEAN);
-
-    @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void jdte$defineLightningEffects(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(jdte$RENDER_LIGHTNING, true);
-    }
-
     @Override
     public boolean jdte$isLightningRenderEnabled() {
-        return ((LightningBolt) (Object) this).getEntityData().get(jdte$RENDER_LIGHTNING);
+        return ((LightningBolt) (Object) this).getExistingDataOrNull(JDTEAttachments.LIGHTNING_RENDER_ENABLED) != Boolean.FALSE;
     }
 
     @Override
     public void jdte$setLightningRenderEnabled(boolean enabled) {
-        ((LightningBolt) (Object) this).getEntityData().set(jdte$RENDER_LIGHTNING, enabled);
+        ((LightningBolt) (Object) this).setData(JDTEAttachments.LIGHTNING_RENDER_ENABLED, enabled);
     }
 
     @Inject(method = "shouldRenderAtSqrDistance", at = @At("HEAD"), cancellable = true)

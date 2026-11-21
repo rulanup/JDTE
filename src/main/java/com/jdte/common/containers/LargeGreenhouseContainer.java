@@ -1,6 +1,5 @@
 package com.jdte.common.containers;
 
-import com.direwolf20.justdirethings.common.containers.basecontainers.BaseMachineContainer;
 import com.jdte.common.utils.ContainerDataEncoding;
 import com.jdte.common.utils.GuiUpgradeLayoutConfig;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
@@ -15,11 +14,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
-public class LargeGreenhouseContainer extends BaseMachineContainer implements FilterPageHolder {
+public class LargeGreenhouseContainer extends PagedMachineContainer implements FilterPageHolder {
     private int outputPage;
 
     public LargeGreenhouseContainer(int id, Inventory inventory, FriendlyByteBuf data) {
@@ -35,7 +33,7 @@ public class LargeGreenhouseContainer extends BaseMachineContainer implements Fi
     @Override
     public void addMachineSlots() {
         LargeGreenhouseBE greenhouse = (LargeGreenhouseBE) baseMachineBE;
-        IItemHandler menuHandler = greenhouse.getMenuItemHandler();
+        ItemStacksResourceHandler menuHandler = greenhouse.getMenuItemHandler();
         var layout = GuiUpgradeLayoutConfig.getInstance();
         int seedSlots = getSeedSlotsPerPage();
         int seedColumns = 3;
@@ -170,84 +168,39 @@ public class LargeGreenhouseContainer extends BaseMachineContainer implements Fi
         return moved;
     }
 
-    private static final class SeedSlot extends SlotItemHandler {
+    private static final class SeedSlot extends PagedMachineSlot {
         private final LargeGreenhouseContainer container;
         private final int pageSlot;
 
-        private SeedSlot(IItemHandler handler, int pageSlot, int x, int y, LargeGreenhouseContainer container) {
+        private SeedSlot(ItemStacksResourceHandler handler, int pageSlot, int x, int y, LargeGreenhouseContainer container) {
             super(handler, pageSlot, x, y);
             this.container = container;
             this.pageSlot = pageSlot;
         }
 
         @Override public int getSlotIndex() { return container.getSeedHandlerIndex(pageSlot); }
-        @Override public ItemStack getItem() {
-            return isActiveSlot() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY;
-        }
-        @Override public boolean hasItem() { return !getItem().isEmpty(); }
-        @Override public void set(ItemStack stack) {
-            if (!isActiveSlot()) return;
-            ((IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
-            setChanged();
-        }
-        @Override public void initialize(ItemStack stack) { set(stack); }
-        @Override public ItemStack remove(int amount) {
-            return isActiveSlot() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY;
-        }
-        @Override public int getMaxStackSize() {
-            return isActiveSlot() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
-        }
-        @Override public int getMaxStackSize(ItemStack stack) {
-            return isActiveSlot()
-                    ? Math.min(stack.getMaxStackSize(), getItemHandler().getSlotLimit(getSlotIndex()))
-                    : 0;
-        }
-        @Override public boolean mayPickup(Player player) {
-            return isActiveSlot() && !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty();
-        }
-        @Override public boolean mayPlace(ItemStack stack) {
-            return isActiveSlot() && getItemHandler().isItemValid(getSlotIndex(), stack);
-        }
-        private boolean isActiveSlot() {
+        @Override protected boolean isActiveSlot() {
             return getSlotIndex() < LargeGreenhouseBE.INPUT_SLOTS
-                    && getSlotIndex() < getItemHandler().getSlots();
+                    && getSlotIndex() < getResourceHandler().size();
         }
     }
 
-    private static final class OutputSlot extends SlotItemHandler {
+    private static final class OutputSlot extends PagedMachineSlot {
         private final LargeGreenhouseContainer container;
         private final int pageSlot;
 
-        private OutputSlot(IItemHandler handler, int pageSlot, int x, int y, LargeGreenhouseContainer container) {
+        private OutputSlot(ItemStacksResourceHandler handler, int pageSlot, int x, int y, LargeGreenhouseContainer container) {
             super(handler, LargeGreenhouseBE.OUTPUT_START_SLOT + pageSlot, x, y);
             this.container = container;
             this.pageSlot = pageSlot;
         }
 
         @Override public int getSlotIndex() { return container.getOutputHandlerIndex(pageSlot); }
-        @Override public ItemStack getItem() { return isActiveSlot() ? getItemHandler().getStackInSlot(getSlotIndex()) : ItemStack.EMPTY; }
-        @Override public boolean hasItem() { return !getItem().isEmpty(); }
-        @Override public void set(ItemStack stack) {
-            if (!isActiveSlot()) return;
-            ((IItemHandlerModifiable) getItemHandler()).setStackInSlot(getSlotIndex(), stack);
-            setChanged();
-        }
-        @Override public void initialize(ItemStack stack) { set(stack); }
-        @Override public ItemStack remove(int amount) {
-            return isActiveSlot() ? getItemHandler().extractItem(getSlotIndex(), amount, false) : ItemStack.EMPTY;
-        }
-        @Override public int getMaxStackSize() { return isActiveSlot() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0; }
-        @Override public int getMaxStackSize(ItemStack stack) {
-            return isActiveSlot() ? getItemHandler().getSlotLimit(getSlotIndex()) : 0;
-        }
-        @Override public boolean mayPickup(Player player) {
-            return isActiveSlot() && !getItemHandler().extractItem(getSlotIndex(), 1, true).isEmpty();
-        }
         @Override public boolean mayPlace(ItemStack stack) { return false; }
-        private boolean isActiveSlot() {
+        @Override protected boolean isActiveSlot() {
             int localOutput = container.getOutputPage() * container.getOutputSlotsPerPage() + pageSlot;
             return localOutput < container.getActiveOutputSlots()
-                    && getSlotIndex() < getItemHandler().getSlots();
+                    && getSlotIndex() < getResourceHandler().size();
         }
     }
 }

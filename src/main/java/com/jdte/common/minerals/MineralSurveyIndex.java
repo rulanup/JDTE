@@ -4,7 +4,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -23,12 +23,12 @@ public final class MineralSurveyIndex {
     }
 
     public static synchronized void rebuild(MinecraftServer server) {
-        Registry<Biome> biomes = server.registryAccess().registryOrThrow(Registries.BIOME);
+        Registry<Biome> biomes = server.registryAccess().lookupOrThrow(Registries.BIOME);
         try {
-            var modifierRegistry = server.registryAccess().registry(NeoForgeRegistries.Keys.BIOME_MODIFIERS);
+            var modifierRegistry = server.registryAccess().lookup(NeoForgeRegistries.Keys.BIOME_MODIFIERS);
             if (modifierRegistry.isPresent()) {
-                List<BiomeModifier> modifiers = modifierRegistry.get().holders().map(Holder::value).toList();
-                for (Holder.Reference<Biome> biomeHolder : biomes.holders().toList()) {
+                List<BiomeModifier> modifiers = modifierRegistry.get().listElements().map(Holder::value).toList();
+                for (Holder.Reference<Biome> biomeHolder : biomes.listElements().toList()) {
                     try {
                         biomeHolder.value().modifiableBiomeInfo()
                                 .applyBiomeModifiers(biomeHolder, modifiers, server.registryAccess());
@@ -38,12 +38,12 @@ public final class MineralSurveyIndex {
             }
         } catch (Throwable ignored) {
         }
-        Map<ResourceLocation, List<MineralEntry>> profiles = new java.util.LinkedHashMap<>();
+        Map<Identifier, List<MineralEntry>> profiles = new java.util.LinkedHashMap<>();
         for (Map.Entry<ResourceKey<Biome>, Biome> entry : biomes.entrySet()) {
-            Holder<Biome> holder = biomes.getHolder(entry.getKey())
+            Holder<Biome> holder = biomes.get(entry.getKey())
                     .map(h -> (Holder<Biome>) h)
                     .orElseGet(() -> biomes.wrapAsHolder(entry.getValue()));
-            ResourceLocation biomeId = entry.getKey().location();
+            Identifier biomeId = entry.getKey().identifier();
             List<MineralEntry> minerals = new java.util.ArrayList<>(
                     MineralFeatureAnalyzer.analyze(holder, DEFAULT_MAX_ENTRIES, server.registryAccess()));
             for (MineralSourceOverride override : MineralSourceReloadListener.overrides()) {
@@ -58,22 +58,22 @@ public final class MineralSurveyIndex {
                     .toList();
             if (!minerals.isEmpty()) profiles.put(biomeId, minerals);
         }
-        Map<ResourceLocation, List<MineralEntry>> immutableProfiles = Map.copyOf(profiles);
-        Map<ResourceLocation, ResourceLocation> biomeDimensions = new java.util.HashMap<>();
+        Map<Identifier, List<MineralEntry>> immutableProfiles = Map.copyOf(profiles);
+        Map<Identifier, Identifier> biomeDimensions = new java.util.HashMap<>();
         try {
             for (ServerLevel level : server.getAllLevels()) {
-                ResourceLocation dimId = level.dimension().location();
+                Identifier dimId = level.dimension().identifier();
                 for (Holder<Biome> b : level.getChunkSource().getGenerator().getBiomeSource().possibleBiomes()) {
-                    b.unwrapKey().ifPresent(key -> biomeDimensions.putIfAbsent(key.location(), dimId));
+                    b.unwrapKey().ifPresent(key -> biomeDimensions.putIfAbsent(key.identifier(), dimId));
                 }
             }
         } catch (Throwable ignored) {
         }
         long version = fingerprint(immutableProfiles);
-        Map<ResourceLocation, MineralSurveyData> surveys = new java.util.LinkedHashMap<>();
-        for (Map.Entry<ResourceLocation, List<MineralEntry>> p : immutableProfiles.entrySet()) {
-            ResourceLocation biomeId = p.getKey();
-            ResourceLocation dimId = biomeDimensions.getOrDefault(biomeId, ResourceLocation.withDefaultNamespace("overworld"));
+        Map<Identifier, MineralSurveyData> surveys = new java.util.LinkedHashMap<>();
+        for (Map.Entry<Identifier, List<MineralEntry>> p : immutableProfiles.entrySet()) {
+            Identifier biomeId = p.getKey();
+            Identifier dimId = biomeDimensions.getOrDefault(biomeId, Identifier.withDefaultNamespace("overworld"));
             surveys.put(biomeId, MineralSurveyData.create(version, biomeId, dimId, p.getValue()));
         }
         SERVERS.put(server, new Snapshot(immutableProfiles, Map.copyOf(surveys), version));
@@ -81,7 +81,7 @@ public final class MineralSurveyIndex {
 
     public static synchronized Profile profile(ServerLevel level, Holder<Biome> biome) {
         Snapshot snapshot = snapshot(level.getServer());
-        ResourceLocation biomeId = biome.unwrapKey().map(ResourceKey::location).orElse(null);
+        Identifier biomeId = biome.unwrapKey().map(ResourceKey::identifier).orElse(null);
         List<MineralEntry> entries = biomeId == null
                 ? List.of()
                 : snapshot.profiles().getOrDefault(biomeId, List.of());
@@ -96,7 +96,7 @@ public final class MineralSurveyIndex {
         return List.copyOf(snapshot(server).surveys().values());
     }
 
-    public static synchronized Map<ResourceLocation, List<MineralEntry>> profiles(MinecraftServer server) {
+    public static synchronized Map<Identifier, List<MineralEntry>> profiles(MinecraftServer server) {
         return snapshot(server).profiles();
     }
 
@@ -118,7 +118,7 @@ public final class MineralSurveyIndex {
     }
 
     private static void merge(List<MineralEntry> target, List<MineralEntry> additions) {
-        Map<ResourceLocation, MineralEntry> merged = new java.util.LinkedHashMap<>();
+        Map<Identifier, MineralEntry> merged = new java.util.LinkedHashMap<>();
         for (MineralEntry entry : target) merged.put(entry.oreId(), entry);
         for (MineralEntry entry : additions) {
             merged.merge(entry.oreId(), entry, (left, right) -> new MineralEntry(
@@ -130,12 +130,12 @@ public final class MineralSurveyIndex {
         target.addAll(merged.values());
     }
 
-    private static long fingerprint(Map<ResourceLocation, List<MineralEntry>> profiles) {
+    private static long fingerprint(Map<Identifier, List<MineralEntry>> profiles) {
         long hash = 0xcbf29ce484222325L;
-        List<Map.Entry<ResourceLocation, List<MineralEntry>>> sortedProfiles = profiles.entrySet().stream()
+        List<Map.Entry<Identifier, List<MineralEntry>>> sortedProfiles = profiles.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .toList();
-        for (Map.Entry<ResourceLocation, List<MineralEntry>> profile : sortedProfiles) {
+        for (Map.Entry<Identifier, List<MineralEntry>> profile : sortedProfiles) {
             hash = mix(hash, profile.getKey().toString());
             for (MineralEntry entry : profile.getValue()) {
                 hash = mix(hash, entry.oreId().toString());
@@ -173,8 +173,8 @@ public final class MineralSurveyIndex {
     }
 
     private record Snapshot(
-            Map<ResourceLocation, List<MineralEntry>> profiles,
-            Map<ResourceLocation, MineralSurveyData> surveys,
+            Map<Identifier, List<MineralEntry>> profiles,
+            Map<Identifier, MineralSurveyData> surveys,
             long version) {
     }
 }

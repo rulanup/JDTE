@@ -6,15 +6,9 @@
     "CUC"
   ],
   "key": {
-    "C": {
-      "item": "justdirethings:celestigem"
-    },
-    "U": {
-      "item": "jdte:capacity_upgrade"
-    },
-    "D": {
-      "item": "minecraft:diamond_block"
-    }
+    "C": "justdirethings:celestigem",
+    "U": "jdte:capacity_upgrade",
+    "D": "minecraft:diamond_block"
   },
   "result": {
     "count": 1,

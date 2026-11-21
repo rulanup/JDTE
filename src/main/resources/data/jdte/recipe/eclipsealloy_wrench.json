@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "justdirethings",
   "key": {
-    "i": {
-      "item": "justdirethings:eclipsealloy_ingot"
-    }
+    "i": "justdirethings:eclipsealloy_ingot"
   },
   "pattern": [
     " i ",

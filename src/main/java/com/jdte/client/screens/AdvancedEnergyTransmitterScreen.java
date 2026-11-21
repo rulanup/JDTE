@@ -11,14 +11,14 @@ import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySource;
 import com.jdte.common.network.data.AdvancedEnergyTransmitterPayload;
 import com.jdte.common.network.data.AdvancedEnergyTransmitterBindingPayload;
 import com.jdte.common.upgrades.UpgradeHelper;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class AdvancedEnergyTransmitterScreen extends BaseMachineScreen<AdvancedEnergyTransmitterContainer> {
-    private static final ResourceLocation BIND_PLAYER_ICON = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier BIND_PLAYER_ICON = Identifier.fromNamespaceAndPath(
             "justdirethings", "textures/gui/buttons/player.png");
 
     private boolean showParticles;
@@ -57,7 +57,7 @@ public class AdvancedEnergyTransmitterScreen extends BaseMachineScreen<AdvancedE
                 Component.translatable("jdte.screen.energy_transmitter.bind_player"),
                 boundButtonState, button -> {
                     if (baseMachineBE instanceof AdvancedEnergyTransmitterBE transmitter) {
-                        PacketDistributor.sendToServer(new AdvancedEnergyTransmitterBindingPayload(
+                        ClientPacketDistributor.sendToServer(new AdvancedEnergyTransmitterBindingPayload(
                                 transmitter.getBlockPos()));
                     }
                 });
@@ -127,8 +127,8 @@ public class AdvancedEnergyTransmitterScreen extends BaseMachineScreen<AdvancedE
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
         AdvancedEnergyTransmitterEnergySource.Status status = menu.getEnergyNetworkStatus();
         String translation = switch (status) {
             case ONLINE -> "jdte.screen.energy_transmitter.me_online_direct";
@@ -161,20 +161,20 @@ public class AdvancedEnergyTransmitterScreen extends BaseMachineScreen<AdvancedE
         renderScaledCenteredText(graphics, playerText, centerX, topSectionTop + 51, playerColor);
     }
 
-    private void renderScaledCenteredText(GuiGraphics graphics, Component text, int centerX, int y, int color) {
+    private void renderScaledCenteredText(GuiGraphicsExtractor graphics, Component text, int centerX, int y, int color) {
         float scale = 7.0F / 9.0F;
-        graphics.pose().pushPose();
-        graphics.pose().translate(centerX, y, 0.0F);
-        graphics.pose().scale(scale, scale, 1.0F);
-        graphics.drawCenteredString(font, text, 0, 0, color);
-        graphics.pose().popPose();
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(centerX, y);
+        graphics.pose().scale(scale, scale);
+        graphics.centeredText(font, text, 0, 0, color);
+        graphics.pose().popMatrix();
     }
 
     @Override
     public void saveSettings() {
         super.saveSettings();
         if (baseMachineBE instanceof AdvancedEnergyTransmitterBE transmitter) {
-            PacketDistributor.sendToServer(new AdvancedEnergyTransmitterPayload(
+            ClientPacketDistributor.sendToServer(new AdvancedEnergyTransmitterPayload(
                     transmitter.getBlockPos(), showParticles));
         }
     }

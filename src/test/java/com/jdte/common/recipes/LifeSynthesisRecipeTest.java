@@ -3,7 +3,8 @@ package com.jdte.common.recipes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
+import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LifeSynthesisRecipeTest {
+class LifeSynthesisRecipeTest implements com.jdte.test.WorldRegistryTest {
 
     private static LifeSynthesisRecipe recipe(LifeSynthesisRecipe.InputSlot... inputs) {
-        return new LifeSynthesisRecipe(List.of(inputs), List.of(), FluidStack.EMPTY, 100, 10, "plant");
+        return new LifeSynthesisRecipe(List.of(inputs), List.of(), new FluidStackTemplate(Fluids.WATER, 1), 100, 10, "plant");
     }
 
     private static LifeSynthesisRecipe.InputSlot diamondSlot(int count) {

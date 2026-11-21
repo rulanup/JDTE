@@ -10,6 +10,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -29,8 +31,10 @@ public class JDTEFluids {
             "life_fluid_flowing", LifeFluid.Flowing::new);
     public static final DeferredHolder<Fluid, FlowingFluid> LIFE_FLUID_SOURCE = FLUIDS.register(
             "life_fluid_source", LifeFluid.Source::new);
-    public static final DeferredHolder<Block, LiquidBlock> LIFE_FLUID_BLOCK = FLUID_BLOCKS.register(
-            "life_fluid_block", LifeFluidBlock::new);
-    public static final DeferredHolder<Item, BucketItem> LIFE_FLUID_BUCKET = BUCKET_ITEMS.register(
-            "life_fluid_bucket", () -> new BucketItem(LIFE_FLUID_SOURCE.get(), new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
+    public static final DeferredHolder<Block, LiquidBlock> LIFE_FLUID_BLOCK = FLUID_BLOCKS.registerBlock(
+            "life_fluid_block", LifeFluidBlock::new, () -> BlockBehaviour.Properties.of()
+                    .noCollision().strength(100.0F).noLootTable().liquid().pushReaction(PushReaction.DESTROY).replaceable());
+    public static final DeferredHolder<Item, BucketItem> LIFE_FLUID_BUCKET = BUCKET_ITEMS.registerItem(
+            "life_fluid_bucket", properties -> new BucketItem(LIFE_FLUID_SOURCE.get(), properties),
+            () -> new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1));
 }

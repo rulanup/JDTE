@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class GreenhouseCropResolverTest {
+class GreenhouseCropResolverTest implements com.jdte.test.WorldRegistryTest {
 
     @Test
     void genericFallbackResolvesOrdinaryCropWithoutLevel() {

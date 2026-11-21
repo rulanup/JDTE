@@ -6,7 +6,7 @@ import com.jdte.setup.JDTEBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -36,11 +36,11 @@ public record PotionBrewerJeiRecipe(
         ItemStack outputStack,
         int energyCost
 ) {
-    public ResourceLocation id() {
+    public Identifier id() {
         String key = stackKey(inputStack) + '|' + ingredientStacks.stream()
                 .map(step -> step.stream().map(PotionBrewerJeiRecipe::stackKey).toList().toString())
                 .toList() + '|' + fluidStack + '|' + stackKey(outputStack);
-        return ResourceLocation.fromNamespaceAndPath("jdte", "jei/potion_brewer/" + Integer.toUnsignedString(key.hashCode(), 16));
+        return Identifier.fromNamespaceAndPath("jdte", "jei/potion_brewer/" + Integer.toUnsignedString(key.hashCode(), 16));
     }
     private static final int BOTTLE_COUNT = AdvancedPotionBrewerBE.OUTPUT_SLOT_COUNT;
     private static final int MAX_INGREDIENT_STEPS = 1 + AdvancedPotionBrewerBE.EXTRA_INGREDIENT_SLOT_COUNT;
@@ -131,8 +131,8 @@ public record PotionBrewerJeiRecipe(
             if (!(recipe instanceof BrewingRecipe simpleRecipe)) {
                 continue;
             }
-            for (ItemStack input : simpleRecipe.getInput().getItems()) {
-                for (ItemStack ingredient : simpleRecipe.getIngredient().getItems()) {
+            for (ItemStack input : simpleRecipe.getInput().items().map(ItemStack::new).toList()) {
+                for (ItemStack ingredient : simpleRecipe.getIngredient().items().map(ItemStack::new).toList()) {
                     addTransition(transitions, input, ingredient, simpleRecipe.getOutput());
                 }
             }
@@ -221,8 +221,8 @@ public record PotionBrewerJeiRecipe(
     }
 
     private static List<Holder.Reference<Potion>> sortedPotions() {
-        return BuiltInRegistries.POTION.holders()
-                .sorted(Comparator.comparing(holder -> holder.key().location().toString()))
+        return BuiltInRegistries.POTION.listElements()
+                .sorted(Comparator.comparing(holder -> holder.key().identifier().toString()))
                 .toList();
     }
 

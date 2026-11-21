@@ -5,7 +5,7 @@ import com.jdte.common.autoioconfig.AutoIoConfigData;
 import com.jdte.common.autoioconfig.AutoIoConfigHelper;
 import com.jdte.common.network.data.AutoIoConfigPayload;
 import net.minecraft.core.BlockPos;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ public final class AutoIoConfigClientCache {
         if (machine == null) {
             return;
         }
-        PacketDistributor.sendToServer(new AutoIoConfigPayload(machine.getBlockPos(),
+        ClientPacketDistributor.sendToServer(new AutoIoConfigPayload(machine.getBlockPos(),
                 AutoIoConfigData.DEFAULT_SIDE_MASK, AutoIoConfigData.DEFAULT_SIDE_MASK, true));
     }
 
@@ -48,7 +48,7 @@ public final class AutoIoConfigClientCache {
         }
         AutoIoConfigHelper.IoMasks masks = new AutoIoConfigHelper.IoMasks(inputMask, outputMask);
         setMasks(machine.getBlockPos(), masks.inputMask(), masks.outputMask());
-        PacketDistributor.sendToServer(new AutoIoConfigPayload(
+        ClientPacketDistributor.sendToServer(new AutoIoConfigPayload(
                 machine.getBlockPos(), masks.inputMask(), masks.outputMask(), false));
     }
 

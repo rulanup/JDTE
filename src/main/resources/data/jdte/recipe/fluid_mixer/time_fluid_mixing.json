@@ -5,9 +5,7 @@
     "amount": 1000
   },
   "item_input": {
-    "ingredient": {
-      "item": "jdte:time_fluid_catalyst"
-    },
+    "ingredient": "jdte:time_fluid_catalyst",
     "count": 1
   },
   "output": {

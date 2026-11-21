@@ -1,6 +1,6 @@
 package com.jdte.common.recipes;
 
-import com.direwolf20.justdirethings.setup.Registration;
+import com.direwolf20.justdirethings.setup.JDTRegistration;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -8,7 +8,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,13 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MineralExtractorResourcesRecipeTest {
-    private static final MineralExtractorResourcesRecipe.Serializer SERIALIZER =
-            new MineralExtractorResourcesRecipe.Serializer();
+    private static final net.minecraft.world.item.crafting.RecipeSerializer<MineralExtractorResourcesRecipe> SERIALIZER =
+            MineralExtractorResourcesRecipe.Serializer.create();
 
     @Test
     void decodesRegisteredModdedSourceFluids() {
-        ResourceLocation fortune = BuiltInRegistries.FLUID.getKey(Registration.XP_FLUID_SOURCE.get());
-        ResourceLocation acceleration = BuiltInRegistries.FLUID.getKey(Registration.TIME_FLUID_SOURCE.get());
+        Identifier fortune = BuiltInRegistries.FLUID.getKey(JDTRegistration.XP_FLUID_SOURCE.get());
+        Identifier acceleration = BuiltInRegistries.FLUID.getKey(JDTRegistration.TIME_FLUID_SOURCE.get());
 
         MineralExtractorResourcesRecipe recipe = decode(fortune, acceleration).getOrThrow();
 
@@ -32,27 +32,27 @@ class MineralExtractorResourcesRecipeTest {
 
     @Test
     void rejectsUnknownFluidDuringMapDecode() {
-        assertDecodeError(ResourceLocation.fromNamespaceAndPath("jdte", "missing_test_fluid"),
-                ResourceLocation.withDefaultNamespace("water"), "Unknown");
+        assertDecodeError(Identifier.fromNamespaceAndPath("jdte", "missing_test_fluid"),
+                Identifier.withDefaultNamespace("water"), "Unknown");
     }
 
     @Test
     void rejectsEmptyFluidDuringMapDecode() {
-        assertDecodeError(ResourceLocation.withDefaultNamespace("empty"),
-                ResourceLocation.withDefaultNamespace("water"), "cannot be empty");
+        assertDecodeError(Identifier.withDefaultNamespace("empty"),
+                Identifier.withDefaultNamespace("water"), "cannot be empty");
     }
 
     @Test
     void rejectsFlowingFluidDuringMapDecode() {
-        assertDecodeError(ResourceLocation.withDefaultNamespace("flowing_water"),
-                ResourceLocation.withDefaultNamespace("lava"), "source fluid");
+        assertDecodeError(Identifier.withDefaultNamespace("flowing_water"),
+                Identifier.withDefaultNamespace("lava"), "source fluid");
     }
 
     @Test
     void networkRoundTripPreservesValidSourceFluids() {
         MineralExtractorResourcesRecipe original = new MineralExtractorResourcesRecipe(
-                ResourceLocation.withDefaultNamespace("lava"),
-                ResourceLocation.withDefaultNamespace("water"));
+                Identifier.withDefaultNamespace("lava"),
+                Identifier.withDefaultNamespace("water"));
         RegistryFriendlyByteBuf buffer = buffer();
         try {
             SERIALIZER.streamCodec().encode(buffer, original);
@@ -69,8 +69,8 @@ class MineralExtractorResourcesRecipeTest {
     void networkDecodeRejectsFluidThatMapDecodeRejects() {
         RegistryFriendlyByteBuf buffer = buffer();
         try {
-            ResourceLocation.STREAM_CODEC.encode(buffer, ResourceLocation.withDefaultNamespace("flowing_water"));
-            ResourceLocation.STREAM_CODEC.encode(buffer, ResourceLocation.withDefaultNamespace("water"));
+            Identifier.STREAM_CODEC.encode(buffer, Identifier.withDefaultNamespace("flowing_water"));
+            Identifier.STREAM_CODEC.encode(buffer, Identifier.withDefaultNamespace("water"));
 
             assertThrows(IllegalStateException.class, () -> SERIALIZER.streamCodec().decode(buffer));
         } finally {
@@ -81,14 +81,14 @@ class MineralExtractorResourcesRecipeTest {
     @Test
     void rejectsMatchingFortuneAndAccelerationFluids() {
         DataResult<MineralExtractorResourcesRecipe> result = decode(
-                ResourceLocation.withDefaultNamespace("water"),
-                ResourceLocation.withDefaultNamespace("water"));
+                Identifier.withDefaultNamespace("water"),
+                Identifier.withDefaultNamespace("water"));
 
         assertTrue(result.error().isPresent());
         assertTrue(result.error().orElseThrow().message().contains("must differ"));
     }
 
-    private static void assertDecodeError(ResourceLocation fortune, ResourceLocation acceleration,
+    private static void assertDecodeError(Identifier fortune, Identifier acceleration,
                                           String expectedMessage) {
         DataResult<MineralExtractorResourcesRecipe> result = decode(fortune, acceleration);
 
@@ -98,8 +98,8 @@ class MineralExtractorResourcesRecipeTest {
                         + result.error().orElseThrow().message());
     }
 
-    private static DataResult<MineralExtractorResourcesRecipe> decode(ResourceLocation fortune,
-                                                                       ResourceLocation acceleration) {
+    private static DataResult<MineralExtractorResourcesRecipe> decode(Identifier fortune,
+                                                                       Identifier acceleration) {
         return SERIALIZER.codec().codec().parse(JsonOps.INSTANCE, JsonParser.parseString("""
                 {
                   "fortune_fluid": "%s",
