@@ -23,6 +23,18 @@ public final class MachineFamilyGameTests {
      */
     @GameTest(template = "mineral_empty")
     public static void advancedGelGeneratorConvertsARealGooSpreadRecipe(GameTestHelper h) {
+        assertGelConversion(h, JDTEBlocks.ADVANCED_GEL_GENERATOR.get(), new BlockPos(2, 1, 2));
+    }
+
+    /** The extended tier is the same block entity with eight upgrade slots. */
+    @GameTest(template = "mineral_empty")
+    public static void extendedGelGeneratorConvertsARealGooSpreadRecipe(GameTestHelper h) {
+        assertGelConversion(h, JDTEBlocks.EXTENDED_GEL_GENERATOR.get(), new BlockPos(4, 1, 2));
+        h.succeed();
+    }
+
+    private static void assertGelConversion(GameTestHelper h, net.minecraft.world.level.block.Block block,
+                                            BlockPos relativePos) {
         var recipes = h.getLevel().getRecipeManager()
                 .getAllRecipesFor(Registration.GOO_SPREAD_RECIPE_TYPE.get());
         h.assertTrue(!recipes.isEmpty(), "JDT ships at least one goo spread recipe");
@@ -34,8 +46,8 @@ public final class MachineFamilyGameTests {
         ItemStack expected = GelGeneratorBE.getOutputItemForState(recipe.getOutput());
         h.assertTrue(!expected.isEmpty(), "the chosen recipe maps to a known output item");
 
-        h.setBlock(new BlockPos(2, 1, 2), JDTEBlocks.ADVANCED_GEL_GENERATOR.get());
-        GelGeneratorBE generator = (GelGeneratorBE) h.getBlockEntity(new BlockPos(2, 1, 2));
+        h.setBlock(relativePos, block);
+        GelGeneratorBE generator = (GelGeneratorBE) h.getBlockEntity(relativePos);
 
         boolean creative = false;
         var upgrades = UpgradeHelper.getUpgradeHandler(generator);
@@ -69,6 +81,5 @@ public final class MachineFamilyGameTests {
         }
         h.assertTrue(produced, "the generator converted " + recipe.getInput().getBlock()
                 + " into " + expected.getItem());
-        h.succeed();
     }
 }
