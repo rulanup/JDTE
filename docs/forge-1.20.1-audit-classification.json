@@ -35,8 +35,8 @@
     {
       "id": "fluid_storage_upgrade",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Verified 2026-11-21 by ItemBehaviourGameTests.fluidStorageUpgradeLetsTheClickerFillItemsFromItsTank: without the card the clicker leaves its tank untouched when a held bucket could be filled, and once the card is installed in a valid upgrade slot hasFluidStorageUpgrade turns true and the same call tops the bucket up from the tank. The card gates that fill path rather than raising the base 8000 mB capacity."
     },
     {
       "id": "generator_upgrade",
