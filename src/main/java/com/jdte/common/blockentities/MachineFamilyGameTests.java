@@ -9,7 +9,7 @@ import com.direwolf20.justdirethings.common.blocks.gooblocks.GooBlock_Base;
 import com.direwolf20.justdirethings.datagen.JustDireItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Ingredient;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.Item;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
