@@ -117,6 +117,11 @@ public final class MachineFamilyGameTests {
         machine.getItemHandler().setStackInSlot(GlueActivatorBE.REVIVE_SLOT, revive);
 
         h.assertTrue(!h.getBlockState(gooPos).getValue(GooBlock_Base.ALIVE), "the goo starts dead");
+        var gooEntity = h.getBlockEntity(gooPos);
+        h.assertTrue(gooEntity instanceof com.direwolf20.justdirethings.common.blockentities.basebe.GooBlockBE_Base,
+                "the placed goo carries a goo block entity, actual=" + gooEntity);
+        h.assertTrue(machine.isValidRevivalItem(revive),
+                "the activator accepts " + revive.getItem() + " as a revive item");
         machine.activateGoo();
         h.assertTrue(h.getBlockState(gooPos).getValue(GooBlock_Base.ALIVE),
                 "the activator revived the goo block with " + revive.getItem());
