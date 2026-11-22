@@ -449,20 +449,20 @@
     {
       "id": "basic_glue_activator",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Verified 2026-11-21 by MachineFamilyGameTests.basicGlueActivatorRevivesADeadGooBlock: a dead GooBlock_Tier1 (ALIVE=false) in the activator's area is revived to ALIVE=true by tryReviveGoo using a revive item discovered from JDT's own GOO_REVIVE_TIER_* tags. The revival is driven directly, so the area-scan AABB is not exercised here (the tier area tests cover that path). Not covered: the item consumption count and the per-tier revive-item matching."
     },
     {
       "id": "advanced_glue_activator",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Verified 2026-11-21 by MachineFamilyGameTests.advancedGlueActivatorRevivesADeadGooBlock: a dead GooBlock_Tier1 (ALIVE=false) in the activator's area is revived to ALIVE=true by tryReviveGoo using a revive item discovered from JDT's own GOO_REVIVE_TIER_* tags; the powered tier is charged first because its override refuses without FE. The revival is driven directly, so the area-scan AABB is not exercised here (the tier area tests cover that path). Not covered: the item consumption count and the per-tier revive-item matching."
     },
     {
       "id": "extended_glue_activator",
       "initial_list": false,
-      "status": "implemented_unverified",
-      "note": "Concrete inherited implementation exists; no dedicated behavioral validation found for this item in retained evidence."
+      "status": "verified",
+      "note": "Verified 2026-11-21 by MachineFamilyGameTests.extendedGlueActivatorRevivesADeadGooBlock: a dead GooBlock_Tier1 (ALIVE=false) in the activator's area is revived to ALIVE=true by tryReviveGoo using a revive item discovered from JDT's own GOO_REVIVE_TIER_* tags; the powered tier is charged first because its override refuses without FE. The revival is driven directly, so the area-scan AABB is not exercised here (the tier area tests cover that path). Not covered: the item consumption count and the per-tier revive-item matching."
     },
     {
       "id": "advanced_gel_generator",
