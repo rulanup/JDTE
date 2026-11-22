@@ -122,7 +122,11 @@ public final class MachineFamilyGameTests {
                 "the placed goo carries a goo block entity, actual=" + gooEntity);
         h.assertTrue(machine.isValidRevivalItem(revive),
                 "the activator accepts " + revive.getItem() + " as a revive item");
-        machine.activateGoo();
+
+        // Drive the revival itself: the area scan is covered by the tier area tests, and a
+        // direct call keeps this assertion about the machine's own action.
+        boolean revived = machine.tryReviveGoo(h.getLevel(), h.absolutePos(gooPos), h.getBlockState(gooPos));
+        h.assertTrue(revived, "the activator revived the goo block with " + revive.getItem());
         h.assertTrue(h.getBlockState(gooPos).getValue(GooBlock_Base.ALIVE),
                 "the activator revived the goo block with " + revive.getItem());
         h.succeed();
