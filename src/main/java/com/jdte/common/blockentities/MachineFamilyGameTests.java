@@ -5,7 +5,12 @@ import com.direwolf20.justdirethings.setup.Registration;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlocks;
 import com.jdte.setup.JDTEItems;
+import com.direwolf20.justdirethings.common.blocks.gooblocks.GooBlock_Base;
+import com.direwolf20.justdirethings.datagen.JustDireItemTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Ingredient;
+import net.minecraft.world.item.Item;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
@@ -81,5 +86,53 @@ public final class MachineFamilyGameTests {
         h.assertTrue(produced, "the generator converted " + recipe.getInput().getBlock()
                 + " into " + expected.getItem());
         h.succeed();
+    }
+
+    /** The glue activator revives a dead goo block in its area using a tagged revive item. */
+    @GameTest(template = "mineral_empty")
+    public static void basicGlueActivatorRevivesADeadGooBlock(GameTestHelper h) {
+        assertGlueRevival(h, JDTEBlocks.BASIC_GLUE_ACTIVATOR.get(), new BlockPos(2, 1, 2), new BlockPos(3, 1, 2));
+    }
+
+    @GameTest(template = "mineral_empty")
+    public static void advancedGlueActivatorRevivesADeadGooBlock(GameTestHelper h) {
+        assertGlueRevival(h, JDTEBlocks.ADVANCED_GLUE_ACTIVATOR.get(), new BlockPos(2, 1, 2), new BlockPos(3, 1, 2));
+    }
+
+    @GameTest(template = "mineral_empty")
+    public static void extendedGlueActivatorRevivesADeadGooBlock(GameTestHelper h) {
+        assertGlueRevival(h, JDTEBlocks.EXTENDED_GLUE_ACTIVATOR.get(), new BlockPos(2, 1, 2), new BlockPos(3, 1, 2));
+    }
+
+    private static void assertGlueRevival(GameTestHelper h, net.minecraft.world.level.block.Block activatorBlock,
+                                          BlockPos machinePos, BlockPos gooPos) {
+        ItemStack revive = findReviveItem();
+        h.assertTrue(!revive.isEmpty(), "JDT ships at least one goo revive item in its revive tags");
+
+        h.setBlock(gooPos, Registration.GooBlock_Tier1.get().defaultBlockState()
+                .setValue(GooBlock_Base.ALIVE, false));
+        h.setBlock(machinePos, activatorBlock);
+        GlueActivatorBE machine = (GlueActivatorBE) h.getBlockEntity(machinePos);
+        machine.setAreaSettings(1, 1, 1, 0, 0, 0, false);
+        machine.getItemHandler().setStackInSlot(GlueActivatorBE.REVIVE_SLOT, revive);
+
+        h.assertTrue(!h.getBlockState(gooPos).getValue(GooBlock_Base.ALIVE), "the goo starts dead");
+        machine.activateGoo();
+        h.assertTrue(h.getBlockState(gooPos).getValue(GooBlock_Base.ALIVE),
+                "the activator revived the goo block with " + revive.getItem());
+        h.succeed();
+    }
+
+    /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
+    private static ItemStack findReviveItem() {
+        for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
+                JustDireItemTags.GOO_REVIVE_TIER_2, JustDireItemTags.GOO_REVIVE_TIER_3,
+                JustDireItemTags.GOO_REVIVE_TIER_4)) {
+            ItemStack[] items = Ingredient.of(tag).getItems();
+            if (items.length > 0) {
+                return new ItemStack(items[0].getItem());
+            }
+        }
+        return ItemStack.EMPTY;
     }
 }
