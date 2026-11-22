@@ -123,6 +123,11 @@ public final class MachineFamilyGameTests {
         h.assertTrue(machine.isValidRevivalItem(revive),
                 "the activator accepts " + revive.getItem() + " as a revive item");
 
+        // The powered tiers refuse to revive without FE, so charge them first.
+        if (machine instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered) {
+            powered.getEnergyStorage().setEnergy(powered.getMaxEnergy());
+        }
+
         // Drive the revival itself: the area scan is covered by the tier area tests, and a
         // direct call keeps this assertion about the machine's own action.
         boolean revived = machine.tryReviveGoo(h.getLevel(), h.absolutePos(gooPos), h.getBlockState(gooPos));
