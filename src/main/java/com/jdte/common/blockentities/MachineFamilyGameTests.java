@@ -137,6 +137,40 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The life extractor turns a hostile mob in its area into Life Fluid and removes it. */
+    @GameTest(template = "mineral_empty")
+    public static void advancedLifeExtractorTurnsAZombieIntoLifeFluid(GameTestHelper h) {
+        assertLifeExtraction(h, JDTEBlocks.ADVANCED_LIFE_EXTRACTOR.get());
+    }
+
+    @GameTest(template = "mineral_empty")
+    public static void extendedLifeExtractorTurnsAZombieIntoLifeFluid(GameTestHelper h) {
+        assertLifeExtraction(h, JDTEBlocks.EXTENDED_LIFE_EXTRACTOR.get());
+    }
+
+    private static void assertLifeExtraction(GameTestHelper h, net.minecraft.world.level.block.Block block) {
+        BlockPos machinePos = new BlockPos(2, 1, 2);
+        h.setBlock(machinePos, block);
+        LifeExtractorBE machine = (LifeExtractorBE) h.getBlockEntity(machinePos);
+        machine.setMode(LifeExtractorBE.MODE_HOSTILE);
+        if (machine instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered) {
+            powered.getEnergyStorage().setEnergy(powered.getMaxEnergy());
+        }
+
+        var zombie = h.spawn(net.minecraft.world.entity.EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        zombie.setNoAi(true);
+        h.assertTrue(machine.getFluidTank().getFluidAmount() == 0, "the tank starts empty");
+
+        for (int i = 0; i < machine.getExtractInterval(); i++) {
+            machine.extractLife();
+        }
+
+        h.assertTrue(zombie.isRemoved(), "the extractor consumed the zombie");
+        h.assertTrue(machine.getFluidTank().getFluidAmount() > 0,
+                "the extractor produced Life Fluid, amount=" + machine.getFluidTank().getFluidAmount());
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
