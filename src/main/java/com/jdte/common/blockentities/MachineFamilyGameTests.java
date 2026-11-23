@@ -171,6 +171,45 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The infusion machine fills a glass bottle from its water tank through its own process path. */
+    @GameTest(template = "mineral_empty")
+    public static void advancedInfusionMachineFillsAWaterBottle(GameTestHelper h) {
+        assertBottleInfusion(h, JDTEBlocks.ADVANCED_INFUSION_MACHINE.get());
+    }
+
+    @GameTest(template = "mineral_empty")
+    public static void extendedInfusionMachineFillsAWaterBottle(GameTestHelper h) {
+        assertBottleInfusion(h, JDTEBlocks.EXTENDED_INFUSION_MACHINE.get());
+    }
+
+    private static void assertBottleInfusion(GameTestHelper h, net.minecraft.world.level.block.Block block) {
+        BlockPos machinePos = new BlockPos(2, 1, 2);
+        h.setBlock(machinePos, block);
+        InfusionMachineBE machine = (InfusionMachineBE) h.getBlockEntity(machinePos);
+        if (machine instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered) {
+            powered.getEnergyStorage().setEnergy(powered.getMaxEnergy());
+        }
+        machine.getFluidTank().fill(new net.minecraftforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.WATER, 1000),
+                net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+        int startFluid = machine.getFluidTank().getFluidAmount();
+        h.assertTrue(startFluid == 1000, "the tank holds 1000 mB water, actual=" + startFluid);
+        machine.getMachineHandler().setStackInSlot(InfusionMachineBE.INPUT_SLOT,
+                new ItemStack(net.minecraft.world.item.Items.GLASS_BOTTLE, 2));
+
+        for (int i = 0; i < InfusionMachineBE.PROCESS_TIME; i++) {
+            machine.processInfusion();
+        }
+
+        ItemStack out = machine.getMachineHandler().getStackInSlot(InfusionMachineBE.OUTPUT_SLOT);
+        h.assertTrue(out.is(net.minecraft.world.item.Items.POTION) && out.getCount() == 1,
+                "one water bottle was produced, got=" + out);
+        h.assertTrue(machine.getMachineHandler().getStackInSlot(InfusionMachineBE.INPUT_SLOT).getCount() == 1,
+                "exactly one glass bottle was consumed");
+        h.assertTrue(machine.getFluidTank().getFluidAmount() < startFluid,
+                "water was drained, left=" + machine.getFluidTank().getFluidAmount());
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
