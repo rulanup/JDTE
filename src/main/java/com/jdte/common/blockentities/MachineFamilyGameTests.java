@@ -245,6 +245,35 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The loot fabricator turns a zombie spawn egg template into real loot, paying fluid and FE. */
+    @GameTest(template = "mineral_empty", timeoutTicks = 200)
+    public static void lootFabricatorProducesLootFromASpawnEgg(GameTestHelper h) {
+        BlockPos pos = new BlockPos(2, 1, 2);
+        h.setBlock(pos, JDTEBlocks.LOOT_FABRICATOR.get());
+        LootFabricatorBE be = (LootFabricatorBE) h.getBlockEntity(pos);
+        be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        be.getEnergyStorage().setEnergy(be.getMaxEnergy());
+        be.getLifeFluidTank().setFluid(new net.minecraftforge.fluids.FluidStack(com.jdte.setup.JDTEFluids.LIFE_FLUID_SOURCE.get(), 64_000));
+        be.getTimeFluidTank().setFluid(new net.minecraftforge.fluids.FluidStack(com.direwolf20.justdirethings.setup.Registration.TIME_FLUID_SOURCE.get(), 64_000));
+        be.getMachineHandler().setStackInSlot(0, new ItemStack(net.minecraft.world.item.Items.ZOMBIE_SPAWN_EGG));
+        int startEnergy = be.getEnergyStorage().getEnergyStored();
+
+        boolean produced = false;
+        for (int i = 0; i < 4000 && !produced; i++) {
+            be.tickServer();
+            for (int s = 0; s < be.getActiveOutputSlots(); s++) {
+                if (!be.getMachineHandler().getStackInSlot(LootFabricatorBE.INPUT_SLOTS + s).isEmpty()) produced = true;
+            }
+        }
+        h.assertTrue(produced, "the fabricator produced zombie loot");
+        h.assertTrue(be.getMachineHandler().getStackInSlot(0).is(net.minecraft.world.item.Items.ZOMBIE_SPAWN_EGG),
+                "the spawn egg template is reusable");
+        h.assertTrue(be.getLifeFluidTank().getFluidAmount() < 64_000, "Life Fluid was spent");
+        h.assertTrue(be.getTimeFluidTank().getFluidAmount() < 64_000, "Time Fluid was spent");
+        h.assertTrue(be.getEnergyStorage().getEnergyStored() < startEnergy, "FE was spent");
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
