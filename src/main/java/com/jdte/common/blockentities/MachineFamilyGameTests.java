@@ -379,6 +379,36 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The life breeder in GROW_ONLY mode advances a baby cow's age and pays FE and Life Fluid. */
+    @GameTest(template = "mineral_empty")
+    public static void lifeBreederAgesABabyCowInItsArea(GameTestHelper h) {
+        BlockPos pos = new BlockPos(2, 1, 2);
+        h.setBlock(pos, JDTEBlocks.LIFE_BREEDER.get());
+        LifeBreederBE be = (LifeBreederBE) h.getBlockEntity(pos);
+        be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        be.getEnergyStorage().setEnergy(be.getMaxEnergy());
+        be.getFluidTank().fill(new net.minecraftforge.fluids.FluidStack(com.jdte.setup.JDTEFluids.LIFE_FLUID_SOURCE.get(), be.getMaxMB()),
+                net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+        be.setMode(LifeBreederBE.Mode.GROW_ONLY.ordinal());
+
+        net.minecraft.world.phys.Vec3 at = be.getAABB(be.getBlockPos()).getCenter();
+        var calf = net.minecraft.world.entity.EntityType.COW.create(h.getLevel());
+        calf.setAge(-24000);
+        calf.setPos(at.x, at.y, at.z);
+        h.getLevel().addFreshEntity(calf);
+        int energyBefore = be.getEnergyStorage().getEnergyStored();
+        int fluidBefore = be.getFluidTank().getFluidAmount();
+
+        int interval = com.jdte.setup.JDTEConfig.COMMON.lifeBreederProcessingInterval.get();
+        for (int i = 0; i < interval * 2 + 1; i++) be.tickServer();
+
+        h.assertTrue(calf.getAge() > -24000, "the calf aged, age=" + calf.getAge());
+        h.assertTrue(be.getEnergyStorage().getEnergyStored() < energyBefore, "growth paid FE");
+        h.assertTrue(be.getFluidTank().getFluidAmount() < fluidBefore, "growth paid Life Fluid");
+        calf.discard();
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
