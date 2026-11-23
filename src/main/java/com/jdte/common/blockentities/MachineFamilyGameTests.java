@@ -333,6 +333,34 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The entity suppressor suppresses ticks of a hostile mob inside its area and pays FE for it. */
+    @GameTest(template = "mineral_empty")
+    public static void entitySuppressorSuppressesAHostileMobInItsArea(GameTestHelper h) {
+        BlockPos pos = new BlockPos(2, 1, 2);
+        h.setBlock(pos, JDTEBlocks.ENTITY_SUPPRESSOR.get());
+        EntitySuppressorBE be = (EntitySuppressorBE) h.getBlockEntity(pos);
+        be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        be.getEnergyStorage().setEnergy(be.getMaxEnergy());
+        be.setSettings(EntitySuppressorBE.Mode.SUPPRESS_TICK.ordinal(), EntitySuppressorBE.Target.HOSTILE.ordinal(), false);
+
+        net.minecraft.world.phys.Vec3 at = be.getAABB(be.getBlockPos()).getCenter();
+        var zombie = net.minecraft.world.entity.EntityType.ZOMBIE.create(h.getLevel());
+        zombie.setPos(at.x, at.y, at.z);
+        int before = be.getEnergyStorage().getEnergyStored();
+        h.assertTrue(EntitySuppressorManager.shouldSuppressEntityTick(zombie),
+                "a zombie inside the area is suppressed");
+        h.assertTrue(be.getEnergyStorage().getEnergyStored() < before,
+                "suppression paid FE, before=" + before + " after=" + be.getEnergyStorage().getEnergyStored());
+
+        var far = net.minecraft.world.entity.EntityType.ZOMBIE.create(h.getLevel());
+        far.setPos(at.x + 500, at.y, at.z);
+        h.assertFalse(EntitySuppressorManager.shouldSuppressEntityTick(far), "a zombie outside the area is not suppressed");
+        var cow = net.minecraft.world.entity.EntityType.COW.create(h.getLevel());
+        cow.setPos(at.x, at.y, at.z);
+        h.assertFalse(EntitySuppressorManager.shouldSuppressEntityTick(cow), "a passive cow is not a hostile target");
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
