@@ -409,6 +409,38 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The bio factory runs the data-driven chicken recipe and produces an egg into its output. */
+    @GameTest(template = "mineral_empty", timeoutTicks = 400)
+    public static void bioFactoryProducesAnEggFromAChickenSpecimen(GameTestHelper h) {
+        BlockPos pos = new BlockPos(2, 1, 2);
+        h.setBlock(pos, JDTEBlocks.BIO_FACTORY.get());
+        BioFactoryBE be = (BioFactoryBE) h.getBlockEntity(pos);
+        be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        be.getEnergyStorage().setEnergy(be.getMaxEnergy());
+        be.getLifeFluidTank().fill(new net.minecraftforge.fluids.FluidStack(com.jdte.setup.JDTEFluids.LIFE_FLUID_SOURCE.get(), 64000),
+                net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+        be.getTimeFluidTank().fill(new net.minecraftforge.fluids.FluidStack(com.direwolf20.justdirethings.setup.Registration.TIME_FLUID_SOURCE.get(), 64000),
+                net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+        be.getMachineHandler().setStackInSlot(BioFactoryBE.SPECIMEN_SLOT, new ItemStack(net.minecraft.world.item.Items.CHICKEN_SPAWN_EGG));
+        be.getMachineHandler().setStackInSlot(BioFactoryBE.FOOD_SLOT, new ItemStack(net.minecraft.world.item.Items.WHEAT_SEEDS, 64));
+        int energyBefore = be.getEnergyStorage().getEnergyStored();
+
+        int eggs = 0;
+        for (int i = 0; i < 2000 && eggs == 0; i++) {
+            be.tickServer();
+            for (int s = 0; s < BioFactoryBE.OUTPUT_SLOTS; s++) {
+                ItemStack out = be.getMachineHandler().getStackInSlot(BioFactoryBE.OUTPUT_START_SLOT + s);
+                if (out.is(net.minecraft.world.item.Items.EGG)) eggs += out.getCount();
+            }
+        }
+
+        h.assertTrue(eggs > 0, "the chicken recipe produced an egg");
+        h.assertTrue(be.getMachineHandler().getStackInSlot(BioFactoryBE.SPECIMEN_SLOT).is(net.minecraft.world.item.Items.CHICKEN_SPAWN_EGG),
+                "the specimen is reusable");
+        h.assertTrue(be.getEnergyStorage().getEnergyStored() < energyBefore, "the cycle paid FE");
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
