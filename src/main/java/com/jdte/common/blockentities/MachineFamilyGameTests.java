@@ -361,6 +361,24 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The range blocker in SILENCE mode suppresses positional sounds inside its area only. */
+    @GameTest(template = "mineral_empty")
+    public static void rangeBlockerSilencesSoundsInsideItsArea(GameTestHelper h) {
+        BlockPos pos = new BlockPos(2, 1, 2);
+        h.setBlock(pos, JDTEBlocks.RANGE_BLOCKER.get());
+        RangeBlockerBE be = (RangeBlockerBE) h.getBlockEntity(pos);
+        be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        be.getEnergyStorage().setEnergy(be.getMaxEnergy());
+        be.setSettings(RangeBlockerBE.Mode.SILENCE.ordinal(), EntitySuppressorBE.Target.ALL_LIVING.ordinal(), false);
+        h.assertTrue(be.isFieldActive(), "the powered silence field is active");
+
+        net.minecraft.world.phys.Vec3 at = be.getAABB(be.getBlockPos()).getCenter();
+        h.assertTrue(RangeBlockerManager.shouldSuppressSound(h.getLevel(), at), "a sound inside the area is suppressed");
+        h.assertFalse(RangeBlockerManager.shouldSuppressSound(h.getLevel(), at.add(500, 0, 0)),
+                "a sound outside the area is not suppressed");
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
