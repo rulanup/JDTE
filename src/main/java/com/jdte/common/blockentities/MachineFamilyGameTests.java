@@ -171,6 +171,41 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The bio crusher kills a hostile mob in range through its own crushing path and banks its experience. */
+    @GameTest(template = "mineral_empty")
+    public static void advancedBioCrusherKillsAZombie(GameTestHelper h) {
+        assertBioCrush(h, JDTEBlocks.ADVANCED_BIO_CRUSHER.get());
+    }
+
+    @GameTest(template = "mineral_empty")
+    public static void extendedBioCrusherKillsAZombie(GameTestHelper h) {
+        assertBioCrush(h, JDTEBlocks.EXTENDED_BIO_CRUSHER.get());
+    }
+
+    private static void assertBioCrush(GameTestHelper h, net.minecraft.world.level.block.Block block) {
+        BlockPos machinePos = new BlockPos(2, 1, 2);
+        h.setBlock(machinePos, block);
+        BioCrusherBE machine = (BioCrusherBE) h.getBlockEntity(machinePos);
+        machine.setMode(BioCrusherBE.MODE_HOSTILE);
+        if (machine instanceof com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineBE powered) {
+            powered.getEnergyStorage().setEnergy(powered.getMaxEnergy());
+        }
+
+        var zombie = h.spawn(net.minecraft.world.entity.EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        zombie.setNoAi(true);
+        zombie.setHealth(1.0F);
+        int startFluid = machine.getFluidTank().getFluidAmount();
+
+        for (int i = 0; i < machine.getExtractInterval(); i++) {
+            machine.processCrushing();
+        }
+
+        h.assertTrue(zombie.isRemoved() || zombie.isDeadOrDying(), "the crusher killed the zombie");
+        h.assertTrue(machine.getFluidTank().getFluidAmount() > startFluid,
+                "the crusher banked experience fluid, amount=" + machine.getFluidTank().getFluidAmount());
+        h.succeed();
+    }
+
     /** The infusion machine fills a glass bottle from its water tank through its own process path. */
     @GameTest(template = "mineral_empty")
     public static void advancedInfusionMachineFillsAWaterBottle(GameTestHelper h) {
