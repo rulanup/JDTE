@@ -305,6 +305,34 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The crystal incubator discovers a budding block in range and harvests its mature cluster into its output. */
+    @GameTest(template = "mineral_empty")
+    public static void crystalIncubatorHarvestsAMatureAmethystCluster(GameTestHelper h) {
+        BlockPos machinePos = new BlockPos(2, 1, 2);
+        h.setBlock(machinePos, JDTEBlocks.CRYSTAL_INCUBATOR.get());
+        BlockPos buddingPos = new BlockPos(2, 1, 3);
+        BlockPos clusterPos = buddingPos.above();
+        h.setBlock(buddingPos, net.minecraft.world.level.block.Blocks.BUDDING_AMETHYST);
+        h.setBlock(clusterPos, net.minecraft.world.level.block.Blocks.AMETHYST_CLUSTER);
+        CrystalIncubatorBE machine = (CrystalIncubatorBE) h.getBlockEntity(machinePos);
+
+        for (int i = 0; i < 200 && h.getBlockState(clusterPos).is(net.minecraft.world.level.block.Blocks.AMETHYST_CLUSTER); i++) {
+            machine.handleAccelerationTick();
+        }
+
+        h.assertFalse(h.getBlockState(clusterPos).is(net.minecraft.world.level.block.Blocks.AMETHYST_CLUSTER),
+                "the mature cluster was harvested");
+        int shards = 0;
+        for (int slot = 0; slot < machine.getMachineHandler().getSlots(); slot++) {
+            ItemStack s = machine.getMachineHandler().getStackInSlot(slot);
+            if (s.is(net.minecraft.world.item.Items.AMETHYST_SHARD)) shards += s.getCount();
+        }
+        h.assertTrue(shards > 0, "amethyst shards landed in the output, got=" + shards);
+        h.assertTrue(h.getBlockState(buddingPos).is(net.minecraft.world.level.block.Blocks.BUDDING_AMETHYST),
+                "the budding block itself is kept");
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
