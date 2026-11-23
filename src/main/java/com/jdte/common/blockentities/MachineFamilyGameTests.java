@@ -286,8 +286,11 @@ public final class MachineFamilyGameTests {
         be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
 
         net.minecraft.world.phys.Vec3 at = net.minecraft.world.phys.Vec3.atCenterOf(h.absolutePos(pos));
-        ItemStack left = be.collect(new ItemStack(net.minecraft.world.item.Items.DIAMOND, 5), at);
-        h.assertTrue(left.isEmpty(), "the whole stack was collected, left=" + left);
+        ItemStack probe = new ItemStack(net.minecraft.world.item.Items.DIAMOND, 5);
+        String diag = " canCollect=" + be.canCollect(probe) + " inArea=" + be.getAABB(be.getBlockPos()).contains(at)
+                + " redstone=" + be.isActiveRedstone() + " filter=" + be.isStackValidFilter(probe);
+        ItemStack left = be.collect(probe.copy(), at);
+        h.assertTrue(left.isEmpty(), "the whole stack was collected, left=" + left + diag);
 
         var chest = (net.minecraft.world.level.block.entity.ChestBlockEntity) h.getBlockEntity(chestPos);
         int diamonds = 0;
