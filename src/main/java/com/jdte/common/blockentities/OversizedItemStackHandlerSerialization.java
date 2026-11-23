@@ -46,7 +46,7 @@ final class OversizedItemStackHandlerSerialization {
         if (stack.isEmpty()) return new CompoundTag();
         int realCount = stack.getCount();
         ItemStack encodedStack = realCount > MAX_CODEC_COUNT ? stack.copyWithCount(MAX_CODEC_COUNT) : stack;
-        CompoundTag tag = encodedStack.save(provider);
+        CompoundTag tag = (CompoundTag) encodedStack.save(provider);
         if (realCount > MAX_CODEC_COUNT) tag.putInt(REAL_COUNT_TAG, realCount);
         return tag;
     }
