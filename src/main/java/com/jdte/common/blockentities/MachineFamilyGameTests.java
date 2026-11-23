@@ -274,6 +274,33 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The advanced item collector inserts a collected drop into the inventory it faces. */
+    @GameTest(template = "mineral_empty")
+    public static void advancedItemCollectorPutsCollectedDropsIntoTheFacingChest(GameTestHelper h) {
+        BlockPos pos = new BlockPos(2, 1, 2);
+        h.setBlock(pos, JDTEBlocks.ADVANCED_ITEM_COLLECTOR.get().defaultBlockState()
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING, net.minecraft.core.Direction.EAST));
+        BlockPos chestPos = pos.east();
+        h.setBlock(chestPos, net.minecraft.world.level.block.Blocks.CHEST);
+        AdvancedItemCollectorBE be = (AdvancedItemCollectorBE) h.getBlockEntity(pos);
+        be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+
+        net.minecraft.world.phys.Vec3 at = net.minecraft.world.phys.Vec3.atCenterOf(h.absolutePos(pos));
+        ItemStack left = be.collect(new ItemStack(net.minecraft.world.item.Items.DIAMOND, 5), at);
+        h.assertTrue(left.isEmpty(), "the whole stack was collected, left=" + left);
+
+        var chest = (net.minecraft.world.level.block.entity.ChestBlockEntity) h.getBlockEntity(chestPos);
+        int diamonds = 0;
+        for (int i = 0; i < chest.getContainerSize(); i++) {
+            if (chest.getItem(i).is(net.minecraft.world.item.Items.DIAMOND)) diamonds += chest.getItem(i).getCount();
+        }
+        h.assertTrue(diamonds == 5, "the facing chest received all 5 diamonds, got=" + diamonds);
+
+        ItemStack far = be.collect(new ItemStack(net.minecraft.world.item.Items.DIAMOND, 1), at.add(500, 0, 0));
+        h.assertTrue(far.getCount() == 1, "a drop outside the area is not collected");
+        h.succeed();
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
