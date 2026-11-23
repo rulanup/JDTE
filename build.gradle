@@ -88,6 +88,11 @@ neoForge {
             programArgument '--nogui'
         }
 
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+
         data {
             data()
             programArguments.addAll '--mod', mod_id, '--all',

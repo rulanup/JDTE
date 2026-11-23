@@ -65,6 +65,9 @@ jobs:
       - name: Build both mods and run all tests
         run: bash gradlew build --no-daemon --max-workers=2
 
+      - name: Run the NeoForge GameTest server
+        run: bash gradlew runGameTestServer --no-daemon --max-workers=2
+
       - name: Prepare release assets and checksums
         shell: bash
         run: |
@@ -105,3 +108,4 @@ jobs:
           path: |
             build/reports/
             jdte-ae/build/reports/
+            runs/gameTestServer/logs/
