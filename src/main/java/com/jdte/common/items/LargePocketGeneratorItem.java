@@ -86,7 +86,15 @@ public class LargePocketGeneratorItem extends PocketGenerator {
             return false;
         }
 
-        setFuelMultiplier(generatorStack, PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack));
+        int configMultiplier = Math.max(1, resolveConfigInt(Config.POCKET_GENERATOR_BURN_SPEED_MULTIPLIER,
+                FALLBACK_BURN_SPEED_MULTIPLIER));
+        int fuelMultiplier = PortableFuelBurnSpeedHelper.resolveBurnSpeedMultiplier(fuelStack);
+        // High-tier fuel in a large canister can carry a multiplier larger than the
+        // burn time of one canister operation, which made burnTicks round down to 0
+        // and stalled the generator. Clamp so each operation lasts at least one tick
+        // while keeping total FE (burnTime * FE per fuel tick) unchanged.
+        int maxFuelMultiplier = Math.max(1, burnTime / configMultiplier);
+        setFuelMultiplier(generatorStack, Math.max(1, Math.min(fuelMultiplier, maxFuelMultiplier)));
         int burnTicks = burnTime / Math.max(1, getBurnSpeedMultiplier(generatorStack));
         if (burnTicks <= 0) {
             return false;
