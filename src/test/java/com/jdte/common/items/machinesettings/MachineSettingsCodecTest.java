@@ -789,6 +789,9 @@ class MachineSettingsCodecTest {
                 typeId(Registration.InventoryHolderBE.get()),
                 typeId(Registration.ExperienceHolderBE.get())));
 
+        // Solar panels are plain BlockEntities, not BaseMachineBE, so they have no copier settings.
+        expected.remove(typeId(JDTEBlockEntities.SOLAR_PANEL.get()));
+
         assertEquals(expected, MachineSettingsCodecRegistry.registeredTypeIds());
     }
 
