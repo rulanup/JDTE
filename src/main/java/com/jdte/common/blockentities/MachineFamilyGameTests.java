@@ -285,7 +285,8 @@ public final class MachineFamilyGameTests {
         AdvancedItemCollectorBE be = (AdvancedItemCollectorBE) h.getBlockEntity(pos);
         be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
 
-        net.minecraft.world.phys.Vec3 at = net.minecraft.world.phys.Vec3.atCenterOf(h.absolutePos(pos));
+        // The collection area is offset from the block by default, so aim at its centre.
+        net.minecraft.world.phys.Vec3 at = be.getAABB(be.getBlockPos()).getCenter();
         ItemStack probe = new ItemStack(net.minecraft.world.item.Items.DIAMOND, 5);
         String diag = " canCollect=" + be.canCollect(probe) + " inArea=" + be.getAABB(be.getBlockPos()).contains(at)
                 + " redstone=" + be.isActiveRedstone() + " filter=" + be.isStackValidFilter(probe);
