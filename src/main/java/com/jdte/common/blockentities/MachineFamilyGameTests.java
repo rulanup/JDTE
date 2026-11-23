@@ -441,6 +441,28 @@ public final class MachineFamilyGameTests {
         h.succeed();
     }
 
+    /** The life synthesis vat runs the aquatic plant recipe on real ticks and distills Life Fluid into its tank. */
+    @GameTest(template = "mineral_empty", timeoutTicks = 1200)
+    public static void lifeSynthesisVatDistillsLifeFluidFromKelp(GameTestHelper h) {
+        BlockPos pos = new BlockPos(2, 1, 2);
+        h.setBlock(pos, JDTEBlocks.LIFE_SYNTHESIS_VAT.get());
+        LifeSynthesisVatBE be = (LifeSynthesisVatBE) h.getBlockEntity(pos);
+        be.getRedstoneControlData().redstoneMode = com.direwolf20.justdirethings.util.MiscHelpers.RedstoneMode.IGNORED;
+        be.getEnergyStorage().setEnergy(be.getMaxEnergy());
+        be.getNutrientTank().fill(new net.minecraftforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.WATER, 64000),
+                net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+        be.getAutomationItemHandler().insertItem(0, new ItemStack(net.minecraft.world.item.Items.KELP, 64), false);
+        int energyBefore = be.getEnergyStorage().getEnergyStored();
+        int waterBefore = be.getNutrientTank().getFluidAmount();
+
+        h.succeedWhen(() -> {
+            h.assertTrue(be.getLifeFluidTank().getFluidAmount() > 0,
+                    "life fluid distilled, life=" + be.getLifeFluidTank().getFluidAmount());
+            h.assertTrue(be.getNutrientTank().getFluidAmount() < waterBefore, "the batch drained water");
+            h.assertTrue(be.getEnergyStorage().getEnergyStored() < energyBefore, "the batch paid FE");
+        });
+    }
+
     /** Finds a qualifying revive item from JDT's own tags instead of hardcoding one. */
     private static ItemStack findReviveItem() {
         for (TagKey<Item> tag : java.util.List.of(JustDireItemTags.GOO_REVIVE_TIER_1,
