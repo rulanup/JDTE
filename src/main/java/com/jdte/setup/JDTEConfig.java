@@ -23,6 +23,7 @@ import com.jdte.setup.config.ContentConfig;
 import com.jdte.setup.config.RangeBlockerConfig;
 import com.jdte.setup.config.RepairTalismanConfig;
 import com.jdte.setup.config.SenderReceiverConfig;
+import com.jdte.setup.config.SolarPanelConfig;
 import com.jdte.setup.config.TimeAcceleratorConfig;
 import com.jdte.setup.config.TimeAcceleratorLocalConfig;
 import com.jdte.setup.config.TimeAcceleratorServerConfig;
@@ -92,6 +93,7 @@ public class JDTEConfig {
         public final GeneratorUpgradeConfig generatorUpgrade;
         public final UpgradeItemsConfig upgradeItems;
         public final AdvancedEnergyTransmitterConfig advancedEnergyTransmitter;
+        public final SolarPanelConfig solarPanel;
         public final InfusionConfig infusion;
 
         // Upgrade System
@@ -367,6 +369,7 @@ public class JDTEConfig {
             upgradeItems = new UpgradeItemsConfig(builder);
             advancedEnergyTransmitter = new AdvancedEnergyTransmitterConfig(builder);
             infusion = new InfusionConfig(builder);
+            solarPanel = new SolarPanelConfig(builder);
 
             this.content = new ContentConfig(builder, greenhouse, lootFabricator, bioFactory);
             this.disabledBlocks = content.disabledBlocks;

@@ -26,6 +26,7 @@ import com.jdte.common.blockentities.LootFabricatorBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
 import com.jdte.common.blockentities.TimeAcceleratorBE;
 import com.jdte.common.content.JDTEContentControl;
+import com.jdte.common.blockentities.SolarPanelBE;
 import com.jdte.common.blocks.LargeGreenhousePartBlock;
 import com.jdte.common.blocks.LargeMineralExtractorPartBlock;
 import com.jdte.common.blocks.LifeSynthesisPartBlock;
@@ -72,6 +73,9 @@ public final class MachineCapabilities {
     /** 所有实现 {@code PoweredMachineBE} 的机器的能量存储。 */
     private static final IBlockCapabilityProvider<IEnergyStorage, Direction> POWERED_ENERGY =
             (level, pos, state, be, side) -> be instanceof PoweredMachineBE powered ? powered.getEnergyStorage() : null;
+
+    private static final IBlockCapabilityProvider<IEnergyStorage, Direction> SOLAR_PANEL_ENERGY =
+            (level, pos, state, be, side) -> be instanceof SolarPanelBE solar ? solar.getEnergyStorage() : null;
 
     /** 与 JDT 原版传输器一致，只允许朝向面上的相邻设备向传输器输入 FE。 */
     private static final IBlockCapabilityProvider<IEnergyStorage, Direction> TRANSMITTER_INPUT_ENERGY =
@@ -317,6 +321,13 @@ public final class MachineCapabilities {
             machine(JDTEBlocks.EXTENDED_ENERGY_TRANSMITTER,
                     energy(EXTENDED_TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS)),
             machine(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER, energy(TRANSMITTER_INPUT_ENERGY), items(MACHINE_ITEMS)),
+
+            // --- Tiered Solar Panels ---
+            machine(JDTEBlocks.CONCENTRATED_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
+            machine(JDTEBlocks.SINGULARITY_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
+            machine(JDTEBlocks.STELLAR_FUSION_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
+            machine(JDTEBlocks.DIMENSIONAL_COLLAPSE_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
+            machine(JDTEBlocks.CREATIVE_SOLAR_PANEL, energy(SOLAR_PANEL_ENERGY)),
 
             // --- 流体混合器 ---
             machine(JDTEBlocks.ADVANCED_FLUID_MIXER, energy(POWERED_ENERGY), fluid(FLUID_MIXER_FLUID), items(MACHINE_ITEMS)),

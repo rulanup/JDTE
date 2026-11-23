@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["AAA", "ABA", "AAA"],
+  "key": {
+    "A": { "item": "jdte:stellar_fusion_solar_panel" },
+    "B": { "item": "minecraft:nether_star" }
+  },
+  "result": { "id": "jdte:dimensional_collapse_solar_panel", "count": 1 },
+  "neoforge:conditions": [{ "type": "neoforge:mod_loaded", "modid": "justdynathings" }]
+}

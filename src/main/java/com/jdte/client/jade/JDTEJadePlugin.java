@@ -8,6 +8,7 @@ import com.jdte.common.blockentities.AdvancedEnergyTransmitterBE;
 import com.jdte.common.blockentities.GreenhouseBE;
 import com.jdte.common.blockentities.LargeGreenhouseBE;
 import com.jdte.common.blockentities.MineralExtractorBE;
+import com.jdte.common.blockentities.SolarPanelBE;
 import com.jdte.common.blocks.AdvancedEnergyTransmitterBlock;
 import com.jdte.common.blocks.GreenhouseBlock;
 import com.jdte.common.blocks.LargeGreenhouseBlock;
@@ -15,6 +16,7 @@ import com.jdte.common.blocks.LargeGreenhousePartBlock;
 import com.jdte.common.blocks.LargeMineralExtractorBlock;
 import com.jdte.common.blocks.LargeMineralExtractorPartBlock;
 import com.jdte.common.blocks.MineralExtractorBlock;
+import com.jdte.common.blocks.SolarPanelBlock;
 import com.jdte.common.integrations.ae2.AdvancedEnergyTransmitterEnergySource;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.common.items.EssenceConversionUpgradeItem;
@@ -56,6 +58,15 @@ public class JDTEJadePlugin implements IWailaPlugin {
     private static final ResourceLocation TRANSMITTER_STATUS_UID = JDTE.id("advanced_energy_transmitter_status");
     private static final ResourceLocation MINERAL_EXTRACTOR_STATUS_UID = JDTE.id("mineral_extractor_status");
     private static final ResourceLocation GREENHOUSE_STATUS_UID = JDTE.id("greenhouse_status");
+    private static final ResourceLocation SOLAR_PANEL_STATUS_UID = JDTE.id("solar_panel_status");
+    private static final String TAG_SOLAR_ACTIVE = "jdte_solar_active";
+    private static final String TAG_SOLAR_CREATIVE = "jdte_solar_creative";
+    private static final String TAG_SOLAR_BASE = "jdte_solar_base";
+    private static final String TAG_SOLAR_GENERATION = "jdte_solar_generation";
+    private static final String TAG_SOLAR_STORED = "jdte_solar_stored";
+    private static final String TAG_SOLAR_CAPACITY = "jdte_solar_capacity";
+    private static final SolarPanelStatusProvider SOLAR_PANEL_STATUS_PROVIDER =
+            new SolarPanelStatusProvider();
     private static final String TAG_UPGRADES = "jdte_upgrades";
     private static final String TAG_CONVERSION_PATTERNS = "jdte_conversion_pattern_status";
     private static final String TAG_ME_STATUS = "jdte_me_status";
@@ -79,6 +90,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, BaseMachineBE.class);
+        registration.registerBlockDataProvider(SOLAR_PANEL_STATUS_PROVIDER, SolarPanelBE.class);
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, LargeGreenhousePartBlock.class);
         registration.registerBlockDataProvider(UPGRADE_PROVIDER, LargeMineralExtractorPartBlock.class);
         registration.registerBlockDataProvider(
@@ -98,6 +110,7 @@ public class JDTEJadePlugin implements IWailaPlugin {
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(UPGRADE_PROVIDER, BaseMachineBlock.class);
+        registration.registerBlockComponent(SOLAR_PANEL_STATUS_PROVIDER, SolarPanelBlock.class);
         registration.registerBlockComponent(UPGRADE_PROVIDER, LargeGreenhousePartBlock.class);
         registration.registerBlockComponent(UPGRADE_PROVIDER, LargeMineralExtractorPartBlock.class);
         registration.registerBlockComponent(
@@ -114,6 +127,48 @@ public class JDTEJadePlugin implements IWailaPlugin {
                 GREENHOUSE_STATUS_PROVIDER, LargeGreenhouseBlock.class);
         registration.registerBlockComponent(
                 GREENHOUSE_STATUS_PROVIDER, LargeGreenhousePartBlock.class);
+    }
+
+    private static class SolarPanelStatusProvider
+            implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
+        @Override
+        public void appendServerData(CompoundTag data, BlockAccessor accessor) {
+            if (!(accessor.getBlockEntity() instanceof SolarPanelBE panel)) return;
+            boolean creative = panel.tier().creative();
+            data.putBoolean(TAG_SOLAR_ACTIVE, panel.canGenerate());
+            data.putBoolean(TAG_SOLAR_CREATIVE, creative);
+            data.putLong(TAG_SOLAR_BASE, creative ? Long.MAX_VALUE : panel.baseGeneration());
+            data.putLong(TAG_SOLAR_GENERATION, creative ? Long.MAX_VALUE : panel.currentGeneration());
+            data.putInt(TAG_SOLAR_STORED, panel.getEnergyStorage().getEnergyStored());
+            data.putInt(TAG_SOLAR_CAPACITY, panel.getEnergyStorage().getMaxEnergyStored());
+        }
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            CompoundTag data = accessor.getServerData();
+            if (data.getBoolean(TAG_SOLAR_CREATIVE)) {
+                tooltip.add(Component.translatable("jade.jdte.solar_panel.infinite")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE));
+                return;
+            }
+            tooltip.add(Component.translatable("jade.jdte.solar_panel.base_generation",
+                    data.getLong(TAG_SOLAR_BASE)).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("jade.jdte.solar_panel.generation",
+                    data.getLong(TAG_SOLAR_GENERATION)).withStyle(
+                    data.getBoolean(TAG_SOLAR_ACTIVE) ? ChatFormatting.GREEN : ChatFormatting.RED));
+            tooltip.add(Component.translatable("jade.jdte.solar_panel.storage",
+                    data.getInt(TAG_SOLAR_STORED), data.getInt(TAG_SOLAR_CAPACITY))
+                    .withStyle(ChatFormatting.GRAY));
+            if (!data.getBoolean(TAG_SOLAR_ACTIVE)) {
+                tooltip.add(Component.translatable("jade.jdte.solar_panel.inactive",
+                        Component.translatable("jade.jdte.solar_panel.reason.no_sun")).withStyle(ChatFormatting.RED));
+            }
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return SOLAR_PANEL_STATUS_UID;
+        }
     }
 
     private static class MineralExtractorStatusProvider

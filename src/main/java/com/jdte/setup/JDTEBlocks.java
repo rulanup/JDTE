@@ -4,6 +4,7 @@ import com.jdte.JDTE;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.registries.Registries;
 import com.jdte.common.blocks.*;
+import com.jdte.common.solar.SolarPanelTier;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -55,6 +56,17 @@ public class JDTEBlocks {
     public static final DeferredHolder<Block, DecorativeFumoBlock> MAIQILIN_FUMO = BLOCKS.register("maiqilin_fumo", DecorativeFumoBlock::new);
 
     // Tiered Solar Panels
+    public static final DeferredHolder<Block, SolarPanelBlock> CONCENTRATED_SOLAR_PANEL = BLOCKS.register(
+            "concentrated_solar_panel", () -> new SolarPanelBlock(SolarPanelTier.CONCENTRATED));
+    public static final DeferredHolder<Block, SolarPanelBlock> SINGULARITY_SOLAR_PANEL = BLOCKS.register(
+            "singularity_solar_panel", () -> new SolarPanelBlock(SolarPanelTier.SINGULARITY));
+    public static final DeferredHolder<Block, SolarPanelBlock> STELLAR_FUSION_SOLAR_PANEL = BLOCKS.register(
+            "stellar_fusion_solar_panel", () -> new SolarPanelBlock(SolarPanelTier.STELLAR_FUSION));
+    public static final DeferredHolder<Block, SolarPanelBlock> DIMENSIONAL_COLLAPSE_SOLAR_PANEL = BLOCKS.register(
+            "dimensional_collapse_solar_panel", () -> new SolarPanelBlock(SolarPanelTier.DIMENSIONAL_COLLAPSE));
+    public static final DeferredHolder<Block, SolarPanelBlock> CREATIVE_SOLAR_PANEL = BLOCKS.register(
+            "creative_solar_panel", () -> new SolarPanelBlock(SolarPanelTier.CREATIVE));
+
     // Glue Activator
     public static final DeferredHolder<Block, BasicGlueActivatorBlock> BASIC_GLUE_ACTIVATOR = BLOCKS.register("basic_glue_activator", BasicGlueActivatorBlock::new);
     public static final DeferredHolder<Block, AdvancedGlueActivatorBlock> ADVANCED_GLUE_ACTIVATOR = BLOCKS.register("advanced_glue_activator", AdvancedGlueActivatorBlock::new);

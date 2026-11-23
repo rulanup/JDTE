@@ -12,6 +12,11 @@
     "jdte:advanced_fluid_mixer",
     "jdte:extended_fluid_mixer",
     "jdte:advanced_bio_extractor",
-    "jdte:extended_bio_extractor"
+    "jdte:extended_bio_extractor",
+    "jdte:concentrated_solar_panel",
+    "jdte:singularity_solar_panel",
+    "jdte:stellar_fusion_solar_panel",
+    "jdte:dimensional_collapse_solar_panel",
+    "jdte:creative_solar_panel"
   ]
 }

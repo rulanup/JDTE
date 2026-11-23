@@ -192,6 +192,18 @@ public class JDTEItems {
     // Advanced Energy Transmitter
     public static final DeferredHolder<Item, BlockItem> ADVANCED_ENERGY_TRANSMITTER = ITEMS.register("advanced_energy_transmitter", () -> new BlockItem(JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get(), new Item.Properties()));
 
+    // Tiered Solar Panels
+    public static final DeferredHolder<Item, BlockItem> CONCENTRATED_SOLAR_PANEL = blockItem(
+            "concentrated_solar_panel", JDTEBlocks.CONCENTRATED_SOLAR_PANEL);
+    public static final DeferredHolder<Item, BlockItem> SINGULARITY_SOLAR_PANEL = blockItem(
+            "singularity_solar_panel", JDTEBlocks.SINGULARITY_SOLAR_PANEL);
+    public static final DeferredHolder<Item, BlockItem> STELLAR_FUSION_SOLAR_PANEL = blockItem(
+            "stellar_fusion_solar_panel", JDTEBlocks.STELLAR_FUSION_SOLAR_PANEL);
+    public static final DeferredHolder<Item, BlockItem> DIMENSIONAL_COLLAPSE_SOLAR_PANEL = blockItem(
+            "dimensional_collapse_solar_panel", JDTEBlocks.DIMENSIONAL_COLLAPSE_SOLAR_PANEL);
+    public static final DeferredHolder<Item, BlockItem> CREATIVE_SOLAR_PANEL = blockItem(
+            "creative_solar_panel", JDTEBlocks.CREATIVE_SOLAR_PANEL);
+
     // Fluid Mixer
     public static final DeferredHolder<Item, BlockItem> ADVANCED_FLUID_MIXER = ITEMS.register("advanced_fluid_mixer", () -> new BlockItem(JDTEBlocks.ADVANCED_FLUID_MIXER.get(), new Item.Properties()));
     public static final DeferredHolder<Item, BlockItem> EXTENDED_FLUID_MIXER = ITEMS.register("extended_fluid_mixer", () -> new BlockItem(JDTEBlocks.EXTENDED_FLUID_MIXER.get(), new Item.Properties()));

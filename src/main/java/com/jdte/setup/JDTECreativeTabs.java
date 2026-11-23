@@ -148,6 +148,13 @@ public class JDTECreativeTabs {
                 // Advanced Energy Transmitter
                 output.accept(JDTEItems.ADVANCED_ENERGY_TRANSMITTER.get());
 
+                // Tiered Solar Panels
+                output.accept(JDTEItems.CONCENTRATED_SOLAR_PANEL.get());
+                output.accept(JDTEItems.SINGULARITY_SOLAR_PANEL.get());
+                output.accept(JDTEItems.STELLAR_FUSION_SOLAR_PANEL.get());
+                output.accept(JDTEItems.DIMENSIONAL_COLLAPSE_SOLAR_PANEL.get());
+                output.accept(JDTEItems.CREATIVE_SOLAR_PANEL.get());
+
                 // Fluid Mixer
                 output.accept(JDTEItems.ADVANCED_FLUID_MIXER.get());
                 output.accept(JDTEItems.EXTENDED_FLUID_MIXER.get());

@@ -164,6 +164,12 @@ public class JDTEBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedEnergyTransmitterBE>> ADVANCED_ENERGY_TRANSMITTER = BLOCK_ENTITIES.register(
             "advanced_energy_transmitter", () -> BlockEntityType.Builder.of(AdvancedEnergyTransmitterBE::new, JDTEBlocks.ADVANCED_ENERGY_TRANSMITTER.get()).build(null));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SolarPanelBE>> SOLAR_PANEL = BLOCK_ENTITIES.register(
+            "solar_panel", () -> BlockEntityType.Builder.of(SolarPanelBE::new,
+                    JDTEBlocks.CONCENTRATED_SOLAR_PANEL.get(), JDTEBlocks.SINGULARITY_SOLAR_PANEL.get(),
+                    JDTEBlocks.STELLAR_FUSION_SOLAR_PANEL.get(), JDTEBlocks.DIMENSIONAL_COLLAPSE_SOLAR_PANEL.get(),
+                    JDTEBlocks.CREATIVE_SOLAR_PANEL.get()).build(null));
+
     // Fluid Mixer
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AdvancedFluidMixerBE>> ADVANCED_FLUID_MIXER = BLOCK_ENTITIES.register(
             "advanced_fluid_mixer", () -> BlockEntityType.Builder.of(AdvancedFluidMixerBE::new, JDTEBlocks.ADVANCED_FLUID_MIXER.get()).build(null));
