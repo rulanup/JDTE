@@ -6,7 +6,9 @@ name: CurseForge
 #   CF_API_TOKEN     CurseForge API token (API Tokens page, sent as X-Api-Token)
 # Repository variables:
 #   CF_PROJECT_ID    CurseForge project id, defaults to 1566414 (JDT Extras)
-#   CF_GAME_VERSIONS space separated game version names, defaults to "1.21.1 NeoForge"
+#   CF_GAME_VERSIONS space separated game version names, defaults to
+#                    "1.21.1 NeoForge Client Server" — CurseForge rejects a file
+#                    that selects no environment version (errorCode 1021)
 #
 # jdte-<version>.jar is the main file. The JDTE-AE addon is uploaded second with
 # parentFileID pointing at that file, so it is published as an additional file of
@@ -131,7 +133,7 @@ jobs:
           else
             publish=1
           fi
-          game_versions="${CF_GAME_VERSIONS:-1.21.1 NeoForge}"
+          game_versions="${CF_GAME_VERSIONS:-1.21.1 NeoForge Client Server}"
           release_type="${CF_RELEASE_TYPE:-release}"
           if [[ "$publish" -eq 1 ]]; then
             known_versions="$(curl --silent --max-time 60 \
@@ -190,7 +192,7 @@ jobs:
               -F "metadata=<${metadata}" \
               -F "file=@${file}" \
               "https://minecraft.curseforge.com/api/projects/${CF_PROJECT_ID}/upload-file")" || {
-                echo "::error::CurseForge upload failed for $name"; exit 1; }
+                echo "::error::CurseForge upload failed for $name: $response"; exit 1; }
             file_id="$(printf '%s' "$response" | jq -r '.id // empty')"
             if [[ -z "$file_id" ]]; then
               echo "::error::CurseForge returned no file id for $name: $response"
