@@ -1,0 +1,178 @@
+name: CurseForge
+
+# Publishes the tagged build to CurseForge.
+#
+# Repository secrets:
+#   CF_API_TOKEN    CurseForge "Upload via API" token (project -> Upload via API)
+#   CF_PROJECT_ID   CurseForge project id of JDTE
+#   CF_AE_PROJECT_ID  optional, CurseForge project id of the JDTE-AE addon
+# Repository variable:
+#   CF_GAME_VERSIONS  space separated game versions, defaults to "1.21.1 NeoForge"
+#
+# A tag push publishes immediately. Without CF_API_TOKEN / CF_PROJECT_ID the job
+# builds and then skips the upload with a notice, so an unconfigured repository
+# never reports a red run. Manual runs default to a dry run.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag, such as v0.6.5.6
+        required: true
+        type: string
+      release_type:
+        description: CurseForge release type
+        required: true
+        default: release
+        type: choice
+        options:
+          - release
+          - beta
+          - alpha
+      dry_run:
+        description: Build and print the upload payload without publishing
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jdte-curseforge
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: curseforge
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_PROJECT_ID: ${{ secrets.CF_PROJECT_ID }}
+      CF_AE_PROJECT_ID: ${{ secrets.CF_AE_PROJECT_ID }}
+      CF_GAME_VERSIONS: ${{ vars.CF_GAME_VERSIONS }}
+      CF_RELEASE_TYPE: ${{ inputs.release_type }}
+      CF_DRY_RUN: ${{ inputs.dry_run }}
+      REQUESTED_TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select and verify the tagged source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${REQUESTED_TAG}" ]]; then
+            release_tag="${REQUESTED_TAG}"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            release_tag="${GITHUB_REF#refs/tags/}"
+          else
+            echo "::error::No tag given. Pass the tag input when running this workflow manually."
+            exit 1
+          fi
+          [[ "$release_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "::error::Unexpected tag format: $release_tag"; exit 1; }
+          git checkout --detach "$release_tag"
+          release_version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          [[ "$release_tag" == "v${release_version}" ]] || {
+            echo "::error::Tag $release_tag does not match mod_version $release_version"; exit 1; }
+          printf 'RELEASE_TAG=%s\nRELEASE_VERSION=%s\n' "$release_tag" "$release_version" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build both mods
+        run: bash gradlew build --no-daemon --max-workers=2
+
+      - name: Stage release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage="build/curseforge/${RELEASE_VERSION}"
+          mkdir -p "$stage"
+          cp "build/libs/jdte-${RELEASE_VERSION}.jar" "$stage/"
+          cp "jdte-ae/build/libs/jdte-ae-${RELEASE_VERSION}.jar" "$stage/"
+          (cd "$stage" && sha256sum ./*.jar > SHA256SUMS.txt)
+          printf 'CF_STAGE=%s\n' "$stage" >> "$GITHUB_ENV"
+
+      - name: Prepare changelog
+        shell: bash
+        run: |
+          set -euo pipefail
+          notes="docs/releases/${RELEASE_VERSION}.md"
+          if [[ -f "$notes" ]]; then
+            cp "$notes" "$RUNNER_TEMP/changelog.md"
+          else
+            printf 'Release %s. See https://github.com/%s/releases/tag/%s\n' \
+              "$RELEASE_TAG" "$GITHUB_REPOSITORY" "$RELEASE_TAG" > "$RUNNER_TEMP/changelog.md"
+          fi
+
+      - name: Publish to CurseForge
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${CF_DRY_RUN:-}" == "true" ]]; then
+            echo "::notice::Dry run requested: nothing is uploaded."
+            publish=0
+          elif [[ -z "${CF_API_TOKEN:-}" || -z "${CF_PROJECT_ID:-}" ]]; then
+            echo "::notice::CF_API_TOKEN / CF_PROJECT_ID are not configured: nothing is uploaded."
+            publish=0
+          else
+            publish=1
+          fi
+          game_versions="${CF_GAME_VERSIONS:-1.21.1 NeoForge}"
+          release_type="${CF_RELEASE_TYPE:-release}"
+          summary="$RUNNER_TEMP/curseforge-summary.md"
+          : > "$summary"
+
+          publish_file() {
+            local project_id="$1" file="$2"
+            local name metadata response file_id
+            name="$(basename "$file")"
+            metadata="$RUNNER_TEMP/metadata-${name}.json"
+            jq -n \
+              --rawfile changelog "$RUNNER_TEMP/changelog.md" \
+              --arg release_type "$release_type" \
+              --arg game_versions "$game_versions" \
+              '{changelog: $changelog, changelogType: "markdown", releaseType: $release_type,
+                gameVersions: ($game_versions | split(" ") | map(select(length > 0)))}' > "$metadata"
+            echo "--- $name ---"
+            jq -c '{releaseType, gameVersions, changelogBytes: (.changelog | length)}' "$metadata"
+            if [[ "$publish" -ne 1 ]]; then
+              echo "::notice::$name was not uploaded."
+              echo "- \`$name\`: not uploaded" >> "$summary"
+              return 0
+            fi
+            # No automatic retry: a retried POST could publish the same file twice.
+            response="$(curl --silent --show-error --fail-with-body \
+              -X POST \
+              -H "X-Api-Token: ${CF_API_TOKEN}" \
+              -F "metadata=@${metadata};type=application/json" \
+              -F "file=@${file}" \
+              "https://minecraft.curseforge.com/api/projects/${project_id}/upload")" || {
+                echo "::error::CurseForge upload failed for $name"; exit 1; }
+            file_id="$(printf '%s' "$response" | jq -r '.id // empty')"
+            if [[ -z "$file_id" ]]; then
+              echo "::error::CurseForge returned no file id for $name: $response"
+              exit 1
+            fi
+            echo "Uploaded $name as CurseForge file $file_id"
+            echo "- \`$name\`: [file $file_id](https://www.curseforge.com/projects/${project_id}/files/${file_id})" >> "$summary"
+          }
+
+          publish_file "$CF_PROJECT_ID" "$CF_STAGE/jdte-${RELEASE_VERSION}.jar"
+          if [[ -n "${CF_AE_PROJECT_ID:-}" ]]; then
+            publish_file "$CF_AE_PROJECT_ID" "$CF_STAGE/jdte-ae-${RELEASE_VERSION}.jar"
+          else
+            echo "::notice::CF_AE_PROJECT_ID is not configured: the JDTE-AE addon stays unpublished."
+          fi
+          cat "$summary" >> "$GITHUB_STEP_SUMMARY"
