@@ -2,7 +2,30 @@
 
 ### English
 
-#### v0.6.5.4 (Current)
+#### v0.6.5.7 (Current) — 2026-11-25
+
+- Fixed the Advanced Item Collector ignoring the AE Output Upgrade: each collected stack is now offered to the upgrade's bound network first (whole-stack, atomic), falling back to the facing container and the existing ME direct-insertion path.
+- Updated the collector's GuideME and Patchouli pages to list the AE Output upgrades and describe the insertion order.
+- Added a CI compile gate for every push and pull request, and automatic CurseForge publishing on tags where the JDTE-AE addon is an additional file of the release.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.7.
+
+Full details: [0.6.5.7 release notes](docs/releases/0.6.5.7.md).
+
+#### v0.6.5.6 — 2026-11-23
+
+- Brought the tiered solar panels back from JDTE-MoreContent and added JUnit plus NeoForge GameTest coverage to the release pipeline.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.6.
+
+Full details: [0.6.5.6 release notes](docs/releases/0.6.5.6.md).
+
+#### v0.6.5.5
+
+- Fixed the Large Pocket Generator stalling when powered by a Large Fuel Canister filled with high-tier JDT fuels; the burn counter no longer rounds to zero and total FE per operation is unchanged.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.5.
+
+Full details: [0.6.5.5 release notes](docs/releases/0.6.5.5.md).
+
+#### v0.6.5.4
 
 - Made Curios API an optional dependency rather than an undeclared hard requirement, resolving startup crashes when Curios is absent while preserving full Curios functionality when installed.
 - Decoupled `BigFluidTankItem` from `ICurioItem` and dynamically register Curios behaviors at runtime when Curios is available.
