@@ -343,7 +343,7 @@ Capability summary:
 - Fluid sender/receiver tiers expose fluid; powered tiers expose energy.
 - Life Extractors expose energy and fluid.
 - JDT Clickers expose fluid when `FLUID_STORAGE` is installed.
-- The Advanced Item Collector exposes no internal item capability. New drops use a chunk-indexed event path; existing drops use a configurable bounded round-robin scan. It writes to the adjacent inventory first and bypasses an ME Interface buffer only when the normal item handler cannot accept the complete stack and ME storage can.
+- The Advanced Item Collector exposes no internal item capability. New drops use a chunk-indexed event path; existing drops use a configurable bounded round-robin scan. It first offers each collected stack to the network bound to an installed AE Output Upgrade (whole-stack, atomic), then writes to the adjacent inventory, and bypasses an ME Interface buffer only when the normal item handler cannot accept the complete stack and ME storage can.
 - Extended Block Breakers, Block Swappers, Fluid Collectors, Fluid Placers, Clickers, Block Placers, and Sensors must override their T1 single-target discovery methods so configured `AreaAffectingBE` bounds reach the actual execution path.
 
 Machines with real I/O persist absolute side settings through `AutoIoConfigData`; `AutoIoTransferHelper` executes transfers on the server. Any slot-layout change must also verify auto-I/O mappings, directional capability exposure, and the client cache.

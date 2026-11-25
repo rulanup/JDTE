@@ -10,6 +10,7 @@ import com.direwolf20.justdirethings.setup.Registration;
 import com.direwolf20.justdirethings.util.interfacehelpers.AreaAffectingData;
 import com.direwolf20.justdirethings.util.interfacehelpers.FilterData;
 import com.direwolf20.justdirethings.util.interfacehelpers.RedstoneControlData;
+import com.jdte.common.integrations.ae2.AEOutputNetwork;
 import com.jdte.common.integrations.ae2.AdvancedItemCollectorAE2Integration;
 import com.jdte.common.upgrades.UpgradeHelper;
 import com.jdte.setup.JDTEBlockEntities;
@@ -119,8 +120,13 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
                 || !UpgradeHelper.mayRunWithUpgrades(this)) {
             return stack;
         }
+        // A linked AE Output Upgrade is an explicit request to return collected items to that
+        // network, so it is tried before the facing container and needs no attached inventory.
+        ItemStack networkRemainder = insertIntoLinkedNetwork(stack, simulate);
+        if (networkRemainder.isEmpty()) return ItemStack.EMPTY;
+
         IItemHandler inventory = getAttachedInventory();
-        if (inventory == null) return stack;
+        if (inventory == null) return networkRemainder;
 
         ItemStack normalRemainder = ItemHandlerHelper.insertItemStacked(inventory, stack, true);
         if (normalRemainder.isEmpty()) {
@@ -134,6 +140,22 @@ public class AdvancedItemCollectorBE extends BaseMachineBE
         }
 
         return simulate ? normalRemainder : ItemHandlerHelper.insertItemStacked(inventory, stack, false);
+    }
+
+    /**
+     * Sends one collected stack to the network bound to an installed AE Output Upgrade.
+     * Returns the stack unchanged when no card is installed, the card is unlinked, or the
+     * network cannot accept the complete stack; the caller then uses the facing container.
+     */
+    private ItemStack insertIntoLinkedNetwork(ItemStack stack, boolean simulate) {
+        if (!(level instanceof ServerLevel serverLevel) || !ModList.get().isLoaded("ae2")) return stack;
+        ItemStack upgrade = UpgradeHelper.getAEOutputUpgrade(this);
+        if (upgrade.isEmpty() || !AEOutputNetwork.isLinked(upgrade)) return stack;
+        if (AEOutputNetwork.insertItem(serverLevel, upgrade, stack, true) < stack.getCount()) return stack;
+        if (simulate) return ItemStack.EMPTY;
+        int inserted = AEOutputNetwork.insertItem(serverLevel, upgrade, stack, false);
+        int remainder = stack.getCount() - Math.max(0, Math.min(stack.getCount(), inserted));
+        return remainder == 0 ? ItemStack.EMPTY : stack.copyWithCount(remainder);
     }
 
     public boolean isAttachedInventoryAt(BlockPos pos) {
