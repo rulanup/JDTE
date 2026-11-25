@@ -18,7 +18,7 @@ The Advanced Item Collector uses JDT's Item Collector model and machine interfac
 | Collection point | Before world insertion, plus bounded existing-drop scans |
 | Destination | Adjacent inventory on the machine's facing side |
 | Internal buffer | None |
-| Supported upgrades | Range and Filter |
+| Supported upgrades | Range, Filter, AE Output (bound in a Wireless Access Point) |
 | Oversized threshold | 10,000,000 by default; configurable |
 
 New drops use an event-driven path rather than an area scan. The server checks only collectors indexed for the drop's chunk, and matching drops created during one tick are aggregated into one insertion. Existing drops are handled by a separate bounded round-robin scan: at most one due collector is scanned per server tick, every collector waits at least 10 ticks by default, and one scan processes at most 256 item entities. All three limits are configurable.
@@ -34,7 +34,9 @@ When a player breaks a container inside the configured area, any slot at or abov
 
 The oversized threshold applies only to pre-break container protection. For an AE2 ME Interface or an ExtendedAE Extended/Oversize Interface, ordinary and oversized collection first simulates the normal item handler. If that handler cannot accept the complete stack, the collector checks `ME_STORAGE` once and performs one atomic long-count direct insertion when the network has enough capacity. If direct insertion cannot accept everything, normal partial insertion is used and the remainder stays in the world. This path is independent of item count and can be disabled with `meDirectTransferEnabled`.
 
-The Advanced Item Collector accepts only Range and Filter Upgrades. Capacity, Fluid, speed, Creative, and other upgrades with no effect on event-driven collection cannot be inserted. The eight upgrade slots use JDTE's two-column layout. The machine has no internal item buffer and never creates item-flow particles.
+The Advanced Item Collector accepts Range and Filter Upgrades plus the AE Output and Advanced AE Output Upgrades. Capacity, Fluid, speed, Creative, and other upgrades with no effect on event-driven collection cannot be inserted. The eight upgrade slots use JDTE's two-column layout. The machine has no internal item buffer and never creates item-flow particles.
+
+An AE Output Upgrade bound in a Wireless Access Point UI makes the collector send each collected stack straight to that network: when the network accepts the complete stack it is used first and no facing container is needed; when the network rejects the stack or accepts only part of it, collection falls back to the facing container and the existing ME direct-insertion path. Both output tiers behave the same here, and only one card of either tier can be installed.
 
 ## Crafting
 
