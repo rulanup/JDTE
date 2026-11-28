@@ -2,7 +2,14 @@
 
 ### English
 
-#### v0.6.5.7 (Current) — 2026-11-25
+#### v0.6.5.8 (Current) — 2026-11-28
+
+- Fixed the Fluid Mixer's catalyst slot: the visible slot frame and the real menu slot were 30 px / 26 px apart, so clicking the frame inserted nothing. The slot now uses the same top-section origin the screen draws with.
+- Updated JDTE and the matching optional JDTE-AE addon to 0.6.5.8.
+
+Full details: [0.6.5.8 release notes](docs/releases/0.6.5.8.md).
+
+#### v0.6.5.7 — 2026-11-25
 
 - Fixed the Advanced Item Collector ignoring the AE Output Upgrade: each collected stack is now offered to the upgrade's bound network first (whole-stack, atomic), falling back to the facing container and the existing ME direct-insertion path.
 - Updated the collector's GuideME and Patchouli pages to list the AE Output upgrades and describe the insertion order.
