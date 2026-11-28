@@ -37,8 +37,13 @@ public abstract class FluidMixerContainer extends BaseMachineContainer {
         return stillValid(ContainerLevelAccess.create(player.level(), pos), player, machineBlock);
     }
 
-    public static final int CATALYST_SLOT_X = 94;
-    public static final int CATALYST_SLOT_Y = 14;
+    // BaseMachineScreen draws the widened top section at extraWidth / 2 px left and
+    // 26 px above the menu origin: topSectionLeft = guiLeft - extraWidth / 2 (30 for the
+    // mixer's extraWidth = 60) and topSectionTop = guiTop - 26. The screen draws the
+    // catalyst frame in that space, so the menu slot has to use the same origin or the
+    // visible frame is 30 px right / 26 px below the slot the player can actually click.
+    public static final int CATALYST_SLOT_X = 94 - 30;
+    public static final int CATALYST_SLOT_Y = 14 - 26;
 
     @Override
     public void addMachineSlots() {
